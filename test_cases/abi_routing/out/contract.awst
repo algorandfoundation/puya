@@ -1,51 +1,51 @@
 contract Reference
 {
   globals {
-    ['asa']: algopy.Asset
-    ['an_int']: algopy.UInt64
-    ['some_bytes']: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]]
-    ['creator']: algopy.Account
-    ['app']: algopy.Application
+    ['asa']: asset
+    ['an_int']: uint64
+    ['some_bytes']: arc4.static_array<arc4.byte, 3>
+    ['creator']: account
+    ['app']: application
   }
   
   constructor()
   {
-    this.asa: algopy.Asset = reinterpret_cast<algopy.Asset>(123u)
-    this.an_int: algopy.UInt64 = 2u
-    this.some_bytes: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]](7arc4u8, 8arc4u8, 9arc4u8)
-    this.creator: algopy.Account = txn<Sender>()
-    this.app: algopy.Application = reinterpret_cast<algopy.Application>(123u)
+    this.asa: asset = reinterpret_cast<asset>(123u)
+    this.an_int: uint64 = 2u
+    this.some_bytes: arc4.static_array<arc4.byte, 3> = new arc4.static_array<arc4.byte, 3>(7arc4u8, 8arc4u8, 9arc4u8)
+    this.creator: account = txn<Sender>()
+    this.app: application = reinterpret_cast<application>(123u)
     assert(reinterpret_cast<bool>(len(Method("get(uint64,byte[])byte[]"))), comment="has method selector")
   }
   
-  abimethod noop_with_uint64(a: algopy.arc4.UInt64): algopy.arc4.UInt8
+  abimethod noop_with_uint64(a: arc4.uint64): arc4.uint8
   {
-    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
-    return arc4_encode(result, algopy.arc4.UInt8)
+    result: uint64 = 1u + arc4_decode(a, uint64)
+    return arc4_encode(result, arc4.uint8)
   }
   
-  abimethod[name_override=all_the_things] full_abi_config(a: algopy.arc4.UInt64): algopy.arc4.UInt8
+  abimethod[name_override=all_the_things] full_abi_config(a: arc4.uint64): arc4.uint8
   {
-    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
-    return arc4_encode(result, algopy.arc4.UInt8)
+    result: uint64 = 1u + arc4_decode(a, uint64)
+    return arc4_encode(result, arc4.uint8)
   }
   
-  abimethod mixed_oca(a: algopy.arc4.UInt64): algopy.arc4.UInt8
+  abimethod mixed_oca(a: arc4.uint64): arc4.uint8
   {
-    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
-    return arc4_encode(result, algopy.arc4.UInt8)
+    result: uint64 = 1u + arc4_decode(a, uint64)
+    return arc4_encode(result, arc4.uint8)
   }
   
-  abimethod bare_abi_config(): None
+  abimethod bare_abi_config(): void
   {
     log('Hello World')
   }
   
-  abimethod opt_into_asset(asset: algopy.Asset): None
+  abimethod opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
-    this.asa: algopy.Asset = asset
+    this.asa: asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -54,66 +54,66 @@ contract Reference
     itxn_submit()
   }
   
-  abimethod with_transactions(asset: algopy.Asset, an_int: algopy.arc4.UInt64, pay: algopy.gtxn.PaymentTransaction, another_int: algopy.arc4.UInt64): None
+  abimethod with_transactions(asset: asset, an_int: arc4.uint64, pay: group_transaction_pay, another_int: arc4.uint64): void
   {
     assert(this.asa == asset, comment="is correct asset")
-    assert(arc4_decode(an_int, algopy.UInt64) == 1u, comment="is correct int")
+    assert(arc4_decode(an_int, uint64) == 1u, comment="is correct int")
     assert(gtxns<Receiver>(pay) == global<CurrentApplicationAddress>(), comment="is payment to app")
-    assert(arc4_decode(another_int, algopy.UInt64) == 2u, comment="is correct int")
+    assert(arc4_decode(another_int, uint64) == 2u, comment="is correct int")
   }
   
-  abimethod compare_assets(asset_a: algopy.Asset, asset_b: algopy.Asset): None
+  abimethod compare_assets(asset_a: asset, asset_b: asset): void
   {
     assert(asset_a == asset_b, comment="asset a == b")
   }
   
-  abimethod get_address(): algopy.arc4.Address
+  abimethod get_address(): arc4.address
   {
     return global<ZeroAddress>()
   }
   
-  abimethod get_asset(): algopy.arc4.UInt64
+  abimethod get_asset(): arc4.uint64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_application] get_app(): algopy.arc4.UInt64
+  abimethod[name_override=get_application] get_app(): arc4.uint64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_an_int] get_a_int(): algopy.arc4.UInt64
+  abimethod[name_override=get_an_int] get_a_int(): arc4.uint64
   {
     return 3arc4u64
   }
   
-  abimethod method_with_default_args(asset_from_storage: algopy.Asset, asset_from_function: algopy.Asset, account_from_storage: algopy.Account, account_from_function: algopy.Account, application_from_storage: algopy.Application, application_from_function: algopy.Application, bytes_from_storage: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]], int_from_storage: algopy.arc4.UInt64, int_from_function: algopy.arc4.UInt64): None
+  abimethod method_with_default_args(asset_from_storage: asset, asset_from_function: asset, account_from_storage: account, account_from_function: account, application_from_storage: application, application_from_function: application, bytes_from_storage: arc4.static_array<arc4.byte, 3>, int_from_storage: arc4.uint64, int_from_function: arc4.uint64): void
   {
-    assert(asset_from_storage == reinterpret_cast<algopy.Asset>(123u), comment="wrong asset from storage")
-    assert(asset_from_function == reinterpret_cast<algopy.Asset>(456u), comment="wrong asset from function")
+    assert(asset_from_storage == reinterpret_cast<asset>(123u), comment="wrong asset from storage")
+    assert(asset_from_function == reinterpret_cast<asset>(456u), comment="wrong asset from function")
     assert(account_from_storage == global<CreatorAddress>(), comment="wrong account from storage")
     assert(account_from_function == global<ZeroAddress>(), comment="wrong account from function")
-    assert(application_from_storage == reinterpret_cast<algopy.Application>(123u), comment="wrong application from storage")
-    assert(application_from_function == reinterpret_cast<algopy.Application>(456u), comment="wrong application from function")
-    assert(reinterpret_cast<algopy.BigUInt>(bytes_from_storage[0u]) == reinterpret_cast<algopy.BigUInt>(7arc4u8), comment="wrong 0th byte from storage")
-    assert(reinterpret_cast<algopy.BigUInt>(bytes_from_storage[1u]) == reinterpret_cast<algopy.BigUInt>(8arc4u8), comment="wrong 1st byte from storage")
-    assert(reinterpret_cast<algopy.BigUInt>(bytes_from_storage[2u]) == reinterpret_cast<algopy.BigUInt>(9arc4u8), comment="wrong 2nd byte from storage")
-    assert(arc4_decode(int_from_storage, algopy.UInt64) == 2u, comment="wrong int from storage")
-    assert(arc4_decode(int_from_function, algopy.UInt64) == 3u, comment="wrong int from function")
+    assert(application_from_storage == reinterpret_cast<application>(123u), comment="wrong application from storage")
+    assert(application_from_function == reinterpret_cast<application>(456u), comment="wrong application from function")
+    assert(reinterpret_cast<biguint>(bytes_from_storage[0u]) == reinterpret_cast<biguint>(7arc4u8), comment="wrong 0th byte from storage")
+    assert(reinterpret_cast<biguint>(bytes_from_storage[1u]) == reinterpret_cast<biguint>(8arc4u8), comment="wrong 1st byte from storage")
+    assert(reinterpret_cast<biguint>(bytes_from_storage[2u]) == reinterpret_cast<biguint>(9arc4u8), comment="wrong 2nd byte from storage")
+    assert(arc4_decode(int_from_storage, uint64) == 2u, comment="wrong int from storage")
+    assert(arc4_decode(int_from_function, uint64) == 3u, comment="wrong int from function")
   }
   
-  abimethod method_with_more_than_15_args(a: algopy.arc4.UInt64, b: algopy.arc4.UInt64, c: algopy.arc4.UInt64, d: algopy.UInt64, asset: algopy.Asset, e: algopy.arc4.UInt64, f: algopy.arc4.UInt64, pay: algopy.gtxn.PaymentTransaction, g: algopy.arc4.UInt64, h: algopy.arc4.UInt64, i: algopy.arc4.UInt64, j: algopy.arc4.UInt64, k: algopy.arc4.UInt64, l: algopy.arc4.UInt64, m: algopy.arc4.UInt64, n: algopy.arc4.UInt64, o: algopy.arc4.UInt64, p: algopy.UInt64, q: algopy.arc4.UInt64, r: algopy.arc4.UInt64, s: algopy.Bytes, t: algopy.Bytes, asset2: algopy.Asset, pay2: algopy.gtxn.PaymentTransaction, u: algopy.arc4.UInt64, v: algopy.arc4.UInt64): algopy.arc4.UInt64
+  abimethod method_with_more_than_15_args(a: arc4.uint64, b: arc4.uint64, c: arc4.uint64, d: uint64, asset: asset, e: arc4.uint64, f: arc4.uint64, pay: group_transaction_pay, g: arc4.uint64, h: arc4.uint64, i: arc4.uint64, j: arc4.uint64, k: arc4.uint64, l: arc4.uint64, m: arc4.uint64, n: arc4.uint64, o: arc4.uint64, p: uint64, q: arc4.uint64, r: arc4.uint64, s: bytes, t: bytes, asset2: asset, pay2: group_transaction_pay, u: arc4.uint64, v: arc4.uint64): arc4.uint64
   {
     assert(txn<NumAppArgs>() == 16u)
     assert(gtxns<Amount>(pay) == 100000u)
     assert(gtxns<Amount>(pay2) == 200000u)
-    assert(reinterpret_cast<bool>(reinterpret_cast<algopy.UInt64>(asset)))
-    assert(reinterpret_cast<bool>(reinterpret_cast<algopy.UInt64>(asset2)))
+    assert(reinterpret_cast<bool>(reinterpret_cast<uint64>(asset)))
+    assert(reinterpret_cast<bool>(reinterpret_cast<uint64>(asset2)))
     log(s + t)
-    return arc4_encode(arc4_decode(a, algopy.UInt64) + arc4_decode(b, algopy.UInt64) + arc4_decode(c, algopy.UInt64) + d + arc4_decode(e, algopy.UInt64) + arc4_decode(f, algopy.UInt64) + arc4_decode(g, algopy.UInt64) + arc4_decode(h, algopy.UInt64) + arc4_decode(i, algopy.UInt64) + arc4_decode(j, algopy.UInt64) + arc4_decode(k, algopy.UInt64) + arc4_decode(l, algopy.UInt64) + arc4_decode(m, algopy.UInt64) + arc4_decode(n, algopy.UInt64) + arc4_decode(o, algopy.UInt64) + p + arc4_decode(q, algopy.UInt64) + arc4_decode(r, algopy.UInt64) + arc4_decode(u, algopy.UInt64) + arc4_decode(v, algopy.UInt64), algopy.arc4.UInt64)
+    return arc4_encode(arc4_decode(a, uint64) + arc4_decode(b, uint64) + arc4_decode(c, uint64) + d + arc4_decode(e, uint64) + arc4_decode(f, uint64) + arc4_decode(g, uint64) + arc4_decode(h, uint64) + arc4_decode(i, uint64) + arc4_decode(j, uint64) + arc4_decode(k, uint64) + arc4_decode(l, uint64) + arc4_decode(m, uint64) + arc4_decode(n, uint64) + arc4_decode(o, uint64) + p + arc4_decode(q, uint64) + arc4_decode(r, uint64) + arc4_decode(u, uint64) + arc4_decode(v, uint64), arc4.uint64)
   }
   
-  abimethod hello_with_algopy_string(name: algopy.String): algopy.String
+  abimethod hello_with_algopy_string(name: string): string
   {
     return 'Hello ' + name + '!'
   }

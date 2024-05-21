@@ -26,9 +26,9 @@ class MyContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def calculate(
         self,
-        a: algopy.arc4.UInt64,
-        b: algopy.arc4.UInt64,
-    ) -> algopy.arc4.UInt64: ...
+        a: algopy.arc4.UIntN[typing.Literal[64]],
+        b: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod(allow_actions=['CloseOut'])
     def close_out(

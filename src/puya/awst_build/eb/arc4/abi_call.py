@@ -36,11 +36,16 @@ from puya.awst_build.eb.arc4._utils import (
     get_arc4_args_and_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.base import (
+    ExpressionBuilder,
+    FunctionBuilder,
+    TypeClassExpressionBuilder,
+)
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
+from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import get_decorators_by_fullname, resolve_method_from_type_info
 from puya.errors import CodeError, InternalError
 
@@ -75,14 +80,15 @@ _APP_TRANSACTION_FIELDS = {
 }
 
 
-class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
+class ARC4ClientClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
+        typ: pytypes.PyType,
         source_location: SourceLocation,
         type_info: mypy.nodes.TypeInfo,
     ):
-        super().__init__(source_location)
+        super().__init__(typ, source_location)
         self.context = context
         self.type_info = type_info
 
@@ -105,7 +111,7 @@ class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
         return ARC4ClientMethodExpressionBuilder(self.context, func_or_dec, location)
 
 
-class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
+class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,  # TODO: yeet me
@@ -130,7 +136,7 @@ class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
         )
 
 
-class ABICallGenericClassExpressionBuilder(IntermediateExpressionBuilder):
+class ABICallGenericClassExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -143,7 +149,7 @@ class ABICallGenericClassExpressionBuilder(IntermediateExpressionBuilder):
         return _abi_call(args, arg_typs, arg_kinds, arg_names, location, abi_return_type=None)
 
 
-class ABICallClassExpressionBuilder(IntermediateExpressionBuilder):
+class ABICallClassExpressionBuilder(FunctionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.PseudoGenericFunctionType)
         self.abi_return_type = typ.return_type
@@ -224,14 +230,12 @@ def _abi_call(
                 location,
             )
 
-    return var_expression(
-        _create_abi_call_expr(
-            signature,
-            arc4_args,
-            abi_return_type,
-            abi_call_expr.transaction_kwargs,
-            location,
-        )
+    return _create_abi_call_expr(
+        signature,
+        arc4_args,
+        abi_return_type,
+        abi_call_expr.transaction_kwargs,
+        location,
     )
 
 
@@ -277,7 +281,7 @@ def _create_abi_call_expr(
     declared_result_pytype: pytypes.PyType | None,
     transaction_kwargs: dict[str, ExpressionBuilder | Literal],
     location: SourceLocation,
-) -> Expression:
+) -> ExpressionBuilder:
     if signature.return_type is None:
         raise InternalError("Expected ARC4Signature.return_type to be defined", location)
     abi_arg_exprs: list[Expression] = [
@@ -356,6 +360,7 @@ def _create_abi_call_expr(
         bad_args = "', '".join(transaction_kwargs)
         raise CodeError(f"Unknown arguments: '{bad_args}'", location)
 
+    itxn_result_pytype = pytypes.InnerTransactionResultTypes[constants.TransactionType.appl]
     create_itxn = CreateInnerTransaction(
         fields=fields,
         wtype=wtypes.WInnerTransactionFields.from_type(constants.TransactionType.appl),
@@ -364,11 +369,11 @@ def _create_abi_call_expr(
     itxn = SubmitInnerTransaction(
         itxns=(create_itxn,),
         source_location=location,
-        wtype=wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
+        wtype=itxn_result_pytype.wtype,
     )
 
     if not _is_typed(declared_result_pytype):
-        return itxn
+        return InnerTransactionExpressionBuilder(itxn, itxn_result_pytype)
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
         source_location=location,
@@ -376,9 +381,7 @@ def _create_abi_call_expr(
         field=TxnFields.last_log,
         wtype=TxnFields.last_log.wtype,
     )
-    abi_result = ARC4FromLogBuilder.abi_expr_from_log(
-        signature.return_type.wtype, last_log, location
-    )
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
     if declared_result_pytype != signature.return_type:
@@ -395,13 +398,12 @@ def _create_abi_call_expr(
         else:
             raise InternalError("Return type does not match signature type", location)
 
-    return TupleExpression.from_items(
-        (
-            abi_result,
-            itxn_tmp,
-        ),
-        location,
+    result_pytype = pytypes.GenericTupleType.parameterise(
+        [declared_result_pytype, itxn_result_pytype], location
     )
+    tuple_expr = TupleExpression.from_items((abi_result, itxn_tmp), location)
+    assert tuple_expr.wtype == result_pytype.wtype  # TODO: fixme
+    return TupleExpressionBuilder(tuple_expr, result_pytype)
 
 
 def _add_array_exprs(

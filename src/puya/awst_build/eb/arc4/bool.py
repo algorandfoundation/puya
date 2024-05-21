@@ -5,6 +5,7 @@ import typing
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, BoolConstant, Expression, Literal
+from puya.awst_build import pytypes
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -18,10 +19,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
-    from puya.awst_build.eb.base import (
-        ExpressionBuilder,
-    )
+    from puya.awst_build.eb.base import ExpressionBuilder
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -29,7 +27,7 @@ logger = log.get_logger(__name__)
 
 class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.arc4_bool_wtype, location)
+        super().__init__(pytypes.ARC4BoolType, location)
 
     @typing.override
     def call(
@@ -49,17 +47,16 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {wtypes.bool_wtype}"
                 )
+        wtype = self.produces()
+        assert isinstance(wtype, wtypes.ARC4Type)
         return ARC4BoolExpressionBuilder(
-            ARC4Encode(
-                value=native_bool,
-                source_location=location,
-                wtype=self.produces(),
-            )
+            ARC4Encode(value=native_bool, wtype=wtype, source_location=location)
         )
 
 
 class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
-    wtype = wtypes.arc4_bool_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.ARC4BoolType, expr, native_pytype=pytypes.BoolType)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)

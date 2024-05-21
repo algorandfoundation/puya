@@ -1,19 +1,21 @@
 import typing
 
-from algopy import Bytes, UInt64
+from algopy import Bytes, UInt64, String
 
-_TContent = typing.TypeVar("_TContent")
 _TKey = typing.TypeVar("_TKey")
+_TValue = typing.TypeVar("_TValue")
 
-class Box(typing.Generic[_TContent]):
+class Box(typing.Generic[_TValue]):
     """
     Box abstracts the reading and writing of a single value to a single box.
     The box size will be reconfigured dynamically to fit the size of the value being assigned to
     it.
     """
 
-    # TODO: support String | str for key, ensure default key works
-    def __init__(self, type_: type[_TContent], /, *, key: Bytes | bytes = ...) -> None: ...
+    # TODO: ensure default key works, ensure str/String work
+    def __init__(
+        self, type_: type[_TValue], /, *, key: bytes | str | Bytes | String = ...
+    ) -> None: ...
     def __bool__(self) -> bool:
         """
         Returns True if the box exists, regardless of the truthiness of the contents
@@ -21,25 +23,25 @@ class Box(typing.Generic[_TContent]):
         """
 
     @property
-    def value(self) -> _TContent:
+    def value(self) -> _TValue:
         """Retrieve the contents of the box. Fails if the box has not been created."""
 
     @value.setter
-    def value(self, value: _TContent) -> None:
+    def value(self, value: _TValue) -> None:
         """Write _value_ to the box. Creates the box if it does not exist."""
 
     @value.deleter
     def value(self) -> None:
         """Delete the box"""
 
-    def get(self, *, default: _TContent) -> _TContent:
+    def get(self, *, default: _TValue) -> _TValue:
         """
         Retrieve the contents of the box, or return the default value if the box has not been
         created.
         @param default: The default value to return if the box has not been created
         """
 
-    def maybe(self) -> tuple[_TContent, bool]:
+    def maybe(self) -> tuple[_TValue, bool]:
         """
         Retrieve the contents of the box if it exists, and return a boolean indicating if the box
         exists.
@@ -59,8 +61,8 @@ class BoxRef:
     value.
     """
 
-    # TODO: support String | str for key, ensure default key works
-    def __init__(self, /, *, key: Bytes | bytes = ...) -> None: ...
+    # TODO: ensure default key works, ensure str/String work
+    def __init__(self, /, *, key: bytes | str | Bytes | String = ...) -> None: ...
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""
 
@@ -144,23 +146,28 @@ class BoxRef:
         Get the length of this Box. Fails if the box does not exist
         """
 
-class BoxMap(typing.Generic[_TKey, _TContent]):
+class BoxMap(typing.Generic[_TKey, _TValue]):
     """
     BoxMap abstracts the reading and writing of a set of boxes using a common key and content type.
     Each composite key (prefix + key) still needs to be made available to the application via the
     `boxes` property of the Transaction.
     """
 
-    # TODO: support String | str for key_prefix, ensure default key_prefix works
+    # TODO: ensure default key_prefix works, ensure str/String work
     def __init__(
-        self, key_type: type[_TKey], type_: type[_TContent], /, *, key_prefix: Bytes | bytes = ...
+        self,
+        key_type: type[_TKey],
+        value_type: type[_TValue],
+        /,
+        *,
+        key_prefix: bytes | str | Bytes | String = ...,
     ) -> None: ...
-    def __getitem__(self, key: _TKey) -> _TContent:
+    def __getitem__(self, key: _TKey) -> _TValue:
         """
         Retrieve the contents of a keyed box. Fails if the box for the key has not been created.
         """
 
-    def __setitem__(self, key: _TKey, value: _TContent) -> None:
+    def __setitem__(self, key: _TKey, value: _TValue) -> None:
         """Write _value_ to a keyed box. Creates the box if it does not exist"""
 
     def __delitem__(self, key: _TKey) -> None:
@@ -172,7 +179,7 @@ class BoxMap(typing.Generic[_TKey, _TContent]):
         truthiness of the contents of the box
         """
 
-    def get(self, key: _TKey, *, default: _TContent) -> _TContent:
+    def get(self, key: _TKey, *, default: _TValue) -> _TValue:
         """
         Retrieve the contents of a keyed box, or return the default value if the box has not been
         created.
@@ -180,7 +187,7 @@ class BoxMap(typing.Generic[_TKey, _TContent]):
         @param default: The default value to return if the box has not been created.
         """
 
-    def maybe(self, key: _TKey) -> tuple[_TContent, bool]:
+    def maybe(self, key: _TKey) -> tuple[_TValue, bool]:
         """
         Retrieve the contents of a keyed box if it exists, and return a boolean indicating if the
         box exists.

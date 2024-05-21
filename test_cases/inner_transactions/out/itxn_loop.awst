@@ -2,10 +2,10 @@ contract MyContract
 {
   approval_program(): bool
   {
-    note: algopy.Bytes = 'ABCDE'
-    app_params: algopy.itxn.ApplicationCall = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"0A8101">, ClearStateProgramPages=hex<"0A8101">, OnCompletion=DeleteApplication, Note='')
+    note: bytes = 'ABCDE'
+    app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"0A8101">, ClearStateProgramPages=hex<"0A8101">, OnCompletion=DeleteApplication, Note='')
     for i in range(0u, 4u, 1u) {
-      i_note: algopy.Bytes = extract3(note, 0u, i)
+      i_note: bytes = extract3(note, 0u, i)
       switch (i) {
         case 1u: {
           update_inner_transaction(app_params,Note=i_note, ApplicationArgs=('1'))
@@ -17,7 +17,7 @@ contract MyContract
           update_inner_transaction(app_params,Note=i_note, ApplicationArgs=('3', '2', '1'))
         }
       }
-      app_txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(app_params)
+      app_txn: inner_transaction_appl = submit_txn(app_params)
       log(app_txn.Note)
       log(itob(app_txn.NumAppArgs))
     }

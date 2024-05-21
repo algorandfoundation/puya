@@ -2,44 +2,44 @@ contract Arc4ArraysContract
 {
   approval_program(): bool
   {
-    dynamic_uint8_array: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8)
-    total: algopy.UInt64 = 0u
+    dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    total: uint64 = 0u
     for uint8_item in dynamic_uint8_array {
-      total += arc4_decode(uint8_item, algopy.UInt64)
+      total += arc4_decode(uint8_item, uint64)
     }
     assert(total == 3u, comment="Total should be sum of dynamic_uint8_array items")
-    aliased_dynamic: algopy.arc4.DynamicArray[algopy.arc4.UInt16] = new algopy.arc4.DynamicArray[algopy.arc4.UInt16](1arc4u16)
+    aliased_dynamic: arc4.dynamic_array<arc4.uint16> = new arc4.dynamic_array<arc4.uint16>(1arc4u16)
     for uint16_item in aliased_dynamic {
-      total += arc4_decode(uint16_item, algopy.UInt64)
+      total += arc4_decode(uint16_item, uint64)
     }
     assert(total == 4u, comment="Total should now include sum of aliased_dynamic items")
-    dynamic_string_array: algopy.arc4.DynamicArray[algopy.arc4.String] = new algopy.arc4.DynamicArray[algopy.arc4.String](arc4_encode('Hello', algopy.arc4.String), arc4_encode('World', algopy.arc4.String))
+    dynamic_string_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Hello', arc4.string), arc4_encode('World', arc4.string))
     assert(extract_uint16(dynamic_string_array, 0u) == 2u)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array[0u]) == reinterpret_cast<algopy.Bytes>(arc4_encode('Hello', algopy.arc4.String)))
-    result: algopy.String = ''
+    assert(reinterpret_cast<bytes>(dynamic_string_array[0u]) == reinterpret_cast<bytes>(arc4_encode('Hello', arc4.string)))
+    result: string = ''
     for (index, string_item) in enumerate(dynamic_string_array) {
       if (index == 0u) {
-        result: algopy.String = arc4_decode(string_item, algopy.String)
+        result: string = arc4_decode(string_item, string)
       } else {
-        result += ' ' + arc4_decode(string_item, algopy.String)
+        result += ' ' + arc4_decode(string_item, string)
       }
     }
     assert(result == 'Hello World')
-    static_uint32_array: algopy.arc4.StaticArray[algopy.arc4.UInt32, typing.Literal[4]] = new algopy.arc4.StaticArray[algopy.arc4.UInt32, typing.Literal[4]](1arc4u32, 10arc4u32, 255arc4u32, 128arc4u32)
+    static_uint32_array: arc4.static_array<arc4.uint32, 4> = new arc4.static_array<arc4.uint32, 4>(1arc4u32, 10arc4u32, 255arc4u32, 128arc4u32)
     for uint32_item in static_uint32_array {
-      total += arc4_decode(uint32_item, algopy.UInt64)
+      total += arc4_decode(uint32_item, uint64)
     }
     assert(total == 398u)
-    aliased_static: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[1]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[1]](101arc4u8)
-    index: algopy.UInt64 = 0u
-    assert(arc4_decode(aliased_static[0u], algopy.UInt64) + arc4_decode(aliased_static[index], algopy.UInt64) == 202u)
-    static_string_array: algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[2]](arc4_encode('Ping', algopy.arc4.String), arc4_encode('Pong', algopy.arc4.String))
-    result: algopy.String = ''
+    aliased_static: arc4.static_array<arc4.uint8, 1> = new arc4.static_array<arc4.uint8, 1>(101arc4u8)
+    index: uint64 = 0u
+    assert(arc4_decode(aliased_static[0u], uint64) + arc4_decode(aliased_static[index], uint64) == 202u)
+    static_string_array: arc4.static_array<arc4.string, 2> = new arc4.static_array<arc4.string, 2>(arc4_encode('Ping', arc4.string), arc4_encode('Pong', arc4.string))
+    result: string = ''
     for (index, string_item) in enumerate(static_string_array) {
       if (index == 0u) {
-        result: algopy.String = arc4_decode(string_item, algopy.String)
+        result: string = arc4_decode(string_item, string)
       } else {
-        result += ' ' + arc4_decode(string_item, algopy.String)
+        result += ' ' + arc4_decode(string_item, string)
       }
     }
     assert(result == 'Ping Pong')
@@ -52,8 +52,8 @@ contract Arc4ArraysContract
     return true
   }
   
-  subroutine hash_as_array(commitment_args_concat: algopy.Bytes): algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]
+  subroutine hash_as_array(commitment_args_concat: bytes): arc4.static_array<arc4.byte, 32>
   {
-    return reinterpret_cast<algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]>(sha3_256(commitment_args_concat))
+    return reinterpret_cast<arc4.static_array<arc4.byte, 32>>(sha3_256(commitment_args_concat))
   }
 }

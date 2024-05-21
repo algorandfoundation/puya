@@ -52,26 +52,6 @@ class ToCodeVisitor(
             result.extend(lines)
         return "\n".join(result).strip()
 
-    def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
-        return f"{expr.proxy.accept(self)}.value"
-
-    def visit_box_proxy_expression(self, expr: nodes.BoxProxyExpression) -> str:
-        if expr.wtype == wtypes.box_ref_proxy_type:
-            return f"BoxRef({expr.key.accept(self)})"
-        return f"Box({expr.key.accept(self)})"
-
-    def visit_box_key_expression(self, expr: nodes.BoxKeyExpression) -> str:
-        match expr.proxy:
-            case nodes.BoxProxyExpression(key=key):
-                return key.accept(self)
-            case nodes.BoxProxyField(field_name=field):
-                return f"this.{field}.key"
-            case _:
-                return f"{expr.proxy.accept(self)}.key"
-
-    def visit_box_length(self, expr: nodes.BoxLength) -> str:
-        return f"len({expr.box_key.accept(self)})"
-
     def visit_arc4_decode(self, expr: nodes.ARC4Decode) -> str:
         return f"arc4_decode({expr.value.accept(self)}, {expr.wtype})"
 
@@ -90,19 +70,22 @@ class ToCodeVisitor(
         )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        if expr.field_name is not None:
-            return f"this.{expr.field_name}"
+        if expr.member_name is not None:
+            return f"this.{expr.member_name}"
         else:
             return f"GlobalState[{expr.key.accept(self)}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        if expr.field_name is not None:
-            return f"this.{expr.field_name}[{expr.account.accept(self)}]"
+        if expr.member_name is not None:
+            return f"this.{expr.member_name}[{expr.account.accept(self)}]"
         else:
             return f"LocalState[{expr.key.accept}, {expr.account.accept(self)}]"
 
-    def visit_box_proxy_field(self, expr: nodes.BoxProxyField) -> str:
-        return f"this.{expr.field_name}"
+    def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
+        if expr.member_name is not None:
+            return f"this.{expr.member_name}"
+        else:
+            return f"Box[{expr.key.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.values)

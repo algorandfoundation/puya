@@ -1,23 +1,23 @@
 contract Reference
 {
   globals {
-    ['asa']: algopy.Asset
+    ['asa']: asset
   }
   
   constructor()
   {
-    this.asa: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
+    this.asa: asset = reinterpret_cast<asset>(0u)
   }
   
   approval_program(): bool
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == 'opt_in') {
-        asset: algopy.Asset = txna<Assets, 0>()
+        asset: asset = txna<Assets, 0>()
         this::opt_into_asset(asset)
       } else {
         if (txna<ApplicationArgs, 0>() == 'is_opted_in') {
-          asset: algopy.Asset = txna<Assets, 0>()
+          asset: asset = txna<Assets, 0>()
           this::is_opted_asset(asset)
         } else {
           assert(false, comment="Expected opt_in or is_opted_in")
@@ -32,11 +32,11 @@ contract Reference
     return true
   }
   
-  subroutine opt_into_asset(asset: algopy.Asset): None
+  subroutine opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
-    this.asa: algopy.Asset = asset
+    this.asa: asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -45,7 +45,7 @@ contract Reference
     itxn_submit()
   }
   
-  subroutine is_opted_asset(asset: algopy.Asset): None
+  subroutine is_opted_asset(asset: asset): void
   {
     assert(this.asa == asset, comment="asset self.asa == asset")
     assert(checked_maybe(asset_params_get<AssetTotal>(asset)) == 10000000u, comment="total")

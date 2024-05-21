@@ -5,28 +5,28 @@ contract MyContract
     for i in reversed(range(0u, 0u, 1u)) {
       log(itob(i))
     }
-    for x in reversed(new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[0]]()) {
-      log(reinterpret_cast<algopy.Bytes>(x))
+    for x in reversed(new arc4.static_array<arc4.uint8, 0>()) {
+      log(reinterpret_cast<bytes>(x))
     }
-    test_array: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]](0arc4u8, 0arc4u8, 0arc4u8, 0arc4u8)
+    test_array: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(0arc4u8, 0arc4u8, 0arc4u8, 0arc4u8)
     for (index, item) in enumerate(reversed(range(0u, 4u, 1u))) {
-      test_array[index]: algopy.arc4.UInt8 = arc4_encode(item, algopy.arc4.UInt8)
+      test_array[index]: arc4.uint8 = arc4_encode(item, arc4.uint8)
     }
-    assert(reinterpret_cast<algopy.Bytes>(test_array) == hex<"03020100">)
+    assert(reinterpret_cast<bytes>(test_array) == hex<"03020100">)
     for (index, item) in reversed(enumerate(reversed(range(4u, 8u, 1u)))) {
-      test_array[index]: algopy.arc4.UInt8 = arc4_encode(item, algopy.arc4.UInt8)
+      test_array[index]: arc4.uint8 = arc4_encode(item, arc4.uint8)
       if (index == 2u) {
         break
       }
     }
-    assert(reinterpret_cast<algopy.Bytes>(test_array) == hex<"03020504">)
-    some_strings: algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[3]] = new algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[3]](arc4_encode('a', algopy.arc4.String), arc4_encode('b', algopy.arc4.String), arc4_encode('c', algopy.arc4.String))
-    some_string_reversed: algopy.arc4.String = arc4_encode('', algopy.arc4.String)
+    assert(reinterpret_cast<bytes>(test_array) == hex<"03020504">)
+    some_strings: arc4.static_array<arc4.string, 3> = new arc4.static_array<arc4.string, 3>(arc4_encode('a', arc4.string), arc4_encode('b', arc4.string), arc4_encode('c', arc4.string))
+    some_string_reversed: arc4.string = arc4_encode('', arc4.string)
     for str_item in reversed(some_strings) {
       some_string_reversed.extend(str_item)
     }
-    assert(reinterpret_cast<algopy.Bytes>(some_string_reversed) == reinterpret_cast<algopy.Bytes>(arc4_encode('cba', algopy.arc4.String)))
-    bytes_reversed_with_index: algopy.Bytes = ''
+    assert(reinterpret_cast<bytes>(some_string_reversed) == reinterpret_cast<bytes>(arc4_encode('cba', arc4.string)))
+    bytes_reversed_with_index: bytes = ''
     for (index, bytes_item) in reversed(enumerate('HELLO')) {
       bytes_reversed_with_index += itob(index)[-1:] + bytes_item
     }
@@ -34,14 +34,14 @@ contract MyContract
     for (index, tuple_item) in enumerate(reversed((0u, 1u, 2u, 3u))) {
       assert(index + tuple_item == 3u)
     }
-    prev_item: algopy.UInt64 = 0u
-    prev_index: algopy.UInt64 = 99u
+    prev_item: uint64 = 0u
+    prev_index: uint64 = 99u
     for (index, tuple_item) in reversed(enumerate(reversed((5u, 6u, 7u, 8u)))) {
       assert(prev_item < tuple_item)
       assert(prev_index > index)
       assert(index + tuple_item == 8u)
-      prev_item: algopy.UInt64 = tuple_item
-      prev_index: algopy.UInt64 = index
+      prev_item: uint64 = tuple_item
+      prev_index: uint64 = index
     }
     return true
   }

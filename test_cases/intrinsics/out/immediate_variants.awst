@@ -2,10 +2,10 @@ contract ImmediateVariants
 {
   approval_program(): bool
   {
-    num_app_args: algopy.UInt64 = txn<NumAppArgs>()
+    num_app_args: uint64 = txn<NumAppArgs>()
     assert(gtxn<0, NumAppArgs>() == num_app_args)
     assert(gtxns<NumAppArgs>(0u) == num_app_args)
-    first_arg: algopy.Bytes = txna<ApplicationArgs, 0>()
+    first_arg: bytes = txna<ApplicationArgs, 0>()
     assert(txnas<ApplicationArgs>(0u) == first_arg)
     assert(gtxna<0, ApplicationArgs, 0>() == first_arg)
     assert(gtxnas<0, ApplicationArgs>(0u) == first_arg)
@@ -19,7 +19,7 @@ contract ImmediateVariants
     itxn_field<Fee>(0u)
     itxn_field<Fee>(0u)
     itxn_field<ApplicationArgs>(first_arg)
-    second_arg: algopy.Bytes = first_arg + '2'
+    second_arg: bytes = first_arg + '2'
     itxn_field<ApplicationArgs>(second_arg)
     itxn_submit()
     assert(itxn<NumAppArgs>() == 2u)

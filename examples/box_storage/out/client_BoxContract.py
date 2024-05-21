@@ -10,7 +10,7 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def set_boxes(
         self,
-        a: algopy.arc4.UInt64,
+        a: algopy.arc4.UIntN[typing.Literal[64]],
         b: algopy.arc4.DynamicBytes,
         c: algopy.arc4.String,
     ) -> None: ...
@@ -18,7 +18,7 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def read_boxes(
         self,
-    ) -> algopy.arc4.Tuple[algopy.arc4.UInt64, algopy.arc4.DynamicBytes, algopy.arc4.String]: ...
+    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.DynamicBytes, algopy.arc4.String]: ...
 
     @algopy.arc4.abimethod
     def boxes_exist(
@@ -48,18 +48,18 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def box_map_set(
         self,
-        key: algopy.arc4.UInt64,
+        key: algopy.arc4.UIntN[typing.Literal[64]],
         value: algopy.arc4.String,
     ) -> None: ...
 
     @algopy.arc4.abimethod
     def box_map_get(
         self,
-        key: algopy.arc4.UInt64,
+        key: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.String: ...
 
     @algopy.arc4.abimethod
     def box_map_exists(
         self,
-        key: algopy.arc4.UInt64,
+        key: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.Bool: ...

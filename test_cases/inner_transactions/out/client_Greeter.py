@@ -10,7 +10,7 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def bootstrap(
         self,
-    ) -> algopy.arc4.UInt64: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
     def log_greetings(

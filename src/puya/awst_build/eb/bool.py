@@ -5,14 +5,15 @@ import typing
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BoolConstant,
+    Expression,
     Literal,
     Not,
     NumericComparison,
     NumericComparisonExpression,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
@@ -27,7 +28,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -35,7 +35,7 @@ logger = log.get_logger(__name__)
 
 class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.bool_wtype, location)
+        super().__init__(pytypes.BoolType, location)
 
     @typing.override
     def call(
@@ -57,7 +57,8 @@ class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class BoolExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bool_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.BoolType, expr)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         if not negate:

@@ -22,6 +22,7 @@ from puya.awst.nodes import (
     UInt64UnaryOperation,
     UInt64UnaryOperator,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -38,7 +39,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -46,7 +46,7 @@ logger = log.get_logger(__name__)
 
 class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.uint64_wtype, location)
+        super().__init__(pytypes.UInt64Type, location)
 
     @typing.override
     def call(
@@ -70,7 +70,8 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class UInt64ExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.uint64_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.UInt64Type, expr)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         as_bool = ReinterpretCast(

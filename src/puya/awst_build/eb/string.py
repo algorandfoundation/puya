@@ -30,7 +30,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -52,7 +52,7 @@ logger = log.get_logger(__name__)
 
 class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.string_wtype, location)
+        super().__init__(pytypes.StringType, location)
 
     @typing.override
     def call(
@@ -77,9 +77,10 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 
 
 class StringExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.string_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.StringType, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
@@ -90,7 +91,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
             case "join":
                 return _StringJoin(self.expr, location)
             case _:
-                raise CodeError(f"Unrecognised member of {self.wtype}: {name}", location)
+                return super().member_access(name, location)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
@@ -173,12 +174,13 @@ class StringExpressionBuilder(ValueExpressionBuilder):
         return BoolExpressionBuilder(is_substring_expr)
 
 
-class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
+class _StringStartsOrEndsWith(FunctionBuilder):
     def __init__(self, base: Expression, location: SourceLocation, *, at_start: bool):
         super().__init__(location)
         self._base = base
         self._at_start = at_start
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -229,11 +231,12 @@ class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
         return BoolExpressionBuilder(cond)
 
 
-class _StringJoin(IntermediateExpressionBuilder):
+class _StringJoin(FunctionBuilder):
     def __init__(self, base: Expression, location: SourceLocation):
         super().__init__(location)
         self._base = base
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

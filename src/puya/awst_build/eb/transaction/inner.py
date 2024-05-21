@@ -10,17 +10,15 @@ from puya.awst.nodes import (
     SubmitInnerTransaction,
     TxnField,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.transaction.base import (
-    BaseTransactionExpressionBuilder,
-    expect_wtype,
-)
+from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -29,22 +27,63 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.awst_build.constants import TransactionType
     from puya.parse import SourceLocation
 
 
-class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
+class InnerTransactionClassExpressionBuilder(
+    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
+):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> typing.Never:
+        typ = self.produces2()
+        params_typ = pytypes.InnerTransactionFieldsetTypes[typ.transaction_type]
+        raise CodeError(
+            f"{typ} cannot be instantiated directly, create a {params_typ} and submit instead",
+            location,
+        )
+
+
+class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.TransactionRelatedType)
+        super().__init__(typ, expr)
+
+    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
+        return InnerTransactionField(
+            itxn=self.expr,
+            field=field,
+            source_location=location,
+            wtype=field.wtype,
+        )
+
+    def get_array_member(
+        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return _ArrayItem(self.expr, field, typ, location)
+
+
+class _ArrayItem(FunctionBuilder):
     def __init__(
         self,
         transaction: Expression,
         field: TxnField,
+        typ: pytypes.PyType,
         location: SourceLocation,
     ):
         super().__init__(location)
+        self.typ = typ
         self.transaction = transaction
         self.field = field
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -57,55 +96,15 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
             case [(ExpressionBuilder() | Literal(value=int())) as eb]:
                 index_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
                 expr = InnerTransactionField(
-                    source_location=location,
-                    wtype=self.field.wtype,
                     itxn=self.transaction,
                     field=self.field,
                     array_index=index_expr,
+                    wtype=self.typ.wtype,
+                    source_location=location,
                 )
-                return var_expression(expr)
+                return builder_for_instance(self.typ, expr)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-
-
-class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransaction)
-        super().__init__(expr)
-
-    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
-        return InnerTransactionField(
-            itxn=self.expr,
-            field=field,
-            source_location=location,
-            wtype=field.wtype,
-        )
-
-    def get_array_member(self, field: TxnField, location: SourceLocation) -> ExpressionBuilder:
-        return InnerTransactionArrayExpressionBuilder(self.expr, field, location)
-
-
-class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WInnerTransaction]):
-    def __init__(self, location: SourceLocation, wtype: wtypes.WInnerTransaction):
-        super().__init__(wtype, location)
-        self.wtype = wtype
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> typing.Never:
-        params_wtype = wtypes.WInnerTransactionFields.from_type(self.wtype.transaction_type)
-        raise CodeError(
-            f"{self.wtype} cannot be instantiated directly, "
-            f"create a {params_wtype} and submit instead",
-            location,
-        )
 
 
 def _get_transaction_type_from_arg(
@@ -118,7 +117,8 @@ def _get_transaction_type_from_arg(
     raise CodeError("Expected an InnerTxnParams argument", literal_or_expr.source_location)
 
 
-class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
+class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -129,12 +129,16 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         if len(args) > 1:
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
+            result_typ = pytypes.GenericTupleType.parameterise(
+                [
+                    pytypes.InnerTransactionResultTypes[_get_transaction_type_from_arg(a)]
+                    for a in args
+                ],
+                location,
+            )
             return TupleExpressionBuilder(
                 SubmitInnerTransaction(
-                    wtype=wtypes.WTuple(
-                        (wtypes.WInnerTransaction.from_type(transaction_types[a]) for a in args),
-                        location,
-                    ),
+                    wtype=result_typ.wtype,
                     itxns=tuple(
                         expect_operand_wtype(
                             a, wtypes.WInnerTransactionFields.from_type(transaction_types[a])
@@ -142,6 +146,7 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
                         for a in args
                     ),
                     source_location=location,
-                )
+                ),
+                result_typ,
             )
         raise CodeError("submit_txns must be called with 2 or more parameters")

@@ -12,11 +12,8 @@ from puya.awst.nodes import (
     SubroutineCallExpression,
     UInt64Constant,
 )
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
+from puya.awst_build import pytypes
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError
@@ -26,11 +23,10 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
-class EnsureBudgetBuilder(IntermediateExpressionBuilder):
+class EnsureBudgetBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -91,7 +87,7 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
 
 class OpUpFeeSourceClassBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.uint64_wtype, location)
+        super().__init__(pytypes.UInt64Type, location)
 
     @typing.override
     def call(

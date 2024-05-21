@@ -36,11 +36,8 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
+# TODO: tests for (attempted) use without generics
 class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
-    def __init__(self, wtype: wtypes.ARC4UIntN | wtypes.ARC4UFixedNxM, location: SourceLocation):
-        super().__init__(wtype, location)
-        self._wtype = wtype
-
     @typing.override
     def call(
         self,
@@ -51,6 +48,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         wtype = self.produces()
+        assert isinstance(wtype, wtypes.ARC4UIntN | wtypes.ARC4UFixedNxM)
         match args:
             case []:
                 zero_literal = Literal(value=self.zero_literal(), source_location=location)
@@ -74,7 +72,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
                     "Invalid/unhandled arguments",
                     location,
                 )
-        return self._value_builder()(expr)
+        return self._value_builder()(expr, self.produces2())
 
     @classmethod
     @abc.abstractmethod
@@ -82,66 +80,57 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]: ...
+    def _value_builder(cls) -> type[UIntNExpressionBuilder | UFixedNxMExpressionBuilder]: ...
 
 
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
 
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.arc4_byte_type, location)
+        super().__init__(pytypes.ARC4ByteType, location)
 
     @classmethod
     def zero_literal(cls) -> ConstantValue:
         return 0
 
     @classmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+    def _value_builder(cls) -> type[UIntNExpressionBuilder]:
         return UIntNExpressionBuilder
 
 
-class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
-    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.ARC4UIntNType)
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4UIntN)
-        super().__init__(wtype, location)
-
+class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     @classmethod
     def zero_literal(cls) -> ConstantValue:
         return 0
 
     @classmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+    def _value_builder(cls) -> type[UIntNExpressionBuilder]:
         return UIntNExpressionBuilder
 
 
 class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
-    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.ARC4UFixedNxMType)
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4UFixedNxM)
-        super().__init__(wtype, location)
-
     @classmethod
     def zero_literal(cls) -> ConstantValue:
         return "0.0"
 
     @classmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+    def _value_builder(cls) -> type[UFixedNxMExpressionBuilder]:
         return UFixedNxMExpressionBuilder
 
 
-class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
-        assert isinstance(expr.wtype, wtypes.ARC4UIntN)
-        self.wtype: wtypes.ARC4UIntN = expr.wtype
-        super().__init__(expr)
+class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]):
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.ARC4UIntNType)
+        if typ == pytypes.ARC4ByteType or typ.generic == pytypes.GenericARC4UIntNType:
+            native_pytype = pytypes.UInt64Type
+        else:
+            assert typ.generic == pytypes.GenericARC4BigUIntNType
+            native_pytype = pytypes.BigUIntType
+        super().__init__(typ, expr, native_pytype=native_pytype)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(
             self.expr,
-            false_bytes=b"\x00" * (self.wtype.n // 8),
+            false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,
         )
@@ -179,17 +168,20 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
         return BoolExpressionBuilder(cmp_expr)
 
 
-class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
-        assert isinstance(expr.wtype, wtypes.ARC4UFixedNxM)
-        self.wtype: wtypes.ARC4UFixedNxM = expr.wtype
-        super().__init__(expr)
+class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UFixedNxMType]):
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.ARC4UFixedNxMType)
+        if typ.generic == pytypes.GenericARC4UFixedNxMType:
+            native_pytype = pytypes.UInt64Type
+        else:
+            assert typ.generic == pytypes.GenericARC4BigUFixedNxMType
+            native_pytype = pytypes.BigUIntType
+        super().__init__(typ, expr, native_pytype=native_pytype)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(
             self.expr,
-            false_bytes=b"\x00" * (self.wtype.n // 8),
+            false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,
         )

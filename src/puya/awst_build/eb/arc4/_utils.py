@@ -16,7 +16,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_encode
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.utils import convert_literal
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -29,7 +29,7 @@ _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 def convert_arc4_literal(
     literal: awst_nodes.Literal,
-    target_wtype: wtypes.ARC4Type,
+    target_wtype: wtypes.WType,
     loc: SourceLocation | None = None,
 ) -> awst_nodes.Expression:
     literal_value: typing.Any = literal.value
@@ -63,47 +63,43 @@ def convert_arc4_literal(
                     raise CodeError(
                         f"Too many decimals, expected max of {fixed_wtype.m}", loc
                     ) from ex
-            return DecimalConstant(
-                source_location=loc,
-                value=q,
-                wtype=fixed_wtype,
-            )
+            return DecimalConstant(value=q, wtype=fixed_wtype, source_location=loc)
         case wtypes.arc4_dynamic_bytes:
-            return awst_nodes.ARC4Encode(
-                value=awst_nodes.BytesConstant(
-                    value=literal_value,
-                    source_location=loc,
-                    encoding=awst_nodes.BytesEncoding.unknown,
-                ),
+            native_value: Expression = awst_nodes.BytesConstant(
+                value=literal_value,
                 source_location=loc,
-                wtype=target_wtype,
+                encoding=awst_nodes.BytesEncoding.unknown,
             )
-        case wtypes.arc4_string_wtype:
-            if isinstance(literal_value, str):
-                try:
-                    literal_bytes = literal_value.encode("utf8")
-                except ValueError:
-                    pass
-                else:
-                    return awst_nodes.ARC4Encode(
-                        value=awst_nodes.BytesConstant(
-                            value=literal_bytes,
-                            source_location=loc,
-                            encoding=awst_nodes.BytesEncoding.utf8,
-                        ),
-                        source_location=loc,
-                        wtype=target_wtype,
-                    )
+        case wtypes.arc4_string_wtype if isinstance(literal_value, str):
+            try:
+                literal_bytes = literal_value.encode("utf8")
+            except ValueError as ex:
+                raise CodeError(f"Can't UTF8 encode {literal_value!r}", loc) from ex
+            else:
+                native_value = awst_nodes.BytesConstant(
+                    value=literal_bytes,
+                    encoding=awst_nodes.BytesEncoding.utf8,
+                    source_location=loc,
+                )
         case wtypes.arc4_bool_wtype:
-            return awst_nodes.ARC4Encode(
-                value=awst_nodes.BoolConstant(
-                    value=literal_value,
-                    source_location=loc,
-                ),
+            native_value = awst_nodes.BoolConstant(
+                value=literal_value,
                 source_location=loc,
-                wtype=target_wtype,
             )
-    raise CodeError(f"Can't construct {target_wtype} from Python literal {literal_value}", loc)
+
+        case wtypes.ARC4Type():
+            raise CodeError(
+                f"Can't construct {target_wtype} from Python literal {literal_value}", loc
+            )
+        case _:
+            raise InternalError(
+                f"Expected arc4 type for literal conversion target, got: {target_wtype}", loc
+            )
+    return awst_nodes.ARC4Encode(
+        value=native_value,
+        wtype=target_wtype,
+        source_location=loc,
+    )
 
 
 def expect_arc4_operand_wtype(

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+from immutabledict import immutabledict
+
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CheckedMaybe,
@@ -13,51 +15,85 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     ReinterpretCast,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import convert_literal_to_expr
 
 if typing.TYPE_CHECKING:
-    from immutabledict import immutabledict
+
+    from collections.abc import Mapping
 
     from puya.parse import SourceLocation
 
 
 class ReferenceValueExpressionBuilder(ValueExpressionBuilder):
-    native_wtype: wtypes.WType
-    native_access_member: str
-    field_mapping: immutabledict[str, tuple[str, wtypes.WType]]
-    field_op_code: str
-    field_bool_comment: str
+    def __init__(
+        self,
+        expr: Expression,
+        *,
+        typ: pytypes.PyType,
+        native_type: pytypes.PyType,
+        native_access_member: str,
+        field_mapping: Mapping[str, tuple[str, pytypes.PyType]],
+        field_op_code: str,
+        field_bool_comment: str,
+    ):
+        super().__init__(typ, expr)
+        self.native_type = native_type
+        self.native_access_member = native_access_member
+        self.field_mapping = immutabledict[str, tuple[str, pytypes.PyType]](field_mapping)
+        self.field_op_code = field_op_code
+        self.field_bool_comment = field_bool_comment
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         if name == self.native_access_member:
             native_cast = ReinterpretCast(
-                source_location=location, wtype=self.native_wtype, expr=self.expr
+                expr=self.expr, wtype=self.native_type.wtype, source_location=location
             )
-            return var_expression(native_cast)
+            return builder_for_instance(self.native_type, native_cast)
         if name in self.field_mapping:
-            immediate, wtype = self.field_mapping[name]
+            immediate, typ = self.field_mapping[name]
             acct_params_get = IntrinsicCall(
                 source_location=location,
-                wtype=wtypes.WTuple((wtype, wtypes.bool_wtype), location),
+                wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
                 op_code=self.field_op_code,
                 immediates=[immediate],
                 stack_args=[self.expr],
             )
             checked_maybe = CheckedMaybe(acct_params_get, comment=self.field_bool_comment)
-            return var_expression(checked_maybe)
+            return builder_for_instance(typ, checked_maybe)
         return super().member_access(name, location)
 
 
 class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilder):
-    native_wtype = wtypes.uint64_wtype
+    def __init__(
+        self,
+        expr: Expression,
+        *,
+        typ: pytypes.PyType,
+        native_access_member: str,
+        field_mapping: Mapping[str, tuple[str, pytypes.PyType]],
+        field_op_code: str,
+        field_bool_comment: str,
+    ):
+        super().__init__(
+            expr,
+            typ=typ,
+            native_type=pytypes.UInt64Type,
+            native_access_member=native_access_member,
+            field_mapping=field_mapping,
+            field_op_code=field_op_code,
+            field_bool_comment=field_bool_comment,
+        )
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         as_bool = ReinterpretCast(
             expr=self.expr,
@@ -70,6 +106,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             expr = as_bool
         return BoolExpressionBuilder(expr)
 
+    @typing.override
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
