@@ -59,3 +59,17 @@ def as_bytes(value: object, *, max_size: int = MAX_BYTES_SIZE) -> bytes:
     if len(bytes_value) > max_size:
         raise ValueError(f"expected value length <= {max_size}, got: {len(bytes_value)}")
     return bytes_value
+
+
+def as_string(value: object) -> str:
+    from algopy import String
+
+    match value:
+        case str(string_value):
+            pass
+        case String(value=string_value):
+            pass
+        case _:
+            raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
+
+    return string_value

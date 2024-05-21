@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, BigUInt, Bytes, UInt64, arc4, op
+from algopy import ARC4Contract, BigUInt, Bytes, String, UInt64, arc4, op
 
 
 class PrimitiveOpsContract(ARC4Contract):
@@ -324,4 +324,24 @@ class PrimitiveOpsContract(ARC4Contract):
     def verify_biguint_ge_uint64(self, a: Bytes, b: UInt64) -> bool:
         a_biguint = BigUInt.from_bytes(a)
         result = a_biguint >= b
+        return result
+
+    @arc4.abimethod
+    def verify_string_init(self, a: String) -> String:
+        result = String("Hello, ") + a
+        return result
+
+    @arc4.abimethod
+    def verify_string_startswith(self, a: String, b: String) -> bool:
+        result = a.startswith(b)
+        return result
+
+    @arc4.abimethod
+    def verify_string_endswith(self, a: String, b: String) -> bool:
+        result = a.endswith(b)
+        return result
+
+    @arc4.abimethod
+    def verify_string_join(self, a: String, b: String) -> String:
+        result = String(", ").join((a, b))
         return result
