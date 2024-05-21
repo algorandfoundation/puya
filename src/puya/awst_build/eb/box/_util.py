@@ -1,7 +1,7 @@
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BoxKeyExpression,
     BoxLength,
+    BoxValueExpression,
     IntrinsicCall,
     Literal,
     SingleEvaluation,
@@ -16,7 +16,7 @@ from puya.parse import SourceLocation
 
 
 def index_box_bytes(
-    box_key: BoxKeyExpression,
+    box_key: BoxValueExpression,
     index: ExpressionBuilder | Literal,
     location: SourceLocation,
 ) -> ExpressionBuilder:
@@ -39,7 +39,7 @@ def index_box_bytes(
 
 
 def slice_box_bytes(
-    box_key: BoxKeyExpression,
+    box_key: BoxValueExpression,
     begin_index: ExpressionBuilder | Literal | None,
     end_index: ExpressionBuilder | Literal | None,
     stride: ExpressionBuilder | Literal | None,

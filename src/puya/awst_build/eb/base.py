@@ -8,7 +8,6 @@ import typing_extensions
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BytesConstant,
     ContractReference,
     Expression,
     FieldExpression,
@@ -21,7 +20,6 @@ from puya.awst.nodes import (
     TupleExpression,
     TupleItemExpression,
 )
-from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -31,6 +29,7 @@ if typing.TYPE_CHECKING:
     import mypy.types
 
     from puya.awst_build import pytypes
+    from puya.awst_build.contract_data import AppStorageDeclaration
     from puya.parse import SourceLocation
 
 __all__ = [
@@ -38,8 +37,7 @@ __all__ = [
     "BuilderComparisonOp",
     "BuilderBinaryOp",
     "ExpressionBuilder",
-    "StateProxyDefinitionBuilder",
-    "StateProxyMemberBuilder",
+    "StorageProxyConstructorResult",
     "IntermediateExpressionBuilder",
     "TypeClassExpressionBuilder",
     "GenericClassExpressionBuilder",
@@ -248,76 +246,19 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
         raise CodeError(f"{self._type_description} is not a value", location)
 
 
-class StateProxyMemberBuilder(IntermediateExpressionBuilder):
-    state_decl: AppStorageDeclaration
+class StorageProxyConstructorResult(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def initial_value(self) -> Expression | None: ...
 
-
-class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
-    python_name: str
-
-    def __init__(
-        self,
-        location: SourceLocation,
-        storage: wtypes.WType,
-        key_override: BytesConstant | None,
-        description: str | None,
-        initial_value: Expression | None = None,
-    ):
-        super().__init__(location)
-        self.storage = storage
-        self.key_override = key_override
-        self.description = description
-        self.initial_value = initial_value
-
+    @abc.abstractmethod
     def build_definition(
         self,
         member_name: str,
         defined_in: ContractReference,
         typ: pytypes.PyType,
         location: SourceLocation,
-    ) -> AppStorageDeclaration:
-        return AppStorageDeclaration(
-            description=self.description,
-            member_name=member_name,
-            key_override=self.key_override,
-            source_location=location,
-            typ=typ,
-            defined_in=defined_in,
-        )
-
-    def rvalue(self) -> Expression:
-        return self._assign_first(self.source_location)
-
-    def lvalue(self) -> Lvalue:
-        raise CodeError(
-            f"{self.python_name} is not valid as an assignment target", self.source_location
-        )
-
-    def delete(self, location: SourceLocation) -> Statement:
-        raise self._assign_first(location)
-
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        return self._assign_first(location)
-
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
-        return self._assign_first(location)
-
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
-        return self._assign_first(location)
-
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
-        return self._assign_first(location)
-
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return self._assign_first(location)
-
-    def _assign_first(self, location: SourceLocation) -> typing.Never:
-        raise CodeError(
-            f"{self.python_name} should be assigned to an instance variable before being used",
-            location,
-        )
+    ) -> AppStorageDeclaration: ...
 
 
 _TWType_co = typing_extensions.TypeVar(

@@ -20,12 +20,11 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants, pytypes
+from puya.awst_build.eb._state import StorageProxyDefinitionBuilder
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
-    StateProxyDefinitionBuilder,
-    StateProxyMemberBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -151,19 +150,19 @@ def _init(
             raise CodeError("description should be a string literal", descr_arg.source_location)
 
     return AppStateProxyDefinitionBuilder(
-        location=location,
-        storage=argument_wtype,
         key_override=key_override,
         description=description,
         initial_value=initial_value,
+        location=location,
     )
 
 
-class AppStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
+class AppStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
     python_name = constants.CLS_GLOBAL_STATE_ALIAS
+    is_prefix = False
 
 
-class AppStateExpressionBuilder(StateProxyMemberBuilder):
+class AppStateExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation) -> None:
         self.state_decl = state_decl
         super().__init__(location)

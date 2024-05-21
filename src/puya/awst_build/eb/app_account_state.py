@@ -20,12 +20,11 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._state import StorageProxyDefinitionBuilder
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
-    StateProxyDefinitionBuilder,
-    StateProxyMemberBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -142,7 +141,7 @@ def _init(
     )
 
 
-class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
+class AppAccountStateExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation):
         assert state_decl.typ.generic is pytypes.GenericLocalStateType
         super().__init__(location)
@@ -234,8 +233,9 @@ class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
         return StateDelete(field=self.__field, source_location=location)
 
 
-class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
+class AppAccountStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
     python_name = constants.CLS_LOCAL_STATE_ALIAS
+    is_prefix = False
 
 
 def _build_field(

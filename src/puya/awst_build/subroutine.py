@@ -21,7 +21,6 @@ from puya.awst.nodes import (
     BoolConstant,
     BooleanBinaryOperation,
     BreakStatement,
-    BytesConstant,
     CompileTimeConstantExpression,
     ConditionalExpression,
     ContinueStatement,
@@ -49,7 +48,6 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb import type_registry
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
@@ -59,7 +57,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
-    StateProxyDefinitionBuilder,
+    StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.contracts import (
@@ -338,7 +336,7 @@ class FunctionASTConverter(
                 raise CodeError(
                     f"{rvalue_pytyp} can only be assigned to a single variable", stmt_loc
                 ) from None
-            if is_self_member(lvalue):
+            if is_self_member(lvalue) and isinstance(rvalue, StorageProxyConstructorResult):
                 return self._handle_proxy_assignment(lvalue, rvalue, rvalue_pytyp, stmt_loc)
         elif len(stmt.lvalues) > 1:
             rvalue = temporary_assignment_if_required2(rvalue_pytyp, rvalue)
@@ -355,7 +353,7 @@ class FunctionASTConverter(
     def _handle_proxy_assignment(
         self,
         lvalue: mypy.nodes.MemberExpr,
-        rvalue: ExpressionBuilder,
+        rvalue: StorageProxyConstructorResult,
         rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
@@ -368,21 +366,6 @@ class FunctionASTConverter(
                 stmt_loc,
             )
         cref = self.contract_method_info.cref
-        if isinstance(rvalue, StateProxyDefinitionBuilder):
-            return self._handle_state_proxy_assignment(
-                cref, lvalue, rvalue, rvalue_pytyp, stmt_loc
-            )
-        else:
-            return self._handle_box_proxy_assignment(cref, lvalue, rvalue, rvalue_pytyp, stmt_loc)
-
-    def _handle_state_proxy_assignment(
-        self,
-        cref: ContractReference,
-        lvalue: mypy.nodes.MemberExpr,
-        rvalue: StateProxyDefinitionBuilder,
-        rvalue_pytyp: pytypes.PyType,
-        stmt_loc: SourceLocation,
-    ) -> Sequence[Statement]:
         member_name = lvalue.name
         member_loc = self._location(lvalue)
         defn = rvalue.build_definition(member_name, cref, rvalue_pytyp, member_loc)
@@ -407,34 +390,6 @@ class FunctionASTConverter(
                     source_location=stmt_loc,
                 )
             ]
-
-    def _handle_box_proxy_assignment(
-        self,
-        cref: ContractReference,
-        lvalue: mypy.nodes.MemberExpr,
-        rvalue: ExpressionBuilder,
-        rvalue_pytyp: pytypes.PyType,
-        stmt_loc: SourceLocation,
-    ) -> Sequence[Statement]:
-        member_name = lvalue.name
-        key = rvalue.rvalue()
-        match key:
-            case BoxProxyExpression(key=BytesConstant() as key_override):
-                defn = AppStorageDeclaration(
-                    member_name=member_name,
-                    key_override=key_override,
-                    source_location=key.source_location,
-                    typ=rvalue_pytyp,
-                    description=None,
-                    defined_in=cref,
-                )
-                self.context.add_state_def(cref, defn)
-                return []
-        raise CodeError(
-            f"{rvalue_pytyp} must be declared with compile time static keys"
-            f" when assigned to 'self'",
-            stmt_loc,
-        )
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
         builder_or_literal = lvalue.accept(self)

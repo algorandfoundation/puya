@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import mypy.nodes
 
 from puya.awst.nodes import (
-    BoxKeyExpression,
+    BoxValueExpression,
     Literal,
     StateGet,
     StateGetEx,
@@ -23,7 +23,7 @@ from puya.parse import SourceLocation
 
 
 class BoxKeyExpressionIntermediateExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, box_key_expression: BoxKeyExpression) -> None:
+    def __init__(self, box_key_expression: BoxValueExpression) -> None:
         super().__init__(box_key_expression.source_location)
         self.box_key = box_key_expression
 

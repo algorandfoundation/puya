@@ -5,16 +5,15 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BoxKeyExpression,
     BoxLength,
-    BoxProxyExpression,
+    BoxValueExpression,
     Expression,
     IntrinsicCall,
     Literal,
     Not,
     StateExists,
 )
-from puya.awst_build import constants, pytypes
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -30,13 +29,13 @@ from puya.awst_build.utils import (
     expect_operand_wtype,
     get_arg_mapping,
 )
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
 class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation) -> None:
-        super().__init__(wtypes.box_ref_proxy_type, location)
+        super().__init__(wtypes.bytes_wtype, location)
 
     @typing.override
     def call(
@@ -58,27 +57,19 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError("Invalid/unhandled arguments", location)
 
         return BoxRefProxyExpressionBuilder(
-            expr=BoxProxyExpression(key=key, wtype=self.produces(), source_location=location)
+            expr=BoxValueExpression(key=key, wtype=self.produces(), source_location=location)
         )
 
 
 class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression) -> None:
-        if expr.wtype != wtypes.box_ref_proxy_type:
-            raise InternalError(
-                "BoxRefProxyExpressionBuilder can only be created with expressions of "
-                f"wtype {wtypes.box_ref_proxy_type}",
-                expr.source_location,
-            )
-        self.wtype = expr.wtype
+    wtype = wtypes.bytes_wtype
 
-        super().__init__(expr)
-        self.python_name = constants.CLS_BOX_REF_PROXY
-
-    def _box_key_expr(self, location: SourceLocation) -> BoxKeyExpression:
-        return BoxKeyExpression(
-            proxy=self.expr,
+    def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
+        return BoxValueExpression(
+            key=self.expr,
             source_location=location,
+            wtype=wtypes.bytes_wtype,
+            field_name=None,
         )
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
