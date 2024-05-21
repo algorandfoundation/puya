@@ -8,8 +8,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
     BoolConstant,
-    BytesConstant,
-    BytesEncoding,
     Expression,
     Literal,
     Not,
@@ -20,7 +18,8 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants, pytypes
-from puya.awst_build.eb._state import StorageProxyDefinitionBuilder
+from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override, \
+    extract_description
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     GenericClassExpressionBuilder,
@@ -125,30 +124,8 @@ def _init(
             location,
         )
 
-    match key_arg:
-        case None:
-            key_override = None
-        case Literal(value=bytes(bytes_value), source_location=key_lit_loc):
-            key_override = BytesConstant(
-                value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
-            )
-        case Literal(value=str(str_value), source_location=key_lit_loc):
-            key_override = BytesConstant(
-                value=str_value.encode("utf8"),
-                encoding=BytesEncoding.utf8,
-                source_location=key_lit_loc,
-            )
-        case _:
-            raise CodeError("key should be a string or bytes literal", key_arg.source_location)
-
-    match descr_arg:
-        case None:
-            description = None
-        case Literal(value=str(str_value)):
-            description = str_value
-        case _:
-            raise CodeError("description should be a string literal", descr_arg.source_location)
-
+    key_override = extract_key_override(key_arg, location, is_prefix=False)
+    description = extract_description(descr_arg)
     return AppStateProxyDefinitionBuilder(
         key_override=key_override,
         description=description,

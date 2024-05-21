@@ -978,12 +978,6 @@ class FunctionIRBuilder(
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
         return box.visit_box_value(self.context, expr)
 
-    def visit_box_proxy_expression(self, expr: awst_nodes.BoxProxyExpression) -> TExpression:
-        return box.visit_box_proxy_expression(self.context, expr)
-
-    def visit_box_key_expression(self, expr: puya.awst.nodes.BoxKeyExpression) -> TExpression:
-        return box.visit_box_key_expression(self.context, expr)
-
     def visit_bytes_raw(self, expr: puya.awst.nodes.BytesRaw) -> TExpression:
         value = self.visit_and_materialise_single(expr.expr)
         backing = value.ir_type.maybe_avm_type

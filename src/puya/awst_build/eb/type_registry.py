@@ -220,6 +220,8 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMExpressionBuilder,
     pytypes.GenericARC4UIntNType: arc4.UIntNExpressionBuilder,
     pytypes.GenericARC4BigUIntNType: arc4.UIntNExpressionBuilder,
+    pytypes.GenericGlobalStateType: app_state.AppStateExpressionBuilder,
+    pytypes.GenericLocalStateType: app_account_state.AppAccountStateExpressionBuilder,
 }
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionAndPyTypeFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructExpressionBuilder,
