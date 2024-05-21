@@ -28,7 +28,7 @@ def test_string_init(value: str, get_avm_result: AVMInvoker) -> None:
 def test_string_startswith(*, a: str, b: str, expected: bool, get_avm_result: AVMInvoker) -> None:
     avm_result = get_avm_result("verify_string_startswith", a=a, b=b)
     assert avm_result == expected
-    assert String(a).starts_with(String(b)) == expected
+    assert String(a).startswith(String(b)) == expected
 
 
 @pytest.mark.parametrize(
@@ -41,7 +41,7 @@ def test_string_startswith(*, a: str, b: str, expected: bool, get_avm_result: AV
 def test_string_endswith(*, a: str, b: str, expected: bool, get_avm_result: AVMInvoker) -> None:
     avm_result = get_avm_result("verify_string_endswith", a=a, b=b)
     assert avm_result == expected
-    assert String(a).ends_with(String(b)) == expected
+    assert String(a).endswith(String(b)) == expected
 
 
 @pytest.mark.parametrize(
@@ -60,11 +60,6 @@ def test_string_join(*, a: str, b: str, expected: str, get_avm_result: AVMInvoke
 def test_string_bytes() -> None:
     assert String("hello").bytes == b"hello"
     assert String("").bytes == b""
-
-
-def test_string_len_fails() -> None:
-    with pytest.raises(NotImplementedError):
-        len(String("hello"))
 
 
 def test_string_contains() -> None:

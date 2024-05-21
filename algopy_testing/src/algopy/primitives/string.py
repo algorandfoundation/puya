@@ -31,19 +31,16 @@ class String:
     def __contains__(self, item: object) -> bool:
         return as_string(item) in self.value
 
-    def __len__(self) -> int:
-        raise NotImplementedError("Length operation is not supported for UTF-8 strings.")
-
     def __add__(self, other: String | str) -> String:
         return String(self.value + as_string(other))
 
     def __radd__(self, other: String | str) -> String:
         return String(as_string(other) + self.value)
 
-    def starts_with(self, prefix: String | str) -> bool:
+    def startswith(self, prefix: String | str) -> bool:
         return self.value.startswith(as_string(prefix))
 
-    def ends_with(self, suffix: String | str) -> bool:
+    def endswith(self, suffix: String | str) -> bool:
         return self.value.endswith(as_string(suffix))
 
     def join(self, others: tuple[String, ...], /) -> String:
