@@ -1,6 +1,18 @@
 import typing
 
-from algopy import Account, Application, ARC4Contract, Asset, Bytes, Txn, arc4, log
+from algopy import (
+    Account,
+    Application,
+    ARC4Contract,
+    Asset,
+    BigUInt,
+    Bytes,
+    String,
+    Txn,
+    UInt64,
+    arc4,
+    log,
+)
 
 LOG_METHOD_NAME = "log"
 
@@ -33,6 +45,28 @@ class Logger(ARC4Contract):
     @arc4.abimethod(name=LOG_METHOD_NAME)
     def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
         log(asset.name, account.bytes, app.address)
+
+    @arc4.abimethod
+    def echo_native_string(self, value: String) -> String:
+        return "echo: " + value
+
+    @arc4.abimethod
+    def echo_native_bytes(self, value: Bytes) -> Bytes:
+        return b"echo: " + value
+
+    @arc4.abimethod
+    def echo_native_uint64(self, value: UInt64) -> UInt64:
+        return value + 1
+
+    @arc4.abimethod
+    def echo_native_biguint(self, value: BigUInt) -> BigUInt:
+        return value + 1
+
+    @arc4.abimethod
+    def echo_native_tuple(
+        self, s: String, b: Bytes, u: UInt64, bu: BigUInt
+    ) -> tuple[String, Bytes, UInt64, BigUInt]:
+        return "echo: " + s, b"echo: " + b, u + 1, bu + 1
 
     @arc4.abimethod
     def return_args_after_14th(

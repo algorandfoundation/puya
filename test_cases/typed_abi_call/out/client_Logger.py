@@ -52,6 +52,39 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def echo_native_string(
+        self,
+        value: algopy.arc4.String,
+    ) -> algopy.arc4.String: ...
+
+    @algopy.arc4.abimethod
+    def echo_native_bytes(
+        self,
+        value: algopy.arc4.DynamicBytes,
+    ) -> algopy.arc4.DynamicBytes: ...
+
+    @algopy.arc4.abimethod
+    def echo_native_uint64(
+        self,
+        value: algopy.arc4.UInt64,
+    ) -> algopy.arc4.UInt64: ...
+
+    @algopy.arc4.abimethod
+    def echo_native_biguint(
+        self,
+        value: algopy.arc4.UInt512,
+    ) -> algopy.arc4.UInt512: ...
+
+    @algopy.arc4.abimethod
+    def echo_native_tuple(
+        self,
+        s: algopy.arc4.String,
+        b: algopy.arc4.DynamicBytes,
+        u: algopy.arc4.UInt64,
+        bu: algopy.arc4.UInt512,
+    ) -> algopy.arc4.Tuple[algopy.arc4.String, algopy.arc4.DynamicBytes, algopy.arc4.UInt64, algopy.arc4.UInt512]: ...
+
+    @algopy.arc4.abimethod
     def return_args_after_14th(
         self,
         _a1: algopy.arc4.UInt64,
