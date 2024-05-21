@@ -495,7 +495,7 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         local_num_uint: UInt64 | int = ...,
         local_num_bytes: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        fee: algopy.UInt64 | int = ...,
+        fee: algopy.UInt64 | int = 0,
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,

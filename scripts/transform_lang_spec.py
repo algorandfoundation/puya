@@ -293,6 +293,13 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     }.items():
         _patch_arg_type(ops, op_name, arg_index, "uint64", "bool")
 
+    # patch return bytes -> bigint
+    for op_name in [
+        "b+",
+        "b*",
+    ]:
+        _patch_return_type(ops, op_name, 0, "[]byte", "bigint")
+
     # patch txn enum fields with asset and application types
     txn = ops["txn"]
     itxn_field = ops["itxn_field"]
