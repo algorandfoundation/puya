@@ -47,8 +47,7 @@ class String:
         return self.value.endswith(as_string(suffix))
 
     def join(self, others: tuple[String, ...], /) -> String:
-        byte_values = [as_string(s) for s in others]
-        return String(f"{self.value}".join(byte_values))
+        return String(self.value.join(map(as_string, others)))
 
     @property
     def bytes(self) -> bytes:

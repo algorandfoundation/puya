@@ -44,15 +44,29 @@ def test_string_endswith(*, a: str, b: str, expected: bool, get_avm_result: AVMI
     assert String(a).ends_with(String(b)) == expected
 
 
-# TODO: resolve join issue
-# @pytest.mark.parametrize(
-#     ("a", "b", "expected"),
-#     [
-#         ("hello", "world", "hello, world"),
-#         ("foo", "bar", "foo, bar"),
-#     ],
-# )
-# def test_string_join(*, a: str, b: str, expected: str, get_avm_result: AVMInvoker) -> None:
-#     avm_result = get_avm_result("verify_string_join", a=a, b=b)
-#     assert avm_result == expected
-#     assert String(", ").join((String(a), String(b))) == String(expected)
+@pytest.mark.parametrize(
+    ("a", "b", "expected"),
+    [
+        ("hello", "world", "hello, world"),
+        ("foo", "bar", "foo, bar"),
+    ],
+)
+def test_string_join(*, a: str, b: str, expected: str, get_avm_result: AVMInvoker) -> None:
+    avm_result = get_avm_result("verify_string_join", a=a, b=b)
+    assert avm_result == expected
+    assert String(", ").join((String(a), String(b))) == String(expected)
+
+
+def test_string_bytes() -> None:
+    assert String("hello").bytes == b"hello"
+    assert String("").bytes == b""
+
+
+def test_string_len_fails() -> None:
+    with pytest.raises(NotImplementedError):
+        len(String("hello"))
+
+
+def test_string_contains() -> None:
+    assert "ell" in String("hello")
+    assert "world" not in String("hello")
