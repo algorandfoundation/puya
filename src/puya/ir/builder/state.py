@@ -31,14 +31,14 @@ def visit_state_get_ex(
     context: IRFunctionBuildContext, expr: awst_nodes.StateGetEx
 ) -> ValueProvider:
     match expr.field:
-        case awst_nodes.BoxKeyExpression():
+        case awst_nodes.BoxValueExpression():
             return box.visit_box_state_get_ex(context, expr)
     return _build_state_get_ex(context, expr.field, expr.source_location)
 
 
 def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.StateDelete) -> None:
     match statement.field:
-        case awst_nodes.BoxKeyExpression():
+        case awst_nodes.BoxValueExpression():
             return box.visit_box_state_delete(context, statement)
         case awst_nodes.AppStateExpression(key=awst_key):
             op = AVMOp.app_global_del
@@ -81,7 +81,7 @@ def visit_state_exists(
     context: IRFunctionBuildContext, expr: awst_nodes.StateExists
 ) -> ValueProvider:
     match expr.field:
-        case awst_nodes.BoxKeyExpression():
+        case awst_nodes.BoxValueExpression():
             return box.visit_box_state_exists(context, expr)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     _, exists = context.visitor.materialise_value_provider(
