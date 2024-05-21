@@ -1,4 +1,33 @@
 # CHANGELOG
+## v2.0.1 (2024-05-21)
+
+### Fix
+
+* fix incorrectly mapped transaction arguments `global_num_uint` and `local_num_uint` in `algopy.arc4.abi_call` #232 ([`0c35caa`](https://github.com/algorandfoundation/puya/commit/0c35caa54407e43635fc8408479adff1d5d4a8cc))
+
+* resolve issue when using native types with arguments and return values in abi_call ([`38a199a`](https://github.com/algorandfoundation/puya/commit/38a199ade05dac091eee3ac254c3364f88cf4a00))
+
+* correct default value for fee in abi_call ([`ac46f49`](https://github.com/algorandfoundation/puya/commit/ac46f490356157e1bf1ba893af4a1882eba58a38))
+
+* fix IR return types of `b+` and `b*` ops ([`0de49c1`](https://github.com/algorandfoundation/puya/commit/0de49c1a847a54e1f58b3eef201b257fd19a24d2))
+
+* correct return type of String.join expression ([`873460d`](https://github.com/algorandfoundation/puya/commit/873460db1bdd6047dbe0c1ecd12dbfe2163adc99))
+
+* corrected itxn field type definitions for `VotePK`, `SelectionPK` and `FreezeAssetFrozen` ([`5f59f15`](https://github.com/algorandfoundation/puya/commit/5f59f157b1a0a864575335525f5ef96759ace622))
+
+* correctly handle `BigUInt` in ARC4 methods ([`354a4a2`](https://github.com/algorandfoundation/puya/commit/354a4a273bd22d12119da85327f5466e595d6f47))
+
+* handle resolve reinterpret cast at the IR level with a temporary assignment if required (#219) ([`4b1bff3`](https://github.com/algorandfoundation/puya/commit/4b1bff3795b89bc3175532299590d7935acb6a75))
+
+* do not match `dup2` op when performing constant stack shuffling ([`815e253`](https://github.com/algorandfoundation/puya/commit/815e253bb8f4a6e7195a6a8e8551b245eac3c8ab))
+
+* remove type bound on `TemplateVar` allowing it to be used with all types. ([`4226e0f`](https://github.com/algorandfoundation/puya/commit/4226e0f939571df4faf1a883b4d8b32bac884509))
+
+### Documentation
+
+* improve some stub type signatures &amp; copy in transaction field notes from Algorand docs (#215) ([`4f01df5`](https://github.com/algorandfoundation/puya/commit/4f01df52eec1bbbfac9ea25d53a569c1e70a2800))
+
+
 ## v2.0.0 (2024-04-26)
 
 ### 🚨 BREAKING CHANGES 🚨
@@ -8,13 +37,13 @@ Accessing an array field of an inner transaction result after it may no longer b
 
 Commit: [`0915c5c`](https://github.com/algorandfoundation/puya/commit/0915c5cb513be0f897be3d1aef59f7e853b393e5)
 
-#### Prevent usage of state proxies (GlobalState, LocalState) outside `__init__` method 
+#### Prevent usage of state proxies (GlobalState, LocalState) outside `__init__` method
 Using state proxies (GlobalState, LocalState) outside of an `__init__` method may not give the behaviour expected, so prevent their usage in those scenarios.
 
 Commit: [`d354d4e`](https://github.com/algorandfoundation/puya/commit/d354d4e14a88b68f25782a74e48bd8d30d81690e)
 
-#### Default transaction fees to `0` (#202) 
-The default fee for inner transactions is now 0 unless explicitly specified. 
+#### Default transaction fees to `0` (#202)
+The default fee for inner transactions is now 0 unless explicitly specified.
 
 Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2b65706452e8543b4227fd467b2ed5d)
 
@@ -75,7 +104,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * enable major on zero ([`64145c2`](https://github.com/algorandfoundation/puya/commit/64145c298d0aa1584dfa384a4f3c80d82f0e63f2))
 
-  BREAKING CHANGE: 1.0 release 
+  BREAKING CHANGE: 1.0 release
 
 ### Feature
 
@@ -109,25 +138,25 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * change abimethod/baremethod &#34;create&#34; parameter to `&#34;allow&#34; | &#34;require&#34; | &#34;disallow&#34;` instead of `&#34;allow&#34; | True | False` ([`2ca4c67`](https://github.com/algorandfoundation/puya/commit/2ca4c67c54752916b5c4423e8c4d036c5523972a))
 
-  BREAKING CHANGE: Replace create=True with create=&#34;require&#34; in abimethod/baremethod decorators, and replace create=False with create=&#34;disallow&#34; in abimethod/baremethod decorators. 
+  BREAKING CHANGE: Replace create=True with create=&#34;require&#34; in abimethod/baremethod decorators, and replace create=False with create=&#34;disallow&#34; in abimethod/baremethod decorators.
 
 * prevent reassignment of mutable parameters that are passed by reference ([`a9c7600`](https://github.com/algorandfoundation/puya/commit/a9c7600d0563ec0e521771c97e42490ea3428b9b))
 
-  BREAKING CHANGE: Re-assigment to a parameter that is mutable is now disallowed. 
+  BREAKING CHANGE: Re-assigment to a parameter that is mutable is now disallowed.
 
 * Prevent iteration of arc4 containers with mutable items ([`f857181`](https://github.com/algorandfoundation/puya/commit/f8571812097f84c872276249ce3cb5bb246ef348))
 
-  BREAKING CHANGE: Direct iteration of arc4 containers with mutable items is no longer possible due to issues with the reference vs value semantics, instead use `for &lt;index&gt; in urange(&lt;array&gt;.length)` and access/update elements by index. 
+  BREAKING CHANGE: Direct iteration of arc4 containers with mutable items is no longer possible due to issues with the reference vs value semantics, instead use `for &lt;index&gt; in urange(&lt;array&gt;.length)` and access/update elements by index.
 
 * rename stubs from puyapy to algopy ([`31052e3`](https://github.com/algorandfoundation/puya/commit/31052e327019f7f84691a6d8f98f2244fe045c08))
 
-  BREAKING CHANGE: Any imports from `puyapy` should be replaced with `algopy`. 
+  BREAKING CHANGE: Any imports from `puyapy` should be replaced with `algopy`.
 
 * to prevent file output collisions, the ARC32 JSON output is now always named according the class name (or name= override). Tests for output collision is also performed before final output. For consistency, the TEAL files are use this same prefix, rather than the module name. ([`78d5a31`](https://github.com/algorandfoundation/puya/commit/78d5a31578954adc950fdd205a5f5aee21627f77))
 
   Compilation stages and error checking have been refactored to maintain a higher degree of logical separation.
 
-  BREAKING CHANGE: Output files names have changed as per the above ARC32 output fix note. 
+  BREAKING CHANGE: Output files names have changed as per the above ARC32 output fix note.
 
 ### Feature
 
@@ -137,7 +166,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * warn if a Contract class is implicitly abstract ([`4d6317f`](https://github.com/algorandfoundation/puya/commit/4d6317f10e7e814908ceea2bfa81a78038037975))
 
-  fixes #120 
+  fixes #120
 
 * compare `arc4.Address` against `Account` ([`3888220`](https://github.com/algorandfoundation/puya/commit/3888220c6e40a69a2b115db3e46b864915e32183))
 
@@ -145,15 +174,15 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * allow bytes literal with `BytesBacked.from_bytes` ([`d47be8c`](https://github.com/algorandfoundation/puya/commit/d47be8c8b48b765cb23bb1e5467b0d72b9699309))
 
-  test: add test for Struct.from_bytes 
+  test: add test for Struct.from_bytes
 
 * empty constructor for BigUInt() defaults to zero ([`c02079b`](https://github.com/algorandfoundation/puya/commit/c02079b5d84af851ed2fdab2d649eb26a41d2619))
 
-  chore: address minor TODO regarding source locations 
+  chore: address minor TODO regarding source locations
 
 * empty constructor for UInt64() defaults to zero ([`6f79b8a`](https://github.com/algorandfoundation/puya/commit/6f79b8a2c71223b11895ae7dafd8696afc004a92))
 
-  chore: address minor TODO regarding source locations 
+  chore: address minor TODO regarding source locations
 
 * simplify more conditions when we&#39;re in a `select` context ([`7403e7b`](https://github.com/algorandfoundation/puya/commit/7403e7b4fa664f41ccacad8f0500f98d90c19e1d))
 
@@ -165,11 +194,11 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * Allow empty constructors to default to &#34;zero&#34; values for Account, Asset, Application, and arc4.Address ([`3ad9c18`](https://github.com/algorandfoundation/puya/commit/3ad9c18f6732e11323159fe143a4b1f7eb006818))
 
-  Also, generally establish feature parity between Account and arc4.Address constructors 
+  Also, generally establish feature parity between Account and arc4.Address constructors
 
 * Add a validation step to confirm ops used in an app or lsig are available for those respecitve modes ([`8600d4e`](https://github.com/algorandfoundation/puya/commit/8600d4e2dd45dc3e798c31beb58775ba8a14b4cd))
 
-  Also moved avm version check into a validator with the same pattern 
+  Also moved avm version check into a validator with the same pattern
 
 * add empty `arc4.Bool` constructor to mimic `bool()` ([`6175b59`](https://github.com/algorandfoundation/puya/commit/6175b594d3de06a0b00aef41e9dd9c7dea82d9c0))
 
@@ -199,7 +228,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * add asset and application reference types to op module (#124) ([`47741ab`](https://github.com/algorandfoundation/puya/commit/47741ab127aacee6bad6d377053df345cae0f9fb))
 
-  
+
    BREAKING CHANGE:
    op module now uses `Asset` and `Application` types in ops involving those types
    Asset.asset_id is now Aseet.id
@@ -207,7 +236,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * Template variables ([`9d93fee`](https://github.com/algorandfoundation/puya/commit/9d93fee8a089cc894c025d376c51514c789d5a1a))
 
-  refactoring template-var feature 
+  refactoring template-var feature
 
 * pop/popn collapse optimisation ([`0b90505`](https://github.com/algorandfoundation/puya/commit/0b905050313c7eaf88df7af0496f2dcb344e2774))
 
@@ -215,7 +244,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
   refactor: other non-functional refactorings of the implicit return feature
 
-  test: ensure there&#39;s a multi-valued explicit return combined with implicit returns being tested 
+  test: ensure there&#39;s a multi-valued explicit return combined with implicit returns being tested
 
 * Allow slicing Bytes with UInt64. Code generation has also been improved for slicing, and a potential double-evaluation has been fixed. ([`0f9dd79`](https://github.com/algorandfoundation/puya/commit/0f9dd7973283c0268ad94dc30505fe7a0f213e7c))
 
@@ -238,7 +267,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
   also:
    - solve issue of requiring forward declaration of constants &amp; types
    - improve code generation for state access in some cases
-   - `scratch_slots` reservation fixes/improvements  
+   - `scratch_slots` reservation fixes/improvements
    - address usage of non-utf8 file encodings
    - various bug fixes, refactoring, and minor optimisation improvements
 
@@ -272,7 +301,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
   also replace magic &#34;auto&#34; string with just `StateTotals()` since the behaviour is the same.
 
-  docs for this feature improved, and code simplified 
+  docs for this feature improved, and code simplified
 
 * Fix optimizer bug where differing behaviour of extract with &amp; without immediates when length is zero was not accounted for ([`6a8db34`](https://github.com/algorandfoundation/puya/commit/6a8db34e9776502f4ce677ad7d5e470b23d619e6))
 
@@ -307,7 +336,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
   BREAKING CHANGE:
    The following op code classes were renamed:
-   
+
    `AppGlobals` -&gt; `AppGlobal`
    `AppLocals` -&gt; `AppLocal`
    `Transaction` -&gt; `Txn`
@@ -322,7 +351,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
   Optimizer improvements: Implemented repeated expression elimination. Optimize branching on a ! condition, by swapping the branches Eliminated unused pure intrinsic ops. Inline conditional branch to an err block into an assert true/false. Blocks ending in a TEAL switch or match op can now have ops other than b as a fallback, in particular with err this, together with the above change, eliminates almost all standalone err blocks. Added a TEAL optimization pass that runs between MIR and TEAL generation, this simplifies the optimizer and also allows for crossing more virtual stack op boundaries easily. Added almost all cases found by the O2 brute force TEAL replacement search as special cases at O1. Added multiple other new optimizations to the new final TEAL optimizer. Minor tweaking of ARC4 embedded subroutine dynamic_array_pop_fixed_size. Add locals coalescing strategy as an option that it&#39;s independent of the optimization level, given that there&#39;s not necessarily one best approach. Significantly improved the code generated when routing &gt;15 ABI args by removing a temporary assignment, which allows the new Repeated Expression Elimination optimizer pass to do its thing.
 
-  BREAKING CHANGE: --output-cssa-ir and --output-parallel-copies-ir CLI options have been removed, and --output-final-ir is now --output-destructured-ir to better reflect its position in the compiler chain. The default debug level is now 1, and only one TEAL file will be emitted for each program. To get back the previous default behaviour of only outputting an unannotated teal file, pass -g0. 
+  BREAKING CHANGE: --output-cssa-ir and --output-parallel-copies-ir CLI options have been removed, and --output-final-ir is now --output-destructured-ir to better reflect its position in the compiler chain. The default debug level is now 1, and only one TEAL file will be emitted for each program. To get back the previous default behaviour of only outputting an unannotated teal file, pass -g0.
 
 ### Feature
 
@@ -340,13 +369,13 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
   Global and Transaction op values that are constant for a transaction are now class attributes
    added `puyapy.log` that can log any primitive type
-   
+
    BREAKING CHANGE: many functions and classes under `puyapy` can now be found in `puyapy.op`. Values that are constant for a transaction in the `puyapy.op.Global` and `puyapy.op.Transaction` classes are now typed as final class vars
 
 * fix generated class names that are acronyms (#91) ([`bd3f222`](https://github.com/algorandfoundation/puya/commit/bd3f222904819205b87dce574d0bbbefc6409121))
 
   Allow OnCompleteAction use in ARC4 abimethod, baremethod decorators
-   
+
    BREAKING CHANGE: enum class names have changed
 
 ### Fix
@@ -410,7 +439,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * fix argument matching order for gtxn, gtxna, gtxnsa, gtxnas. ([`6d10fef`](https://github.com/algorandfoundation/puya/commit/6d10fef805a7e3a667a0e851387df1c09170b6c3))
 
-  test: add test that exercises compilation + execution of the trickier overloads with literal vs non-literal args 
+  test: add test that exercises compilation + execution of the trickier overloads with literal vs non-literal args
 
 * correct intrinsic mapping for `RenamedOpCode` types, so that the correct overload gets chosen. This is particularly important for extract, where a 0 immediate for length (along with an immediate for start) behaves very differently to the stack based variant. There is still potential for confusion if the start parameter is a literal vs a constant UInt64, but this at least fixes the inability to get the correct result with the right set of args. ([`7bf88e3`](https://github.com/algorandfoundation/puya/commit/7bf88e3056f80657f30a5eb2be41c7c93086b305))
 
@@ -418,11 +447,11 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
   fix: improve performance of the string/dynamic array of fixed size concatenation subroutine
 
-  enhancement: add intrinsic simplifier for replace3 -&gt; replace2 and args -&gt; arg 
+  enhancement: add intrinsic simplifier for replace3 -&gt; replace2 and args -&gt; arg
 
 * fix potential bug when removing an empty entry block that had a goto which was not the next block ([`11c6a3e`](https://github.com/algorandfoundation/puya/commit/11c6a3ecff24a41f6a04d36ec78b2cd64d72557c))
 
-  also do empty block removal immediately, to prevent confusion and potentially reduce the number of optimization passes 
+  also do empty block removal immediately, to prevent confusion and potentially reduce the number of optimization passes
 
 * Add slot range validation to range expressions which specify a step ([`3ccd47f`](https://github.com/algorandfoundation/puya/commit/3ccd47f76289fcea66cdb7199961c2b181b9b318))
 
@@ -447,7 +476,7 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * validate_awst was not called as part of testing ([`71e9fbc`](https://github.com/algorandfoundation/puya/commit/71e9fbca2a445c7222436fc81648fe9cb47f33e7))
 
-  fix: application.json was not being updated by tests 
+  fix: application.json was not being updated by tests
 
 * UnusedRegisterCollector no longer visits a Phi&#39;s register, so it can be considered as a potential unused register ([`8b0e91a`](https://github.com/algorandfoundation/puya/commit/8b0e91a1e3fc524e0056f6189879e08edede7741))
 
@@ -476,11 +505,11 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 
 * stack ops optimisation looping, including not running at all if -O0 ([`b6eaaa6`](https://github.com/algorandfoundation/puya/commit/b6eaaa6f4257abc7bd4909eaa8034058669e4b70))
 
-  feat: reduce stack shuffling when there is a swap preceded by two load ops 
+  feat: reduce stack shuffling when there is a swap preceded by two load ops
 
 * remove support for non bool literals in match cases ([`c4520fb`](https://github.com/algorandfoundation/puya/commit/c4520fb878db15309fbae3401724135d226f653f))
 
-  mypy does not consider runtime equality when evaluating if a case can be reached, resulting in blocks not being fully analyzed when matching literals against equivalent puya primitives 
+  mypy does not consider runtime equality when evaluating if a case can be reached, resulting in blocks not being fully analyzed when matching literals against equivalent puya primitives
 
 * allow using puyapy primitive types with match statements ([`e669c04`](https://github.com/algorandfoundation/puya/commit/e669c043e8aeaeeadbb2510504083107b17dfd1b))
 
@@ -527,4 +556,3 @@ Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2
 ### Documentation
 
 * Adding quick getting started instructions to README.md ([`321fb5f`](https://github.com/algorandfoundation/puya/commit/321fb5f0f9bcff0288b824520e4a79cc67460027))
-

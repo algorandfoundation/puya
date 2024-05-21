@@ -692,6 +692,7 @@ TXN_FIELDS = [
     TxnFields.approval_program_pages,
     TxnFields.clear_state_program_pages,
 ]
+TXN_FIELDS_BY_IMMEDIATE = {f.immediate: f for f in TXN_FIELDS}
 INNER_PARAM_TXN_FIELDS = [f for f in TXN_FIELDS if f.is_inner_param]
 
 
