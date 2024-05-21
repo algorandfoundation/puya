@@ -42,7 +42,7 @@ def _get_box(
             source_location=source_location,
         ),
     )
-    if box_value.atype == AVMType.uint64:
+    if wtype_to_ir_type(box).avm_type == AVMType.uint64:
         (box_value,) = assign_intrinsic_op(
             op=AVMOp.btoi,
             target="box_value_uint64",

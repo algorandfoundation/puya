@@ -99,7 +99,7 @@ def _init(
         case _:
             raise CodeError("First argument must be a type reference", location)
     if result_type is None:
-        result_type = pytypes.GenericLocalStateType.parameterise([content], location)
+        result_type = pytypes.GenericBoxType.parameterise([content], location)
     elif result_type.content != content:
         raise CodeError(
             f"{result_type.generic} explicit type annotation"
