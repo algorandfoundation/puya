@@ -159,10 +159,10 @@ def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
 
 
 def vrf_verify(
-    s: VrfVerify,  # noqa: ARG001
-    a: Bytes | bytes,  # noqa: ARG001
-    b: Bytes | bytes,  # noqa: ARG001
-    c: Bytes | bytes,  # noqa: ARG001
+    _s: VrfVerify,
+    _a: Bytes | bytes,
+    _b: Bytes | bytes,
+    _c: Bytes | bytes,
     /,
 ) -> tuple[Bytes, bool]:
     raise NotImplementedError(
