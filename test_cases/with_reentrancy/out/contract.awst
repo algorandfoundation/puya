@@ -13,17 +13,17 @@ contract WithReentrancy
   }
 }
 
-subroutine itoa(i: algopy.UInt64): algopy.Bytes
+subroutine itoa(i: uint64): bytes
 {
-  digits: algopy.Bytes = '0123456789'
-  radix: algopy.UInt64 = len(digits)
+  digits: bytes = '0123456789'
+  radix: uint64 = len(digits)
   if (i < radix) {
     return digits[i]
   }
   return test_cases.with_reentrancy.contract::itoa(i // radix) + digits[i % radix]
 }
 
-subroutine fibonacci(n: algopy.UInt64): algopy.UInt64
+subroutine fibonacci(n: uint64): uint64
 {
   if (n <= 1u) {
     return n
@@ -31,34 +31,34 @@ subroutine fibonacci(n: algopy.UInt64): algopy.UInt64
   return test_cases.with_reentrancy.contract::fibonacci(n - 1u) + test_cases.with_reentrancy.contract::fibonacci(n - 2u)
 }
 
-subroutine silly(x: algopy.UInt64): algopy.UInt64
+subroutine silly(x: uint64): uint64
 {
-  x: algopy.UInt64 = x + 1u
-  result: algopy.UInt64 = test_cases.with_reentrancy.contract::silly2(x)
+  x: uint64 = x + 1u
+  result: uint64 = test_cases.with_reentrancy.contract::silly2(x)
   log('silly = ' + test_cases.with_reentrancy.contract::itoa(x))
   return result
 }
 
-subroutine silly2(x: algopy.UInt64): algopy.UInt64
+subroutine silly2(x: uint64): uint64
 {
-  x: algopy.UInt64 = x + 2u
-  result: algopy.UInt64 = test_cases.with_reentrancy.contract::silly3(x)
+  x: uint64 = x + 2u
+  result: uint64 = test_cases.with_reentrancy.contract::silly3(x)
   log('silly2 = ' + test_cases.with_reentrancy.contract::itoa(x))
   return result
 }
 
-subroutine silly3(x: algopy.UInt64): algopy.UInt64
+subroutine silly3(x: uint64): uint64
 {
   is_even: bool = x % 2u == 0u
-  a: algopy.UInt64 = x + 2u
+  a: uint64 = x + 2u
   if (is_even) {
-    result: algopy.UInt64 = a * 2u
-    a: algopy.UInt64 = result // 2u - 2u
+    result: uint64 = a * 2u
+    a: uint64 = result // 2u - 2u
   } else {
-    result: algopy.UInt64 = test_cases.with_reentrancy.contract::silly(x)
+    result: uint64 = test_cases.with_reentrancy.contract::silly(x)
   }
   if (is_even) {
-    result: algopy.UInt64 = a
+    result: uint64 = a
   }
   log('silly3 = ' + test_cases.with_reentrancy.contract::itoa(x))
   return result

@@ -4,12 +4,12 @@ ALWAYS_APPROVE = b'\t\x81\x01'
 contract MyContract
 {
   globals {
-    ['name']: algopy.Bytes
+    ['name']: bytes
   }
   
   constructor()
   {
-    this.name: algopy.Bytes = ''
+    this.name: bytes = ''
   }
   
   approval_program(): bool
@@ -38,21 +38,21 @@ contract MyContract
     return true
   }
   
-  subroutine test1(): None
+  subroutine test1(): void
   {
-    this.name: algopy.Bytes = 'AST1'
-    asset_params: algopy.itxn.AssetConfig = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.name, ConfigAssetUnitName='unit', ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
-    this.name: algopy.Bytes = 'AST2'
-    asset1_txn: algopy.itxn.AssetConfigInnerTransaction = submit_txn(asset_params)
+    this.name: bytes = 'AST1'
+    asset_params: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.name, ConfigAssetUnitName='unit', ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
+    this.name: bytes = 'AST2'
+    asset1_txn: inner_transaction_acfg = submit_txn(asset_params)
     update_inner_transaction(asset_params,ConfigAssetName=this.name)
-    asset2_txn: algopy.itxn.AssetConfigInnerTransaction = submit_txn(asset_params)
+    asset2_txn: inner_transaction_acfg = submit_txn(asset_params)
     assert(asset1_txn.ConfigAssetName == 'AST1', comment="asset1_txn is correct")
     assert(asset2_txn.ConfigAssetName == 'AST2', comment="asset2_txn is correct")
     assert(checked_maybe(asset_params_get<AssetName>(asset1_txn.CreatedAssetID)) == 'AST1', comment="created asset 1 is correct")
     assert(checked_maybe(asset_params_get<AssetName>(asset2_txn.CreatedAssetID)) == 'AST2', comment="created asset 2 is correct")
-    app_create_params: algopy.itxn.ApplicationCall = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">)
+    app_create_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">)
     update_inner_transaction(asset_params,ConfigAssetName='AST3')
-    (app_create_txn, asset3_txn): tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.AssetConfigInnerTransaction] = submit_txn(app_create_params, asset_params)
+    (app_create_txn, asset3_txn): tuple<inner_transaction_appl,inner_transaction_acfg> = submit_txn(app_create_params, asset_params)
     assert(reinterpret_cast<bool>(app_create_txn.CreatedApplicationID), comment="created app")
     assert(asset3_txn.ConfigAssetName == 'AST3', comment="asset3_txn is correct")
     update_inner_transaction(app_create_params,Note='3rd')
@@ -60,58 +60,58 @@ contract MyContract
     submit_txn(app_create_params, asset_params)
   }
   
-  subroutine test2(): None
+  subroutine test2(): void
   {
     if (reinterpret_cast<bool>(txn<NumAppArgs>())) {
-      args: tuple[algopy.Bytes, algopy.Bytes] = ('1', '2')
-      create_app_params: algopy.itxn.ApplicationCall = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=args, OnCompletion=NoOp, Note='with args param set')
+      args: tuple<bytes,bytes> = ('1', '2')
+      create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=args, OnCompletion=NoOp, Note='with args param set')
     } else {
-      create_app_params: algopy.itxn.ApplicationCall = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=('3', '4', '5'), Note='no args param set')
+      create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=('3', '4', '5'), Note='no args param set')
     }
-    create_app_txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_app_params)
+    create_app_txn: inner_transaction_appl = submit_txn(create_app_params)
     assert(create_app_txn.ApplicationArgs[0u] == '1', comment="correct args used 1")
     assert(create_app_txn.ApplicationArgs[1u] == '2', comment="correct args used 2")
     if (txn<NumAppArgs>() > 1u) {
-      create_app_txn2: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('42')))
+      create_app_txn2: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('42')))
       assert(create_app_txn2.ApplicationArgs[0u] == '42', comment="correct args used 2")
       assert(create_app_txn.Note == 'with args param set')
     }
   }
   
-  subroutine test3(): None
+  subroutine test3(): void
   {
-    app_p_1: algopy.itxn.ApplicationCall = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"09361A00B08101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1'))
-    app_p_2: algopy.itxn.ApplicationCall = app_p_1.copy().copy()
+    app_p_1: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"09361A00B08101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1'))
+    app_p_2: inner_transaction_fields_appl = app_p_1.copy().copy()
     update_inner_transaction(app_p_2,ApplicationArgs=('2'))
-    app_p_3: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_3: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_3,ApplicationArgs=('3'))
-    app_p_4: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_4: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_4,ApplicationArgs=('4'))
-    app_p_5: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_5: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_5,ApplicationArgs=('5'))
-    app_p_6: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_6: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_6,ApplicationArgs=('6'))
-    app_p_7: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_7: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_7,ApplicationArgs=('7'))
-    app_p_8: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_8: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_8,ApplicationArgs=('8'))
-    app_p_9: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_9: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_9,ApplicationArgs=('9'))
-    app_p_10: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_10: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_10,ApplicationArgs=('10'))
-    app_p_11: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_11: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_11,ApplicationArgs=('11'))
-    app_p_12: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_12: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_12,ApplicationArgs=('12'))
-    app_p_13: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_13: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_13,ApplicationArgs=('13'))
-    app_p_14: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_14: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_14,ApplicationArgs=('14'))
-    app_p_15: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_15: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_15,ApplicationArgs=('15'))
-    app_p_16: algopy.itxn.ApplicationCall = app_p_1.copy()
+    app_p_16: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_16,ApplicationArgs=('16'))
-    (app1, app2, app3, app4, app5, app6, app7, app8, app9, app10, app11, app12, app13, app14, app15, app16): tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction] = submit_txn(app_p_1, app_p_2, app_p_3, app_p_4, app_p_5, app_p_6, app_p_7, app_p_8, app_p_9, app_p_10, app_p_11, app_p_12, app_p_13, app_p_14, app_p_15, app_p_16)
+    (app1, app2, app3, app4, app5, app6, app7, app8, app9, app10, app11, app12, app13, app14, app15, app16): tuple<inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl> = submit_txn(app_p_1, app_p_2, app_p_3, app_p_4, app_p_5, app_p_6, app_p_7, app_p_8, app_p_9, app_p_10, app_p_11, app_p_12, app_p_13, app_p_14, app_p_15, app_p_16)
     assert(app1.Logs[0u] == '1')
     assert(app2.Logs[0u] == '2')
     assert(app3.Logs[0u] == '3')
@@ -130,13 +130,13 @@ contract MyContract
     assert(app16.Logs[0u] == '16')
   }
   
-  subroutine test4(): None
+  subroutine test4(): void
   {
-    lots_of_bytes: algopy.Bytes = bzero(2044u)
-    approval_1: algopy.Bytes = hex<"098101">
-    approval_2: algopy.Bytes = hex<"80FC0F"> + lots_of_bytes + 'H'
-    app_p_1: algopy.itxn.ApplicationCall = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(approval_1, approval_2, approval_2, approval_2), ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1'), ExtraProgramPages=3u)
-    app_1: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(app_p_1)
+    lots_of_bytes: bytes = bzero(2044u)
+    approval_1: bytes = hex<"098101">
+    approval_2: bytes = hex<"80FC0F"> + lots_of_bytes + 'H'
+    app_p_1: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(approval_1, approval_2, approval_2, approval_2), ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1'), ExtraProgramPages=3u)
+    app_1: inner_transaction_appl = submit_txn(app_p_1)
     assert(app_1.ExtraProgramPages == 3u, comment="extra_pages == 3")
     assert(app_1.NumApprovalProgramPages == 2u, comment="approval_pages == 2")
     assert(app_1.ApprovalProgramPages[0u] == approval_1 + approval_2 + approval_2[:-3], comment="expected approval page 0")
@@ -146,7 +146,7 @@ contract MyContract
   }
 }
 
-subroutine echo(v: algopy.Bytes): algopy.Bytes
+subroutine echo(v: bytes): bytes
 {
   return v
 }

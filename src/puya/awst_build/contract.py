@@ -223,24 +223,22 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                             arc4_decorator_loc,
                         )
                 else:
-                    ret_wtype = ret_pytype.wtype
-                    arg_wtypes = [a.wtype for a in arg_pytypes]
-                    for arg_wtype in arg_wtypes:
+                    for arg_type in arg_pytypes:
                         if not (
-                            wtypes.is_arc4_argument_type(arg_wtype)
-                            or wtypes.has_arc4_equivalent_type(arg_wtype)
+                            wtypes.is_arc4_argument_type(arg_type.wtype)
+                            or wtypes.has_arc4_equivalent_type(arg_type.wtype)
                         ):
                             self._error(
-                                f"Invalid argument type for an ARC4 method: {arg_wtype}",
+                                f"Invalid argument type for an ARC4 method: {arg_type}",
                                 arc4_decorator_loc,
                             )
                     if not (
-                        ret_wtype is wtypes.void_wtype
-                        or wtypes.is_arc4_encoded_type(ret_wtype)
-                        or wtypes.has_arc4_equivalent_type(ret_wtype)
+                        ret_pytype == pytypes.NoneType
+                        or wtypes.is_arc4_encoded_type(ret_pytype.wtype)
+                        or wtypes.has_arc4_equivalent_type(ret_pytype.wtype)
                     ):
                         self._error(
-                            f"Invalid return type for an ARC4 method: {ret_wtype}",
+                            f"Invalid return type for an ARC4 method: {ret_pytype}",
                             arc4_decorator_loc,
                         )
                 # TODO: validate against super-class configs??

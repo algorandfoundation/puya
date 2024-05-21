@@ -1310,7 +1310,7 @@ def test_box_contract(algod_client: AlgodClient, account: algokit_utils.Account)
         ),
     )
     transaction_parameters = algokit_utils.OnCompleteCallParameters(
-        boxes=[(0, b"BOX_A"), (0, b"b"), (0, b"BOX_C"), (0, b"0"), (0, b"d")]
+        boxes=[(0, "box_a"), (0, "b"), (0, b"BOX_C"), (0, b"0"), (0, b"d")]
     )
 
     (a_exist, b_exist, c_exist) = client.call(

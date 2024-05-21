@@ -1,30 +1,30 @@
 contract Augmented
 {
   globals {
-    ['global_uint']: algopy.UInt64
-    ['global_bytes']: algopy.Bytes
+    ['global_uint']: uint64
+    ['global_bytes']: bytes
   }
   locals {
-    ['my_uint']: algopy.UInt64
-    ['my_bytes']: algopy.Bytes
+    ['my_uint']: uint64
+    ['my_bytes']: bytes
   }
   
   constructor()
   {
-    this.global_uint: algopy.UInt64 = 0u
-    this.global_bytes: algopy.Bytes = ''
+    this.global_uint: uint64 = 0u
+    this.global_bytes: bytes = ''
   }
   
   approval_program(): bool
   {
-    me: algopy.Account = txn<Sender>()
+    me: account = txn<Sender>()
     if (txn<OnCompletion>() == OptIn) {
-      this.my_uint[me]: algopy.UInt64 = 0u
-      this.my_bytes[me]: algopy.Bytes = ''
+      this.my_uint[me]: uint64 = 0u
+      this.my_bytes[me]: bytes = ''
     }
     if (reinterpret_cast<bool>(txn<ApplicationID>())) {
-      n: algopy.UInt64 = txn<NumAppArgs>()
-      bytes_to_add: algopy.Bytes = reinterpret_cast<algopy.Bytes>(itob(n))
+      n: uint64 = txn<NumAppArgs>()
+      bytes_to_add: bytes = reinterpret_cast<bytes>(itob(n))
       this.my_uint[me] += n
       this.my_bytes[me] += bytes_to_add
       this.global_uint += n

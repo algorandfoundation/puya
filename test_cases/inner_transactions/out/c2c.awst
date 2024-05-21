@@ -1,25 +1,25 @@
 contract Greeter
 {
   globals {
-    ['hello_app']: algopy.Application
+    ['hello_app']: application
   }
   
   constructor()
   {
-    this.hello_app: algopy.Application = reinterpret_cast<algopy.Application>(0u)
+    this.hello_app: application = reinterpret_cast<application>(0u)
   }
   
-  abimethod bootstrap(): algopy.UInt64
+  abimethod bootstrap(): uint64
   {
     assert(!(reinterpret_cast<bool>(this.hello_app)), comment="already bootstrapped")
-    this.hello_app: algopy.Application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"0A200101311B410026800402BECE11361A008E0100010031191444311844361A018800158004151F7C754C50B02243311914443118144422438A01018BFF570200800748656C6C6F2C204C504915165706004C5089">, ClearStateProgramPages=hex<"0A8101">)).CreatedApplicationID
-    return reinterpret_cast<algopy.UInt64>(this.hello_app)
+    this.hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"0A200101311B410026800402BECE11361A008E0100010031191444311844361A018800158004151F7C754C50B02243311914443118144422438A01018BFF570200800748656C6C6F2C204C504915165706004C5089">, ClearStateProgramPages=hex<"0A8101">)).CreatedApplicationID
+    return reinterpret_cast<uint64>(this.hello_app)
   }
   
-  abimethod log_greetings(name: algopy.arc4.String): None
+  abimethod log_greetings(name: arc4.string): void
   {
-    hello_call: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=this.hello_app, ApplicationArgs=(Method("hello(string)string"), name)))
-    greeting: algopy.arc4.String = reinterpret_cast<algopy.arc4.String>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0, source=hello_call.LastLog)) == hex<"151F7C75">)))
-    log(concat(concat('HelloWorld returned: ', ''), arc4_decode(greeting, algopy.String)))
+    hello_call: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=this.hello_app, ApplicationArgs=(Method("hello(string)string"), name)))
+    greeting: arc4.string = reinterpret_cast<arc4.string>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0, source=hello_call.LastLog)) == hex<"151F7C75">)))
+    log(concat(concat('HelloWorld returned: ', ''), arc4_decode(greeting, string)))
   }
 }

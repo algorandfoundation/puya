@@ -7,7 +7,7 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 
 from puya import log
-from puya.arc4_util import arc4_to_wtype
+from puya.arc4_util import arc4_to_pytype
 from puya.awst_build import constants
 from puya.errors import InternalError
 from puya.models import (
@@ -297,7 +297,7 @@ def _abi_arg(arg: ARC4MethodArg, struct: ARC32StructDef | None) -> str:
 
 
 def _arc4_type_to_algopy_cls(typ: str) -> str:
-    return arc4_to_wtype(typ).stub_name
+    return str(arc4_to_pytype(typ))
 
 
 def _arc4_method_to_decorator(method: ARC4Method) -> str:

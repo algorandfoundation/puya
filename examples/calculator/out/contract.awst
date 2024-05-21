@@ -3,10 +3,10 @@ SUB = 2
 MUL = 3
 DIV = 4
 
-subroutine itoa(i: algopy.UInt64): algopy.Bytes
+subroutine itoa(i: uint64): bytes
 {
-  digits: algopy.Bytes = '0123456789'
-  radix: algopy.UInt64 = len(digits)
+  digits: bytes = '0123456789'
+  radix: uint64 = len(digits)
   if (i < radix) {
     return digits[i]
   }
@@ -15,28 +15,28 @@ subroutine itoa(i: algopy.UInt64): algopy.Bytes
 
 contract MyContract
 {
-  approval_program(): algopy.UInt64
+  approval_program(): uint64
   {
-    num_args: algopy.UInt64 = txn<NumAppArgs>()
+    num_args: uint64 = txn<NumAppArgs>()
     if (num_args == 0u) {
-      a: algopy.UInt64 = 0u
-      b: algopy.UInt64 = 0u
-      action: algopy.UInt64 = 0u
+      a: uint64 = 0u
+      b: uint64 = 0u
+      action: uint64 = 0u
       log(itob(a))
       log(itob(b))
     } else {
       assert(num_args == 3u, comment="Expected 3 args")
-      action_b: algopy.Bytes = txna<ApplicationArgs, 0>()
-      action: algopy.UInt64 = btoi(action_b)
-      a_bytes: algopy.Bytes = txna<ApplicationArgs, 1>()
-      b_bytes: algopy.Bytes = txna<ApplicationArgs, 2>()
+      action_b: bytes = txna<ApplicationArgs, 0>()
+      action: uint64 = btoi(action_b)
+      a_bytes: bytes = txna<ApplicationArgs, 1>()
+      b_bytes: bytes = txna<ApplicationArgs, 2>()
       log(a_bytes)
       log(b_bytes)
-      a: algopy.UInt64 = btoi(a_bytes)
-      b: algopy.UInt64 = btoi(b_bytes)
+      a: uint64 = btoi(a_bytes)
+      b: uint64 = btoi(b_bytes)
     }
-    result: algopy.UInt64 = this::do_calc(action, a, b)
-    result_b: algopy.Bytes = examples.calculator.contract::itoa(a) + this::op(action) + examples.calculator.contract::itoa(b) + ' = ' + examples.calculator.contract::itoa(result)
+    result: uint64 = this::do_calc(action, a, b)
+    result_b: bytes = examples.calculator.contract::itoa(a) + this::op(action) + examples.calculator.contract::itoa(b) + ' = ' + examples.calculator.contract::itoa(result)
     log(result_b)
     return 1u
   }
@@ -46,7 +46,7 @@ contract MyContract
     return true
   }
   
-  subroutine op(action: algopy.UInt64): algopy.Bytes
+  subroutine op(action: uint64): bytes
   {
     if (action == 1u) {
       return ' + '
@@ -67,7 +67,7 @@ contract MyContract
     }
   }
   
-  subroutine do_calc(maybe_action: algopy.UInt64, a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  subroutine do_calc(maybe_action: uint64, a: uint64, b: uint64): uint64
   {
     if (maybe_action == 1u) {
       return this::add(a, b)
@@ -88,22 +88,22 @@ contract MyContract
     }
   }
   
-  subroutine add(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  subroutine add(a: uint64, b: uint64): uint64
   {
     return a + b
   }
   
-  subroutine sub(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  subroutine sub(a: uint64, b: uint64): uint64
   {
     return a - b
   }
   
-  subroutine mul(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  subroutine mul(a: uint64, b: uint64): uint64
   {
     return a * b
   }
   
-  subroutine div(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  subroutine div(a: uint64, b: uint64): uint64
   {
     return a // b
   }

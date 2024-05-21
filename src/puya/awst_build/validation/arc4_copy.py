@@ -99,20 +99,19 @@ def _is_referable_expression(expr: awst_nodes.Expression) -> bool:
 def _check_assignment(target: awst_nodes.Expression, value: awst_nodes.Expression) -> None:
     if not isinstance(target, awst_nodes.TupleExpression):
         _check_for_arc4_copy(value, "being assigned to another variable")
-    elif _is_referable_expression(value):
-        problem_type = next((i for i in target.wtype.types if _is_arc4_mutable(i)), None)
-        if problem_type:
-            logger.error(
-                f"Tuple cannot be destructured as it contains an item of type"
-                f" {problem_type} which requires copying. Use index access instead",
-                location=value.source_location,
-            )
+    elif _is_referable_expression(value) and any(_is_arc4_mutable(i) for i in target.wtype.types):
+        logger.error(
+            "tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked,"
+            " use index access instead",
+            location=value.source_location,
+        )
 
 
 def _check_for_arc4_copy(expr: awst_nodes.Expression, context_desc: str) -> None:
     if _is_arc4_mutable(expr.wtype) and _is_referable_expression(expr):
         logger.error(
-            f"{expr.wtype} must be copied using .copy() when {context_desc}",
+            "mutable reference to ARC4-encoded value"
+            f" must be copied using .copy() when {context_desc}",
             location=expr.source_location,
         )
 

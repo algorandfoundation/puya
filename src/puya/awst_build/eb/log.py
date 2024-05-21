@@ -13,10 +13,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
@@ -29,7 +26,8 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class LogBuilder(IntermediateExpressionBuilder):
+class LogBuilder(FunctionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

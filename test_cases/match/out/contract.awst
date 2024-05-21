@@ -1,14 +1,14 @@
 contract MyContract
 {
   globals {
-    ['case_one']: algopy.UInt64
-    ['case_two']: algopy.UInt64
+    ['case_one']: uint64
+    ['case_two']: uint64
   }
   
   approval_program(): bool
   {
-    this.case_one: algopy.UInt64 = 1u
-    this.case_two: algopy.UInt64 = 2u
+    this.case_one: uint64 = 1u
+    this.case_two: uint64 = 2u
     this::match_uint64()
     this::match_biguint()
     this::match_bytes()
@@ -23,95 +23,95 @@ contract MyContract
     return true
   }
   
-  subroutine match_uint64(): None
+  subroutine match_uint64(): void
   {
-    n: algopy.UInt64 = txn<NumAppArgs>()
+    n: uint64 = txn<NumAppArgs>()
     switch (n) {
       case 0u: {
-        hello: algopy.Bytes = 'Hello'
+        hello: bytes = 'Hello'
         log(hello)
       }
       case 10u: {
-        hello: algopy.Bytes = 'Hello There'
+        hello: bytes = 'Hello There'
         log(hello)
       }
     }
   }
   
-  subroutine match_bytes(): None
+  subroutine match_bytes(): void
   {
-    n: algopy.Bytes = txna<ApplicationArgs, 0>()
+    n: bytes = txna<ApplicationArgs, 0>()
     switch (n) {
       case '': {
-        hello: algopy.Bytes = 'Hello bytes'
+        hello: bytes = 'Hello bytes'
         log(hello)
       }
       case '10': {
-        hello: algopy.Bytes = 'Hello There bytes'
+        hello: bytes = 'Hello There bytes'
         log(hello)
       }
     }
   }
   
-  subroutine match_biguint(): None
+  subroutine match_biguint(): void
   {
-    n: algopy.BigUInt = itob(txn<NumAppArgs>()) b* 10n
+    n: biguint = itob(txn<NumAppArgs>()) b* 10n
     switch (n) {
       case 0n: {
-        hello: algopy.Bytes = 'Hello biguint'
+        hello: bytes = 'Hello biguint'
         log(hello)
       }
       case 10n: {
-        hello: algopy.Bytes = 'Hello There biguint'
+        hello: bytes = 'Hello There biguint'
         log(hello)
       }
     }
   }
   
-  subroutine match_address(): None
+  subroutine match_address(): void
   {
-    n: algopy.Account = txn<Sender>()
+    n: account = txn<Sender>()
     switch (n) {
       case Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"): {
-        hello: algopy.Bytes = 'Hello address'
+        hello: bytes = 'Hello address'
         log(hello)
       }
       case Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"): {
-        hello: algopy.Bytes = 'Hello There address'
+        hello: bytes = 'Hello There address'
         log(hello)
       }
     }
   }
   
-  subroutine match_attributes(): None
+  subroutine match_attributes(): void
   {
-    n: algopy.UInt64 = txn<NumAppArgs>()
+    n: uint64 = txn<NumAppArgs>()
     switch (n) {
       case this.case_one: {
-        hello: algopy.Bytes = 'Hello one'
+        hello: bytes = 'Hello one'
         log(hello)
       }
       case this.case_two: {
-        hello: algopy.Bytes = 'Hello two'
+        hello: bytes = 'Hello two'
         log(hello)
       }
       case _: {
-        hello: algopy.Bytes = 'Hello default'
+        hello: bytes = 'Hello default'
         log(hello)
       }
     }
   }
   
-  subroutine match_bools(): None
+  subroutine match_bools(): void
   {
     n: bool = txn<NumAppArgs>() > 0u
     switch (n) {
       case true: {
-        hello: algopy.Bytes = 'Hello True'
+        hello: bytes = 'Hello True'
         log(hello)
       }
       case false: {
-        hello: algopy.Bytes = 'Hello False'
+        hello: bytes = 'Hello False'
         log(hello)
       }
     }

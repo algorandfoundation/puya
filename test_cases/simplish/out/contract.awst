@@ -5,11 +5,11 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
 {
   approval_program(): bool
   {
-    if (txn<ApplicationID>() == reinterpret_cast<algopy.Application>(0u)) {
+    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
-    oca: algopy.UInt64 = txn<OnCompletion>()
-    sender: algopy.Account = txn<Sender>()
+    oca: uint64 = txn<OnCompletion>()
+    sender: account = txn<Sender>()
     if (oca IS IN (UpdateApplication, DeleteApplication)) {
       if (oca == DeleteApplication) {
         log('I was used ' + test_cases.simplish.contract::itoa(this.counter) + ' time(s) before I died')
@@ -25,20 +25,20 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
     if (oca != NoOp) {
       return false
     }
-    if (num_app_args: algopy.UInt64 := txn<NumAppArgs>() > 0u) {
-      method_name: algopy.Bytes = txna<ApplicationArgs, 0>()
-      (msg, result): tuple[algopy.Bytes, bool] = this::call(method_name, num_app_args)
+    if (num_app_args: uint64 := txn<NumAppArgs>() > 0u) {
+      method_name: bytes = txna<ApplicationArgs, 0>()
+      (msg, result): tuple<bytes,bool> = this::call(method_name, num_app_args)
     } else {
       if (txn<NumAssets>() == 1u) {
-        (asset_balance, asset_exists): tuple[algopy.UInt64, bool] = asset_holding_get<AssetBalance>(sender, reinterpret_cast<algopy.Asset>(0u))
+        (asset_balance, asset_exists): tuple<uint64,bool> = asset_holding_get<AssetBalance>(sender, reinterpret_cast<asset>(0u))
         if (!(asset_exists)) {
-          msg: algopy.Bytes = 'You do not have any of the asset'
+          msg: bytes = 'You do not have any of the asset'
         } else {
-          msg: algopy.Bytes = 'You have asset balance: ' + test_cases.simplish.contract::itoa(asset_balance)
+          msg: bytes = 'You have asset balance: ' + test_cases.simplish.contract::itoa(asset_balance)
         }
         result: bool = true
       } else {
-        msg: algopy.Bytes = 'not enough app args or foreign assets'
+        msg: bytes = 'not enough app args or foreign assets'
         result: bool = false
       }
     }
@@ -52,74 +52,74 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
     return true
   }
   
-  subroutine call(method_name: algopy.Bytes, num_app_args: algopy.UInt64): tuple[algopy.Bytes, bool]
+  subroutine call(method_name: bytes, num_app_args: uint64): tuple<bytes,bool>
   {
     assert(num_app_args == 2u, comment="insufficient arguments")
-    radius: algopy.UInt64 = btoi(txna<ApplicationArgs, 1>())
+    radius: uint64 = btoi(txna<ApplicationArgs, 1>())
     status: bool = true
     if (method_name == 'circle_area') {
-      area: algopy.UInt64 = test_cases.simplish.contract::circle_area(radius)
-      result: algopy.Bytes = test_cases.simplish.contract::itoa(area)
+      area: uint64 = test_cases.simplish.contract::circle_area(radius)
+      result: bytes = test_cases.simplish.contract::itoa(area)
     } else {
       if (method_name == 'circle_circumference') {
-        circumference: algopy.UInt64 = test_cases.simplish.contract::circle_circumference(radius)
-        result: algopy.Bytes = test_cases.simplish.contract::itoa(circumference)
+        circumference: uint64 = test_cases.simplish.contract::circle_circumference(radius)
+        result: bytes = test_cases.simplish.contract::itoa(circumference)
       } else {
         if (method_name == 'circle_report') {
-          (area, circumference): tuple[algopy.UInt64, algopy.UInt64] = (test_cases.simplish.contract::circle_area(radius), test_cases.simplish.contract::circle_circumference(radius))
-          result: algopy.Bytes = 'Approximate area and circumference of circle with radius ' + test_cases.simplish.contract::itoa(radius) + ' = ' + test_cases.simplish.contract::itoa(area) + ', ' + test_cases.simplish.contract::itoa(circumference)
+          (area, circumference): tuple<uint64,uint64> = (test_cases.simplish.contract::circle_area(radius), test_cases.simplish.contract::circle_circumference(radius))
+          result: bytes = 'Approximate area and circumference of circle with radius ' + test_cases.simplish.contract::itoa(radius) + ' = ' + test_cases.simplish.contract::itoa(area) + ', ' + test_cases.simplish.contract::itoa(circumference)
         } else {
           status: bool = false
-          result: algopy.Bytes = 'unknown method name'
+          result: bytes = 'unknown method name'
         }
       }
     }
     return (result, status)
   }
   
-  subroutine increment_counter(): None
+  subroutine increment_counter(): void
   {
     log('Incrementing counter!')
     test_cases.simplish.base_class::CallCounter::increment_counter()
   }
 }
 
-subroutine circle_circumference(radius: algopy.UInt64): algopy.UInt64
+subroutine circle_circumference(radius: uint64): uint64
 {
-  two_pi: algopy.UInt64 = 2u * 314159u
+  two_pi: uint64 = 2u * 314159u
   return radius * two_pi // 100000u
 }
 
-subroutine circle_area(radius: algopy.UInt64): algopy.UInt64
+subroutine circle_area(radius: uint64): uint64
 {
-  result: algopy.UInt64 = radius ** 2u * 314159u // 100000u
+  result: uint64 = radius ** 2u * 314159u // 100000u
   return result
 }
 
-subroutine itoa(i: algopy.UInt64): algopy.Bytes
+subroutine itoa(i: uint64): bytes
 {
-  digits: algopy.Bytes = '0123456789'
-  radix: algopy.UInt64 = len(digits)
+  digits: bytes = '0123456789'
+  radix: uint64 = len(digits)
   if (i < radix) {
     return digits[i]
   }
   return test_cases.simplish.contract::itoa(i // radix) + digits[i % radix]
 }
 
-subroutine test_intrinsics(): algopy.UInt64
+subroutine test_intrinsics(): uint64
 {
-  _ii: algopy.Bytes = gload<1, 1>()
-  _si: algopy.Bytes = gloads<2>(2u)
-  _ss: algopy.Bytes = gloadss(3u, 3u)
-  _is: algopy.Bytes = gloadss(4u, 4u)
-  _foo_uint: algopy.UInt64 = setbit(32u, 0u, 3u)
-  _foo_int: algopy.UInt64 = setbit(32u, 0u, 3u)
-  _foo_bytes: algopy.Bytes = setbit('32', 0u, 3u)
-  test: algopy.Bytes = app_global_get('foo')
+  _ii: bytes = gload<1, 1>()
+  _si: bytes = gloads<2>(2u)
+  _ss: bytes = gloadss(3u, 3u)
+  _is: bytes = gloadss(4u, 4u)
+  _foo_uint: uint64 = setbit(32u, 0u, 3u)
+  _foo_int: uint64 = setbit(32u, 0u, 3u)
+  _foo_bytes: bytes = setbit('32', 0u, 3u)
+  test: bytes = app_global_get('foo')
   app_global_put('b', 'yeah')
   app_global_del('foo')
-  _expect_bytes: algopy.Bytes = test
-  _abcd: tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64] = divmodw(1u, 2u, 3u, 4u)
-  _hello_str: algopy.Bytes = base64_decode<StdEncoding>('SGVsbG8=')
+  _expect_bytes: bytes = test
+  _abcd: tuple<uint64,uint64,uint64,uint64> = divmodw(1u, 2u, 3u, 4u)
+  _hello_str: bytes = base64_decode<StdEncoding>('SGVsbG8=')
   return 0u
 }

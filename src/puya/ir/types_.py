@@ -83,14 +83,7 @@ def wtype_to_ir_type(
             return IRType.itxn_field_set
         case wtypes.biguint_wtype:
             return IRType.biguint
-        case (
-            wtypes.bytes_wtype
-            | wtypes.account_wtype
-            | wtypes.string_wtype
-            | wtypes.ARC4Type()
-            | wtypes.box_ref_proxy_type
-            | wtypes.WBoxProxy()
-        ):
+        case wtypes.bytes_wtype | wtypes.account_wtype | wtypes.string_wtype | wtypes.ARC4Type():
             return IRType.bytes
         case wtypes.void_wtype:
             raise InternalError("Can't translate void WType to IRType", source_location)
@@ -144,8 +137,6 @@ def wtype_to_avm_type(
             | wtypes.account_wtype
             | wtypes.ARC4Type()
             | wtypes.string_wtype
-            | wtypes.box_ref_proxy_type
-            | wtypes.WBoxProxy()
         ):
             return AVMType.bytes
         case wtypes.void_wtype:

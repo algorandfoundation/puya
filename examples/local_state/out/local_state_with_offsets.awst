@@ -1,7 +1,7 @@
 contract LocalStateContract
 {
   locals {
-    ['local']: algopy.Bytes
+    ['local']: bytes
   }
   
   constructor()
@@ -10,7 +10,7 @@ contract LocalStateContract
   
   approval_program(): bool
   {
-    if (txn<ApplicationID>() == reinterpret_cast<algopy.Application>(0u)) {
+    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
     if (!(txn<OnCompletion>() IS IN (NoOp, OptIn))) {
@@ -19,8 +19,8 @@ contract LocalStateContract
     if (txn<NumAppArgs>() < 1u) {
       return false
     }
-    offset: algopy.UInt64 = btoi(txna<ApplicationArgs, 0>())
-    method: algopy.Bytes = txna<ApplicationArgs, 1>()
+    offset: uint64 = btoi(txna<ApplicationArgs, 0>())
+    method: bytes = txna<ApplicationArgs, 1>()
     if (txn<NumAppArgs>() == 2u) {
       if (method == 'get_guaranteed_data') {
         log(this::get_guaranteed_data(offset))
@@ -60,29 +60,29 @@ contract LocalStateContract
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: algopy.UInt64): algopy.Bytes
+  subroutine get_guaranteed_data(for_account: uint64): bytes
   {
     return this.local[for_account]
   }
   
-  subroutine get_data_with_default(for_account: algopy.UInt64, default: algopy.Bytes): algopy.Bytes
+  subroutine get_data_with_default(for_account: uint64, default: bytes): bytes
   {
     return STATE_GET(this.local[for_account], default=default)
   }
   
-  subroutine get_data_or_assert(for_account: algopy.UInt64): algopy.Bytes
+  subroutine get_data_or_assert(for_account: uint64): bytes
   {
-    (result, exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.local[for_account])
+    (result, exists): tuple<bytes,bool> = STATE_GET_EX(this.local[for_account])
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: algopy.UInt64, value: algopy.Bytes): None
+  subroutine set_data(for_account: uint64, value: bytes): void
   {
-    this.local[for_account]: algopy.Bytes = value
+    this.local[for_account]: bytes = value
   }
   
-  subroutine delete_data(for_account: algopy.UInt64): None
+  subroutine delete_data(for_account: uint64): void
   {
     STATE_DELETE(this.local[for_account])
   }

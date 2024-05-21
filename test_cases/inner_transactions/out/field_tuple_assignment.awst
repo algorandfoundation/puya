@@ -3,10 +3,10 @@ ALWAYS_APPROVE = b'\t\x81\x01'
 
 contract FieldTupleContract
 {
-  abimethod test_assign_tuple(): None
+  abimethod test_assign_tuple(): void
   {
-    create_txns: tuple[algopy.itxn.ApplicationCall, algopy.itxn.ApplicationCall] = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a')), create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('3a', '4a', '5a'), Note='different param set'))
-    (txn_1, txn_2): tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction] = submit_txn(create_txns[0], create_txns[1])
+    create_txns: tuple<inner_transaction_fields_appl,inner_transaction_fields_appl> = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a')), create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('3a', '4a', '5a'), Note='different param set'))
+    (txn_1, txn_2): tuple<inner_transaction_appl,inner_transaction_appl> = submit_txn(create_txns[0], create_txns[1])
     assert(txn_1.ApplicationArgs[0u] == '1a')
     assert(txn_1.ApplicationArgs[1u] == '2a')
     assert(txn_2.ApplicationArgs[0u] == '3a')
@@ -14,7 +14,7 @@ contract FieldTupleContract
     assert(txn_2.ApplicationArgs[2u] == '5a')
     update_inner_transaction(create_txns[0],ApplicationArgs=('1b', '2b'))
     update_inner_transaction(create_txns[1],ApplicationArgs=('3b', '4b', '5b'))
-    (txn_1, txn_2): tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction] = submit_txn(create_txns[1], create_txns[0])
+    (txn_1, txn_2): tuple<inner_transaction_appl,inner_transaction_appl> = submit_txn(create_txns[1], create_txns[0])
     assert(txn_2.ApplicationArgs[0u] == '1b')
     assert(txn_2.ApplicationArgs[1u] == '2b')
     assert(txn_1.ApplicationArgs[0u] == '3b')
@@ -22,7 +22,7 @@ contract FieldTupleContract
     assert(txn_1.ApplicationArgs[2u] == '5b')
     update_inner_transaction(create_txns[0],ApplicationArgs=('1c', '2c'))
     update_inner_transaction(create_txns[1],ApplicationArgs=('3c', '4c', '5c'))
-    txn_tuple: tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction] = submit_txn(create_txns[0], create_txns[1])
+    txn_tuple: tuple<inner_transaction_appl,inner_transaction_appl> = submit_txn(create_txns[0], create_txns[1])
     assert(txn_tuple[0].ApplicationArgs[0u] == '1c')
     assert(txn_tuple[0].ApplicationArgs[1u] == '2c')
     assert(txn_tuple[1].ApplicationArgs[0u] == '3c')
@@ -30,10 +30,10 @@ contract FieldTupleContract
     assert(txn_tuple[1].ApplicationArgs[2u] == '5c')
   }
   
-  abimethod test_assign_tuple_mixed(): None
+  abimethod test_assign_tuple_mixed(): void
   {
-    tuple_with_txn_fields: tuple[algopy.itxn.ApplicationCall, algopy.Bytes] = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a')), 'some other value')
-    result_with_txn: tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.Bytes] = (submit_txn(tuple_with_txn_fields[0]), tuple_with_txn_fields[1])
+    tuple_with_txn_fields: tuple<inner_transaction_fields_appl,bytes> = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a')), 'some other value')
+    result_with_txn: tuple<inner_transaction_appl,bytes> = (submit_txn(tuple_with_txn_fields[0]), tuple_with_txn_fields[1])
     assert(result_with_txn[0].ApplicationArgs[0u] == '1a')
     assert(result_with_txn[0].ApplicationArgs[1u] == '2a')
     assert(result_with_txn[1] == 'some other value')

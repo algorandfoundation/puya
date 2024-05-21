@@ -1,8 +1,8 @@
 contract CreateAndTransferContract
 {
-  abimethod create_and_transfer(): None
+  abimethod create_and_transfer(): void
   {
-    new_asset: algopy.Asset = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName='test', ConfigAssetUnitName='TST', ConfigAssetDecimals=0u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetClawback=global<CurrentApplicationAddress>())).CreatedAssetID
+    new_asset: asset = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName='test', ConfigAssetUnitName='TST', ConfigAssetDecimals=0u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetClawback=global<CurrentApplicationAddress>())).CreatedAssetID
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, AssetSender=checked_maybe(asset_params_get<AssetCreator>(new_asset)), AssetReceiver=global<CurrentApplicationAddress>(), AssetAmount=1000u, XferAsset=new_asset))
   }
 }

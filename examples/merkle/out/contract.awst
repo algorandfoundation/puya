@@ -1,30 +1,30 @@
 contract MerkleTree
 {
   globals {
-    ['root']: algopy.Bytes
+    ['root']: bytes
   }
   
-  abimethod create(root: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]): None
+  abimethod create(root: arc4.static_array<arc4.byte, 32>): void
   {
-    this.root: algopy.Bytes = reinterpret_cast<algopy.Bytes>(root)
+    this.root: bytes = reinterpret_cast<bytes>(root)
   }
   
-  abimethod verify(proof: algopy.arc4.DynamicArray[algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]], leaf: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]): bool
+  abimethod verify(proof: arc4.dynamic_array<arc4.static_array<arc4.byte, 32>>, leaf: arc4.static_array<arc4.byte, 32>): bool
   {
-    return this.root == examples.merkle.contract::compute_root_hash(proof, reinterpret_cast<algopy.Bytes>(leaf))
+    return this.root == examples.merkle.contract::compute_root_hash(proof, reinterpret_cast<bytes>(leaf))
   }
 }
 
-subroutine compute_root_hash(proof: algopy.arc4.DynamicArray[algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]], leaf: algopy.Bytes): algopy.Bytes
+subroutine compute_root_hash(proof: arc4.dynamic_array<arc4.static_array<arc4.byte, 32>>, leaf: bytes): bytes
 {
-  computed: algopy.Bytes = leaf
+  computed: bytes = leaf
   for idx in range(0u, extract_uint16(proof, 0u), 1u) {
-    computed: algopy.Bytes = examples.merkle.contract::hash_pair(computed, reinterpret_cast<algopy.Bytes>(proof[idx]))
+    computed: bytes = examples.merkle.contract::hash_pair(computed, reinterpret_cast<bytes>(proof[idx]))
   }
   return computed
 }
 
-subroutine hash_pair(a: algopy.Bytes, b: algopy.Bytes): algopy.Bytes
+subroutine hash_pair(a: bytes, b: bytes): bytes
 {
-  return sha256((reinterpret_cast<algopy.BigUInt>(a) < reinterpret_cast<algopy.BigUInt>(b)) ? (a + b) : (b + a))
+  return sha256((reinterpret_cast<biguint>(a) < reinterpret_cast<biguint>(b)) ? (a + b) : (b + a))
 }

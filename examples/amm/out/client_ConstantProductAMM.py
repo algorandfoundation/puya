@@ -19,7 +19,7 @@ class ConstantProductAMM(algopy.arc4.ARC4Client, typing.Protocol):
         seed: algopy.gtxn.PaymentTransaction,
         a_asset: algopy.Asset,
         b_asset: algopy.Asset,
-    ) -> algopy.arc4.UInt64: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def mint(

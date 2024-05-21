@@ -44,7 +44,7 @@ class FieldType:
 
     def __str__(self) -> str:
         types = " | ".join(
-            t.stub_name if isinstance(t, wtypes.WType) else t.__name__ for t in self.field_types
+            t.name if isinstance(t, wtypes.WType) else t.__name__ for t in self.field_types
         )
         if self.is_array:
             return f"tuple[{types}, ...]"

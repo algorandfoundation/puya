@@ -173,35 +173,35 @@ class Arc4CopyContract(arc4.ARC4Contract):
 
         # Require copy when reassigning
 
-        copy1 = local_array ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
-        assert (copy2 := local_array).length, "this isn't ok" ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        copy1 = local_array ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        assert (copy2 := local_array).length, "this isn't ok" ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         valid_tuple = (local_array.copy(),)
-        copy3 = valid_tuple[0] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
-        copy4 = self.global_a ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
-        copy5 = self.global_b.value ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        copy3 = valid_tuple[0] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        copy4 = self.global_a ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        copy5 = self.global_b.value ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
 
         # Require copy when building a collection
 
-        my_tuple = (local_array, local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a tuple expression
-        copy_in_tuple = arc4.Tuple(valid_tuple) ## E: tuple[algopy.arc4.DynamicArray[algopy.arc4.UInt64]] must be copied using .copy() when being passed to a constructor
-        copy_in_array1 = arc4.DynamicArray(local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to an array constructor
-        copy_in_array2 = arc4.StaticArray(local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to an array constructor
+        my_tuple = (local_array, local_array) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
+        copy_in_tuple = arc4.Tuple(valid_tuple) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a constructor
+        copy_in_array1 = arc4.DynamicArray(local_array) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to an array constructor
+        copy_in_array2 = arc4.StaticArray(local_array) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to an array constructor
 
         # State vars should require copy
 
-        self.method_a(self.global_a) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
-        self.method_a(self.global_b.value) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
-        self.method_a(self.local[Txn.sender]) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
+        self.method_a(self.global_a) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
+        self.method_a(self.global_b.value) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
+        self.method_a(self.local[Txn.sender]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
 
         # Tuple items require a copy when passing
 
-        self.method_a(valid_tuple[0]) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine
+        self.method_a(valid_tuple[0]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
 
         # Require copy when reassigning tuple elements
 
-        destructured_a, destructured_b = my_tuple ## E: Tuple cannot be destructured as it contains an item of type algopy.arc4.DynamicArray[algopy.arc4.UInt64] which requires copying. Use index access instead
-        destructured_a = my_tuple[0] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
-        destructured_b = my_tuple[1] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        destructured_a, destructured_b = my_tuple ## E: tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked, use index access instead
+        destructured_a = my_tuple[0] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        destructured_b = my_tuple[1] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
 
         # Can't create copies by iterating
         valid_array_of_arrays = arc4.DynamicArray(local_array.copy())
@@ -271,9 +271,9 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
 
         # **FUNCTION LOCALS**
 
-        bad_inner = var_inner ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
+        bad_inner = var_inner ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         inner_copy = var_inner.copy()
-        var_outer.inner = var_inner ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
+        var_outer.inner = var_inner ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         var_outer.inner = var_inner.copy()
 
         # **METHOD ARGS**
@@ -286,53 +286,53 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         method_num(var_outer.number)
         method_num(var_outer.inner.number)
 
-        method_inner(var_outer.inner) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine
+        method_inner(var_outer.inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_inner(var_outer.inner.copy())
 
         method_inner(new_inner())
         method_outer(new_outer())
         method_inner(new_outer().inner)
 
-        method_inner(self.global_inner)## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine from state ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine from state
+        method_inner(self.global_inner)## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine from state ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
         method_inner(self.global_inner.copy())
-        method_inner(self.global_outer.inner) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine
+        method_inner(self.global_outer.inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_inner(self.global_outer.inner.copy())
         method_num(self.global_outer.number)
         method_num(self.global_outer.inner.number)
 
-        method_outer(self.global_proxy.value) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a subroutine from state
+        method_outer(self.global_proxy.value) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
         method_outer(self.global_proxy.value.copy())
-        method_inner(self.global_proxy.value.inner) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine
+        method_inner(self.global_proxy.value.inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_inner(self.global_proxy.value.inner.copy())
-        method_outer(self.global_proxy.maybe()[0]) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a subroutine
+        method_outer(self.global_proxy.maybe()[0]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_bool(self.global_proxy.maybe()[1])
-        method_outer(self.global_proxy.get(new_outer())) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a subroutine
+        method_outer(self.global_proxy.get(new_outer())) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_outer(self.global_proxy.get(new_outer()).copy())
         method_num(self.global_proxy.value.number)
         method_num(self.global_proxy.value.inner.number)
-        bad_inner = self.global_proxy.value.inner ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
+        bad_inner = self.global_proxy.value.inner ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         bad_inner = self.global_proxy.value.inner.copy()
-        maybe_outer = self.global_proxy.maybe() ## E: tuple[copy_arc4_struct.OuterStruct, bool] must be copied using .copy() when being assigned to another variable
-        bad_outer, bol = self.global_proxy.maybe() ## E: Tuple cannot be destructured as it contains an item of type copy_arc4_struct.OuterStruct which requires copying. Use index access instead
+        maybe_outer = self.global_proxy.maybe() ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        bad_outer, bol = self.global_proxy.maybe() ## E: tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked, use index access instead
         bol = self.global_proxy.maybe()[1]
-        bad_outer = self.global_proxy.get(new_outer()) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being assigned to another variable
+        bad_outer = self.global_proxy.get(new_outer()) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         var_outer = self.global_proxy.get(new_outer()).copy()
 
-        method_outer(self.local[Txn.sender]) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a subroutine from state
+        method_outer(self.local[Txn.sender]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine from state
         method_outer(self.local[Txn.sender].copy())
-        method_inner(self.local[Txn.sender].inner) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine
+        method_inner(self.local[Txn.sender].inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_inner(self.local[Txn.sender].inner.copy())
-        method_outer(self.local.maybe(0)[0]) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a subroutine
+        method_outer(self.local.maybe(0)[0]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_bool(self.local.maybe(0)[1])
-        method_outer(self.local.get(0, new_outer())) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a subroutine
+        method_outer(self.local.get(0, new_outer())) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_outer(self.local.get(0, new_outer()).copy())
         method_num(self.local[Txn.sender].number)
         method_num(self.local[Txn.sender].inner.number)
-        bad_inner = self.local[Txn.sender].inner ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
-        maybe_outer = self.local.maybe(0) ## E: tuple[copy_arc4_struct.OuterStruct, bool] must be copied using .copy() when being assigned to another variable
-        bad_outer, bol = self.local.maybe(0) ## E: Tuple cannot be destructured as it contains an item of type copy_arc4_struct.OuterStruct which requires copying. Use index access instead
+        bad_inner = self.local[Txn.sender].inner ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        maybe_outer = self.local.maybe(0) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        bad_outer, bol = self.local.maybe(0) ## E: tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked, use index access instead
         bol = self.local.maybe(0)[1]
-        bad_outer = self.local.get(0, new_outer()) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being assigned to another variable
+        bad_outer = self.local.get(0, new_outer()) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         var_outer = self.local.get(0, new_outer()).copy()
 
         method_tup(new_inner_in_tup())
@@ -347,34 +347,32 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         # (...) = t
         # (...) = (...)
 
-        tup = (var_inner, var_outer) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a tuple expression \
-                                     ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression
+        tup = (var_inner, var_outer) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
         tup = (var_inner.copy(), var_outer.copy())
         tup = (new_inner(), new_outer())
-        tup2 = tup ## E: tuple[copy_arc4_struct.InnerStruct, copy_arc4_struct.OuterStruct] must be copied using .copy() when being assigned to another variable
-        (a, b) = tup ## E: Tuple cannot be destructured as it contains an item of type copy_arc4_struct.InnerStruct which requires copying. Use index access instead
-        (a, b) = (var_inner, var_outer) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression \
-                                        ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a tuple expression
+        tup2 = tup ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        (a, b) = tup ## E: tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked, use index access instead
+        (a, b) = (var_inner, var_outer) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
         (a, b) = (new_inner(), new_outer())
 
         # **TUPLE INDEXING**
 
-        a = tup[0] ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
-        a = tup[1].inner ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
+        a = tup[0] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
+        a = tup[1].inner ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         a = tup[0].copy()
         a = tup[1].inner.copy()
-        method_inner(tup[0]) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a subroutine
+        method_inner(tup[0]) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a subroutine
         method_inner(tup[0].copy())
-        self.global_inner = tup[0] ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
+        self.global_inner = tup[0] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         self.global_inner = tup[0].copy()
-        self.global_proxy.value = tup[1] ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being assigned to another variable
+        self.global_proxy.value = tup[1] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         self.global_proxy.value = tup[1].copy()
-        self.global_outer.inner = tup[0] ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being assigned to another variable
+        self.global_outer.inner = tup[0] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         self.global_outer.inner = tup[0].copy()
 
         # **ITERATION**
 
-        for s in (var_inner, var_outer.inner): ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression
+        for s in (var_inner, var_outer.inner): ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
             assert s.number
 
         for s in (new_inner(), new_outer().inner):
@@ -383,7 +381,7 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         for s in (var_inner.copy(), var_outer.inner.copy()):
             assert s.number
 
-        for idx, s in uenumerate((var_inner, var_outer.inner)): ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression
+        for idx, s in uenumerate((var_inner, var_outer.inner)): ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
             assert idx >= 0
             assert s.number
 

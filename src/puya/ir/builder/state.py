@@ -15,7 +15,7 @@ def visit_app_state_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.AppStateExpression
 ) -> ValueProvider:
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-    return _checked_state_access(context, expr, assert_comment=f"check {expr.field_name} exists")
+    return _checked_state_access(context, expr, assert_comment=f"check {expr.member_name} exists")
 
 
 def visit_app_account_state_expression(
@@ -23,23 +23,21 @@ def visit_app_account_state_expression(
 ) -> ValueProvider:
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
     return _checked_state_access(
-        context, expr, assert_comment=f"check {expr.field_name} exists for account"
+        context, expr, assert_comment=f"check {expr.member_name} exists for account"
     )
 
 
 def visit_state_get_ex(
     context: IRFunctionBuildContext, expr: awst_nodes.StateGetEx
 ) -> ValueProvider:
-    match expr.field:
-        case awst_nodes.BoxKeyExpression():
-            return box.visit_box_state_get_ex(context, expr)
     return _build_state_get_ex(context, expr.field, expr.source_location)
 
 
 def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.StateDelete) -> None:
     match statement.field:
-        case awst_nodes.BoxKeyExpression():
-            return box.visit_box_state_delete(context, statement)
+        case awst_nodes.BoxValueExpression(key=awst_key):
+            op = AVMOp.box_del
+            awst_account = None
         case awst_nodes.AppStateExpression(key=awst_key):
             op = AVMOp.app_global_del
             awst_account = None
@@ -61,13 +59,10 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
 
 
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
-    match expr.field:
-        case awst_nodes.BoxKeyExpression():
-            return box.visit_box_state_get(context, expr)
     default = context.visitor.visit_and_materialise_single(expr.default)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     maybe_value, exists = context.visitor.materialise_value_provider(
-        get_ex, description=f"{expr.field.field_name}_get_ex"
+        get_ex, description=f"{expr.field.member_name}_get_ex"
     )
     return intrinsic_factory.select(
         condition=exists,
@@ -82,11 +77,11 @@ def visit_state_exists(
     context: IRFunctionBuildContext, expr: awst_nodes.StateExists
 ) -> ValueProvider:
     match expr.field:
-        case awst_nodes.BoxKeyExpression():
+        case awst_nodes.BoxValueExpression():
             return box.visit_box_state_exists(context, expr)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     _, exists = context.visitor.materialise_value_provider(
-        get_ex, description=f"{expr.field.field_name}_exists"
+        get_ex, description=f"{expr.field.member_name}_exists"
     )
     return exists
 
@@ -97,19 +92,19 @@ def _checked_state_access(
     assert_comment: str,
 ) -> ValueProvider:
     get = _build_state_get_ex(context, expr, expr.source_location)
-    # note: we manually construct temporary targets here since ir_type is any,
+    # note: we manually construct temporary targets here since AVMType can be any,
     #       but we "know" the type from the expression
     value_ir_type = wtype_to_ir_type(expr.wtype)
     value_tmp = mktemp(
         context,
         ir_type=value_ir_type,
-        description=f"{expr.field_name}_value",
+        description=f"{expr.member_name}_value",
         source_location=expr.source_location,
     )
     did_exist_tmp = mktemp(
         context,
         ir_type=IRType.bool,
-        description=f"{expr.field_name}_exists",
+        description=f"{expr.member_name}_exists",
         source_location=expr.source_location,
     )
     assign_targets(
@@ -129,18 +124,27 @@ def _checked_state_access(
 
 def _build_state_get_ex(
     context: IRFunctionBuildContext,
-    expr: awst_nodes.AppAccountStateExpression | awst_nodes.AppStateExpression,
+    expr: (
+        awst_nodes.AppAccountStateExpression
+        | awst_nodes.AppStateExpression
+        | awst_nodes.BoxValueExpression
+    ),
     source_location: SourceLocation,
 ) -> Intrinsic:
-    current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
     key = context.visitor.visit_and_materialise_single(expr.key)
-    args: list[Value] = [current_app_offset, key]
+    args: list[Value]
     if isinstance(expr, awst_nodes.AppStateExpression):
+        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
+        args = [current_app_offset, key]
         op = AVMOp.app_global_get_ex
-    else:
+    elif isinstance(expr, awst_nodes.AppAccountStateExpression):
+        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
         op = AVMOp.app_local_get_ex
         account = context.visitor.visit_and_materialise_single(expr.account)
-        args.insert(0, account)
+        args = [account, current_app_offset, key]
+    else:
+        op = AVMOp.box_get
+        args = [key]
     return Intrinsic(
         op=op,
         args=args,

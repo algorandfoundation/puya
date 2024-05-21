@@ -1,7 +1,7 @@
 logicsig pre_approved_sale
 {
-  pay_txn: algopy.gtxn.PaymentTransaction = reinterpret_cast<algopy.gtxn.PaymentTransaction>(checked_maybe((SINGLE_EVAL(id=0, source=0u), gtxns<TypeEnum>(SINGLE_EVAL(id=0, source=0u)) == pay)))
-  asset_txn: algopy.gtxn.AssetTransferTransaction = reinterpret_cast<algopy.gtxn.AssetTransferTransaction>(checked_maybe((SINGLE_EVAL(id=1, source=1u), gtxns<TypeEnum>(SINGLE_EVAL(id=1, source=1u)) == axfer)))
+  pay_txn: group_transaction_pay = reinterpret_cast<group_transaction_pay>(checked_maybe((SINGLE_EVAL(id=0, source=0u), gtxns<TypeEnum>(SINGLE_EVAL(id=0, source=0u)) == pay)))
+  asset_txn: group_transaction_axfer = reinterpret_cast<group_transaction_axfer>(checked_maybe((SINGLE_EVAL(id=1, source=1u), gtxns<TypeEnum>(SINGLE_EVAL(id=1, source=1u)) == axfer)))
   test_cases.logic_signature.signature::assert_correct_payment(pay_txn)
   test_cases.logic_signature.signature::assert_correct_asset(asset_txn)
   assert(gtxns<Sender>(pay_txn) == gtxns<AssetReceiver>(asset_txn))
@@ -14,12 +14,12 @@ logicsig always_allow
   return true
 }
 
-subroutine assert_correct_payment(txn: algopy.gtxn.PaymentTransaction): None
+subroutine assert_correct_payment(txn: group_transaction_pay): void
 {
-  assert(gtxns<Receiver>(txn) == TemplateVar[algopy.Account](TMPL_SELLER) and gtxns<Amount>(txn) == TemplateVar[algopy.UInt64](TMPL_PRICE))
+  assert(gtxns<Receiver>(txn) == TemplateVar[account](TMPL_SELLER) and gtxns<Amount>(txn) == TemplateVar[uint64](TMPL_PRICE))
 }
 
-subroutine assert_correct_asset(txn: algopy.gtxn.AssetTransferTransaction): None
+subroutine assert_correct_asset(txn: group_transaction_axfer): void
 {
-  assert(gtxns<AssetAmount>(txn) == 1u and gtxns<Sender>(txn) == TemplateVar[algopy.Account](TMPL_SELLER) and gtxns<XferAsset>(txn) == TemplateVar[algopy.Asset](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
+  assert(gtxns<AssetAmount>(txn) == 1u and gtxns<Sender>(txn) == TemplateVar[account](TMPL_SELLER) and gtxns<XferAsset>(txn) == TemplateVar[asset](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
 }

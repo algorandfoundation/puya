@@ -4,12 +4,10 @@ import typing
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    BoolConstant,
     BytesConstant,
-    BytesEncoding,
+    ContractReference,
     Expression,
     Literal,
     Not,
@@ -20,51 +18,43 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants, pytypes
+from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._storage import (
+    StorageProxyDefinitionBuilder,
+    extract_description,
+    extract_key_override,
+)
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    FunctionBuilder,
     GenericClassExpressionBuilder,
-    IntermediateExpressionBuilder,
-    StateProxyDefinitionBuilder,
-    StateProxyMemberBuilder,
+    StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
+    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     import mypy.types
 
-    from puya.awst_build.contract_data import AppStorageDeclaration
     from puya.parse import SourceLocation
 
 
-class AppStateClassExpressionBuilder(GenericClassExpressionBuilder):
-    def __init__(self, location: SourceLocation):
-        super().__init__(location)
-        self._storage: wtypes.WType | None = None
+class AppStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
+        assert isinstance(typ, pytypes.StorageProxyType)
+        assert typ.generic == pytypes.GenericGlobalStateType
+        self._typ = typ
+        super().__init__(typ, location)
 
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> ExpressionBuilder:
-        if self._storage is not None:
-            raise InternalError("Multiple indexing of GlobalState?", location)
-        match indexes:
-            case [TypeClassExpressionBuilder() as typ_class_eb]:
-                self.source_location += location
-                self._storage = typ_class_eb.produces()
-                return self
-        raise CodeError(
-            "Invalid indexing, only a single type arg is supported "
-            "(you can also omit the type argument entirely as it should be redundant)",
-            location,
-        )
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -73,90 +63,89 @@ class AppStateClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        type_or_value_arg_name = "type_or_initial_value"
-        arg_mapping = get_arg_mapping(
-            positional_arg_names=[type_or_value_arg_name],
-            args=zip(arg_names, args, strict=True),
-            location=location,
-        )
-        try:
-            first_arg = arg_mapping.pop(type_or_value_arg_name)
-        except KeyError as ex:
-            raise CodeError("Required positional argument missing", location) from ex
+        return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
-        key_arg = arg_mapping.pop("key", None)
-        descr_arg = arg_mapping.pop("description", None)
-        if arg_mapping:
+
+class AppStateGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        return _init(args, arg_typs, arg_names, location, result_type=None)
+
+
+def _init(
+    args: Sequence[ExpressionBuilder | Literal],
+    arg_typs: Sequence[pytypes.PyType],
+    arg_names: list[str | None],
+    location: SourceLocation,
+    *,
+    result_type: pytypes.StorageProxyType | None,
+) -> ExpressionBuilder:
+    type_or_value_arg_name = "type_or_initial_value"
+    arg_mapping = get_arg_mapping(
+        positional_arg_names=[type_or_value_arg_name],
+        args=zip(arg_names, zip(args, arg_typs, strict=True), strict=True),
+        location=location,
+    )
+    try:
+        first_arg, first_arg_typ = arg_mapping.pop(type_or_value_arg_name)
+    except KeyError as ex:
+        raise CodeError("Required positional argument missing", location) from ex
+
+    key_arg, _ = arg_mapping.pop("key", (None, None))
+    descr_arg, _ = arg_mapping.pop("description", (None, None))
+    if arg_mapping:
+        raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
+
+    match first_arg_typ:
+        case pytypes.TypeType(typ=content):
+            initial_value = None
+        case pytypes.PyType() as content:
+            initial_value = expect_operand_wtype(first_arg, content.wtype)
+        case _:
             raise CodeError(
-                f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location
+                "First argument must be a type reference or an initial value", location
             )
 
-        match first_arg:
-            case TypeClassExpressionBuilder() as typ_class_eb:
-                storage_wtype = typ_class_eb.produces()
-                initial_value = None
-            case ExpressionBuilder(value_type=wtypes.WType() as storage_wtype) as value_eb:
-                initial_value = value_eb.rvalue()
-            case Literal(value=bool(bool_value), source_location=source_location):
-                initial_value = BoolConstant(value=bool_value, source_location=source_location)
-                storage_wtype = wtypes.bool_wtype
-            case _:
-                raise CodeError(
-                    "First argument must be a type reference or an initial value", location
-                )
-
-        if self._storage is not None and self._storage != storage_wtype:
-            raise CodeError(
-                f"{constants.CLS_GLOBAL_STATE_ALIAS} explicit type annotation"
-                f" does not match first argument - suggest to remove the explicit type annotation,"
-                " it shouldn't be required",
-                location,
-            )
-
-        match key_arg:
-            case None:
-                key_override = None
-            case Literal(value=bytes(bytes_value), source_location=key_lit_loc):
-                key_override = BytesConstant(
-                    value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
-                )
-            case Literal(value=str(str_value), source_location=key_lit_loc):
-                key_override = BytesConstant(
-                    value=str_value.encode("utf8"),
-                    encoding=BytesEncoding.utf8,
-                    source_location=key_lit_loc,
-                )
-            case _:
-                raise CodeError("key should be a string or bytes literal", key_arg.source_location)
-
-        match descr_arg:
-            case None:
-                description = None
-            case Literal(value=str(str_value)):
-                description = str_value
-            case _:
-                raise CodeError(
-                    "description should be a string literal", descr_arg.source_location
-                )
-
-        return AppStateProxyDefinitionBuilder(
-            location=location,
-            storage=storage_wtype,
-            key_override=key_override,
-            description=description,
-            initial_value=initial_value,
+    if result_type is None:
+        result_type = pytypes.GenericGlobalStateType.parameterise([content], location)
+    elif result_type.content != content:
+        raise CodeError(
+            f"{constants.CLS_GLOBAL_STATE_ALIAS} explicit type annotation"
+            f" does not match first argument - suggest to remove the explicit type annotation,"
+            " it shouldn't be required",
+            location,
         )
 
+    key_override = extract_key_override(key_arg, location, is_prefix=False)
+    description = extract_description(descr_arg)
+    if key_override is None:
+        return StorageProxyDefinitionBuilder(
+            result_type, location=location, description=description, initial_value=initial_value
+        )
+    return _AppStateExpressionBuilderFromConstructor(
+        key_override=key_override,
+        typ=result_type,
+        description=description,
+        initial_value=initial_value,
+    )
 
-class AppStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
-    python_name = constants.CLS_GLOBAL_STATE_ALIAS
 
+class AppStateExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
 
-class AppStateExpressionBuilder(StateProxyMemberBuilder):
-    def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation) -> None:
-        self.state_decl = state_decl
-        super().__init__(location)
+    def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
+        assert isinstance(typ, pytypes.StorageProxyType)
+        assert typ.generic == pytypes.GenericGlobalStateType
+        self._member_name = member_name
+        super().__init__(typ, expr)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         exists_expr = StateExists(field=self._build_field(location), source_location=location)
         if negate:
@@ -165,32 +154,80 @@ class AppStateExpressionBuilder(StateProxyMemberBuilder):
             expr = exists_expr
         return BoolExpressionBuilder(expr)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        field = self._build_field(self.source_location)
+        field = self._build_field(location)
         match name:
             case "value":
-                return AppStateValueExpressionBuilder(field)
+                return AppStateValueExpressionBuilder(self.pytype.content, field)
             case "get":
-                return AppStateGetExpressionBuilder(field, location=self.source_location)
+                return _Get(field, self.pytype.content, location=self.source_location)
             case "maybe":
-                return AppStateMaybeExpressionBuilder(field, location=self.source_location)
+                return _Maybe(self.pytype.content, field, location=self.source_location)
             case _:
                 return super().member_access(name, location)
 
     def _build_field(self, location: SourceLocation) -> AppStateExpression:
         return AppStateExpression(
-            key=self.state_decl.key,
-            field_name=self.state_decl.member_name,
-            wtype=self.state_decl.definition.storage_wtype,
+            key=self.expr,
+            wtype=self.pytype.content.wtype,
+            member_name=self._member_name,
             source_location=location,
         )
 
 
-class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, field: AppStateExpression, location: SourceLocation) -> None:
+class _AppStateExpressionBuilderFromConstructor(
+    AppStateExpressionBuilder, StorageProxyConstructorResult
+):
+    def __init__(
+        self,
+        key_override: Expression,
+        typ: pytypes.StorageProxyType,
+        description: str | None,
+        initial_value: Expression | None,
+    ):
+        super().__init__(key_override, typ, member_name=None)
+        self.description = description
+        self._initial_value = initial_value
+
+    @typing.override
+    @property
+    def initial_value(self) -> Expression | None:
+        return self._initial_value
+
+    @typing.override
+    def build_definition(
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
+    ) -> AppStorageDeclaration:
+        key_override = self.expr
+        if not isinstance(key_override, BytesConstant):
+            raise CodeError(
+                f"assigning {typ} to a member variable requires a constant value for key",
+                location,
+            )
+        return AppStorageDeclaration(
+            description=self.description,
+            member_name=member_name,
+            key_override=key_override,
+            source_location=location,
+            typ=typ,
+            defined_in=defined_in,
+        )
+
+
+class _Maybe(FunctionBuilder):
+    def __init__(
+        self, content_type: pytypes.PyType, field: AppStateExpression, location: SourceLocation
+    ) -> None:
         super().__init__(location)
+        self._typ = content_type
         self.field = field
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -202,14 +239,19 @@ class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
         if args:
             raise CodeError("Unexpected/unhandled arguments", location)
         expr = StateGetEx(field=self.field, source_location=location)
-        return TupleExpressionBuilder(expr)
+        result_typ = pytypes.GenericTupleType.parameterise([self._typ, pytypes.BoolType], location)
+        return TupleExpressionBuilder(expr, result_typ)
 
 
-class AppStateGetExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, field: AppStateExpression, location: SourceLocation) -> None:
+class _Get(FunctionBuilder):
+    def __init__(
+        self, field: AppStateExpression, content_type: pytypes.PyType, location: SourceLocation
+    ) -> None:
         super().__init__(location)
         self.field = field
+        self.content_type = content_type
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -221,17 +263,14 @@ class AppStateGetExpressionBuilder(IntermediateExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_wtype(default_arg, target_wtype=self.field.wtype)
+        default_expr = expect_operand_wtype(default_arg, target_wtype=self.content_type.wtype)
         expr = StateGet(field=self.field, default=default_expr, source_location=location)
-        return var_expression(expr)
+        return builder_for_instance(self.content_type, expr)
 
 
 class AppStateValueExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: AppStateExpression
+    expr: AppStateExpression  # TODO: remove "lies"
 
-    def __init__(self, expr: AppStateExpression):
-        self.wtype = expr.wtype
-        super().__init__(expr)
-
+    @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)

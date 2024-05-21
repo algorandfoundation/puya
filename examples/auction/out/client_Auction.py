@@ -16,8 +16,8 @@ class Auction(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def start_auction(
         self,
-        starting_price: algopy.arc4.UInt64,
-        length: algopy.arc4.UInt64,
+        starting_price: algopy.arc4.UIntN[typing.Literal[64]],
+        length: algopy.arc4.UIntN[typing.Literal[64]],
         axfer: algopy.gtxn.AssetTransferTransaction,
     ) -> None: ...
 
