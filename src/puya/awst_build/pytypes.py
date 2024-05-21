@@ -231,7 +231,7 @@ class StorageProxyType(PyType):
 @typing.final
 @attrs.frozen
 class StorageMapProxyType(PyType):
-    generic: _GenericType
+    generic: PyType
     key: PyType
     content: PyType
     wtype: wtypes.WType

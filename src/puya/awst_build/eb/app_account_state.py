@@ -123,9 +123,11 @@ def _init(
 
 
 class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
+    wtype = wtypes.bytes_wtype
+
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
-        assert typ.generic is pytypes.GenericLocalStateType
+        assert typ.generic == pytypes.GenericLocalStateType
         self._typ = typ
         self._member_name = member_name
         super().__init__(expr)
@@ -197,10 +199,12 @@ class _AppAccountStateExpressionBuilderFromConstructor(
         super().__init__(key_override, typ, member_name=None)
         self.description = description
 
+    @typing.override
     @property
     def initial_value(self) -> Expression | None:
         return None
 
+    @typing.override
     def build_definition(
         self,
         member_name: str,

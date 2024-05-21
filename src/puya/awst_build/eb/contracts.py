@@ -87,18 +87,20 @@ def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> ExpressionBuilder:
     match storage_decl.typ:
+        case pytypes.PyType(generic=pytypes.GenericLocalStateType):
+            return AppAccountStateExpressionBuilder(
+                storage_decl.key, storage_decl.typ, storage_decl.member_name
+            )
+        case pytypes.PyType(generic=pytypes.GenericGlobalStateType):
+            return AppStateExpressionBuilder(
+                storage_decl.key, storage_decl.typ, storage_decl.member_name
+            )
         case pytypes.BoxRefType:
             return BoxRefProxyExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericBoxType):
             return BoxProxyExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericBoxMapType):
             return BoxMapProxyExpressionBuilder(storage_decl, location)
-        case pytypes.PyType(generic=pytypes.GenericLocalStateType):
-            return AppAccountStateExpressionBuilder(
-                storage_decl.key, storage_decl.typ, storage_decl.member_name
-            )
-        case pytypes.PyType(generic=pytypes.GenericGlobalStateType):
-            return AppStateExpressionBuilder(storage_decl, location)
         case _:
             return var_expression(
                 AppStateExpression(
