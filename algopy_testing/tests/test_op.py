@@ -341,8 +341,7 @@ def test_verify_vrf_verify(
         return op.vrf_verify(op.VrfVerify.VrfAlgorand, a, b, c)
 
     avm_result = run_real_vrf_verify()
-    mocker.patch("algopy.op.vrf_verify", return_value=[avm_result[0], True])
+    mocker.patch("algopy.op.vrf_verify", return_value=(avm_result[0], True))
     mocked_result = run_mocked_vrf_verify()
 
-    assert avm_result[0] == mocked_result[0]
-    assert avm_result[1] == mocked_result[1]
+    assert avm_result == mocked_result
