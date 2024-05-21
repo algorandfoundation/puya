@@ -11,7 +11,7 @@ import mypy.types
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    TXN_FIELDS,
+    TXN_FIELDS_BY_IMMEDIATE,
     ARC4Decode,
     BytesConstant,
     BytesEncoding,
@@ -58,23 +58,24 @@ if typing.TYPE_CHECKING:
 
 logger = log.get_logger(__name__)
 _APP_TRANSACTION_FIELDS = {
-    get_field_python_name(f): f
-    for f in TXN_FIELDS
-    if f.immediate
-    in (
-        "ApplicationID",
-        "OnCompletion",
-        "ApprovalProgram",
-        "ClearStateProgram",
-        "GlobalNumUInt",
-        "GlobalNumByteSlice",
-        "LocalNumUInt",
-        "LocalNumByteSlice",
-        "ExtraProgramPages",
-        "Fee",
-        "Sender",
-        "Note",
-        "RekeyTo",
+    get_field_python_name(field): field
+    for field in (
+        TXN_FIELDS_BY_IMMEDIATE[immediate]
+        for immediate in (
+            "ApplicationID",
+            "OnCompletion",
+            "ApprovalProgram",
+            "ClearStateProgram",
+            "GlobalNumUint",
+            "GlobalNumByteSlice",
+            "LocalNumUint",
+            "LocalNumByteSlice",
+            "ExtraProgramPages",
+            "Fee",
+            "Sender",
+            "Note",
+            "RekeyTo",
+        )
     )
 }
 
