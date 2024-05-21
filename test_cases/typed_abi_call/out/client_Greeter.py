@@ -43,3 +43,33 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
         app: algopy.Application,
         asset: algopy.Asset,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_native_string(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_native_bytes(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_native_uint64(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_native_biguint(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_native_tuple(
+        self,
+        app: algopy.Application,
+    ) -> None: ...

@@ -906,6 +906,36 @@ def test_typed_abi_call(
         asset=asset_a,
     )
 
+    app_client.call(
+        "test_native_tuple",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_native_string",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_native_bytes",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_native_uint64",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_native_biguint",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
 
 def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(
