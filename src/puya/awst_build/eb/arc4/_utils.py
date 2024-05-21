@@ -5,8 +5,6 @@ import re
 import typing
 
 import attrs
-import mypy.nodes
-import mypy.types
 
 from puya import arc4_util, log
 from puya.awst import (
@@ -14,16 +12,14 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import DecimalConstant, Expression, Literal
-from puya.awst_build import constants
-from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config, get_func_types
+from puya.awst_build.arc4_utils import arc4_encode
 from puya.awst_build.eb.base import ExpressionBuilder
-from puya.awst_build.utils import convert_literal, get_decorators_by_fullname
+from puya.awst_build.utils import convert_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from puya.awst_build.context import ASTConversionModuleContext
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -120,11 +116,9 @@ def expect_arc4_operand_wtype(
     if isinstance(literal_or_expr, ExpressionBuilder):
         literal_or_expr = literal_or_expr.rvalue()
 
-    if wtypes.has_arc4_equivalent_type(target_wtype):
-        target_wtype = wtypes.avm_to_arc4_equivalent_type(target_wtype)
-        literal_or_expr = arc4_encode(
-            literal_or_expr, target_wtype, literal_or_expr.source_location
-        )
+    if wtypes.has_arc4_equivalent_type(literal_or_expr.wtype):
+        new_wtype = wtypes.avm_to_arc4_equivalent_type(literal_or_expr.wtype)
+        literal_or_expr = arc4_encode(literal_or_expr, new_wtype, literal_or_expr.source_location)
 
     if literal_or_expr.wtype != target_wtype:
         raise CodeError(
@@ -145,24 +139,6 @@ class ARC4Signature:
         args = ",".join(map(arc4_util.wtype_to_arc4, self.arg_types))
         return_type = self.return_type or wtypes.void_wtype
         return f"{self.method_name}({args}){arc4_util.wtype_to_arc4(return_type)}"
-
-
-def get_arc4_signature(
-    context: ASTConversionModuleContext,
-    type_info: mypy.nodes.TypeInfo,
-    member_name: str,
-    location: SourceLocation,
-) -> ARC4Signature:
-    dec = type_info.get_method(member_name)
-    if isinstance(dec, mypy.nodes.Decorator):
-        decorators = get_decorators_by_fullname(context, dec)
-        abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
-        if abimethod_dec is not None:
-            func_def = dec.func
-            arc4_method_config = get_arc4_method_config(context, abimethod_dec, func_def)
-            *arg_types, return_type = get_func_types(context, func_def, location).values()
-            return ARC4Signature(arc4_method_config.name, arg_types, return_type)
-    raise CodeError(f"'{type_info.fullname}.{member_name}' is not a valid ARC4 method", location)
 
 
 def get_arc4_args_and_signature(

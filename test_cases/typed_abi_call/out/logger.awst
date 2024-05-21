@@ -5,6 +5,31 @@ contract Logger
     return arc4_encode('echo: ', algopy.arc4.String) + value
   }
   
+  abimethod echo_native_string(value: algopy.String): algopy.String
+  {
+    return 'echo: ' + value
+  }
+  
+  abimethod echo_native_bytes(value: algopy.Bytes): algopy.Bytes
+  {
+    return 'echo: ' + value
+  }
+  
+  abimethod echo_native_uint64(value: algopy.UInt64): algopy.UInt64
+  {
+    return value + 1u
+  }
+  
+  abimethod echo_native_biguint(value: algopy.BigUInt): algopy.BigUInt
+  {
+    return value b+ 1n
+  }
+  
+  abimethod echo_native_tuple(s: algopy.String, b: algopy.Bytes, u: algopy.UInt64, bu: algopy.BigUInt): tuple[algopy.String, algopy.Bytes, algopy.UInt64, algopy.BigUInt]
+  {
+    return ('echo: ' + s, 'echo: ' + b, u + 1u, bu b+ 1n)
+  }
+  
   abimethod log_uint64(value: algopy.arc4.UInt64): None
   {
     log(value)
