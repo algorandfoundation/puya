@@ -1,13 +1,13 @@
 contract test_cases.typed_abi_call.typed_c2c.Greeter:
     program approval:
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.approval_program() -> bool:
-            block@0: // L6
+            block@0: // L17
                 let tmp%0#0: bool = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@10
-            block@1: // abi_routing_L6
+                goto tmp%0#0 ? block@1 : block@15
+            block@1: // abi_routing_L17
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "test_method_selector_kinds(application)void" => block@2, method "test_method_overload(application)void" => block@3, method "test_arg_conversion(application)void" => block@4, method "test_15plus_args(application)void" => block@5, method "test_void(application)void" => block@6, method "test_ref_types(application,asset)void" => block@7, * => block@8}
-            block@2: // test_method_selector_kinds_route_L7
+                switch tmp%1#0 {method "test_method_selector_kinds(application)void" => block@2, method "test_method_overload(application)void" => block@3, method "test_arg_conversion(application)void" => block@4, method "test_15plus_args(application)void" => block@5, method "test_void(application)void" => block@6, method "test_ref_types(application,asset)void" => block@7, method "test_native_string(application)void" => block@8, method "test_native_bytes(application)void" => block@9, method "test_native_uint64(application)void" => block@10, method "test_native_biguint(application)void" => block@11, method "test_native_tuple(application)void" => block@12, * => block@13}
+            block@2: // test_method_selector_kinds_route_L18
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: bool = (== tmp%2#0 NoOp)
                 (assert tmp%3#0) // OnCompletion is NoOp
@@ -18,7 +18,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%7#0: uint64 = ((txnas Applications) tmp%6#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(tmp%7#0)
                 return 1u
-            block@3: // test_method_overload_route_L20
+            block@3: // test_method_overload_route_L31
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (== tmp%8#0 NoOp)
                 (assert tmp%9#0) // OnCompletion is NoOp
@@ -29,7 +29,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%13#0: uint64 = ((txnas Applications) tmp%12#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(tmp%13#0)
                 return 1u
-            block@4: // test_arg_conversion_route_L35
+            block@4: // test_arg_conversion_route_L46
                 let tmp%14#0: uint64 = (txn OnCompletion)
                 let tmp%15#0: bool = (== tmp%14#0 NoOp)
                 (assert tmp%15#0) // OnCompletion is NoOp
@@ -40,7 +40,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%19#0: uint64 = ((txnas Applications) tmp%18#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(tmp%19#0)
                 return 1u
-            block@5: // test_15plus_args_route_L52
+            block@5: // test_15plus_args_route_L63
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 let tmp%21#0: bool = (== tmp%20#0 NoOp)
                 (assert tmp%21#0) // OnCompletion is NoOp
@@ -51,7 +51,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%25#0: uint64 = ((txnas Applications) tmp%24#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(tmp%25#0)
                 return 1u
-            block@6: // test_void_route_L80
+            block@6: // test_void_route_L91
                 let tmp%26#0: uint64 = (txn OnCompletion)
                 let tmp%27#0: bool = (== tmp%26#0 NoOp)
                 (assert tmp%27#0) // OnCompletion is NoOp
@@ -62,7 +62,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%31#0: uint64 = ((txnas Applications) tmp%30#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_void(tmp%31#0)
                 return 1u
-            block@7: // test_ref_types_route_L94
+            block@7: // test_ref_types_route_L105
                 let tmp%32#0: uint64 = (txn OnCompletion)
                 let tmp%33#0: bool = (== tmp%32#0 NoOp)
                 (assert tmp%33#0) // OnCompletion is NoOp
@@ -76,23 +76,78 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%40#0: uint64 = ((txnas Assets) tmp%39#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(tmp%37#0, tmp%40#0)
                 return 1u
-            block@8: // switch_case_default_L6
-                goto block@9
-            block@9: // switch_case_next_L6
-                fail // reject transaction
-            block@10: // bare_routing_L6
+            block@8: // test_native_string_route_L119
                 let tmp%41#0: uint64 = (txn OnCompletion)
-                switch tmp%41#0 {0u => block@11, * => block@12}
-            block@11: // create_L6
-                let tmp%42#0: bool = (txn ApplicationID)
-                let tmp%43#0: bool = (! tmp%42#0)
-                (assert tmp%43#0) // is creating
+                let tmp%42#0: bool = (== tmp%41#0 NoOp)
+                (assert tmp%42#0) // OnCompletion is NoOp
+                let tmp%43#0: bool = (txn ApplicationID)
+                (assert tmp%43#0) // is not creating
+                let tmp%44#0: bytes = (txna ApplicationArgs 1)
+                let tmp%45#0: uint64 = (btoi tmp%44#0)
+                let tmp%46#0: uint64 = ((txnas Applications) tmp%45#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(tmp%46#0)
                 return 1u
-            block@12: // reject_bare_on_completion_L6
+            block@9: // test_native_bytes_route_L130
+                let tmp%47#0: uint64 = (txn OnCompletion)
+                let tmp%48#0: bool = (== tmp%47#0 NoOp)
+                (assert tmp%48#0) // OnCompletion is NoOp
+                let tmp%49#0: bool = (txn ApplicationID)
+                (assert tmp%49#0) // is not creating
+                let tmp%50#0: bytes = (txna ApplicationArgs 1)
+                let tmp%51#0: uint64 = (btoi tmp%50#0)
+                let tmp%52#0: uint64 = ((txnas Applications) tmp%51#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(tmp%52#0)
+                return 1u
+            block@10: // test_native_uint64_route_L143
+                let tmp%53#0: uint64 = (txn OnCompletion)
+                let tmp%54#0: bool = (== tmp%53#0 NoOp)
+                (assert tmp%54#0) // OnCompletion is NoOp
+                let tmp%55#0: bool = (txn ApplicationID)
+                (assert tmp%55#0) // is not creating
+                let tmp%56#0: bytes = (txna ApplicationArgs 1)
+                let tmp%57#0: uint64 = (btoi tmp%56#0)
+                let tmp%58#0: uint64 = ((txnas Applications) tmp%57#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(tmp%58#0)
+                return 1u
+            block@11: // test_native_biguint_route_L154
+                let tmp%59#0: uint64 = (txn OnCompletion)
+                let tmp%60#0: bool = (== tmp%59#0 NoOp)
+                (assert tmp%60#0) // OnCompletion is NoOp
+                let tmp%61#0: bool = (txn ApplicationID)
+                (assert tmp%61#0) // is not creating
+                let tmp%62#0: bytes = (txna ApplicationArgs 1)
+                let tmp%63#0: uint64 = (btoi tmp%62#0)
+                let tmp%64#0: uint64 = ((txnas Applications) tmp%63#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(tmp%64#0)
+                return 1u
+            block@12: // test_native_tuple_route_L165
+                let tmp%65#0: uint64 = (txn OnCompletion)
+                let tmp%66#0: bool = (== tmp%65#0 NoOp)
+                (assert tmp%66#0) // OnCompletion is NoOp
+                let tmp%67#0: bool = (txn ApplicationID)
+                (assert tmp%67#0) // is not creating
+                let tmp%68#0: bytes = (txna ApplicationArgs 1)
+                let tmp%69#0: uint64 = (btoi tmp%68#0)
+                let tmp%70#0: uint64 = ((txnas Applications) tmp%69#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(tmp%70#0)
+                return 1u
+            block@13: // switch_case_default_L17
+                goto block@14
+            block@14: // switch_case_next_L17
+                fail // reject transaction
+            block@15: // bare_routing_L17
+                let tmp%71#0: uint64 = (txn OnCompletion)
+                switch tmp%71#0 {0u => block@16, * => block@17}
+            block@16: // create_L17
+                let tmp%72#0: bool = (txn ApplicationID)
+                let tmp%73#0: bool = (! tmp%72#0)
+                (assert tmp%73#0) // is creating
+                return 1u
+            block@17: // reject_bare_on_completion_L17
                 fail // reject transaction
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(app: uint64) -> void:
-            block@0: // L7
+            block@0: // L18
                 itxn_begin
                 let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
                 ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -101,7 +156,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L9
+            block@1: // next_txn_L20
                 itxn_submit
                 let awst_tmp%1#0: bytes = (itxn LastLog)
                 let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
@@ -121,7 +176,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@2
-            block@2: // next_txn_L11
+            block@2: // next_txn_L22
                 itxn_submit
                 let awst_tmp%3#0: bytes = (itxn LastLog)
                 let tmp%4#0: bytes = ((extract 4 0) awst_tmp%3#0)
@@ -141,7 +196,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@3
-            block@3: // next_txn_L13
+            block@3: // next_txn_L24
                 itxn_submit
                 let awst_tmp%5#0: bytes = (itxn LastLog)
                 let tmp%8#0: bytes = ((extract 4 0) awst_tmp%5#0)
@@ -161,7 +216,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@4
-            block@4: // next_txn_L15
+            block@4: // next_txn_L26
                 itxn_submit
                 let awst_tmp%7#0: bytes = (itxn LastLog)
                 let tmp%12#0: bytes = ((extract 4 0) awst_tmp%7#0)
@@ -181,7 +236,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@5
-            block@5: // next_txn_L17
+            block@5: // next_txn_L28
                 itxn_submit
                 let awst_tmp%9#0: bytes = (itxn LastLog)
                 let tmp%16#0: bytes = ((extract 4 0) awst_tmp%9#0)
@@ -196,7 +251,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app: uint64) -> void:
-            block@0: // L20
+            block@0: // L31
                 itxn_begin
                 let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
                 ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -205,7 +260,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L22
+            block@1: // next_txn_L33
                 itxn_submit
                 let awst_tmp%1#0: bytes = (itxn LastLog)
                 let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
@@ -229,7 +284,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@2
-            block@2: // next_txn_L25
+            block@2: // next_txn_L36
                 itxn_submit
                 let awst_tmp%3#0: bytes = (itxn LastLog)
                 let tmp%7#0: bytes = ((extract 4 0) awst_tmp%3#0)
@@ -248,7 +303,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@3
-            block@3: // next_txn_L28
+            block@3: // next_txn_L39
                 itxn_submit
                 let awst_tmp%5#0: bytes = (itxn LastLog)
                 let tmp%11#0: bytes = ((extract 4 0) awst_tmp%5#0)
@@ -278,7 +333,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@4
-            block@4: // next_txn_L32
+            block@4: // next_txn_L43
                 itxn_submit
                 let txn_result.LastLog#0: bytes = (itxn LastLog)
                 let awst_tmp%7#0: bytes = txn_result.LastLog#0
@@ -293,7 +348,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: uint64) -> void:
-            block@0: // L35
+            block@0: // L46
                 itxn_begin
                 let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
                 ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -302,7 +357,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L37
+            block@1: // next_txn_L48
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%0#0: bool = (== txn.LastLog#0 "converted1")
@@ -315,7 +370,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@2
-            block@2: // next_txn_L40
+            block@2: // next_txn_L51
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%1#0: bytes = (itob 2u)
@@ -329,7 +384,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@3
-            block@3: // next_txn_L43
+            block@3: // next_txn_L54
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%3#0: bytes = (bzero 56u)
@@ -345,7 +400,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@4
-            block@4: // next_txn_L46
+            block@4: // next_txn_L57
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%7#0: bool = (== txn.LastLog#0 "4")
@@ -360,7 +415,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@5
-            block@5: // next_txn_L49
+            block@5: // next_txn_L60
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%9#0: bool = (== txn.LastLog#0 "True")
@@ -368,7 +423,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uint64) -> void:
-            block@0: // L52
+            block@0: // L63
                 itxn_begin
                 let encoded_tuple_buffer%0#1: bytes = (concat 0x 0xde)
                 let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 0xad)
@@ -402,7 +457,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L54
+            block@1: // next_txn_L65
                 itxn_submit
                 let awst_tmp%1#0: bytes = (itxn LastLog)
                 let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
@@ -418,7 +473,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) -> void:
-            block@0: // L80
+            block@0: // L91
                 itxn_begin
                 let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
                 ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -427,7 +482,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L82
+            block@1: // next_txn_L93
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%0#0: bool = (== txn.LastLog#0 "World1")
@@ -440,7 +495,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@2
-            block@2: // next_txn_L85
+            block@2: // next_txn_L96
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%1#0: bool = (== txn.LastLog#0 "World2")
@@ -453,7 +508,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@3
-            block@3: // next_txn_L88
+            block@3: // next_txn_L99
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%2#0: bool = (== txn.LastLog#0 "World3")
@@ -466,7 +521,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@4
-            block@4: // next_txn_L91
+            block@4: // next_txn_L102
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let tmp%3#0: bool = (== txn.LastLog#0 "World4")
@@ -474,7 +529,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(app: uint64, asset: uint64) -> void:
-            block@0: // L94
+            block@0: // L105
                 itxn_begin
                 let tmp%0#0: bytes = (global CurrentApplicationAddress)
                 let inner_txn_params%0%%param_Accounts_idx_0#0: bytes = tmp%0#0
@@ -492,7 +547,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L96
+            block@1: // next_txn_L107
                 itxn_submit
                 let txn.LastLog#0: bytes = (itxn LastLog)
                 let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset#0)
@@ -505,8 +560,399 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%4#0: bool = (== txn.LastLog#0 tmp%3#0)
                 (assert tmp%4#0)
                 return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: uint64) -> void:
+            block@0: // L119
+                itxn_begin
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
+                ((itxn_field ApplicationArgs) "\x00\x01s")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L121
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result1#0: bytes = ((extract 2 0) value%0#0)
+                let tmp%3#0: bool = (== result1#0 "echo: s")
+                (assert tmp%3#0)
+                itxn_begin
+                let length%0#0: uint64 = (len "s")
+                let value_as_bytes%0#0: bytes = (itob length%0#0)
+                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
+                let tmp%4#0: bytes = (concat value_as_uint16%0#0 "s")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = tmp%4#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L124
+                itxn_submit
+                let awst_tmp%3#0: bytes = (itxn LastLog)
+                let tmp%5#0: bytes = ((extract 4 0) awst_tmp%3#0)
+                let tmp%6#0: bytes = ((extract 0 4) awst_tmp%3#0)
+                let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
+                let value%1#0: bytes = tmp%5#0
+                let check%1#0: bool = tmp%7#0
+                (assert check%1#0) // ARC4 prefix is valid
+                let result2#0: bytes = ((extract 2 0) value%1#0)
+                let tmp%8#0: bool = (== result2#0 result1#0)
+                (assert tmp%8#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
+                ((itxn_field ApplicationArgs) "\x00\x01s")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L127
+                itxn_submit
+                let awst_tmp%5#0: bytes = (itxn LastLog)
+                let tmp%9#0: bytes = ((extract 4 0) awst_tmp%5#0)
+                let tmp%10#0: bytes = ((extract 0 4) awst_tmp%5#0)
+                let tmp%11#0: bool = (== tmp%10#0 0x151f7c75)
+                let value%2#0: bytes = tmp%9#0
+                let check%2#0: bool = tmp%11#0
+                (assert check%2#0) // ARC4 prefix is valid
+                let result3#0: bytes = ((extract 2 0) value%2#0)
+                let tmp%12#0: bool = (== result3#0 result1#0)
+                (assert tmp%12#0)
+                return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: uint64) -> void:
+            block@0: // L130
+                itxn_begin
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
+                ((itxn_field ApplicationArgs) 0x000162)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L132
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result1#0: bytes = ((extract 2 0) value%0#0)
+                let tmp%3#0: bool = (== result1#0 "echo: b")
+                (assert tmp%3#0)
+                itxn_begin
+                let tmp%4#0: uint64 = (len "b")
+                let tmp%5#0: bytes = (itob tmp%4#0)
+                let tmp%6#0: bytes = ((substring 6 8) tmp%5#0)
+                let tmp%7#0: bytes = (concat tmp%6#0 "b")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = tmp%7#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L135
+                itxn_submit
+                let awst_tmp%4#0: bytes = (itxn LastLog)
+                let tmp%8#0: bytes = ((extract 4 0) awst_tmp%4#0)
+                let tmp%9#0: bytes = ((extract 0 4) awst_tmp%4#0)
+                let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
+                let value%1#0: bytes = tmp%8#0
+                let check%1#0: bool = tmp%10#0
+                (assert check%1#0) // ARC4 prefix is valid
+                let result2#0: bytes = ((extract 2 0) value%1#0)
+                let tmp%11#0: bool = (== result2#0 result1#0)
+                (assert tmp%11#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
+                ((itxn_field ApplicationArgs) 0x000162)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L138
+                itxn_submit
+                let awst_tmp%6#0: bytes = (itxn LastLog)
+                let tmp%12#0: bytes = ((extract 4 0) awst_tmp%6#0)
+                let tmp%13#0: bytes = ((extract 0 4) awst_tmp%6#0)
+                let tmp%14#0: bool = (== tmp%13#0 0x151f7c75)
+                let value%2#0: bytes = tmp%12#0
+                let check%2#0: bool = tmp%14#0
+                (assert check%2#0) // ARC4 prefix is valid
+                let result3#0: bytes = ((extract 2 0) value%2#0)
+                let tmp%15#0: bool = (== result3#0 result1#0)
+                (assert tmp%15#0)
+                return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: uint64) -> void:
+            block@0: // L143
+                itxn_begin
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+                ((itxn_field ApplicationArgs) 0x0000000000000001)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L145
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result1#0: uint64 = (btoi value%0#0)
+                let tmp%3#0: bool = (== result1#0 2u)
+                (assert tmp%3#0)
+                itxn_begin
+                let val_as_bytes%0#0: bytes = (itob 1u)
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = val_as_bytes%0#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L148
+                itxn_submit
+                let awst_tmp%3#0: bytes = (itxn LastLog)
+                let tmp%4#0: bytes = ((extract 4 0) awst_tmp%3#0)
+                let tmp%5#0: bytes = ((extract 0 4) awst_tmp%3#0)
+                let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
+                let value%1#0: bytes = tmp%4#0
+                let check%1#0: bool = tmp%6#0
+                (assert check%1#0) // ARC4 prefix is valid
+                let result2#0: uint64 = (btoi value%1#0)
+                let tmp%7#0: bool = (== result2#0 result1#0)
+                (assert tmp%7#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+                ((itxn_field ApplicationArgs) 0x0000000000000001)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L151
+                itxn_submit
+                let awst_tmp%5#0: bytes = (itxn LastLog)
+                let tmp%8#0: bytes = ((extract 4 0) awst_tmp%5#0)
+                let tmp%9#0: bytes = ((extract 0 4) awst_tmp%5#0)
+                let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
+                let value%2#0: bytes = tmp%8#0
+                let check%2#0: bool = tmp%10#0
+                (assert check%2#0) // ARC4 prefix is valid
+                let result3#0: uint64 = (btoi value%2#0)
+                let tmp%11#0: bool = (== result3#0 result1#0)
+                (assert tmp%11#0)
+                return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: uint64) -> void:
+            block@0: // L154
+                itxn_begin
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+                ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L156
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result1#0: bytes = value%0#0
+                let tmp%3#0: bool = (b== result1#0 3b)
+                (assert tmp%3#0)
+                itxn_begin
+                let len_%0#0: uint64 = (len 2b)
+                let no_overflow%0#0: bool = (<= len_%0#0 64u)
+                (assert no_overflow%0#0) // overflow
+                let b_zeros%0#0: bytes = (bzero 64u)
+                let tmp%4#0: bytes = (b| 2b b_zeros%0#0)
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = tmp%4#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L159
+                itxn_submit
+                let awst_tmp%3#0: bytes = (itxn LastLog)
+                let tmp%5#0: bytes = ((extract 4 0) awst_tmp%3#0)
+                let tmp%6#0: bytes = ((extract 0 4) awst_tmp%3#0)
+                let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
+                let value%1#0: bytes = tmp%5#0
+                let check%1#0: bool = tmp%7#0
+                (assert check%1#0) // ARC4 prefix is valid
+                let result2#0: bytes = value%1#0
+                let tmp%8#0: bool = (b== result2#0 result1#0)
+                (assert tmp%8#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+                ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L162
+                itxn_submit
+                let awst_tmp%5#0: bytes = (itxn LastLog)
+                let tmp%9#0: bytes = ((extract 4 0) awst_tmp%5#0)
+                let tmp%10#0: bytes = ((extract 0 4) awst_tmp%5#0)
+                let tmp%11#0: bool = (== tmp%10#0 0x151f7c75)
+                let value%2#0: bytes = tmp%9#0
+                let check%2#0: bool = tmp%11#0
+                (assert check%2#0) // ARC4 prefix is valid
+                let result3#0: bytes = value%2#0
+                let tmp%12#0: bool = (b== result3#0 result1#0)
+                (assert tmp%12#0)
+                return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: uint64) -> void:
+            block@0: // L165
+                itxn_begin
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+                ((itxn_field ApplicationArgs) "\x00\x02s1")
+                ((itxn_field ApplicationArgs) 0x00026231)
+                ((itxn_field ApplicationArgs) 0x0000000000000001)
+                ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L169
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%0#0: bytes = txn.LastLog#0
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result1#0: bytes = value%0#0
+                let item_index%0#0: uint64 = (extract_uint16 result1#0 0u)
+                let item_length%0#0: uint64 = (extract_uint16 result1#0 item_index%0#0)
+                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
+                let item0%0#0: bytes = (extract3 result1#0 item_index%0#0 item_length_plus_2%0#0)
+                let item_index%1#0: uint64 = (extract_uint16 result1#0 2u)
+                let item_length%1#0: uint64 = (extract_uint16 result1#0 item_index%1#0)
+                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
+                let item1%0#0: bytes = (extract3 result1#0 item_index%1#0 item_length_plus_2%1#0)
+                let item2%0#0: bytes = (extract3 result1#0 4u 8u)
+                let item3%0#0: bytes = (extract3 result1#0 12u 64u)
+                let s#0: bytes = item0%0#0
+                let b#0: bytes = item1%0#0
+                let u#0: bytes = item2%0#0
+                let bu#0: bytes = item3%0#0
+                let tmp%3#0: bytes = ((extract 2 0) s#0)
+                let tmp%4#0: bool = (== tmp%3#0 "echo: s1")
+                (assert tmp%4#0)
+                let tmp%5#0: bytes = ((extract 2 0) b#0)
+                let tmp%6#0: bool = (== tmp%5#0 "echo: b1")
+                (assert tmp%6#0)
+                let tmp%7#0: uint64 = (btoi u#0)
+                let tmp%8#0: bool = (== tmp%7#0 2u)
+                (assert tmp%8#0)
+                let tmp%9#0: bool = (b== bu#0 3b)
+                (assert tmp%9#0)
+                itxn_begin
+                let length%0#0: uint64 = (len "s1")
+                let value_as_bytes%0#0: bytes = (itob length%0#0)
+                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
+                let tmp%10#0: bytes = (concat value_as_uint16%0#0 "s1")
+                let tmp%11#0: uint64 = (len "b1")
+                let tmp%12#0: bytes = (itob tmp%11#0)
+                let tmp%13#0: bytes = ((substring 6 8) tmp%12#0)
+                let tmp%14#0: bytes = (concat tmp%13#0 "b1")
+                let val_as_bytes%0#0: bytes = (itob 1u)
+                let len_%0#0: uint64 = (len 2b)
+                let no_overflow%0#0: bool = (<= len_%0#0 64u)
+                (assert no_overflow%0#0) // overflow
+                let b_zeros%0#0: bytes = (bzero 64u)
+                let tmp%15#0: bytes = (b| 2b b_zeros%0#0)
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = tmp%10#0
+                let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = tmp%14#0
+                let inner_txn_params%1%%param_ApplicationArgs_idx_3#0: bytes = val_as_bytes%0#0
+                let inner_txn_params%1%%param_ApplicationArgs_idx_4#0: bytes = tmp%15#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_3#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_4#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L187
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%2#0: bytes = txn.LastLog#0
+                let tmp%16#0: bytes = ((extract 4 0) awst_tmp%2#0)
+                let tmp%17#0: bytes = ((extract 0 4) awst_tmp%2#0)
+                let tmp%18#0: bool = (== tmp%17#0 0x151f7c75)
+                let value%1#0: bytes = tmp%16#0
+                let check%1#0: bool = tmp%18#0
+                (assert check%1#0) // ARC4 prefix is valid
+                let result2#0: bytes = value%1#0
+                let tmp%19#0: bool = (== result1#0 result2#0)
+                (assert tmp%19#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+                ((itxn_field ApplicationArgs) "\x00\x02s1")
+                ((itxn_field ApplicationArgs) 0x00026231)
+                ((itxn_field ApplicationArgs) 0x0000000000000001)
+                ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L201
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%3#0: bytes = txn.LastLog#0
+                let tmp%20#0: bytes = ((extract 4 0) awst_tmp%3#0)
+                let tmp%21#0: bytes = ((extract 0 4) awst_tmp%3#0)
+                let tmp%22#0: bool = (== tmp%21#0 0x151f7c75)
+                let value%2#0: bytes = tmp%20#0
+                let check%2#0: bool = tmp%22#0
+                (assert check%2#0) // ARC4 prefix is valid
+                let result3#0: bytes = value%2#0
+                let tmp%23#0: bool = (== result1#0 result3#0)
+                (assert tmp%23#0)
+                return 
     
     program clear-state:
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.clear_state_program() -> bool:
-            block@0: // L6
+            block@0: // L17
                 return 1u

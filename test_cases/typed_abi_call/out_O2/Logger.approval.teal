@@ -2,7 +2,7 @@
 
 test_cases.typed_abi_call.logger.Logger.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@12
+    bz main_bare_routing@17
     method "echo(string)string"
     method "log(uint64)void"
     method "log(uint512)void"
@@ -10,9 +10,14 @@ test_cases.typed_abi_call.logger.Logger.approval_program:
     method "log(bool)void"
     method "log(byte[])void"
     method "log(asset,account,application)void"
+    method "echo_native_string(string)string"
+    method "echo_native_bytes(byte[])byte[]"
+    method "echo_native_uint64(uint64)uint64"
+    method "echo_native_biguint(uint512)uint512"
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     txna ApplicationArgs 0
-    match main_echo_route@2 main_log_route@3 main_log_route@4 main_log_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_return_args_after_14th_route@9
+    match main_echo_route@2 main_log_route@3 main_log_route@4 main_log_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_echo_native_string_route@9 main_echo_native_bytes_route@10 main_echo_native_uint64_route@11 main_echo_native_biguint_route@12 main_echo_native_tuple_route@13 main_return_args_after_14th_route@14
     err // reject transaction
 
 main_echo_route@2:
@@ -104,7 +109,156 @@ main_log_route@8:
     int 1
     return
 
-main_return_args_after_14th_route@9:
+main_echo_native_string_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    callsub echo_native_string
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_echo_native_bytes_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    callsub echo_native_bytes
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_echo_native_uint64_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    callsub echo_native_uint64
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_echo_native_biguint_route@12:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub echo_native_biguint
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    b|
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_echo_native_tuple_route@13:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    callsub echo_native_tuple
+    cover 3
+    cover 2
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    cover 3
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    cover 3
+    itob
+    cover 2
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    b|
+    dig 1
+    len
+    int 76
+    +
+    itob
+    extract 6 2
+    byte 0x004c
+    swap
+    concat
+    uncover 3
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_return_args_after_14th_route@14:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -144,7 +298,7 @@ main_return_args_after_14th_route@9:
     int 1
     return
 
-main_bare_routing@12:
+main_bare_routing@17:
     txn OnCompletion
     !
     assert // reject transaction
@@ -237,6 +391,60 @@ log_asset_account_app:
     assert // application exists
     concat
     log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.echo_native_string(value: bytes) -> bytes:
+echo_native_string:
+    proto 1 1
+    byte "echo: "
+    frame_dig -1
+    concat
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.echo_native_bytes(value: bytes) -> bytes:
+echo_native_bytes:
+    proto 1 1
+    byte "echo: "
+    frame_dig -1
+    concat
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.echo_native_uint64(value: uint64) -> uint64:
+echo_native_uint64:
+    proto 1 1
+    frame_dig -1
+    int 1
+    +
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.echo_native_biguint(value: bytes) -> bytes:
+echo_native_biguint:
+    proto 1 1
+    frame_dig -1
+    byte 0x01
+    b+
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.echo_native_tuple(s: bytes, b: bytes, u: uint64, bu: bytes) -> bytes, bytes, uint64, bytes:
+echo_native_tuple:
+    proto 4 4
+    byte "echo: "
+    frame_dig -4
+    concat
+    byte "echo: "
+    frame_dig -3
+    concat
+    frame_dig -2
+    int 1
+    +
+    frame_dig -1
+    byte 0x01
+    b+
     retsub
 
 
