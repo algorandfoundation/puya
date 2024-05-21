@@ -111,18 +111,17 @@ asset_wtype: typing.Final = WType(
     stub_name=constants.CLS_ASSET_ALIAS,
     is_valid_literal=is_valid_uint64_literal,
 )
-state_key: typing.Final = WType(
-    name="state_key",
-    stub_name="n/a",  # TODO: seperation
-    is_valid_literal=_bytes_literal_validator(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
-)
-box_key: typing.Final = WType(
-    name="box_key",
-    stub_name="n/a",  # TODO: seperation
-    is_valid_literal=_bytes_literal_validator(
-        min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
-    ),
-)
+# TODO: take the below approach and use everywhere
+# state_key: typing.Final = WType(
+#     name="state_key",
+#     is_valid_literal=_bytes_literal_validator(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
+# )
+# box_key: typing.Final = WType(
+#     name="box_key",
+#     is_valid_literal=_bytes_literal_validator(
+#         min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
+#     ),
+# )
 
 account_wtype: typing.Final = WType(
     name="account",
@@ -191,42 +190,6 @@ class WInnerTransaction(WType):
             stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_result,
             name=name,
         )
-
-
-@attrs.define
-class WBoxProxy(WType):
-    content_wtype: WType = attrs.field()
-
-    @classmethod
-    def from_content_type(cls, content_wtype: WType) -> "WBoxProxy":
-        return cls(
-            content_wtype=content_wtype,
-            name=f"box_proxy[{content_wtype.name}]",
-            stub_name=f"{constants.CLS_BOX_PROXY_ALIAS}[{content_wtype.stub_name}]",
-        )
-
-
-@attrs.define
-class WBoxMapProxy(WType):
-    key_wtype: WType
-    content_wtype: WType
-
-    @classmethod
-    def from_key_and_content_type(cls, key_wtype: WType, content_wtype: WType) -> "WBoxMapProxy":
-        return cls(
-            key_wtype=key_wtype,
-            content_wtype=content_wtype,
-            name=f"box_map_proxy[{key_wtype.name},{content_wtype.name}]",
-            stub_name=(
-                f"{constants.CLS_BOX_MAP_PROXY_ALIAS}"
-                f"[{key_wtype.stub_name}, {content_wtype.stub_name}]"
-            ),
-        )
-
-
-box_ref_proxy_type: typing.Final = WType(
-    name="box_ref_proxy", stub_name=constants.CLS_BOX_REF_PROXY_ALIAS
-)
 
 
 @typing.final

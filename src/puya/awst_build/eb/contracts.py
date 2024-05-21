@@ -2,11 +2,9 @@ import mypy.nodes
 import mypy.types
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
     BaseClassSubroutineTarget,
-    BoxProxyField,
     InstanceSubroutineTarget,
 )
 from puya.awst_build import pytypes
@@ -26,7 +24,7 @@ from puya.awst_build.eb.subroutine import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import qualified_class_name, resolve_method_from_type_info
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -90,35 +88,11 @@ def _builder_for_storage_access(
 ) -> ExpressionBuilder:
     match storage_decl.typ:
         case pytypes.BoxRefType:
-            return BoxRefProxyExpressionBuilder(
-                BoxProxyField(
-                    source_location=storage_decl.source_location,
-                    wtype=wtypes.box_ref_proxy_type,
-                    field_name=storage_decl.member_name,
-                )
-            )
+            return BoxRefProxyExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericBoxType):
-            return BoxProxyExpressionBuilder(
-                BoxProxyField(
-                    source_location=storage_decl.source_location,
-                    wtype=wtypes.WBoxProxy.from_content_type(
-                        storage_decl.definition.storage_wtype
-                    ),
-                    field_name=storage_decl.member_name,
-                )
-            )
+            return BoxProxyExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericBoxMapType):
-            if storage_decl.definition.key_wtype is None:
-                raise InternalError("BoxMap should have key WType", location)
-            return BoxMapProxyExpressionBuilder(
-                BoxProxyField(
-                    source_location=storage_decl.source_location,
-                    wtype=wtypes.WBoxMapProxy.from_key_and_content_type(
-                        storage_decl.definition.key_wtype, storage_decl.definition.storage_wtype
-                    ),
-                    field_name=storage_decl.member_name,
-                )
-            )
+            return BoxMapProxyExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericLocalStateType):
             return AppAccountStateExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericGlobalStateType):

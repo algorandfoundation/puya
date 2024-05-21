@@ -162,9 +162,6 @@ WTYPE_TO_BUILDER: dict[
     wtypes.WGroupTransaction: transaction.GroupTransactionExpressionBuilder,
     wtypes.WInnerTransaction: transaction.InnerTransactionExpressionBuilder,
     wtypes.WInnerTransactionFields: transaction.InnerTxnParamsExpressionBuilder,
-    wtypes.WBoxProxy: box.BoxProxyExpressionBuilder,
-    wtypes.WBoxMapProxy: box.BoxMapProxyExpressionBuilder,
-    wtypes.box_ref_proxy_type: box.BoxRefProxyExpressionBuilder,
 }
 
 

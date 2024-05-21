@@ -978,9 +978,6 @@ class FunctionIRBuilder(
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
         return box.visit_box_value(self.context, expr)
 
-    def visit_box_proxy_field(self, expr: awst_nodes.BoxProxyField) -> TExpression:
-        return box.visit_field_box(self.context, expr)
-
     def visit_box_proxy_expression(self, expr: awst_nodes.BoxProxyExpression) -> TExpression:
         return box.visit_box_proxy_expression(self.context, expr)
 

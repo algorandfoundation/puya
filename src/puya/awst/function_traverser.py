@@ -140,11 +140,12 @@ class FunctionTraverser(
         expr.source.accept(self)
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> None:
-        pass
+        expr.key.accept(self)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> None:
+        expr.key.accept(self)
         expr.account.accept(self)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> None:
@@ -284,17 +285,8 @@ class FunctionTraverser(
     def visit_box_length(self, expr: awst_nodes.BoxLength) -> None:
         expr.box_key.accept(self)
 
-    def visit_box_proxy_expression(self, expr: awst_nodes.BoxProxyExpression) -> None:
-        expr.key.accept(self)
-
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
-        expr.proxy.accept(self)
-
-    def visit_box_proxy_field(self, expr: awst_nodes.BoxProxyField) -> None:
-        pass
-
-    def visit_box_key_expression(self, expr: awst_nodes.BoxKeyExpression) -> None:
-        expr.proxy.accept(self)
+        expr.key.accept(self)
 
     def visit_bytes_raw(self, expr: awst_nodes.BytesRaw) -> None:
         expr.expr.accept(self)

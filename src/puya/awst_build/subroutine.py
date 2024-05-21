@@ -20,7 +20,6 @@ from puya.awst.nodes import (
     Block,
     BoolConstant,
     BooleanBinaryOperation,
-    BoxProxyExpression,
     BreakStatement,
     BytesConstant,
     CompileTimeConstantExpression,
