@@ -18,7 +18,7 @@ from puya.awst.nodes import (
     StateGetEx,
     Statement,
 )
-from puya.awst_build import constants, pytypes
+from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import (
     StorageProxyDefinitionBuilder,
@@ -301,5 +301,5 @@ class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
 
 
 class AppAccountStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = constants.CLS_LOCAL_STATE_ALIAS
+    python_name = str(pytypes.GenericLocalStateType)
     is_prefix = False

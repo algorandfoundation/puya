@@ -67,7 +67,7 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class BoxRefProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = pytypes.BoxRefType.name
+    python_name = str(pytypes.BoxRefType)
     is_prefix = False
 
 

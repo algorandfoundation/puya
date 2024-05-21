@@ -1628,7 +1628,7 @@ class BytesRaw(Expression):
 
 @attrs.frozen
 class BoxLength(Expression):
-    box_key: BoxValueExpression = attrs.field()
+    box_key: BoxValueExpression = attrs.field()  # TODO: rename me
     wtype = attrs.field(default=wtypes.uint64_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

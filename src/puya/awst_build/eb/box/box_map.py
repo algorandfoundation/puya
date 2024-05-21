@@ -5,9 +5,7 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BoxKeyExpression,
     BoxLength,
-    BoxProxyExpression,
     BoxValueExpression,
     BytesRaw,
     Expression,

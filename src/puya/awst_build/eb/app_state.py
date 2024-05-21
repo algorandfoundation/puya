@@ -139,7 +139,7 @@ def _init(
 
 
 class AppStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = constants.CLS_GLOBAL_STATE_ALIAS
+    python_name = str(pytypes.GenericGlobalStateType)
     is_prefix = False
 
 
@@ -178,8 +178,8 @@ class AppStateExpressionBuilder(ValueExpressionBuilder):
     def _build_field(self, location: SourceLocation) -> AppStateExpression:
         return AppStateExpression(
             key=self.expr,
-            field_name=self._member_name,
             wtype=self._typ.content.wtype,
+            field_name=self._member_name,
             source_location=location,
         )
 
