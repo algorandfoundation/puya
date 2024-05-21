@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -32,8 +33,113 @@ from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype, get_arg_mapping
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+
+class AppAccountStateClassExpressionBuilder(TypeClassExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
+        assert isinstance(typ, pytypes.StorageProxyType)
+        assert typ.generic == pytypes.GenericLocalStateType
+        self._storage_pytype = typ.content
+        super().__init__(typ.wtype, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        return _init(
+            args=args,
+            arg_names=arg_names,
+            location=location,
+            storage_wtype=self._storage_pytype.wtype,
+        )
+
+
+class AppAccountStateGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        return _init(args=args, arg_names=arg_names, location=location, storage_wtype=None)
+
+
+def _init(
+    args: Sequence[ExpressionBuilder | Literal],
+    arg_names: list[str | None],
+    location: SourceLocation,
+    *,
+    storage_wtype: wtypes.WType | None,
+) -> ExpressionBuilder:
+    type_arg_name = "type_"
+    arg_mapping = get_arg_mapping(
+        positional_arg_names=[type_arg_name],
+        args=zip(arg_names, args, strict=True),
+        location=location,
+    )
+    try:
+        type_arg = arg_mapping.pop(type_arg_name)
+    except KeyError as ex:
+        raise CodeError("Required positional argument missing", location) from ex
+
+    key_arg = arg_mapping.pop("key", None)
+    descr_arg = arg_mapping.pop("description", None)
+    if arg_mapping:
+        raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
+
+    match type_arg:
+        case TypeClassExpressionBuilder() as typ_class_eb:
+            argument_wtype = typ_class_eb.produces()
+        case _:
+            raise CodeError("First argument must be a type reference", location)
+    if storage_wtype is not None and argument_wtype != storage_wtype:
+        raise CodeError(
+            "App account state explicit type annotation does not match first argument"
+            " - suggest to remove the explicit type annotation,"
+            " it shouldn't be required",
+            location,
+        )
+
+    match key_arg:
+        case None:
+            key_override = None
+        case Literal(value=bytes(bytes_value), source_location=key_lit_loc):
+            key_override = BytesConstant(
+                value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
+            )
+        case Literal(value=str(str_value), source_location=key_lit_loc):
+            key_override = BytesConstant(
+                value=str_value.encode("utf8"),
+                encoding=BytesEncoding.utf8,
+                source_location=key_lit_loc,
+            )
+        case _:
+            raise CodeError("key should be a string or bytes literal", key_arg.source_location)
+
+    match descr_arg:
+        case None:
+            description = None
+        case Literal(value=str(str_value)):
+            description = str_value
+        case _:
+            raise CodeError("description should be a string literal", descr_arg.source_location)
+
+    return AppAccountStateProxyDefinitionBuilder(
+        location=location,
+        storage=argument_wtype,
+        key_override=key_override,
+        description=description,
+    )
 
 
 class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
@@ -126,100 +232,6 @@ class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
 
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.__field, source_location=location)
-
-
-class AppAccountStateClassExpressionBuilder(GenericClassExpressionBuilder):
-    def __init__(self, location: SourceLocation):
-        super().__init__(location)
-        self._storage: wtypes.WType | None = None
-
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> ExpressionBuilder:
-        if self._storage is not None:
-            raise InternalError("Multiple indexing of Local?", location)
-        match indexes:
-            case [TypeClassExpressionBuilder() as typ_class_eb]:
-                self.source_location += location
-                self._storage = typ_class_eb.produces()
-                return self
-        raise CodeError(
-            "Invalid indexing, only a single type arg is supported "
-            "(you can also omit the type argument entirely as it should be redundant)",
-            location,
-        )
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        type_arg_name = "type_"
-        arg_mapping = get_arg_mapping(
-            positional_arg_names=[type_arg_name],
-            args=zip(arg_names, args, strict=True),
-            location=location,
-        )
-        try:
-            type_arg = arg_mapping.pop(type_arg_name)
-        except KeyError as ex:
-            raise CodeError("Required positional argument missing", location) from ex
-
-        key_arg = arg_mapping.pop("key", None)
-        descr_arg = arg_mapping.pop("description", None)
-        if arg_mapping:
-            raise CodeError(
-                f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location
-            )
-
-        match type_arg:
-            case TypeClassExpressionBuilder() as typ_class_eb:
-                storage_wtype = typ_class_eb.produces()
-            case _:
-                raise CodeError("First argument must be a type reference", location)
-        if self._storage is not None and self._storage != storage_wtype:
-            raise CodeError(
-                "App account state explicit type annotation does not match first argument"
-                " - suggest to remove the explicit type annotation,"
-                " it shouldn't be required",
-                location,
-            )
-
-        match key_arg:
-            case None:
-                key_override = None
-            case Literal(value=bytes(bytes_value), source_location=key_lit_loc):
-                key_override = BytesConstant(
-                    value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
-                )
-            case Literal(value=str(str_value), source_location=key_lit_loc):
-                key_override = BytesConstant(
-                    value=str_value.encode("utf8"),
-                    encoding=BytesEncoding.utf8,
-                    source_location=key_lit_loc,
-                )
-            case _:
-                raise CodeError("key should be a string or bytes literal", key_arg.source_location)
-
-        match descr_arg:
-            case None:
-                description = None
-            case Literal(value=str(str_value)):
-                description = str_value
-            case _:
-                raise CodeError(
-                    "description should be a string literal", descr_arg.source_location
-                )
-
-        return AppAccountStateProxyDefinitionBuilder(
-            location=location,
-            storage=storage_wtype,
-            key_override=key_override,
-            description=description,
-        )
 
 
 class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):

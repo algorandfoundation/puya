@@ -168,6 +168,7 @@ class ExpressionBuilder(abc.ABC):
         """Handle self[index]"""
         raise CodeError(f"{self._type_description} does not support indexing", location)
 
+    @typing.final
     def index_multiple(
         self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:

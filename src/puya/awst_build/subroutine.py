@@ -1029,12 +1029,15 @@ class FunctionASTConverter(
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
         expr_location = self._location(expr)
+        if isinstance(expr.method_type, mypy.types.CallableType):
+            result_pytyp = self.context.type_to_pytype(
+                expr.method_type.ret_type, source_location=expr_location
+            )
+            if isinstance(result_pytyp, pytypes.PseudoGenericFunctionType):
+                return builder_for_type(result_pytyp, expr_location)
         match expr.analyzed:
             case None:
-                with contextlib.suppress(PuyaError):
-                    result_pytyp = self.context.mypy_expr_node_type(expr)
-                    if isinstance(result_pytyp, pytypes.PseudoGenericFunctionType):
-                        return builder_for_type(result_pytyp, expr_location)
+                pass
             case mypy.nodes.TypeAliasExpr():
                 raise CodeError("type aliases are not supported inside subroutines", expr_location)
             case mypy.nodes.TypeApplication():
@@ -1046,6 +1049,8 @@ class FunctionASTConverter(
                         expr_location,
                     )
                 return builder_for_type(type_type.typ, expr_location)
+            case _:
+                typing.assert_never(expr.analyzed)
 
         base_expr = expr.base.accept(self)
         if isinstance(base_expr, Literal):
