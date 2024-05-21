@@ -110,12 +110,12 @@ def _init(
 
     key_override = extract_key_override(key_arg, location, is_prefix=False)
     if key_override is None:
-        return BoxRefProxyDefinitionBuilder(location=location, description=None)
+        return BoxProxyDefinitionBuilder(location=location, description=None)
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
 
 
-class BoxRefProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = str(pytypes.BoxRefType)
+class BoxProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
+    python_name = str(pytypes.GenericBoxType)
     is_prefix = False
 
 
