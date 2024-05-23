@@ -7,7 +7,7 @@ from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import convert_literal, get_arg_mapping
 from puya.errors import CodeError
@@ -96,7 +96,7 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
                 wtype=mapping.typ.wtype,
                 source_location=location,
             )
-            return var_expression(intrinsic_expr)
+            return builder_for_instance(mapping.typ, intrinsic_expr)
         else:
             fullname = ".".join((self._type_name, name))
             return IntrinsicFunctionExpressionBuilder(fullname, mapping, location)
@@ -132,7 +132,7 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
         intrinsic_expr = _map_call(
             self._mappings, callee=self._fullname, node_location=location, args=arg_mapping
         )
-        return var_expression(intrinsic_expr)
+        return intrinsic_expr
 
 
 def _best_op_mapping(
@@ -152,7 +152,7 @@ def _map_call(
     callee: str,
     node_location: SourceLocation,
     args: dict[str, Expression | Literal],
-) -> IntrinsicCall:
+) -> ExpressionBuilder:
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:
@@ -214,10 +214,11 @@ def _map_call(
     for arg_node in args.values():
         logger.error("Unexpected argument", location=arg_node.source_location)
 
-    return IntrinsicCall(
+    result_expr = IntrinsicCall(
         op_code=op_mapping.op_code,
         wtype=op_mapping.result.wtype,
         immediates=immediates,
         stack_args=stack_args,
         source_location=node_location,
     )
+    return builder_for_instance(op_mapping.result, result_expr)

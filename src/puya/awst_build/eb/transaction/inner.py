@@ -15,12 +15,9 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.transaction.base import (
-    BaseTransactionExpressionBuilder,
-    expect_wtype,
-)
+from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder, expect_wtype
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -39,12 +36,15 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
         self,
         transaction: Expression,
         field: TxnField,
+        typ: pytypes.PyType,
         location: SourceLocation,
     ):
         super().__init__(location)
+        self.typ = typ
         self.transaction = transaction
         self.field = field
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -57,13 +57,13 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
             case [(ExpressionBuilder() | Literal(value=int())) as eb]:
                 index_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
                 expr = InnerTransactionField(
-                    source_location=location,
-                    wtype=self.field.wtype,
                     itxn=self.transaction,
                     field=self.field,
                     array_index=index_expr,
+                    wtype=self.typ.wtype,
+                    source_location=location,
                 )
-                return var_expression(expr)
+                return builder_for_instance(self.typ, expr)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 
@@ -82,8 +82,10 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
             wtype=field.wtype,
         )
 
-    def get_array_member(self, field: TxnField, location: SourceLocation) -> ExpressionBuilder:
-        return InnerTransactionArrayExpressionBuilder(self.expr, field, location)
+    def get_array_member(
+        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return InnerTransactionArrayExpressionBuilder(self.expr, field, typ, location)
 
 
 class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WInnerTransaction]):

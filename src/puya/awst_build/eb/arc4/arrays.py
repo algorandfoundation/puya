@@ -301,7 +301,7 @@ class _ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
             source_location=location,
         )
         if self.pytyp is None:
-            return var_expression(result_expr)
+            return var_expression(result_expr)  # TODO: yeet me
         return builder_for_instance(self.pytyp.items, result_expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
@@ -472,7 +472,7 @@ class _PopExpressionBuilder(IntermediateExpressionBuilder):
                     base=self.expr, source_location=location, wtype=self.wtype.element_type
                 )
                 if self._item_pytyp is None:
-                    return var_expression(result_expr)
+                    return var_expression(result_expr)  # TODO: yeet me
                 return builder_for_instance(self._item_pytyp, result_expr)
             case _:
                 raise CodeError("Invalid/Unhandled arguments", location)

@@ -514,9 +514,8 @@ class FunctionASTConverter(
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
         # TODO: PyType from EB
-        subject = require_expression_builder(
-            temporary_assignment_if_required(stmt.subject.accept(self))
-        ).rvalue()
+        subject_eb = require_expression_builder(stmt.subject.accept(self))
+        subject = temporary_assignment_if_required(subject_eb).rvalue()
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):

@@ -7,7 +7,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BinaryBooleanOperator,
-    BoolConstant,
     BooleanBinaryOperation,
     Contains,
     Expression,
@@ -29,7 +28,7 @@ from puya.awst_build.eb.base import (
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
 from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -81,6 +80,8 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[wtypes.WTuple]):
 
 class TupleExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        if typ is not None:
+            assert isinstance(typ, pytypes.TupleType)
         self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WTuple)
         self.wtype: wtypes.WTuple = expr.wtype
@@ -94,24 +95,37 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
         # result type, but also we can statically validate that value
         index_expr_or_literal = index
         match index_expr_or_literal:
-            case Literal(value=int(index_value)) as index_literal:
-                try:
-                    self.wtype.types[index_value]
-                except IndexError as ex:
-                    raise CodeError(
-                        "Tuple index out of bounds", index_literal.source_location
-                    ) from ex
-                item_expr = TupleItemExpression(
-                    base=self.expr,
-                    index=index_value,
-                    source_location=location,
-                )
-                return var_expression(item_expr)
+            case Literal(value=int(index_value)):
+                return self._index(index_value, location)
             case _:
                 raise CodeError(
                     "tuples can only be indexed by int constants",
                     index_expr_or_literal.source_location,
                 )
+
+    def _index(self, index_value: int, location: SourceLocation) -> ExpressionBuilder:
+        if self.pytyp is not None:
+            try:
+                item_typ = self.pytyp.items[index_value]
+            except IndexError as ex:
+                raise CodeError("Tuple index out of bounds", location) from ex
+            item_expr = TupleItemExpression(
+                base=self.expr,
+                index=index_value,
+                source_location=location,
+            )
+            return builder_for_instance(item_typ, item_expr)
+        else:
+            try:
+                self.wtype.types[index_value]
+            except IndexError as ex:
+                raise CodeError("Tuple index out of bounds", location) from ex
+            item_expr = TupleItemExpression(
+                base=self.expr,
+                index=index_value,
+                source_location=location,
+            )
+            return var_expression(item_expr)  # TODO: yeet me
 
     def slice_index(
         self,
@@ -187,19 +201,16 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
             case _:
                 raise CodeError(f"The {op} operator on the tuple type is not supported", location)
 
-        other_expr = require_expression_builder(other).rvalue()
-        if self.wtype != other_expr.wtype:
-            return BoolExpressionBuilder(
-                BoolConstant(value=result_if_types_differ, source_location=location)
-            )
-
-        def get_index(expr: Expression, idx: int) -> ExpressionBuilder:
-            item = TupleItemExpression(base=expr, index=idx, source_location=location)
-            return var_expression(item)
+        other_eb = require_expression_builder(other)
+        if not isinstance(other_eb, TupleExpressionBuilder):
+            return NotImplemented
+        other_expr = other_eb.rvalue()
+        if self.wtype != other_expr.wtype:  # TODO: compare pytypes
+            return bool_eval_to_constant(value=result_if_types_differ, location=location)
 
         def compare_at_index(idx: int) -> Expression:
-            left = get_index(self.expr, idx)
-            right = get_index(other_expr, idx)
+            left = self._index(idx, location)
+            right = other_eb._index(idx, location)  # noqa: SLF001
             return left.compare(right, op=op, location=location).rvalue()
 
         result = compare_at_index(0)

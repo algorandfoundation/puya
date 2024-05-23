@@ -950,3 +950,30 @@ GenericTemplateVarType: typing.Final[PyType] = _GenericType(
     name=f"{constants.ALGOPY_PREFIX}_template_variables._TemplateVarMethod",
     parameterise=_parameterise_pseudo_generic_function_type,
 )
+
+
+__BASIC_WTYPE_MAP: typing.Final[Mapping[wtypes.WType, PyType]] = {
+    wtypes.void_wtype: NoneType,
+    wtypes.uint64_wtype: UInt64Type,
+    wtypes.bytes_wtype: BytesType,
+    wtypes.bool_wtype: BoolType,
+    wtypes.account_wtype: AccountType,
+    wtypes.biguint_wtype: BigUIntType,
+    wtypes.asset_wtype: AssetType,
+    wtypes.application_wtype: ApplicationType,
+}
+
+
+def from_basic_wtype(wtype: wtypes.WType) -> PyType:
+    """For mapping from basic WTypes _only_.
+
+    These should all be types that are found in the langspec, basically.
+
+    This is only meant for use when there are no other reasonable alternatives.
+    """
+    assert wtype.scalar
+    assert type(wtype) is wtypes.WType
+    try:
+        return __BASIC_WTYPE_MAP[wtype]
+    except KeyError as ex:
+        raise InternalError(f"Unable to map basic WType '{wtype}' back to PyType") from ex

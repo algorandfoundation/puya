@@ -140,7 +140,7 @@ class CopyBuilder(IntermediateExpressionBuilder):
                     value=self.expr, wtype=self.expr.wtype, source_location=location
                 )
                 if self._typ is None:
-                    return var_expression(expr_result)
+                    return var_expression(expr_result)  # TODO: yeet me
                 return builder_for_instance(self._typ, expr_result)
         raise CodeError("Invalid/Unexpected arguments", location)
 
@@ -172,7 +172,7 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
                     wtype=self._native_wtype,
                     source_location=location,
                 )
-                return var_expression(result_expr)
+                return var_expression(result_expr)  # TODO: yeet me
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:

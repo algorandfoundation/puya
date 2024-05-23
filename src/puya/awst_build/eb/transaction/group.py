@@ -21,11 +21,8 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.transaction.base import (
-    BaseTransactionExpressionBuilder,
-    expect_wtype,
-)
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder, expect_wtype
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -53,8 +50,10 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
             stack_args=[self.expr],
         )
 
-    def get_array_member(self, field: TxnField, location: SourceLocation) -> ExpressionBuilder:
-        return GroupTransactionArrayExpressionBuilder(self.expr, field, location)
+    def get_array_member(
+        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return GroupTransactionArrayExpressionBuilder(self.expr, field, typ, location)
 
 
 class GroupTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
@@ -62,12 +61,15 @@ class GroupTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
         self,
         transaction: Expression,
         field: TxnField,
+        typ: pytypes.PyType,
         location: SourceLocation,
     ):
         super().__init__(location)
+        self.typ = typ
         self.transaction = transaction
         self.field = field
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -81,13 +83,13 @@ class GroupTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
         (arg,) = args
         index_expr = expect_operand_wtype(arg, wtypes.uint64_wtype)
         expr = IntrinsicCall(
-            source_location=location,
-            wtype=self.field.wtype,
             op_code="gtxnsas",
             immediates=[self.field.immediate],
             stack_args=[self.transaction, index_expr],
+            wtype=self.typ.wtype,
+            source_location=location,
         )
-        return var_expression(expr)
+        return builder_for_instance(self.typ, expr)
 
 
 def check_transaction_type(

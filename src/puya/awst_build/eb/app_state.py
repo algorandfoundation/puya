@@ -36,7 +36,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError
 
@@ -169,7 +169,7 @@ class AppStateExpressionBuilder(ValueExpressionBuilder):
             case "value":
                 return AppStateValueExpressionBuilder(field)
             case "get":
-                return AppStateGetExpressionBuilder(field, location=self.source_location)
+                return _Get(field, self._typ.content, location=self.source_location)
             case "maybe":
                 return AppStateMaybeExpressionBuilder(field, location=self.source_location)
             case _:
@@ -247,10 +247,13 @@ class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
         return TupleExpressionBuilder(expr)
 
 
-class AppStateGetExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, field: AppStateExpression, location: SourceLocation) -> None:
+class _Get(IntermediateExpressionBuilder):
+    def __init__(
+        self, field: AppStateExpression, content_type: pytypes.PyType, location: SourceLocation
+    ) -> None:
         super().__init__(location)
         self.field = field
+        self.content_type = content_type
 
     @typing.override
     def call(
@@ -264,9 +267,9 @@ class AppStateGetExpressionBuilder(IntermediateExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_wtype(default_arg, target_wtype=self.field.wtype)
+        default_expr = expect_operand_wtype(default_arg, target_wtype=self.content_type.wtype)
         expr = StateGet(field=self.field, default=default_expr, source_location=location)
-        return var_expression(expr)
+        return builder_for_instance(self.content_type, expr)
 
 
 class AppStateValueExpressionBuilder(ValueProxyExpressionBuilder):

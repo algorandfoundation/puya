@@ -36,7 +36,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -261,7 +261,7 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
             source_location=location,
         )
 
-        return var_expression(expr)
+        return builder_for_instance(self._content_typ, expr)
 
 
 class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):

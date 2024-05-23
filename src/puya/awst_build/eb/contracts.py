@@ -22,7 +22,7 @@ from puya.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
     SubroutineInvokerExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import qualified_class_name, resolve_method_from_type_info
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -105,12 +105,13 @@ def _builder_for_storage_access(
             return BoxMapProxyExpressionBuilder(
                 storage_decl.key, storage_decl.typ, storage_decl.member_name
             )
-        case _:
-            return var_expression(
+        case content_type:
+            return builder_for_instance(
+                content_type,
                 AppStateExpression(
                     key=storage_decl.key,
                     member_name=storage_decl.member_name,
-                    wtype=storage_decl.definition.storage_wtype,
+                    wtype=content_type.wtype,
                     source_location=location,
-                )
+                ),
             )

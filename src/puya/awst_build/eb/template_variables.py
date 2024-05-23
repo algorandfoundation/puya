@@ -6,7 +6,7 @@ import mypy.nodes
 from puya.awst.nodes import Literal, TemplateVar
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -28,7 +28,7 @@ class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
 class TemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.PseudoGenericFunctionType)
-        self._wtype = typ.return_type.wtype
+        self.result_type = typ.return_type
         super().__init__(location)
 
     @typing.override
@@ -67,13 +67,12 @@ class TemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
 
         match var_name:
             case Literal(value=str(str_value)):
-                return var_expression(
-                    TemplateVar(
-                        name=prefix_value + str_value,
-                        wtype=self._wtype,
-                        source_location=location,
-                    )
+                result_expr = TemplateVar(
+                    name=prefix_value + str_value,
+                    wtype=self.result_type.wtype,
+                    source_location=location,
                 )
+                return builder_for_instance(self.result_type, result_expr)
             case _:
                 raise CodeError(
                     "TemplateVars must be declared using a string literal for the variable name"

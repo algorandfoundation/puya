@@ -112,12 +112,11 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
                 ),
             )
         else:
-            # TODO: yeet me
             try:
                 self.wtype.types[index_value]
             except IndexError as ex:
                 raise CodeError("Tuple index out of bounds", index_literal.source_location) from ex
-            return var_expression(
+            return var_expression(  # TODO: yeet me
                 TupleItemExpression(
                     base=self.expr,
                     index=index_value,

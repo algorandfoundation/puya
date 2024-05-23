@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -15,7 +16,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -36,6 +37,7 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
         self.target = target
         self.func_type = func_type
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -71,7 +73,7 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
             args=call_args,
             wtype=result_pytyp.wtype,
         )
-        return var_expression(call_expr)
+        return builder_for_instance(result_pytyp, call_expr)
 
 
 class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBuilder):

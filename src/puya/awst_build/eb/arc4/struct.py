@@ -87,8 +87,7 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
                 )
                 return builder_for_instance(field, result_expr)
             case field_name if field_name in self.wtype.fields:
-                # TODO: yeet me
-                return var_expression(
+                return var_expression(  # TODO: yeet me
                     FieldExpression(
                         source_location=location,
                         base=self.expr,
