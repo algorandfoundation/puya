@@ -751,7 +751,17 @@ GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
 )
 
 
-def _make_gtxn_type(kind: constants.TransactionType | None) -> PyType:
+@attrs.frozen
+class TransactionRelatedType(PyType):
+    wtype: wtypes.WType
+    transaction_type: constants.TransactionType | None
+    """None implies "any" type"""
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         wtype_name = "group_transaction"
         cls_name = "Transaction"
@@ -759,8 +769,9 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> PyType:
         wtype_name = f"group_transaction_{kind.name}"
         cls_name = f"{_TXN_TYPE_NAMES[kind]}Transaction"
     stub_name = f"{constants.ALGOPY_PREFIX}gtxn.{cls_name}"
-    return _SimpleType(
+    return TransactionRelatedType(
         name=stub_name,
+        transaction_type=kind,
         wtype=wtypes.WGroupTransaction(
             name=wtype_name,
             transaction_type=kind,
@@ -769,7 +780,7 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> PyType:
     )
 
 
-def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> PyType:
+def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         wtype_name = "inner_transaction_fields"
         cls_name = "InnerTransaction"
@@ -777,15 +788,16 @@ def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> PyType:
         wtype_name = f"inner_transaction_fields_{kind.name}"
         cls_name = _TXN_TYPE_NAMES[kind]
     stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
-    return _SimpleType(
+    return TransactionRelatedType(
         name=stub_name,
+        transaction_type=kind,
         wtype=wtypes.WInnerTransactionFields(
             name=wtype_name, transaction_type=kind, stub_name=stub_name
         ),
     )
 
 
-def _make_itxn_result_type(kind: constants.TransactionType | None) -> PyType:
+def _make_itxn_result_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         wtype_name = "inner_transaction"
         cls_name = "InnerTransactionResult"
@@ -793,8 +805,9 @@ def _make_itxn_result_type(kind: constants.TransactionType | None) -> PyType:
         wtype_name = f"inner_transaction_{kind.name}"
         cls_name = f"{_TXN_TYPE_NAMES[kind]}InnerTransaction"
     stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
-    return _SimpleType(
+    return TransactionRelatedType(
         name=stub_name,
+        transaction_type=kind,
         wtype=wtypes.WInnerTransaction(
             name=wtype_name, transaction_type=kind, stub_name=stub_name
         ),
@@ -814,15 +827,15 @@ _all_txn_kinds: typing.Final[Sequence[constants.TransactionType | None]] = [
     None,
     *constants.TransactionType,
 ]
-GroupTransactionTypes: typing.Final[Mapping[constants.TransactionType | None, PyType]] = {
-    kind: _make_gtxn_type(kind) for kind in _all_txn_kinds
-}
-InnerTransactionFieldsetTypes: typing.Final[Mapping[constants.TransactionType | None, PyType]] = {
-    kind: _make_itxn_fieldset_type(kind) for kind in _all_txn_kinds
-}
-InnerTransactionResultTypes: typing.Final[Mapping[constants.TransactionType | None, PyType]] = {
-    kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds
-}
+GroupTransactionTypes: typing.Final[
+    Mapping[constants.TransactionType | None, TransactionRelatedType]
+] = {kind: _make_gtxn_type(kind) for kind in _all_txn_kinds}
+InnerTransactionFieldsetTypes: typing.Final[
+    Mapping[constants.TransactionType | None, TransactionRelatedType]
+] = {kind: _make_itxn_fieldset_type(kind) for kind in _all_txn_kinds}
+InnerTransactionResultTypes: typing.Final[
+    Mapping[constants.TransactionType | None, TransactionRelatedType]
+] = {kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds}
 
 
 @attrs.frozen(kw_only=True)

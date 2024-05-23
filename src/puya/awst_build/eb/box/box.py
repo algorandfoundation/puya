@@ -36,12 +36,12 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class BoxClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoxClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType
         self._typ = typ
-        super().__init__(typ.wtype, location)
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -139,7 +139,7 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "value":
-                return BoxValueExpressionBuilder(self._box_key_expr(location))
+                return BoxValueExpressionBuilder(self._typ.content, self._box_key_expr(location))
             case "get":
                 return BoxGetExpressionBuilder(
                     self._box_key_expr(location), content_type=self._typ.content
@@ -197,11 +197,7 @@ class _BoxProxyExpressionBuilderFromConstructor(
 
 
 class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: BoxValueExpression
-
-    def __init__(self, expr: BoxValueExpression) -> None:
-        self.wtype = expr.wtype
-        super().__init__(expr)
+    expr: BoxValueExpression  # TODO: remove "lies"
 
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)
@@ -236,11 +232,9 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
 
 
 class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
-    wtype = wtypes.bytes_wtype
-
     def __init__(self, expr: BoxValueExpression, location: SourceLocation) -> None:
         self._typed = expr
-        super().__init__(BytesRaw(expr=expr, source_location=location))
+        super().__init__(pytypes.BytesType, BytesRaw(expr=expr, source_location=location))
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:

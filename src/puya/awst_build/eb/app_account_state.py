@@ -42,12 +42,12 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class AppAccountStateClassExpressionBuilder(TypeClassExpressionBuilder):
+class AppAccountStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType
         self._typ = typ
-        super().__init__(typ.wtype, location)
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -167,7 +167,7 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
         expr = self._build_field(index, location)
-        return AppAccountStateForAccountExpressionBuilder(expr)
+        return AppAccountStateForAccountExpressionBuilder(self._typ.content, expr)
 
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
@@ -285,19 +285,19 @@ class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
             case [item]:
                 field = self._build_field(item, location)
                 app_local_get_ex = StateGetEx(field=field, source_location=location)
-                return TupleExpressionBuilder(app_local_get_ex)
+                result_typ = pytypes.GenericTupleType.parameterise(
+                    [self._content_typ, pytypes.BoolType], location
+                )
+                return TupleExpressionBuilder(app_local_get_ex, result_typ)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
 class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
-    def __init__(self, expr: AppAccountStateExpression):
-        self.__field = expr
-        self.wtype = expr.wtype
-        super().__init__(expr)
+    expr: AppAccountStateExpression  # TODO: remove "lies"
 
     def delete(self, location: SourceLocation) -> Statement:
-        return StateDelete(field=self.__field, source_location=location)
+        return StateDelete(field=self.expr, source_location=location)
 
 
 class AppAccountStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):

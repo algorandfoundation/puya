@@ -20,6 +20,7 @@ from puya.awst.nodes import (
     TupleExpression,
     TupleItemExpression,
 )
+from puya.awst_build import pytypes
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -28,7 +29,6 @@ if typing.TYPE_CHECKING:
     import mypy.nodes
     import mypy.types
 
-    from puya.awst_build import pytypes
     from puya.awst_build.contract_data import AppStorageDeclaration
     from puya.parse import SourceLocation
 
@@ -261,23 +261,27 @@ class StorageProxyConstructorResult(abc.ABC):
     ) -> AppStorageDeclaration: ...
 
 
-_TWType_co = typing_extensions.TypeVar(
-    "_TWType_co", bound=wtypes.WType, default=wtypes.WType, covariant=True
+_TPyType_co = typing_extensions.TypeVar(
+    "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
 )
 
 
 class TypeClassExpressionBuilder(
-    IntermediateExpressionBuilder, typing.Generic[_TWType_co], abc.ABC
+    IntermediateExpressionBuilder, typing.Generic[_TPyType_co], abc.ABC
 ):
     # TODO: better error messages for rvalue/lvalue/delete
 
-    def __init__(self, wtype: _TWType_co, location: SourceLocation):
+    def __init__(self, pytype: _TPyType_co, location: SourceLocation):
         super().__init__(location)
-        self._wtype = wtype
+        self._pytype = pytype
 
     @typing.final
-    def produces(self) -> _TWType_co:
-        return self._wtype
+    def produces2(self) -> _TPyType_co:
+        return self._pytype
+
+    @typing.final
+    def produces(self) -> wtypes.WType:
+        return self._pytype.wtype
 
     @typing.override
     @abc.abstractmethod

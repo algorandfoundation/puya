@@ -52,7 +52,7 @@ logger = log.get_logger(__name__)
 
 class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.string_wtype, location)
+        super().__init__(pytypes.StringType, location)
 
     @typing.override
     def call(

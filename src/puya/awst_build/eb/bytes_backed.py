@@ -13,15 +13,33 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
+_TPyType_co = typing_extensions.TypeVar(
+    "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
+)
 
-class FromBytesBuilder(IntermediateExpressionBuilder):
-    def __init__(self, result_wtype: wtypes.WType, location: SourceLocation):
+
+class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TPyType_co], abc.ABC):
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+        typ = self.produces2()
+        match name:
+            case "from_bytes":
+                return _FromBytes(typ, location)
+            case _:
+                raise CodeError(
+                    f"{name} is not a valid class or static method on {typ}",
+                    location,
+                )
+
+
+class _FromBytes(IntermediateExpressionBuilder):
+    def __init__(self, result_type: pytypes.PyType, location: SourceLocation):
         super().__init__(location)
-        self.result_wtype = result_wtype
+        self.result_type = result_type
 
     @typing.override
     def call(
@@ -41,25 +59,7 @@ class FromBytesBuilder(IntermediateExpressionBuilder):
                 arg = eb.rvalue()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        return var_expression(
-            ReinterpretCast(source_location=location, wtype=self.result_wtype, expr=arg)
+        result_expr = ReinterpretCast(
+            source_location=location, wtype=self.result_type.wtype, expr=arg
         )
-
-
-_TWType_co = typing_extensions.TypeVar(
-    "_TWType_co", bound=wtypes.WType, default=wtypes.WType, covariant=True
-)
-
-
-class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TWType_co], abc.ABC):
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
-        wtype = self.produces()
-        match name:
-            case "from_bytes":
-                return FromBytesBuilder(wtype, location)
-            case _:
-                raise CodeError(
-                    f"{name} is not a valid class or static method on {wtype}",
-                    location,
-                )
+        return builder_for_instance(self.result_type, result_expr)

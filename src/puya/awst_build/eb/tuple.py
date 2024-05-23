@@ -28,7 +28,7 @@ from puya.awst_build.eb.base import (
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -47,19 +47,21 @@ class GenericTupleTypeExpressionBuilder(GenericClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
+        typ = pytypes.GenericTupleType.parameterise(arg_typs, location)
         tuple_expr = TupleExpression.from_items(
             [require_expression_builder(a).rvalue() for a in args], location
         )
-        return TupleExpressionBuilder(tuple_expr)
+        return TupleExpressionBuilder(tuple_expr, typ)
 
 
-class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[wtypes.WTuple]):
+class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericTupleType
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WTuple)
-        super().__init__(wtype, location)
+        self._wtype = wtype
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -70,18 +72,18 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[wtypes.WTuple]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
+
         tuple_expr = TupleExpression(
             items=[require_expression_builder(a).rvalue() for a in args],
-            wtype=self.produces(),
+            wtype=self._wtype,
             source_location=location,
         )
-        return TupleExpressionBuilder(tuple_expr)
+        return TupleExpressionBuilder(tuple_expr, self.produces2())
 
 
 class TupleExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        if typ is not None:
-            assert isinstance(typ, pytypes.TupleType)
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.TupleType)
         self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WTuple)
         self.wtype: wtypes.WTuple = expr.wtype
@@ -104,28 +106,16 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
                 )
 
     def _index(self, index_value: int, location: SourceLocation) -> ExpressionBuilder:
-        if self.pytyp is not None:
-            try:
-                item_typ = self.pytyp.items[index_value]
-            except IndexError as ex:
-                raise CodeError("Tuple index out of bounds", location) from ex
-            item_expr = TupleItemExpression(
-                base=self.expr,
-                index=index_value,
-                source_location=location,
-            )
-            return builder_for_instance(item_typ, item_expr)
-        else:
-            try:
-                self.wtype.types[index_value]
-            except IndexError as ex:
-                raise CodeError("Tuple index out of bounds", location) from ex
-            item_expr = TupleItemExpression(
-                base=self.expr,
-                index=index_value,
-                source_location=location,
-            )
-            return var_expression(item_expr)  # TODO: yeet me
+        try:
+            item_typ = self.pytyp.items[index_value]
+        except IndexError as ex:
+            raise CodeError("Tuple index out of bounds", location) from ex
+        item_expr = TupleItemExpression(
+            base=self.expr,
+            index=index_value,
+            source_location=location,
+        )
+        return builder_for_instance(item_typ, item_expr)
 
     def slice_index(
         self,
@@ -139,11 +129,12 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
 
         start_expr, start_idx = self._convert_index(begin_index)
         end_expr, end_idx = self._convert_index(end_index)
-        slice_types = self.wtype.types[start_idx:end_idx]
+        slice_types = self.pytyp.items[start_idx:end_idx]
         if not slice_types:
             raise CodeError("Empty slices are not supported", location)
 
-        updated_wtype = wtypes.WTuple(slice_types, location)
+        updated_type = pytypes.GenericTupleType.parameterise(slice_types, location)
+        updated_wtype = updated_type.wtype
         return TupleExpressionBuilder(
             SliceExpression(
                 source_location=location,
@@ -151,7 +142,8 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
                 begin_index=start_expr,
                 end_index=end_expr,
                 wtype=updated_wtype,
-            )
+            ),
+            updated_type,
         )
 
     def _convert_index(

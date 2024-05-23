@@ -47,7 +47,7 @@ logger = log.get_logger(__name__)
 
 class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.account_wtype, location)
+        super().__init__(pytypes.AccountType, location)
 
     @typing.override
     def call(

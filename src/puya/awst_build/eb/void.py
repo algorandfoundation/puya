@@ -17,7 +17,7 @@ from puya.parse import SourceLocation
 
 class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.void_wtype, location)
+        super().__init__(pytypes.NoneType, location)
 
     @typing.override
     def call(

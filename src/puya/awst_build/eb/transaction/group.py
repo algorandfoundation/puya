@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import abc
 import typing
 
 from puya.awst import wtypes
@@ -16,6 +15,7 @@ from puya.awst.nodes import (
     TxnField,
     UInt64Constant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -31,7 +31,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
@@ -128,12 +127,8 @@ def check_transaction_type(
 
 
 class GroupTransactionClassExpressionBuilder(
-    TypeClassExpressionBuilder[wtypes.WGroupTransaction], abc.ABC
+    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
 ):
-    def __init__(self, location: SourceLocation, wtype: wtypes.WGroupTransaction):
-        super().__init__(wtype, location)
-        self.wtype = wtype
-
     @typing.override
     def call(
         self,
@@ -150,7 +145,7 @@ class GroupTransactionClassExpressionBuilder(
                 group_index = UInt64Constant(value=int_value, source_location=loc)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        wtype = self.wtype
+        wtype = self.produces()
         txn = (
             check_transaction_type(group_index, wtype, location)
             if isinstance(wtype, wtypes.WGroupTransaction) and wtype.transaction_type is not None

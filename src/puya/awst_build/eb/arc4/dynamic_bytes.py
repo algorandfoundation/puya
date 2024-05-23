@@ -21,11 +21,9 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class DynamicBytesClassExpressionBuilder(
-    BytesBackedClassExpressionBuilder[wtypes.ARC4DynamicArray]
-):
+class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
-        super().__init__(location=location, wtype=wtypes.arc4_dynamic_bytes)
+        super().__init__(pytypes.ARC4DynamicBytesType, location)
 
     @typing.override
     def call(
@@ -36,39 +34,36 @@ class DynamicBytesClassExpressionBuilder(
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
+        wtype = self.produces()
+        assert isinstance(wtype, wtypes.ARC4DynamicArray)
         match args:
             case [Literal(value=bytes()) as literal]:
                 return DynamicBytesExpressionBuilder(
-                    convert_arc4_literal(literal, self.produces(), location)
+                    convert_arc4_literal(literal, wtype, location)
                 )
             case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
                 return DynamicBytesExpressionBuilder(
-                    ARC4Encode(value=eb.rvalue(), source_location=location, wtype=self.produces())
+                    ARC4Encode(value=eb.rvalue(), source_location=location, wtype=wtype)
                 )
 
-        non_literal_args = tuple(_coerce_to_byte(a).rvalue() for a in args)
-        wtype = self.produces()
+        non_literal_args = tuple(_coerce_to_byte(a) for a in args)
         return DynamicBytesExpressionBuilder(
             NewArray(values=non_literal_args, wtype=wtype, source_location=location)
         )
 
 
-def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> ExpressionBuilder:
-    from puya.awst_build.eb.arc4 import UIntNExpressionBuilder
-
+def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> Expression:
     match arg:
         case Literal(value=int()) as literal:
-            return UIntNExpressionBuilder(convert_arc4_literal(literal, wtypes.arc4_byte_type))
+            return convert_arc4_literal(literal, wtypes.arc4_byte_type)
         case ExpressionBuilder(value_type=wtypes.ARC4UIntN(n=8) as wtype) as eb:
             if wtype != wtypes.arc4_byte_type:
-                return UIntNExpressionBuilder(
-                    ReinterpretCast(
-                        expr=arg.rvalue(),
-                        wtype=wtypes.arc4_byte_type,
-                        source_location=arg.source_location,
-                    )
+                return ReinterpretCast(
+                    expr=arg.rvalue(),
+                    wtype=wtypes.arc4_byte_type,
+                    source_location=arg.source_location,
                 )
-            return eb
+            return eb.rvalue()
         case _:
             raise CodeError("Expected a Byte, UInt64 or int type", arg.source_location)
 

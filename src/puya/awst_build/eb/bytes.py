@@ -58,7 +58,7 @@ logger = log.get_logger(__name__)
 
 class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.bytes_wtype, location)
+        super().__init__(pytypes.BytesType, location)
 
     @typing.override
     def call(

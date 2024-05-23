@@ -10,7 +10,7 @@ from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_buil
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
 from puya.errors import CodeError
 
@@ -25,13 +25,14 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.ARC4Struct]):
+class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
         # assert pytypes.ARC4StructBaseType in typ.mro TODO?
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4Struct)
-        super().__init__(wtype, location)
+        self._wtype = wtype
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -42,7 +43,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        wtype = self.produces()
+        wtype = self._wtype
         ordered_field_names = wtype.names
         field_mapping = get_arg_mapping(
             positional_arg_names=ordered_field_names,
@@ -63,14 +64,13 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
         return ARC4StructExpressionBuilder(
-            NewStruct(wtype=wtype, values=values, source_location=location)
+            NewStruct(wtype=wtype, values=values, source_location=location), self.produces2()
         )
 
 
 class ARC4StructExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        if typ is not None:
-            assert isinstance(typ, pytypes.StructType)
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.StructType)
         self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4Struct)
         self.wtype: wtypes.ARC4Struct = expr.wtype
@@ -86,15 +86,6 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
                     source_location=location,
                 )
                 return builder_for_instance(field, result_expr)
-            case field_name if field_name in self.wtype.fields:
-                return var_expression(  # TODO: yeet me
-                    FieldExpression(
-                        source_location=location,
-                        base=self.expr,
-                        name=field_name,
-                        wtype=self.wtype.fields[field_name],
-                    )
-                )
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case "copy":

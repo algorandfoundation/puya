@@ -376,9 +376,7 @@ def _create_abi_call_expr(
         field=TxnFields.last_log,
         wtype=TxnFields.last_log.wtype,
     )
-    abi_result = ARC4FromLogBuilder.abi_expr_from_log(
-        signature.return_type.wtype, last_log, location
-    )
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
     if declared_result_pytype != signature.return_type:

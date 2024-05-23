@@ -53,13 +53,14 @@ class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         return ArrayExpressionBuilder(array_expr)
 
 
-class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WArray]):
+class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericArrayType
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WArray)
-        super().__init__(wtype, location)
+        self._wtype = wtype
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -74,13 +75,12 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WArray]):
             require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
             for a in args
         ]
-        array_wtype = self.produces()
-        expected_type = array_wtype.element_type
+        array_type = self.produces2()
         for a in non_literal_args:
-            expect_operand_wtype(a, expected_type)
+            expect_operand_wtype(a, array_type.items.wtype)
         array_expr = NewArray(
             values=tuple(non_literal_args),
-            wtype=array_wtype,
+            wtype=self._wtype,
             source_location=location,
         )
         return ArrayExpressionBuilder(array_expr)

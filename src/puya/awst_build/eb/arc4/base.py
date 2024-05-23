@@ -31,7 +31,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -44,16 +44,16 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-_TARC4Type = typing_extensions.TypeVar(
-    "_TARC4Type", bound=wtypes.ARC4Type, default=wtypes.ARC4Type
+_TPyType_co = typing_extensions.TypeVar(
+    "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
 )
 
 
-class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TARC4Type], abc.ABC):
+class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TPyType_co], abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "from_log":
-                return ARC4FromLogBuilder(location, self.produces())
+                return ARC4FromLogBuilder(location, self.produces2())
             case _:
                 return super().member_access(name, location)
 
@@ -67,13 +67,13 @@ def get_integer_literal_value(eb_or_literal: ExpressionBuilder | Literal, purpos
 
 
 class ARC4FromLogBuilder(IntermediateExpressionBuilder):
-    def __init__(self, location: SourceLocation, wtype: wtypes.WType):
+    def __init__(self, location: SourceLocation, typ: pytypes.PyType):
         super().__init__(location=location)
-        self.wtype = wtype
+        self.typ = typ
 
     @classmethod
     def abi_expr_from_log(
-        cls, wtype: wtypes.WType, value: Expression, location: SourceLocation
+        cls, typ: pytypes.PyType, value: Expression, location: SourceLocation
     ) -> Expression:
         tmp_value = SingleEvaluation(value)
         arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location)
@@ -97,11 +97,12 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
             comment="ARC4 prefix is valid",
         )
         return ReinterpretCast(
-            source_location=location,
             expr=checked_arc4_value,
-            wtype=wtype,
+            wtype=typ.wtype,
+            source_location=location,
         )
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -112,15 +113,14 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [ExpressionBuilder() as eb]:
-                return var_expression(self.abi_expr_from_log(self.wtype, eb.rvalue(), location))
+                result_expr = self.abi_expr_from_log(self.typ, eb.rvalue(), location)
+                return builder_for_instance(self.typ, result_expr)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
 class CopyBuilder(IntermediateExpressionBuilder):
-    def __init__(
-        self, expr: Expression, location: SourceLocation, typ: pytypes.PyType | None = None
-    ):  # TODO
+    def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
         self._typ = typ
         super().__init__(location)
         self.expr = expr
@@ -139,22 +139,14 @@ class CopyBuilder(IntermediateExpressionBuilder):
                 expr_result = Copy(
                     value=self.expr, wtype=self.expr.wtype, source_location=location
                 )
-                if self._typ is None:
-                    return var_expression(expr_result)  # TODO: yeet me
                 return builder_for_instance(self._typ, expr_result)
         raise CodeError("Invalid/Unexpected arguments", location)
 
 
 class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
-    def __init__(
-        self,
-        expr: Expression,
-        native_wtype: wtypes.WType | None,
-        native_pytype: pytypes.PyType | None,
-    ):
+    def __init__(self, expr: Expression, native_pytype: pytypes.PyType):
         super().__init__(expr)
         self._native_pytype = native_pytype
-        self._native_wtype = native_wtype
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
@@ -166,13 +158,6 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
                     source_location=location,
                 )
                 return builder_for_instance(self._native_pytype, result_expr)
-            case "native" if self._native_wtype is not None:
-                result_expr = ARC4Decode(
-                    value=self.expr,
-                    wtype=self._native_wtype,
-                    source_location=location,
-                )
-                return var_expression(result_expr)  # TODO: yeet me
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:

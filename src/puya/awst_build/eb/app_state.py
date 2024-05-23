@@ -48,12 +48,12 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class AppStateClassExpressionBuilder(TypeClassExpressionBuilder):
+class AppStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericGlobalStateType
         self._typ = typ
-        super().__init__(typ.wtype, location)
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -167,11 +167,11 @@ class AppStateExpressionBuilder(ValueExpressionBuilder):
         field = self._build_field(location)
         match name:
             case "value":
-                return AppStateValueExpressionBuilder(field)
+                return AppStateValueExpressionBuilder(self._typ.content, field)
             case "get":
                 return _Get(field, self._typ.content, location=self.source_location)
             case "maybe":
-                return AppStateMaybeExpressionBuilder(field, location=self.source_location)
+                return _Maybe(self._typ.content, field, location=self.source_location)
             case _:
                 return super().member_access(name, location)
 
@@ -227,9 +227,12 @@ class _AppStateExpressionBuilderFromConstructor(
         )
 
 
-class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, field: AppStateExpression, location: SourceLocation) -> None:
+class _Maybe(IntermediateExpressionBuilder):
+    def __init__(
+        self, content_type: pytypes.PyType, field: AppStateExpression, location: SourceLocation
+    ) -> None:
         super().__init__(location)
+        self._typ = content_type
         self.field = field
 
     @typing.override
@@ -244,7 +247,8 @@ class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
         if args:
             raise CodeError("Unexpected/unhandled arguments", location)
         expr = StateGetEx(field=self.field, source_location=location)
-        return TupleExpressionBuilder(expr)
+        result_typ = pytypes.GenericTupleType.parameterise([self._typ, pytypes.BoolType], location)
+        return TupleExpressionBuilder(expr, result_typ)
 
 
 class _Get(IntermediateExpressionBuilder):
@@ -273,11 +277,7 @@ class _Get(IntermediateExpressionBuilder):
 
 
 class AppStateValueExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: AppStateExpression
-
-    def __init__(self, expr: AppStateExpression):
-        self.wtype = expr.wtype
-        super().__init__(expr)
+    expr: AppStateExpression  # TODO: remove "lies"
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:

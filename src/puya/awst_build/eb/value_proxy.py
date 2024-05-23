@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import mypy.nodes
 import mypy.types
 
-from puya.awst.nodes import Literal, Statement
+from puya.awst.nodes import Expression, Literal, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -12,14 +12,19 @@ from puya.awst_build.eb.base import (
     Iteration,
     ValueExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.parse import SourceLocation
 
 
 class ValueProxyExpressionBuilder(ValueExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType, expr: Expression):
+        self.pytype = typ
+        self.wtype = typ.wtype
+        super().__init__(expr)
+
     @property
     def _proxied(self) -> ExpressionBuilder:
-        return var_expression(self.expr)
+        return builder_for_instance(self.pytype, self.expr)
 
     def delete(self, location: SourceLocation) -> Statement:
         return self._proxied.delete(location)

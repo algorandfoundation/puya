@@ -72,7 +72,6 @@ from puya.awst_build.eb.intrinsics import (
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.type_registry import builder_for_instance, builder_for_type
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
     bool_eval,
@@ -339,7 +338,7 @@ class FunctionASTConverter(
             if is_self_member(lvalue) and isinstance(rvalue, StorageProxyConstructorResult):
                 return self._handle_proxy_assignment(lvalue, rvalue, rvalue_pytyp, stmt_loc)
         elif len(stmt.lvalues) > 1:
-            rvalue = temporary_assignment_if_required2(rvalue_pytyp, rvalue)
+            rvalue = temporary_assignment_if_required(rvalue_pytyp, rvalue)
 
         return [
             AssignmentStatement(
@@ -513,9 +512,10 @@ class FunctionASTConverter(
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
-        # TODO: PyType from EB
         subject_eb = require_expression_builder(stmt.subject.accept(self))
-        subject = temporary_assignment_if_required(subject_eb).rvalue()
+        # TODO: PyType from EB
+        subject_typ = self.context.mypy_expr_node_type(stmt.subject)
+        subject = temporary_assignment_if_required(subject_typ, subject_eb).rvalue()
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
@@ -964,7 +964,7 @@ class FunctionASTConverter(
                 source_location=location, left=lhs_expr, op=op, right=rhs_expr
             )
         else:
-            lhs_builder = temporary_assignment_if_required2(target_pytyp, lhs_expr)
+            lhs_builder = temporary_assignment_if_required(target_pytyp, lhs_expr)
             # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
             # TODO: this is a bit convoluted in terms of ExpressionBuilder <-> Expression
@@ -1072,7 +1072,11 @@ class FunctionASTConverter(
 
         operands = [o.accept(self) for o in expr.operands]
         # TODO: operands are Literal or EB, so can get PyType
-        operands[1:-1] = [temporary_assignment_if_required(operand) for operand in operands[1:-1]]
+        operand_types = [self.context.mypy_expr_node_type(o) for o in expr.operands]  # TODO: YUCK
+        operands[1:-1] = [
+            temporary_assignment_if_required(op_typ, operand)
+            for operand, op_typ in list(zip(operands, operand_types, strict=True))[1:-1]
+        ]
 
         comparisons = [
             self._build_compare(operator=operator, lhs=lhs, rhs=rhs)
@@ -1141,21 +1145,23 @@ class FunctionASTConverter(
             require_expression_builder(
                 mypy_item.accept(self),
                 msg="Python literals (other than True/False) are not valid as tuple elements",
-                # TODO: grab item types from EB
             ).rvalue()
             for mypy_item in mypy_expr.items
         ]
+        # TODO: grab item types from EB items?
+        typ = self.context.mypy_expr_node_type(mypy_expr)
         location = self._location(mypy_expr)
         if not items:
             raise CodeError("Empty tuples are not supported", location)
-        wtype = wtypes.WTuple((i.wtype for i in items), location)
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WTuple)
         tuple_expr = TupleExpression(
             source_location=location,
             wtype=wtype,
             items=items,
         )
 
-        return TupleExpressionBuilder(tuple_expr)
+        return TupleExpressionBuilder(tuple_expr, typ)
 
     def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> ExpressionBuilder:
         expr_loc = self._location(expr)
@@ -1171,7 +1177,8 @@ class FunctionASTConverter(
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
         # TODO: take PyType from source ExpressionBuilder
-        return var_expression(result)
+        result_typ = self.context.mypy_expr_node_type(expr)
+        return builder_for_instance(result_typ, result)
 
     def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> ExpressionBuilder:
         super_loc = self._location(super_expr)
@@ -1238,57 +1245,23 @@ def is_self_member(
 
 
 @typing.overload
-def temporary_assignment_if_required(operand: Literal) -> Literal: ...
-
-
-@typing.overload
-def temporary_assignment_if_required(operand: Expression) -> ExpressionBuilder: ...
+def temporary_assignment_if_required(typ: pytypes.PyType, operand: Literal) -> Literal: ...
 
 
 @typing.overload
 def temporary_assignment_if_required(
-    operand: ExpressionBuilder,
-) -> ExpressionBuilder: ...
-
-
-def temporary_assignment_if_required(
-    operand: ExpressionBuilder | Expression | Literal,
-) -> ExpressionBuilder | Literal:
-    if isinstance(operand, Literal):
-        return operand
-
-    if isinstance(operand, Expression):
-        expr = operand
-    else:
-        expr = operand.rvalue()
-    # TODO: optimise the below checks so we don't create unnecessary temporaries,
-    #       ie when Expression has no side effects
-    if not isinstance(expr, VarExpression | CompileTimeConstantExpression):
-        return var_expression(SingleEvaluation(expr))
-    if isinstance(operand, Expression):
-        return var_expression(operand)
-    else:
-        return operand
-
-
-@typing.overload
-def temporary_assignment_if_required2(typ: pytypes.PyType, operand: Literal) -> Literal: ...
-
-
-@typing.overload
-def temporary_assignment_if_required2(
     typ: pytypes.PyType, operand: Expression
 ) -> ExpressionBuilder: ...
 
 
 @typing.overload
-def temporary_assignment_if_required2(
+def temporary_assignment_if_required(
     typ: pytypes.PyType,
     operand: ExpressionBuilder,
 ) -> ExpressionBuilder: ...
 
 
-def temporary_assignment_if_required2(
+def temporary_assignment_if_required(
     typ: pytypes.PyType,
     operand: ExpressionBuilder | Expression | Literal,
 ) -> ExpressionBuilder | Literal:

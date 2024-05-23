@@ -38,7 +38,7 @@ logger = log.get_logger(__name__)
 
 class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.asset_wtype, location)
+        super().__init__(pytypes.AssetType, location)
 
     @typing.override
     def call(

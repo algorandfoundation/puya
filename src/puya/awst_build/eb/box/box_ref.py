@@ -38,9 +38,9 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, location: SourceLocation) -> None:
-        super().__init__(wtypes.bytes_wtype, location)
+        super().__init__(pytypes.BoxRefType, location)
 
     @typing.override
     def call(

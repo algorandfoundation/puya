@@ -37,12 +37,12 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType
         self._typ = typ
-        super().__init__(typ.wtype, location)
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -137,7 +137,8 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
         return BoxValueExpressionBuilder(
-            _box_value_expr(self.expr, index, location, self._typ.content.wtype)
+            self._typ.content,
+            _box_value_expr(self.expr, index, location, self._typ.content.wtype),
         )
 
     @typing.override
@@ -268,13 +269,18 @@ class BoxMapMaybeMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
+
+        result_typ = pytypes.GenericTupleType.parameterise(
+            [self.box_type.content, pytypes.BoolType], location
+        )
         return TupleExpressionBuilder(
             StateGetEx(
                 field=_box_value_expr(
                     self.box_map_expr, item_key, location, self.box_type.content.wtype
                 ),
                 source_location=location,
-            )
+            ),
+            result_typ,
         )
 
 

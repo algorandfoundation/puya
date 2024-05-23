@@ -25,7 +25,7 @@ logger = log.get_logger(__name__)
 
 class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(wtypes.application_wtype, location)
+        super().__init__(pytypes.ApplicationType, location)
 
     @typing.override
     def call(
