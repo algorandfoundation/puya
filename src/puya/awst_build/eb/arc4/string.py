@@ -18,6 +18,7 @@ from puya.awst.nodes import (
     Statement,
     StringConstant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
@@ -33,7 +34,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -92,6 +92,9 @@ def expect_string_or_bytes(
 
 class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
     wtype = wtypes.arc4_string_wtype
+
+    def __init__(self, expr: Expression):
+        super().__init__(expr, native_pytype=pytypes.StringType, native_wtype=None)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation

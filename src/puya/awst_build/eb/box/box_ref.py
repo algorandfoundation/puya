@@ -28,7 +28,7 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_wtype,
@@ -106,7 +106,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     op_code="box_del",
                     arg_wtypes=(),
                     args=(),
-                    return_wtype=wtypes.bool_wtype,
+                    return_type=pytypes.BoolType,
                 )
             case "extract":
                 return BoxRefIntrinsicMethodExpressionBuilder(
@@ -115,7 +115,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     op_code="box_extract",
                     arg_wtypes=(wtypes.uint64_wtype, wtypes.uint64_wtype),
                     args=("start_index", "length"),
-                    return_wtype=wtypes.bytes_wtype,
+                    return_type=pytypes.BytesType,
                 )
             case "resize":
                 raise NotImplementedError("TODO: BoxRef.resize handler")
@@ -126,7 +126,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     op_code="box_replace",
                     arg_wtypes=(wtypes.uint64_wtype, wtypes.bytes_wtype),
                     args=("start_index", "value"),
-                    return_wtype=wtypes.void_wtype,
+                    return_type=pytypes.NoneType,
                 )
             case "splice":
                 return BoxRefIntrinsicMethodExpressionBuilder(
@@ -135,15 +135,19 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     op_code="box_splice",
                     arg_wtypes=(wtypes.uint64_wtype, wtypes.uint64_wtype, wtypes.bytes_wtype),
                     args=("start_index", "length", "value"),
-                    return_wtype=wtypes.void_wtype,
+                    return_type=pytypes.NoneType,
                 )
 
             case "get":
-                return BoxGetExpressionBuilder(self._box_key_expr(location))
+                return BoxGetExpressionBuilder(
+                    self._box_key_expr(location), content_type=pytypes.BytesType
+                )
             case "put":
                 return BoxRefPutExpressionBuilder(location, box_proxy=self.expr)
             case "maybe":
-                return BoxMaybeExpressionBuilder(self._box_key_expr(location))
+                return BoxMaybeExpressionBuilder(
+                    self._box_key_expr(location), content_type=pytypes.BytesType
+                )
             case "length":
                 return UInt64ExpressionBuilder(
                     box_length_checked(self._box_key_expr(location), location)
@@ -192,7 +196,7 @@ class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
         box_proxy: Expression,
         op_code: str,
         arg_wtypes: Sequence[wtypes.WType],
-        return_wtype: wtypes.WType,
+        return_type: pytypes.PyType,
         args: Sequence[str],
     ) -> None:
         super().__init__(location)
@@ -200,8 +204,9 @@ class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
         self.op_code = op_code
         self.arg_wtypes = arg_wtypes
         self.args = args
-        self.return_wtype = return_wtype
+        self.return_type = return_type
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -220,14 +225,13 @@ class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
             raise CodeError(f"Missing required arg '{er.args[0]}'", location) from None
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
-        return var_expression(
-            IntrinsicCall(
-                op_code=self.op_code,
-                stack_args=[self.box_proxy, *stack_args],
-                wtype=self.return_wtype,
-                source_location=location,
-            )
+        result_expr = IntrinsicCall(
+            op_code=self.op_code,
+            stack_args=[self.box_proxy, *stack_args],
+            wtype=self.return_type.wtype,
+            source_location=location,
         )
+        return builder_for_instance(self.return_type, result_expr)
 
 
 class BoxRefCreateExpressionBuilder(IntermediateExpressionBuilder):

@@ -169,6 +169,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] 
     pytypes.ARC4BoolType: arc4.ARC4BoolExpressionBuilder,
     pytypes.ARC4StringType: arc4.StringExpressionBuilder,
     pytypes.ARC4DynamicBytesType: arc4.DynamicBytesExpressionBuilder,
+    pytypes.ARC4ByteType: arc4.UIntNExpressionBuilder,
     pytypes.ARC4AddressType: arc4.AddressExpressionBuilder,
     pytypes.AccountType: account.AccountExpressionBuilder,
     pytypes.ApplicationType: application.ApplicationExpressionBuilder,

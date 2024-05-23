@@ -31,8 +31,8 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
-from puya.errors import CodeError, InternalError
+from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -118,10 +118,14 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
 
 
 class CopyBuilder(IntermediateExpressionBuilder):
-    def __init__(self, expr: Expression, location: SourceLocation):
+    def __init__(
+        self, expr: Expression, location: SourceLocation, typ: pytypes.PyType | None = None
+    ):  # TODO
+        self._typ = typ
         super().__init__(location)
         self.expr = expr
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -132,45 +136,55 @@ class CopyBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case []:
-                return var_expression(
-                    Copy(value=self.expr, wtype=self.expr.wtype, source_location=location)
+                expr_result = Copy(
+                    value=self.expr, wtype=self.expr.wtype, source_location=location
                 )
+                if self._typ is None:
+                    return var_expression(expr_result)
+                return builder_for_instance(self._typ, expr_result)
         raise CodeError("Invalid/Unexpected arguments", location)
 
 
-def native_eb(expr: Expression, location: SourceLocation) -> ExpressionBuilder:
-    # TODO: could determine EB here instead of using var_expression
-    match expr.wtype:
-        case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes | wtypes.arc4_bool_wtype:
-            pass
-        case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() | wtypes.ARC4Tuple():
-            pass
-        case _:
-            raise InternalError("Unsupported wtype for ARC4Decode", location)
-    return var_expression(
-        ARC4Decode(
-            source_location=location,
-            value=expr,
-            wtype=wtypes.arc4_to_avm_equivalent_wtype(expr.wtype, location),
-        )
-    )
-
-
 class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
+    def __init__(
+        self,
+        expr: Expression,
+        native_wtype: wtypes.WType | None,
+        native_pytype: pytypes.PyType | None,
+    ):
+        super().__init__(expr)
+        self._native_pytype = native_pytype
+        self._native_wtype = native_wtype
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
-            case "native":
-                return native_eb(self.expr, location)
+            case "native" if self._native_pytype is not None:
+                result_expr: Expression = ARC4Decode(
+                    value=self.expr,
+                    wtype=self._native_pytype.wtype,
+                    source_location=location,
+                )
+                return builder_for_instance(self._native_pytype, result_expr)
+            case "native" if self._native_wtype is not None:
+                result_expr = ARC4Decode(
+                    value=self.expr,
+                    wtype=self._native_wtype,
+                    source_location=location,
+                )
+                return var_expression(result_expr)
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:
                 raise CodeError(f"Unrecognised member of bytes: {name}", location)
 
+    @typing.override
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
+    @typing.override
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         # TODO: lift this up to ValueExpressionBuilder

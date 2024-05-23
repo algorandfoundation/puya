@@ -31,7 +31,7 @@ from puya.awst_build.eb.box._util import box_length_checked
 from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping, require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -249,16 +249,9 @@ class BoxMapGetMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         default_value = expect_operand_wtype(args_map.pop("default"), self.box_type.content.wtype)
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
-        # TODO: use pytype
-        return var_expression(
-            StateGet(
-                default=default_value,
-                field=_box_value_expr(
-                    self.box_map_expr, item_key, location, self.box_type.content.wtype
-                ),
-                source_location=location,
-            )
-        )
+        key = _box_value_expr(self.box_map_expr, item_key, location, self.box_type.content.wtype)
+        result_expr = StateGet(default=default_value, field=key, source_location=location)
+        return builder_for_instance(self.box_type.content, result_expr)
 
 
 class BoxMapMaybeMethodExpressionBuilder(BoxMapMethodExpressionBuilder):

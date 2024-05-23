@@ -82,7 +82,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]: ...
+    def _value_builder(cls) -> type[UIntNExpressionBuilder | UFixedNxMExpressionBuilder]: ...
 
 
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
@@ -95,12 +95,13 @@ class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         return 0
 
     @classmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+    def _value_builder(cls) -> type[UIntNExpressionBuilder]:
         return UIntNExpressionBuilder
 
 
-class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
+class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        self.typ = typ
         assert isinstance(typ, pytypes.ARC4UIntNType)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4UIntN)
@@ -111,12 +112,13 @@ class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
         return 0
 
     @classmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+    def _value_builder(cls) -> type[UIntNExpressionBuilder]:
         return UIntNExpressionBuilder
 
 
 class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        self.typ = typ
         assert isinstance(typ, pytypes.ARC4UFixedNxMType)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4UFixedNxM)
@@ -127,7 +129,7 @@ class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         return "0.0"
 
     @classmethod
-    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+    def _value_builder(cls) -> type[UFixedNxMExpressionBuilder]:
         return UFixedNxMExpressionBuilder
 
 
@@ -136,7 +138,19 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
         self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4UIntN)
         self.wtype: wtypes.ARC4UIntN = expr.wtype
-        super().__init__(expr)
+        native_wtype = None
+        if typ is not None:
+            if typ == pytypes.ARC4ByteType or typ.generic == pytypes.GenericARC4UIntNType:
+                native_pytype = pytypes.UInt64Type
+            else:
+                assert typ.generic == pytypes.GenericARC4BigUIntNType
+                native_pytype = pytypes.BigUIntType
+        else:  # noqa: PLR5501
+            if self.wtype.n <= 64:  # this the problem with wtypes, this could be wrong...
+                native_pytype = pytypes.UInt64Type
+            else:
+                native_pytype = pytypes.BigUIntType
+        super().__init__(expr, native_pytype=native_pytype, native_wtype=native_wtype)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(
@@ -184,7 +198,19 @@ class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
         self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4UFixedNxM)
         self.wtype: wtypes.ARC4UFixedNxM = expr.wtype
-        super().__init__(expr)
+        native_wtype = None
+        if typ is not None:
+            if typ.generic == pytypes.GenericARC4UFixedNxMType:
+                native_pytype = pytypes.UInt64Type
+            else:
+                assert typ.generic == pytypes.GenericARC4BigUFixedNxMType
+                native_pytype = pytypes.BigUIntType
+        else:  # noqa: PLR5501
+            if self.wtype.n <= 64:  # this the problem with wtypes, this could be wrong...
+                native_pytype = pytypes.UInt64Type
+            else:
+                native_pytype = pytypes.BigUIntType
+        super().__init__(expr, native_pytype=native_pytype, native_wtype=native_wtype)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(

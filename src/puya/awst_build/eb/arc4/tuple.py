@@ -9,7 +9,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, GenericClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -77,10 +77,17 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[wtypes.ARC4Tupl
 
 class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4Tuple)
         self.wtype: wtypes.ARC4Tuple = expr.wtype
-        super().__init__(expr)
+        if typ is not None:
+            assert isinstance(typ, pytypes.TupleType)
+            native_pytype = pytypes.GenericTupleType.parameterise(typ.items, expr.source_location)
+            native_wtype = None
+        else:
+            native_pytype = None
+            native_wtype = wtypes.WTuple(expr.wtype.types, expr.source_location)
+        self.pytyp = typ
+        super().__init__(expr, native_pytype=native_pytype, native_wtype=native_wtype)
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
@@ -88,22 +95,35 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
         index_expr_or_literal = index
         match index_expr_or_literal:
             case Literal(value=int(index_value)) as index_literal:
-                try:
-                    self.wtype.types[index_value]
-                except IndexError as ex:
-                    raise CodeError(
-                        "Tuple index out of bounds", index_literal.source_location
-                    ) from ex
-                # TODO: use pytype
-                return var_expression(
-                    TupleItemExpression(
-                        base=self.expr,
-                        index=index_value,
-                        source_location=location,
-                    )
-                )
+                pass
             case _:
                 raise CodeError("arc4.Tuple can only be indexed by int constants")
+        if self.pytyp is not None:
+            try:
+                item_typ = self.pytyp.items[index_value]
+            except IndexError as ex:
+                raise CodeError("Tuple index out of bounds", index_literal.source_location) from ex
+            return builder_for_instance(
+                item_typ,
+                TupleItemExpression(
+                    base=self.expr,
+                    index=index_value,
+                    source_location=location,
+                ),
+            )
+        else:
+            # TODO: yeet me
+            try:
+                self.wtype.types[index_value]
+            except IndexError as ex:
+                raise CodeError("Tuple index out of bounds", index_literal.source_location) from ex
+            return var_expression(
+                TupleItemExpression(
+                    base=self.expr,
+                    index=index_value,
+                    source_location=location,
+                )
+            )
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)

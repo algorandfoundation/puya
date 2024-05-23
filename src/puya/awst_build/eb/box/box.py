@@ -141,9 +141,13 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder):
             case "value":
                 return BoxValueExpressionBuilder(self._box_key_expr(location))
             case "get":
-                return BoxGetExpressionBuilder(self._box_key_expr(location))
+                return BoxGetExpressionBuilder(
+                    self._box_key_expr(location), content_type=self._typ.content
+                )
             case "maybe":
-                return BoxMaybeExpressionBuilder(self._box_key_expr(location))
+                return BoxMaybeExpressionBuilder(
+                    self._box_key_expr(location), content_type=self._typ.content
+                )
 
         return super().member_access(name, location)
 

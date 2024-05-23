@@ -215,7 +215,6 @@ class TupleType(PyType):
 @typing.final
 @attrs.frozen
 class ArrayType(PyType):
-    generic: _GenericType
     items: PyType
     size: int | None
     wtype: wtypes.WType
@@ -396,19 +395,10 @@ ARC4BoolType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_ARC4_BOOL,
     wtype=wtypes.arc4_bool_wtype,
 )
-ARC4DynamicBytesType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ARC4_DYNAMIC_BYTES,
-    wtype=wtypes.arc4_dynamic_bytes,
-)
-ARC4AddressType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ARC4_ADDRESS,
-    wtype=wtypes.arc4_address_type,
-)
 
 
 @attrs.frozen
 class ARC4UIntNType(PyType):
-    generic: _GenericType
     bits: int
     wtype: wtypes.WType
 
@@ -467,15 +457,6 @@ GenericARC4BigUIntNType: typing.Final = _GenericType(
 )
 
 
-ARC4ByteType: typing.Final[PyType] = _register_builtin(
-    ARC4UIntNType(
-        generic=GenericARC4UIntNType,
-        name=constants.CLS_ARC4_BYTE,
-        wtype=wtypes.arc4_byte_type,
-        bits=8,
-    )
-)
-
 ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
     {
         (_bits := 2**_exp): _register_builtin(
@@ -486,6 +467,16 @@ ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
         )
         for _exp in range(3, 10)
     }
+)
+ARC4ByteType: typing.Final = _register_builtin(
+    ARC4UIntNType(
+        generic=None,
+        name=constants.CLS_ARC4_BYTE,
+        wtype=wtypes.arc4_byte_type,
+        bits=8,
+        bases=[ARC4UIntN_Aliases[8]],
+        mro=[ARC4UIntN_Aliases[8]],
+    )
 )
 
 
@@ -617,6 +608,16 @@ GenericARC4DynamicArrayType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_DYNAMIC_ARRAY,
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
+ARC4DynamicBytesType: typing.Final = _register_builtin(
+    ArrayType(
+        name=constants.CLS_ARC4_DYNAMIC_BYTES,
+        wtype=wtypes.arc4_dynamic_bytes,
+        size=0,
+        items=ARC4ByteType,
+        bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
+        mro=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
+    )
+)
 
 
 def _make_fixed_array_parameterise(
@@ -650,6 +651,27 @@ def _make_fixed_array_parameterise(
 GenericARC4StaticArrayType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_STATIC_ARRAY,
     parameterise=_make_fixed_array_parameterise(wtypes.ARC4StaticArray),
+)
+ARC4AddressType: typing.Final = _register_builtin(
+    ArrayType(
+        name=constants.CLS_ARC4_ADDRESS,
+        wtype=wtypes.arc4_address_type,
+        size=32,
+        generic=None,
+        items=ARC4ByteType,
+        bases=[
+            GenericARC4StaticArrayType.parameterise(
+                [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
+                source_location=None,
+            )
+        ],
+        mro=[
+            GenericARC4StaticArrayType.parameterise(
+                [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
+                source_location=None,
+            )
+        ],
+    )
 )
 
 

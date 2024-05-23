@@ -10,7 +10,7 @@ from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_buil
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance, var_expression
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
 from puya.errors import CodeError
 
@@ -69,6 +69,8 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.
 
 class ARC4StructExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        if typ is not None:
+            assert isinstance(typ, pytypes.StructType)
         self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4Struct)
         self.wtype: wtypes.ARC4Struct = expr.wtype
@@ -76,8 +78,16 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
+            case field_name if self.pytyp and (field := self.pytyp.fields.get(field_name)):
+                result_expr = FieldExpression(
+                    base=self.expr,
+                    name=field_name,
+                    wtype=field.wtype,
+                    source_location=location,
+                )
+                return builder_for_instance(field, result_expr)
             case field_name if field_name in self.wtype.fields:
-                # TODO: use pytype
+                # TODO: yeet me
                 return var_expression(
                     FieldExpression(
                         source_location=location,
@@ -89,7 +99,7 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case "copy":
-                return CopyBuilder(self.expr, location)
+                return CopyBuilder(self.expr, location, self.pytyp)
             case _:
                 return super().member_access(name, location)
 

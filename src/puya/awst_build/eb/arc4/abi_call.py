@@ -38,9 +38,10 @@ from puya.awst_build.eb.arc4._utils import (
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
+from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import get_decorators_by_fullname, resolve_method_from_type_info
 from puya.errors import CodeError, InternalError
 
@@ -224,14 +225,12 @@ def _abi_call(
                 location,
             )
 
-    return var_expression(
-        _create_abi_call_expr(
-            signature,
-            arc4_args,
-            abi_return_type,
-            abi_call_expr.transaction_kwargs,
-            location,
-        )
+    return _create_abi_call_expr(
+        signature,
+        arc4_args,
+        abi_return_type,
+        abi_call_expr.transaction_kwargs,
+        location,
     )
 
 
@@ -277,7 +276,7 @@ def _create_abi_call_expr(
     declared_result_pytype: pytypes.PyType | None,
     transaction_kwargs: dict[str, ExpressionBuilder | Literal],
     location: SourceLocation,
-) -> Expression:
+) -> ExpressionBuilder:
     if signature.return_type is None:
         raise InternalError("Expected ARC4Signature.return_type to be defined", location)
     abi_arg_exprs: list[Expression] = [
@@ -356,6 +355,7 @@ def _create_abi_call_expr(
         bad_args = "', '".join(transaction_kwargs)
         raise CodeError(f"Unknown arguments: '{bad_args}'", location)
 
+    itxn_result_pytype = pytypes.InnerTransactionResultTypes[constants.TransactionType.appl]
     create_itxn = CreateInnerTransaction(
         fields=fields,
         wtype=wtypes.WInnerTransactionFields.from_type(constants.TransactionType.appl),
@@ -364,11 +364,11 @@ def _create_abi_call_expr(
     itxn = SubmitInnerTransaction(
         itxns=(create_itxn,),
         source_location=location,
-        wtype=wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
+        wtype=itxn_result_pytype.wtype,
     )
 
     if not _is_typed(declared_result_pytype):
-        return itxn
+        return InnerTransactionExpressionBuilder(itxn)
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
         source_location=location,
@@ -395,13 +395,12 @@ def _create_abi_call_expr(
         else:
             raise InternalError("Return type does not match signature type", location)
 
-    return TupleExpression.from_items(
-        (
-            abi_result,
-            itxn_tmp,
-        ),
-        location,
+    result_pytype = pytypes.GenericTupleType.parameterise(
+        [declared_result_pytype, itxn_result_pytype], location
     )
+    tuple_expr = TupleExpression.from_items((abi_result, itxn_tmp), location)
+    assert tuple_expr.wtype == result_pytype.wtype  # TODO: fixme
+    return TupleExpressionBuilder(tuple_expr, result_pytype)
 
 
 def _add_array_exprs(
