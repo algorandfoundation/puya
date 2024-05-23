@@ -273,21 +273,21 @@ set_boxes:
     frame_dig -3
     itob
     // box_storage/contract.py:10
-    // self.box_a = Box(UInt64, key=b"BOX_A")
-    byte "BOX_A"
+    // self.box_a = Box(UInt64)
+    byte "box_a"
     // box_storage/contract.py:17
     // self.box_a.value = a
     swap
     box_put
     // box_storage/contract.py:11
-    // self.box_b = Box(Bytes, key=b"b")
+    // self.box_b = Box(Bytes, key="b")
     byte "b"
     // box_storage/contract.py:18
     // self.box_b.value = b
     box_del
     pop
     // box_storage/contract.py:11
-    // self.box_b = Box(Bytes, key=b"b")
+    // self.box_b = Box(Bytes, key="b")
     byte "b"
     // box_storage/contract.py:18
     // self.box_b.value = b
@@ -295,21 +295,21 @@ set_boxes:
     box_put
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:19
     // self.box_c.value = c
     box_del
     pop
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:19
     // self.box_c.value = c
     frame_dig -1
     box_put
     // box_storage/contract.py:10
-    // self.box_a = Box(UInt64, key=b"BOX_A")
-    byte "BOX_A"
+    // self.box_a = Box(UInt64)
+    byte "box_a"
     // box_storage/contract.py:21
     // self.box_a.value += 3
     box_get
@@ -321,8 +321,8 @@ set_boxes:
     +
     itob
     // box_storage/contract.py:10
-    // self.box_a = Box(UInt64, key=b"BOX_A")
-    byte "BOX_A"
+    // self.box_a = Box(UInt64)
+    byte "box_a"
     // box_storage/contract.py:21
     // self.box_a.value += 3
     swap
@@ -337,8 +337,8 @@ read_boxes:
     // def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String]:
     proto 0 3
     // box_storage/contract.py:10
-    // self.box_a = Box(UInt64, key=b"BOX_A")
-    byte "BOX_A"
+    // self.box_a = Box(UInt64)
+    byte "box_a"
     // box_storage/contract.py:25
     // return self.box_a.value, self.box_b.value, self.box_c.value
     box_get
@@ -347,7 +347,7 @@ read_boxes:
     swap
     assert // Box must exist
     // box_storage/contract.py:11
-    // self.box_b = Box(Bytes, key=b"b")
+    // self.box_b = Box(Bytes, key="b")
     byte "b"
     // box_storage/contract.py:25
     // return self.box_a.value, self.box_b.value, self.box_c.value
@@ -355,7 +355,7 @@ read_boxes:
     assert // Box must exist
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:25
     // return self.box_a.value, self.box_b.value, self.box_c.value
     box_get
@@ -370,14 +370,14 @@ boxes_exist:
     // def boxes_exist(self) -> tuple[bool, bool, bool]:
     proto 0 3
     // box_storage/contract.py:10
-    // self.box_a = Box(UInt64, key=b"BOX_A")
-    byte "BOX_A"
+    // self.box_a = Box(UInt64)
+    byte "box_a"
     // box_storage/contract.py:29
     // return bool(self.box_a), bool(self.box_b), bool(self.box_c)
     box_len
     bury 1
     // box_storage/contract.py:11
-    // self.box_b = Box(Bytes, key=b"b")
+    // self.box_b = Box(Bytes, key="b")
     byte "b"
     // box_storage/contract.py:29
     // return bool(self.box_a), bool(self.box_b), bool(self.box_c)
@@ -385,7 +385,7 @@ boxes_exist:
     bury 1
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:29
     // return bool(self.box_a), bool(self.box_b), bool(self.box_c)
     box_len
@@ -401,21 +401,21 @@ slice_box:
     proto 0 0
     // box_storage/contract.py:33
     // box_0 = Box(Bytes, key=b"0")
-    byte "0"
+    byte 0x30
     // box_storage/contract.py:34
     // box_0.value = Bytes(b"Testing testing 123")
     box_del
     pop
     // box_storage/contract.py:33
     // box_0 = Box(Bytes, key=b"0")
-    byte "0"
+    byte 0x30
     // box_storage/contract.py:34
     // box_0.value = Bytes(b"Testing testing 123")
     byte "Testing testing 123"
     box_put
     // box_storage/contract.py:33
     // box_0 = Box(Bytes, key=b"0")
-    byte "0"
+    byte 0x30
     // box_storage/contract.py:35
     // assert box_0.value[0:7] == b"Testing"
     box_len
@@ -435,7 +435,7 @@ slice_box:
     -
     // box_storage/contract.py:33
     // box_0 = Box(Bytes, key=b"0")
-    byte "0"
+    byte 0x30
     // box_storage/contract.py:35
     // assert box_0.value[0:7] == b"Testing"
     cover 2
@@ -445,21 +445,21 @@ slice_box:
     assert
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:37
     // self.box_c.value = arc4.String("Hello")
     box_del
     pop
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:37
     // self.box_c.value = arc4.String("Hello")
     byte "\x00\x05Hello"
     box_put
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:38
     // assert self.box_c.value.bytes[2:10] == b"Hello"
     box_len
@@ -483,7 +483,7 @@ slice_box:
     -
     // box_storage/contract.py:12
     // self.box_c = Box(arc4.String, key=b"BOX_C")
-    byte "BOX_C"
+    byte 0x424f585f43
     // box_storage/contract.py:38
     // assert self.box_c.value.bytes[2:10] == b"Hello"
     cover 2
@@ -502,14 +502,14 @@ arc4_box:
     proto 0 0
     // box_storage/contract.py:42
     // box_d = Box(StaticInts, key=b"d")
-    byte "d"
+    byte 0x64
     // box_storage/contract.py:43
     // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
     byte 0x00010203
     box_put
     // box_storage/contract.py:42
     // box_d = Box(StaticInts, key=b"d")
-    byte "d"
+    byte 0x64
     // box_storage/contract.py:45
     // assert box_d.value[0] == 0
     box_get
@@ -520,7 +520,7 @@ arc4_box:
     assert
     // box_storage/contract.py:42
     // box_d = Box(StaticInts, key=b"d")
-    byte "d"
+    byte 0x64
     // box_storage/contract.py:46
     // assert box_d.value[1] == 1
     box_get
@@ -531,7 +531,7 @@ arc4_box:
     assert
     // box_storage/contract.py:42
     // box_d = Box(StaticInts, key=b"d")
-    byte "d"
+    byte 0x64
     // box_storage/contract.py:47
     // assert box_d.value[2] == 2
     box_get
@@ -542,7 +542,7 @@ arc4_box:
     assert
     // box_storage/contract.py:42
     // box_d = Box(StaticInts, key=b"d")
-    byte "d"
+    byte 0x64
     // box_storage/contract.py:48
     // assert box_d.value[3] == 3
     box_get
@@ -567,7 +567,7 @@ box_blob:
     // sender_bytes = Txn.sender.bytes
     txn Sender
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:55
     // assert box_blob.create(size=8000)
@@ -575,7 +575,7 @@ box_blob:
     box_create
     assert
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:56
     // box_blob.replace(0, sender_bytes)
@@ -583,7 +583,7 @@ box_blob:
     dig 2
     box_replace
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:57
     // box_blob.splice(0, 0, app_address)
@@ -592,7 +592,7 @@ box_blob:
     dig 4
     box_splice
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:58
     // first_64 = box_blob.extract(0, 32 * 2)
@@ -607,14 +607,14 @@ box_blob:
     ==
     assert
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:60
     // assert box_blob.delete()
     box_del
     assert
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:62
     // value, exists = box_blob.maybe()
@@ -625,7 +625,7 @@ box_blob:
     !
     assert
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:64
     // assert box_blob.get(default=sender_bytes) == sender_bytes
@@ -641,14 +641,14 @@ box_blob:
     swap
     concat
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:65
     // box_blob.put(sender_bytes + app_address)
     swap
     box_put
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:66
     // assert box_blob, "Blob exists"
@@ -656,7 +656,7 @@ box_blob:
     bury 1
     assert // Blob exists
     // box_storage/contract.py:52
-    // box_blob = BoxRef(key=b"blob")
+    // box_blob = BoxRef(key="blob")
     byte "blob"
     // box_storage/contract.py:67
     // assert box_blob.length == 64
@@ -729,7 +729,7 @@ box_map_test:
     !
     assert
     // box_storage/contract.py:13-81
-    //     self.box_map = BoxMap(UInt64, String)
+    //     self.box_map = BoxMap(UInt64, String, key_prefix="")
     // 
     // @arc4.abimethod
     // def set_boxes(self, a: UInt64, b: Bytes, c: arc4.String) -> None:
@@ -768,7 +768,7 @@ box_map_test:
     // 
     // @arc4.abimethod
     // def box_blob(self) -> None:
-    //     box_blob = BoxRef(key=b"blob")
+    //     box_blob = BoxRef(key="blob")
     //     sender_bytes = Txn.sender.bytes
     //     app_address = Global.current_application_address.bytes
     //     assert box_blob.create(size=8000)
@@ -846,7 +846,7 @@ box_map_exists:
     // def box_map_exists(self, key: UInt64) -> bool:
     proto 1 1
     // box_storage/contract.py:13-93
-    //     self.box_map = BoxMap(UInt64, String)
+    //     self.box_map = BoxMap(UInt64, String, key_prefix="")
     // 
     // @arc4.abimethod
     // def set_boxes(self, a: UInt64, b: Bytes, c: arc4.String) -> None:
@@ -885,7 +885,7 @@ box_map_exists:
     // 
     // @arc4.abimethod
     // def box_blob(self) -> None:
-    //     box_blob = BoxRef(key=b"blob")
+    //     box_blob = BoxRef(key="blob")
     //     sender_bytes = Txn.sender.bytes
     //     app_address = Global.current_application_address.bytes
     //     assert box_blob.create(size=8000)

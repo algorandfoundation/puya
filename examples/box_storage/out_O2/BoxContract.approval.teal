@@ -227,7 +227,7 @@ set_boxes:
     proto 3 0
     frame_dig -3
     itob
-    byte "BOX_A"
+    byte "box_a"
     swap
     box_put
     byte "b"
@@ -236,13 +236,13 @@ set_boxes:
     byte "b"
     frame_dig -2
     box_put
-    byte "BOX_C"
+    byte 0x424f585f43
     box_del
     pop
-    byte "BOX_C"
+    byte 0x424f585f43
     frame_dig -1
     box_put
-    byte "BOX_A"
+    byte "box_a"
     box_get
     swap
     btoi
@@ -251,7 +251,7 @@ set_boxes:
     int 3
     +
     itob
-    byte "BOX_A"
+    byte "box_a"
     swap
     box_put
     retsub
@@ -260,7 +260,7 @@ set_boxes:
 // examples.box_storage.contract.BoxContract.read_boxes() -> uint64, bytes, bytes:
 read_boxes:
     proto 0 3
-    byte "BOX_A"
+    byte "box_a"
     box_get
     swap
     btoi
@@ -269,7 +269,7 @@ read_boxes:
     byte "b"
     box_get
     assert // Box must exist
-    byte "BOX_C"
+    byte 0x424f585f43
     box_get
     assert // Box must exist
     retsub
@@ -278,13 +278,13 @@ read_boxes:
 // examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64:
 boxes_exist:
     proto 0 3
-    byte "BOX_A"
+    byte "box_a"
     box_len
     bury 1
     byte "b"
     box_len
     bury 1
-    byte "BOX_C"
+    byte 0x424f585f43
     box_len
     bury 1
     retsub
@@ -293,13 +293,13 @@ boxes_exist:
 // examples.box_storage.contract.BoxContract.slice_box() -> void:
 slice_box:
     proto 0 0
-    byte "0"
+    byte 0x30
     box_del
     pop
-    byte "0"
+    byte 0x30
     byte "Testing testing 123"
     box_put
-    byte "0"
+    byte 0x30
     box_len
     assert // Box must exist
     dup
@@ -315,19 +315,19 @@ slice_box:
     select
     dig 1
     -
-    byte "0"
+    byte 0x30
     cover 2
     box_extract
     byte "Testing"
     ==
     assert
-    byte "BOX_C"
+    byte 0x424f585f43
     box_del
     pop
-    byte "BOX_C"
+    byte 0x424f585f43
     byte "\x00\x05Hello"
     box_put
-    byte "BOX_C"
+    byte 0x424f585f43
     box_len
     assert // Box must exist
     int 2
@@ -347,7 +347,7 @@ slice_box:
     select
     dig 1
     -
-    byte "BOX_C"
+    byte 0x424f585f43
     cover 2
     box_extract
     byte "Hello"
@@ -359,31 +359,31 @@ slice_box:
 // examples.box_storage.contract.BoxContract.arc4_box() -> void:
 arc4_box:
     proto 0 0
-    byte "d"
+    byte 0x64
     byte 0x00010203
     box_put
-    byte "d"
+    byte 0x64
     box_get
     assert // Box must exist
     extract 0 1
     byte 0x00
     b==
     assert
-    byte "d"
+    byte 0x64
     box_get
     assert // Box must exist
     extract 1 1
     byte 0x01
     b==
     assert
-    byte "d"
+    byte 0x64
     box_get
     assert // Box must exist
     extract 2 1
     byte 0x02
     b==
     assert
-    byte "d"
+    byte 0x64
     box_get
     assert // Box must exist
     extract 3 1

@@ -1,9 +1,9 @@
 contract BoxContract
 {
   boxes {
-    ['BOX_A']: algopy.UInt64
+    ['box_a']: algopy.UInt64
     ['b']: algopy.Bytes
-    ['BOX_C']: algopy.arc4.String
+    [hex<"424F585F43">]: algopy.arc4.String
     ['']: algopy.UInt64 => algopy.String
   }
   
@@ -13,44 +13,44 @@ contract BoxContract
   
   abimethod set_boxes(a: algopy.UInt64, b: algopy.Bytes, c: algopy.arc4.String): None
   {
-    this.box_a.value: algopy.UInt64 = a
-    this.box_b.value: algopy.Bytes = b
-    this.box_c.value: algopy.arc4.String = c
-    this.box_a.value += 3u
+    this.box_a: algopy.UInt64 = a
+    this.box_b: algopy.Bytes = b
+    this.box_c: algopy.arc4.String = c
+    this.box_a += 3u
   }
   
   abimethod read_boxes(): tuple[algopy.UInt64, algopy.Bytes, algopy.arc4.String]
   {
-    return (this.box_a.value, this.box_b.value, this.box_c.value)
+    return (this.box_a, this.box_b, this.box_c)
   }
   
   abimethod boxes_exist(): tuple[bool, bool, bool]
   {
-    return (STATE_EXISTS(this.box_a.key), STATE_EXISTS(this.box_b.key), STATE_EXISTS(this.box_c.key))
+    return (STATE_EXISTS(this.box_a), STATE_EXISTS(this.box_b), STATE_EXISTS(this.box_c))
   }
   
   abimethod slice_box(): None
   {
-    box_0: algopy.Box[algopy.Bytes] = Box('0')
-    box_0.value: algopy.Bytes = 'Testing testing 123'
-    assert(box_extract(box_0.key, select(SINGLE_EVAL(id=0, source=len(box_0.key)), 0u, 0u < SINGLE_EVAL(id=0, source=len(box_0.key))), select(SINGLE_EVAL(id=0, source=len(box_0.key)), 7u, 7u < SINGLE_EVAL(id=0, source=len(box_0.key))) - select(SINGLE_EVAL(id=0, source=len(box_0.key)), 0u, 0u < SINGLE_EVAL(id=0, source=len(box_0.key)))) == 'Testing')
-    this.box_c.value: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
-    assert(box_extract(this.box_c.key, select(SINGLE_EVAL(id=1, source=len(this.box_c.key)), 2u, 2u < SINGLE_EVAL(id=1, source=len(this.box_c.key))), select(SINGLE_EVAL(id=1, source=len(this.box_c.key)), 10u, 10u < SINGLE_EVAL(id=1, source=len(this.box_c.key))) - select(SINGLE_EVAL(id=1, source=len(this.box_c.key)), 2u, 2u < SINGLE_EVAL(id=1, source=len(this.box_c.key)))) == 'Hello')
+    box_0: algopy.Bytes = hex<"30">
+    Box[box_0]: algopy.Bytes = 'Testing testing 123'
+    assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=len(Box[box_0])), 0u, 0u < SINGLE_EVAL(id=0, source=len(Box[box_0]))), select(SINGLE_EVAL(id=0, source=len(Box[box_0])), 7u, 7u < SINGLE_EVAL(id=0, source=len(Box[box_0]))) - select(SINGLE_EVAL(id=0, source=len(Box[box_0])), 0u, 0u < SINGLE_EVAL(id=0, source=len(Box[box_0])))) == 'Testing')
+    this.box_c: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
+    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=1, source=len(this.box_c)), 2u, 2u < SINGLE_EVAL(id=1, source=len(this.box_c))), select(SINGLE_EVAL(id=1, source=len(this.box_c)), 10u, 10u < SINGLE_EVAL(id=1, source=len(this.box_c))) - select(SINGLE_EVAL(id=1, source=len(this.box_c)), 2u, 2u < SINGLE_EVAL(id=1, source=len(this.box_c)))) == 'Hello')
   }
   
   abimethod arc4_box(): None
   {
-    box_d: algopy.Box[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]]] = Box('d')
-    box_d.value: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]](0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
-    assert(reinterpret_cast<algopy.BigUInt>(box_d.value[0u]) == reinterpret_cast<algopy.BigUInt>(0arc4u8))
-    assert(reinterpret_cast<algopy.BigUInt>(box_d.value[1u]) == reinterpret_cast<algopy.BigUInt>(1arc4u8))
-    assert(reinterpret_cast<algopy.BigUInt>(box_d.value[2u]) == reinterpret_cast<algopy.BigUInt>(2arc4u8))
-    assert(reinterpret_cast<algopy.BigUInt>(box_d.value[3u]) == reinterpret_cast<algopy.BigUInt>(3arc4u8))
+    box_d: algopy.Bytes = hex<"64">
+    Box[box_d]: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]](0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
+    assert(reinterpret_cast<algopy.BigUInt>(Box[box_d][0u]) == reinterpret_cast<algopy.BigUInt>(0arc4u8))
+    assert(reinterpret_cast<algopy.BigUInt>(Box[box_d][1u]) == reinterpret_cast<algopy.BigUInt>(1arc4u8))
+    assert(reinterpret_cast<algopy.BigUInt>(Box[box_d][2u]) == reinterpret_cast<algopy.BigUInt>(2arc4u8))
+    assert(reinterpret_cast<algopy.BigUInt>(Box[box_d][3u]) == reinterpret_cast<algopy.BigUInt>(3arc4u8))
   }
   
   abimethod box_blob(): None
   {
-    box_blob: algopy.BoxRef = BoxRef('blob')
+    box_blob: algopy.Bytes = 'blob'
     sender_bytes: algopy.Bytes = reinterpret_cast<algopy.Bytes>(txn<Sender>())
     app_address: algopy.Bytes = reinterpret_cast<algopy.Bytes>(global<CurrentApplicationAddress>())
     assert(box_create(box_blob, 8000u))
@@ -59,12 +59,12 @@ contract BoxContract
     first_64: algopy.Bytes = box_extract(box_blob, 0u, 64u)
     assert(first_64 == app_address + sender_bytes)
     assert(box_del(box_blob))
-    (value, exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(box_blob.key)
+    (value, exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(Box[box_blob])
     assert(!(exists))
-    assert(STATE_GET(box_blob.key, default=sender_bytes) == sender_bytes)
+    assert(STATE_GET(Box[box_blob], default=sender_bytes) == sender_bytes)
     box_put(box_blob, sender_bytes + app_address)
-    assert(STATE_EXISTS(box_blob.key), comment="Blob exists")
-    assert(len(box_blob.key) == 64u)
+    assert(STATE_EXISTS(Box[box_blob]), comment="Blob exists")
+    assert(len(Box[box_blob]) == 64u)
   }
   
   abimethod box_map_test(): None
@@ -72,27 +72,27 @@ contract BoxContract
     key_0: algopy.UInt64 = 0u
     key_1: algopy.UInt64 = 1u
     value: algopy.String = 'Hmmmmm'
-    this.box_map.value: algopy.String = value
-    assert(len(this.box_map.key) == len(reinterpret_cast<algopy.Bytes>(value)))
-    assert(len(this.box_map.key) == len(reinterpret_cast<algopy.Bytes>(value)))
-    assert(STATE_GET(this.box_map.key, default='default') == 'default')
-    (value, exists): tuple[algopy.String, bool] = STATE_GET_EX(this.box_map.key)
+    Box[concat('', BytesRaw(key_0))]: algopy.String = value
+    assert(len(Box[concat('', BytesRaw(key_0))]) == len(reinterpret_cast<algopy.Bytes>(value)))
+    assert(len(Box[concat('', BytesRaw(key_0))]) == len(reinterpret_cast<algopy.Bytes>(value)))
+    assert(STATE_GET(Box[concat('', BytesRaw(key_1))], default='default') == 'default')
+    (value, exists): tuple[algopy.String, bool] = STATE_GET_EX(Box[concat('', BytesRaw(key_1))])
     assert(!(exists))
-    assert(STATE_EXISTS(this.box_map.key))
+    assert(STATE_EXISTS(Box[concat('', BytesRaw(key_0))]))
   }
   
   abimethod box_map_set(key: algopy.UInt64, value: algopy.String): None
   {
-    this.box_map.value: algopy.String = value
+    Box[concat('', BytesRaw(key))]: algopy.String = value
   }
   
   abimethod box_map_get(key: algopy.UInt64): algopy.String
   {
-    return this.box_map.value
+    return Box[concat('', BytesRaw(key))]
   }
   
   abimethod box_map_exists(key: algopy.UInt64): bool
   {
-    return STATE_EXISTS(this.box_map.key)
+    return STATE_EXISTS(Box[concat('', BytesRaw(key))])
   }
 }
