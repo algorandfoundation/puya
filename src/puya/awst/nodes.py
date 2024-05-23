@@ -974,14 +974,6 @@ class BoxValueExpression(Expression):
         return visitor.visit_box_value_expression(self)
 
 
-StorageExpression = AppStateExpression | AppAccountStateExpression | BoxValueExpression
-
-# Expression types that are valid on the left hand side of assignment *statements*
-# Note that some of these can be recursive/nested, eg:
-# obj.field[index].another_field = 123
-Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | StorageExpression
-
-
 @attrs.frozen(init=False, eq=False, hash=False)  # use identity equality
 class SingleEvaluation(Expression):
     """caveat emptor"""
@@ -1015,6 +1007,13 @@ class ReinterpretCast(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_reinterpret_cast(self)
+
+
+StorageExpression = AppStateExpression | AppAccountStateExpression | BoxValueExpression
+# Expression types that are valid on the left hand side of assignment *statements*
+# Note that some of these can be recursive/nested, eg:
+# obj.field[index].another_field = 123
+Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | StorageExpression
 
 
 @attrs.frozen
@@ -1540,8 +1539,7 @@ class StateGet(Expression):
 
     @default.validator
     def _check_default(self, _attribute: object, default: Expression) -> None:
-        content_wtype = self.field.wtype
-        if content_wtype != default.wtype:
+        if self.field.wtype != default.wtype:
             raise CodeError(
                 "Default state value should match storage type", default.source_location
             )
@@ -1755,9 +1753,7 @@ class ContractFragment(ModuleStatement):
     symtable: Mapping[str, ContractMethod | AppStorageDefinition] = attrs.field(init=False)
 
     @symtable.default
-    def _symtable_factory(
-        self,
-    ) -> Mapping[str, ContractMethod | AppStorageDefinition]:
+    def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStorageDefinition]:
         result: dict[str, ContractMethod | AppStorageDefinition] = {**self.app_state}
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
