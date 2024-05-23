@@ -65,7 +65,7 @@ def slice_box_bytes(
         IntrinsicCall(
             op_code="box_extract",
             stack_args=[
-                box_key,
+                box_key.key,
                 begin_index_expr,
                 length_expr,
             ],
