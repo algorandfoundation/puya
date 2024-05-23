@@ -52,9 +52,6 @@ class ToCodeVisitor(
             result.extend(lines)
         return "\n".join(result).strip()
 
-    def visit_box_length(self, expr: nodes.BoxLength) -> str:
-        return f"len({expr.box_key.accept(self)})"
-
     def visit_arc4_decode(self, expr: nodes.ARC4Decode) -> str:
         return f"arc4_decode({expr.value.accept(self)}, {expr.wtype})"
 

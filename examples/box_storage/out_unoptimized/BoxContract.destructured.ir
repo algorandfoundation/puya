@@ -191,34 +191,32 @@ contract examples.box_storage.contract.BoxContract:
             block@0: // L31
                 let box_del_res%0#0: bool = (box_del 0x30)
                 (box_put 0x30 "Testing testing 123")
-                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len 0x30)
-                (assert box_exists%0#0) // Box must exist
-                let awst_tmp%0#0: uint64 = box_len%0#0
-                let tmp%0#0: bool = (< 0u awst_tmp%0#0)
-                let tmp%1#0: uint64 = (select awst_tmp%0#0 0u tmp%0#0)
-                let tmp%2#0: bool = (< 7u awst_tmp%0#0)
-                let tmp%3#0: uint64 = (select awst_tmp%0#0 7u tmp%2#0)
-                let tmp%4#0: bool = (< 0u awst_tmp%0#0)
-                let tmp%5#0: uint64 = (select awst_tmp%0#0 0u tmp%4#0)
-                let tmp%6#0: uint64 = (- tmp%3#0 tmp%5#0)
-                let tmp%7#0: bytes = (box_extract 0x30 tmp%1#0 tmp%6#0)
-                let tmp%8#0: bool = (== tmp%7#0 "Testing")
-                (assert tmp%8#0)
+                let (tmp%0#0: uint64, tmp%1#0: bool) = (box_len 0x30)
+                let awst_tmp%0#0: uint64 = tmp%0#0
+                let tmp%2#0: bool = (< 0u awst_tmp%0#0)
+                let tmp%3#0: uint64 = (select awst_tmp%0#0 0u tmp%2#0)
+                let tmp%4#0: bool = (< 7u awst_tmp%0#0)
+                let tmp%5#0: uint64 = (select awst_tmp%0#0 7u tmp%4#0)
+                let tmp%6#0: bool = (< 0u awst_tmp%0#0)
+                let tmp%7#0: uint64 = (select awst_tmp%0#0 0u tmp%6#0)
+                let tmp%8#0: uint64 = (- tmp%5#0 tmp%7#0)
+                let tmp%9#0: bytes = (box_extract 0x30 tmp%3#0 tmp%8#0)
+                let tmp%10#0: bool = (== tmp%9#0 "Testing")
+                (assert tmp%10#0)
                 let box_del_res%1#0: bool = (box_del 0x424f585f43)
                 (box_put 0x424f585f43 "\x00\x05Hello")
-                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len 0x424f585f43)
-                (assert box_exists%1#0) // Box must exist
-                let awst_tmp%1#0: uint64 = box_len%1#0
-                let tmp%9#0: bool = (< 2u awst_tmp%1#0)
-                let tmp%10#0: uint64 = (select awst_tmp%1#0 2u tmp%9#0)
-                let tmp%11#0: bool = (< 10u awst_tmp%1#0)
-                let tmp%12#0: uint64 = (select awst_tmp%1#0 10u tmp%11#0)
+                let (tmp%11#0: uint64, tmp%12#0: bool) = (box_len 0x424f585f43)
+                let awst_tmp%1#0: uint64 = tmp%11#0
                 let tmp%13#0: bool = (< 2u awst_tmp%1#0)
                 let tmp%14#0: uint64 = (select awst_tmp%1#0 2u tmp%13#0)
-                let tmp%15#0: uint64 = (- tmp%12#0 tmp%14#0)
-                let tmp%16#0: bytes = (box_extract 0x424f585f43 tmp%10#0 tmp%15#0)
-                let tmp%17#0: bool = (== tmp%16#0 "Hello")
-                (assert tmp%17#0)
+                let tmp%15#0: bool = (< 10u awst_tmp%1#0)
+                let tmp%16#0: uint64 = (select awst_tmp%1#0 10u tmp%15#0)
+                let tmp%17#0: bool = (< 2u awst_tmp%1#0)
+                let tmp%18#0: uint64 = (select awst_tmp%1#0 2u tmp%17#0)
+                let tmp%19#0: uint64 = (- tmp%16#0 tmp%18#0)
+                let tmp%20#0: bytes = (box_extract 0x424f585f43 tmp%14#0 tmp%19#0)
+                let tmp%21#0: bool = (== tmp%20#0 "Hello")
+                (assert tmp%21#0)
                 return 
         
         subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
@@ -268,21 +266,21 @@ contract examples.box_storage.contract.BoxContract:
                 (assert tmp%2#0)
                 let tmp%3#0: bool = (box_del "blob")
                 (assert tmp%3#0)
-                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get "blob")
-                let exists#0: bool = box_exists%0#0
+                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get "blob")
+                let exists#0: bool = tuple_assignment%1#0
                 let tmp%4#0: bool = (! exists#0)
                 (assert tmp%4#0)
-                let (box_value%1#0: bytes, box_exists%1#0: bool) = (box_get "blob")
-                let tmp%5#0: bytes = (select sender_bytes#0 box_value%1#0 box_exists%1#0)
+                let (None_get_ex%0#0: bytes, None_get_ex%1#0: bool) = (box_get "blob")
+                let tmp%5#0: bytes = (select sender_bytes#0 None_get_ex%0#0 None_get_ex%1#0)
                 let tmp%6#0: bool = (== tmp%5#0 sender_bytes#0)
                 (assert tmp%6#0)
                 let tmp%7#0: bytes = (concat sender_bytes#0 app_address#0)
                 (box_put "blob" tmp%7#0)
-                let (box_len%0#0: uint64, box_exists%2#0: bool) = (box_len "blob")
-                (assert box_exists%2#0) // Blob exists
-                let (box_len%1#0: uint64, box_exists%3#0: bool) = (box_len "blob")
-                (assert box_exists%3#0) // Box must exist
-                let tmp%8#0: bool = (== box_len%1#0 64u)
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len "blob")
+                (assert box_exists%0#0) // Blob exists
+                let (value%0#0: uint64, check%0#0: bool) = (box_len "blob")
+                (assert check%0#0) // box exists
+                let tmp%8#0: bool = (== value%0#0 64u)
                 (assert tmp%8#0)
                 return 
         
@@ -294,34 +292,34 @@ contract examples.box_storage.contract.BoxContract:
                 (box_put tmp%1#0 "Hmmmmm")
                 let tmp%2#0: bytes = (itob 0u)
                 let tmp%3#0: bytes = (concat "" tmp%2#0)
-                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len tmp%3#0)
-                (assert box_exists%0#0) // Box must exist
+                let (value%0#0: uint64, check%0#0: bool) = (box_len tmp%3#0)
+                (assert check%0#0) // box exists
                 let tmp%4#0: uint64 = (len "Hmmmmm")
-                let tmp%5#0: bool = (== box_len%0#0 tmp%4#0)
+                let tmp%5#0: bool = (== value%0#0 tmp%4#0)
                 (assert tmp%5#0)
                 let tmp%6#0: bytes = (itob 0u)
                 let tmp%7#0: bytes = (concat "" tmp%6#0)
-                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len tmp%7#0)
-                (assert box_exists%1#0) // Box must exist
+                let (value%1#0: uint64, check%1#0: bool) = (box_len tmp%7#0)
+                (assert check%1#0) // box exists
                 let tmp%8#0: uint64 = (len "Hmmmmm")
-                let tmp%9#0: bool = (== box_len%1#0 tmp%8#0)
+                let tmp%9#0: bool = (== value%1#0 tmp%8#0)
                 (assert tmp%9#0)
                 let tmp%10#0: bytes = (itob 1u)
                 let tmp%11#0: bytes = (concat "" tmp%10#0)
-                let (box_value%0#0: bytes, box_exists%2#0: bool) = (box_get tmp%11#0)
-                let tmp%12#0: bytes = (select "default" box_value%0#0 box_exists%2#0)
+                let (None_get_ex%0#0: bytes, None_get_ex%1#0: bool) = (box_get tmp%11#0)
+                let tmp%12#0: bytes = (select "default" None_get_ex%0#0 None_get_ex%1#0)
                 let tmp%13#0: bool = (== tmp%12#0 "default")
                 (assert tmp%13#0)
                 let tmp%14#0: bytes = (itob 1u)
                 let tmp%15#0: bytes = (concat "" tmp%14#0)
-                let (box_value%1#0: bytes, box_exists%3#0: bool) = (box_get tmp%15#0)
-                let exists#0: bool = box_exists%3#0
+                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (box_get tmp%15#0)
+                let exists#0: bool = tuple_assignment%1#0
                 let tmp%16#0: bool = (! exists#0)
                 (assert tmp%16#0)
                 let tmp%17#0: bytes = (itob 0u)
                 let tmp%18#0: bytes = (concat "" tmp%17#0)
-                let (box_len%2#0: uint64, box_exists%4#0: bool) = (box_len tmp%18#0)
-                (assert box_exists%4#0)
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len tmp%18#0)
+                (assert box_exists%0#0)
                 return 
         
         subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: bytes) -> void:

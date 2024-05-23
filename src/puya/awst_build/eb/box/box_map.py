@@ -5,7 +5,6 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BoxLength,
     BoxValueExpression,
     BytesConstant,
     BytesRaw,
@@ -28,6 +27,7 @@ from puya.awst_build.eb.base import (
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.box._util import box_length_checked
 from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -225,11 +225,11 @@ class BoxMapLengthMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
         return UInt64ExpressionBuilder(
-            BoxLength(
-                box_key=_box_value_expr(
+            box_length_checked(
+                _box_value_expr(
                     self.box_map_expr, item_key, location, self.box_type.content.wtype
                 ),
-                source_location=location,
+                location,
             )
         )
 

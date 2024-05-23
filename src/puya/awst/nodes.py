@@ -1627,15 +1627,6 @@ class BytesRaw(Expression):
 
 
 @attrs.frozen
-class BoxLength(Expression):
-    box_key: BoxValueExpression = attrs.field()  # TODO: rename me
-    wtype = attrs.field(default=wtypes.uint64_wtype, init=False)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_box_length(self)
-
-
-@attrs.frozen
 class ConstantDeclaration(ModuleStatement):
     value: ConstantValue
 

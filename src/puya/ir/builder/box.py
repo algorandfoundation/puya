@@ -7,14 +7,10 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError
-from puya.ir import (
-    intrinsic_factory,
-    models as ops,
-)
+from puya.ir import models as ops
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import Value
 from puya.ir.types_ import wtype_to_ir_type
 from puya.parse import SourceLocation
 
@@ -44,74 +40,6 @@ def _box_get(
             args=[box_value],
         )
     return box_value, box_exists
-
-
-def visit_box_state_get(
-    context: IRFunctionBuildContext,
-    box: awst_nodes.BoxValueExpression,
-    default: Value,
-    source_location: SourceLocation,
-) -> ops.ValueProvider:
-    (box_value, box_exists) = _box_get(context, box, source_location)
-    ir_type = wtype_to_ir_type(box.wtype)
-    assert ir_type == default.ir_type
-    return intrinsic_factory.select(
-        condition=box_exists,
-        true=box_value,
-        false=default,
-        type_=ir_type,
-        source_location=source_location,
-    )
-
-
-def visit_box_state_get_ex(
-    context: IRFunctionBuildContext,
-    box: awst_nodes.BoxValueExpression,
-    source_location: SourceLocation,
-) -> ops.ValueProvider:
-    (box_value, box_exists) = _box_get(context, box, source_location)
-    return ops.ValueTuple(values=[box_value, box_exists], source_location=source_location)
-
-
-def visit_box_state_delete(
-    context: IRFunctionBuildContext,
-    box: awst_nodes.BoxValueExpression,
-    source_location: SourceLocation,
-) -> None:
-    box_key = context.visitor.visit_and_materialise_single(box)
-    assign(
-        temp_description="box_del_res",
-        source_location=source_location,
-        source=ops.Intrinsic(
-            op=AVMOp.box_del,
-            args=[box_key],
-            source_location=source_location,
-        ),
-        context=context,
-    )
-
-
-def visit_box_length(
-    context: IRFunctionBuildContext, expr: awst_nodes.BoxLength
-) -> ops.ValueProvider:
-    box_key = context.visitor.visit_and_materialise_single(expr.box_key.key)
-    (box_len, box_exists) = assign(
-        temp_description=["box_len", "box_exists"],
-        source_location=expr.source_location,
-        source=ops.Intrinsic(
-            op=AVMOp.box_len,
-            args=[box_key],
-            source_location=expr.source_location,
-        ),
-        context=context,
-    )
-    assert_value(
-        context,
-        box_exists,
-        comment="Box must exist",
-        source_location=expr.source_location,
-    )
-    return box_len
 
 
 def visit_box_state_exists(

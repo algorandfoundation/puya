@@ -282,9 +282,6 @@ class FunctionTraverser(
     def visit_state_exists(self, expr: awst_nodes.StateExists) -> None:
         expr.field.accept(self)
 
-    def visit_box_length(self, expr: awst_nodes.BoxLength) -> None:
-        expr.box_key.accept(self)
-
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
         expr.key.accept(self)
 

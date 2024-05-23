@@ -972,9 +972,6 @@ class FunctionIRBuilder(
             source_location=provider.source_location,
         )
 
-    def visit_box_length(self, expr: puya.awst.nodes.BoxLength) -> TExpression:
-        return box.visit_box_length(self.context, expr)
-
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
         return box.visit_box_value(self.context, expr)
 

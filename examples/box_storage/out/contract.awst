@@ -33,9 +33,9 @@ contract BoxContract
   {
     box_0: algopy.Bytes = hex<"30">
     Box[box_0]: algopy.Bytes = 'Testing testing 123'
-    assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=len(Box[box_0])), 0u, 0u < SINGLE_EVAL(id=0, source=len(Box[box_0]))), select(SINGLE_EVAL(id=0, source=len(Box[box_0])), 7u, 7u < SINGLE_EVAL(id=0, source=len(Box[box_0]))) - select(SINGLE_EVAL(id=0, source=len(Box[box_0])), 0u, 0u < SINGLE_EVAL(id=0, source=len(Box[box_0])))) == 'Testing')
+    assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0]))) == 'Testing')
     this.box_c: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
-    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=1, source=len(this.box_c)), 2u, 2u < SINGLE_EVAL(id=1, source=len(this.box_c))), select(SINGLE_EVAL(id=1, source=len(this.box_c)), 10u, 10u < SINGLE_EVAL(id=1, source=len(this.box_c))) - select(SINGLE_EVAL(id=1, source=len(this.box_c)), 2u, 2u < SINGLE_EVAL(id=1, source=len(this.box_c)))) == 'Hello')
+    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]))) == 'Hello')
   }
   
   abimethod arc4_box(): None
@@ -64,7 +64,7 @@ contract BoxContract
     assert(STATE_GET(Box[box_blob], default=sender_bytes) == sender_bytes)
     box_put(box_blob, sender_bytes + app_address)
     assert(STATE_EXISTS(Box[box_blob]), comment="Blob exists")
-    assert(len(Box[box_blob]) == 64u)
+    assert(checked_maybe(box_len(box_blob)) == 64u)
   }
   
   abimethod box_map_test(): None
@@ -73,8 +73,8 @@ contract BoxContract
     key_1: algopy.UInt64 = 1u
     value: algopy.String = 'Hmmmmm'
     Box[concat('', BytesRaw(key_0))]: algopy.String = value
-    assert(len(Box[concat('', BytesRaw(key_0))]) == len(reinterpret_cast<algopy.Bytes>(value)))
-    assert(len(Box[concat('', BytesRaw(key_0))]) == len(reinterpret_cast<algopy.Bytes>(value)))
+    assert(checked_maybe(box_len(concat('', BytesRaw(key_0)))) == len(reinterpret_cast<algopy.Bytes>(value)))
+    assert(checked_maybe(box_len(concat('', BytesRaw(key_0)))) == len(reinterpret_cast<algopy.Bytes>(value)))
     assert(STATE_GET(Box[concat('', BytesRaw(key_1))], default='default') == 'default')
     (value, exists): tuple[algopy.String, bool] = STATE_GET_EX(Box[concat('', BytesRaw(key_1))])
     assert(!(exists))

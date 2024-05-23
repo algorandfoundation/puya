@@ -5,7 +5,6 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BoxLength,
     BoxValueExpression,
     BytesConstant,
     ContractReference,
@@ -27,6 +26,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
+from puya.awst_build.eb.box._util import box_length_checked
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.eb.void import VoidExpressionBuilder
@@ -146,7 +146,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                 return BoxMaybeExpressionBuilder(self._box_key_expr(location))
             case "length":
                 return UInt64ExpressionBuilder(
-                    BoxLength(box_key=self._box_key_expr(location), source_location=location)
+                    box_length_checked(self._box_key_expr(location), location)
                 )
             case _:
                 return super().member_access(name, location)
