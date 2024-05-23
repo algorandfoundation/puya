@@ -7,6 +7,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
@@ -16,7 +17,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
@@ -58,15 +58,15 @@ class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
     native_access_member = "id"
     field_mapping = immutabledict(
         {
-            "approval_program": ("AppApprovalProgram", wtypes.bytes_wtype),
-            "clear_state_program": ("AppClearStateProgram", wtypes.bytes_wtype),
-            "global_num_uint": ("AppGlobalNumUint", wtypes.uint64_wtype),
-            "global_num_bytes": ("AppGlobalNumByteSlice", wtypes.uint64_wtype),
-            "local_num_uint": ("AppLocalNumUint", wtypes.uint64_wtype),
-            "local_num_bytes": ("AppLocalNumByteSlice", wtypes.uint64_wtype),
-            "extra_program_pages": ("AppExtraProgramPages", wtypes.uint64_wtype),
-            "creator": ("AppCreator", wtypes.account_wtype),
-            "address": ("AppAddress", wtypes.account_wtype),
+            "approval_program": ("AppApprovalProgram", pytypes.BytesType),
+            "clear_state_program": ("AppClearStateProgram", pytypes.BytesType),
+            "global_num_uint": ("AppGlobalNumUint", pytypes.UInt64Type),
+            "global_num_bytes": ("AppGlobalNumByteSlice", pytypes.UInt64Type),
+            "local_num_uint": ("AppLocalNumUint", pytypes.UInt64Type),
+            "local_num_bytes": ("AppLocalNumByteSlice", pytypes.UInt64Type),
+            "extra_program_pages": ("AppExtraProgramPages", pytypes.UInt64Type),
+            "creator": ("AppCreator", pytypes.AccountType),
+            "address": ("AppAddress", pytypes.AccountType),
         }
     )
     field_op_code = "app_params_get"

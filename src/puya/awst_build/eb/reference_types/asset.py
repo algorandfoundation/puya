@@ -14,13 +14,14 @@ from puya.awst.nodes import (
     ReinterpretCast,
     UInt64Constant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -29,7 +30,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
@@ -67,8 +67,8 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 ASSET_HOLDING_FIELD_MAPPING: typing.Final = {
-    "balance": ("AssetBalance", wtypes.uint64_wtype),
-    "frozen": ("AssetFrozen", wtypes.bool_wtype),
+    "balance": ("AssetBalance", pytypes.UInt64Type),
+    "frozen": ("AssetFrozen", pytypes.BoolType),
 }
 
 
@@ -78,6 +78,7 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
         self.holding_field = holding_field
         super().__init__(location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -89,16 +90,16 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
         match args:
             case [ExpressionBuilder() as eb]:
                 account_expr = expect_operand_wtype(eb, wtypes.account_wtype)
-                immediate, wtype = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
+                immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
                 asset_params_get = IntrinsicCall(
                     source_location=location,
-                    wtype=wtypes.WTuple((wtype, wtypes.bool_wtype), location),
+                    wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
                     op_code="asset_holding_get",
                     immediates=[immediate],
                     stack_args=[account_expr, self.asset],
                 )
-                return var_expression(
-                    CheckedMaybe(asset_params_get, comment="account opted into asset")
+                return builder_for_instance(
+                    typ, CheckedMaybe(asset_params_get, comment="account opted into asset")
                 )
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -109,18 +110,18 @@ class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
     native_access_member = "id"
     field_mapping = immutabledict(
         {
-            "total": ("AssetTotal", wtypes.uint64_wtype),
-            "decimals": ("AssetDecimals", wtypes.uint64_wtype),
-            "default_frozen": ("AssetDefaultFrozen", wtypes.bool_wtype),
-            "unit_name": ("AssetUnitName", wtypes.bytes_wtype),
-            "name": ("AssetName", wtypes.bytes_wtype),
-            "url": ("AssetURL", wtypes.bytes_wtype),
-            "metadata_hash": ("AssetMetadataHash", wtypes.bytes_wtype),
-            "manager": ("AssetManager", wtypes.account_wtype),
-            "reserve": ("AssetReserve", wtypes.account_wtype),
-            "freeze": ("AssetFreeze", wtypes.account_wtype),
-            "clawback": ("AssetClawback", wtypes.account_wtype),
-            "creator": ("AssetCreator", wtypes.account_wtype),
+            "total": ("AssetTotal", pytypes.UInt64Type),
+            "decimals": ("AssetDecimals", pytypes.UInt64Type),
+            "default_frozen": ("AssetDefaultFrozen", pytypes.BoolType),
+            "unit_name": ("AssetUnitName", pytypes.BytesType),
+            "name": ("AssetName", pytypes.BytesType),
+            "url": ("AssetURL", pytypes.BytesType),
+            "metadata_hash": ("AssetMetadataHash", pytypes.BytesType),
+            "manager": ("AssetManager", pytypes.AccountType),
+            "reserve": ("AssetReserve", pytypes.AccountType),
+            "freeze": ("AssetFreeze", pytypes.AccountType),
+            "clawback": ("AssetClawback", pytypes.AccountType),
+            "creator": ("AssetCreator", pytypes.AccountType),
         }
     )
     field_op_code = "asset_params_get"

@@ -138,22 +138,22 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
 
 class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     wtype = wtypes.account_wtype
-    native_wtype = wtypes.bytes_wtype
+    native_type = pytypes.BytesType
     native_access_member = "bytes"
     field_mapping = immutabledict(
         {
-            "balance": ("AcctBalance", wtypes.uint64_wtype),
-            "min_balance": ("AcctMinBalance", wtypes.uint64_wtype),
-            "auth_address": ("AcctAuthAddr", wtypes.account_wtype),
-            "total_num_uint": ("AcctTotalNumUint", wtypes.uint64_wtype),
-            "total_num_byte_slice": ("AcctTotalNumByteSlice", wtypes.uint64_wtype),
-            "total_extra_app_pages": ("AcctTotalExtraAppPages", wtypes.uint64_wtype),
-            "total_apps_created": ("AcctTotalAppsCreated", wtypes.uint64_wtype),
-            "total_apps_opted_in": ("AcctTotalAppsOptedIn", wtypes.uint64_wtype),
-            "total_assets_created": ("AcctTotalAssetsCreated", wtypes.uint64_wtype),
-            "total_assets": ("AcctTotalAssets", wtypes.uint64_wtype),
-            "total_boxes": ("AcctTotalBoxes", wtypes.uint64_wtype),
-            "total_box_bytes": ("AcctTotalBoxBytes", wtypes.uint64_wtype),
+            "balance": ("AcctBalance", pytypes.UInt64Type),
+            "min_balance": ("AcctMinBalance", pytypes.UInt64Type),
+            "auth_address": ("AcctAuthAddr", pytypes.AccountType),
+            "total_num_uint": ("AcctTotalNumUint", pytypes.UInt64Type),
+            "total_num_byte_slice": ("AcctTotalNumByteSlice", pytypes.UInt64Type),
+            "total_extra_app_pages": ("AcctTotalExtraAppPages", pytypes.UInt64Type),
+            "total_apps_created": ("AcctTotalAppsCreated", pytypes.UInt64Type),
+            "total_apps_opted_in": ("AcctTotalAppsOptedIn", pytypes.UInt64Type),
+            "total_assets_created": ("AcctTotalAssetsCreated", pytypes.UInt64Type),
+            "total_assets": ("AcctTotalAssets", pytypes.UInt64Type),
+            "total_boxes": ("AcctTotalBoxes", pytypes.UInt64Type),
+            "total_box_bytes": ("AcctTotalBoxBytes", pytypes.UInt64Type),
         }
     )
     field_op_code = "acct_params_get"
