@@ -729,13 +729,6 @@ GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
 )
 
 
-def _make_txn_types(kind: constants.TransactionType | None) -> tuple[PyType, PyType, PyType]:
-    gtxn_type = _make_gtxn_type(kind)
-    itxn_fieldset_type = _make_itxn_fieldset_type(kind)
-    itxn_result_type = _make_itxn_result_type(kind)
-    return gtxn_type, itxn_fieldset_type, itxn_result_type
-
-
 def _make_gtxn_type(kind: constants.TransactionType | None) -> PyType:
     if kind is None:
         wtype_name = "group_transaction"
