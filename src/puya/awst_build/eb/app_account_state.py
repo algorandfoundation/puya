@@ -157,7 +157,7 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
                 )
         return AppAccountStateExpression(
             key=self.expr,
-            field_name=self._member_name,
+            member_name=self._member_name,
             account=index_expr,
             wtype=self._typ.content.wtype,
             source_location=location,

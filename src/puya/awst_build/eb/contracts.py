@@ -109,7 +109,7 @@ def _builder_for_storage_access(
             return var_expression(
                 AppStateExpression(
                     key=storage_decl.key,
-                    field_name=storage_decl.member_name,
+                    member_name=storage_decl.member_name,
                     wtype=storage_decl.definition.storage_wtype,
                     source_location=location,
                 )

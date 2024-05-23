@@ -133,7 +133,7 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder):
         return BoxValueExpression(
             key=self.expr,
             wtype=self._typ.content.wtype,
-            field_name=self._member_name,
+            member_name=self._member_name,
             source_location=location,
         )
 

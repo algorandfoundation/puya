@@ -15,7 +15,7 @@ def visit_app_state_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.AppStateExpression
 ) -> ValueProvider:
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-    return _checked_state_access(context, expr, assert_comment=f"check {expr.field_name} exists")
+    return _checked_state_access(context, expr, assert_comment=f"check {expr.member_name} exists")
 
 
 def visit_app_account_state_expression(
@@ -23,7 +23,7 @@ def visit_app_account_state_expression(
 ) -> ValueProvider:
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
     return _checked_state_access(
-        context, expr, assert_comment=f"check {expr.field_name} exists for account"
+        context, expr, assert_comment=f"check {expr.member_name} exists for account"
     )
 
 
@@ -66,7 +66,7 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
         return box.visit_box_state_get(context, expr.field, default, expr.source_location)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     maybe_value, exists = context.visitor.materialise_value_provider(
-        get_ex, description=f"{expr.field.field_name}_get_ex"
+        get_ex, description=f"{expr.field.member_name}_get_ex"
     )
     return intrinsic_factory.select(
         condition=exists,
@@ -85,7 +85,7 @@ def visit_state_exists(
             return box.visit_box_state_exists(context, expr)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     _, exists = context.visitor.materialise_value_provider(
-        get_ex, description=f"{expr.field.field_name}_exists"
+        get_ex, description=f"{expr.field.member_name}_exists"
     )
     return exists
 
@@ -102,13 +102,13 @@ def _checked_state_access(
     value_tmp = mktemp(
         context,
         ir_type=value_ir_type,
-        description=f"{expr.field_name}_value",
+        description=f"{expr.member_name}_value",
         source_location=expr.source_location,
     )
     did_exist_tmp = mktemp(
         context,
         ir_type=IRType.bool,
-        description=f"{expr.field_name}_exists",
+        description=f"{expr.member_name}_exists",
         source_location=expr.source_location,
     )
     assign_targets(

@@ -379,7 +379,7 @@ class FunctionASTConverter(
         else:
             global_state_target = AppStateExpression(
                 key=defn.key,
-                field_name=defn.member_name,
+                member_name=defn.member_name,
                 wtype=defn.definition.storage_wtype,
                 source_location=defn.source_location,
             )

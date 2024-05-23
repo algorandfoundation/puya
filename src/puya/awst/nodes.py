@@ -947,7 +947,7 @@ class IntersectionSliceExpression(Expression):
 @attrs.frozen
 class AppStateExpression(Expression):
     key: Expression = attrs.field(validator=wtype_is_bytes)
-    field_name: str | None
+    member_name: str | None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
@@ -956,7 +956,7 @@ class AppStateExpression(Expression):
 @attrs.frozen
 class AppAccountStateExpression(Expression):
     key: Expression = attrs.field(validator=wtype_is_bytes)
-    field_name: str | None
+    member_name: str | None
     account: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
     )
@@ -968,7 +968,7 @@ class AppAccountStateExpression(Expression):
 @attrs.frozen
 class BoxValueExpression(Expression):
     key: Expression = attrs.field(validator=wtype_is_bytes)
-    field_name: str | None
+    member_name: str | None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_value_expression(self)

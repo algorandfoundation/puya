@@ -83,7 +83,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
             key=self.expr,
             source_location=location,
             wtype=wtypes.bytes_wtype,
-            field_name=self._member_name,
+            member_name=self._member_name,
         )
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:

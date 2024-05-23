@@ -299,6 +299,6 @@ def _box_value_expr(
     return BoxValueExpression(
         key=full_key,
         wtype=content_type,
-        field_name=None,  # TODO: can/should we set this??
+        member_name=None,  # TODO: can/should we set this??
         source_location=location,
     )
