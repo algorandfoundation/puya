@@ -345,10 +345,11 @@ class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
         self.__expr = expr
         if expr.wtype != self.wtype:
             raise InternalError(
-                f"Invalid type of expression for {self.wtype}: {expr.wtype}",
+                f"Invalid WType of {str(self.pytype)!r} expression for: {expr.wtype}",
                 expr.source_location,
             )
 
+    @typing.override
     @typing.final
     @property
     def pytype(self) -> _TPyType_co:
@@ -363,21 +364,26 @@ class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
     def expr(self) -> Expression:
         return self.__expr
 
+    @typing.override
     def lvalue(self) -> Lvalue:
         resolved = self.rvalue()
         return _validate_lvalue(resolved)
 
+    @typing.override
     def rvalue(self) -> Expression:
         return self.expr
 
+    @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        raise CodeError(f"{self.wtype} is not valid as del target", location)
+        raise CodeError(f"{self.pytype} is not valid as del target", location)
 
+    @typing.override
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        raise CodeError(f"{self.wtype} does not support indexing", location)
+        raise CodeError(f"{self.pytype} does not support indexing", location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -386,32 +392,39 @@ class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        raise CodeError(f"{self.wtype} does not support calling", location)
+        raise CodeError(f"{self.pytype} does not support calling", location)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         raise CodeError(f"Unrecognised member of {self.pytype}: {name}", location)
 
+    @typing.override
     def iterate(self) -> Iteration:
         """Produce target of ForInLoop"""
-        raise CodeError(f"{self.wtype} does not support iteration", self.source_location)
+        raise CodeError(f"{self.pytype} does not support iteration", self.source_location)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         # TODO: this should be abstract, we always want to consider this for types
-        raise CodeError(f"{self.wtype} does not support boolean evaluation", location)
+        raise CodeError(f"{self.pytype} does not support boolean evaluation", location)
 
+    @typing.override
     def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
-        raise CodeError(f"{self.wtype} does not support unary plus operator", location)
+        raise CodeError(f"{self.pytype} does not support unary plus operator", location)
 
+    @typing.override
     def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
-        raise CodeError(f"{self.wtype} does not support unary minus operator", location)
+        raise CodeError(f"{self.pytype} does not support unary minus operator", location)
 
+    @typing.override
     def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
-        raise CodeError(f"{self.wtype} does not support bitwise inversion", location)
+        raise CodeError(f"{self.pytype} does not support bitwise inversion", location)
 
+    @typing.override
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        raise CodeError(f"{self.wtype} does not support in/not in checks", location)
+        raise CodeError(f"{self.pytype} does not support in/not in checks", location)
 
 
 def _validate_lvalue(resolved: Expression) -> Lvalue:
