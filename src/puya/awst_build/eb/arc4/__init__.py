@@ -4,7 +4,8 @@ from puya.awst_build.eb.arc4.arrays import *
 from puya.awst_build.eb.arc4.bool import *
 from puya.awst_build.eb.arc4.dynamic_bytes import *
 from puya.awst_build.eb.arc4.emit import *
-from puya.awst_build.eb.arc4.numeric import *
 from puya.awst_build.eb.arc4.string import *
 from puya.awst_build.eb.arc4.struct import *
 from puya.awst_build.eb.arc4.tuple import *
+from puya.awst_build.eb.arc4.ufixed import *
+from puya.awst_build.eb.arc4.uint import *

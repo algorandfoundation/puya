@@ -1,7 +1,7 @@
-from __future__ import annotations
-
+import decimal
 import enum
 import itertools
+import types
 import typing as t
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
@@ -11,20 +11,12 @@ import attrs
 from immutabledict import immutabledict
 
 from puya.awst import wtypes
+from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-
-if t.TYPE_CHECKING:
-    import decimal
-
-    from puya.awst.visitors import (
-        ExpressionVisitor,
-        ModuleStatementVisitor,
-        StatementVisitor,
-    )
-    from puya.models import ARC4MethodConfig
-    from puya.parse import SourceLocation
-    from puya.utils import StableSet
+from puya.models import ARC4MethodConfig
+from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 T = t.TypeVar("T")
 
@@ -34,6 +26,21 @@ ConstantValue: t.TypeAlias = int | str | bytes | bool
 @attrs.frozen
 class Node:
     source_location: SourceLocation
+
+    def __attrs_post_init__(self) -> None:
+        typ = attrs.resolve_types(type(self))
+        for field in attrs.fields(typ):
+            field_value = getattr(self, field.name)
+            if isinstance(field.type, types.GenericAlias):
+                field_type = field.type.__origin__
+            else:
+                field_type = field.type
+            if not isinstance(field_value, field_type):
+                raise InternalError(
+                    f"Bad type for {field.name!r} on {typ.__name__!r}:"
+                    f" expected {field_type.__name__!r}, got {type(field_value).__name__}",
+                    self.source_location,
+                )
 
 
 @attrs.frozen
@@ -299,7 +306,29 @@ class IntegerConstant(Expression):
 
     @value.validator
     def check(self, _attribute: object, value: int) -> None:
-        _validate_literal(value, self.wtype, self.source_location)
+        match self.wtype.bounds:
+            case wtypes.ValueBounds(min_value=min_value, max_value=max_value):
+                if value < min_value:
+                    raise CodeError(
+                        "integer constant is"
+                        f" below minimum value of {min_value} for type {self.wtype}",
+                        self.source_location,
+                    )
+                if value > max_value:
+                    raise CodeError(
+                        "integer constant is"
+                        f" greater than maximum value of {max_value} for type {self.wtype}",
+                        self.source_location,
+                    )
+            case None:
+                pass
+            case wtypes.SizeBounds():
+                raise InternalError(
+                    "Integer types should have ValueBounds or None, not SizeBounds",
+                    self.source_location,
+                )
+            case _:
+                t.assert_never(self.wtype.bounds)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_integer_constant(self)
@@ -342,7 +371,7 @@ def BigUIntConstant(  # noqa: N802
 @attrs.frozen
 class BoolConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
-    value: bool = attrs.field(validator=[literal_validator(wtypes.bool_wtype)])
+    value: bool
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bool_constant(self)
@@ -398,6 +427,11 @@ class MethodConstant(Expression):
 class AddressConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.account_wtype, init=False)
     value: str = attrs.field(validator=[literal_validator(wtypes.account_wtype)])
+
+    @value.validator
+    def check(self, _attribute: object, value: str) -> None:
+        if not wtypes.valid_address(value):
+            raise CodeError(f"Invalid address: {value}", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
@@ -524,7 +558,7 @@ class TxnField:
         return " | ".join(map(str, (self.wtype, *self.additional_input_wtypes)))
 
     @classmethod
-    def uint64(cls, immediate: str, *, is_inner_param: bool = True) -> TxnField:
+    def uint64(cls, immediate: str, *, is_inner_param: bool = True) -> t.Self:
         return cls(
             wtype=wtypes.uint64_wtype,
             immediate=immediate,
@@ -539,7 +573,7 @@ class TxnField:
         is_inner_param: bool = True,
         num_values: int = 1,
         additional_input_wtypes: WTypes = (),
-    ) -> TxnField:
+    ) -> t.Self:
         return cls(
             wtype=wtypes.bytes_wtype,
             immediate=immediate,
@@ -549,7 +583,7 @@ class TxnField:
         )
 
     @classmethod
-    def bool_(cls, immediate: str) -> TxnField:
+    def bool_(cls, immediate: str) -> t.Self:
         return cls(
             wtype=wtypes.bool_wtype,
             immediate=immediate,
@@ -557,7 +591,7 @@ class TxnField:
         )
 
     @classmethod
-    def account(cls, immediate: str, *, num_values: int = 1) -> TxnField:
+    def account(cls, immediate: str, *, num_values: int = 1) -> t.Self:
         return cls(
             wtype=wtypes.account_wtype,
             immediate=immediate,
@@ -566,9 +600,7 @@ class TxnField:
         )
 
     @classmethod
-    def asset(
-        cls, immediate: str, *, is_inner_param: bool = True, num_values: int = 1
-    ) -> TxnField:
+    def asset(cls, immediate: str, *, is_inner_param: bool = True, num_values: int = 1) -> t.Self:
         return cls(
             wtype=wtypes.asset_wtype,
             immediate=immediate,
@@ -580,7 +612,7 @@ class TxnField:
     @classmethod
     def application(
         cls, immediate: str, *, is_inner_param: bool = True, num_values: int = 1
-    ) -> TxnField:
+    ) -> t.Self:
         return cls(
             wtype=wtypes.application_wtype,
             immediate=immediate,
@@ -746,24 +778,16 @@ class CheckedMaybe(Expression):
         check: Expression,
         source_location: SourceLocation,
         comment: str,
-    ) -> CheckedMaybe:
+    ) -> t.Self:
         if check.wtype != wtypes.bool_wtype:
             raise InternalError(
                 "Check condition for CheckedMaybe should be a boolean", source_location
             )
         tuple_expr = TupleExpression.from_items((expr, check), source_location)
-        return CheckedMaybe(expr=tuple_expr, comment=comment)
+        return cls(expr=tuple_expr, comment=comment)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_checked_maybe(self)
-
-
-def scalar_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
-    if not value.wtype.scalar:
-        raise CodeError(
-            f'expression with type "{value.wtype}" is not a scalar',
-            value.source_location,
-        )
 
 
 @attrs.frozen
@@ -772,7 +796,7 @@ class TupleExpression(Expression):
     wtype: wtypes.WTuple = attrs.field()
 
     @classmethod
-    def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> TupleExpression:
+    def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> t.Self:
         return cls(
             items=items,
             wtype=wtypes.WTuple((i.wtype for i in items), location),
@@ -1043,6 +1067,7 @@ class ConditionalExpression(Expression):
     false_expr: Expression
 
     def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
         if self.true_expr.wtype != self.false_expr.wtype:
             raise ValueError(
                 f"true and false expressions of conditional have differing types:"
@@ -1068,6 +1093,7 @@ class AssignmentStatement(Statement):
     value: Expression
 
     def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
         if self.value.wtype != self.target.wtype:
             raise CodeError(
                 "assignment target type differs from expression value type",
@@ -1075,6 +1101,10 @@ class AssignmentStatement(Statement):
             )
         if self.value.wtype == wtypes.void_wtype:
             raise CodeError("void type cannot be assigned", self.source_location)
+        if not self.value.wtype.persistable and isinstance(self.target, StorageExpression):  # type: ignore[misc,arg-type]
+            raise CodeError(
+                "expression has type which is not persistable", self.value.source_location
+            )
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_assignment_statement(self)
@@ -1106,7 +1136,9 @@ class AssignmentExpression(Expression):
                 source_location,
             )
         if value.wtype == wtypes.void_wtype:
-            raise CodeError("void type cannot be assigned", self.source_location)
+            raise CodeError("void type cannot be assigned", source_location)
+        if not value.wtype.persistable and isinstance(target, StorageExpression):  # type: ignore[misc,arg-type]
+            raise CodeError("expression has type which is not persistable", value.source_location)
         self.__attrs_init__(
             source_location=source_location,
             target=target,
@@ -1159,6 +1191,7 @@ class NumericComparisonExpression(Expression):
     rhs: Expression = attrs.field(validator=[numeric_comparable])
 
     def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
         if self.lhs.wtype != self.rhs.wtype:
             raise InternalError(
                 "numeric comparison between different wtypes:"
@@ -1184,6 +1217,7 @@ class BytesComparisonExpression(Expression):
     rhs: Expression = attrs.field(validator=[bytes_comparable])
 
     def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
         if self.lhs.wtype != self.rhs.wtype:
             raise InternalError(
                 "bytes comparison between different wtypes:"
@@ -1397,6 +1431,7 @@ class Contains(Expression):
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
 
     def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
         if self.sequence.wtype == wtypes.bytes_wtype:
             raise InternalError(
                 "Use IsSubstring for 'in' or 'not in' checks with Bytes", self.source_location
@@ -1610,12 +1645,12 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class BytesRaw(Expression):
+class BytesRaw(Expression):  # TODO: rename to BytesSerialize?
     """Get the raw bytes of a scalar expression.
     Will use `itob` in case it's uint64 backed.
     """
 
-    expr: Expression = attrs.field(validator=scalar_expr_validator)
+    expr: Expression
     wtype: wtypes.WType = attrs.field(default=wtypes.bytes_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

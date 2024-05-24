@@ -174,10 +174,13 @@ def require_expression_builder(
 
 
 def expect_operand_wtype(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
+    literal_or_eb: Literal | ExpressionBuilder, target_wtype: wtypes.WType
 ) -> Expression:
-    if isinstance(literal_or_expr, ExpressionBuilder):
-        literal_or_expr = literal_or_expr.rvalue()
+    literal_or_expr: Literal | Expression
+    if isinstance(literal_or_eb, ExpressionBuilder):
+        literal_or_expr = literal_or_eb.rvalue()
+    else:
+        literal_or_expr = literal_or_eb
 
     if isinstance(literal_or_expr, Expression):
         if literal_or_expr.wtype != target_wtype:

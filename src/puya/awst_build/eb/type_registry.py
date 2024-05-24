@@ -1,7 +1,6 @@
 import functools
 from collections.abc import Callable
 
-import puya.awst_build.eb.arc4.dynamic_bytes
 from puya.awst.nodes import Expression
 from puya.awst_build import constants, pytypes
 from puya.awst_build.eb import (
@@ -69,12 +68,14 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory]
     pytypes.GenericGlobalStateType: app_state.AppStateGenericClassExpressionBuilder,
     pytypes.ARC4AddressType: arc4.AddressClassExpressionBuilder,
     pytypes.ARC4BoolType: arc4.ARC4BoolClassExpressionBuilder,
-    pytypes.ARC4ByteType: arc4.ByteClassExpressionBuilder,
+    pytypes.ARC4ByteType: functools.partial(
+        arc4.UIntNClassExpressionBuilder, pytypes.ARC4ByteType
+    ),
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayGenericClassExpressionBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayGenericClassExpressionBuilder,
     pytypes.ARC4StringType: arc4.StringClassExpressionBuilder,
     pytypes.GenericARC4TupleType: arc4.ARC4TupleGenericClassExpressionBuilder,
-    pytypes.ARC4DynamicBytesType: puya.awst_build.eb.arc4.DynamicBytesClassExpressionBuilder,
+    pytypes.ARC4DynamicBytesType: arc4.DynamicBytesClassExpressionBuilder,
     pytypes.AccountType: account.AccountClassExpressionBuilder,
     pytypes.GenericArrayType: array.ArrayGenericClassExpressionBuilder,
     pytypes.AssetType: asset.AssetClassExpressionBuilder,

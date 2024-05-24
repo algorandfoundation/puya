@@ -32,7 +32,7 @@ from puya.awst_build.arc4_utils import get_arc4_method_data
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
-    expect_arc4_operand_wtype,
+    expect_arc4_operand_pytype,
     get_arc4_args_and_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
@@ -221,7 +221,7 @@ def _abi_call(
                     location,
                 )
             arc4_args = [
-                expect_arc4_operand_wtype(arg, pt.wtype)
+                expect_arc4_operand_pytype(arg, pt)
                 for arg, pt in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
             ]
         case _:

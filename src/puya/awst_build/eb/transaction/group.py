@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 
+from puya import algo_constants
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CheckedMaybe,
@@ -42,18 +43,29 @@ class GroupTransactionClassExpressionBuilder(
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
+        typ = self.produces2()
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
             case [ExpressionBuilder() as eb]:
                 group_index = expect_operand_wtype(eb, wtypes.uint64_wtype)
             case [Literal(value=int(int_value), source_location=loc)]:
+                if int_value < 0:
+                    raise CodeError(
+                        "Transaction group index should be between non-negative", location
+                    )
+                if int_value >= algo_constants.MAX_TRANSACTION_GROUP_SIZE:
+                    raise CodeError(
+                        "Transaction group index should be"
+                        f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
+                        location,
+                    )
                 group_index = UInt64Constant(value=int_value, source_location=loc)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        typ = self.produces2()
-        wtype = typ.wtype
         txn = (
             check_transaction_type(group_index, wtype, location)
-            if isinstance(wtype, wtypes.WGroupTransaction) and wtype.transaction_type is not None
+            if wtype.transaction_type is not None
             else ReinterpretCast(expr=group_index, wtype=wtype, source_location=location)
         )
         return GroupTransactionExpressionBuilder(txn, typ)
@@ -67,7 +79,7 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
         super().__init__(typ, expr)
 
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
-        return IntrinsicCall(
+        return IntrinsicCall(  # TODO: use (+rename) InnerTransactionField
             source_location=location,
             wtype=field.wtype,
             op_code="gtxns",
@@ -117,7 +129,7 @@ class _ArrayItem(FunctionBuilder):
         return builder_for_instance(self.typ, expr)
 
 
-def check_transaction_type(
+def check_transaction_type(  # TODO: introduce GroupTransaction node and push this down to IR
     transaction_index: Expression,
     expected_transaction_type: wtypes.WGroupTransaction,
     location: SourceLocation,
