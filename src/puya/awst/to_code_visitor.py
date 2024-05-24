@@ -328,7 +328,7 @@ class ToCodeVisitor(
         if expr.teal_alias:
             return expr.teal_alias
         match expr.wtype:
-            case wtypes.uint64_wtype:
+            case wtypes.uint64_wtype | wtypes.WGroupTransaction():
                 suffix = "u"
             case wtypes.biguint_wtype:
                 suffix = "n"

@@ -35,8 +35,7 @@ class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         if not args:
             raise CodeError("Empy arrays require a type annotation to be instantiated", location)
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-            for a in args
+            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
         expected_type = arg_typs[0]
         for a in non_literal_args:
@@ -45,7 +44,7 @@ class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         wtype = array_type.wtype
         assert isinstance(wtype, wtypes.WArray)
         array_expr = NewArray(
-            values=tuple(non_literal_args),
+            values=tuple(a.rvalue() for a in non_literal_args),
             wtype=wtype,
             source_location=location,
         )
@@ -71,14 +70,13 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType])
         location: SourceLocation,
     ) -> ExpressionBuilder:
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-            for a in args
+            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
         array_type = self.produces2()
         for a in non_literal_args:
             expect_operand_wtype(a, array_type.items.wtype)
         array_expr = NewArray(
-            values=tuple(non_literal_args),
+            values=tuple(a.rvalue() for a in non_literal_args),
             wtype=self._wtype,
             source_location=location,
         )

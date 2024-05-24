@@ -759,46 +759,40 @@ class TransactionRelatedType(PyType):
 
 def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
     if kind is None:
-        wtype_name = "group_transaction"
         cls_name = "Transaction"
     else:
-        wtype_name = f"group_transaction_{kind.name}"
         cls_name = f"{_TXN_TYPE_NAMES[kind]}Transaction"
     stub_name = f"{constants.ALGOPY_PREFIX}gtxn.{cls_name}"
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WGroupTransaction(name=wtype_name, transaction_type=kind),
+        wtype=wtypes.WGroupTransaction.from_type(kind),
     )
 
 
 def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
     if kind is None:
-        wtype_name = "inner_transaction_fields"
         cls_name = "InnerTransaction"
     else:
-        wtype_name = f"inner_transaction_fields_{kind.name}"
         cls_name = _TXN_TYPE_NAMES[kind]
     stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WInnerTransactionFields(name=wtype_name, transaction_type=kind),
+        wtype=wtypes.WInnerTransactionFields.from_type(kind),
     )
 
 
 def _make_itxn_result_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
     if kind is None:
-        wtype_name = "inner_transaction"
         cls_name = "InnerTransactionResult"
     else:
-        wtype_name = f"inner_transaction_{kind.name}"
         cls_name = f"{_TXN_TYPE_NAMES[kind]}InnerTransaction"
     stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WInnerTransaction(name=wtype_name, transaction_type=kind),
+        wtype=wtypes.WInnerTransaction.from_type(kind),
     )
 
 
@@ -972,8 +966,6 @@ def from_basic_wtype(wtype: wtypes.WType) -> PyType:
 
     This is only meant for use when there are no other reasonable alternatives.
     """
-    assert wtype.scalar
-    assert type(wtype) is wtypes.WType
     try:
         return __BASIC_WTYPE_MAP[wtype]
     except KeyError as ex:

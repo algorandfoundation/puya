@@ -11,6 +11,7 @@ MAX_LOCAL_STATE_KEYS = 16
 MAX_STATE_KEY_LENGTH = 64
 MIN_BOX_KEY_LENGTH = 1
 MAX_BOX_KEY_LENGTH = 64
+MAX_TRANSACTION_GROUP_SIZE = 16
 
 # Which language versions does this version of puya support targeting
 # This will typically just be the current mainnet version and potentially the vNext if it doesn't
