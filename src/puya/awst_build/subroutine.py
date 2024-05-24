@@ -324,9 +324,7 @@ class FunctionASTConverter(
                         )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
         rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
-        if rvalue_pytyp is pytypes.BoxRefType or isinstance(
-            rvalue_pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType
-        ):
+        if isinstance(rvalue_pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType):
             try:
                 (lvalue,) = stmt.lvalues
             except ValueError:
