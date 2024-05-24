@@ -2,16 +2,16 @@ ZERO = 0
 ZER0 = 0
 ONE = 1
 
-subroutine get_banned(): algopy.Account
+subroutine get_banned(): account
 {
-  addr: algopy.Account = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
+  addr: account = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
   return addr
 }
 
-subroutine add_one(x: algopy.UInt64): algopy.UInt64
+subroutine add_one(x: uint64): uint64
 {
-  new_value: algopy.UInt64 = x
-  one: algopy.UInt64 = 1u
+  new_value: uint64 = x
+  one: uint64 = 1u
   new_value += one
   return new_value
 }
@@ -19,10 +19,10 @@ subroutine add_one(x: algopy.UInt64): algopy.UInt64
 contract Everything extends (test_cases.everything.my_base::MyMiddleBase, test_cases.everything.my_base::MyBase)
 {
   globals {
-    ['counter']: algopy.UInt64
+    ['counter']: uint64
   }
   locals {
-    ['name']: algopy.arc4.String
+    ['name']: arc4.string
   }
   
   constructor()
@@ -35,58 +35,58 @@ contract Everything extends (test_cases.everything.my_base::MyMiddleBase, test_c
     return true
   }
   
-  abimethod create(): None
+  abimethod create(): void
   {
     this::_check_ban_list()
     this::remember_creator()
-    this.counter: algopy.UInt64 = 0u
+    this.counter: uint64 = 0u
   }
   
-  abimethod register(name: algopy.arc4.String): None
+  abimethod register(name: arc4.string): void
   {
     this::_check_ban_list()
     if (txn<OnCompletion>() == OptIn) {
-      (sender_name, sender_name_existed): tuple[algopy.arc4.String, bool] = STATE_GET_EX(this.name[0u])
+      (sender_name, sender_name_existed): tuple<arc4.string,bool> = STATE_GET_EX(this.name[0u])
       if (!(sender_name_existed)) {
         this.counter += test_cases.everything.my_base::multiplicative_identity()
       }
     }
-    this.name[0u]: algopy.arc4.String = name
+    this.name[0u]: arc4.string = name
   }
   
-  abimethod say_hello(): algopy.arc4.String
+  abimethod say_hello(): arc4.string
   {
     this::_check_ban_list()
-    (name, exists): tuple[algopy.arc4.String, bool] = STATE_GET_EX(this.name[0u])
+    (name, exists): tuple<arc4.string,bool> = STATE_GET_EX(this.name[0u])
     if (!(exists)) {
-      return arc4_encode('Howdy stranger!', algopy.arc4.String)
+      return arc4_encode('Howdy stranger!', arc4.string)
     }
-    return arc4_encode('Hello, ', algopy.arc4.String) + name + arc4_encode('!', algopy.arc4.String)
+    return arc4_encode('Hello, ', arc4.string) + name + arc4_encode('!', arc4.string)
   }
   
-  abimethod calculate(a: algopy.arc4.UInt64, b: algopy.arc4.UInt64): algopy.arc4.UInt64
+  abimethod calculate(a: arc4.uint64, b: arc4.uint64): arc4.uint64
   {
-    c: algopy.arc4.UInt64 = test_cases.everything.my_base::MyMiddleBase::calculate(a, b)
-    return arc4_encode(arc4_decode(c, algopy.UInt64) * arc4_decode(b, algopy.UInt64), algopy.arc4.UInt64)
+    c: arc4.uint64 = test_cases.everything.my_base::MyMiddleBase::calculate(a, b)
+    return arc4_encode(arc4_decode(c, uint64) * arc4_decode(b, uint64), arc4.uint64)
   }
   
-  abimethod close_out(): None
+  abimethod close_out(): void
   {
     this::_remove_sender()
   }
   
-  subroutine _check_ban_list(): None
+  subroutine _check_ban_list(): void
   {
     assert(txn<Sender>() != test_cases.everything.contract::get_banned(), comment="You are banned, goodbye")
   }
   
-  subroutine _remove_sender(): None
+  subroutine _remove_sender(): void
   {
     this.counter -= test_cases.everything.contract::positive_one()
   }
 }
 
-subroutine positive_one(): algopy.UInt64
+subroutine positive_one(): uint64
 {
   return 1u
 }

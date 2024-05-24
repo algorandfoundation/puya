@@ -6,18 +6,18 @@ DRAW = 3
 contract TicTacToeContract
 {
   globals {
-    ['host']: algopy.Account
-    ['game']: algopy.arc4.StaticArray[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]]
-    ['turns']: algopy.UInt64
-    ['challenger']: algopy.Account
-    ['winner']: algopy.arc4.UInt8
+    ['host']: account
+    ['game']: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3>
+    ['turns']: uint64
+    ['challenger']: account
+    ['winner']: arc4.uint8
   }
   
   constructor()
   {
   }
   
-  abimethod new_game(move: tuple[algopy.UInt64, algopy.UInt64]): None
+  abimethod new_game(move: tuple<uint64,uint64>): void
   {
     if (reinterpret_cast<bool>(txn<ApplicationID>())) {
       if (STATE_EXISTS(this.challenger)) {
@@ -26,69 +26,69 @@ contract TicTacToeContract
       STATE_DELETE(this.challenger)
       STATE_DELETE(this.winner)
     }
-    this.host: algopy.Account = txn<Sender>()
-    this.game: algopy.arc4.StaticArray[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]] = reinterpret_cast<algopy.arc4.StaticArray[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]]>(bzero(9u))
-    (column, row): tuple[algopy.UInt64, algopy.UInt64] = move
+    this.host: account = txn<Sender>()
+    this.game: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = reinterpret_cast<arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3>>(bzero(9u))
+    (column, row): tuple<uint64,uint64> = move
     assert(column < 3u and row < 3u, comment="Move must be in range")
-    this.game[row][column]: algopy.arc4.UInt8 = 1arc4u8
-    this.turns: algopy.UInt64 = 0u
+    this.game[row][column]: arc4.uint8 = 1arc4u8
+    this.turns: uint64 = 0u
   }
   
-  abimethod join_game(move: tuple[algopy.UInt64, algopy.UInt64]): None
+  abimethod join_game(move: tuple<uint64,uint64>): void
   {
     assert(!(STATE_EXISTS(this.challenger)), comment="Host already has a challenger")
-    this.challenger: algopy.Account = txn<Sender>()
+    this.challenger: account = txn<Sender>()
     this::make_move(2arc4u8, move)
   }
   
-  abimethod whose_turn(): algopy.arc4.UInt8
+  abimethod whose_turn(): arc4.uint8
   {
     return (reinterpret_cast<bool>(this.turns % 2u)) ? (1arc4u8) : (2arc4u8)
   }
   
-  abimethod play(move: tuple[algopy.UInt64, algopy.UInt64]): None
+  abimethod play(move: tuple<uint64,uint64>): void
   {
     assert(!(STATE_EXISTS(this.winner)), comment="Game is already finished")
     if (reinterpret_cast<bool>(this.turns % 2u)) {
       assert(txn<Sender>() == this.host, comment="It is the host's turn")
-      player: algopy.arc4.UInt8 = 1arc4u8
+      player: arc4.uint8 = 1arc4u8
     } else {
       assert(txn<Sender>() == STATE_GET(this.challenger, default=global<ZeroAddress>()), comment="It is the challenger's turn")
-      player: algopy.arc4.UInt8 = 2arc4u8
+      player: arc4.uint8 = 2arc4u8
     }
     this::make_move(player, move)
   }
   
-  subroutine make_move(player: algopy.arc4.UInt8, move: tuple[algopy.UInt64, algopy.UInt64]): None
+  subroutine make_move(player: arc4.uint8, move: tuple<uint64,uint64>): void
   {
-    (column, row): tuple[algopy.UInt64, algopy.UInt64] = move
+    (column, row): tuple<uint64,uint64> = move
     assert(column < 3u and row < 3u, comment="Move must be in range")
-    assert(reinterpret_cast<algopy.BigUInt>(this.game[row][column]) == reinterpret_cast<algopy.BigUInt>(0arc4u8), comment="Square is already taken")
-    this.game[row][column]: algopy.arc4.UInt8 = player
+    assert(reinterpret_cast<biguint>(this.game[row][column]) == reinterpret_cast<biguint>(0arc4u8), comment="Square is already taken")
+    this.game[row][column]: arc4.uint8 = player
     this.turns += 1u
     if (this::did_win(player, column=column, row=row)) {
-      this.winner: algopy.arc4.UInt8 = player
+      this.winner: arc4.uint8 = player
     } else {
       if (this.turns == 9u) {
-        this.winner: algopy.arc4.UInt8 = 3arc4u8
+        this.winner: arc4.uint8 = 3arc4u8
       }
     }
   }
   
-  subroutine did_win(player: algopy.arc4.UInt8, column: algopy.UInt64, row: algopy.UInt64): bool
+  subroutine did_win(player: arc4.uint8, column: uint64, row: uint64): bool
   {
-    g: algopy.arc4.StaticArray[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]] = this.game.copy()
-    if (reinterpret_cast<algopy.BigUInt>(g[row][0u]) == reinterpret_cast<algopy.BigUInt>(SINGLE_EVAL(id=0, source=g[row][1u])) and reinterpret_cast<algopy.BigUInt>(SINGLE_EVAL(id=0, source=g[row][1u])) == reinterpret_cast<algopy.BigUInt>(g[row][2u])) {
+    g: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = this.game.copy()
+    if (reinterpret_cast<biguint>(g[row][0u]) == reinterpret_cast<biguint>(SINGLE_EVAL(id=0, source=g[row][1u])) and reinterpret_cast<biguint>(SINGLE_EVAL(id=0, source=g[row][1u])) == reinterpret_cast<biguint>(g[row][2u])) {
       return true
     }
-    if (reinterpret_cast<algopy.BigUInt>(g[0u][column]) == reinterpret_cast<algopy.BigUInt>(SINGLE_EVAL(id=1, source=g[1u][column])) and reinterpret_cast<algopy.BigUInt>(SINGLE_EVAL(id=1, source=g[1u][column])) == reinterpret_cast<algopy.BigUInt>(g[2u][column])) {
+    if (reinterpret_cast<biguint>(g[0u][column]) == reinterpret_cast<biguint>(SINGLE_EVAL(id=1, source=g[1u][column])) and reinterpret_cast<biguint>(SINGLE_EVAL(id=1, source=g[1u][column])) == reinterpret_cast<biguint>(g[2u][column])) {
       return true
     }
-    if (reinterpret_cast<algopy.BigUInt>(player) == reinterpret_cast<algopy.BigUInt>(g[1u][1u])) {
-      if (reinterpret_cast<algopy.BigUInt>(g[0u][0u]) == reinterpret_cast<algopy.BigUInt>(player) and reinterpret_cast<algopy.BigUInt>(player) == reinterpret_cast<algopy.BigUInt>(g[2u][2u])) {
+    if (reinterpret_cast<biguint>(player) == reinterpret_cast<biguint>(g[1u][1u])) {
+      if (reinterpret_cast<biguint>(g[0u][0u]) == reinterpret_cast<biguint>(player) and reinterpret_cast<biguint>(player) == reinterpret_cast<biguint>(g[2u][2u])) {
         return true
       }
-      if (reinterpret_cast<algopy.BigUInt>(g[0u][2u]) == reinterpret_cast<algopy.BigUInt>(player) and reinterpret_cast<algopy.BigUInt>(player) == reinterpret_cast<algopy.BigUInt>(g[2u][0u])) {
+      if (reinterpret_cast<biguint>(g[0u][2u]) == reinterpret_cast<biguint>(player) and reinterpret_cast<biguint>(player) == reinterpret_cast<biguint>(g[2u][0u])) {
         return true
       }
     }

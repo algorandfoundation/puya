@@ -2,15 +2,15 @@ contract EnumerationContract
 {
   approval_program(): bool
   {
-    (iteration_count, item_sum, index_sum): tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64] = test_cases.enumeration.contract::enumerate_urange(10u, 21u, 5u)
+    (iteration_count, item_sum, index_sum): tuple<uint64,uint64,uint64> = test_cases.enumeration.contract::enumerate_urange(10u, 21u, 5u)
     assert(iteration_count == 6u)
     assert(item_sum == 90u)
     assert(index_sum == 3u)
-    (iteration_count, item_concat, index_sum): tuple[algopy.UInt64, algopy.Bytes, algopy.UInt64] = test_cases.enumeration.contract::enumerate_tuple(('How', 'Now', 'Brown', 'Cow'))
+    (iteration_count, item_concat, index_sum): tuple<uint64,bytes,uint64> = test_cases.enumeration.contract::enumerate_tuple(('How', 'Now', 'Brown', 'Cow'))
     assert(iteration_count == 8u)
     assert(item_concat == 'HowNowBrownCowHowNowBrownCow')
     assert(index_sum == 6u)
-    (iteration_count, item_concat, index_sum): tuple[algopy.UInt64, algopy.Bytes, algopy.UInt64] = test_cases.enumeration.contract::enumerate_bytes('abcdefg')
+    (iteration_count, item_concat, index_sum): tuple<uint64,bytes,uint64> = test_cases.enumeration.contract::enumerate_bytes('abcdefg')
     assert(iteration_count == 14u)
     assert(item_concat == 'abcdefgabcdefg')
     assert(index_sum == 21u)
@@ -23,11 +23,11 @@ contract EnumerationContract
   }
 }
 
-subroutine enumerate_urange(start: algopy.UInt64, stop: algopy.UInt64, step: algopy.UInt64): tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64]
+subroutine enumerate_urange(start: uint64, stop: uint64, step: uint64): tuple<uint64,uint64,uint64>
 {
-  iteration_count: algopy.UInt64 = 0u
-  item_sum: algopy.UInt64 = 0u
-  index_sum: algopy.UInt64 = 0u
+  iteration_count: uint64 = 0u
+  item_sum: uint64 = 0u
+  index_sum: uint64 = 0u
   for item in range(start, stop, step) {
     iteration_count += 1u
     item_sum += item
@@ -40,11 +40,11 @@ subroutine enumerate_urange(start: algopy.UInt64, stop: algopy.UInt64, step: alg
   return (iteration_count, item_sum, index_sum)
 }
 
-subroutine enumerate_tuple(tup: tuple[algopy.Bytes, algopy.Bytes, algopy.Bytes, algopy.Bytes]): tuple[algopy.UInt64, algopy.Bytes, algopy.UInt64]
+subroutine enumerate_tuple(tup: tuple<bytes,bytes,bytes,bytes>): tuple<uint64,bytes,uint64>
 {
-  iteration_count: algopy.UInt64 = 0u
-  item_concat: algopy.Bytes = ''
-  index_sum: algopy.UInt64 = 0u
+  iteration_count: uint64 = 0u
+  item_concat: bytes = ''
+  index_sum: uint64 = 0u
   for item in tup {
     iteration_count += 1u
     item_concat += item
@@ -57,11 +57,11 @@ subroutine enumerate_tuple(tup: tuple[algopy.Bytes, algopy.Bytes, algopy.Bytes, 
   return (iteration_count, item_concat, index_sum)
 }
 
-subroutine enumerate_bytes(bytes_: algopy.Bytes): tuple[algopy.UInt64, algopy.Bytes, algopy.UInt64]
+subroutine enumerate_bytes(bytes_: bytes): tuple<uint64,bytes,uint64>
 {
-  iteration_count: algopy.UInt64 = 0u
-  item_concat: algopy.Bytes = ''
-  index_sum: algopy.UInt64 = 0u
+  iteration_count: uint64 = 0u
+  item_concat: bytes = ''
+  index_sum: uint64 = 0u
   for item in bytes_ {
     iteration_count += 1u
     item_concat += item

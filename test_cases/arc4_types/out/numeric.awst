@@ -4,54 +4,54 @@ contract Arc4NumericTypesContract
 {
   approval_program(): bool
   {
-    uint8: algopy.UInt64 = 255u
-    int8_encoded: algopy.arc4.UInt8 = arc4_encode(uint8, algopy.arc4.UInt8)
-    int8_decoded: algopy.UInt64 = arc4_decode(int8_encoded, algopy.UInt64)
+    uint8: uint64 = 255u
+    int8_encoded: arc4.uint8 = arc4_encode(uint8, arc4.uint8)
+    int8_decoded: uint64 = arc4_decode(int8_encoded, uint64)
     assert(uint8 == int8_decoded)
-    test_bytes: algopy.Bytes = hex<"7FFFFFFFFFFFFFFF00">
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt8>(test_bytes[:1]), algopy.UInt64) == 127u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[24]]>(test_bytes[:3]), algopy.UInt64) == 8388607u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt16>(test_bytes[:2]), algopy.UInt64) == 32767u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt32>(test_bytes[:4]), algopy.UInt64) == 2147483647u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt64>(test_bytes[:8]), algopy.UInt64) == 9223372036854775807u)
-    decimals: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.6853943940arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(decimals) == itob(1456853943940u))
-    decimals_from_truncated_str: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.0000000000arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(decimals_from_truncated_str) == itob(1450000000000u))
-    thousand: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1000.0000000000arc4u64x10
-    assert(len(reinterpret_cast<algopy.Bytes>(thousand)) == 8u)
-    assert(reinterpret_cast<algopy.Bytes>(thousand) == itob(10000000000000u))
-    one_decimal: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1.0000000000arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(one_decimal) == itob(10000000000u))
-    zero_decimal: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 0E-10arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(zero_decimal) == itob(0u))
-    small_decimal: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1.00E-8arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(small_decimal) == itob(100u))
-    smaller_decimal: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1.0E-9arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(smaller_decimal) == itob(10u))
-    smallest_decimal: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1E-10arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(smallest_decimal) == itob(1u))
-    sixty_four_decimal: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1844674407.3709551615arc4u64x10
-    assert(reinterpret_cast<algopy.Bytes>(sixty_four_decimal) == itob(18446744073709551615u))
-    really_big_int: algopy.arc4.UInt512 = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095arc4n512
-    assert(reinterpret_cast<algopy.BigUInt>(really_big_int) == reinterpret_cast<algopy.BigUInt>(reinterpret_cast<algopy.arc4.UInt512>(reinterpret_cast<algopy.Bytes>(really_big_int))))
-    really_big_decimal: algopy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]] = reinterpret_cast<algopy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]]>(reinterpret_cast<algopy.Bytes>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n))
-    biguint: algopy.BigUInt = 1n
-    arc4_biguint_const: algopy.arc4.UInt128 = 1arc4n128
-    arc4_biguint_dynamic: algopy.arc4.UInt128 = arc4_encode(biguint b+ 1n, algopy.arc4.UInt128)
-    assert(biguint == arc4_decode(arc4_biguint_const, algopy.BigUInt))
-    assert(len(reinterpret_cast<algopy.Bytes>(arc4_biguint_dynamic)) == 16u)
-    assert(len(reinterpret_cast<algopy.Bytes>(really_big_decimal)) == 64u)
+    test_bytes: bytes = hex<"7FFFFFFFFFFFFFFF00">
+    assert(arc4_decode(reinterpret_cast<arc4.uint8>(test_bytes[:1]), uint64) == 127u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint24>(test_bytes[:3]), uint64) == 8388607u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint16>(test_bytes[:2]), uint64) == 32767u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint32>(test_bytes[:4]), uint64) == 2147483647u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint64>(test_bytes[:8]), uint64) == 9223372036854775807u)
+    decimals: arc4.ufixed64x10 = 145.6853943940arc4u64x10
+    assert(reinterpret_cast<bytes>(decimals) == itob(1456853943940u))
+    decimals_from_truncated_str: arc4.ufixed64x10 = 145.0000000000arc4u64x10
+    assert(reinterpret_cast<bytes>(decimals_from_truncated_str) == itob(1450000000000u))
+    thousand: arc4.ufixed64x10 = 1000.0000000000arc4u64x10
+    assert(len(reinterpret_cast<bytes>(thousand)) == 8u)
+    assert(reinterpret_cast<bytes>(thousand) == itob(10000000000000u))
+    one_decimal: arc4.ufixed64x10 = 1.0000000000arc4u64x10
+    assert(reinterpret_cast<bytes>(one_decimal) == itob(10000000000u))
+    zero_decimal: arc4.ufixed64x10 = 0E-10arc4u64x10
+    assert(reinterpret_cast<bytes>(zero_decimal) == itob(0u))
+    small_decimal: arc4.ufixed64x10 = 1.00E-8arc4u64x10
+    assert(reinterpret_cast<bytes>(small_decimal) == itob(100u))
+    smaller_decimal: arc4.ufixed64x10 = 1.0E-9arc4u64x10
+    assert(reinterpret_cast<bytes>(smaller_decimal) == itob(10u))
+    smallest_decimal: arc4.ufixed64x10 = 1E-10arc4u64x10
+    assert(reinterpret_cast<bytes>(smallest_decimal) == itob(1u))
+    sixty_four_decimal: arc4.ufixed64x10 = 1844674407.3709551615arc4u64x10
+    assert(reinterpret_cast<bytes>(sixty_four_decimal) == itob(18446744073709551615u))
+    really_big_int: arc4.uint512 = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095arc4n512
+    assert(reinterpret_cast<biguint>(really_big_int) == reinterpret_cast<biguint>(reinterpret_cast<arc4.uint512>(reinterpret_cast<bytes>(really_big_int))))
+    really_big_decimal: arc4.ufixed512x2 = reinterpret_cast<arc4.ufixed512x2>(reinterpret_cast<bytes>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n))
+    biguint: biguint = 1n
+    arc4_biguint_const: arc4.uint128 = 1arc4n128
+    arc4_biguint_dynamic: arc4.uint128 = arc4_encode(biguint b+ 1n, arc4.uint128)
+    assert(biguint == arc4_decode(arc4_biguint_const, biguint))
+    assert(len(reinterpret_cast<bytes>(arc4_biguint_dynamic)) == 16u)
+    assert(len(reinterpret_cast<bytes>(really_big_decimal)) == 64u)
     return true
   }
   
   clear_state_program(): bool
   {
-    assert(reinterpret_cast<algopy.BigUInt>(reinterpret_cast<algopy.Bytes>(0E-10arc4u64x10)) == 0n)
-    assert(reinterpret_cast<algopy.BigUInt>(reinterpret_cast<algopy.Bytes>(0.00000arc4n512x5)) == 0n)
-    assert(reinterpret_cast<algopy.BigUInt>(0arc4u8) == reinterpret_cast<algopy.BigUInt>(0arc4u8))
-    assert(reinterpret_cast<algopy.BigUInt>(0arc4u64) == reinterpret_cast<algopy.BigUInt>(0arc4u64))
-    assert(reinterpret_cast<algopy.BigUInt>(0arc4n512) == reinterpret_cast<algopy.BigUInt>(0arc4n512))
+    assert(reinterpret_cast<biguint>(reinterpret_cast<bytes>(0E-10arc4u64x10)) == 0n)
+    assert(reinterpret_cast<biguint>(reinterpret_cast<bytes>(0.00000arc4n512x5)) == 0n)
+    assert(reinterpret_cast<biguint>(0arc4u8) == reinterpret_cast<biguint>(0arc4u8))
+    assert(reinterpret_cast<biguint>(0arc4u64) == reinterpret_cast<biguint>(0arc4u64))
+    assert(reinterpret_cast<biguint>(0arc4n512) == reinterpret_cast<biguint>(0arc4n512))
     return true
   }
 }

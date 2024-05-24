@@ -2,70 +2,70 @@ LOG_METHOD_NAME = 'log'
 
 contract Logger
 {
-  abimethod echo(value: algopy.arc4.String): algopy.arc4.String
+  abimethod echo(value: arc4.string): arc4.string
   {
-    return arc4_encode('echo: ', algopy.arc4.String) + value
+    return arc4_encode('echo: ', arc4.string) + value
   }
   
-  abimethod[name_override=log] log_uint64(value: algopy.arc4.UInt64): None
-  {
-    log(value)
-  }
-  
-  abimethod[name_override=log] log_uint512(value: algopy.arc4.UInt512): None
+  abimethod[name_override=log] log_uint64(value: arc4.uint64): void
   {
     log(value)
   }
   
-  abimethod[name_override=log] log_string(value: algopy.arc4.String): None
+  abimethod[name_override=log] log_uint512(value: arc4.uint512): void
   {
-    log(arc4_decode(value, algopy.String))
+    log(value)
   }
   
-  abimethod[name_override=log] log_bool(value: algopy.arc4.Bool): None
+  abimethod[name_override=log] log_string(value: arc4.string): void
+  {
+    log(arc4_decode(value, string))
+  }
+  
+  abimethod[name_override=log] log_bool(value: arc4.bool): void
   {
     log((arc4_decode(value, bool)) ? ('True') : ('False'))
   }
   
-  abimethod[name_override=log] log_bytes(value: algopy.arc4.DynamicBytes): None
+  abimethod[name_override=log] log_bytes(value: arc4.dynamic_bytes): void
   {
-    log(extract<2, 0>(reinterpret_cast<algopy.Bytes>(value)))
+    log(extract<2, 0>(reinterpret_cast<bytes>(value)))
   }
   
-  abimethod[name_override=log] log_asset_account_app(asset: algopy.Asset, account: algopy.Account, app: algopy.Application): None
+  abimethod[name_override=log] log_asset_account_app(asset: asset, account: account, app: application): void
   {
-    log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<algopy.Bytes>(account)), ''), checked_maybe(app_params_get<AppAddress>(app))))
+    log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<bytes>(account)), ''), checked_maybe(app_params_get<AppAddress>(app))))
   }
   
-  abimethod echo_native_string(value: algopy.String): algopy.String
-  {
-    return 'echo: ' + value
-  }
-  
-  abimethod echo_native_bytes(value: algopy.Bytes): algopy.Bytes
+  abimethod echo_native_string(value: string): string
   {
     return 'echo: ' + value
   }
   
-  abimethod echo_native_uint64(value: algopy.UInt64): algopy.UInt64
+  abimethod echo_native_bytes(value: bytes): bytes
+  {
+    return 'echo: ' + value
+  }
+  
+  abimethod echo_native_uint64(value: uint64): uint64
   {
     return value + 1u
   }
   
-  abimethod echo_native_biguint(value: algopy.BigUInt): algopy.BigUInt
+  abimethod echo_native_biguint(value: biguint): biguint
   {
     return value b+ 1n
   }
   
-  abimethod echo_native_tuple(s: algopy.String, b: algopy.Bytes, u: algopy.UInt64, bu: algopy.BigUInt): tuple[algopy.String, algopy.Bytes, algopy.UInt64, algopy.BigUInt]
+  abimethod echo_native_tuple(s: string, b: bytes, u: uint64, bu: biguint): tuple<string,bytes,uint64,biguint>
   {
     return ('echo: ' + s, 'echo: ' + b, u + 1u, bu b+ 1n)
   }
   
-  abimethod return_args_after_14th(_a1: algopy.arc4.UInt64, _a2: algopy.arc4.UInt64, _a3: algopy.arc4.UInt64, _a4: algopy.arc4.UInt64, _a5: algopy.arc4.UInt64, _a6: algopy.arc4.UInt64, _a7: algopy.arc4.UInt64, _a8: algopy.arc4.UInt64, _a9: algopy.arc4.UInt64, _a10: algopy.arc4.UInt64, _a11: algopy.arc4.UInt64, _a12: algopy.arc4.UInt64, _a13: algopy.arc4.UInt64, _a14: algopy.arc4.UInt64, a15: algopy.arc4.UInt8, a16: algopy.arc4.UInt8, a17: algopy.arc4.UInt8, a18: algopy.arc4.UInt8, a19: algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8], a20: algopy.arc4.UInt8): algopy.arc4.DynamicBytes
+  abimethod return_args_after_14th(_a1: arc4.uint64, _a2: arc4.uint64, _a3: arc4.uint64, _a4: arc4.uint64, _a5: arc4.uint64, _a6: arc4.uint64, _a7: arc4.uint64, _a8: arc4.uint64, _a9: arc4.uint64, _a10: arc4.uint64, _a11: arc4.uint64, _a12: arc4.uint64, _a13: arc4.uint64, _a14: arc4.uint64, a15: arc4.uint8, a16: arc4.uint8, a17: arc4.uint8, a18: arc4.uint8, a19: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>, a20: arc4.uint8): arc4.dynamic_bytes
   {
-    last_arg: algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8], algopy.arc4.UInt8] = arc4_encode((a15, a16, a17, a18, a19, a20), algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.UInt8], algopy.arc4.UInt8])
-    assert(txna<ApplicationArgs, 15>() == reinterpret_cast<algopy.Bytes>(last_arg))
-    return arc4_encode(reinterpret_cast<algopy.Bytes>(last_arg), algopy.arc4.DynamicBytes)
+    last_arg: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> = arc4_encode((a15, a16, a17, a18, a19, a20), arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>)
+    assert(txna<ApplicationArgs, 15>() == reinterpret_cast<bytes>(last_arg))
+    return arc4_encode(reinterpret_cast<bytes>(last_arg), arc4.dynamic_bytes)
   }
 }

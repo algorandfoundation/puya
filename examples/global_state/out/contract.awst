@@ -1,26 +1,26 @@
 contract AppStateContract
 {
   globals {
-    ['global_int_simplified']: algopy.UInt64
-    ['global_bytes_simplified']: algopy.Bytes
+    ['global_int_simplified']: uint64
+    ['global_bytes_simplified']: bytes
     ['global_bool_simplified']: bool
-    ['global_int_full']: algopy.UInt64
-    ['global_int_no_default']: algopy.UInt64
-    ['global_bytes_full']: algopy.Bytes
-    ['global_bytes_no_default']: algopy.Bytes
+    ['global_int_full']: uint64
+    ['global_int_no_default']: uint64
+    ['global_bytes_full']: bytes
+    ['global_bytes_no_default']: bytes
     ['global_bool_full']: bool
     ['global_bool_no_default']: bool
-    ['global_asset']: algopy.Asset
-    ['global_application']: algopy.Application
-    ['global_account']: algopy.Account
+    ['global_asset']: asset
+    ['global_application']: application
+    ['global_account']: account
   }
   
   constructor()
   {
-    this.global_int_full: algopy.UInt64 = 55u
-    this.global_int_simplified: algopy.UInt64 = 33u
-    this.global_bytes_full: algopy.Bytes = 'Hello'
-    this.global_bytes_simplified: algopy.Bytes = 'Hello'
+    this.global_int_full: uint64 = 55u
+    this.global_int_simplified: uint64 = 33u
+    this.global_bytes_full: bytes = 'Hello'
+    this.global_bytes_simplified: bytes = 'Hello'
     this.global_bool_full: bool = false
     this.global_bool_simplified: bool = true
   }
@@ -31,8 +31,8 @@ contract AppStateContract
     assert(STATE_EXISTS(this.global_int_full))
     assert(this.global_int_full == 55u)
     assert(!(STATE_EXISTS(this.global_int_no_default)))
-    this.global_int_no_default: algopy.UInt64 = 44u
-    (i_value, i_exists): tuple[algopy.UInt64, bool] = STATE_GET_EX(this.global_int_no_default)
+    this.global_int_no_default: uint64 = 44u
+    (i_value, i_exists): tuple<uint64,bool> = STATE_GET_EX(this.global_int_no_default)
     assert(i_exists)
     assert(i_value == 44u)
     assert(this.global_bytes_simplified == 'Hello')
@@ -40,12 +40,12 @@ contract AppStateContract
     assert(this.global_bytes_full == 'Hello')
     assert(STATE_GET(this.global_bytes_full, default='default') == 'Hello')
     assert(!(STATE_EXISTS(this.global_bytes_no_default)))
-    this.global_bytes_no_default: algopy.Bytes = 'World'
-    (b_value, b_exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
+    this.global_bytes_no_default: bytes = 'World'
+    (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(this.global_bytes_no_default)
     assert(b_exists)
     assert(b_value == 'World')
     STATE_DELETE(this.global_bytes_no_default)
-    (b_value, b_exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
+    (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(this.global_bytes_no_default)
     assert(!(b_exists))
     assert(STATE_GET(this.global_bytes_no_default, default='default') == 'default')
     assert(STATE_EXISTS(this.global_bool_full))

@@ -3,10 +3,10 @@ contract UnSSAContract
   approval_program(): bool
   {
     test_cases.unssa.contract::test_self_ref_phi()
-    result1: algopy.UInt64 = test_cases.unssa.contract::test_swap(1u)
+    result1: uint64 = test_cases.unssa.contract::test_swap(1u)
     log(itob(result1))
     assert(result1 >= 1u and result1 <= 2u)
-    result2: algopy.UInt64 = test_cases.unssa.contract::test_swap(2u)
+    result2: uint64 = test_cases.unssa.contract::test_swap(2u)
     log(itob(result2))
     assert(result2 >= 1u and result2 <= 2u)
     test_cases.unssa.contract::test_swap_loop(7u, 11u)
@@ -14,10 +14,10 @@ contract UnSSAContract
     test_cases.unssa.contract::test_param_update_with_reentrant_entry_block_v2(0u)
     test_cases.unssa.contract::test_param_update_with_reentrant_entry_block_v3()
     test_cases.unssa.contract::test_swap_args()
-    (a, b): tuple[algopy.UInt64, algopy.UInt64] = test_cases.unssa.contract::test_tuple_swap(100u, 200u, 0u)
+    (a, b): tuple<uint64,uint64> = test_cases.unssa.contract::test_tuple_swap(100u, 200u, 0u)
     assert(a == 100u)
     assert(b == 200u)
-    (a, b): tuple[algopy.UInt64, algopy.UInt64] = test_cases.unssa.contract::test_tuple_swap(100u, 200u, 1u)
+    (a, b): tuple<uint64,uint64> = test_cases.unssa.contract::test_tuple_swap(100u, 200u, 1u)
     assert(a == 200u)
     assert(b == 100u)
     return true
@@ -29,9 +29,9 @@ contract UnSSAContract
   }
 }
 
-subroutine test_self_ref_phi(): algopy.UInt64
+subroutine test_self_ref_phi(): uint64
 {
-  a: algopy.UInt64 = 1u
+  a: uint64 = 1u
   while (a < 100u) {
     if (a % 105u == 0u) {
       continue
@@ -44,47 +44,47 @@ subroutine test_self_ref_phi(): algopy.UInt64
   return a
 }
 
-subroutine test_swap(i: algopy.UInt64): algopy.UInt64
+subroutine test_swap(i: uint64): uint64
 {
-  x: algopy.UInt64 = 1u
-  y: algopy.UInt64 = 2u
+  x: uint64 = 1u
+  y: uint64 = 2u
   while (i > 0u) {
-    tmp: algopy.UInt64 = x
-    x: algopy.UInt64 = y
-    y: algopy.UInt64 = tmp
-    i: algopy.UInt64 = i - 1u
+    tmp: uint64 = x
+    x: uint64 = y
+    y: uint64 = tmp
+    i: uint64 = i - 1u
   }
   return x
 }
 
-subroutine test_swap_loop(i: algopy.UInt64, j: algopy.UInt64): algopy.UInt64
+subroutine test_swap_loop(i: uint64, j: uint64): uint64
 {
-  x: algopy.UInt64 = 1u
-  y: algopy.UInt64 = 2u
+  x: uint64 = 1u
+  y: uint64 = 2u
   while (i > 0u) {
     while (j > 0u) {
-      tmp: algopy.UInt64 = x
-      x: algopy.UInt64 = y
-      y: algopy.UInt64 = tmp
-      j: algopy.UInt64 = j - 1u
+      tmp: uint64 = x
+      x: uint64 = y
+      y: uint64 = tmp
+      j: uint64 = j - 1u
     }
-    i: algopy.UInt64 = i - 1u
+    i: uint64 = i - 1u
   }
   return x
 }
 
-subroutine test_tuple_swap(a: algopy.UInt64, b: algopy.UInt64, i: algopy.UInt64): tuple[algopy.UInt64, algopy.UInt64]
+subroutine test_tuple_swap(a: uint64, b: uint64, i: uint64): tuple<uint64,uint64>
 {
   for _item in range(0u, i, 1u) {
-    (a, b): tuple[algopy.UInt64, algopy.UInt64] = (b, a)
+    (a, b): tuple<uint64,uint64> = (b, a)
   }
   return (a, b)
 }
 
-subroutine test_param_update_with_reentrant_entry_block(x: algopy.UInt64): algopy.UInt64
+subroutine test_param_update_with_reentrant_entry_block(x: uint64): uint64
 {
   while (true) {
-    x: algopy.UInt64 = x + 1u
+    x: uint64 = x + 1u
     if (x >= 10u) {
       break
     }
@@ -92,9 +92,9 @@ subroutine test_param_update_with_reentrant_entry_block(x: algopy.UInt64): algop
   return x
 }
 
-subroutine test_param_update_with_reentrant_entry_block_v2(x: algopy.UInt64): algopy.UInt64
+subroutine test_param_update_with_reentrant_entry_block_v2(x: uint64): uint64
 {
-  x: algopy.UInt64 = x + 1u
+  x: uint64 = x + 1u
   while (true) {
     if (x >= 1u) {
       break
@@ -103,7 +103,7 @@ subroutine test_param_update_with_reentrant_entry_block_v2(x: algopy.UInt64): al
   return x
 }
 
-subroutine test_param_update_with_reentrant_entry_block_v3(): None
+subroutine test_param_update_with_reentrant_entry_block_v3(): void
 {
   while (true) {
     if (reinterpret_cast<bool>(test_cases.unssa.contract::one())) {
@@ -112,21 +112,21 @@ subroutine test_param_update_with_reentrant_entry_block_v3(): None
   }
 }
 
-subroutine one(): algopy.UInt64
+subroutine one(): uint64
 {
   return 1u
 }
 
-subroutine swap_args(a: algopy.UInt64, b: algopy.UInt64): tuple[algopy.UInt64, algopy.UInt64]
+subroutine swap_args(a: uint64, b: uint64): tuple<uint64,uint64>
 {
   return (b, a)
 }
 
-subroutine test_swap_args(): None
+subroutine test_swap_args(): void
 {
-  a: algopy.UInt64 = test_cases.unssa.contract::one() + 123u
-  b: algopy.UInt64 = test_cases.unssa.contract::one() + 234u
-  (a, b): tuple[algopy.UInt64, algopy.UInt64] = test_cases.unssa.contract::swap_args(a, b)
+  a: uint64 = test_cases.unssa.contract::one() + 123u
+  b: uint64 = test_cases.unssa.contract::one() + 234u
+  (a, b): tuple<uint64,uint64> = test_cases.unssa.contract::swap_args(a, b)
   assert(a == 235u, comment="a == 235")
   assert(b == 124u, comment="b = 124")
 }

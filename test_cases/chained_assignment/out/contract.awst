@@ -3,14 +3,14 @@ WAVE = b'\xf0\x9f\x91\x8b'
 abstract contract BaseContract
 {
   globals {
-    ['state1']: algopy.Bytes
-    ['state2']: algopy.Bytes
+    ['state1']: bytes
+    ['state2']: bytes
   }
   
   constructor()
   {
-    this.state2: algopy.Bytes = SINGLE_EVAL(id=0, source=test_cases.chained_assignment.contract::join_log_and_return(right='\xf0\x9f\x91\x8b', left='Hello, world!'))
-    this.state1: algopy.Bytes = SINGLE_EVAL(id=0, source=test_cases.chained_assignment.contract::join_log_and_return(right='\xf0\x9f\x91\x8b', left='Hello, world!'))
+    this.state2: bytes = SINGLE_EVAL(id=0, source=test_cases.chained_assignment.contract::join_log_and_return(right='\xf0\x9f\x91\x8b', left='Hello, world!'))
+    this.state1: bytes = SINGLE_EVAL(id=0, source=test_cases.chained_assignment.contract::join_log_and_return(right='\xf0\x9f\x91\x8b', left='Hello, world!'))
   }
 }
 
@@ -32,9 +32,9 @@ contract ChainedAssignment extends (test_cases.chained_assignment.contract::Base
   }
 }
 
-subroutine join_log_and_return(left: algopy.Bytes, right: algopy.Bytes): algopy.Bytes
+subroutine join_log_and_return(left: bytes, right: bytes): bytes
 {
-  result: algopy.Bytes = left + ' ' + right
+  result: bytes = left + ' ' + right
   log(result)
   return result
 }

@@ -1,35 +1,35 @@
 struct Vector {
-  x: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
-  y: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+  x: arc4.ufixed64x9
+  y: arc4.ufixed64x9
 }
 
 struct Flags {
-  a: algopy.arc4.Bool
-  b: algopy.arc4.Bool
-  c: algopy.arc4.Bool
-  d: algopy.arc4.Bool
+  a: arc4.bool
+  b: arc4.bool
+  c: arc4.bool
+  d: arc4.bool
 }
 
 struct VectorFlags {
-  vector: test_cases.arc4_types.structs.Vector
-  flags: test_cases.arc4_types.structs.Flags
+  vector: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>
+  flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>
 }
 
 contract Arc4StructsTypeContract
 {
   approval_program(): bool
   {
-    coord_1: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
-    coord_2: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
-    coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
+    coord_1: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9> = new arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_2: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9> = new arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_3: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9> = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
     for val in (coord_3.x, coord_3.y) {
-      log(reinterpret_cast<algopy.Bytes>(val))
+      log(reinterpret_cast<bytes>(val))
     }
-    flags: test_cases.arc4_types.structs.Flags = new test_cases.arc4_types.structs.Flags(a=arc4_encode(true, algopy.arc4.Bool), b=arc4_encode(false, algopy.arc4.Bool), c=arc4_encode(true, algopy.arc4.Bool), d=arc4_encode(false, algopy.arc4.Bool))
+    flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool> = new arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>(a=arc4_encode(true, arc4.bool), b=arc4_encode(false, arc4.bool), c=arc4_encode(true, arc4.bool), d=arc4_encode(false, arc4.bool))
     test_cases.arc4_types.structs::check(flags.copy())
-    log(reinterpret_cast<algopy.Bytes>(flags))
-    assert(reinterpret_cast<algopy.Bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<algopy.Bytes>(coord_1))) == reinterpret_cast<algopy.Bytes>(coord_1))
-    test_cases.arc4_types.structs::nested_decode(new test_cases.arc4_types.structs.VectorFlags(vector=coord_1.copy(), flags=flags.copy()))
+    log(reinterpret_cast<bytes>(flags))
+    assert(reinterpret_cast<bytes>(reinterpret_cast<arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
+    test_cases.arc4_types.structs::nested_decode(new arc4.struct<vector:arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>,flags:arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>>(vector=coord_1.copy(), flags=flags.copy()))
     return true
   }
   
@@ -39,12 +39,12 @@ contract Arc4StructsTypeContract
   }
 }
 
-subroutine add(v1: test_cases.arc4_types.structs.Vector, v2: test_cases.arc4_types.structs.Vector): test_cases.arc4_types.structs.Vector
+subroutine add(v1: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>, v2: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>): arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>
 {
-  return new test_cases.arc4_types.structs.Vector(x=test_cases.arc4_types.structs::add_decimal(v1.x, v2.x), y=test_cases.arc4_types.structs::add_decimal(v1.y, v2.y))
+  return new arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>(x=test_cases.arc4_types.structs::add_decimal(v1.x, v2.x), y=test_cases.arc4_types.structs::add_decimal(v1.y, v2.y))
 }
 
-subroutine check(flags: test_cases.arc4_types.structs.Flags): None
+subroutine check(flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>): void
 {
   assert(arc4_decode(flags.a, bool))
   assert(!(arc4_decode(flags.b, bool)))
@@ -52,13 +52,13 @@ subroutine check(flags: test_cases.arc4_types.structs.Flags): None
   assert(!(arc4_decode(flags.d, bool)))
 }
 
-subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): None
+subroutine nested_decode(vector_flags: arc4.struct<vector:arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>,flags:arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>>): void
 {
-  assert(reinterpret_cast<algopy.Bytes>(vector_flags.vector.x) == itob(35382882839u))
+  assert(reinterpret_cast<bytes>(vector_flags.vector.x) == itob(35382882839u))
   assert(arc4_decode(vector_flags.flags.c, bool))
 }
 
-subroutine add_decimal(x: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]], y: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]): algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+subroutine add_decimal(x: arc4.ufixed64x9, y: arc4.ufixed64x9): arc4.ufixed64x9
 {
-  return reinterpret_cast<algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]>(itob(btoi(reinterpret_cast<algopy.Bytes>(x)) + btoi(reinterpret_cast<algopy.Bytes>(y))))
+  return reinterpret_cast<arc4.ufixed64x9>(itob(btoi(reinterpret_cast<bytes>(x)) + btoi(reinterpret_cast<bytes>(y))))
 }

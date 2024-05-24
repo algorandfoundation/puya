@@ -1,75 +1,75 @@
 ONE = 1
 HELLO = b'\xf0\x9f\x91\x8b'
 
-subroutine three(): algopy.UInt64
+subroutine three(): uint64
 {
-  a: algopy.UInt64 = 1u + 1u
-  b: algopy.UInt64 = a + 1u
+  a: uint64 = 1u + 1u
+  b: uint64 = a + 1u
   return b
 }
 
-subroutine hello_world(): algopy.Bytes
+subroutine hello_world(): bytes
 {
-  hello: algopy.Bytes = '\xf0\x9f\x91\x8b'
-  comma: algopy.Bytes = b64<"4aCI">
-  world: algopy.Bytes = ' world'
+  hello: bytes = '\xf0\x9f\x91\x8b'
+  comma: bytes = b64<"4aCI">
+  world: bytes = ' world'
   return hello + comma + world
 }
 
-subroutine safe_add(x: algopy.UInt64, y: algopy.UInt64): tuple[algopy.UInt64, bool]
+subroutine safe_add(x: uint64, y: uint64): tuple<uint64,bool>
 {
-  (hi, lo): tuple[algopy.UInt64, algopy.UInt64] = addw(x, y)
+  (hi, lo): tuple<uint64,uint64> = addw(x, y)
   did_overflow: bool = hi > 0u
   return (lo, did_overflow)
 }
 
-subroutine safe_six(): tuple[algopy.UInt64, bool]
+subroutine safe_six(): tuple<uint64,bool>
 {
   return test_cases.mylib.simple_functions::safe_add(test_cases.mylib.simple_functions::three(), test_cases.mylib.simple_functions::three())
 }
 
-subroutine itoa(i: algopy.UInt64): algopy.Bytes
+subroutine itoa(i: uint64): bytes
 {
-  digits: algopy.Bytes = '0123456789'
-  radix: algopy.UInt64 = len(digits)
+  digits: bytes = '0123456789'
+  radix: uint64 = len(digits)
   if (i < radix) {
     return digits[i]
   }
   return test_cases.mylib.simple_functions::itoa(i // radix) + digits[i % radix]
 }
 
-subroutine itoa_loop(num: algopy.UInt64): algopy.Bytes
+subroutine itoa_loop(num: uint64): bytes
 {
-  digits: algopy.Bytes = '0123456789'
-  result: algopy.Bytes = ''
+  digits: bytes = '0123456789'
+  result: bytes = ''
   while (num >= 10u) {
-    result: algopy.Bytes = digits[num % 10u] + result
+    result: bytes = digits[num % 10u] + result
     num //= 10u
   }
-  result: algopy.Bytes = digits[num] + result
+  result: bytes = digits[num] + result
   return result
 }
 
-subroutine inefficient_multiply(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+subroutine inefficient_multiply(a: uint64, b: uint64): uint64
 {
   if (a == 0u or b == 0u) {
     return a
   }
   if (a < b) {
-    smaller: algopy.UInt64 = a
-    bigger: algopy.UInt64 = b
+    smaller: uint64 = a
+    bigger: uint64 = b
   } else {
-    smaller: algopy.UInt64 = b
-    bigger: algopy.UInt64 = a
+    smaller: uint64 = b
+    bigger: uint64 = a
   }
-  result: algopy.UInt64 = 0u
+  result: uint64 = 0u
   for _i in range(0u, smaller, 1u) {
     result += bigger
   }
   return result
 }
 
-subroutine test_and_uint64(): algopy.UInt64
+subroutine test_and_uint64(): uint64
 {
   return (!(reinterpret_cast<bool>(1u))) ? (1u) : (2u)
 }

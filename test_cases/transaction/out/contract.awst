@@ -1,10 +1,10 @@
 contract TransactionContract
 {
-  abimethod create(): None
+  abimethod create(): void
   {
   }
   
-  subroutine _common_checks(txn: algopy.gtxn.TransactionBase): None
+  subroutine _common_checks(txn: group_transaction_base): void
   {
     assert(reinterpret_cast<bool>(len(gtxns<TxID>(txn))), comment="txn_id")
     assert(gtxns<Sender>(txn) == global<CreatorAddress>(), comment="sender")
@@ -19,7 +19,7 @@ contract TransactionContract
     assert(gtxns<RekeyTo>(txn) == global<ZeroAddress>(), comment="rekey_to")
   }
   
-  abimethod pay(txn: algopy.gtxn.PaymentTransaction): None
+  abimethod pay(txn: group_transaction_pay): void
   {
     this::_common_checks(txn)
     assert(gtxns<Receiver>(txn) == global<CurrentApplicationAddress>(), comment="Payment should be for this app")
@@ -27,7 +27,7 @@ contract TransactionContract
     assert(gtxns<CloseRemainderTo>(txn) == global<ZeroAddress>(), comment="close_remainder_to")
   }
   
-  abimethod key(txn: algopy.gtxn.KeyRegistrationTransaction): None
+  abimethod key(txn: group_transaction_keyreg): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(len(gtxns<VotePK>(txn))), comment="vote_key")
@@ -39,7 +39,7 @@ contract TransactionContract
     assert(reinterpret_cast<bool>(len(gtxns<StateProofPK>(txn))), comment="state_proof_key")
   }
   
-  abimethod asset_config(txn: algopy.gtxn.AssetConfigTransaction): None
+  abimethod asset_config(txn: group_transaction_acfg): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
@@ -56,7 +56,7 @@ contract TransactionContract
     assert(gtxns<ConfigAssetClawback>(txn) != global<ZeroAddress>(), comment="clawback")
   }
   
-  abimethod asset_transfer(txn: algopy.gtxn.AssetTransferTransaction): None
+  abimethod asset_transfer(txn: group_transaction_axfer): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
@@ -66,7 +66,7 @@ contract TransactionContract
     assert(gtxns<AssetCloseTo>(txn) != global<ZeroAddress>(), comment="asset_close_to")
   }
   
-  abimethod asset_freeze(txn: algopy.gtxn.AssetFreezeTransaction): None
+  abimethod asset_freeze(txn: group_transaction_afrz): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
@@ -74,7 +74,7 @@ contract TransactionContract
     assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
   }
   
-  abimethod application_call(txn: algopy.gtxn.ApplicationCallTransaction): None
+  abimethod application_call(txn: group_transaction_appl): void
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="app_id")
@@ -101,26 +101,26 @@ contract TransactionContract
     assert(reinterpret_cast<bool>(len(gtxnsas<ClearStateProgramPages>(txn, 0u))), comment="clear_state_program_pages(0)")
   }
   
-  abimethod multiple_txns(txn1: algopy.gtxn.ApplicationCallTransaction, txn2: algopy.gtxn.ApplicationCallTransaction, txn3: algopy.gtxn.ApplicationCallTransaction): None
+  abimethod multiple_txns(txn1: group_transaction_appl, txn2: group_transaction_appl, txn3: group_transaction_appl): void
   {
     for (index, app) in enumerate((txn1, txn2, txn3)) {
       assert(gtxns<GroupIndex>(app) == index)
     }
   }
   
-  abimethod any_txn(txn1: algopy.gtxn.Transaction, txn2: algopy.gtxn.Transaction, txn3: algopy.gtxn.Transaction): None
+  abimethod any_txn(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
   {
     for (index, txn) in enumerate((txn1, txn2, txn3)) {
       assert(gtxns<GroupIndex>(txn) == index)
     }
   }
   
-  abimethod group_init(txn1: algopy.gtxn.Transaction, txn2: algopy.gtxn.Transaction, txn3: algopy.gtxn.Transaction): None
+  abimethod group_init(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
   {
     for txn in (txn1, txn2, txn3) {
-      txn_from_index: algopy.gtxn.Transaction = reinterpret_cast<algopy.gtxn.Transaction>(gtxns<GroupIndex>(txn))
+      txn_from_index: group_transaction = reinterpret_cast<group_transaction>(gtxns<GroupIndex>(txn))
       assert(gtxns<TxID>(txn) == gtxns<TxID>(txn_from_index))
     }
-    assert(gtxns<TxID>(txn1) == gtxns<TxID>(reinterpret_cast<algopy.gtxn.Transaction>(0u)))
+    assert(gtxns<TxID>(txn1) == gtxns<TxID>(reinterpret_cast<group_transaction>(0u)))
   }
 }

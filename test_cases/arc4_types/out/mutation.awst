@@ -1,12 +1,12 @@
 struct TestStruct {
-  b_val: algopy.arc4.Bool
-  u_val: algopy.arc4.UInt8
-  s_val_1: algopy.arc4.String
-  s_val_2: algopy.arc4.String
+  b_val: arc4.bool
+  u_val: arc4.uint8
+  s_val_1: arc4.string
+  s_val_2: arc4.string
 }
 
 struct StructWithArray {
-  d_array: algopy.arc4.DynamicArray[algopy.arc4.String]
+  d_array: arc4.dynamic_array<arc4.string>
 }
 
 contract Arc4MutationContract
@@ -29,125 +29,125 @@ contract Arc4MutationContract
     return true
   }
   
-  subroutine check_copy_required(): None
+  subroutine check_copy_required(): void
   {
-    d_array: algopy.arc4.DynamicArray[algopy.arc4.String] = new algopy.arc4.DynamicArray[algopy.arc4.String](arc4_encode('Test', algopy.arc4.String))
-    nested_in_array: algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.String]] = new algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.String]](d_array.copy())
-    nested_in_struct: test_cases.arc4_types.mutation.StructWithArray = new test_cases.arc4_types.mutation.StructWithArray(d_array=nested_in_array[0u].copy())
-    assert(reinterpret_cast<algopy.Bytes>(d_array) == reinterpret_cast<algopy.Bytes>(nested_in_struct.d_array))
+    d_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Test', arc4.string))
+    nested_in_array: arc4.dynamic_array<arc4.dynamic_array<arc4.string>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.string>>(d_array.copy())
+    nested_in_struct: arc4.struct<d_array:arc4.dynamic_array<arc4.string>> = new arc4.struct<d_array:arc4.dynamic_array<arc4.string>>(d_array=nested_in_array[0u].copy())
+    assert(reinterpret_cast<bytes>(d_array) == reinterpret_cast<bytes>(nested_in_struct.d_array))
   }
   
-  subroutine array_concat(): None
+  subroutine array_concat(): void
   {
-    uint8_array: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8)
-    array_concat_tuple: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = uint8_array + (3arc4u8, 4arc4u8)
-    assert(reinterpret_cast<algopy.Bytes>(array_concat_tuple) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8)))
+    uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    array_concat_tuple: arc4.dynamic_array<arc4.uint8> = uint8_array + (3arc4u8, 4arc4u8)
+    assert(reinterpret_cast<bytes>(array_concat_tuple) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8)))
     array_concat_tuple.extend((5arc4u8))
-    assert(reinterpret_cast<algopy.Bytes>(array_concat_tuple) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8)))
-    hello_world: algopy.arc4.DynamicArray[algopy.arc4.String] = new algopy.arc4.DynamicArray[algopy.arc4.String](arc4_encode('Hello', algopy.arc4.String), arc4_encode('World', algopy.arc4.String))
-    hello_world_concat: algopy.arc4.DynamicArray[algopy.arc4.String] = new algopy.arc4.DynamicArray[algopy.arc4.String](arc4_encode('Hello', algopy.arc4.String)) + new algopy.arc4.DynamicArray[algopy.arc4.String](arc4_encode('World', algopy.arc4.String))
-    assert(reinterpret_cast<algopy.Bytes>(hello_world) == reinterpret_cast<algopy.Bytes>(hello_world_concat))
+    assert(reinterpret_cast<bytes>(array_concat_tuple) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8)))
+    hello_world: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Hello', arc4.string), arc4_encode('World', arc4.string))
+    hello_world_concat: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Hello', arc4.string)) + new arc4.dynamic_array<arc4.string>(arc4_encode('World', arc4.string))
+    assert(reinterpret_cast<bytes>(hello_world) == reinterpret_cast<bytes>(hello_world_concat))
   }
   
-  subroutine array_of_array_dynamic(): None
+  subroutine array_of_array_dynamic(): void
   {
-    array_of_array: algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.UInt8]] = new algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.UInt8]]()
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"0000">)
-    array_of_array.extend((new algopy.arc4.DynamicArray[algopy.arc4.UInt8](10arc4u8)))
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"0001000200010A">)
-    array_of_array.extend((new algopy.arc4.DynamicArray[algopy.arc4.UInt8](16arc4u8)))
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"00020004000700010A000110">)
+    array_of_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>()
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"0000">)
+    array_of_array.extend((new arc4.dynamic_array<arc4.uint8>(10arc4u8)))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"0001000200010A">)
+    array_of_array.extend((new arc4.dynamic_array<arc4.uint8>(16arc4u8)))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"00020004000700010A000110">)
     array_of_array[0u].extend((255arc4u8))
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"00020004000800020AFF000110">)
-    array_of_array[0u][1u]: algopy.arc4.UInt8 = 0arc4u8
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"00020004000800020A00000110">)
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"00020004000800020AFF000110">)
+    array_of_array[0u][1u]: arc4.uint8 = 0arc4u8
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"00020004000800020A00000110">)
   }
   
-  subroutine array_of_array_static(): None
+  subroutine array_of_array_static(): void
   {
-    array_of_array: algopy.arc4.StaticArray[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]], typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]], typing.Literal[2]](new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]](10arc4u8, 9arc4u8), new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]](64arc4u8, 128arc4u8))
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"0A094080">)
-    array_of_array[0u]: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]](255arc4u8, 254arc4u8)
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"FFFE4080">)
-    array_of_array[1u][0u]: algopy.arc4.UInt8 = 1arc4u8
-    assert(reinterpret_cast<algopy.Bytes>(array_of_array) == hex<"FFFE0180">)
+    array_of_array: arc4.static_array<arc4.static_array<arc4.uint8, 2>, 2> = new arc4.static_array<arc4.static_array<arc4.uint8, 2>, 2>(new arc4.static_array<arc4.uint8, 2>(10arc4u8, 9arc4u8), new arc4.static_array<arc4.uint8, 2>(64arc4u8, 128arc4u8))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"0A094080">)
+    array_of_array[0u]: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(255arc4u8, 254arc4u8)
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"FFFE4080">)
+    array_of_array[1u][0u]: arc4.uint8 = 1arc4u8
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"FFFE0180">)
   }
   
-  subroutine index_assign(): None
+  subroutine index_assign(): void
   {
-    dynamic_uint8_array: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8)
-    dynamic_uint8_array[0u]: algopy.arc4.UInt8 = 255arc4u8
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_uint8_array) == hex<"0002FF02">)
-    static_uint8_array: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[2]](1arc4u8, 2arc4u8)
-    static_uint8_array[1u]: algopy.arc4.UInt8 = 255arc4u8
-    assert(reinterpret_cast<algopy.Bytes>(static_uint8_array) == hex<"01FF">)
-    dynamic_bool_array: algopy.arc4.DynamicArray[algopy.arc4.Bool] = new algopy.arc4.DynamicArray[algopy.arc4.Bool](arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool))
-    dynamic_bool_array[0u]: algopy.arc4.Bool = arc4_encode(false, algopy.arc4.Bool)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == hex<"000200">)
-    static_bool_array: algopy.arc4.StaticArray[algopy.arc4.Bool, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Bool, typing.Literal[2]](arc4_encode(true, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool))
-    static_bool_array[1u]: algopy.arc4.Bool = arc4_encode(false, algopy.arc4.Bool)
-    assert(reinterpret_cast<algopy.Bytes>(static_bool_array) == hex<"80">)
+    dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    dynamic_uint8_array[0u]: arc4.uint8 = 255arc4u8
+    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == hex<"0002FF02">)
+    static_uint8_array: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(1arc4u8, 2arc4u8)
+    static_uint8_array[1u]: arc4.uint8 = 255arc4u8
+    assert(reinterpret_cast<bytes>(static_uint8_array) == hex<"01FF">)
+    dynamic_bool_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
+    dynamic_bool_array[0u]: arc4.bool = arc4_encode(false, arc4.bool)
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"000200">)
+    static_bool_array: arc4.static_array<arc4.bool, 2> = new arc4.static_array<arc4.bool, 2>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    static_bool_array[1u]: arc4.bool = arc4_encode(false, arc4.bool)
+    assert(reinterpret_cast<bytes>(static_bool_array) == hex<"80">)
   }
   
-  subroutine struct_assign(): None
+  subroutine struct_assign(): void
   {
-    test_struct: test_cases.arc4_types.mutation.TestStruct = new test_cases.arc4_types.mutation.TestStruct(b_val=arc4_encode(true, algopy.arc4.Bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', algopy.arc4.String), s_val_2=arc4_encode('Days', algopy.arc4.String))
-    test_struct.b_val: algopy.arc4.Bool = arc4_encode(false, algopy.arc4.Bool)
-    test_struct.u_val: algopy.arc4.UInt8 = 12arc4u8
-    assert(reinterpret_cast<algopy.Bytes>(test_struct) == reinterpret_cast<algopy.Bytes>(new test_cases.arc4_types.mutation.TestStruct(b_val=arc4_encode(false, algopy.arc4.Bool), u_val=12arc4u8, s_val_1=arc4_encode('Happy', algopy.arc4.String), s_val_2=arc4_encode('Days', algopy.arc4.String))))
-    test_struct.s_val_1: algopy.arc4.String = arc4_encode('Hmmmm', algopy.arc4.String)
-    test_struct.s_val_2: algopy.arc4.String = arc4_encode('Oh well', algopy.arc4.String)
-    assert(reinterpret_cast<algopy.Bytes>(test_struct) == reinterpret_cast<algopy.Bytes>(new test_cases.arc4_types.mutation.TestStruct(b_val=arc4_encode(false, algopy.arc4.Bool), u_val=12arc4u8, s_val_1=arc4_encode('Hmmmm', algopy.arc4.String), s_val_2=arc4_encode('Oh well', algopy.arc4.String))))
+    test_struct: arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string> = new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(true, arc4.bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', arc4.string), s_val_2=arc4_encode('Days', arc4.string))
+    test_struct.b_val: arc4.bool = arc4_encode(false, arc4.bool)
+    test_struct.u_val: arc4.uint8 = 12arc4u8
+    assert(reinterpret_cast<bytes>(test_struct) == reinterpret_cast<bytes>(new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Happy', arc4.string), s_val_2=arc4_encode('Days', arc4.string))))
+    test_struct.s_val_1: arc4.string = arc4_encode('Hmmmm', arc4.string)
+    test_struct.s_val_2: arc4.string = arc4_encode('Oh well', arc4.string)
+    assert(reinterpret_cast<bytes>(test_struct) == reinterpret_cast<bytes>(new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Hmmmm', arc4.string), s_val_2=arc4_encode('Oh well', arc4.string))))
   }
   
-  subroutine dynamic_array_fixed_size(): None
+  subroutine dynamic_array_fixed_size(): void
   {
-    dynamic_uint8_array: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8)
+    dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
     dynamic_uint8_array.extend((50arc4u8))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_uint8_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8, 50arc4u8)))
+    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8)))
     dynamic_uint8_array.extend(dynamic_uint8_array)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_uint8_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8)))
+    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8)))
     dynamic_uint8_array.extend((4arc4u8, 90arc4u8))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_uint8_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8)))
-    popped: algopy.arc4.UInt8 = dynamic_uint8_array.pop()
-    assert(reinterpret_cast<algopy.BigUInt>(popped) == reinterpret_cast<algopy.BigUInt>(90arc4u8))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_uint8_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.UInt8](1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8)))
+    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8)))
+    popped: arc4.uint8 = dynamic_uint8_array.pop()
+    assert(reinterpret_cast<biguint>(popped) == reinterpret_cast<biguint>(90arc4u8))
+    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8)))
   }
   
-  subroutine dynamic_array_bool(): None
+  subroutine dynamic_array_bool(): void
   {
-    dynamic_bool_array: algopy.arc4.DynamicArray[algopy.arc4.Bool] = new algopy.arc4.DynamicArray[algopy.arc4.Bool](arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == hex<"000280">)
-    dynamic_bool_array.extend((arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool)))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == hex<"0004A0">)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.Bool](arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool))))
+    dynamic_bool_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"000280">)
+    dynamic_bool_array.extend((arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"0004A0">)
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))))
     dynamic_bool_array.extend(dynamic_bool_array)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.Bool](arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool))))
-    dynamic_bool_array.extend((arc4_encode(true, algopy.arc4.Bool)))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.Bool](arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool))))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array.pop()) == reinterpret_cast<algopy.Bytes>(arc4_encode(true, algopy.arc4.Bool)))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array.pop()) == reinterpret_cast<algopy.Bytes>(arc4_encode(false, algopy.arc4.Bool)))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_bool_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.Bool](arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool))))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))))
+    dynamic_bool_array.extend((arc4_encode(true, arc4.bool)))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array.pop()) == reinterpret_cast<bytes>(arc4_encode(true, arc4.bool)))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array.pop()) == reinterpret_cast<bytes>(arc4_encode(false, arc4.bool)))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))))
   }
   
-  subroutine dynamic_array_string(): None
+  subroutine dynamic_array_string(): void
   {
-    hello: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
-    world: algopy.arc4.String = arc4_encode('World', algopy.arc4.String)
-    foo: algopy.arc4.String = arc4_encode('Foo', algopy.arc4.String)
-    bar: algopy.arc4.String = arc4_encode('Bar', algopy.arc4.String)
-    dynamic_string_array: algopy.arc4.DynamicArray[algopy.arc4.String] = new algopy.arc4.DynamicArray[algopy.arc4.String](hello, world)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array) == '\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World')
+    hello: arc4.string = arc4_encode('Hello', arc4.string)
+    world: arc4.string = arc4_encode('World', arc4.string)
+    foo: arc4.string = arc4_encode('Foo', arc4.string)
+    bar: arc4.string = arc4_encode('Bar', arc4.string)
+    dynamic_string_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(hello, world)
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == '\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World')
     dynamic_string_array.extend((foo, bar))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array) == '\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar')
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == '\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar')
     dynamic_string_array.extend(dynamic_string_array)
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.String](hello, world, foo, bar, hello, world, foo, bar)))
-    dynamic_string_array: algopy.arc4.DynamicArray[algopy.arc4.String] = new algopy.arc4.DynamicArray[algopy.arc4.String](hello, world, foo, bar, hello, world, foo, bar)
-    dynamic_string_array[3u]: algopy.arc4.String = hello
-    dynamic_string_array[5u]: algopy.arc4.String = hello
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.String](hello, world, foo, hello, hello, hello, foo, bar)))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array.pop()) == reinterpret_cast<algopy.Bytes>(bar))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array.pop()) == reinterpret_cast<algopy.Bytes>(foo))
-    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array) == reinterpret_cast<algopy.Bytes>(new algopy.arc4.DynamicArray[algopy.arc4.String](hello, world, foo, hello, hello, hello)))
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.string>(hello, world, foo, bar, hello, world, foo, bar)))
+    dynamic_string_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(hello, world, foo, bar, hello, world, foo, bar)
+    dynamic_string_array[3u]: arc4.string = hello
+    dynamic_string_array[5u]: arc4.string = hello
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.string>(hello, world, foo, hello, hello, hello, foo, bar)))
+    assert(reinterpret_cast<bytes>(dynamic_string_array.pop()) == reinterpret_cast<bytes>(bar))
+    assert(reinterpret_cast<bytes>(dynamic_string_array.pop()) == reinterpret_cast<bytes>(foo))
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.string>(hello, world, foo, hello, hello, hello)))
   }
 }

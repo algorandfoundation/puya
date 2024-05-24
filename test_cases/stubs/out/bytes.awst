@@ -1,21 +1,21 @@
 contract BytesContract
 {
-  approval_program(): algopy.UInt64
+  approval_program(): uint64
   {
-    base_64: algopy.Bytes = b64<"QmFzZSA2NCBlbmNvZGVk">
+    base_64: bytes = b64<"QmFzZSA2NCBlbmNvZGVk">
     assert(base_64 == 'Base 64 encoded')
-    base_32: algopy.Bytes = b32<"IJQXGZJAGMZCAZLOMNXWIZLE">
+    base_32: bytes = b32<"IJQXGZJAGMZCAZLOMNXWIZLE">
     assert(base_32 == 'Base 32 encoded')
-    base_16: algopy.Bytes = hex<"4261736520313620656E636F646564">
+    base_16: bytes = hex<"4261736520313620656E636F646564">
     assert(base_16 == 'Base 16 encoded')
-    empty: algopy.Bytes = ''
+    empty: bytes = ''
     assert(reinterpret_cast<bool>(len(base_64)), comment="Non empty bytes should be Truthy")
     assert(!(reinterpret_cast<bool>(len(empty))), comment="Empty bytes should be Falsy")
     assert('a' + 'b' == 'ab')
-    c: algopy.Bytes = 'c'
+    c: bytes = 'c'
     c += 'd'
     assert(c == 'cd')
-    abc: algopy.Bytes = 'abc'
+    abc: bytes = 'abc'
     assert(abc[0u] == 'a')
     assert(abc[1:] == 'bc')
     assert(abc[1:1] == '')
@@ -25,8 +25,8 @@ contract BytesContract
     assert(abc[-2:-1] == 'b')
     assert('1234567'[1:-1] == '23456')
     assert(abc[-10:10] == 'abc')
-    true: algopy.Bytes = '1'
-    false: algopy.Bytes = ''
+    true: bytes = '1'
+    false: bytes = ''
     x: bool = (!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true
     assert(x)
     assert((!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true)
@@ -37,11 +37,11 @@ contract BytesContract
     assert((reinterpret_cast<bool>(len(true))) ? (true) : (false) == true)
     assert((reinterpret_cast<bool>(len(false))) ? (false) : (true) == true)
     assert((reinterpret_cast<bool>(len(false))) ? (false) : (false) == false)
-    (a, b, c, d): tuple[algopy.Bytes, algopy.Bytes, algopy.Bytes, algopy.Bytes] = (hex<"00">, hex<"0F">, hex<"F0">, hex<"FF">)
+    (a, b, c, d): tuple<bytes,bytes,bytes,bytes> = (hex<"00">, hex<"0F">, hex<"F0">, hex<"FF">)
     assert(a & b == a)
     assert(b | c == d)
     assert(b ^ d == c)
-    y: algopy.Bytes = a
+    y: bytes = a
     y &= d
     assert(y == a)
     y |= d
@@ -59,10 +59,10 @@ contract BytesContract
   }
 }
 
-subroutine check_slicing_with_uint64(abc: algopy.Bytes): None
+subroutine check_slicing_with_uint64(abc: bytes): void
 {
-  one: algopy.UInt64 = 1u
-  ten: algopy.UInt64 = 10u
+  one: uint64 = 1u
+  ten: uint64 = 10u
   assert(abc[one:] == 'bc')
   assert(abc[one:one] == '')
   assert(abc[:one] == 'a')
@@ -70,16 +70,16 @@ subroutine check_slicing_with_uint64(abc: algopy.Bytes): None
   assert(abc[0u:ten] == 'abc')
 }
 
-subroutine check_end_before_start_slicing(abc: algopy.Bytes): None
+subroutine check_end_before_start_slicing(abc: bytes): void
 {
   assert(abc[10:1] == '')
   assert(abc[-10:-12] == '')
-  one: algopy.UInt64 = 1u
-  ten: algopy.UInt64 = 10u
+  one: uint64 = 1u
+  ten: uint64 = 10u
   assert(abc[ten:one] == '')
 }
 
-subroutine one_to_seven(): algopy.Bytes
+subroutine one_to_seven(): bytes
 {
   log('one_to_seven called')
   return '1234567'
