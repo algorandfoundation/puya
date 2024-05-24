@@ -16,12 +16,8 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
-from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder, expect_wtype
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
@@ -34,11 +30,41 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
+class GroupTransactionClassExpressionBuilder(
+    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
+):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        match args:
+            case [ExpressionBuilder() as eb]:
+                group_index = expect_operand_wtype(eb, wtypes.uint64_wtype)
+            case [Literal(value=int(int_value), source_location=loc)]:
+                group_index = UInt64Constant(value=int_value, source_location=loc)
+            case _:
+                raise CodeError("Invalid/unhandled arguments", location)
+        typ = self.produces2()
+        wtype = typ.wtype
+        txn = (
+            check_transaction_type(group_index, wtype, location)
+            if isinstance(wtype, wtypes.WGroupTransaction) and wtype.transaction_type is not None
+            else ReinterpretCast(expr=group_index, wtype=wtype, source_location=location)
+        )
+        return GroupTransactionExpressionBuilder(txn, typ)
+
+
 class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
-        self.wtype = expect_wtype(expr, wtypes.WGroupTransaction)
-        super().__init__(expr)
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert typ == pytypes.GroupTransactionBaseType or isinstance(
+            typ, pytypes.TransactionRelatedType
+        )
+        super().__init__(typ, expr)
 
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
         return IntrinsicCall(
@@ -52,10 +78,10 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
     ) -> ExpressionBuilder:
-        return GroupTransactionArrayExpressionBuilder(self.expr, field, typ, location)
+        return _ArrayItem(self.expr, field, typ, location)
 
 
-class GroupTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
+class _ArrayItem(FunctionBuilder):
     def __init__(
         self,
         transaction: Expression,
@@ -124,31 +150,3 @@ def check_transaction_type(
             comment=f"transaction type is {expected_transaction_type.transaction_type.name}",
         ),
     )
-
-
-class GroupTransactionClassExpressionBuilder(
-    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
-):
-    @typing.override
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case [ExpressionBuilder() as eb]:
-                group_index = expect_operand_wtype(eb, wtypes.uint64_wtype)
-            case [Literal(value=int(int_value), source_location=loc)]:
-                group_index = UInt64Constant(value=int_value, source_location=loc)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        wtype = self.produces()
-        txn = (
-            check_transaction_type(group_index, wtype, location)
-            if isinstance(wtype, wtypes.WGroupTransaction) and wtype.transaction_type is not None
-            else ReinterpretCast(expr=group_index, wtype=wtype, source_location=location)
-        )
-        return GroupTransactionExpressionBuilder(txn)

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from immutabledict import immutabledict
-
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
@@ -54,10 +52,9 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
-    wtype = wtypes.application_wtype
-    native_access_member = "id"
-    field_mapping = immutabledict(
-        {
+    def __init__(self, expr: Expression):
+        native_access_member = "id"
+        field_mapping = {
             "approval_program": ("AppApprovalProgram", pytypes.BytesType),
             "clear_state_program": ("AppClearStateProgram", pytypes.BytesType),
             "global_num_uint": ("AppGlobalNumUint", pytypes.UInt64Type),
@@ -68,6 +65,13 @@ class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
             "creator": ("AppCreator", pytypes.AccountType),
             "address": ("AppAddress", pytypes.AccountType),
         }
-    )
-    field_op_code = "app_params_get"
-    field_bool_comment = "application exists"
+        field_op_code = "app_params_get"
+        field_bool_comment = "application exists"
+        super().__init__(
+            expr,
+            typ=pytypes.ApplicationType,
+            native_access_member=native_access_member,
+            field_mapping=field_mapping,
+            field_op_code=field_op_code,
+            field_bool_comment=field_bool_comment,
+        )

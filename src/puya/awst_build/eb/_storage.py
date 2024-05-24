@@ -13,29 +13,32 @@ from puya.awst.nodes import (
     Lvalue,
     Statement,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.base import ExpressionBuilder, StorageProxyConstructorResult
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
 class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorResult):
-    python_name: str
-    is_prefix: bool
-
     def __init__(
         self,
+        typ: pytypes.StorageProxyType | pytypes.StorageMapProxyType,
         location: SourceLocation,
         description: str | None,
         initial_value: Expression | None = None,
     ):
         super().__init__(location)
+        self._typ = typ
         self.description = description
         self._initial_value = initial_value
+
+    @property
+    def pytype(self) -> pytypes.StorageProxyType | pytypes.StorageMapProxyType:
+        return self._typ
 
     @typing.override
     @property
@@ -50,12 +53,7 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        # if not isinstance(self.key_override, BytesConstant):
-        #     raise CodeError(
-        #         f"assigning {typ} to a member variable"
-        #         f" requires a constant value for key{'_prefix' if self.is_prefix else ''}",
-        #         location,
-        #     )
+        assert typ == self._typ
         return AppStorageDeclaration(
             description=self.description,
             member_name=member_name,
@@ -71,9 +69,7 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
 
     @typing.override
     def lvalue(self) -> Lvalue:
-        raise CodeError(
-            f"{self.python_name} is not valid as an assignment target", self.source_location
-        )
+        raise CodeError(f"{self._typ} is not valid as an assignment target", self.source_location)
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
@@ -103,7 +99,8 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
 
     def _assign_first(self, location: SourceLocation) -> typing.Never:
         raise CodeError(
-            f"{self.python_name} with inferred key{'_prefix' if self.is_prefix else ''}"
+            f"{self._typ} with inferred"
+            f" key{'_prefix' if isinstance(self._typ, pytypes.StorageMapProxyType) else ''}"
             " must be assigned to an instance variable before being used",
             location,
         )

@@ -622,11 +622,15 @@ class FunctionASTConverter(
         if func_builder := type_registry.FUNC_NAME_TO_BUILDER.get(fullname):
             return func_builder(expr_loc)
         match expr:
-            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ):
-                if typ.has_base(constants.CONTRACT_BASE):
-                    return ContractTypeExpressionBuilder(self.context, typ.defn.info, expr_loc)
-                if typ.has_base(constants.CLS_ARC4_CLIENT):  # provides type info only
-                    return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
+            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if py_typ:
+                if pytypes.ContractBaseType in py_typ.mro:
+                    return ContractTypeExpressionBuilder(
+                        self.context, py_typ, typ.defn.info, expr_loc
+                    )
+                if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
+                    return ARC4ClientClassExpressionBuilder(
+                        self.context, py_typ, expr_loc, typ.defn.info
+                    )
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
                 if self.contract_method_info is None:
                     raise InternalError(
@@ -1030,6 +1034,7 @@ class FunctionASTConverter(
         return base_expr.index(index=index_expr_or_literal, location=expr_location)
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> ExpressionBuilder:
+        # TODO: conditional literals as literal builders
         condition = self._eval_condition(expr.cond)
         true_expr = require_expression_builder(expr.if_expr.accept(self)).rvalue()  # TODO: pytypes
         false_expr = require_expression_builder(expr.else_expr.accept(self)).rvalue()  # TODO: ^

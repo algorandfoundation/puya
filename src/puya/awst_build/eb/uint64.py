@@ -70,7 +70,8 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class UInt64ExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.uint64_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.UInt64Type, expr)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         as_bool = ReinterpretCast(

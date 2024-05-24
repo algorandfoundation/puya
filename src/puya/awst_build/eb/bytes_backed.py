@@ -8,11 +8,7 @@ import typing_extensions
 from puya.awst import wtypes
 from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -36,7 +32,7 @@ class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TPyType_co],
                 )
 
 
-class _FromBytes(IntermediateExpressionBuilder):
+class _FromBytes(FunctionBuilder):
     def __init__(self, result_type: pytypes.PyType, location: SourceLocation):
         super().__init__(location)
         self.result_type = result_type

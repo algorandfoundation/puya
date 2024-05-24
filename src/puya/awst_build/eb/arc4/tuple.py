@@ -80,14 +80,11 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
         raise CodeError("Invalid/unhandled arguments", location)
 
 
-class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
+class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.TupleType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(expr.wtype, wtypes.ARC4Tuple)
-        self.wtype: wtypes.ARC4Tuple = expr.wtype
         assert isinstance(typ, pytypes.TupleType)
         native_pytype = pytypes.GenericTupleType.parameterise(typ.items, expr.source_location)
-        self.pytyp = typ
-        super().__init__(expr, native_pytype=native_pytype)
+        super().__init__(typ, expr, native_pytype=native_pytype)
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
@@ -99,7 +96,7 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
             case _:
                 raise CodeError("arc4.Tuple can only be indexed by int constants")
         try:
-            item_typ = self.pytyp.items[index_value]
+            item_typ = self.pytype.items[index_value]
         except IndexError as ex:
             raise CodeError("Tuple index out of bounds", index_literal.source_location) from ex
         return builder_for_instance(

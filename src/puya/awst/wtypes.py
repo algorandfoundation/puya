@@ -23,13 +23,12 @@ LiteralValidator: typing.TypeAlias = Callable[[object], bool]
 @attrs.frozen(str=False, kw_only=True)
 class WType:
     name: str
-    stub_name: str
     immutable: bool = True
     scalar: bool = True  # is this a single value on the stack?
     is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
-        return self.stub_name
+        return self.name
 
 
 def is_valid_bool_literal(value: object) -> typing.TypeGuard[bool]:
@@ -75,40 +74,33 @@ def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
 
 void_wtype: typing.Final = WType(
     name="void",
-    stub_name="None",
 )
 
 bool_wtype: typing.Final = WType(
     name="bool",
-    stub_name="bool",
     is_valid_literal=is_valid_bool_literal,
 )
 
 uint64_wtype: typing.Final = WType(
     name="uint64",
-    stub_name=constants.CLS_UINT64_ALIAS,
     is_valid_literal=is_valid_uint64_literal,
 )
 
 biguint_wtype: typing.Final = WType(
     name="biguint",
-    stub_name=constants.CLS_BIGUINT_ALIAS,
     is_valid_literal=is_valid_biguint_literal,
 )
 
 bytes_wtype: typing.Final = WType(
     name="bytes",
-    stub_name=constants.CLS_BYTES_ALIAS,
     is_valid_literal=is_valid_bytes_literal,
 )
 string_wtype: typing.Final = WType(
     name="string",
-    stub_name=constants.CLS_STRING_ALIAS,
     is_valid_literal=is_valid_utf8_literal,
 )
 asset_wtype: typing.Final = WType(
     name="asset",
-    stub_name=constants.CLS_ASSET_ALIAS,
     is_valid_literal=is_valid_uint64_literal,
 )
 # TODO: take the below approach and use everywhere
@@ -125,13 +117,11 @@ asset_wtype: typing.Final = WType(
 
 account_wtype: typing.Final = WType(
     name="account",
-    stub_name=constants.CLS_ACCOUNT_ALIAS,
     is_valid_literal=is_valid_account_literal,
 )
 
 application_wtype: typing.Final = WType(
     name="application",
-    stub_name=constants.CLS_APPLICATION_ALIAS,
     is_valid_literal=is_valid_uint64_literal,
 )
 
@@ -147,11 +137,7 @@ class WGroupTransaction(WType):
         name = "group_transaction"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
-        return cls(
-            transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].gtxn,
-            name=name,
-        )
+        return cls(name=name, transaction_type=transaction_type)
 
     # TODO only allow int literals below max group size
 
@@ -168,11 +154,7 @@ class WInnerTransactionFields(WType):
         name = "inner_transaction_fields"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
-        return cls(
-            transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_fields,
-            name=name,
-        )
+        return cls(name=name, transaction_type=transaction_type)
 
 
 @attrs.define
@@ -185,11 +167,7 @@ class WInnerTransaction(WType):
         name = "inner_transaction"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
-        return cls(
-            transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_result,
-            name=name,
-        )
+        return cls(name=name, transaction_type=transaction_type)
 
 
 @typing.final
@@ -200,7 +178,6 @@ class WStructType(WType):
 
     def __init__(
         self,
-        python_name: str,  # TODO: yeet me
         fields: Mapping[str, WType],
         immutable: bool,  # noqa: FBT001
         source_location: SourceLocation | None,
@@ -216,12 +193,7 @@ class WStructType(WType):
             )
             + ">"
         )
-        self.__attrs_init__(
-            name=name,
-            stub_name=python_name,
-            immutable=immutable,
-            fields=fields,
-        )
+        self.__attrs_init__(name=name, fields=fields, immutable=immutable)
 
 
 @typing.final
@@ -234,12 +206,7 @@ class WArray(WType):
         if element_type == void_wtype:
             raise CodeError("array element type cannot be void", source_location)
         name = f"array<{element_type.name}>"
-        self.__attrs_init__(
-            name=name,
-            stub_name=f"{constants.CLS_ARRAY_ALIAS}[{element_type}]",
-            immutable=False,
-            element_type=element_type,
-        )
+        self.__attrs_init__(name=name, element_type=element_type, immutable=False)
 
 
 @typing.final
@@ -255,8 +222,7 @@ class WTuple(WType):
         if void_wtype in types:
             raise CodeError("tuple should not contain void types", source_location)
         name = f"tuple<{','.join([t.name for t in types])}>"
-        python_name = f"tuple[{', '.join(map(str, types))}]"
-        self.__attrs_init__(name=name, stub_name=python_name, types=types)
+        self.__attrs_init__(name=name, types=types)
 
 
 @attrs.frozen
@@ -281,20 +247,13 @@ class ARC4UIntN(ARC4Type):
         *,
         name: str | None = None,
         alias: str | None = None,
-        stub_name: str | None = None,
     ):
         if not (n % 8 == 0):
             raise CodeError("Bit size must be multiple of 8", source_location)
         if not (8 <= n <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
         name = name or f"arc4.uint{n}"
-        if stub_name is None:
-            if n.bit_count() == 1:  # quick way to check for power of 2
-                stub_name = f"{constants.ARC4_PREFIX}UInt{n}"
-            else:
-                base_cls = constants.CLS_ARC4_UINTN if n <= 64 else constants.CLS_ARC4_BIG_UINTN
-                stub_name = f"{base_cls}[typing.Literal[{n}]]"
-        self.__attrs_init__(n=n, name=name, stub_name=stub_name, alias=alias)
+        self.__attrs_init__(name=name, n=n, alias=alias)
 
 
 @typing.final
@@ -322,10 +281,7 @@ class ARC4Tuple(ARC4Type):
             # then the overall value is also mutable
             immutable = immutable and typ.immutable
         name = f"arc4.tuple<{','.join([t.name for t in types])}>"
-        python_name = f"{constants.CLS_ARC4_TUPLE}[{', '.join(map(str, types))}]"
-        self.__attrs_init__(
-            name=name, stub_name=python_name, types=tuple(arc4_types), immutable=immutable
-        )
+        self.__attrs_init__(name=name, types=tuple(arc4_types), immutable=immutable)
 
 
 @typing.final
@@ -335,41 +291,39 @@ class ARC4UFixedNxM(ARC4Type):
     m: int
 
     def __init__(self, bits: int, precision: int, source_location: SourceLocation | None):
-        n = bits
-        m = precision
-        if not (n % 8 == 0):
+        if not (bits % 8 == 0):
             raise CodeError("Bit size must be multiple of 8", source_location)
-        if not (8 <= n <= 512):
+        if not (8 <= bits <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
-        if not (1 <= m <= 160):
+        if not (1 <= precision <= 160):
             raise CodeError("Precision must be between 1 and 160 inclusive", source_location)
 
-        name = f"arc4.ufixed{n}x{m}"
-        base_cls = constants.CLS_ARC4_UFIXEDNXM if n <= 64 else constants.CLS_ARC4_BIG_UFIXEDNXM
-
-        def is_valid_literal(value: object) -> bool:
-            import decimal
-
-            if not isinstance(value, decimal.Decimal):
-                return False
-            sign, digits, exponent = value.as_tuple()
-            if sign != 0:  # is negative
-                return False
-            if not isinstance(exponent, int):  # is infinite
-                return False
-            # note: input is expected to be quantized correctly already
-            if -exponent != m:  # wrong precision
-                return False
-            adjusted_int = int("".join(map(str, digits)))
-            return adjusted_int.bit_length() <= n
-
         self.__attrs_init__(
-            n=n,
-            m=m,
-            name=name,
-            stub_name=f"{base_cls}[typing.Literal[{n}], typing.Literal[{m}]]",
-            is_valid_literal=is_valid_literal,
+            name=f"arc4.ufixed{bits}x{precision}",
+            n=bits,
+            m=precision,
+            is_valid_literal=_make_ufixed_literal_validator(precision=precision, bits=bits),
         )
+
+
+def _make_ufixed_literal_validator(*, bits: int, precision: int) -> LiteralValidator:
+    def validator(value: object) -> bool:
+        import decimal
+
+        if not isinstance(value, decimal.Decimal):
+            return False
+        sign, digits, exponent = value.as_tuple()
+        if sign != 0:  # is negative
+            return False
+        if not isinstance(exponent, int):  # is infinite
+            return False
+        # note: input is expected to be quantized correctly already
+        if -exponent != precision:  # wrong precision
+            return False
+        adjusted_int = int("".join(map(str, digits)))
+        return adjusted_int.bit_length() <= bits
+
+    return validator
 
 
 @attrs.frozen(str=False, kw_only=True)
@@ -390,18 +344,13 @@ class ARC4DynamicArray(ARC4Array):
         name: str | None = None,
         alias: str | None = None,
         is_valid_literal: LiteralValidator | None = None,
-        stub_name: str | None = None,
     ):
         if not isinstance(element_type, ARC4Type):
             raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
         name = name or f"arc4.dynamic_array<{element_type.name}>"
         is_valid_literal = is_valid_literal or typing.cast(LiteralValidator, attrs.NOTHING)
         self.__attrs_init__(
-            name=name,
-            element_type=element_type,
-            stub_name=stub_name or f"{constants.CLS_ARC4_DYNAMIC_ARRAY}[{element_type}]",
-            alias=alias,
-            is_valid_literal=is_valid_literal,
+            name=name, element_type=element_type, alias=alias, is_valid_literal=is_valid_literal
         )
 
 
@@ -418,7 +367,6 @@ class ARC4StaticArray(ARC4Array):
         *,
         alias: str | None = None,
         name: str | None = None,
-        stub_name: str | None = None,
     ):
         if not isinstance(element_type, ARC4Type):
             raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
@@ -426,16 +374,7 @@ class ARC4StaticArray(ARC4Array):
             raise CodeError("ARC4 static array size must be non-negative", source_location)
         name = name or f"arc4.static_array<{element_type.name}, {array_size}>"
         self.__attrs_init__(
-            array_size=array_size,
-            name=name,
-            element_type=element_type,
-            stub_name=stub_name
-            or (
-                f"{constants.CLS_ARC4_STATIC_ARRAY}["
-                f"{element_type}, typing.Literal[{array_size}]"
-                f"]"
-            ),
-            alias=alias,
+            name=name, element_type=element_type, array_size=array_size, alias=alias
         )
 
 
@@ -456,7 +395,6 @@ class ARC4Struct(ARC4Type):
 
     def __init__(
         self,
-        python_name: str,  # TODO: yeet me
         fields: Mapping[str, WType],
         immutable: bool,  # noqa: FBT001
         source_location: SourceLocation | None,
@@ -490,23 +428,16 @@ class ARC4Struct(ARC4Type):
             )
             + ">"
         )
-        self.__attrs_init__(
-            name=name,
-            stub_name=python_name,
-            immutable=immutable,
-            fields=arc4_fields,
-        )
+        self.__attrs_init__(name=name, fields=arc4_fields, immutable=immutable)
 
 
 arc4_string_wtype: typing.Final = ARC4Type(
     name="arc4.string",
-    stub_name=constants.CLS_ARC4_STRING,
     alias="string",
     is_valid_literal=is_valid_utf8_literal,
 )
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
-    stub_name=constants.CLS_ARC4_BOOL,
     alias="bool",
     is_valid_literal=is_valid_bool_literal,
 )
@@ -515,20 +446,17 @@ arc4_byte_type: typing.Final = ARC4UIntN(  # TODO: REMOVE ME
     name="arc4.byte",
     alias="byte",
     source_location=None,
-    stub_name=constants.CLS_ARC4_BYTE,
 )
 arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(  # TODO: REMOVE ME
     name="arc4.dynamic_bytes",
     element_type=arc4_byte_type,
     is_valid_literal=is_valid_bytes_literal,
-    stub_name=constants.CLS_ARC4_DYNAMIC_BYTES,
     source_location=None,
 )
 arc4_address_type: typing.Final = ARC4StaticArray(
-    array_size=32,
     name="arc4.address",
     element_type=arc4_byte_type,
-    stub_name=constants.CLS_ARC4_ADDRESS,
+    array_size=32,
     alias="address",
     source_location=None,
 )

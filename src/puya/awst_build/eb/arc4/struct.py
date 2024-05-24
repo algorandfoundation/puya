@@ -68,17 +68,14 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
         )
 
 
-class ARC4StructExpressionBuilder(ValueExpressionBuilder):
+class ARC4StructExpressionBuilder(ValueExpressionBuilder[pytypes.StructType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)
-        self.pytyp = typ
-        assert isinstance(expr.wtype, wtypes.ARC4Struct)
-        self.wtype: wtypes.ARC4Struct = expr.wtype
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
-            case field_name if self.pytyp and (field := self.pytyp.fields.get(field_name)):
+            case field_name if self.pytype and (field := self.pytype.fields.get(field_name)):
                 result_expr = FieldExpression(
                     base=self.expr,
                     name=field_name,
@@ -89,7 +86,7 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case "copy":
-                return CopyBuilder(self.expr, location, self.pytyp)
+                return CopyBuilder(self.expr, location, self.pytype)
             case _:
                 return super().member_access(name, location)
 

@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Sequence
 
@@ -5,7 +6,7 @@ import mypy.nodes
 
 from puya.awst.nodes import BoxValueExpression, Literal, StateGet, StateGetEx
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
@@ -13,7 +14,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class _BoxKeyExpressionIntermediateExpressionBuilder(IntermediateExpressionBuilder):
+class _BoxKeyExpressionIntermediateExpressionBuilder(FunctionBuilder, abc.ABC):
     def __init__(self, box: BoxValueExpression, content_type: pytypes.PyType) -> None:
         super().__init__(box.source_location)
         self.box = box

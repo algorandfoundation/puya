@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from immutabledict import immutabledict
-
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -17,7 +15,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
@@ -72,7 +70,7 @@ ASSET_HOLDING_FIELD_MAPPING: typing.Final = {
 }
 
 
-class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
+class AssetHoldingExpressionBuilder(FunctionBuilder):
     def __init__(self, asset: Expression, holding_field: str, location: SourceLocation):
         self.asset = asset
         self.holding_field = holding_field
@@ -106,10 +104,9 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
-    wtype = wtypes.asset_wtype
-    native_access_member = "id"
-    field_mapping = immutabledict(
-        {
+    def __init__(self, expr: Expression):
+        native_access_member = "id"
+        field_mapping = {
             "total": ("AssetTotal", pytypes.UInt64Type),
             "decimals": ("AssetDecimals", pytypes.UInt64Type),
             "default_frozen": ("AssetDefaultFrozen", pytypes.BoolType),
@@ -123,9 +120,16 @@ class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
             "clawback": ("AssetClawback", pytypes.AccountType),
             "creator": ("AssetCreator", pytypes.AccountType),
         }
-    )
-    field_op_code = "asset_params_get"
-    field_bool_comment = "asset exists"
+        field_op_code = "asset_params_get"
+        field_bool_comment = "asset exists"
+        super().__init__(
+            expr,
+            typ=pytypes.AssetType,
+            native_access_member=native_access_member,
+            field_mapping=field_mapping,
+            field_op_code=field_op_code,
+            field_bool_comment=field_bool_comment,
+        )
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         if name in ASSET_HOLDING_FIELD_MAPPING:

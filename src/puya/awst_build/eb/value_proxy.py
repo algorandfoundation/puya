@@ -18,9 +18,7 @@ from puya.parse import SourceLocation
 
 class ValueProxyExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, typ: pytypes.PyType, expr: Expression):
-        self.pytype = typ
-        self.wtype = typ.wtype
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     @property
     def _proxied(self) -> ExpressionBuilder:

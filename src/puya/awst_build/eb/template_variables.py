@@ -5,14 +5,14 @@ import mypy.nodes
 
 from puya.awst.nodes import Literal, TemplateVar
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
+class GenericTemplateVariableExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -25,7 +25,7 @@ class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
         raise CodeError("TemplateVar usage requires type parameter", location)
 
 
-class TemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
+class TemplateVariableExpressionBuilder(FunctionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.PseudoGenericFunctionType)
         self.result_type = typ.return_type

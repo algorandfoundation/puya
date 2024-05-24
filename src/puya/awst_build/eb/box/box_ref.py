@@ -19,7 +19,7 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -62,20 +62,15 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StoragePro
 
         key_override = extract_key_override(key_arg, location, is_prefix=False)
         if key_override is None:
-            return BoxRefProxyDefinitionBuilder(location=location, description=None)
+            return StorageProxyDefinitionBuilder(
+                self.produces2(), location=location, description=None
+            )
         return _BoxRefProxyExpressionBuilderFromConstructor(expr=key_override)
 
 
-class BoxRefProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = str(pytypes.BoxRefType)
-    is_prefix = False
-
-
 class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bytes_wtype
-
     def __init__(self, expr: Expression, member_name: str | None = None):
-        super().__init__(expr)
+        super().__init__(pytypes.BoxRefType, expr)
         self._member_name = member_name
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
@@ -86,6 +81,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
             member_name=self._member_name,
         )
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         box_exists = StateExists(
             field=self._box_key_expr(location),
@@ -95,12 +91,13 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
             Not(expr=box_exists, source_location=location) if negate else box_exists
         )
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "create":
-                return BoxRefCreateExpressionBuilder(location, box_proxy=self.expr)
+                return _Create(location, box_proxy=self.expr)
             case "delete":
-                return BoxRefIntrinsicMethodExpressionBuilder(
+                return _IntrinsicMethod(
                     location,
                     box_proxy=self.expr,
                     op_code="box_del",
@@ -109,7 +106,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     return_type=pytypes.BoolType,
                 )
             case "extract":
-                return BoxRefIntrinsicMethodExpressionBuilder(
+                return _IntrinsicMethod(
                     location,
                     box_proxy=self.expr,
                     op_code="box_extract",
@@ -120,7 +117,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
             case "resize":
                 raise NotImplementedError("TODO: BoxRef.resize handler")
             case "replace":
-                return BoxRefIntrinsicMethodExpressionBuilder(
+                return _IntrinsicMethod(
                     location,
                     box_proxy=self.expr,
                     op_code="box_replace",
@@ -129,7 +126,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     return_type=pytypes.NoneType,
                 )
             case "splice":
-                return BoxRefIntrinsicMethodExpressionBuilder(
+                return _IntrinsicMethod(
                     location,
                     box_proxy=self.expr,
                     op_code="box_splice",
@@ -143,7 +140,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                     self._box_key_expr(location), content_type=pytypes.BytesType
                 )
             case "put":
-                return BoxRefPutExpressionBuilder(location, box_proxy=self.expr)
+                return _Put(location, box_proxy=self.expr)
             case "maybe":
                 return BoxMaybeExpressionBuilder(
                     self._box_key_expr(location), content_type=pytypes.BytesType
@@ -188,7 +185,7 @@ class _BoxRefProxyExpressionBuilderFromConstructor(
         )
 
 
-class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
+class _IntrinsicMethod(FunctionBuilder):
     def __init__(
         self,
         location: SourceLocation,
@@ -234,11 +231,12 @@ class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
         return builder_for_instance(self.return_type, result_expr)
 
 
-class BoxRefCreateExpressionBuilder(IntermediateExpressionBuilder):
+class _Create(FunctionBuilder):
     def __init__(self, location: SourceLocation, *, box_proxy: Expression) -> None:
         super().__init__(location)
         self.box_proxy = box_proxy
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -262,11 +260,12 @@ class BoxRefCreateExpressionBuilder(IntermediateExpressionBuilder):
         )
 
 
-class BoxRefPutExpressionBuilder(IntermediateExpressionBuilder):
+class _Put(FunctionBuilder):
     def __init__(self, location: SourceLocation, *, box_proxy: Expression) -> None:
         super().__init__(location)
         self.box_proxy = box_proxy
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

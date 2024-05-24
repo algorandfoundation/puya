@@ -20,8 +20,8 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    FunctionBuilder,
     GenericClassExpressionBuilder,
-    IntermediateExpressionBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -111,26 +111,19 @@ def _init(
 
     key_prefix_override = extract_key_override(key_prefix_arg, location, is_prefix=True)
     if key_prefix_override is None:
-        return BoxMapProxyDefinitionBuilder(location=location, description=None)
+        return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
     return _BoxMapProxyExpressionBuilderFromConstructor(
         key_prefix_override=key_prefix_override, typ=result_type
     )
 
 
-class BoxMapProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = str(pytypes.GenericBoxMapType)
-    is_prefix = False
-
-
 class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bytes_wtype
-
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType
         self._typ = typ
         self._member_name = member_name
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     @typing.override
     def index(
@@ -145,11 +138,11 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "length":
-                return BoxMapLengthMethodExpressionBuilder(location, self.expr, self._typ)
+                return _Length(location, self.expr, self._typ)
             case "maybe":
-                return BoxMapMaybeMethodExpressionBuilder(location, self.expr, self._typ)
+                return _Maybe(location, self.expr, self._typ)
             case "get":
-                return BoxMapGetMethodExpressionBuilder(location, self.expr, self._typ)
+                return _Get(location, self.expr, self._typ)
             case _:
                 return super().member_access(name, location)
 
@@ -199,7 +192,7 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
         )
 
 
-class BoxMapMethodExpressionBuilder(IntermediateExpressionBuilder):
+class _MethodBase(FunctionBuilder):
     def __init__(
         self,
         location: SourceLocation,
@@ -211,7 +204,7 @@ class BoxMapMethodExpressionBuilder(IntermediateExpressionBuilder):
         self.box_type = box_type
 
 
-class BoxMapLengthMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
+class _Length(_MethodBase):
     @typing.override
     def call(
         self,
@@ -235,7 +228,7 @@ class BoxMapLengthMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         )
 
 
-class BoxMapGetMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
+class _Get(_MethodBase):
     @typing.override
     def call(
         self,
@@ -255,7 +248,7 @@ class BoxMapGetMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         return builder_for_instance(self.box_type.content, result_expr)
 
 
-class BoxMapMaybeMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
+class _Maybe(_MethodBase):
     @typing.override
     def call(
         self,

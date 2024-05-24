@@ -162,7 +162,6 @@ def require_expression_builder(
 
     match builder_or_literal:
         case Literal(value=bool(value), source_location=literal_location):
-            # TODO: PyType known as bool
             return BoolExpressionBuilder(
                 BoolConstant(value=value, source_location=literal_location)
             )

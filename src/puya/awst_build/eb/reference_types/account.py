@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from immutabledict import immutabledict
-
 from puya import log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
@@ -23,11 +21,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import (
-    BuilderComparisonOp,
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-)
+from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
@@ -94,11 +88,78 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         return AccountExpressionBuilder(value)
 
 
-class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
+class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
+    def __init__(self, expr: Expression):
+        native_type = pytypes.BytesType
+        native_access_member = "bytes"
+        field_mapping = {
+            "balance": ("AcctBalance", pytypes.UInt64Type),
+            "min_balance": ("AcctMinBalance", pytypes.UInt64Type),
+            "auth_address": ("AcctAuthAddr", pytypes.AccountType),
+            "total_num_uint": ("AcctTotalNumUint", pytypes.UInt64Type),
+            "total_num_byte_slice": ("AcctTotalNumByteSlice", pytypes.UInt64Type),
+            "total_extra_app_pages": ("AcctTotalExtraAppPages", pytypes.UInt64Type),
+            "total_apps_created": ("AcctTotalAppsCreated", pytypes.UInt64Type),
+            "total_apps_opted_in": ("AcctTotalAppsOptedIn", pytypes.UInt64Type),
+            "total_assets_created": ("AcctTotalAssetsCreated", pytypes.UInt64Type),
+            "total_assets": ("AcctTotalAssets", pytypes.UInt64Type),
+            "total_boxes": ("AcctTotalBoxes", pytypes.UInt64Type),
+            "total_box_bytes": ("AcctTotalBoxBytes", pytypes.UInt64Type),
+        }
+        field_op_code = "acct_params_get"
+        field_bool_comment = "account funded"
+        super().__init__(
+            expr,
+            typ=pytypes.AccountType,
+            native_type=native_type,
+            native_access_member=native_access_member,
+            field_mapping=field_mapping,
+            field_op_code=field_op_code,
+            field_bool_comment=field_bool_comment,
+        )
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+        if name == "is_opted_in":
+            return _IsOptedIn(self.expr, location)
+        return super().member_access(name, location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        cmp_with_zero_expr = BytesComparisonExpression(
+            source_location=location,
+            lhs=self.expr,
+            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
+            rhs=intrinsic_factory.zero_address(location),
+        )
+
+        return BoolExpressionBuilder(cmp_with_zero_expr)
+
+    @typing.override
+    def compare(
+        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> ExpressionBuilder:
+        other_expr = convert_literal_to_expr(other, self.wtype)
+        if not (
+            other_expr.wtype == self.wtype  # can only compare with other Accounts?
+            and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
+        ):
+            return NotImplemented
+        cmp_expr = BytesComparisonExpression(
+            source_location=location,
+            lhs=self.expr,
+            operator=EqualityComparison(op.value),
+            rhs=other_expr,
+        )
+        return BoolExpressionBuilder(cmp_expr)
+
+
+class _IsOptedIn(FunctionBuilder):
     def __init__(self, expr: Expression, source_location: SourceLocation):
         super().__init__(source_location)
         self.expr = expr
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -134,59 +195,3 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
                     )
                 )
         raise CodeError("Unexpected argument", location)
-
-
-class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
-    wtype = wtypes.account_wtype
-    native_type = pytypes.BytesType
-    native_access_member = "bytes"
-    field_mapping = immutabledict(
-        {
-            "balance": ("AcctBalance", pytypes.UInt64Type),
-            "min_balance": ("AcctMinBalance", pytypes.UInt64Type),
-            "auth_address": ("AcctAuthAddr", pytypes.AccountType),
-            "total_num_uint": ("AcctTotalNumUint", pytypes.UInt64Type),
-            "total_num_byte_slice": ("AcctTotalNumByteSlice", pytypes.UInt64Type),
-            "total_extra_app_pages": ("AcctTotalExtraAppPages", pytypes.UInt64Type),
-            "total_apps_created": ("AcctTotalAppsCreated", pytypes.UInt64Type),
-            "total_apps_opted_in": ("AcctTotalAppsOptedIn", pytypes.UInt64Type),
-            "total_assets_created": ("AcctTotalAssetsCreated", pytypes.UInt64Type),
-            "total_assets": ("AcctTotalAssets", pytypes.UInt64Type),
-            "total_boxes": ("AcctTotalBoxes", pytypes.UInt64Type),
-            "total_box_bytes": ("AcctTotalBoxBytes", pytypes.UInt64Type),
-        }
-    )
-    field_op_code = "acct_params_get"
-    field_bool_comment = "account funded"
-
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        if name == "is_opted_in":
-            return AccountOptedInExpressionBuilder(self.expr, location)
-        return super().member_access(name, location)
-
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        cmp_with_zero_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-            rhs=intrinsic_factory.zero_address(location),
-        )
-
-        return BoolExpressionBuilder(cmp_with_zero_expr)
-
-    def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
-        if not (
-            other_expr.wtype == self.wtype  # can only compare with other Accounts?
-            and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
-        ):
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison(op.value),
-            rhs=other_expr,
-        )
-        return BoolExpressionBuilder(cmp_expr)

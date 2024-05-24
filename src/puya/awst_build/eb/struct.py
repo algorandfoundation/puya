@@ -3,7 +3,6 @@ from collections.abc import Sequence
 import mypy.nodes
 import mypy.types
 
-from puya.awst import wtypes
 from puya.awst.nodes import Expression, FieldExpression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
@@ -33,17 +32,14 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StructT
         raise NotImplementedError
 
 
-class StructExpressionBuilder(ValueExpressionBuilder):
+class StructExpressionBuilder(ValueExpressionBuilder[pytypes.StructType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)
-        self.pytyp = typ
-        assert isinstance(expr.wtype, wtypes.WStructType)
-        self.wtype: wtypes.WStructType = expr.wtype
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         try:
-            field_type = self.pytyp.fields[name]
+            field_type = self.pytype.fields[name]
         except KeyError as ex:
             raise CodeError(f"Invalid struct field: {name}", location) from ex
         field_expr = FieldExpression(location, field_type.wtype, self.expr, name)

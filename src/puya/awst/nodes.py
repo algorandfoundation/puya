@@ -162,7 +162,7 @@ wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
 
 
 @attrs.frozen
-class Literal(Node):
+class Literal(Node):  # TODO: yeet me
     """These shouldn't appear in the final AWST.
 
     They are temporarily constructed during evaluation of sub-expressions, when we encounter

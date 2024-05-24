@@ -4,7 +4,6 @@ import typing
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
     BytesConstant,
@@ -27,8 +26,8 @@ from puya.awst_build.eb._storage import (
 )
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    FunctionBuilder,
     GenericClassExpressionBuilder,
-    IntermediateExpressionBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -127,8 +126,8 @@ def _init(
     key_override = extract_key_override(key_arg, location, is_prefix=False)
     description = extract_description(descr_arg)
     if key_override is None:
-        return AppStateProxyDefinitionBuilder(
-            location=location, description=description, initial_value=initial_value
+        return StorageProxyDefinitionBuilder(
+            result_type, location=location, description=description, initial_value=initial_value
         )
     return _AppStateExpressionBuilderFromConstructor(
         key_override=key_override,
@@ -138,20 +137,13 @@ def _init(
     )
 
 
-class AppStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = str(pytypes.GenericGlobalStateType)
-    is_prefix = False
-
-
-class AppStateExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bytes_wtype
+class AppStateExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
 
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericGlobalStateType
-        self._typ = typ
         self._member_name = member_name
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
@@ -167,18 +159,18 @@ class AppStateExpressionBuilder(ValueExpressionBuilder):
         field = self._build_field(location)
         match name:
             case "value":
-                return AppStateValueExpressionBuilder(self._typ.content, field)
+                return AppStateValueExpressionBuilder(self.pytype.content, field)
             case "get":
-                return _Get(field, self._typ.content, location=self.source_location)
+                return _Get(field, self.pytype.content, location=self.source_location)
             case "maybe":
-                return _Maybe(self._typ.content, field, location=self.source_location)
+                return _Maybe(self.pytype.content, field, location=self.source_location)
             case _:
                 return super().member_access(name, location)
 
     def _build_field(self, location: SourceLocation) -> AppStateExpression:
         return AppStateExpression(
             key=self.expr,
-            wtype=self._typ.content.wtype,
+            wtype=self.pytype.content.wtype,
             member_name=self._member_name,
             source_location=location,
         )
@@ -227,7 +219,7 @@ class _AppStateExpressionBuilderFromConstructor(
         )
 
 
-class _Maybe(IntermediateExpressionBuilder):
+class _Maybe(FunctionBuilder):
     def __init__(
         self, content_type: pytypes.PyType, field: AppStateExpression, location: SourceLocation
     ) -> None:
@@ -251,7 +243,7 @@ class _Maybe(IntermediateExpressionBuilder):
         return TupleExpressionBuilder(expr, result_typ)
 
 
-class _Get(IntermediateExpressionBuilder):
+class _Get(FunctionBuilder):
     def __init__(
         self, field: AppStateExpression, content_type: pytypes.PyType, location: SourceLocation
     ) -> None:

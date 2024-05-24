@@ -32,7 +32,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -96,11 +96,12 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
                 )
 
 
-class BytesFromEncodedStrBuilder(IntermediateExpressionBuilder):
+class BytesFromEncodedStrBuilder(FunctionBuilder):
     def __init__(self, location: SourceLocation, encoding: BytesEncoding):
         super().__init__(location=location)
         self.encoding = encoding
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -142,7 +143,8 @@ class BytesFromEncodedStrBuilder(IntermediateExpressionBuilder):
 
 
 class BytesExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bytes_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.BytesType, expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:

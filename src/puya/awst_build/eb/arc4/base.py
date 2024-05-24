@@ -26,7 +26,7 @@ from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -66,7 +66,7 @@ def get_integer_literal_value(eb_or_literal: ExpressionBuilder | Literal, purpos
             raise CodeError(f"{purpose} must be compile time constant")
 
 
-class ARC4FromLogBuilder(IntermediateExpressionBuilder):
+class ARC4FromLogBuilder(FunctionBuilder):
     def __init__(self, location: SourceLocation, typ: pytypes.PyType):
         super().__init__(location=location)
         self.typ = typ
@@ -119,7 +119,7 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
-class CopyBuilder(IntermediateExpressionBuilder):
+class CopyBuilder(FunctionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
         self._typ = typ
         super().__init__(location)
@@ -143,9 +143,9 @@ class CopyBuilder(IntermediateExpressionBuilder):
         raise CodeError("Invalid/Unexpected arguments", location)
 
 
-class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
-    def __init__(self, expr: Expression, native_pytype: pytypes.PyType):
-        super().__init__(expr)
+class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC):
+    def __init__(self, pytype: _TPyType_co, expr: Expression, native_pytype: pytypes.PyType):
+        super().__init__(pytype, expr)
         self._native_pytype = native_pytype
 
     @typing.override

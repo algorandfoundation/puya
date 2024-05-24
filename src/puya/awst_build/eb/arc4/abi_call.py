@@ -36,7 +36,11 @@ from puya.awst_build.eb.arc4._utils import (
     get_arc4_args_and_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.base import (
+    ExpressionBuilder,
+    FunctionBuilder,
+    TypeClassExpressionBuilder,
+)
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
@@ -76,14 +80,15 @@ _APP_TRANSACTION_FIELDS = {
 }
 
 
-class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
+class ARC4ClientClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
+        typ: pytypes.PyType,
         source_location: SourceLocation,
         type_info: mypy.nodes.TypeInfo,
     ):
-        super().__init__(source_location)
+        super().__init__(typ, source_location)
         self.context = context
         self.type_info = type_info
 
@@ -106,7 +111,7 @@ class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
         return ARC4ClientMethodExpressionBuilder(self.context, func_or_dec, location)
 
 
-class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
+class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,  # TODO: yeet me
@@ -131,7 +136,7 @@ class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
         )
 
 
-class ABICallGenericClassExpressionBuilder(IntermediateExpressionBuilder):
+class ABICallGenericClassExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -144,7 +149,7 @@ class ABICallGenericClassExpressionBuilder(IntermediateExpressionBuilder):
         return _abi_call(args, arg_typs, arg_kinds, arg_names, location, abi_return_type=None)
 
 
-class ABICallClassExpressionBuilder(IntermediateExpressionBuilder):
+class ABICallClassExpressionBuilder(FunctionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.PseudoGenericFunctionType)
         self.abi_return_type = typ.return_type
@@ -368,7 +373,7 @@ def _create_abi_call_expr(
     )
 
     if not _is_typed(declared_result_pytype):
-        return InnerTransactionExpressionBuilder(itxn)
+        return InnerTransactionExpressionBuilder(itxn, itxn_result_pytype)
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
         source_location=location,

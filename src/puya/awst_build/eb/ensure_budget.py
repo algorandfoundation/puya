@@ -13,11 +13,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError
@@ -30,7 +26,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class EnsureBudgetBuilder(IntermediateExpressionBuilder):
+class EnsureBudgetBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,

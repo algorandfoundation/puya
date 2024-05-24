@@ -15,7 +15,6 @@ from puya.awst.nodes import (
     Literal,
     Lvalue,
     Range,
-    ReinterpretCast,
     Statement,
     TupleExpression,
     TupleItemExpression,
@@ -38,6 +37,7 @@ __all__ = [
     "BuilderBinaryOp",
     "ExpressionBuilder",
     "StorageProxyConstructorResult",
+    "FunctionBuilder",
     "IntermediateExpressionBuilder",
     "TypeClassExpressionBuilder",
     "GenericClassExpressionBuilder",
@@ -110,14 +110,21 @@ class ExpressionBuilder(abc.ABC):
     ) -> ExpressionBuilder: ...
 
     @property
+    @typing.final
     def value_type(self) -> wtypes.WType | None:
-        return None
+        if self.pytype is None:
+            return None
+        return self.pytype.wtype
+
+    @property
+    @abc.abstractmethod
+    def pytype(self) -> pytypes.PyType | None: ...
 
     @property
     def _type_description(self) -> str:
-        if self.value_type is None:
+        if self.pytype is None:
             return type(self).__name__
-        return self.value_type.stub_name
+        return str(self.pytype)
 
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -207,7 +214,7 @@ class ExpressionBuilder(abc.ABC):
         )
 
 
-class IntermediateExpressionBuilder(ExpressionBuilder):
+class IntermediateExpressionBuilder(ExpressionBuilder, abc.ABC):
     """Never valid as an assignment source OR target"""
 
     def rvalue(self) -> Expression:
@@ -246,6 +253,12 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
         raise CodeError(f"{self._type_description} is not a value", location)
 
 
+class FunctionBuilder(IntermediateExpressionBuilder):
+    @property
+    def pytype(self) -> None:  # TODO: give function type
+        return None
+
+
 class StorageProxyConstructorResult(abc.ABC):
     @property
     @abc.abstractmethod
@@ -275,6 +288,10 @@ class TypeClassExpressionBuilder(
         super().__init__(location)
         self._pytype = pytype
 
+    @property
+    def pytype(self) -> pytypes.TypeType:
+        return pytypes.TypeType(self._pytype)
+
     @typing.final
     def produces2(self) -> _TPyType_co:
         return self._pytype
@@ -297,6 +314,11 @@ class TypeClassExpressionBuilder(
 
 class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
     @typing.override
+    @property
+    def pytype(self) -> None:  # TODO: ??
+        return None
+
+    @typing.override
     @abc.abstractmethod
     def call(
         self,
@@ -315,17 +337,27 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
         )
 
 
-class ValueExpressionBuilder(ExpressionBuilder):
-    wtype: wtypes.WType
+class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
 
-    def __init__(self, expr: Expression):
+    def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)
+        self._pytype = pytype
         self.__expr = expr
         if expr.wtype != self.wtype:
             raise InternalError(
                 f"Invalid type of expression for {self.wtype}: {expr.wtype}",
                 expr.source_location,
             )
+
+    @typing.final
+    @property
+    def pytype(self) -> _TPyType_co:
+        return self._pytype
+
+    @typing.final
+    @property
+    def wtype(self) -> wtypes.WType:
+        return self._pytype.wtype
 
     @property
     def expr(self) -> Expression:
@@ -337,10 +369,6 @@ class ValueExpressionBuilder(ExpressionBuilder):
 
     def rvalue(self) -> Expression:
         return self.expr
-
-    @property
-    def value_type(self) -> wtypes.WType:
-        return self.wtype
 
     def delete(self, location: SourceLocation) -> Statement:
         raise CodeError(f"{self.wtype} is not valid as del target", location)
@@ -390,18 +418,19 @@ def _validate_lvalue(resolved: Expression) -> Lvalue:
     if isinstance(resolved, TupleItemExpression):
         raise CodeError("Tuple items cannot be reassigned", resolved.source_location)
     if not isinstance(resolved, Lvalue):  # type: ignore[arg-type,misc]
-        raise CodeError(
-            f"{resolved.wtype.stub_name} expression is not valid as assignment target",
-            resolved.source_location,
-        )
-    if isinstance(resolved, IndexExpression | FieldExpression) and resolved.base.wtype.immutable:
-        raise CodeError(
-            "expression is not valid as assignment target"
-            f" ({resolved.base.wtype.stub_name} is immutable)",
-            resolved.source_location,
-        )
-    if isinstance(resolved, ReinterpretCast):
-        _validate_lvalue(resolved.expr)
+        raise CodeError("expression is not valid as assignment target", resolved.source_location)
+    if isinstance(resolved, IndexExpression):
+        if resolved.base.wtype.immutable:
+            raise CodeError(
+                "expression is not valid as assignment target - collection is immutable",
+                resolved.source_location,
+            )
+    elif isinstance(resolved, FieldExpression):
+        if resolved.base.wtype.immutable:
+            raise CodeError(
+                "expression is not valid as assignment target - object is immutable",
+                resolved.source_location,
+            )
     elif isinstance(resolved, TupleExpression):
         for item in resolved.items:
             _validate_lvalue(item)

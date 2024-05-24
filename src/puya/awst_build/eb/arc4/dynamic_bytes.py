@@ -69,8 +69,6 @@ def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> Expression:
 
 
 class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
-    wtype = wtypes.arc4_dynamic_bytes
-
     def __init__(self, expr: Expression):
         super().__init__(expr, pytypes.ARC4DynamicBytesType)
 

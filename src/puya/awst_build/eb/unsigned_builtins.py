@@ -15,15 +15,14 @@ from puya.awst.nodes import (
     Reversed,
     UInt64Constant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
     Iteration,
+    TypeClassExpressionBuilder,
 )
-from puya.awst_build.utils import (
-    expect_operand_wtype,
-    require_expression_builder,
-)
+from puya.awst_build.utils import expect_operand_wtype, require_expression_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -31,13 +30,15 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class UnsignedRangeBuilder(IntermediateExpressionBuilder):
+class UnsignedRangeBuilder(TypeClassExpressionBuilder):
+    def __init__(self, location: SourceLocation):
+        super().__init__(pytypes.urangeType, location)
+
     @typing.override
     def call(
         self,
@@ -80,14 +81,18 @@ class UnsignedRange(IntermediateExpressionBuilder):
         self.sequence = sequence
 
     @typing.override
+    @property
+    def pytype(self) -> None:  # TODO: ??
+        return None
+
+    @typing.override
     def iterate(self) -> Iteration:
         return self.sequence
 
 
-class UnsignedEnumerateBuilder(IntermediateExpressionBuilder):
-    def __init__(self, typ: pytypes.PyType | None, location: SourceLocation):  # TODO: remove None
-        self._pytyp = typ
-        super().__init__(location)
+class UnsignedEnumerateBuilder(TypeClassExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -118,6 +123,11 @@ class UnsignedEnumerate(IntermediateExpressionBuilder):
         self._sequence = sequence
 
     @typing.override
+    @property
+    def pytype(self) -> None:  # TODO: ??
+        return None
+
+    @typing.override
     def iterate(self) -> Iteration:
         return Enumeration(
             expr=self._sequence,
@@ -125,10 +135,9 @@ class UnsignedEnumerate(IntermediateExpressionBuilder):
         )
 
 
-class ReversedFunctionExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, typ: pytypes.PyType | None, location: SourceLocation):  # TODO: remove None
-        self._pytyp = typ
-        super().__init__(location)
+class ReversedFunctionExpressionBuilder(TypeClassExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        super().__init__(typ, location)
 
     @typing.override
     def call(
@@ -156,6 +165,11 @@ class ReversedExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, sequence: Expression | Range, location: SourceLocation):
         super().__init__(location)
         self._sequence = sequence
+
+    @typing.override
+    @property
+    def pytype(self) -> None:  # TODO: ??
+        return None
 
     @typing.override
     def iterate(self) -> Iteration:

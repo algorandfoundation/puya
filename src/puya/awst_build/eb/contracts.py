@@ -1,3 +1,6 @@
+import typing
+from collections.abc import Sequence
+
 import mypy.nodes
 import mypy.types
 
@@ -6,13 +9,18 @@ from puya.awst.nodes import (
     AppStateExpression,
     BaseClassSubroutineTarget,
     InstanceSubroutineTarget,
+    Literal,
 )
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.base import (
+    ExpressionBuilder,
+    IntermediateExpressionBuilder,
+    TypeClassExpressionBuilder,
+)
 from puya.awst_build.eb.box import (
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
@@ -30,18 +38,31 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class ContractTypeExpressionBuilder(IntermediateExpressionBuilder):
+class ContractTypeExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
+        pytype: pytypes.PyType,
         type_info: mypy.nodes.TypeInfo,
         location: SourceLocation,
     ):
-        super().__init__(location)
+        super().__init__(pytype, location)
         self.context = context
         self._type_info = type_info
         self._cref = qualified_class_name(type_info)
 
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        raise CodeError("Cannot instantiate contract classes", location)
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
         if func_or_dec is None:
@@ -63,6 +84,12 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
         self.context = context
         self._type_info = type_info
 
+    @typing.override
+    @property
+    def pytype(self) -> None:
+        return None  # TODO ?
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
         if state_decl is not None:

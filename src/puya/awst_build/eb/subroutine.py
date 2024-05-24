@@ -15,7 +15,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
@@ -24,7 +24,7 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
+class SubroutineInvokerExpressionBuilder(FunctionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
@@ -90,6 +90,7 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
             raise CodeError(f"Couldn't resolve signature of {node.fullname!r}", location)
         super().__init__(context, target, location, func_type)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

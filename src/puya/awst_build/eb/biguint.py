@@ -71,7 +71,8 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 
 
 class BigUIntExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.biguint_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.BigUIntType, expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:

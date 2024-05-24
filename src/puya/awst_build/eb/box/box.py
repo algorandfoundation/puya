@@ -109,24 +109,17 @@ def _init(
 
     key_override = extract_key_override(key_arg, location, is_prefix=False)
     if key_override is None:
-        return BoxProxyDefinitionBuilder(location=location, description=None)
+        return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
 
 
-class BoxProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = str(pytypes.GenericBoxType)
-    is_prefix = False
-
-
 class BoxProxyExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bytes_wtype
-
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType
         self._typ = typ
         self._member_name = member_name
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
         return BoxValueExpression(

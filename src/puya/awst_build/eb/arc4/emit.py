@@ -1,24 +1,15 @@
 from __future__ import annotations
 
+import typing
 from typing import TYPE_CHECKING
 
 import mypy.nodes
 
 from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
-from puya.awst import wtypes
-from puya.awst.nodes import (
-    Literal,
-    MethodConstant,
-)
+from puya.awst.nodes import Literal, MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.arc4._utils import (
-    arc4_tuple_from_items,
-    get_arc4_args_and_signature,
-)
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-)
+from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
+from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.errors import CodeError
 
@@ -30,7 +21,8 @@ if TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class EmitBuilder(IntermediateExpressionBuilder):
+class EmitBuilder(FunctionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -41,9 +33,9 @@ class EmitBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [
-                ExpressionBuilder(value_type=wtypes.ARC4Struct() as struct_type) as event_arg_eb
-            ]:
-                event_name = struct_type.stub_name.split(".")[-1]
+                ExpressionBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
+            ] if pytypes.ARC4StructBaseType in struct_type.mro:
+                event_name = struct_type.name.split(".")[-1]
                 event_arg = event_arg_eb.rvalue()
             case [Literal(value=str(event_str)), *event_args]:
                 arc4_args, signature = get_arc4_args_and_signature(

@@ -5,9 +5,9 @@ import typing
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BoolConstant,
+    Expression,
     Literal,
     Not,
     NumericComparison,
@@ -57,7 +57,8 @@ class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class BoolExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bool_wtype
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.BoolType, expr)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         if not negate:

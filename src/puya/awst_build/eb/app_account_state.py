@@ -27,8 +27,8 @@ from puya.awst_build.eb._storage import (
 )
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    FunctionBuilder,
     GenericClassExpressionBuilder,
-    IntermediateExpressionBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -116,21 +116,20 @@ def _init(
     key_override = extract_key_override(key_arg, location, is_prefix=False)
     description = extract_description(descr_arg)
     if key_override is None:
-        return AppAccountStateProxyDefinitionBuilder(location=location, description=description)
+        return StorageProxyDefinitionBuilder(
+            result_type, location=location, description=description
+        )
     return _AppAccountStateExpressionBuilderFromConstructor(
         key_override=key_override, typ=result_type, description=description
     )
 
 
-class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bytes_wtype
-
+class AppAccountStateExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType
-        self._typ = typ
         self._member_name = member_name
-        super().__init__(expr)
+        super().__init__(typ, expr)
 
     def _build_field(
         self,
@@ -159,7 +158,7 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
             key=self.expr,
             member_name=self._member_name,
             account=index_expr,
-            wtype=self._typ.content.wtype,
+            wtype=self.pytype.content.wtype,
             source_location=location,
         )
 
@@ -167,7 +166,7 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
         expr = self._build_field(index, location)
-        return AppAccountStateForAccountExpressionBuilder(self._typ.content, expr)
+        return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
@@ -180,13 +179,9 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "get":
-                return AppAccountStateGetMethodBuilder(
-                    self._typ.content, self._build_field, location
-                )
+                return _Get(self.pytype.content, self._build_field, location)
             case "maybe":
-                return AppAccountStateMaybeMethodBuilder(
-                    self._typ.content, self._build_field, location
-                )
+                return _Maybe(self.pytype.content, self._build_field, location)
         return super().member_access(name, location)
 
 
@@ -231,7 +226,7 @@ class _AppAccountStateExpressionBuilderFromConstructor(
 FieldBuilder = Callable[[ExpressionBuilder | Literal, SourceLocation], AppAccountStateExpression]
 
 
-class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
+class _Get(FunctionBuilder):
     def __init__(
         self, content_typ: pytypes.PyType, field_builder: FieldBuilder, location: SourceLocation
     ):
@@ -264,7 +259,7 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
         return builder_for_instance(self._content_typ, expr)
 
 
-class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
+class _Maybe(FunctionBuilder):
     def __init__(
         self, content_typ: pytypes.PyType, field_builder: FieldBuilder, location: SourceLocation
     ):
@@ -298,8 +293,3 @@ class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
 
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)
-
-
-class AppAccountStateProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
-    python_name = str(pytypes.GenericLocalStateType)
-    is_prefix = False

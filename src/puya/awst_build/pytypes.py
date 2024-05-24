@@ -300,7 +300,7 @@ class StructType(PyType):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
         # TODO: this is a bit of a kludge
         wtype_cls: Callable[
-            [str, Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
+            [Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
         ]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct
@@ -308,7 +308,7 @@ class StructType(PyType):
             wtype_cls = wtypes.WStructType
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
-        wtype = wtype_cls(name, field_wtypes, frozen, source_location)
+        wtype = wtype_cls(field_wtypes, frozen, source_location)
         self.__attrs_init__(
             bases=[base],
             mro=[base],
@@ -577,9 +577,9 @@ class VariadicTupleType(PyType):
 
 def _make_array_parameterise(
     typ: Callable[[wtypes.WType, SourceLocation | None], wtypes.WType]
-) -> _Parameterise:
+) -> _Parameterise[ArrayType]:
     def parameterise(
-        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
+        self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
     ) -> ArrayType:
         try:
             (arg,) = args
@@ -636,7 +636,7 @@ def _make_fixed_array_parameterise(
         if size < 0:
             raise CodeError("Array size should be non-negative", source_location)
 
-        name = f"{self.name}[{items.name}, {size_t.name}]]"
+        name = f"{self.name}[{items.name}, {size_t.name}]"
         return ArrayType(
             generic=self,
             name=name,
@@ -743,11 +743,7 @@ GenericBoxMapType: typing.Final = _GenericType(
 
 GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_TRANSACTION_BASE,
-    wtype=wtypes.WGroupTransaction(
-        transaction_type=None,
-        stub_name=constants.CLS_TRANSACTION_BASE,
-        name="group_transaction_base",
-    ),
+    wtype=wtypes.WGroupTransaction(name="group_transaction_base", transaction_type=None),
 )
 
 
@@ -772,11 +768,7 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelate
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WGroupTransaction(
-            name=wtype_name,
-            transaction_type=kind,
-            stub_name=stub_name,
-        ),
+        wtype=wtypes.WGroupTransaction(name=wtype_name, transaction_type=kind),
     )
 
 
@@ -791,9 +783,7 @@ def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> Transact
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WInnerTransactionFields(
-            name=wtype_name, transaction_type=kind, stub_name=stub_name
-        ),
+        wtype=wtypes.WInnerTransactionFields(name=wtype_name, transaction_type=kind),
     )
 
 
@@ -808,9 +798,7 @@ def _make_itxn_result_type(kind: constants.TransactionType | None) -> Transactio
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
-        wtype=wtypes.WInnerTransaction(
-            name=wtype_name, transaction_type=kind, stub_name=stub_name
-        ),
+        wtype=wtypes.WInnerTransaction(name=wtype_name, transaction_type=kind),
     )
 
 

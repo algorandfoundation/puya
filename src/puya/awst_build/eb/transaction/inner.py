@@ -13,10 +13,10 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder, expect_wtype
+from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_wtype
@@ -31,7 +31,46 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
+class InnerTransactionClassExpressionBuilder(
+    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
+):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> typing.Never:
+        typ = self.produces2()
+        params_typ = pytypes.InnerTransactionFieldsetTypes[typ.transaction_type]
+        raise CodeError(
+            f"{typ} cannot be instantiated directly, create a {params_typ} and submit instead",
+            location,
+        )
+
+
+class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.TransactionRelatedType)
+        super().__init__(typ, expr)
+
+    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
+        return InnerTransactionField(
+            itxn=self.expr,
+            field=field,
+            source_location=location,
+            wtype=field.wtype,
+        )
+
+    def get_array_member(
+        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return _ArrayItem(self.expr, field, typ, location)
+
+
+class _ArrayItem(FunctionBuilder):
     def __init__(
         self,
         transaction: Expression,
@@ -68,46 +107,6 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
-class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransaction)
-        super().__init__(expr)
-
-    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
-        return InnerTransactionField(
-            itxn=self.expr,
-            field=field,
-            source_location=location,
-            wtype=field.wtype,
-        )
-
-    def get_array_member(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return InnerTransactionArrayExpressionBuilder(self.expr, field, typ, location)
-
-
-class InnerTransactionClassExpressionBuilder(
-    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
-):
-    @typing.override
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> typing.Never:
-        typ = self.produces2()
-        params_typ = pytypes.InnerTransactionFieldsetTypes[typ.transaction_type]
-        raise CodeError(
-            f"{typ} cannot be instantiated directly, create a {params_typ} and submit instead",
-            location,
-        )
-
-
 def _get_transaction_type_from_arg(
     literal_or_expr: ExpressionBuilder | Literal,
 ) -> TransactionType | None:
@@ -118,7 +117,7 @@ def _get_transaction_type_from_arg(
     raise CodeError("Expected an InnerTxnParams argument", literal_or_expr.source_location)
 
 
-class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
+class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,

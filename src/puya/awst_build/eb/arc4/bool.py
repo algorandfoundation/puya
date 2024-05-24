@@ -55,10 +55,8 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
 
 
 class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
-    wtype = wtypes.arc4_bool_wtype
-
     def __init__(self, expr: Expression):
-        super().__init__(expr, native_pytype=pytypes.BoolType)
+        super().__init__(pytypes.ARC4BoolType, expr, native_pytype=pytypes.BoolType)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)

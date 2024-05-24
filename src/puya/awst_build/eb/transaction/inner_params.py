@@ -16,9 +16,10 @@ from puya.awst.nodes import (
     UpdateInnerTransaction,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    FunctionBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -115,23 +116,44 @@ class InnerTxnParamsClassExpressionBuilder(
                 )
             field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
-        wtype = self.produces()
+        typ = self.produces2()
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.WInnerTransactionFields)
         return InnerTxnParamsExpressionBuilder(
             CreateInnerTransaction(
                 fields=transaction_fields,
                 wtype=wtype,
                 source_location=location,
-            )
+            ),
+            typ,
         )
 
 
-class ParamsSubmitExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, expr: Expression, location: SourceLocation) -> None:
+class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder[pytypes.TransactionRelatedType]):
+    def __init__(self, expr: Expression, typ: pytypes.TransactionRelatedType):
+        assert isinstance(typ, pytypes.TransactionRelatedType)
+        super().__init__(typ, expr)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+        if name == "submit":
+            return _Submit(self.expr, self.pytype.transaction_type, location)
+        elif name == "set":
+            return _Set(self.expr, location)
+        elif name == "copy":
+            return _Copy(self.expr, self.pytype, location)
+        return super().member_access(name, location)
+
+
+class _Submit(FunctionBuilder):
+    def __init__(
+        self, expr: Expression, txn_type: TransactionType | None, location: SourceLocation
+    ) -> None:
         super().__init__(location)
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
+        self._txn_type = txn_type
         self.expr = expr
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -144,21 +166,28 @@ class ParamsSubmitExpressionBuilder(IntermediateExpressionBuilder):
 
         if args:
             raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        result_typ = pytypes.InnerTransactionResultTypes[self._txn_type]
         return InnerTransactionExpressionBuilder(
             SubmitInnerTransaction(
-                wtype=wtypes.WInnerTransaction.from_type(self.wtype.transaction_type),
                 itxns=(self.expr,),
+                wtype=result_typ.wtype,
                 source_location=location,
-            )
+            ),
+            result_typ,
         )
 
 
-class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, expr: Expression, location: SourceLocation) -> None:
+class _Copy(FunctionBuilder):
+    def __init__(
+        self, expr: Expression, typ: pytypes.TransactionRelatedType, location: SourceLocation
+    ) -> None:
         super().__init__(location)
+        self._typ = typ
         self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
+        assert typ.wtype == self.wtype
         self.expr = expr
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -174,15 +203,17 @@ class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
                 wtype=self.wtype,
                 value=self.expr,
                 source_location=location,
-            )
+            ),
+            self._typ,
         )
 
 
-class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
+class _Set(FunctionBuilder):
     def __init__(self, expr: Expression, source_location: SourceLocation):
         super().__init__(source_location)
         self.expr = expr
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -208,21 +239,3 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
                 source_location=location,
             )
         )
-
-
-class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder):
-    wtype: wtypes.WInnerTransactionFields
-
-    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
-        self.pytyp = typ
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
-        super().__init__(expr)
-
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        if name == "submit":
-            return ParamsSubmitExpressionBuilder(self.expr, location)
-        elif name == "set":
-            return SetInnerTxnParamsExpressionBuilder(self.expr, location)
-        elif name == "copy":
-            return CopyInnerTxnParamsExpressionBuilder(self.expr, location)
-        return super().member_access(name, location)

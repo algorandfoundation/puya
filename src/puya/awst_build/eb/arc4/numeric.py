@@ -117,22 +117,20 @@ class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         return UFixedNxMExpressionBuilder
 
 
-class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
+class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        self.pytyp = typ
-        assert isinstance(expr.wtype, wtypes.ARC4UIntN)
-        self.wtype: wtypes.ARC4UIntN = expr.wtype
+        assert isinstance(typ, pytypes.ARC4UIntNType)
         if typ == pytypes.ARC4ByteType or typ.generic == pytypes.GenericARC4UIntNType:
             native_pytype = pytypes.UInt64Type
         else:
             assert typ.generic == pytypes.GenericARC4BigUIntNType
             native_pytype = pytypes.BigUIntType
-        super().__init__(expr, native_pytype=native_pytype)
+        super().__init__(typ, expr, native_pytype=native_pytype)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(
             self.expr,
-            false_bytes=b"\x00" * (self.wtype.n // 8),
+            false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,
         )
@@ -170,22 +168,20 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
         return BoolExpressionBuilder(cmp_expr)
 
 
-class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
+class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UFixedNxMType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        self.pytyp = typ
-        assert isinstance(expr.wtype, wtypes.ARC4UFixedNxM)
-        self.wtype: wtypes.ARC4UFixedNxM = expr.wtype
+        assert isinstance(typ, pytypes.ARC4UFixedNxMType)
         if typ.generic == pytypes.GenericARC4UFixedNxMType:
             native_pytype = pytypes.UInt64Type
         else:
             assert typ.generic == pytypes.GenericARC4BigUFixedNxMType
             native_pytype = pytypes.BigUIntType
-        super().__init__(expr, native_pytype=native_pytype)
+        super().__init__(typ, expr, native_pytype=native_pytype)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(
             self.expr,
-            false_bytes=b"\x00" * (self.wtype.n // 8),
+            false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,
         )
