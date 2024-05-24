@@ -524,7 +524,7 @@ def is_inner_transaction_type(wtype: WType) -> typing.TypeGuard[WInnerTransactio
 
 
 def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
-    return isinstance(wtype, WTuple) and all(is_inner_transaction_type(t) for t in wtype.types)
+    return isinstance(wtype, WTuple) and any(is_inner_transaction_type(t) for t in wtype.types)
 
 
 def is_inner_transaction_field_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionFields]:
