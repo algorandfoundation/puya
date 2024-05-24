@@ -335,7 +335,6 @@ class ARC4Array(ARC4Type):
 @typing.final
 @attrs.frozen(str=False, kw_only=True, init=False)
 class ARC4DynamicArray(ARC4Array):
-
     def __init__(
         self,
         element_type: WType,

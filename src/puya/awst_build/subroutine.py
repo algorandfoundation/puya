@@ -324,17 +324,23 @@ class FunctionASTConverter(
                         )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
         rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
-        if isinstance(rvalue_pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType):
+        if isinstance(rvalue, StorageProxyConstructorResult):
             try:
                 (lvalue,) = stmt.lvalues
             except ValueError:
                 # this is true regardless of whether it's a self assignment or not,
                 # these are objects so aliasing is an issue in terms of semantic compatibility
                 raise CodeError(
-                    f"{rvalue_pytyp} can only be assigned to a single variable", stmt_loc
+                    f"{rvalue.pytype} can only be assigned to a single variable", stmt_loc
                 ) from None
-            if is_self_member(lvalue) and isinstance(rvalue, StorageProxyConstructorResult):
-                return self._handle_proxy_assignment(lvalue, rvalue, rvalue_pytyp, stmt_loc)
+            if is_self_member(lvalue):
+                return self._handle_proxy_assignment(lvalue, rvalue, stmt_loc)
+            elif rvalue.initial_value is not None:
+                raise CodeError(
+                    "providing an initial value is only allowed"
+                    " when assigning to a member variable",
+                    stmt_loc,
+                )
         elif len(stmt.lvalues) > 1:
             rvalue = temporary_assignment_if_required(rvalue_pytyp, rvalue)
 
@@ -351,27 +357,26 @@ class FunctionASTConverter(
         self,
         lvalue: mypy.nodes.MemberExpr,
         rvalue: StorageProxyConstructorResult,
-        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         if self.contract_method_info is None:
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue_pytyp.generic or rvalue_pytyp}"
+                f"{rvalue.pytype.generic or rvalue.pytype}"
                 " can only be assigned to a member variable in the __init__ method",
                 stmt_loc,
             )
         cref = self.contract_method_info.cref
         member_name = lvalue.name
         member_loc = self._location(lvalue)
-        defn = rvalue.build_definition(member_name, cref, rvalue_pytyp, member_loc)
+        defn = rvalue.build_definition(member_name, cref, rvalue.pytype, member_loc)
         self.context.add_state_def(cref, defn)
         if rvalue.initial_value is None:
             return []
-        elif rvalue_pytyp.generic is not pytypes.GenericGlobalStateType:
+        elif rvalue.pytype.generic != pytypes.GenericGlobalStateType:
             raise InternalError(
-                f"Don't know how to do initialise-on-declaration for {rvalue_pytyp}", stmt_loc
+                f"Don't know how to do initialise-on-declaration for {rvalue.pytype}", stmt_loc
             )
         else:
             global_state_target = AppStateExpression(

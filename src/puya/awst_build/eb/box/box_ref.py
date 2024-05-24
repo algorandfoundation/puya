@@ -68,7 +68,7 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StoragePro
         return _BoxRefProxyExpressionBuilderFromConstructor(expr=key_override)
 
 
-class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
+class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, expr: Expression, member_name: str | None = None):
         super().__init__(pytypes.BoxRefType, expr)
         self._member_name = member_name

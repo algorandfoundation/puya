@@ -113,7 +113,7 @@ def _init(
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
 
 
-class BoxProxyExpressionBuilder(ValueExpressionBuilder):
+class BoxProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType

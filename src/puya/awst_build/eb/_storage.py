@@ -23,7 +23,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorResult):
+class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
     def __init__(
         self,
         typ: pytypes.StorageProxyType | pytypes.StorageMapProxyType,
@@ -53,11 +53,6 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        if typ != self._typ:
-            raise CodeError(
-                f"Invalid type on assignment, expected {str(self._typ)!r}, got {str(typ)!r}",
-                location,
-            )
         return AppStorageDeclaration(
             description=self.description,
             member_name=member_name,

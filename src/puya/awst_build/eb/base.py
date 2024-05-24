@@ -259,7 +259,12 @@ class FunctionBuilder(IntermediateExpressionBuilder):
         return None
 
 
-class StorageProxyConstructorResult(abc.ABC):
+class StorageProxyConstructorResult(ExpressionBuilder, abc.ABC):
+    @typing.override
+    @property
+    @abc.abstractmethod
+    def pytype(self) -> pytypes.StorageProxyType | pytypes.StorageMapProxyType: ...
+
     @property
     @abc.abstractmethod
     def initial_value(self) -> Expression | None: ...

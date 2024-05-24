@@ -117,7 +117,7 @@ def _init(
     )
 
 
-class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
+class BoxMapProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType
