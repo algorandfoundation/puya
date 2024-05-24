@@ -1070,8 +1070,7 @@ class AssignmentStatement(Statement):
     def __attrs_post_init__(self) -> None:
         if self.value.wtype != self.target.wtype:
             raise CodeError(
-                f"Assignment target type {self.target.wtype}"
-                f" differs from expression value type {self.value.wtype}",
+                "assignment target type differs from expression value type",
                 self.source_location,
             )
         if self.value.wtype == wtypes.void_wtype:
@@ -1098,13 +1097,12 @@ class AssignmentExpression(Expression):
     def __init__(self, value: Expression, target: Lvalue, source_location: SourceLocation):
         if isinstance(target, TupleExpression):
             raise CodeError(
-                "Tuple unpacking in assignment expressions is not supported",
+                "tuple unpacking in assignment expressions is not supported",
                 target.source_location,
             )
         if value.wtype != target.wtype:
             raise CodeError(
-                f"Assignment target type {target.wtype}"
-                f" differs from expression value type {value.wtype}",
+                "assignment target type differs from expression value type",
                 source_location,
             )
         if value.wtype == wtypes.void_wtype:
