@@ -389,7 +389,7 @@ class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
         raise CodeError(f"{self.wtype} does not support calling", location)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        raise CodeError(f"Unrecognised member of {self.wtype}: {name}", location)
+        raise CodeError(f"Unrecognised member of {self.pytype}: {name}", location)
 
     def iterate(self) -> Iteration:
         """Produce target of ForInLoop"""

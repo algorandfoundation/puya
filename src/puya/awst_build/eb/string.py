@@ -80,7 +80,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.StringType, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
@@ -91,7 +91,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
             case "join":
                 return _StringJoin(self.expr, location)
             case _:
-                raise CodeError(f"Unrecognised member of {self.wtype}: {name}", location)
+                return super().member_access(name, location)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation

@@ -149,9 +149,9 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC)
         self._native_pytype = native_pytype
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
-            case "native" if self._native_pytype is not None:
+            case "native":
                 result_expr: Expression = ARC4Decode(
                     value=self.expr,
                     wtype=self._native_pytype.wtype,
@@ -161,7 +161,7 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC)
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:
-                raise CodeError(f"Unrecognised member of bytes: {name}", location)
+                return super().member_access(name, location)
 
     @typing.override
     def compare(
