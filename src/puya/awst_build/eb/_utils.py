@@ -27,9 +27,7 @@ def bool_eval_to_constant(
     return BoolExpressionBuilder(const)
 
 
-def uint64_to_biguint(
-    arg_in: ExpressionBuilder | Expression | Literal, location: SourceLocation
-) -> Expression:
+def uint64_to_biguint(arg_in: ExpressionBuilder | Literal, location: SourceLocation) -> Expression:
     arg = expect_operand_wtype(arg_in, wtypes.uint64_wtype)
 
     return intrinsic_factory.itob_as(

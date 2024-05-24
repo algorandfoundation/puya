@@ -75,8 +75,7 @@ class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-            for a in args
+            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
         element_type = arg_typs[0]
 
@@ -87,7 +86,12 @@ class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
-            NewArray(values=tuple(non_literal_args), wtype=wtype, source_location=location), typ
+            NewArray(
+                values=tuple(a.rvalue() for a in non_literal_args),
+                wtype=wtype,
+                source_location=location,
+            ),
+            typ,
         )
 
 
@@ -111,15 +115,18 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         location: SourceLocation,
     ) -> ExpressionBuilder:
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-            for a in args
+            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
         wtype = self._wtype
         for a in non_literal_args:
             expect_operand_wtype(a, wtype.element_type)
 
         return DynamicArrayExpressionBuilder(
-            NewArray(values=tuple(non_literal_args), wtype=wtype, source_location=location),
+            NewArray(
+                values=tuple(a.rvalue() for a in non_literal_args),
+                wtype=wtype,
+                source_location=location,
+            ),
             self._pytype,
         )
 
@@ -137,8 +144,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-            for a in args
+            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
         element_type = arg_typs[0]
         array_size = len(non_literal_args)
@@ -154,7 +160,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         return StaticArrayExpressionBuilder(
             NewArray(
                 source_location=location,
-                values=tuple(non_literal_args),
+                values=tuple(a.rvalue() for a in non_literal_args),
                 wtype=wtype,
             ),
             typ,
@@ -181,8 +187,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         location: SourceLocation,
     ) -> ExpressionBuilder:
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-            for a in args
+            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
         wtype = self._wtype
         if wtype.array_size != len(non_literal_args):
@@ -195,7 +200,11 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
             expect_operand_wtype(a, wtype.element_type)
 
         return StaticArrayExpressionBuilder(
-            NewArray(values=tuple(non_literal_args), wtype=wtype, source_location=location),
+            NewArray(
+                values=tuple(a.rvalue() for a in non_literal_args),
+                wtype=wtype,
+                source_location=location,
+            ),
             self.produces2(),
         )
 
