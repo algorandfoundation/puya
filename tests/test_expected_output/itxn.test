@@ -22,29 +22,40 @@ class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         txn = params.submit()
-        self.cant_pass_inner_txn(txn) ## E: algopy.itxn.InnerTransactionResult cannot be passed to a subroutine
-        txn2 = self.cant_return_inner_txn() ## E: algopy.itxn.InnerTransactionResult cannot be reassigned
-        if (txn3 := params.submit()).created_app: ## E: algopy.itxn.InnerTransactionResult cannot be used in assignment expressions
+        self.cant_pass_inner_txn(txn) ## E: Inner Transactions cannot be used as a subroutine argument or return value.
+        txn2 = self.cant_return_inner_txn() ## E: Inner Transactions can not be used like this.
+        if (txn3 := params.submit()).created_app: ## E: Inner Transactions cannot be used in assignment expressions.
             pass
-        txn4 = txn ## E: algopy.itxn.InnerTransactionResult cannot be reassigned
+        txn4 = txn ## E: Inner Transactions can not be used like this.
         return True
 
     def clear_state_program(self) -> bool:
         return True
 
     @subroutine
-    def cant_pass_inner_txn(self, txn: itxn.InnerTransactionResult) -> None: ## E: algopy.itxn.InnerTransactionResult cannot be used as a subroutine argument type: txn
+    def cant_pass_inner_txn(self, txn: itxn.InnerTransactionResult) -> None: ## E: Inner Transactions cannot be used as a subroutine argument or return value.
         assert txn.type
 
-    @subroutine ## E: algopy.itxn.InnerTransactionResult cannot be used as a subroutine return type
+    @subroutine ## E: Inner Transactions cannot be used as a subroutine argument or return value.
     def cant_return_inner_txn(self) -> itxn.InnerTransactionResult:
         return itxn.InnerTransaction(type=TransactionType.Payment).submit()
 
-    @subroutine
-    def must_unpack_tuple(self) -> None:
-        t1, t2 = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is ok
-        txn_tuple = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is not
+## case: test_inner_txn_local_only
 
+from algopy import ARC4Contract, TransactionType, itxn, arc4
+
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod()
+    def non_local_fields(self) -> None:
+        self.fields = itxn.InnerTransaction(type=TransactionType.Payment) ## E: Inner Transactions can only be assigned to local variables
+        txn = self.fields.submit()
+
+    @arc4.abimethod()
+    def non_local_itxn(self) -> None:
+        fields = itxn.InnerTransaction(type=TransactionType.Payment)
+        self.txn = fields.submit() ## E: Inner Transactions can only be assigned to local variables
 
 ## case: test_inner_txn_param_cant_be_aliased
 
@@ -54,25 +65,41 @@ from algopy import Contract, TransactionType, itxn, subroutine
 class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
-        self.cant_pass_inner_txn_params(params) ## E: algopy.itxn.InnerTransaction cannot be passed to a subroutine
-        params2 = self.cant_return_inner_txn_params() ## E: algopy.itxn.InnerTransaction cannot be aliased
-        if (params3 := itxn.InnerTransaction(type=TransactionType.Payment)).submit().created_app: ## E: algopy.itxn.InnerTransaction cannot be used in assignment expressions
+        self.cant_pass_inner_txn_params(params) ## E: Inner Transactions cannot be used as a subroutine argument or return value.
+        params2 = self.cant_return_inner_txn_params() ## E: Inner Transactions can not be used like this.
+        if (params3 := itxn.InnerTransaction(type=TransactionType.Payment)).submit().created_app: ## E: Inner Transactions cannot be used in assignment expressions.
             pass
-        params4 = params ## E: algopy.itxn.InnerTransaction must be copied using .copy() when assigning to a new local: params
-        txn = (params5 := itxn.InnerTransaction(type=TransactionType.Payment)).submit() ## E: algopy.itxn.InnerTransaction cannot be used in assignment expressions
+        params4 = params ## E: Inner Transaction fields must be copied using .copy() when assigning to a new local.
+        txn = (params5 := itxn.InnerTransaction(type=TransactionType.Payment)).submit() ## E: Inner Transactions cannot be used in assignment expressions.
         return True
 
     def clear_state_program(self) -> bool:
         return True
 
     @subroutine
-    def cant_pass_inner_txn_params(self, txn: itxn.InnerTransaction) -> None: ## E: algopy.itxn.InnerTransaction cannot be used as a subroutine argument type: txn
+    def cant_pass_inner_txn_params(self, txn: itxn.InnerTransaction) -> None: ## E: Inner Transactions cannot be used as a subroutine argument or return value.
         pass
 
-    @subroutine ## E: algopy.itxn.InnerTransaction cannot be used as a subroutine return type
+    @subroutine ## E: Inner Transactions cannot be used as a subroutine argument or return value.
     def cant_return_inner_txn_params(self) -> itxn.InnerTransaction:
         return itxn.InnerTransaction(type=TransactionType.Payment)
 
+## case: test_inner_txn_param_loop_modified
+
+from algopy import Contract, TransactionType, itxn, subroutine
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool: ## E: Missing return statement  [return]
+        params = itxn.InnerTransaction(type=TransactionType.Payment)
+        while True:
+            txn = params.submit()
+            params.set(fee=1) ## E: Inner Transaction fields cannot be modified after submission while in a loop.
+            if txn.fee == 1:
+                break
+
+    def clear_state_program(self) -> bool:
+        return True
 
 ## case: test_abi_call_errors
 
@@ -144,7 +171,7 @@ class MyContract(ARC4Contract):
 
         assert create_app_txn.app_args(0) == b"1", "correct args used 1"
 
-        create_app_txn2 = itxn.ApplicationCall( ## W: 'create_app_txn' becomes potentially stale here
+        create_app_txn2 = itxn.ApplicationCall( ## W: Inner Transaction 'create_app_txn' potentially becomes stale here.
             approval_program=ALWAYS_APPROVE,
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
@@ -153,11 +180,11 @@ class MyContract(ARC4Contract):
         ).submit()
 
         assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
-        assert create_app_txn.app_args(0) == b"1", "this is an error" ## E: Inner Transaction referred to by 'create_app_txn' may no longer be valid due to other inner transaction submissions, or subroutine calls. This means array field access may not give expected results, move array field access after 'create_app_txn' definition and before expression indicated.
+        assert create_app_txn.app_args(0) == b"1", "this is an error" ## E: Inner Transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls. Move array field access closer to 'create_app_txn' definition.
 
-        some_sub_that_may_submit_another_inner_txn() ## W: 'create_app_txn2' becomes potentially stale here
+        some_sub_that_may_submit_another_inner_txn() ## W: Inner Transaction 'create_app_txn2' potentially becomes stale here.
 
-        assert create_app_txn2.app_args(0) == b"42", "this is an error" ## E: Inner Transaction referred to by 'create_app_txn2' may no longer be valid due to other inner transaction submissions, or subroutine calls. This means array field access may not give expected results, move array field access after 'create_app_txn2' definition and before expression indicated.
+        assert create_app_txn2.app_args(0) == b"42", "this is an error" ## E: Inner Transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls. Move array field access closer to 'create_app_txn2' definition.
 
     @arc4.abimethod
     def test2(self) -> None:
@@ -180,9 +207,9 @@ class MyContract(ARC4Contract):
 
         assert create_app_txn.app_args(0) == b"42", "correct args used"
 
-        some_sub_that_may_submit_another_inner_txn() ## W: 'create_app_txn' becomes potentially stale here
+        some_sub_that_may_submit_another_inner_txn() ## W: Inner Transaction 'create_app_txn' potentially becomes stale here.
 
-        assert create_app_txn.app_args(0) == b"42", "correct args used" ## E: Inner Transaction referred to by 'create_app_txn' may no longer be valid due to other inner transaction submissions, or subroutine calls. This means array field access may not give expected results, move array field access after 'create_app_txn' definition and before expression indicated.
+        assert create_app_txn.app_args(0) == b"42", "correct args used" ## E: Inner Transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls. Move array field access closer to 'create_app_txn' definition.
 
 @subroutine
 def some_sub_that_may_submit_another_inner_txn() -> None:
