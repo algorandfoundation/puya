@@ -52,9 +52,9 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
         match args:
             case []:
                 zero_literal = Literal(value=self.zero_literal(), source_location=location)
-                expr = convert_arc4_literal(zero_literal, wtype, location)
+                expr = convert_arc4_literal(zero_literal, self.produces2(), location)
             case [Literal() as lit]:
-                expr = convert_arc4_literal(lit, wtype, location)
+                expr = convert_arc4_literal(lit, self.produces2(), location)
             case [ExpressionBuilder(value_type=wtypes.WType() as value_type) as eb]:
                 value = eb.rvalue()
                 if value_type not in (
@@ -139,7 +139,7 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
         if isinstance(other, Literal):
-            other_expr = convert_arc4_literal(other, self.wtype)
+            other_expr = convert_arc4_literal(other, self.pytype)
         else:
             other_expr = other.rvalue()
         match other_expr.wtype:

@@ -39,7 +39,7 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         match args:
             case [Literal(value=bytes()) as literal]:
                 return DynamicBytesExpressionBuilder(
-                    convert_arc4_literal(literal, wtype, location)
+                    convert_arc4_literal(literal, self.produces2(), location)
                 )
             case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
                 return DynamicBytesExpressionBuilder(
@@ -55,7 +55,7 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
 def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> Expression:
     match arg:
         case Literal(value=int()) as literal:
-            return convert_arc4_literal(literal, wtypes.arc4_byte_type)
+            return convert_arc4_literal(literal, pytypes.ARC4ByteType)
         case ExpressionBuilder(value_type=wtypes.ARC4UIntN(n=8) as wtype) as eb:
             if wtype != wtypes.arc4_byte_type:
                 return ReinterpretCast(

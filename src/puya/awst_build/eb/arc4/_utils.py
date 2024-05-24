@@ -29,11 +29,12 @@ _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 def convert_arc4_literal(
     literal: awst_nodes.Literal,
-    target_wtype: wtypes.WType,
+    target_type: pytypes.PyType,
     loc: SourceLocation | None = None,
 ) -> awst_nodes.Expression:
     literal_value: typing.Any = literal.value
     loc = loc or literal.source_location
+    target_wtype = target_type.wtype
     match target_wtype:
         case wtypes.ARC4UIntN():
             return awst_nodes.IntegerConstant(
@@ -89,11 +90,11 @@ def convert_arc4_literal(
 
         case wtypes.ARC4Type():
             raise CodeError(
-                f"Can't construct {target_wtype} from Python literal {literal_value}", loc
+                f"Can't construct {target_type} from Python literal {literal_value}", loc
             )
         case _:
             raise InternalError(
-                f"Expected arc4 type for literal conversion target, got: {target_wtype}", loc
+                f"Expected ARC4 type for literal conversion target, got: {target_type}", loc
             )
     return awst_nodes.ARC4Encode(
         value=native_value,
@@ -102,22 +103,23 @@ def convert_arc4_literal(
     )
 
 
-def expect_arc4_operand_wtype(
-    literal_or_expr: awst_nodes.Literal | ExpressionBuilder, target_wtype: wtypes.WType
+def expect_arc4_operand_pytype(
+    literal_or_builder: awst_nodes.Literal | ExpressionBuilder, target_type: pytypes.PyType
 ) -> awst_nodes.Expression:
-    if isinstance(literal_or_expr, awst_nodes.Literal):
+    target_wtype = target_type.wtype
+    if isinstance(literal_or_builder, awst_nodes.Literal):
         if isinstance(target_wtype, wtypes.ARC4Type):
-            return convert_arc4_literal(literal_or_expr, target_wtype)
-        return convert_literal(literal_or_expr, target_wtype)
-    expr = literal_or_expr.rvalue()
+            return convert_arc4_literal(literal_or_builder, target_type)
+        return convert_literal(literal_or_builder, target_wtype)
 
+    expr = literal_or_builder.rvalue()
     if wtypes.has_arc4_equivalent_type(expr.wtype):
         new_wtype = wtypes.avm_to_arc4_equivalent_type(expr.wtype)
-        expr = arc4_encode(expr, new_wtype, literal_or_expr.source_location)
+        expr = arc4_encode(expr, new_wtype, literal_or_builder.source_location)
 
     if expr.wtype != target_wtype:
         raise CodeError(
-            f"Expected type {target_wtype}, got type {expr.wtype}",
+            f"Expected type {target_type}, got type {literal_or_builder.pytype}",
             expr.source_location,
         )
     return expr
@@ -156,8 +158,7 @@ def get_arc4_args_and_signature(
         )
 
     arc4_args = [
-        expect_arc4_operand_wtype(arg, pt.wtype)
-        for arg, pt in zip(native_args, arg_types, strict=True)
+        expect_arc4_operand_pytype(arg, pt) for arg, pt in zip(native_args, arg_types, strict=True)
     ]
     return arc4_args, ARC4Signature(method_name, arg_types, maybe_return_type)
 

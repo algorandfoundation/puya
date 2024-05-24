@@ -32,7 +32,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr, get_bytes_expr_builder
-from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
+from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes, arc4_compare_bytes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -430,7 +430,7 @@ class _Append(FunctionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
 
-        args_expr = [expect_arc4_operand_wtype(a, self.typ.items.wtype) for a in args]
+        args_expr = [expect_arc4_operand_pytype(a, self.typ.items) for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
         return VoidExpressionBuilder(
             ArrayExtend(
