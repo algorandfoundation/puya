@@ -63,52 +63,42 @@ def convert_arc4_literal(
                     raise CodeError(
                         f"Too many decimals, expected max of {fixed_wtype.m}", loc
                     ) from ex
-            return DecimalConstant(
-                source_location=loc,
-                value=q,
-                wtype=fixed_wtype,
-            )
+            return DecimalConstant(value=q, wtype=fixed_wtype, source_location=loc)
         case wtypes.arc4_dynamic_bytes:
-            return awst_nodes.ARC4Encode(
-                value=awst_nodes.BytesConstant(
-                    value=literal_value,
-                    source_location=loc,
-                    encoding=awst_nodes.BytesEncoding.unknown,
-                ),
+            native_value: Expression = awst_nodes.BytesConstant(
+                value=literal_value,
                 source_location=loc,
-                wtype=target_wtype,
+                encoding=awst_nodes.BytesEncoding.unknown,
             )
-        case wtypes.arc4_string_wtype:
-            if isinstance(literal_value, str):
-                try:
-                    literal_bytes = literal_value.encode("utf8")
-                except ValueError:
-                    pass
-                else:
-                    return awst_nodes.ARC4Encode(
-                        value=awst_nodes.BytesConstant(
-                            value=literal_bytes,
-                            source_location=loc,
-                            encoding=awst_nodes.BytesEncoding.utf8,
-                        ),
-                        source_location=loc,
-                        wtype=target_wtype,
-                    )
+        case wtypes.arc4_string_wtype if isinstance(literal_value, str):
+            try:
+                literal_bytes = literal_value.encode("utf8")
+            except ValueError as ex:
+                raise CodeError(f"Can't UTF8 encode {literal_value!r}", loc) from ex
+            else:
+                native_value = awst_nodes.BytesConstant(
+                    value=literal_bytes,
+                    encoding=awst_nodes.BytesEncoding.utf8,
+                    source_location=loc,
+                )
         case wtypes.arc4_bool_wtype:
-            return awst_nodes.ARC4Encode(
-                value=awst_nodes.BoolConstant(
-                    value=literal_value,
-                    source_location=loc,
-                ),
+            native_value = awst_nodes.BoolConstant(
+                value=literal_value,
                 source_location=loc,
-                wtype=target_wtype,
             )
+
         case wtypes.ARC4Type():
             raise CodeError(
                 f"Can't construct {target_wtype} from Python literal {literal_value}", loc
             )
-    raise InternalError(
-        f"Expected arc4 type for literal conversion target, got: {target_wtype}", loc
+        case _:
+            raise InternalError(
+                f"Expected arc4 type for literal conversion target, got: {target_wtype}", loc
+            )
+    return awst_nodes.ARC4Encode(
+        value=native_value,
+        wtype=target_wtype,
+        source_location=loc,
     )
 
 

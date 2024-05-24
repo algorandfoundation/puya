@@ -53,7 +53,11 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        assert typ == self._typ
+        if typ != self._typ:
+            raise CodeError(
+                f"Invalid type on assignment, expected {str(self._typ)!r}, got {str(typ)!r}",
+                location,
+            )
         return AppStorageDeclaration(
             description=self.description,
             member_name=member_name,
