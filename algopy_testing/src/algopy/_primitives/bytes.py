@@ -11,7 +11,7 @@ from itertools import zip_longest
 
 from algopy_testing.constants import MAX_BYTES_SIZE
 
-from algopy.primitives.uint64 import UInt64
+from algopy._primitives.uint64 import UInt64
 from algopy.utils import as_bytes, as_int64
 
 # TypeError, ValueError are used for operations that are compile time errors

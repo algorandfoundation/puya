@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from algopy._primitives.bytes import Bytes
 from algopy.utils import as_string
 
 
@@ -46,6 +47,12 @@ class String:
     def join(self, others: tuple[String, ...], /) -> String:
         return String(self.value.join(map(as_string, others)))
 
+    @classmethod
+    def from_bytes(cls, value: Bytes | bytes) -> String:
+        """Construct an instance from the underlying bytes (no validation)"""
+        return cls(as_string(value))
+
     @property
-    def bytes(self) -> bytes:
-        return self.value.encode("utf-8")
+    def bytes(self) -> Bytes:
+        """Get the underlying Bytes"""
+        return Bytes(self.value.encode("utf-8"))

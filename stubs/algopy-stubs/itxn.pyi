@@ -7,9 +7,9 @@ from algopy import (
     Bytes,
     BytesBacked,
     OnCompleteAction,
+    String,
     TransactionType,
     UInt64,
-    String,
 )
 from algopy._transaction import (
     _ApplicationProtocol,

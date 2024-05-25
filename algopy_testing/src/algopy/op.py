@@ -1,11 +1,9 @@
 import hashlib
-from enum import Enum
 
 import algosdk
 import coincurve
 import nacl.exceptions
 import nacl.signing
-from algopy_testing.context import get_active_context
 from Cryptodome.Hash import SHA512, keccak
 from ecdsa import (  # type: ignore  # noqa: PGH003
     BadSignatureError,
@@ -14,17 +12,12 @@ from ecdsa import (  # type: ignore  # noqa: PGH003
     VerifyingKey,
 )
 
-from algopy import Bytes, UInt64
+from algopy._enums import ECDSA, VrfVerify
+from algopy._models.global_state import Global
+from algopy._models.txn import Txn
+from algopy._primitives.bytes import Bytes
+from algopy._primitives.uint64 import UInt64
 from algopy.utils import as_bytes
-
-
-class ECDSA(Enum):
-    Secp256k1 = 0
-    Secp256r1 = 1
-
-
-class VrfVerify(Enum):
-    VrfAlgorand = 0
 
 
 def sha256(a: Bytes | bytes, /) -> Bytes:
@@ -62,17 +55,21 @@ def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) 
 
 
 def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+    from algopy_testing.context import get_blockchain_context
+
     try:
-        ctx = get_active_context()
+        ctx = get_blockchain_context()
     except LookupError as e:
         raise RuntimeError(
             "function must be run within an active context"
             " using `with algopy_testing.context.new_context():`"
         ) from e
-    if ctx.program_bytes is None:
+
+    program_bytes = ctx.get_custom_value("program_bytes")
+    if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 
-    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(ctx.program_bytes))
+    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(program_bytes))
     address_bytes = as_bytes(decoded_address)
     a = algosdk.constants.logic_data_prefix + address_bytes + a
     return ed25519verify_bare(a, b, c)
@@ -166,5 +163,24 @@ def vrf_verify(
     /,
 ) -> tuple[Bytes, bool]:
     raise NotImplementedError(
-        "'op.vrf_verify' is not implemented. Mock using preferred testing tools."
+        "The 'vrf_verify' method is being executed in a python testing context. "
+        "Please mock this method in according to your python testing framework of choice."
     )
+
+
+__all__ = [
+    "sha256",
+    "sha3_256",
+    "keccak256",
+    "sha512_256",
+    "ed25519verify",
+    "ed25519verify_bare",
+    "ecdsa_verify",
+    "ecdsa_pk_recover",
+    "ecdsa_pk_decompress",
+    "vrf_verify",
+    "ECDSA",
+    "VrfVerify",
+    "Global",
+    "Txn",
+]

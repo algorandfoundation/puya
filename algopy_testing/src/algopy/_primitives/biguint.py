@@ -4,8 +4,8 @@ import functools
 
 from algopy_testing.constants import UNIT64_BYTES_LENGTH
 
-from algopy.primitives.bytes import Bytes
-from algopy.primitives.uint64 import UInt64
+from algopy._primitives.bytes import Bytes
+from algopy._primitives.uint64 import UInt64
 from algopy.utils import as_bytes, as_int, as_int512
 
 # TypeError, ValueError are used for operations that are compile time errors
