@@ -263,9 +263,9 @@ def extract(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     b = as_int64(b)
     c = as_int64(c)
     if b > len(a):
-        raise ArithmeticError(f"extraction start {b} is beyond length")
+        raise ValueError(f"extraction start {b} is beyond length")
     if b + c > len(a):
-        raise ArithmeticError(f"extraction end {b + c} is beyond length")
+        raise ValueError(f"extraction end {b + c} is beyond length")
     return a[slice(b, b + c)]
 
 

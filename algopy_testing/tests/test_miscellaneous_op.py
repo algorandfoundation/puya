@@ -627,7 +627,7 @@ def test_extract_input_error(get_ops_avm_result: AVMInvoker, b: int, c: int) -> 
     a = b"hello, world"
     with pytest.raises(algokit_utils.LogicError, match=_extract_out_of_bound_error):
         get_ops_avm_result("verify_extract", a=a, b=b, c=c)
-    with pytest.raises(ArithmeticError, match=_extract_out_of_bound_error):
+    with pytest.raises(ValueError, match=_extract_out_of_bound_error):
         op.extract(a, b, c)
 
 
@@ -675,7 +675,7 @@ def test_extract_uint16_input_overflow(get_ops_avm_result: AVMInvoker, a: bytes,
 def test_extract_uint16_input_error(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_extract_out_of_bound_error):
         get_ops_avm_result("verify_extract_uint16", a=a, b=b)
-    with pytest.raises(ArithmeticError, match=_extract_out_of_bound_error):
+    with pytest.raises(ValueError, match=_extract_out_of_bound_error):
         op.extract_uint16(a, b)
 
 
@@ -723,7 +723,7 @@ def test_extract_uint32_input_overflow(get_ops_avm_result: AVMInvoker, a: bytes,
 def test_extract_uint32_input_error(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_extract_out_of_bound_error):
         get_ops_avm_result("verify_extract_uint32", a=a, b=b)
-    with pytest.raises(ArithmeticError, match=_extract_out_of_bound_error):
+    with pytest.raises(ValueError, match=_extract_out_of_bound_error):
         op.extract_uint32(a, b)
 
 
@@ -771,7 +771,7 @@ def test_extract_uint64_input_overflow(get_ops_avm_result: AVMInvoker, a: bytes,
 def test_extract_uint64_input_error(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_extract_out_of_bound_error):
         get_ops_avm_result("verify_extract_uint64", a=a, b=b)
-    with pytest.raises(ArithmeticError, match=_extract_out_of_bound_error):
+    with pytest.raises(ValueError, match=_extract_out_of_bound_error):
         op.extract_uint64(a, b)
 
 
