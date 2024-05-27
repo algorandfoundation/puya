@@ -410,9 +410,7 @@ def _uint128_to_int(a: UInt64 | int, b: UInt64 | int) -> int:
 
 def _uint64_to_bytes(a: UInt64 | int) -> bytes:
     a = as_int64(a)
-    a_bytes = _int_list_to_bytes([a])
-    a_bytes = (b"\x00" * (8 - len(a_bytes))) + a_bytes
-    return a_bytes
+    return a.to_bytes(8)
 
 
 def _int_list_to_bytes(a: list[int]) -> bytes:
