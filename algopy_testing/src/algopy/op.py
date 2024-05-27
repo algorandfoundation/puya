@@ -238,7 +238,7 @@ def divw(a: UInt64 | int, b: UInt64 | int, c: UInt64 | int, /) -> UInt64:
 
 
 def err() -> None:
-    raise ArithmeticError("err opcode executed")
+    raise RuntimeError("err opcode executed")
 
 
 def exp(a: UInt64 | int, b: UInt64 | int, /) -> UInt64:

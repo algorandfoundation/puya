@@ -455,7 +455,7 @@ def test_divw_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int, c: 
 def test_err(get_ops_avm_result: AVMInvoker) -> None:
     with pytest.raises(algokit_utils.LogicError, match="err opcode executed"):
         get_ops_avm_result("verify_err")
-    with pytest.raises(ArithmeticError, match="err opcode executed"):
+    with pytest.raises(RuntimeError, match="err opcode executed"):
         op.err()
 
 
