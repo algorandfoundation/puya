@@ -84,6 +84,11 @@ class MiscellaneousOpsContract(ARC4Contract):
         return result
 
     @arc4.abimethod()
+    def verify_extract_from_2(self, a: Bytes) -> Bytes:
+        result = op.extract(a, 2, 0)
+        return result
+
+    @arc4.abimethod()
     def verify_extract_uint16(self, a: Bytes, b: UInt64) -> UInt64:
         result = op.extract_uint16(a, b)
         return result

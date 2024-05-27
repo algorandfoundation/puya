@@ -588,12 +588,32 @@ def test_divw_zero_division(get_ops_avm_result: AVMInvoker, a: int, b: int) -> N
         (11, 1),
         (12, 0),
         (8, 4),
+        (256, 0),
+        (256, 3),
     ],
 )
 def test_extract(get_ops_avm_result: AVMInvoker, b: int, c: int) -> None:
-    a = b"hello, world"
+    a = b"hello, world" * 30
     avm_result = get_ops_avm_result("verify_extract", a=a, b=b, c=c)
-    result = op.extract(a, b, c)
+    result = op.extract(a, UInt64(b), UInt64(c))
+    assert avm_result == result
+
+    # when c is 0, `extract` op code works differently from `extract3` op code
+    if c:
+        result = op.extract(a, b, c)
+        assert avm_result == result
+
+
+@pytest.mark.parametrize(
+    "a",
+    [
+        b"hello, world",
+        b"hi",
+    ],
+)
+def test_extract_from_2_to_end(get_ops_avm_result: AVMInvoker, a: bytes) -> None:
+    avm_result = get_ops_avm_result("verify_extract_from_2", a=a)
+    result = op.extract(a, 2, 0)
     assert avm_result == result
 
 

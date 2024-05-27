@@ -259,14 +259,19 @@ def expw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
 
 
 def extract(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
-    a = a if (isinstance(a, Bytes)) else Bytes(a)
-    b = as_int64(b)
-    c = as_int64(c)
-    if b > len(a):
-        raise ValueError(f"extraction start {b} is beyond length")
-    if b + c > len(a):
-        raise ValueError(f"extraction end {b + c} is beyond length")
-    return a[slice(b, b + c)]
+    a = as_bytes(a)
+    start = as_int64(b)
+    stop = start + as_int64(c)
+
+    if isinstance(b, int) and isinstance(c, int) and c == 0:
+        stop = len(a)
+
+    if start > len(a):
+        raise ValueError(f"extraction start {start} is beyond length")
+    if stop > len(a):
+        raise ValueError(f"extraction end {stop} is beyond length")
+
+    return Bytes(a)[slice(start, stop)]
 
 
 def extract_uint16(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:

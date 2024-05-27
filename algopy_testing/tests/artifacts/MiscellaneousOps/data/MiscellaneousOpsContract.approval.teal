@@ -4,7 +4,7 @@ tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.approval_prog
     // tests/artifacts/MiscellaneousOps/contract.py:4
     // class MiscellaneousOpsContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@40
+    bz main_bare_routing@41
     method "verify_addw(uint64,uint64)(uint64,uint64)"
     method "verify_base64_decode_standard(byte[])byte[]"
     method "verify_base64_decode_url(byte[])byte[]"
@@ -20,6 +20,7 @@ tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.approval_prog
     method "verify_exp(uint64,uint64)uint64"
     method "verify_expw(uint64,uint64)(uint64,uint64)"
     method "verify_extract(byte[],uint64,uint64)byte[]"
+    method "verify_extract_from_2(byte[])byte[]"
     method "verify_extract_uint16(byte[],uint64)uint64"
     method "verify_extract_uint32(byte[],uint64)uint64"
     method "verify_extract_uint64(byte[],uint64)uint64"
@@ -42,7 +43,7 @@ tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.approval_prog
     method "verify_json_ref_uint64(byte[],byte[])uint64"
     method "verify_json_ref_object(byte[],byte[])byte[]"
     txna ApplicationArgs 0
-    match main_verify_addw_route@2 main_verify_base64_decode_standard_route@3 main_verify_base64_decode_url_route@4 main_verify_bytes_bitlen_route@5 main_verify_uint64_bitlen_route@6 main_verify_bsqrt_route@7 main_verify_btoi_route@8 main_verify_bzero_route@9 main_verify_concat_route@10 main_verify_divmodw_route@11 main_verify_divw_route@12 main_verify_err_route@13 main_verify_exp_route@14 main_verify_expw_route@15 main_verify_extract_route@16 main_verify_extract_uint16_route@17 main_verify_extract_uint32_route@18 main_verify_extract_uint64_route@19 main_verify_getbit_bytes_route@20 main_verify_getbit_uint64_route@21 main_verify_getbyte_route@22 main_verify_itob_route@23 main_verify_mulw_route@24 main_verify_replace_route@25 main_verify_select_bytes_route@26 main_verify_select_uint64_route@27 main_verify_setbit_bytes_route@28 main_verify_setbit_uint64_route@29 main_verify_setbyte_route@30 main_verify_shl_route@31 main_verify_shr_route@32 main_verify_sqrt_route@33 main_verify_substring_route@34 main_verify_json_ref_string_route@35 main_verify_json_ref_uint64_route@36 main_verify_json_ref_object_route@37
+    match main_verify_addw_route@2 main_verify_base64_decode_standard_route@3 main_verify_base64_decode_url_route@4 main_verify_bytes_bitlen_route@5 main_verify_uint64_bitlen_route@6 main_verify_bsqrt_route@7 main_verify_btoi_route@8 main_verify_bzero_route@9 main_verify_concat_route@10 main_verify_divmodw_route@11 main_verify_divw_route@12 main_verify_err_route@13 main_verify_exp_route@14 main_verify_expw_route@15 main_verify_extract_route@16 main_verify_extract_from_2_route@17 main_verify_extract_uint16_route@18 main_verify_extract_uint32_route@19 main_verify_extract_uint64_route@20 main_verify_getbit_bytes_route@21 main_verify_getbit_uint64_route@22 main_verify_getbyte_route@23 main_verify_itob_route@24 main_verify_mulw_route@25 main_verify_replace_route@26 main_verify_select_bytes_route@27 main_verify_select_uint64_route@28 main_verify_setbit_bytes_route@29 main_verify_setbit_uint64_route@30 main_verify_setbyte_route@31 main_verify_shl_route@32 main_verify_shr_route@33 main_verify_sqrt_route@34 main_verify_substring_route@35 main_verify_json_ref_string_route@36 main_verify_json_ref_uint64_route@37 main_verify_json_ref_object_route@38
     err // reject transaction
 
 main_verify_addw_route@2:
@@ -463,8 +464,36 @@ main_verify_extract_route@16:
     int 1
     return
 
-main_verify_extract_uint16_route@17:
+main_verify_extract_from_2_route@17:
     // tests/artifacts/MiscellaneousOps/contract.py:86
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/MiscellaneousOps/contract.py:4
+    // class MiscellaneousOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // tests/artifacts/MiscellaneousOps/contract.py:86
+    // @arc4.abimethod()
+    callsub verify_extract_from_2
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_extract_uint16_route@18:
+    // tests/artifacts/MiscellaneousOps/contract.py:91
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -477,7 +506,7 @@ main_verify_extract_uint16_route@17:
     extract 2 0
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:86
+    // tests/artifacts/MiscellaneousOps/contract.py:91
     // @arc4.abimethod()
     callsub verify_extract_uint16
     itob
@@ -488,8 +517,8 @@ main_verify_extract_uint16_route@17:
     int 1
     return
 
-main_verify_extract_uint32_route@18:
-    // tests/artifacts/MiscellaneousOps/contract.py:91
+main_verify_extract_uint32_route@19:
+    // tests/artifacts/MiscellaneousOps/contract.py:96
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -502,7 +531,7 @@ main_verify_extract_uint32_route@18:
     extract 2 0
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:91
+    // tests/artifacts/MiscellaneousOps/contract.py:96
     // @arc4.abimethod()
     callsub verify_extract_uint32
     itob
@@ -513,8 +542,8 @@ main_verify_extract_uint32_route@18:
     int 1
     return
 
-main_verify_extract_uint64_route@19:
-    // tests/artifacts/MiscellaneousOps/contract.py:96
+main_verify_extract_uint64_route@20:
+    // tests/artifacts/MiscellaneousOps/contract.py:101
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -527,7 +556,7 @@ main_verify_extract_uint64_route@19:
     extract 2 0
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:96
+    // tests/artifacts/MiscellaneousOps/contract.py:101
     // @arc4.abimethod()
     callsub verify_extract_uint64
     itob
@@ -538,8 +567,8 @@ main_verify_extract_uint64_route@19:
     int 1
     return
 
-main_verify_getbit_bytes_route@20:
-    // tests/artifacts/MiscellaneousOps/contract.py:101
+main_verify_getbit_bytes_route@21:
+    // tests/artifacts/MiscellaneousOps/contract.py:106
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -552,7 +581,7 @@ main_verify_getbit_bytes_route@20:
     extract 2 0
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:101
+    // tests/artifacts/MiscellaneousOps/contract.py:106
     // @arc4.abimethod()
     callsub verify_getbit_bytes
     itob
@@ -563,8 +592,8 @@ main_verify_getbit_bytes_route@20:
     int 1
     return
 
-main_verify_getbit_uint64_route@21:
-    // tests/artifacts/MiscellaneousOps/contract.py:106
+main_verify_getbit_uint64_route@22:
+    // tests/artifacts/MiscellaneousOps/contract.py:111
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -577,7 +606,7 @@ main_verify_getbit_uint64_route@21:
     btoi
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:106
+    // tests/artifacts/MiscellaneousOps/contract.py:111
     // @arc4.abimethod()
     callsub verify_getbit_uint64
     itob
@@ -588,8 +617,8 @@ main_verify_getbit_uint64_route@21:
     int 1
     return
 
-main_verify_getbyte_route@22:
-    // tests/artifacts/MiscellaneousOps/contract.py:111
+main_verify_getbyte_route@23:
+    // tests/artifacts/MiscellaneousOps/contract.py:116
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -602,7 +631,7 @@ main_verify_getbyte_route@22:
     extract 2 0
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:111
+    // tests/artifacts/MiscellaneousOps/contract.py:116
     // @arc4.abimethod()
     callsub verify_getbyte
     itob
@@ -613,8 +642,8 @@ main_verify_getbyte_route@22:
     int 1
     return
 
-main_verify_itob_route@23:
-    // tests/artifacts/MiscellaneousOps/contract.py:116
+main_verify_itob_route@24:
+    // tests/artifacts/MiscellaneousOps/contract.py:121
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -625,7 +654,7 @@ main_verify_itob_route@23:
     // class MiscellaneousOpsContract(ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:116
+    // tests/artifacts/MiscellaneousOps/contract.py:121
     // @arc4.abimethod()
     callsub verify_itob
     dup
@@ -641,8 +670,8 @@ main_verify_itob_route@23:
     int 1
     return
 
-main_verify_mulw_route@24:
-    // tests/artifacts/MiscellaneousOps/contract.py:121
+main_verify_mulw_route@25:
+    // tests/artifacts/MiscellaneousOps/contract.py:126
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -655,7 +684,7 @@ main_verify_mulw_route@24:
     btoi
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:121
+    // tests/artifacts/MiscellaneousOps/contract.py:126
     // @arc4.abimethod()
     callsub verify_mulw
     swap
@@ -670,8 +699,8 @@ main_verify_mulw_route@24:
     int 1
     return
 
-main_verify_replace_route@25:
-    // tests/artifacts/MiscellaneousOps/contract.py:126
+main_verify_replace_route@26:
+    // tests/artifacts/MiscellaneousOps/contract.py:131
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -686,7 +715,7 @@ main_verify_replace_route@25:
     btoi
     txna ApplicationArgs 3
     extract 2 0
-    // tests/artifacts/MiscellaneousOps/contract.py:126
+    // tests/artifacts/MiscellaneousOps/contract.py:131
     // @arc4.abimethod()
     callsub verify_replace
     dup
@@ -702,8 +731,8 @@ main_verify_replace_route@25:
     int 1
     return
 
-main_verify_select_bytes_route@26:
-    // tests/artifacts/MiscellaneousOps/contract.py:131
+main_verify_select_bytes_route@27:
+    // tests/artifacts/MiscellaneousOps/contract.py:136
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -718,7 +747,7 @@ main_verify_select_bytes_route@26:
     extract 2 0
     txna ApplicationArgs 3
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:131
+    // tests/artifacts/MiscellaneousOps/contract.py:136
     // @arc4.abimethod()
     callsub verify_select_bytes
     dup
@@ -734,8 +763,8 @@ main_verify_select_bytes_route@26:
     int 1
     return
 
-main_verify_select_uint64_route@27:
-    // tests/artifacts/MiscellaneousOps/contract.py:136
+main_verify_select_uint64_route@28:
+    // tests/artifacts/MiscellaneousOps/contract.py:141
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -750,7 +779,7 @@ main_verify_select_uint64_route@27:
     btoi
     txna ApplicationArgs 3
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:136
+    // tests/artifacts/MiscellaneousOps/contract.py:141
     // @arc4.abimethod()
     callsub verify_select_uint64
     itob
@@ -761,8 +790,8 @@ main_verify_select_uint64_route@27:
     int 1
     return
 
-main_verify_setbit_bytes_route@28:
-    // tests/artifacts/MiscellaneousOps/contract.py:141
+main_verify_setbit_bytes_route@29:
+    // tests/artifacts/MiscellaneousOps/contract.py:146
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -777,7 +806,7 @@ main_verify_setbit_bytes_route@28:
     btoi
     txna ApplicationArgs 3
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:141
+    // tests/artifacts/MiscellaneousOps/contract.py:146
     // @arc4.abimethod()
     callsub verify_setbit_bytes
     dup
@@ -793,8 +822,8 @@ main_verify_setbit_bytes_route@28:
     int 1
     return
 
-main_verify_setbit_uint64_route@29:
-    // tests/artifacts/MiscellaneousOps/contract.py:146
+main_verify_setbit_uint64_route@30:
+    // tests/artifacts/MiscellaneousOps/contract.py:151
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -809,7 +838,7 @@ main_verify_setbit_uint64_route@29:
     btoi
     txna ApplicationArgs 3
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:146
+    // tests/artifacts/MiscellaneousOps/contract.py:151
     // @arc4.abimethod()
     callsub verify_setbit_uint64
     itob
@@ -820,8 +849,8 @@ main_verify_setbit_uint64_route@29:
     int 1
     return
 
-main_verify_setbyte_route@30:
-    // tests/artifacts/MiscellaneousOps/contract.py:151
+main_verify_setbyte_route@31:
+    // tests/artifacts/MiscellaneousOps/contract.py:156
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -836,7 +865,7 @@ main_verify_setbyte_route@30:
     btoi
     txna ApplicationArgs 3
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:151
+    // tests/artifacts/MiscellaneousOps/contract.py:156
     // @arc4.abimethod()
     callsub verify_setbyte
     dup
@@ -852,8 +881,8 @@ main_verify_setbyte_route@30:
     int 1
     return
 
-main_verify_shl_route@31:
-    // tests/artifacts/MiscellaneousOps/contract.py:156
+main_verify_shl_route@32:
+    // tests/artifacts/MiscellaneousOps/contract.py:161
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -866,7 +895,7 @@ main_verify_shl_route@31:
     btoi
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:156
+    // tests/artifacts/MiscellaneousOps/contract.py:161
     // @arc4.abimethod()
     callsub verify_shl
     itob
@@ -877,8 +906,8 @@ main_verify_shl_route@31:
     int 1
     return
 
-main_verify_shr_route@32:
-    // tests/artifacts/MiscellaneousOps/contract.py:161
+main_verify_shr_route@33:
+    // tests/artifacts/MiscellaneousOps/contract.py:166
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -891,7 +920,7 @@ main_verify_shr_route@32:
     btoi
     txna ApplicationArgs 2
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:161
+    // tests/artifacts/MiscellaneousOps/contract.py:166
     // @arc4.abimethod()
     callsub verify_shr
     itob
@@ -902,8 +931,8 @@ main_verify_shr_route@32:
     int 1
     return
 
-main_verify_sqrt_route@33:
-    // tests/artifacts/MiscellaneousOps/contract.py:166
+main_verify_sqrt_route@34:
+    // tests/artifacts/MiscellaneousOps/contract.py:171
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -914,7 +943,7 @@ main_verify_sqrt_route@33:
     // class MiscellaneousOpsContract(ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:166
+    // tests/artifacts/MiscellaneousOps/contract.py:171
     // @arc4.abimethod()
     callsub verify_sqrt
     itob
@@ -925,8 +954,8 @@ main_verify_sqrt_route@33:
     int 1
     return
 
-main_verify_substring_route@34:
-    // tests/artifacts/MiscellaneousOps/contract.py:171
+main_verify_substring_route@35:
+    // tests/artifacts/MiscellaneousOps/contract.py:176
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -941,7 +970,7 @@ main_verify_substring_route@34:
     btoi
     txna ApplicationArgs 3
     btoi
-    // tests/artifacts/MiscellaneousOps/contract.py:171
+    // tests/artifacts/MiscellaneousOps/contract.py:176
     // @arc4.abimethod()
     callsub verify_substring
     dup
@@ -957,8 +986,8 @@ main_verify_substring_route@34:
     int 1
     return
 
-main_verify_json_ref_string_route@35:
-    // tests/artifacts/MiscellaneousOps/contract.py:176
+main_verify_json_ref_string_route@36:
+    // tests/artifacts/MiscellaneousOps/contract.py:181
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -971,7 +1000,7 @@ main_verify_json_ref_string_route@35:
     extract 2 0
     txna ApplicationArgs 2
     extract 2 0
-    // tests/artifacts/MiscellaneousOps/contract.py:176
+    // tests/artifacts/MiscellaneousOps/contract.py:181
     // @arc4.abimethod()
     callsub verify_json_ref_string
     dup
@@ -987,8 +1016,8 @@ main_verify_json_ref_string_route@35:
     int 1
     return
 
-main_verify_json_ref_uint64_route@36:
-    // tests/artifacts/MiscellaneousOps/contract.py:181
+main_verify_json_ref_uint64_route@37:
+    // tests/artifacts/MiscellaneousOps/contract.py:186
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -1001,7 +1030,7 @@ main_verify_json_ref_uint64_route@36:
     extract 2 0
     txna ApplicationArgs 2
     extract 2 0
-    // tests/artifacts/MiscellaneousOps/contract.py:181
+    // tests/artifacts/MiscellaneousOps/contract.py:186
     // @arc4.abimethod()
     callsub verify_json_ref_uint64
     itob
@@ -1012,8 +1041,8 @@ main_verify_json_ref_uint64_route@36:
     int 1
     return
 
-main_verify_json_ref_object_route@37:
-    // tests/artifacts/MiscellaneousOps/contract.py:186
+main_verify_json_ref_object_route@38:
+    // tests/artifacts/MiscellaneousOps/contract.py:191
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -1026,7 +1055,7 @@ main_verify_json_ref_object_route@37:
     extract 2 0
     txna ApplicationArgs 2
     extract 2 0
-    // tests/artifacts/MiscellaneousOps/contract.py:186
+    // tests/artifacts/MiscellaneousOps/contract.py:191
     // @arc4.abimethod()
     callsub verify_json_ref_object
     dup
@@ -1042,7 +1071,7 @@ main_verify_json_ref_object_route@37:
     int 1
     return
 
-main_bare_routing@40:
+main_bare_routing@41:
     // tests/artifacts/MiscellaneousOps/contract.py:4
     // class MiscellaneousOpsContract(ARC4Contract):
     txn OnCompletion
@@ -1314,75 +1343,74 @@ verify_extract:
     retsub
 
 
+// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_extract_from_2(a: bytes) -> bytes:
+verify_extract_from_2:
+    // tests/artifacts/MiscellaneousOps/contract.py:86-87
+    // @arc4.abimethod()
+    // def verify_extract_from_2(self, a: Bytes) -> Bytes:
+    proto 1 1
+    // tests/artifacts/MiscellaneousOps/contract.py:88
+    // result = op.extract(a, 2, 0)
+    frame_dig -1
+    extract 2 0
+    // tests/artifacts/MiscellaneousOps/contract.py:89
+    // return result
+    retsub
+
+
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_extract_uint16(a: bytes, b: uint64) -> uint64:
 verify_extract_uint16:
-    // tests/artifacts/MiscellaneousOps/contract.py:86-87
+    // tests/artifacts/MiscellaneousOps/contract.py:91-92
     // @arc4.abimethod()
     // def verify_extract_uint16(self, a: Bytes, b: UInt64) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:88
+    // tests/artifacts/MiscellaneousOps/contract.py:93
     // result = op.extract_uint16(a, b)
     frame_dig -2
     frame_dig -1
     extract_uint16
-    // tests/artifacts/MiscellaneousOps/contract.py:89
+    // tests/artifacts/MiscellaneousOps/contract.py:94
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_extract_uint32(a: bytes, b: uint64) -> uint64:
 verify_extract_uint32:
-    // tests/artifacts/MiscellaneousOps/contract.py:91-92
+    // tests/artifacts/MiscellaneousOps/contract.py:96-97
     // @arc4.abimethod()
     // def verify_extract_uint32(self, a: Bytes, b: UInt64) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:93
+    // tests/artifacts/MiscellaneousOps/contract.py:98
     // result = op.extract_uint32(a, b)
     frame_dig -2
     frame_dig -1
     extract_uint32
-    // tests/artifacts/MiscellaneousOps/contract.py:94
+    // tests/artifacts/MiscellaneousOps/contract.py:99
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_extract_uint64(a: bytes, b: uint64) -> uint64:
 verify_extract_uint64:
-    // tests/artifacts/MiscellaneousOps/contract.py:96-97
+    // tests/artifacts/MiscellaneousOps/contract.py:101-102
     // @arc4.abimethod()
     // def verify_extract_uint64(self, a: Bytes, b: UInt64) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:98
+    // tests/artifacts/MiscellaneousOps/contract.py:103
     // result = op.extract_uint64(a, b)
     frame_dig -2
     frame_dig -1
     extract_uint64
-    // tests/artifacts/MiscellaneousOps/contract.py:99
+    // tests/artifacts/MiscellaneousOps/contract.py:104
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_getbit_bytes(a: bytes, b: uint64) -> uint64:
 verify_getbit_bytes:
-    // tests/artifacts/MiscellaneousOps/contract.py:101-102
-    // @arc4.abimethod()
-    // def verify_getbit_bytes(self, a: Bytes, b: UInt64) -> UInt64:
-    proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:103
-    // result = op.getbit(a, b)
-    frame_dig -2
-    frame_dig -1
-    getbit
-    // tests/artifacts/MiscellaneousOps/contract.py:104
-    // return result
-    retsub
-
-
-// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_getbit_uint64(a: uint64, b: uint64) -> uint64:
-verify_getbit_uint64:
     // tests/artifacts/MiscellaneousOps/contract.py:106-107
     // @arc4.abimethod()
-    // def verify_getbit_uint64(self, a: UInt64, b: UInt64) -> UInt64:
+    // def verify_getbit_bytes(self, a: Bytes, b: UInt64) -> UInt64:
     proto 2 1
     // tests/artifacts/MiscellaneousOps/contract.py:108
     // result = op.getbit(a, b)
@@ -1394,95 +1422,94 @@ verify_getbit_uint64:
     retsub
 
 
+// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_getbit_uint64(a: uint64, b: uint64) -> uint64:
+verify_getbit_uint64:
+    // tests/artifacts/MiscellaneousOps/contract.py:111-112
+    // @arc4.abimethod()
+    // def verify_getbit_uint64(self, a: UInt64, b: UInt64) -> UInt64:
+    proto 2 1
+    // tests/artifacts/MiscellaneousOps/contract.py:113
+    // result = op.getbit(a, b)
+    frame_dig -2
+    frame_dig -1
+    getbit
+    // tests/artifacts/MiscellaneousOps/contract.py:114
+    // return result
+    retsub
+
+
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_getbyte(a: bytes, b: uint64) -> uint64:
 verify_getbyte:
-    // tests/artifacts/MiscellaneousOps/contract.py:111-112
+    // tests/artifacts/MiscellaneousOps/contract.py:116-117
     // @arc4.abimethod()
     // def verify_getbyte(self, a: Bytes, b: UInt64) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:113
+    // tests/artifacts/MiscellaneousOps/contract.py:118
     // result = op.getbyte(a, b)
     frame_dig -2
     frame_dig -1
     getbyte
-    // tests/artifacts/MiscellaneousOps/contract.py:114
+    // tests/artifacts/MiscellaneousOps/contract.py:119
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_itob(a: uint64) -> bytes:
 verify_itob:
-    // tests/artifacts/MiscellaneousOps/contract.py:116-117
+    // tests/artifacts/MiscellaneousOps/contract.py:121-122
     // @arc4.abimethod()
     // def verify_itob(self, a: UInt64) -> Bytes:
     proto 1 1
-    // tests/artifacts/MiscellaneousOps/contract.py:118
+    // tests/artifacts/MiscellaneousOps/contract.py:123
     // result = op.itob(a)
     frame_dig -1
     itob
-    // tests/artifacts/MiscellaneousOps/contract.py:119
+    // tests/artifacts/MiscellaneousOps/contract.py:124
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_mulw(a: uint64, b: uint64) -> uint64, uint64:
 verify_mulw:
-    // tests/artifacts/MiscellaneousOps/contract.py:121-122
+    // tests/artifacts/MiscellaneousOps/contract.py:126-127
     // @arc4.abimethod()
     // def verify_mulw(self, a: UInt64, b: UInt64) -> tuple[UInt64, UInt64]:
     proto 2 2
-    // tests/artifacts/MiscellaneousOps/contract.py:123
+    // tests/artifacts/MiscellaneousOps/contract.py:128
     // result = op.mulw(a, b)
     frame_dig -2
     frame_dig -1
     mulw
-    // tests/artifacts/MiscellaneousOps/contract.py:124
+    // tests/artifacts/MiscellaneousOps/contract.py:129
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_replace(a: bytes, b: uint64, c: bytes) -> bytes:
 verify_replace:
-    // tests/artifacts/MiscellaneousOps/contract.py:126-127
+    // tests/artifacts/MiscellaneousOps/contract.py:131-132
     // @arc4.abimethod()
     // def verify_replace(self, a: Bytes, b: UInt64, c: Bytes) -> Bytes:
     proto 3 1
-    // tests/artifacts/MiscellaneousOps/contract.py:128
+    // tests/artifacts/MiscellaneousOps/contract.py:133
     // result = op.replace(a, b, c)
     frame_dig -3
     frame_dig -2
     frame_dig -1
     replace3
-    // tests/artifacts/MiscellaneousOps/contract.py:129
+    // tests/artifacts/MiscellaneousOps/contract.py:134
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_select_bytes(a: bytes, b: bytes, c: uint64) -> bytes:
 verify_select_bytes:
-    // tests/artifacts/MiscellaneousOps/contract.py:131-132
+    // tests/artifacts/MiscellaneousOps/contract.py:136-137
     // @arc4.abimethod()
     // def verify_select_bytes(self, a: Bytes, b: Bytes, c: UInt64) -> Bytes:
     proto 3 1
-    // tests/artifacts/MiscellaneousOps/contract.py:133
-    // result = op.select_bytes(a, b, c)
-    frame_dig -3
-    frame_dig -2
-    frame_dig -1
-    select
-    // tests/artifacts/MiscellaneousOps/contract.py:134
-    // return result
-    retsub
-
-
-// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_select_uint64(a: uint64, b: uint64, c: uint64) -> uint64:
-verify_select_uint64:
-    // tests/artifacts/MiscellaneousOps/contract.py:136-137
-    // @arc4.abimethod()
-    // def verify_select_uint64(self, a: UInt64, b: UInt64, c: UInt64) -> UInt64:
-    proto 3 1
     // tests/artifacts/MiscellaneousOps/contract.py:138
-    // result = op.select_uint64(a, b, c)
+    // result = op.select_bytes(a, b, c)
     frame_dig -3
     frame_dig -2
     frame_dig -1
@@ -1492,31 +1519,31 @@ verify_select_uint64:
     retsub
 
 
-// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_setbit_bytes(a: bytes, b: uint64, c: uint64) -> bytes:
-verify_setbit_bytes:
+// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_select_uint64(a: uint64, b: uint64, c: uint64) -> uint64:
+verify_select_uint64:
     // tests/artifacts/MiscellaneousOps/contract.py:141-142
     // @arc4.abimethod()
-    // def verify_setbit_bytes(self, a: Bytes, b: UInt64, c: UInt64) -> Bytes:
+    // def verify_select_uint64(self, a: UInt64, b: UInt64, c: UInt64) -> UInt64:
     proto 3 1
     // tests/artifacts/MiscellaneousOps/contract.py:143
-    // result = op.setbit_bytes(a, b, c)
+    // result = op.select_uint64(a, b, c)
     frame_dig -3
     frame_dig -2
     frame_dig -1
-    setbit
+    select
     // tests/artifacts/MiscellaneousOps/contract.py:144
     // return result
     retsub
 
 
-// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_setbit_uint64(a: uint64, b: uint64, c: uint64) -> uint64:
-verify_setbit_uint64:
+// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_setbit_bytes(a: bytes, b: uint64, c: uint64) -> bytes:
+verify_setbit_bytes:
     // tests/artifacts/MiscellaneousOps/contract.py:146-147
     // @arc4.abimethod()
-    // def verify_setbit_uint64(self, a: UInt64, b: UInt64, c: UInt64) -> UInt64:
+    // def verify_setbit_bytes(self, a: Bytes, b: UInt64, c: UInt64) -> Bytes:
     proto 3 1
     // tests/artifacts/MiscellaneousOps/contract.py:148
-    // result = op.setbit_uint64(a, b, c)
+    // result = op.setbit_bytes(a, b, c)
     frame_dig -3
     frame_dig -2
     frame_dig -1
@@ -1526,130 +1553,147 @@ verify_setbit_uint64:
     retsub
 
 
+// tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_setbit_uint64(a: uint64, b: uint64, c: uint64) -> uint64:
+verify_setbit_uint64:
+    // tests/artifacts/MiscellaneousOps/contract.py:151-152
+    // @arc4.abimethod()
+    // def verify_setbit_uint64(self, a: UInt64, b: UInt64, c: UInt64) -> UInt64:
+    proto 3 1
+    // tests/artifacts/MiscellaneousOps/contract.py:153
+    // result = op.setbit_uint64(a, b, c)
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    setbit
+    // tests/artifacts/MiscellaneousOps/contract.py:154
+    // return result
+    retsub
+
+
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_setbyte(a: bytes, b: uint64, c: uint64) -> bytes:
 verify_setbyte:
-    // tests/artifacts/MiscellaneousOps/contract.py:151-152
+    // tests/artifacts/MiscellaneousOps/contract.py:156-157
     // @arc4.abimethod()
     // def verify_setbyte(self, a: Bytes, b: UInt64, c: UInt64) -> Bytes:
     proto 3 1
-    // tests/artifacts/MiscellaneousOps/contract.py:153
+    // tests/artifacts/MiscellaneousOps/contract.py:158
     // result = op.setbyte(a, b, c)
     frame_dig -3
     frame_dig -2
     frame_dig -1
     setbyte
-    // tests/artifacts/MiscellaneousOps/contract.py:154
+    // tests/artifacts/MiscellaneousOps/contract.py:159
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_shl(a: uint64, b: uint64) -> uint64:
 verify_shl:
-    // tests/artifacts/MiscellaneousOps/contract.py:156-157
+    // tests/artifacts/MiscellaneousOps/contract.py:161-162
     // @arc4.abimethod()
     // def verify_shl(self, a: UInt64, b: UInt64) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:158
+    // tests/artifacts/MiscellaneousOps/contract.py:163
     // result = op.shl(a, b)
     frame_dig -2
     frame_dig -1
     shl
-    // tests/artifacts/MiscellaneousOps/contract.py:159
+    // tests/artifacts/MiscellaneousOps/contract.py:164
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_shr(a: uint64, b: uint64) -> uint64:
 verify_shr:
-    // tests/artifacts/MiscellaneousOps/contract.py:161-162
+    // tests/artifacts/MiscellaneousOps/contract.py:166-167
     // @arc4.abimethod()
     // def verify_shr(self, a: UInt64, b: UInt64) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:163
+    // tests/artifacts/MiscellaneousOps/contract.py:168
     // result = op.shr(a, b)
     frame_dig -2
     frame_dig -1
     shr
-    // tests/artifacts/MiscellaneousOps/contract.py:164
+    // tests/artifacts/MiscellaneousOps/contract.py:169
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_sqrt(a: uint64) -> uint64:
 verify_sqrt:
-    // tests/artifacts/MiscellaneousOps/contract.py:166-167
+    // tests/artifacts/MiscellaneousOps/contract.py:171-172
     // @arc4.abimethod()
     // def verify_sqrt(self, a: UInt64) -> UInt64:
     proto 1 1
-    // tests/artifacts/MiscellaneousOps/contract.py:168
+    // tests/artifacts/MiscellaneousOps/contract.py:173
     // result = op.sqrt(a)
     frame_dig -1
     sqrt
-    // tests/artifacts/MiscellaneousOps/contract.py:169
+    // tests/artifacts/MiscellaneousOps/contract.py:174
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_substring(a: bytes, b: uint64, c: uint64) -> bytes:
 verify_substring:
-    // tests/artifacts/MiscellaneousOps/contract.py:171-172
+    // tests/artifacts/MiscellaneousOps/contract.py:176-177
     // @arc4.abimethod()
     // def verify_substring(self, a: Bytes, b: UInt64, c: UInt64) -> Bytes:
     proto 3 1
-    // tests/artifacts/MiscellaneousOps/contract.py:173
+    // tests/artifacts/MiscellaneousOps/contract.py:178
     // result = op.substring(a, b, c)
     frame_dig -3
     frame_dig -2
     frame_dig -1
     substring3
-    // tests/artifacts/MiscellaneousOps/contract.py:174
+    // tests/artifacts/MiscellaneousOps/contract.py:179
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_json_ref_string(a: bytes, b: bytes) -> bytes:
 verify_json_ref_string:
-    // tests/artifacts/MiscellaneousOps/contract.py:176-177
+    // tests/artifacts/MiscellaneousOps/contract.py:181-182
     // @arc4.abimethod()
     // def verify_json_ref_string(self, a: Bytes, b: Bytes) -> Bytes:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:178
+    // tests/artifacts/MiscellaneousOps/contract.py:183
     // result = op.JsonRef.json_string(a, b)
     frame_dig -2
     frame_dig -1
     json_ref JSONString
-    // tests/artifacts/MiscellaneousOps/contract.py:179
+    // tests/artifacts/MiscellaneousOps/contract.py:184
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_json_ref_uint64(a: bytes, b: bytes) -> uint64:
 verify_json_ref_uint64:
-    // tests/artifacts/MiscellaneousOps/contract.py:181-182
+    // tests/artifacts/MiscellaneousOps/contract.py:186-187
     // @arc4.abimethod()
     // def verify_json_ref_uint64(self, a: Bytes, b: Bytes) -> UInt64:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:183
+    // tests/artifacts/MiscellaneousOps/contract.py:188
     // result = op.JsonRef.json_uint64(a, b)
     frame_dig -2
     frame_dig -1
     json_ref JSONUint64
-    // tests/artifacts/MiscellaneousOps/contract.py:184
+    // tests/artifacts/MiscellaneousOps/contract.py:189
     // return result
     retsub
 
 
 // tests.artifacts.MiscellaneousOps.contract.MiscellaneousOpsContract.verify_json_ref_object(a: bytes, b: bytes) -> bytes:
 verify_json_ref_object:
-    // tests/artifacts/MiscellaneousOps/contract.py:186-187
+    // tests/artifacts/MiscellaneousOps/contract.py:191-192
     // @arc4.abimethod()
     // def verify_json_ref_object(self, a: Bytes, b: Bytes) -> Bytes:
     proto 2 1
-    // tests/artifacts/MiscellaneousOps/contract.py:188
+    // tests/artifacts/MiscellaneousOps/contract.py:193
     // result = op.JsonRef.json_object(a, b)
     frame_dig -2
     frame_dig -1
     json_ref JSONObject
-    // tests/artifacts/MiscellaneousOps/contract.py:189
+    // tests/artifacts/MiscellaneousOps/contract.py:194
     // return result
     retsub
