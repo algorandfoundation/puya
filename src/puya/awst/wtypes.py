@@ -20,11 +20,30 @@ def _all_literals_invalid(_value: object) -> bool:
 LiteralValidator: typing.TypeAlias = Callable[[object], bool]
 
 
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True)
+class SizeBounds:
+    min_size: int = 0
+    max_size: int
+
+
+_bytes_bounds = SizeBounds(max_size=algo_constants.MAX_BYTES_LENGTH)
+
+
+@attrs.frozen(kw_only=True)
+class ValueBounds:
+    min_value: int = 0
+    max_value: int
+
+
+_uint64_bounds = ValueBounds(max_value=2**64 - 1)  # TODO: constant
+
+
+@attrs.frozen(kw_only=True)
 class WType:
     name: str
-    immutable: bool = True
-    scalar: bool = True  # is this a single value on the stack?
+    bounds: SizeBounds | ValueBounds | None
+    persistable: bool  # can/should this value be used in local/global state or boxes?
+    immutable: bool
     is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
@@ -74,33 +93,54 @@ def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
 
 void_wtype: typing.Final = WType(
     name="void",
+    persistable=False,
+    immutable=True,
+    bounds=None,
 )
 
 bool_wtype: typing.Final = WType(
     name="bool",
+    persistable=True,
+    bounds=ValueBounds(max_value=1),
+    immutable=True,
     is_valid_literal=is_valid_bool_literal,
 )
 
 uint64_wtype: typing.Final = WType(
     name="uint64",
+    persistable=True,
+    bounds=_uint64_bounds,
+    immutable=True,
     is_valid_literal=is_valid_uint64_literal,
 )
 
 biguint_wtype: typing.Final = WType(
     name="biguint",
+    persistable=True,
+    bounds=ValueBounds(max_value=2**algo_constants.MAX_BIGUINT_BITS - 1),
+    immutable=True,
     is_valid_literal=is_valid_biguint_literal,
 )
 
 bytes_wtype: typing.Final = WType(
     name="bytes",
+    persistable=True,
+    bounds=_bytes_bounds,
+    immutable=True,
     is_valid_literal=is_valid_bytes_literal,
 )
 string_wtype: typing.Final = WType(
     name="string",
+    persistable=True,
+    bounds=_bytes_bounds,
+    immutable=True,
     is_valid_literal=is_valid_utf8_literal,
 )
 asset_wtype: typing.Final = WType(
     name="asset",
+    bounds=_uint64_bounds,
+    persistable=True,
+    immutable=True,
     is_valid_literal=is_valid_uint64_literal,
 )
 # TODO: take the below approach and use everywhere
@@ -117,21 +157,32 @@ asset_wtype: typing.Final = WType(
 
 account_wtype: typing.Final = WType(
     name="account",
+    persistable=True,
+    bounds=SizeBounds(min_size=32, max_size=32),
+    immutable=True,
     is_valid_literal=is_valid_account_literal,
 )
 
 application_wtype: typing.Final = WType(
     name="application",
+    persistable=True,
+    bounds=_uint64_bounds,
+    immutable=True,
     is_valid_literal=is_valid_uint64_literal,
 )
 
 
-@typing.final
-@attrs.frozen(str=False, kw_only=True)
-class WGroupTransaction(WType):
+@attrs.frozen
+class _TransactionRelatedWType(WType):
     transaction_type: constants.TransactionType | None
-    scalar: bool = attrs.field(default=False, init=False)
+    persistable: bool = attrs.field(default=False, init=False)
+    immutable: bool = attrs.field(default=True, init=False)
+    bounds: None = attrs.field(default=None, init=False)
 
+
+@typing.final
+@attrs.frozen
+class WGroupTransaction(_TransactionRelatedWType):
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WGroupTransaction":
         name = "group_transaction"
@@ -139,14 +190,10 @@ class WGroupTransaction(WType):
             name = f"{name}_{transaction_type.name}"
         return cls(name=name, transaction_type=transaction_type)
 
-    # TODO only allow int literals below max group size
 
-
-@attrs.define
-class WInnerTransactionFields(WType):
-    transaction_type: constants.TransactionType | None
-    scalar: bool = attrs.field(default=False, init=False)
-
+@typing.final
+@attrs.frozen
+class WInnerTransactionFields(_TransactionRelatedWType):
     @classmethod
     def from_type(
         cls, transaction_type: constants.TransactionType | None
@@ -157,11 +204,9 @@ class WInnerTransactionFields(WType):
         return cls(name=name, transaction_type=transaction_type)
 
 
-@attrs.define
-class WInnerTransaction(WType):
-    transaction_type: constants.TransactionType | None
-    scalar: bool = attrs.field(default=False, init=False)
-
+@typing.final
+@attrs.frozen
+class WInnerTransaction(_TransactionRelatedWType):
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WInnerTransaction":
         name = "inner_transaction"
@@ -171,10 +216,10 @@ class WInnerTransaction(WType):
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False)
 class WStructType(WType):
     fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
-    scalar: bool = attrs.field(default=False, init=False)
+    persistable: bool = attrs.field(default=False, init=False)
 
     def __init__(
         self,
@@ -193,27 +238,28 @@ class WStructType(WType):
             )
             + ">"
         )
-        self.__attrs_init__(name=name, fields=fields, immutable=immutable)
+        self.__attrs_init__(name=name, fields=fields, immutable=immutable, bounds=None)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False)
 class WArray(WType):
     element_type: WType
-    scalar: bool = attrs.field(default=False, init=False)
+    persistable: bool = attrs.field(default=False, init=False)
 
     def __init__(self, element_type: WType, source_location: SourceLocation | None):
         if element_type == void_wtype:
             raise CodeError("array element type cannot be void", source_location)
         name = f"array<{element_type.name}>"
-        self.__attrs_init__(name=name, element_type=element_type, immutable=False)
+        self.__attrs_init__(name=name, element_type=element_type, immutable=False, bounds=None)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False)
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
-    scalar: bool = attrs.field(default=False, init=False)
+    persistable: bool = attrs.field(default=False, init=False)
+    immutable: bool = attrs.field(default=True, init=False)
 
     def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
         types = tuple(types)
@@ -222,18 +268,20 @@ class WTuple(WType):
         if void_wtype in types:
             raise CodeError("tuple should not contain void types", source_location)
         name = f"tuple<{','.join([t.name for t in types])}>"
-        self.__attrs_init__(name=name, types=types)
+        self.__attrs_init__(name=name, types=types, bounds=None)
 
 
 @attrs.frozen
 class ARC4Type(WType):
     alias: str | None = None
+    persistable: bool = attrs.field(default=True, init=False)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False, kw_only=True)
 class ARC4UIntN(ARC4Type):
     n: int
+    immutable: bool = attrs.field(default=True, init=False)
     is_valid_literal: LiteralValidator = attrs.field(init=False, eq=False)
 
     @is_valid_literal.default
@@ -253,11 +301,11 @@ class ARC4UIntN(ARC4Type):
         if not (8 <= n <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
         name = name or f"arc4.uint{n}"
-        self.__attrs_init__(name=name, n=n, alias=alias)
+        self.__attrs_init__(name=name, n=n, alias=alias, bounds=ValueBounds(max_value=2**n - 1))
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False, kw_only=True)
 class ARC4Tuple(ARC4Type):
     types: tuple[ARC4Type, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
 
@@ -281,14 +329,15 @@ class ARC4Tuple(ARC4Type):
             # then the overall value is also mutable
             immutable = immutable and typ.immutable
         name = f"arc4.tuple<{','.join([t.name for t in types])}>"
-        self.__attrs_init__(name=name, types=tuple(arc4_types), immutable=immutable)
+        self.__attrs_init__(name=name, types=tuple(arc4_types), immutable=immutable, bounds=None)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False, kw_only=True)
 class ARC4UFixedNxM(ARC4Type):
     n: int
     m: int
+    immutable: bool = attrs.field(default=True, init=False)
 
     def __init__(self, bits: int, precision: int, source_location: SourceLocation | None):
         if not (bits % 8 == 0):
@@ -302,6 +351,7 @@ class ARC4UFixedNxM(ARC4Type):
             name=f"arc4.ufixed{bits}x{precision}",
             n=bits,
             m=precision,
+            bounds=ValueBounds(max_value=2**bits - 1),
             is_valid_literal=_make_ufixed_literal_validator(precision=precision, bits=bits),
         )
 
@@ -326,14 +376,14 @@ def _make_ufixed_literal_validator(*, bits: int, precision: int) -> LiteralValid
     return validator
 
 
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
     element_type: ARC4Type
     immutable: bool = attrs.field(default=False, init=False)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(init=False)
 class ARC4DynamicArray(ARC4Array):
     def __init__(
         self,
@@ -349,12 +399,16 @@ class ARC4DynamicArray(ARC4Array):
         name = name or f"arc4.dynamic_array<{element_type.name}>"
         is_valid_literal = is_valid_literal or typing.cast(LiteralValidator, attrs.NOTHING)
         self.__attrs_init__(
-            name=name, element_type=element_type, alias=alias, is_valid_literal=is_valid_literal
+            name=name,
+            element_type=element_type,
+            alias=alias,
+            bounds=None,
+            is_valid_literal=is_valid_literal,
         )
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(kw_only=True, init=False)
 class ARC4StaticArray(ARC4Array):
     array_size: int
 
@@ -373,12 +427,16 @@ class ARC4StaticArray(ARC4Array):
             raise CodeError("ARC4 static array size must be non-negative", source_location)
         name = name or f"arc4.static_array<{element_type.name}, {array_size}>"
         self.__attrs_init__(
-            name=name, element_type=element_type, array_size=array_size, alias=alias
+            name=name,
+            element_type=element_type,
+            array_size=array_size,
+            alias=alias,
+            bounds=None,
         )
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True, init=False)
+@attrs.frozen(kw_only=True, init=False)
 class ARC4Struct(ARC4Type):
     fields: Mapping[str, ARC4Type] = attrs.field(
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
@@ -427,17 +485,26 @@ class ARC4Struct(ARC4Type):
             )
             + ">"
         )
-        self.__attrs_init__(name=name, fields=arc4_fields, immutable=immutable)
+        self.__attrs_init__(
+            name=name,
+            fields=arc4_fields,
+            immutable=immutable,
+            bounds=None,
+        )
 
 
 arc4_string_wtype: typing.Final = ARC4Type(
     name="arc4.string",
     alias="string",
+    immutable=True,
+    bounds=SizeBounds(max_size=algo_constants.MAX_BYTES_LENGTH - 2),
     is_valid_literal=is_valid_utf8_literal,
 )
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
     alias="bool",
+    immutable=True,
+    bounds=ValueBounds(max_value=1),
     is_valid_literal=is_valid_bool_literal,
 )
 arc4_byte_type: typing.Final = ARC4UIntN(  # TODO: REMOVE ME

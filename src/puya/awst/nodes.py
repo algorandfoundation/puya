@@ -30,6 +30,8 @@ T = t.TypeVar("T")
 
 ConstantValue: t.TypeAlias = int | str | bytes | bool
 
+# TODO: use runtime type-checking for all attrs classes in this module
+
 
 @attrs.frozen
 class Node:
@@ -299,7 +301,29 @@ class IntegerConstant(Expression):
 
     @value.validator
     def check(self, _attribute: object, value: int) -> None:
-        _validate_literal(value, self.wtype, self.source_location)
+        match self.wtype.bounds:
+            case wtypes.ValueBounds(min_value=min_value, max_value=max_value):
+                if value < min_value:
+                    raise CodeError(
+                        "integer constant is"
+                        f" below minimum value of {min_value} for type {self.wtype}",
+                        self.source_location,
+                    )
+                if value > max_value:
+                    raise CodeError(
+                        "integer constant is"
+                        f" greater than maximum value of {max_value} for type {self.wtype}",
+                        self.source_location,
+                    )
+            case None:
+                pass
+            case wtypes.SizeBounds():
+                raise InternalError(
+                    "Integer types should have ValueBounds or None, not SizeBounds",
+                    self.source_location,
+                )
+            case _:
+                t.assert_never(self.wtype.bounds)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_integer_constant(self)
@@ -398,6 +422,11 @@ class MethodConstant(Expression):
 class AddressConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.account_wtype, init=False)
     value: str = attrs.field(validator=[literal_validator(wtypes.account_wtype)])
+
+    @value.validator
+    def check(self, _attribute: object, value: str) -> None:
+        if not wtypes.valid_address(value):
+            raise CodeError(f"Invalid address: {value}", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
@@ -758,14 +787,6 @@ class CheckedMaybe(Expression):
         return visitor.visit_checked_maybe(self)
 
 
-def scalar_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
-    if not value.wtype.scalar:
-        raise CodeError(
-            f'expression with type "{value.wtype}" is not a scalar',
-            value.source_location,
-        )
-
-
 @attrs.frozen
 class TupleExpression(Expression):
     items: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
@@ -1075,6 +1096,10 @@ class AssignmentStatement(Statement):
             )
         if self.value.wtype == wtypes.void_wtype:
             raise CodeError("void type cannot be assigned", self.source_location)
+        if not self.value.wtype.persistable and isinstance(self.target, StorageExpression):  # type: ignore[misc,arg-type]
+            raise CodeError(
+                "expression has type which is not persistable", self.value.source_location
+            )
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_assignment_statement(self)
@@ -1106,7 +1131,9 @@ class AssignmentExpression(Expression):
                 source_location,
             )
         if value.wtype == wtypes.void_wtype:
-            raise CodeError("void type cannot be assigned", self.source_location)
+            raise CodeError("void type cannot be assigned", source_location)
+        if not value.wtype.persistable and isinstance(target, StorageExpression):  # type: ignore[misc,arg-type]
+            raise CodeError("expression has type which is not persistable", value.source_location)
         self.__attrs_init__(
             source_location=source_location,
             target=target,
@@ -1610,12 +1637,12 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class BytesRaw(Expression):
+class BytesRaw(Expression):  # TODO: rename to BytesSerialize?
     """Get the raw bytes of a scalar expression.
     Will use `itob` in case it's uint64 backed.
     """
 
-    expr: Expression = attrs.field(validator=scalar_expr_validator)
+    expr: Expression
     wtype: wtypes.WType = attrs.field(default=wtypes.bytes_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
