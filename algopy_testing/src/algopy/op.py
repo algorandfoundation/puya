@@ -382,10 +382,10 @@ def sqrt(a: UInt64 | int, /) -> UInt64:
 
 
 def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
-    a = a if (isinstance(a, Bytes)) else Bytes(a)
+    a = as_bytes(a)
     c = as_int(c, max=len(a))
     b = as_int(b, max=c)
-    return a[slice(b, c)]
+    return Bytes(a)[slice(b, c)]
 
 
 def concat(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
