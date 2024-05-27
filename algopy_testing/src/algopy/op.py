@@ -293,7 +293,7 @@ def getbit(a: Bytes | UInt64 | bytes | int, b: UInt64 | int, /) -> UInt64:
     if isinstance(a, UInt64 | int):
         a_bytes = _uint64_to_bytes(a)
         return _getbit_bytes(a_bytes, b, "little")
-    raise ValueError("Unknown type for argument a")
+    raise TypeError("Unknown type for argument a")
 
 
 def getbyte(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
