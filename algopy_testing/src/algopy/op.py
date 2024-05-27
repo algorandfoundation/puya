@@ -490,19 +490,21 @@ class JsonRef:
         try:
             # load the whole json payload as an array of key value pairs
             pairs = json.loads(a, object_pairs_hook=lambda x: x)
-            # turn the pairs into the dictionay for the top level,
-            # all other levels remain as key value pairs
-            # e.g.
-            # input bytes: b'{"key0": 1,"key1": {"key2":2,"key2":"10"}, "key2": "test"}'
-            # output dict: {'key0': 1, 'key1': [('key2', 2), ('key2', '10')], 'key2': 'test'}
-            result = dict(pairs)
-            if len(pairs) != len(result):
-                raise ValueError(
-                    "error while parsing JSON text, invalid json text, duplicate keys found"
-                )
-            return result  # noqa: TRY300
         except json.JSONDecodeError:
             raise ValueError("error while parsing JSON text, invalid json text") from None
+
+        # turn the pairs into the dictionay for the top level,
+        # all other levels remain as key value pairs
+        # e.g.
+        # input bytes: b'{"key0": 1,"key1": {"key2":2,"key2":"10"}, "key2": "test"}'
+        # output dict: {'key0': 1, 'key1': [('key2', 2), ('key2', '10')], 'key2': 'test'}
+        result = dict(pairs)
+        if len(pairs) != len(result):
+            raise ValueError(
+                "error while parsing JSON text, invalid json text, duplicate keys found"
+            )
+
+        return result
 
     @staticmethod
     def _raise_key_error(key: str) -> None:
@@ -558,7 +560,7 @@ class JsonRef:
 
 class _MultiKeyDict(dict[Any, Any]):
     def __init__(self, items: list[Any]):
-        self["something"] = "something"
+        self[""] = ""
         items = [
             (
                 (i[0], _MultiKeyDict(i[1]))
