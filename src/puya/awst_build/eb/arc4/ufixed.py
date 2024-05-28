@@ -6,11 +6,22 @@ import typing
 import mypy.nodes
 
 from puya.awst import wtypes
-from puya.awst.nodes import DecimalConstant, Expression, Literal
+from puya.awst.nodes import (
+    BytesComparisonExpression,
+    DecimalConstant,
+    EqualityComparison,
+    Expression,
+    Literal,
+)
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import get_bytes_expr_builder
+from puya.awst_build.eb._utils import (
+    construct_from_literal,
+    get_bytes_expr,
+    get_bytes_expr_builder,
+)
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
-from puya.awst_build.eb.base import ExpressionBuilder, ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -95,3 +106,21 @@ class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMTyp
                 return get_bytes_expr_builder(self.expr)
             case _:
                 return super().member_access(name, location)
+
+    @typing.override
+    def compare(
+        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> ExpressionBuilder:
+        if isinstance(other, Literal):
+            other = construct_from_literal(other, self.pytype)
+        if other.pytype != self.pytype:
+            return NotImplemented
+        cmp_expr = BytesComparisonExpression(
+            # TODO: here (and everywhere else) raise a CodeError instead of fatal if op isn't
+            #       in the supported enum
+            operator=EqualityComparison(op.value),
+            lhs=get_bytes_expr(self.expr),
+            rhs=get_bytes_expr(other.rvalue()),
+            source_location=location,
+        )
+        return BoolExpressionBuilder(cmp_expr)
