@@ -26,7 +26,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import convert_literal, expect_operand_type
+from puya.awst_build.utils import construct_from_literal, expect_operand_type
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -65,9 +65,9 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
     elif isinstance(arg, Literal):
         # TODO: REMOVE HACK
         if wtypes.string_wtype in field.additional_input_wtypes and isinstance(arg.value, str):
-            field_expr = convert_literal(arg, pytypes.StringType)
+            field_expr = construct_from_literal(arg, pytypes.StringType).rvalue()
         else:
-            field_expr = convert_literal(arg, field_pytype)
+            field_expr = construct_from_literal(arg, field_pytype).rvalue()
     else:
         typing.assert_never(arg)
     return field, field_expr

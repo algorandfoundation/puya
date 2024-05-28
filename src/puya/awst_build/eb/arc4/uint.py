@@ -14,7 +14,6 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._utils import construct_from_literal
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -22,6 +21,7 @@ from puya.awst_build.eb.arc4.base import (
 )
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:

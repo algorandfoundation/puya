@@ -13,7 +13,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
-from puya.awst_build.utils import convert_literal, get_arg_mapping
+from puya.awst_build.utils import construct_from_literal, get_arg_mapping
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -209,7 +209,7 @@ def _map_call(
             for allowed_type in allowed_pytypes:
                 allowed_wtype = allowed_type.wtype  # TODO yeet me
                 if allowed_wtype.is_valid_literal(literal_value):
-                    literal_expr = convert_literal(arg_in, allowed_type)
+                    literal_expr = construct_from_literal(arg_in, allowed_type).rvalue()
                     stack_args.append(literal_expr)
                     break
             else:

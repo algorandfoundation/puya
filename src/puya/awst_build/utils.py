@@ -25,6 +25,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.var_factory import builder_for_type
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -170,7 +171,7 @@ def expect_operand_type(
     literal_or_eb: Literal | ExpressionBuilder, target_type: pytypes.PyType
 ) -> Expression:
     if isinstance(literal_or_eb, Literal):
-        return convert_literal(literal_or_eb, target_type)
+        return construct_from_literal(literal_or_eb, target_type).rvalue()
     if literal_or_eb.pytype != target_type:
         raise CodeError(
             f"Expected type {target_type}, got type {literal_or_eb.pytype}",
@@ -179,49 +180,11 @@ def expect_operand_type(
     return literal_or_eb.rvalue()
 
 
-def convert_literal(literal_or_expr: Literal, target_type: pytypes.PyType) -> Expression:
-    from puya.awst_build.eb._utils import construct_from_literal
-
-    return construct_from_literal(literal_or_expr, target_type).rvalue()
-    # loc = literal_or_expr.source_location
-    # match literal_or_expr.value, target_wtype:
-    #     case bool(bool_value), wtypes.bool_wtype:
-    #         return BoolConstant(value=bool_value, source_location=loc)
-    #     case int(int_value), wtypes.uint64_wtype | wtypes.biguint_wtype:
-    #         return IntegerConstant(value=int_value, wtype=target_wtype, source_location=loc)
-    #     case bytes(bytes_value), wtypes.bytes_wtype:
-    #         try:
-    #             # TODO: YEET ME
-    #             bytes_value.decode("utf8")
-    #         except ValueError:
-    #             encoding = BytesEncoding.unknown
-    #         else:
-    #             encoding = BytesEncoding.utf8
-    #         return BytesConstant(value=bytes_value, encoding=encoding, source_location=loc)
-    #     case str(str_value), wtypes.bytes_wtype:
-    #         return BytesConstant(
-    #             value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
-    #         )
-    #     case str(str_value), wtypes.string_wtype:
-    #         return StringConstant(value=str_value, source_location=loc)
-    #     case str(str_value), wtypes.account_wtype:
-    #         return AddressConstant(value=str_value, source_location=loc)
-    #     case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:
-    #         return ReinterpretCast(
-    #             expr=UInt64Constant(value=int_value, source_location=loc),
-    #             wtype=target_wtype,
-    #             source_location=loc,
-    #         )
-    # raise CodeError(
-    #     f"Can't construct {target_wtype} from Python literal {literal_or_expr.value!r}", loc
-    # )
-
-
 def convert_literal_to_expr(
     literal_or_expr: Literal | ExpressionBuilder, target_type: pytypes.PyType
 ) -> Expression:
     if isinstance(literal_or_expr, Literal):
-        return convert_literal(literal_or_expr, target_type)
+        return construct_from_literal(literal_or_expr, target_type).rvalue()
     else:
         return literal_or_expr.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
 
@@ -388,3 +351,58 @@ def resolve_method_from_type_info(
                 location=location,
             )
             raise CodeError(f"unsupported reference to non-function member {name!r}", location)
+
+
+def construct_from_builder_or_literal(
+    literal_or_builder: Literal | ExpressionBuilder,
+    target_type: pytypes.PyType,
+    loc: SourceLocation | None = None,
+) -> ExpressionBuilder:
+    loc = loc or literal_or_builder.source_location
+    if (
+        isinstance(literal_or_builder, ExpressionBuilder)
+        and literal_or_builder.pytype == target_type
+    ):
+        return literal_or_builder
+    return _construct_instance(target_type, literal_or_builder, loc)
+
+
+def construct_from_literal(
+    literal: Literal, target_type: pytypes.PyType, loc: SourceLocation | None = None
+) -> ExpressionBuilder:
+    loc = loc or literal.source_location
+    return _construct_instance(target_type, literal, loc)
+
+
+def _construct_instance(
+    target_type: pytypes.PyType, arg: ExpressionBuilder | Literal, location: SourceLocation
+) -> ExpressionBuilder:
+    builder = builder_for_type(target_type, location)
+    if isinstance(arg, ExpressionBuilder):
+        arg_type = arg.pytype
+        if arg_type is None:  # TODO: remove once EB heirarchy is fixed
+            raise CodeError("bad expression type", arg.source_location)
+    else:
+        arg_type = _get_literal_type(arg)
+    return builder.call(
+        args=[arg],
+        arg_typs=[arg_type],
+        arg_kinds=[mypy.nodes.ARG_POS],
+        arg_names=[None],
+        location=location,
+    )
+
+
+def _get_literal_type(literal: Literal) -> pytypes.PyType:
+    match literal.value:
+        case int():
+            arg_type = pytypes.IntLiteralType
+        case str():
+            arg_type = pytypes.StrLiteralType
+        case bytes():
+            arg_type = pytypes.BytesLiteralType
+        case bool():
+            arg_type = pytypes.BoolType
+        case _:
+            typing.assert_never(literal.value)
+    return arg_type

@@ -14,11 +14,11 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_decode
-from puya.awst_build.eb._utils import construct_from_literal
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
