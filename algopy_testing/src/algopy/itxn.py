@@ -1,316 +1,173 @@
-from __future__ import annotations
-
 import typing
+from dataclasses import dataclass, field
 from unittest.mock import MagicMock
 
-from algopy import (
-    Account,
-    Application,
-    Asset,
-    Bytes,
-    OnCompleteAction,
-    String,
-    TransactionType,
-    UInt64,
-)
+from algopy_testing.enums import OnCompleteAction, TransactionType
+from algopy_testing.models.account import Account
+from algopy_testing.models.application import Application
+from algopy_testing.models.asset import Asset
+from algopy_testing.primitives.bytes import Bytes
+from algopy_testing.primitives.string import String
+from algopy_testing.primitives.uint64 import UInt64
 
 
+@dataclass
 class _InnerTransaction:
-    def submit(self) -> InnerTransactionResult:
-        """Submits inner transaction parameters and returns the resulting inner transaction"""
-        raise NotImplementedError(
-            "The 'submit' method is being executed in a python testing context. "
-            "Please mock this method in according to your python testing framework of choice."
-        )
+    def submit(self) -> object:
+        raise NotImplementedError
 
     def copy(self) -> typing.Self:
-        """Copies a set of inner transaction parameters"""
-        raise NotImplementedError(
-            "The 'copy' method is being executed in a python testing context. "
-            "Please mock this method in according to your python testing framework of choice."
-        )
+        raise NotImplementedError
 
 
-class PaymentInnerTransaction:
-    pass
-
-
-class KeyRegistrationInnerTransaction:
-    pass
-
-
-class AssetConfigInnerTransaction:
-    @property
-    def created_asset(self) -> Asset:
-        return MagicMock(spec=Asset)
-
-
-class AssetTransferInnerTransaction:
-    pass
-
-
-class AssetFreezeInnerTransaction:
-    pass
-
-
-class ApplicationCallInnerTransaction:
-    """Application Call inner transaction"""
-
-    def logs(self, _index: UInt64 | int) -> Bytes:
-        return MagicMock(spec=Bytes)
-
-    @property
-    def num_logs(self) -> UInt64:
-        return MagicMock(spec=UInt64)
-
-    @property
-    def created_app(self) -> Application:
-        return MagicMock(spec=Application)
-
-
-class InnerTransactionResult:
-    """An inner transaction of any type"""
-
-
-class InnerTransaction:
+@dataclass
+class InnerTransaction(_InnerTransaction):
     """Creates a set of fields used to submit an inner transaction of any type"""
 
-    def __init__(self, **kwargs: typing.Any):
-        fields = {
-            "type": TransactionType,
-            "receiver": Account,
-            "amount": UInt64,
-            "close_remainder_to": Account,
-            "vote_key": Bytes,
-            "selection_key": Bytes,
-            "vote_first": UInt64,
-            "vote_last": UInt64,
-            "vote_key_dilution": UInt64,
-            "non_participation": UInt64,
-            "state_proof_key": Bytes,
-            "config_asset": Asset,
-            "total": UInt64,
-            "unit_name": String,
-            "asset_name": String,
-            "decimals": UInt64,
-            "default_frozen": bool,
-            "url": String,
-            "metadata_hash": Bytes,
-            "manager": Account,
-            "reserve": Account,
-            "freeze": Account,
-            "clawback": Account,
-            "xfer_asset": Asset,
-            "asset_amount": UInt64,
-            "asset_sender": Account,
-            "asset_receiver": Account,
-            "asset_close_to": Account,
-            "freeze_asset": Asset,
-            "freeze_account": Account,
-            "frozen": bool,
-            "app_id": Application,
-            "approval_program": Bytes,
-            "clear_state_program": Bytes,
-            "on_completion": OnCompleteAction,
-            "global_num_uint": UInt64,
-            "global_num_bytes": UInt64,
-            "local_num_uint": UInt64,
-            "local_num_bytes": UInt64,
-            "extra_program_pages": UInt64,
-            "app_args": tuple,
-            "accounts": tuple,
-            "assets": tuple,
-            "apps": tuple,
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    type: TransactionType | None = None
+    receiver: Account | str | None = None
+    amount: UInt64 | int | None = None
+    close_remainder_to: Account | str | None = None
+    vote_key: Bytes | bytes | None = None
+    selection_key: Bytes | bytes | None = None
+    vote_first: UInt64 | int | None = None
+    vote_last: UInt64 | int | None = None
+    vote_key_dilution: UInt64 | int | None = None
+    non_participation: UInt64 | int | bool | None = None
+    state_proof_key: Bytes | bytes | None = None
+    config_asset: Asset | UInt64 | int | None = None
+    total: UInt64 | int | None = None
+    unit_name: String | Bytes | str | bytes | None = None
+    asset_name: String | Bytes | str | bytes | None = None
+    decimals: UInt64 | int | None = None
+    default_frozen: bool | None = None
+    url: String | Bytes | bytes | str | None = None
+    metadata_hash: Bytes | bytes | None = None
+    manager: Account | str | None = None
+    reserve: Account | str | None = None
+    freeze: Account | str | None = None
+    clawback: Account | str | None = None
+    xfer_asset: Asset | UInt64 | int | None = None
+    asset_amount: UInt64 | int | None = None
+    asset_sender: Account | str | None = None
+    asset_receiver: Account | str | None = None
+    asset_close_to: Account | str | None = None
+    freeze_asset: Asset | UInt64 | int | None = None
+    freeze_account: Account | str | None = None
+    frozen: bool | None = None
+    app_id: Application | UInt64 | int | None = None
+    approval_program: Bytes | bytes | tuple[Bytes, ...] | None = None
+    clear_state_program: Bytes | bytes | tuple[Bytes, ...] | None = None
+    on_completion: OnCompleteAction | UInt64 | int | None = None
+    global_num_uint: UInt64 | int | None = None
+    global_num_bytes: UInt64 | int | None = None
+    local_num_uint: UInt64 | int | None = None
+    local_num_bytes: UInt64 | int | None = None
+    extra_program_pages: UInt64 | int | None = None
+    app_args: tuple[Bytes, ...] | None = None
+    accounts: tuple[Account, ...] | None = None
+    assets: tuple[Asset, ...] | None = None
+    apps: tuple[Application, ...] | None = None
+    sender: Account | str | None = None
+    fee: UInt64 | int = 0
+    note: String | Bytes | str | bytes | None = None
+    rekey_to: Account | str | None = None
 
 
-class Payment(_InnerTransaction):
-    """Creates a set of fields used to submit a Payment inner transaction"""
-
-    def __init__(
-        self,
-        **kwargs: typing.Any,
-    ):
-        fields = {
-            "receiver": Account,
-            "amount": UInt64,
-            "close_remainder_to": Account,
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+@dataclass
+class _Payment(_InnerTransaction):
+    receiver: Account | None = None
+    amount: UInt64 | None = None
+    close_remainder_to: Account | None = None
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    note: String | None = None
+    rekey_to: Account | None = None
 
 
-class KeyRegistration(_InnerTransaction):
-    """Creates a set of fields used to submit a Key Registration inner transaction"""
-
-    def __init__(self, **kwargs: typing.Any):
-        fields = {
-            "vote_key": Bytes,
-            "selection_key": Bytes,
-            "vote_first": UInt64,
-            "vote_last": UInt64,
-            "vote_key_dilution": UInt64,
-            "non_participation": UInt64,
-            "state_proof_key": Bytes,
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+@dataclass
+class _KeyRegistration(_InnerTransaction):
+    vote_key: Bytes | None = None
+    selection_key: Bytes | None = None
+    vote_first: UInt64 | None = None
+    vote_last: UInt64 | None = None
+    vote_key_dilution: UInt64 | None = None
+    non_participation: UInt64 | None = None
+    state_proof_key: Bytes | None = None
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    note: String | None = None
+    rekey_to: Account | None = None
 
 
-class AssetConfig(_InnerTransaction):
-    """Creates a set of fields used to submit an Asset Config inner transaction"""
-
-    def __init__(
-        self,
-        **kwargs: typing.Any,
-    ) -> None:
-        fields = {
-            "config_asset": Asset,
-            "total": UInt64,
-            "unit_name": String,
-            "asset_name": String,
-            "decimals": UInt64,
-            "default_frozen": bool,
-            "url": String,
-            "metadata_hash": Bytes,
-            "manager": Account,
-            "reserve": Account,
-            "freeze": Account,
-            "clawback": Account,
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+@dataclass
+class _AssetConfig(_InnerTransaction):
+    config_asset: Asset | None = None
+    total: UInt64 | None = None
+    unit_name: String | None = None
+    asset_name: String | None = None
+    decimals: UInt64 | None = None
+    default_frozen: bool | None = None
+    url: String | None = None
+    metadata_hash: Bytes | None = None
+    manager: Account | None = None
+    reserve: Account | None = None
+    freeze: Account | None = None
+    clawback: Account | None = None
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    note: String | None = None
+    rekey_to: Account | None = None
 
 
-class AssetTransfer(_InnerTransaction):
-    """Creates a set of fields used to submit an Asset Transfer inner transaction"""
-
-    def __init__(
-        self,
-        **kwargs: typing.Any,
-    ) -> None:
-        fields = {
-            "xfer_asset": Asset,
-            "asset_amount": UInt64,
-            "asset_sender": Account,
-            "asset_receiver": Account,
-            "asset_close_to": Account,
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+@dataclass
+class _AssetTransfer(_InnerTransaction):
+    xfer_asset: Asset | None = None
+    asset_amount: UInt64 | None = None
+    asset_sender: Account | None = None
+    asset_receiver: Account | None = None
+    asset_close_to: Account = field(default_factory=lambda: MagicMock(spec=Account))
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    note: String | None = None
+    rekey_to: Account | None = None
 
 
-class AssetFreeze(_InnerTransaction):
-    """Creates a set of fields used to submit a Asset Freeze inner transaction"""
-
-    def __init__(
-        self,
-        **kwargs: typing.Any,
-    ) -> None:
-        fields = {
-            "freeze_asset": Asset,
-            "freeze_account": Account,
-            "frozen": bool,
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+@dataclass
+class _AssetFreeze(_InnerTransaction):
+    freeze_asset: Asset | None = None
+    freeze_account: Account | None = None
+    frozen: bool | None = None
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    note: String | None = None
+    rekey_to: Account | None = None
 
 
-class ApplicationCall(_InnerTransaction):
-    """Creates a set of fields used to submit an Application Call inner transaction"""
-
-    def __init__(
-        self,
-        **kwargs: typing.Any,
-    ) -> None:
-        fields = {
-            "app_id": Application,
-            "approval_program": Bytes,
-            "clear_state_program": Bytes,
-            "on_completion": OnCompleteAction,
-            "global_num_uint": UInt64,
-            "global_num_bytes": UInt64,
-            "local_num_uint": UInt64,
-            "local_num_bytes": UInt64,
-            "extra_program_pages": UInt64,
-            "app_args": tuple[Bytes, ...],
-            "accounts": tuple[Account, ...],
-            "assets": tuple[Asset, ...],
-            "apps": tuple[Application, ...],
-            "sender": Account,
-            "fee": UInt64,
-            "note": String,
-            "rekey_to": Account,
-        }
-        for field, field_type in fields.items():
-            setattr(self, field, kwargs.get(field, MagicMock(spec=field_type)))
-
-    def set(self, **kwargs: typing.Any) -> None:
-        """Updates inner transaction parameter values"""
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+@dataclass
+class _ApplicationCall(_InnerTransaction):
+    app_id: Application | None = None
+    approval_program: Bytes | None = None
+    clear_state_program: Bytes | None = None
+    on_completion: OnCompleteAction | None = None
+    global_num_uint: UInt64 | None = None
+    global_num_bytes: UInt64 | None = None
+    local_num_uint: UInt64 | None = None
+    local_num_bytes: UInt64 | None = None
+    extra_program_pages: UInt64 | None = None
+    app_args: object | None = None
+    accounts: object | None = None
+    assets: object | None = None
+    apps: object | None = None
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    note: String | None = None
+    rekey_to: Account | None = None
 
 
-def submit_txns(*_args: typing.Any, **_kwargs: typing.Any) -> None:
-    raise NotImplementedError(
-        "The 'submit_txns' method is being executed in a python testing context. "
-        "Please mock this method in according to your python testing framework of choice."
-    )
+AssetTransfer = _AssetTransfer()
+Payment = _Payment()
+KeyRegistration = _KeyRegistration()
+AssetConfig = _AssetConfig()
+AssetFreeze = _AssetFreeze()
+ApplicationCall = _ApplicationCall()

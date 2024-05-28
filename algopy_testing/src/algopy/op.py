@@ -4,6 +4,12 @@ import algosdk
 import coincurve
 import nacl.exceptions
 import nacl.signing
+from algopy_testing.enums import ECDSA, VrfVerify
+from algopy_testing.models.global_state import Global
+from algopy_testing.models.txn import Txn
+from algopy_testing.primitives.bytes import Bytes
+from algopy_testing.primitives.uint64 import UInt64
+from algopy_testing.utils import as_bytes
 from Cryptodome.Hash import SHA512, keccak
 from ecdsa import (  # type: ignore  # noqa: PGH003
     BadSignatureError,
@@ -11,13 +17,6 @@ from ecdsa import (  # type: ignore  # noqa: PGH003
     SECP256k1,
     VerifyingKey,
 )
-
-from algopy._enums import ECDSA, VrfVerify
-from algopy._models.global_state import Global
-from algopy._models.txn import Txn
-from algopy._primitives.bytes import Bytes
-from algopy._primitives.uint64 import UInt64
-from algopy.utils import as_bytes
 
 
 def sha256(a: Bytes | bytes, /) -> Bytes:
@@ -55,17 +54,18 @@ def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) 
 
 
 def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
-    from algopy_testing.context import get_blockchain_context
+    from algopy_testing.context import get_test_context
 
     try:
-        ctx = get_blockchain_context()
+        ctx = get_test_context()
     except LookupError as e:
         raise RuntimeError(
             "function must be run within an active context"
             " using `with algopy_testing.context.new_context():`"
         ) from e
 
-    program_bytes = ctx.get_custom_value("program_bytes")
+    # TODO: Decide on whether to pick clear or approval depending on OnComplete state
+    program_bytes = ctx.transaction_state.approval_program
     if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 

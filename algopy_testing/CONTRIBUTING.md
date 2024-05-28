@@ -21,3 +21,9 @@ Here are some common commands you will use with Hatch:
 
 -   **Regenerate typed clients for example contracts:** `hatch run refresh_test_artifacts`
 -   **Coverage check of existing progress on implementing AlgoPy Stubs:** `hatch run check_stubs_cov`
+
+# Examples folder
+
+Examples folder uses a dedicated 'venv.examples' virtual environment managed by Hatch that simulates a user environment with both algorand-python and algorand-python-testing installed explicitly. This is useful for testing new features or bug fixes in the testing library.
+
+Make sure to switch the active Python interpreter to the `venv.examples` environment before running the examples. You can do this by running `hatch shell examples` and then `python -V` to check the active Python interpreter.

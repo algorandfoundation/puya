@@ -43,7 +43,7 @@ Source = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/algopy"]
+packages = ["src/algopy", 'src/algopy_testing']
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.12"]
@@ -75,13 +75,13 @@ refresh_test_artifacts = "python scripts/refresh_test_artifacts.py"
 check_stubs_cov = "python scripts/check_stubs_cov.py"
 pre_commit = [
     "hatch run lint:fix",
-    "hatch run mypy .",
+    "hatch run mypy . --exclude examples",
 ]
 check = [
     "hatch run lint:check",
-    "hatch run mypy .",
+    "hatch run mypy . --exclude examples",
 ]
-tests = "pytest --cov --cov-report xml"
+tests = "pytest --cov --cov-report xml --ignore=examples"
 
 # isolated environments for dev tooling
 [tool.hatch.envs.lint]
@@ -113,6 +113,28 @@ dependencies = [
 localnet_start = [
     "algokit localnet start",
 ]
+
+
+# Examples environment
+[tool.hatch.envs.examples]
+type = "virtual"
+path = ".venv.examples"
+python = "3.12"
+dependencies = [
+    "algorand-python @ {root:uri}/../stubs",
+    "algorand-python-testing @ {root:uri}",
+    "pytest>=7.4",
+    "pytest-mock>=3.10.0",
+    "pytest-xdist[psutil]>=3.3",
+    "py-algorand-sdk>=2.4.0",
+    "algokit-utils>=2.2.1",
+    "pytest-cov>=4.1.0",
+    "mypy==1.10",
+]
+
+[tool.hatch.envs.examples.scripts]
+tests = "pytest examples"
+
 
 # tool configurations
 [tool.black]

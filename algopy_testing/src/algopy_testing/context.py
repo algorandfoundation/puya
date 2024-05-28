@@ -1,33 +1,38 @@
 from __future__ import annotations
 
-import dataclasses
-import typing
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
-from algopy import Account, Application, Asset, Global
+from algopy_testing.models.account import Account
+from algopy_testing.models.application import Application
+from algopy_testing.models.asset import Asset
+from algopy_testing.models.global_state import GlobalFields
+from algopy_testing.models.itxn import ITxnFields
+from algopy_testing.models.txn import TxnFields
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from collections.abc import Generator
 
 
 T = TypeVar("T")
 
 
-@dataclasses.dataclass
-class BlockchainContext(Generic[T]):
-    accounts: dict[str, Account] = dataclasses.field(default_factory=dict)
-    applications: dict[int, Application] = dataclasses.field(default_factory=dict)
-    assets: dict[int, Asset] = dataclasses.field(default_factory=dict)
-    global_state: Global = dataclasses.field(default_factory=Global)
-    # For anything else that is needed to test the algopy codebase
-    context_state: dict[str, T] = dataclasses.field(default_factory=dict)
+class TestContext(Generic[T]):
+    def __init__(self) -> None:
+        self.accounts: dict[str, Account] = {}
+        self.applications: dict[int, Application] = {}
+        self.assets: dict[int, Asset] = {}
+        self.global_state: GlobalFields = GlobalFields()
+        self.transaction_state: TxnFields = TxnFields()
+        self.itxn_state: ITxnFields = ITxnFields()
 
-    def create_account(self, address: str) -> Account:
-        account = Account(address)
-        self.accounts[address] = account
-        return account
+    def add_account(self, account: object) -> None:
+        if not isinstance(account, Account):
+            raise TypeError("account must be an instance of Account")
+        if not account.bytes:
+            raise ValueError("Account address is required")
+        self.accounts[str(account)] = account
 
     def get_account(self, address: str) -> Account:
         return self.accounts[address]
@@ -35,10 +40,17 @@ class BlockchainContext(Generic[T]):
     def update_account(self, address: str, account: Account) -> None:
         self.accounts[address] = account
 
-    def create_asset(self, asset_id: int) -> Asset:
-        asset = Asset(asset_id)
-        self.assets[asset_id] = asset
-        return asset
+    def add_asset(
+        self,
+        asset: object,
+    ) -> None:
+        if not isinstance(asset, Asset):
+            raise TypeError("asset must be an instance of Asset")
+
+        if not asset.id:
+            raise ValueError("Asset ID is required")
+
+        self.assets[int(asset.id)] = asset
 
     def get_asset(self, asset_id: int) -> Asset:
         return self.assets[asset_id]
@@ -46,37 +58,31 @@ class BlockchainContext(Generic[T]):
     def update_asset(self, asset_id: int, asset: Asset) -> None:
         self.assets[asset_id] = asset
 
-    def create_application(self, app_id: int) -> Application:
-        app = Application(app_id)
-        self.applications[app_id] = app
-        return app
+    def add_application(
+        self,
+        app: object,
+    ) -> None:
+        if not isinstance(app, Application):
+            raise TypeError("app must be an instance of Application")
+        if not app.id:
+            raise ValueError("Application ID is required")
+
+        self.applications[int(app.id)] = app
 
     def get_application(self, app_id: int) -> Application:
         return self.applications[app_id]
 
-    def set_global_state(self, global_state: Global) -> None:
-        self.global_state = global_state
 
-    def get_global_state(self) -> Global:
-        return self.global_state
-
-    def set_custom_value(self, key: str, value: T) -> None:
-        self.context_state[key] = value
-
-    def get_custom_value(self, key: str) -> T | None:
-        return self.context_state.get(key)
+_var: ContextVar[TestContext[Any]] = ContextVar("_var")
 
 
-_var = ContextVar[BlockchainContext[Any]]("_var")
-
-
-def get_blockchain_context() -> BlockchainContext[Any]:
+def get_test_context() -> TestContext[Any]:
     return _var.get()
 
 
 @contextmanager
-def blockchain_context() -> Generator[BlockchainContext[Any], None, None]:
-    token = _var.set(BlockchainContext[Any]())
+def blockchain_context() -> Generator[TestContext[Any], None, None]:
+    token = _var.set(TestContext[Any]())
     try:
         yield _var.get()
     finally:

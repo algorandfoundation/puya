@@ -3,8 +3,7 @@ from __future__ import annotations
 import functools
 
 from algopy_testing.constants import MAX_UINT64
-
-from algopy.utils import as_int64
+from algopy_testing.utils import as_int64
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution

@@ -11,9 +11,9 @@ import pytest
 from algokit_utils import ApplicationClient, get_localnet_default_account
 from algokit_utils.config import config
 from algopy import op
-from algopy._primitives.bytes import Bytes
-from algopy._primitives.uint64 import UInt64
 from algopy_testing.context import blockchain_context
+from algopy_testing.primitives.bytes import Bytes
+from algopy_testing.primitives.uint64 import UInt64
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
 from Cryptodome.Hash import keccak
@@ -179,7 +179,8 @@ def test_ed25519verify(
 ) -> None:
     assert crypto_ops_client.approval
     with blockchain_context() as ctx:
-        ctx.set_custom_value("program_bytes", crypto_ops_client.approval.raw_binary)
+        # TODO: dynamically pick approval vs clear based on OnComplete value
+        ctx.transaction_state.approval_program = crypto_ops_client.approval.raw_binary
 
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"

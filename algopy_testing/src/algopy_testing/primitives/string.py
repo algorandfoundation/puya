@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from algopy._primitives.bytes import Bytes
-from algopy.utils import as_string
+from algopy_testing.primitives.bytes import Bytes
+from algopy_testing.utils import as_string
 
 
 class String:

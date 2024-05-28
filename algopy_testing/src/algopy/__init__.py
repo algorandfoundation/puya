@@ -1,30 +1,25 @@
 # ruff: noqa: PLC0414
-import typing
 from collections.abc import Callable
 from typing import ParamSpec, TypeVar
 
-from algopy._enums import OnCompleteAction, TransactionType
-from algopy._models import Account, Application, Asset, Global, Itxn, Txn
-from algopy._primitives.biguint import BigUInt as BigUInt
-from algopy._primitives.bytes import Bytes as Bytes
-from algopy._primitives.string import String as String
-from algopy._primitives.uint64 import UInt64 as UInt64
+from algopy_testing.enums import OnCompleteAction, TransactionType
+from algopy_testing.models import Account, Application, Asset, Global, Itxn, Txn
+from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 
 
+# TODO: Refine further, currently simplified to limit the scope of state management abstractions PR
 class ARC4Contract:
     pass
 
 
-_TState = typing.TypeVar("_TState")
-
-
+# TODO: Refine further, currently simplified to limit the scope of state management abstractions PR
 class LocalState:
     def __init__(
         self,
-        type_: type[_TState],
+        type_: type[object],
         /,
         *,
-        key: bytes | str = ...,
+        key: bytes | str = "",
         description: str = "",
     ) -> None:
         pass
