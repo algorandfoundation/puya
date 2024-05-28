@@ -247,7 +247,6 @@ def bool_eval(
     constant_value = bool(builder_or_literal.value)
     if negate:
         constant_value = not constant_value
-    # TODO: PyType known as bool
     return BoolExpressionBuilder(BoolConstant(value=constant_value, source_location=loc))
 
 
