@@ -323,7 +323,6 @@ class FunctionASTConverter(
                             stmt_loc,
                         )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
         if isinstance(rvalue, StorageProxyConstructorResult):
             try:
                 (lvalue,) = stmt.lvalues
@@ -342,7 +341,7 @@ class FunctionASTConverter(
                     stmt_loc,
                 )
         elif len(stmt.lvalues) > 1:
-            rvalue = temporary_assignment_if_required(rvalue_pytyp, rvalue)
+            rvalue = temporary_assignment_if_required(rvalue)
 
         return [
             AssignmentStatement(
@@ -518,7 +517,7 @@ class FunctionASTConverter(
         subject_typ = subject_eb.pytype
         if subject_typ is None:  # TODO: remove once EB heirarchy is fixed
             raise CodeError("bad expression type", subject_eb.source_location)
-        subject = temporary_assignment_if_required(subject_typ, subject_eb).rvalue()
+        subject = temporary_assignment_if_required(subject_eb).rvalue()
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
@@ -959,30 +958,28 @@ class FunctionASTConverter(
                     location,
                 )
             target_pytyp = pytypes.BoolType
-            lhs_expr = bool_eval(lhs, location).rvalue()
-            rhs_expr = bool_eval(rhs, location).rvalue()
+            lhs = bool_eval(lhs, location)
+            rhs = bool_eval(rhs, location)
         else:
             (target_pytyp,) = result_pytypes
-            lhs_expr = expect_operand_type(lhs, target_pytyp).rvalue()
-            rhs_expr = expect_operand_type(rhs, target_pytyp).rvalue()
+            lhs = expect_operand_type(lhs, target_pytyp)
+            rhs = expect_operand_type(rhs, target_pytyp)
 
         if target_pytyp is pytypes.BoolType:
             expr_result: Expression = BooleanBinaryOperation(
-                source_location=location, left=lhs_expr, op=op, right=rhs_expr
+                source_location=location, left=lhs.rvalue(), op=op, right=rhs.rvalue()
             )
         else:
-            lhs_builder = temporary_assignment_if_required(target_pytyp, lhs_expr)
+            lhs = temporary_assignment_if_required(lhs)
             # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
             # TODO: this is a bit convoluted in terms of ExpressionBuilder <-> Expression
-            condition = lhs_builder.bool_eval(
-                location, negate=op is BinaryBooleanOperator.and_
-            ).rvalue()
+            condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).rvalue()
             expr_result = ConditionalExpression(
                 source_location=location,
                 condition=condition,
-                true_expr=lhs_builder.rvalue(),
-                false_expr=rhs_expr,
+                true_expr=lhs.rvalue(),
+                false_expr=rhs.rvalue(),
                 wtype=target_pytyp.wtype,
             )
         return builder_for_instance(target_pytyp, expr_result)
@@ -1079,11 +1076,8 @@ class FunctionASTConverter(
         #       compile time, but it would always result in a constant ...
 
         operands = [o.accept(self) for o in expr.operands]
-        # TODO: operands are Literal or EB, so can get PyType
-        operand_types = [self.context.mypy_expr_node_type(o) for o in expr.operands]  # TODO: YUCK
         operands[1:-1] = [
-            temporary_assignment_if_required(op_typ, operand)
-            for operand, op_typ in list(zip(operands, operand_types, strict=True))[1:-1]
+            temporary_assignment_if_required(operand) for operand in list(operands)[1:-1]
         ]
 
         comparisons = [
@@ -1253,38 +1247,24 @@ def is_self_member(
 
 
 @typing.overload
-def temporary_assignment_if_required(typ: pytypes.PyType, operand: Literal) -> Literal: ...
-
-
+def temporary_assignment_if_required(operand: Literal) -> Literal: ...
 @typing.overload
-def temporary_assignment_if_required(
-    typ: pytypes.PyType, operand: Expression
-) -> ExpressionBuilder: ...
-
-
-@typing.overload
-def temporary_assignment_if_required(
-    typ: pytypes.PyType,
-    operand: ExpressionBuilder,
-) -> ExpressionBuilder: ...
+def temporary_assignment_if_required(operand: ExpressionBuilder) -> ExpressionBuilder: ...
 
 
 def temporary_assignment_if_required(
-    typ: pytypes.PyType,
-    operand: ExpressionBuilder | Expression | Literal,
+    operand: ExpressionBuilder | Literal,
 ) -> ExpressionBuilder | Literal:
     if isinstance(operand, Literal):
         return operand
 
-    if isinstance(operand, Expression):
-        expr = operand
-    else:
-        expr = operand.rvalue()
+    expr = operand.rvalue()
     # TODO: optimise the below checks so we don't create unnecessary temporaries,
     #       ie when Expression has no side effects
     if not isinstance(expr, VarExpression | CompileTimeConstantExpression):
+        typ = operand.pytype
+        if typ is None:  # TODO: remove once EB heirarchy is fixed
+            raise CodeError("bad expression type", operand.source_location)
         return builder_for_instance(typ, SingleEvaluation(expr))
-    if isinstance(operand, Expression):
-        return builder_for_instance(typ, operand)
     else:
         return operand
