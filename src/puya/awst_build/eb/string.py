@@ -37,7 +37,7 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
+from puya.awst_build.utils import convert_literal_to_expr, expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -101,7 +101,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
                 return BytesAugmentedAssignment(
                     target=self.lvalue(),
                     op=BytesBinaryOperator.add,
-                    value=expect_operand_wtype(rhs, self.wtype),
+                    value=expect_operand_type(rhs, self.pytype),
                     source_location=location,
                 )
             case _:
@@ -121,7 +121,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
-                rhs = expect_operand_wtype(other, self.wtype)
+                rhs = expect_operand_type(other, self.pytype)
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
                 return StringExpressionBuilder(
@@ -138,7 +138,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
+        other_expr = convert_literal_to_expr(other, self.pytype)
         if other_expr.wtype == self.wtype:
             pass
         else:
@@ -160,7 +160,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        item_expr = get_bytes_expr(expect_operand_wtype(item, wtypes.string_wtype))
+        item_expr = get_bytes_expr(expect_operand_type(item, pytypes.StringType))
         this_expr = get_bytes_expr(self.expr)
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
@@ -192,7 +192,7 @@ class _StringStartsOrEndsWith(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         arg = get_bytes_expr_builder(
-            SingleEvaluation(expect_operand_wtype(args[0], wtypes.string_wtype))
+            SingleEvaluation(expect_operand_type(args[0], pytypes.StringType))
         )
         this = get_bytes_expr_builder(SingleEvaluation(self._base))
 

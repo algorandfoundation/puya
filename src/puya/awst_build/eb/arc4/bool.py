@@ -11,7 +11,7 @@ from puya.awst_build.eb.arc4.base import (
     ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -42,10 +42,10 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
             case []:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
             case [val]:
-                native_bool = expect_operand_wtype(val, wtypes.bool_wtype)
+                native_bool = expect_operand_type(val, pytypes.BoolType)
             case _:
                 raise CodeError(
-                    f"arc4.Bool expects exactly one parameter of type {wtypes.bool_wtype}"
+                    f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
                 )
         wtype = self.produces()
         assert isinstance(wtype, wtypes.ARC4Type)

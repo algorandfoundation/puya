@@ -12,7 +12,7 @@ from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_type
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -32,7 +32,7 @@ def bool_eval_to_constant(
 
 
 def uint64_to_biguint(arg_in: ExpressionBuilder | Literal, location: SourceLocation) -> Expression:
-    arg = expect_operand_wtype(arg_in, wtypes.uint64_wtype)
+    arg = expect_operand_type(arg_in, pytypes.UInt64Type)
 
     return intrinsic_factory.itob_as(
         arg,

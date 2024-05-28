@@ -8,7 +8,7 @@ from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -40,7 +40,7 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
             case [Literal(value=int(int_value), source_location=loc)]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=loc)
             case [ExpressionBuilder() as eb]:
-                uint64_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
+                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with

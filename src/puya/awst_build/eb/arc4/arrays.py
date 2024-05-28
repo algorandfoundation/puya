@@ -49,7 +49,7 @@ from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype, require_expression_builder
+from puya.awst_build.utils import expect_operand_type, require_expression_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -80,7 +80,7 @@ class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         element_type = arg_typs[0]
 
         for a in non_literal_args:
-            expect_operand_wtype(a, element_type.wtype)
+            expect_operand_type(a, element_type)
 
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
         wtype = typ.wtype
@@ -100,9 +100,6 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4DynamicArrayType
         assert typ.size is None
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4DynamicArray)
-        self._wtype = wtype
         super().__init__(typ, location)
 
     @typing.override
@@ -117,9 +114,11 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
-        wtype = self._wtype
+        typ = self.produces2()
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ARC4DynamicArray)
         for a in non_literal_args:
-            expect_operand_wtype(a, wtype.element_type)
+            expect_operand_type(a, typ.items)
 
         return DynamicArrayExpressionBuilder(
             NewArray(
@@ -154,7 +153,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         )
 
         for a in non_literal_args:
-            expect_operand_wtype(a, element_type.wtype)
+            expect_operand_type(a, element_type)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return StaticArrayExpressionBuilder(
@@ -172,9 +171,6 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4StaticArrayType
         assert typ.size is not None
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4StaticArray)
-        self._wtype = wtype
         super().__init__(typ, location)
 
     @typing.override
@@ -189,15 +185,14 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
-        wtype = self._wtype
-        if wtype.array_size != len(non_literal_args):
-            raise CodeError(
-                f"StaticArray should be initialized with {wtype.array_size} values",
-                location,
-            )
+        typ = self.produces2()
+        if typ.size != len(non_literal_args):
+            raise CodeError(f"{typ} should be initialized with {typ.size} values", location)
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ARC4StaticArray)
 
         for a in non_literal_args:
-            expect_operand_wtype(a, wtype.element_type)
+            expect_operand_type(a, typ.items)
 
         return StaticArrayExpressionBuilder(
             NewArray(
@@ -284,8 +279,8 @@ class _ARC4ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType], ABC
     ) -> ExpressionBuilder:
         if isinstance(index, Literal) and isinstance(index.value, int) and index.value < 0:
             index_expr: Expression = UInt64BinaryOperation(
-                left=expect_operand_wtype(
-                    self.member_access("length", index.source_location), wtypes.uint64_wtype
+                left=expect_operand_type(
+                    self.member_access("length", index.source_location), pytypes.UInt64Type
                 ),
                 op=UInt64BinaryOperator.sub,
                 right=UInt64Constant(
@@ -294,7 +289,7 @@ class _ARC4ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType], ABC
                 source_location=index.source_location,
             )
         else:
-            index_expr = expect_operand_wtype(index, wtypes.uint64_wtype)
+            index_expr = expect_operand_type(index, pytypes.UInt64Type)
         result_expr = IndexExpression(
             base=self.expr,
             index=index_expr,

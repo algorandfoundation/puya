@@ -209,7 +209,7 @@ def _map_call(
             for allowed_type in allowed_pytypes:
                 allowed_wtype = allowed_type.wtype  # TODO yeet me
                 if allowed_wtype.is_valid_literal(literal_value):
-                    literal_expr = convert_literal(arg_in, allowed_wtype)
+                    literal_expr = convert_literal(arg_in, allowed_type)
                     stack_args.append(literal_expr)
                     break
             else:

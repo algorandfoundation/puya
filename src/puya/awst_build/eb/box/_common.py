@@ -9,7 +9,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -34,7 +34,7 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_wtype(default_arg, target_wtype=self.content_type.wtype)
+        default_expr = expect_operand_type(default_arg, self.content_type)
         return builder_for_instance(
             self.content_type,
             StateGet(field=self.box, default=default_expr, source_location=location),
