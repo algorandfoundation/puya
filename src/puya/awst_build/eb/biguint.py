@@ -30,7 +30,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_expr
+from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -102,10 +102,10 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype == self.wtype:
-            pass
-        elif other_expr.wtype == wtypes.uint64_wtype:
+        other = convert_literal_to_builder(other, self.pytype)
+        if other.pytype == self.pytype:
+            other_expr = other.rvalue()
+        elif other.pytype == pytypes.UInt64Type:
             other_expr = uint64_to_biguint(other, location)
         else:
             return NotImplemented
@@ -125,10 +125,10 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         *,
         reverse: bool,
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype == self.wtype:
-            pass
-        elif other_expr.wtype == wtypes.uint64_wtype:
+        other = convert_literal_to_builder(other, self.pytype)
+        if other.pytype == self.pytype:
+            other_expr = other.rvalue()
+        elif other.pytype == pytypes.UInt64Type:
             other_expr = uint64_to_biguint(other, location)
         else:
             return NotImplemented
@@ -145,14 +145,14 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
     ) -> Statement:
-        value = convert_literal_to_expr(rhs, self.pytype)
-        if value.wtype == self.wtype:
-            pass
-        elif value.wtype == wtypes.uint64_wtype:
+        rhs = convert_literal_to_builder(rhs, self.pytype)
+        if rhs.pytype == self.pytype:
+            value = rhs.rvalue()
+        elif rhs.pytype == pytypes.UInt64Type:
             value = uint64_to_biguint(rhs, location)
         else:
             raise CodeError(
-                f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location
+                f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
             )
         target = self.lvalue()
         biguint_op = _translate_biguint_math_operator(op, location)

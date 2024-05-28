@@ -40,7 +40,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
-    convert_literal_to_expr,
+    convert_literal_to_builder,
     expect_operand_type,
 )
 from puya.errors import CodeError, InternalError
@@ -161,7 +161,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        index_expr = expect_operand_type(index, pytypes.UInt64Type)
+        index_expr = expect_operand_type(index, pytypes.UInt64Type).rvalue()
         expr = IndexExpression(
             source_location=location,
             base=self.expr,
@@ -209,7 +209,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        item_expr = expect_operand_type(item, pytypes.BytesType)
+        item_expr = expect_operand_type(item, pytypes.BytesType).rvalue()
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.expr, name=None)],
@@ -221,14 +221,14 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype != self.wtype:
+        other = convert_literal_to_builder(other, self.pytype)
+        if other.pytype != self.pytype:
             return NotImplemented
         cmp_expr = BytesComparisonExpression(
             source_location=location,
             lhs=self.expr,
             operator=EqualityComparison(op.value),
-            rhs=other_expr,
+            rhs=other.rvalue(),
         )
         return BoolExpressionBuilder(cmp_expr)
 
@@ -240,10 +240,11 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         *,
         reverse: bool,
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
+        other = convert_literal_to_builder(other, self.pytype)
+        # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
         lhs = self.expr
-        rhs = other_expr
+        rhs = other.rvalue()
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         bin_op_expr = BytesBinaryOperation(
@@ -254,14 +255,15 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
     ) -> Statement:
-        value = convert_literal_to_expr(rhs, self.pytype)
+        rhs = convert_literal_to_builder(rhs, self.pytype)
+        # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
         target = self.lvalue()
         return BytesAugmentedAssignment(
-            source_location=location,
             target=target,
-            value=value,
             op=bytes_op,
+            value=rhs.rvalue(),
+            source_location=location,
         )
 
 
@@ -280,4 +282,4 @@ def _eval_slice_component(val: ExpressionBuilder | Literal | None) -> Expression
             return None
         case Literal(value=int(int_value)):
             return int_value
-    return expect_operand_type(val, pytypes.UInt64Type)
+    return expect_operand_type(val, pytypes.UInt64Type).rvalue()

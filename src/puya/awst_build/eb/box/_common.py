@@ -34,7 +34,7 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_type(default_arg, self.content_type)
+        default_expr = expect_operand_type(default_arg, self.content_type).rvalue()
         return builder_for_instance(
             self.content_type,
             StateGet(field=self.box, default=default_expr, source_location=location),

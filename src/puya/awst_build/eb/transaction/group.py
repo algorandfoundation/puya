@@ -48,7 +48,7 @@ class GroupTransactionClassExpressionBuilder(
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
             case [ExpressionBuilder() as eb]:
-                group_index = expect_operand_type(eb, pytypes.UInt64Type)
+                group_index = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
             case [Literal(value=int(int_value), source_location=loc)]:
                 if int_value < 0:
                     raise CodeError(
@@ -118,7 +118,7 @@ class _ArrayItem(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (arg,) = args
-        index_expr = expect_operand_type(arg, pytypes.UInt64Type)
+        index_expr = expect_operand_type(arg, pytypes.UInt64Type).rvalue()
         expr = IntrinsicCall(
             op_code="gtxnsas",
             immediates=[self.field.immediate],

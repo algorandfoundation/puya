@@ -548,7 +548,9 @@ class FunctionASTConverter(
                     constants.CLS_ACCOUNT,
                 ):
                     case_value_builder_or_literal = inner_literal_expr.accept(self)
-                    case_value = expect_operand_type(case_value_builder_or_literal, subject_typ)
+                    case_value = expect_operand_type(
+                        case_value_builder_or_literal, subject_typ
+                    ).rvalue()
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.AsPattern(name=None, pattern=None), None:
@@ -961,8 +963,8 @@ class FunctionASTConverter(
             rhs_expr = bool_eval(rhs, location).rvalue()
         else:
             (target_pytyp,) = result_pytypes
-            lhs_expr = expect_operand_type(lhs, target_pytyp)
-            rhs_expr = expect_operand_type(rhs, target_pytyp)
+            lhs_expr = expect_operand_type(lhs, target_pytyp).rvalue()
+            rhs_expr = expect_operand_type(rhs, target_pytyp).rvalue()
 
         if target_pytyp is pytypes.BoolType:
             expr_result: Expression = BooleanBinaryOperation(

@@ -169,24 +169,24 @@ def require_expression_builder(
 
 def expect_operand_type(
     literal_or_eb: Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> Expression:
+) -> ExpressionBuilder:
     if isinstance(literal_or_eb, Literal):
-        return construct_from_literal(literal_or_eb, target_type).rvalue()
+        return construct_from_literal(literal_or_eb, target_type)
     if literal_or_eb.pytype != target_type:
         raise CodeError(
             f"Expected type {target_type}, got type {literal_or_eb.pytype}",
             literal_or_eb.source_location,
         )
-    return literal_or_eb.rvalue()
+    return literal_or_eb
 
 
-def convert_literal_to_expr(
+def convert_literal_to_builder(
     literal_or_expr: Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> Expression:
+) -> ExpressionBuilder:
     if isinstance(literal_or_expr, Literal):
-        return construct_from_literal(literal_or_expr, target_type).rvalue()
+        return construct_from_literal(literal_or_expr, target_type)
     else:
-        return literal_or_expr.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
+        return literal_or_expr
 
 
 def bool_eval(
@@ -278,7 +278,7 @@ def eval_slice_component(
 
     if isinstance(val, ExpressionBuilder):
         # no negatives to deal with here, easy
-        index_expr = expect_operand_type(val, pytypes.UInt64Type)
+        index_expr = expect_operand_type(val, pytypes.UInt64Type).rvalue()
         temp_index = SingleEvaluation(index_expr)
         return intrinsic_factory.select(
             false=len_expr,

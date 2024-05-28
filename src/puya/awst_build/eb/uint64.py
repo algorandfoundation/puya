@@ -31,7 +31,7 @@ from puya.awst_build.eb.base import (
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_expr
+from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -102,8 +102,8 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype == self.wtype:
+        other = convert_literal_to_builder(other, self.pytype)
+        if other.pytype == self.pytype:
             pass
         else:
             return NotImplemented
@@ -111,7 +111,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
             source_location=location,
             lhs=self.expr,
             operator=NumericComparison(op.value),
-            rhs=other_expr,
+            rhs=other.rvalue(),
         )
         return BoolExpressionBuilder(cmp_expr)
 
@@ -123,35 +123,35 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         *,
         reverse: bool,
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype == self.wtype:
+        other = convert_literal_to_builder(other, self.pytype)
+        if other.pytype == self.pytype:
             pass
         else:
             return NotImplemented
         lhs = self.expr
-        rhs = other_expr
+        rhs = other.rvalue()
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         uint64_op = _translate_uint64_math_operator(op, location)
         bin_op_expr = UInt64BinaryOperation(
-            source_location=location, left=lhs, op=uint64_op, right=rhs
+            left=lhs, op=uint64_op, right=rhs, source_location=location
         )
         return UInt64ExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
     ) -> Statement:
-        value = convert_literal_to_expr(rhs, self.pytype)
-        if value.wtype == self.wtype:
+        rhs = convert_literal_to_builder(rhs, self.pytype)
+        if rhs.pytype == self.pytype:
             pass
         else:
             raise CodeError(
-                f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location
+                f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
             )
         target = self.lvalue()
         uint64_op = _translate_uint64_math_operator(op, location)
         return UInt64AugmentedAssignment(
-            source_location=location, target=target, value=value, op=uint64_op
+            target=target, op=uint64_op, value=rhs.rvalue(), source_location=location
         )
 
 

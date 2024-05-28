@@ -240,7 +240,9 @@ class _Get(_MethodBase):
     ) -> ExpressionBuilder:
         args_map = get_arg_mapping(("key", "default"), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
-        default_value = expect_operand_type(args_map.pop("default"), self.box_type.content)
+        default_value = expect_operand_type(
+            args_map.pop("default"), self.box_type.content
+        ).rvalue()
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
         key = _box_value_expr(self.box_map_expr, item_key, location, self.box_type.content.wtype)

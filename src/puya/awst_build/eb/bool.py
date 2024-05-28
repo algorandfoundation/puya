@@ -20,7 +20,7 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
-from puya.awst_build.utils import bool_eval, convert_literal_to_expr
+from puya.awst_build.utils import bool_eval, convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -68,8 +68,8 @@ class BoolExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype == self.wtype:
+        other = convert_literal_to_builder(other, self.pytype)
+        if other.pytype == self.pytype:
             pass
         else:
             return NotImplemented
@@ -77,6 +77,6 @@ class BoolExpressionBuilder(ValueExpressionBuilder):
             source_location=location,
             lhs=self.expr,
             operator=NumericComparison(op.value),
-            rhs=other_expr,
+            rhs=other.rvalue(),
         )
         return BoolExpressionBuilder(cmp_expr)

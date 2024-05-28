@@ -100,7 +100,7 @@ class ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType]):
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        item_expr = expect_operand_type(item, self.pytype.items)
+        item_expr = expect_operand_type(item, self.pytype.items).rvalue()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)
 

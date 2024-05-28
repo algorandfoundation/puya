@@ -23,7 +23,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import convert_literal_to_expr
+from puya.awst_build.utils import convert_literal_to_builder
 
 if typing.TYPE_CHECKING:
 
@@ -110,9 +110,9 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
+        other = convert_literal_to_builder(other, self.pytype)
         if not (
-            other_expr.wtype == self.wtype  # can only compare with other of same type?
+            other.pytype == self.pytype  # can only compare with other of same type?
             and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
         ):
             return NotImplemented
@@ -120,6 +120,6 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             source_location=location,
             lhs=self.expr,
             operator=NumericComparison(op.value),
-            rhs=other_expr,
+            rhs=other.rvalue(),
         )
         return BoolExpressionBuilder(cmp_expr)

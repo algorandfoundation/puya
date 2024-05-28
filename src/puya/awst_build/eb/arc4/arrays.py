@@ -281,7 +281,7 @@ class _ARC4ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType], ABC
             index_expr: Expression = UInt64BinaryOperation(
                 left=expect_operand_type(
                     self.member_access("length", index.source_location), pytypes.UInt64Type
-                ),
+                ).rvalue(),
                 op=UInt64BinaryOperator.sub,
                 right=UInt64Constant(
                     value=abs(index.value), source_location=index.source_location
@@ -289,7 +289,7 @@ class _ARC4ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType], ABC
                 source_location=index.source_location,
             )
         else:
-            index_expr = expect_operand_type(index, pytypes.UInt64Type)
+            index_expr = expect_operand_type(index, pytypes.UInt64Type).rvalue()
         result_expr = IndexExpression(
             base=self.expr,
             index=index_expr,

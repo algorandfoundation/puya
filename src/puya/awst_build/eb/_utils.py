@@ -28,7 +28,7 @@ def bool_eval_to_constant(
 
 
 def uint64_to_biguint(arg_in: ExpressionBuilder | Literal, location: SourceLocation) -> Expression:
-    arg = expect_operand_type(arg_in, pytypes.UInt64Type)
+    arg = expect_operand_type(arg_in, pytypes.UInt64Type).rvalue()
 
     return intrinsic_factory.itob_as(
         arg,

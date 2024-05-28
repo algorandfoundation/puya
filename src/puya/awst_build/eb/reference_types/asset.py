@@ -53,7 +53,7 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
             case [Literal(value=int(int_value))]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=location)
             case [ExpressionBuilder() as eb]:
-                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type)
+                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
@@ -87,7 +87,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [ExpressionBuilder() as eb]:
-                account_expr = expect_operand_type(eb, pytypes.AccountType)
+                account_expr = expect_operand_type(eb, pytypes.AccountType).rvalue()
                 immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
                 asset_params_get = IntrinsicCall(
                     source_location=location,

@@ -25,7 +25,7 @@ from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, Func
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_expr, expect_operand_type
+from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -64,7 +64,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                     )
                 value = AddressConstant(value=addr_value, source_location=location)
             case [ExpressionBuilder() as eb]:
-                value = expect_operand_type(eb, pytypes.BytesType)
+                value = expect_operand_type(eb, pytypes.BytesType).rvalue()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
@@ -139,9 +139,9 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
+        other = convert_literal_to_builder(other, self.pytype)
         if not (
-            other_expr.wtype == self.wtype  # can only compare with other Accounts?
+            other.pytype == self.pytype  # can only compare with other Accounts?
             and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
         ):
             return NotImplemented
@@ -149,7 +149,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
             source_location=location,
             lhs=self.expr,
             operator=EqualityComparison(op.value),
-            rhs=other_expr,
+            rhs=other.rvalue(),
         )
         return BoolExpressionBuilder(cmp_expr)
 

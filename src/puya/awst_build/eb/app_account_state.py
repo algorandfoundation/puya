@@ -37,7 +37,7 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import convert_literal_to_expr, expect_operand_type, get_arg_mapping
+from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -136,7 +136,7 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder[pytypes.StoragePro
         index: ExpressionBuilder | Literal,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
-        index_expr = convert_literal_to_expr(index, pytypes.UInt64Type)
+        index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).rvalue()
         match index_expr:
             case IntegerConstant(value=account_offset):
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
@@ -249,7 +249,7 @@ class _Get(FunctionBuilder):
             default_arg, item = args
         else:
             item, default_arg = args
-        default_expr = expect_operand_type(default_arg, self._content_typ)
+        default_expr = expect_operand_type(default_arg, self._content_typ).rvalue()
         expr = StateGet(
             field=self._build_field(item, location),
             default=default_expr,

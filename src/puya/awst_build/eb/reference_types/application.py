@@ -40,7 +40,7 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
             case [Literal(value=int(int_value), source_location=loc)]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=loc)
             case [ExpressionBuilder() as eb]:
-                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type)
+                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with

@@ -94,7 +94,7 @@ def _maybe_transform_program_field_expr(
         ):
             expr = eb.rvalue()
         case _:
-            expr = expect_operand_type(eb, pytypes.BytesType)
+            expr = expect_operand_type(eb, pytypes.BytesType).rvalue()
     return field, expr
 
 

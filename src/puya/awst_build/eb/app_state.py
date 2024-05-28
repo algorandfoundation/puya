@@ -107,7 +107,7 @@ def _init(
         case pytypes.TypeType(typ=content):
             initial_value = None
         case pytypes.PyType() as content:
-            initial_value = expect_operand_type(first_arg, content)
+            initial_value = expect_operand_type(first_arg, content).rvalue()
         case _:
             raise CodeError(
                 "First argument must be a type reference or an initial value", location
@@ -263,7 +263,7 @@ class _Get(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_type(default_arg, self.content_type)
+        default_expr = expect_operand_type(default_arg, self.content_type).rvalue()
         expr = StateGet(field=self.field, default=default_expr, source_location=location)
         return builder_for_instance(self.content_type, expr)
 

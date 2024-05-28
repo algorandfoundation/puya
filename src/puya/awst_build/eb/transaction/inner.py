@@ -94,7 +94,7 @@ class _ArrayItem(FunctionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [(ExpressionBuilder() | Literal(value=int())) as eb]:
-                index_expr = expect_operand_type(eb, pytypes.UInt64Type)
+                index_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
                 expr = InnerTransactionField(
                     itxn=self.transaction,
                     field=self.field,
@@ -140,7 +140,7 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
                         expect_operand_type(
                             a,
                             pytypes.InnerTransactionFieldsetTypes[transaction_types[a]],
-                        )
+                        ).rvalue()
                         for a in args
                     ),
                     source_location=location,

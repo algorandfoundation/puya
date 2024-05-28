@@ -215,7 +215,7 @@ class _IntrinsicMethod(FunctionBuilder):
         args_map = get_arg_mapping(self.args, zip(arg_names, args, strict=True), location)
         try:
             stack_args = [
-                expect_operand_type(args_map.pop(arg_name), arg_type)
+                expect_operand_type(args_map.pop(arg_name), arg_type).rvalue()
                 for arg_name, arg_type in zip(self.args, self.arg_types, strict=True)
             ]
         except KeyError as er:
@@ -249,7 +249,7 @@ class _Create(FunctionBuilder):
             (arg,) = args
         except ValueError:
             raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        size = expect_operand_type(arg, pytypes.UInt64Type)
+        size = expect_operand_type(arg, pytypes.UInt64Type).rvalue()
         return BoolExpressionBuilder(
             IntrinsicCall(
                 op_code="box_create",
@@ -278,7 +278,7 @@ class _Put(FunctionBuilder):
             (arg,) = args
         except ValueError:
             raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        data = expect_operand_type(arg, pytypes.BytesType)
+        data = expect_operand_type(arg, pytypes.BytesType).rvalue()
 
         return VoidExpressionBuilder(
             IntrinsicCall(

@@ -47,7 +47,7 @@ class UnsignedRangeBuilder(TypeClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type) for in_arg in args]
+        uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type).rvalue() for in_arg in args]
         match uint64_args:
             case [range_start, range_stop, range_step]:
                 if isinstance(range_step, IntegerConstant) and range_step.value == 0:

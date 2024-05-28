@@ -60,7 +60,7 @@ class LogBuilder(FunctionBuilder):
                         source_location=eb.source_location,
                     )
                 case _:
-                    sep = expect_operand_type(sep_arg, pytypes.BytesType)
+                    sep = expect_operand_type(sep_arg, pytypes.BytesType).rvalue()
 
         log_value: Expression | None = None
         for arg in args_:
