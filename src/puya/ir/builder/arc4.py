@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 
 import attrs
 
@@ -40,10 +40,22 @@ from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class ArrayIterator:
+    context: IRFunctionBuildContext
     size: Value
-    get_value_at_index: Callable[[Register], ValueProvider]
+    item_wtype: wtypes.WType
+    array_bytes_sans_length_header: Value
+    source_location: SourceLocation
+
+    def get_value_at_index(self, index: Register) -> ValueProvider:
+        return _read_nth_item_of_arc4_homogeneous_container(
+            context=self.context,
+            array_bytes_sans_length_header=self.array_bytes_sans_length_header,
+            item_wtype=self.item_wtype,
+            index=index,
+            source_location=self.source_location,
+        )
 
 
 def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) -> ValueProvider:
@@ -184,56 +196,25 @@ def arc4_array_index(
     Returns None if not an ARC4 expression
     """
 
-    match wtype:
-        case wtypes.ARC4StaticArray(array_size=array_size, element_type=element_type):
-            _assert_index_in_bounds(
-                context,
-                index=index,
-                length=UInt64Constant(value=array_size, source_location=source_location),
-                source_location=source_location,
-            )
-            return _read_nth_item_of_arc4_homogeneous_container(
-                context,
-                source_location=source_location,
-                array_bytes_sans_length_header=base,
-                index=index,
-                item_wtype=element_type,
-            )
-
-        case wtypes.ARC4DynamicArray(element_type=element_type):
-            _assert_index_in_bounds(
-                context,
-                index=index,
-                length=Intrinsic(
-                    op=AVMOp.extract_uint16,
-                    args=[
-                        base,
-                        UInt64Constant(value=0, source_location=source_location),
-                    ],
-                    source_location=source_location,
-                ),
-                source_location=source_location,
-            )
-            (array_data_sans_header,) = assign(
-                context,
-                source_location=source_location,
-                temp_description="array_data_sans_header",
-                source=Intrinsic(
-                    op=AVMOp.extract,
-                    args=[base],
-                    immediates=[2, 0],
-                    source_location=source_location,
-                ),
-            )
-            return _read_nth_item_of_arc4_homogeneous_container(
-                context,
-                source_location=source_location,
-                array_bytes_sans_length_header=array_data_sans_header,
-                index=index,
-                item_wtype=element_type,
-            )
-        case _:
-            typing.assert_never(wtype)
+    length, array_data_sans_header = _get_arc4_array_item_count_and_data(
+        wtype, base, source_location
+    )
+    _assert_index_in_bounds(
+        context,
+        index=index,
+        length=length,
+        source_location=source_location,
+    )
+    (array_value,) = context.visitor.materialise_value_provider(
+        array_data_sans_header, "array_data_sans_header"
+    )
+    return _read_nth_item_of_arc4_homogeneous_container(
+        context,
+        source_location=source_location,
+        array_bytes_sans_length_header=array_value,
+        index=index,
+        item_wtype=wtype.element_type,
+    )
 
 
 def arc4_tuple_index(
@@ -854,74 +835,28 @@ def _read_nth_item_of_arc4_container(
     return Intrinsic(op=AVMOp.extract3, args=[data, index, end], source_location=source_location)
 
 
-def build_for_in_dynamic_array(
+def build_for_in_array(
     context: IRFunctionBuildContext,
-    statement: awst_nodes.ForInLoop,
-    dynamic_array_wtype: wtypes.ARC4DynamicArray,
+    dynamic_array_wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
     arc4_dynamic_array_expression: awst_nodes.Expression,
+    source_location: SourceLocation,
 ) -> ArrayIterator:
     array_value_with_length = context.visitor.visit_and_materialise_single(
         arc4_dynamic_array_expression
     )
-    (dynamic_array_length,) = assign(
-        context,
-        temp_description="array_length",
-        source=Intrinsic(
-            op=AVMOp.extract_uint16,
-            args=[
-                array_value_with_length,
-                UInt64Constant(value=0, source_location=statement.source_location),
-            ],
-            source_location=statement.source_location,
-        ),
-        source_location=statement.source_location,
+    array_length_vp, array_value_vp = _get_arc4_array_item_count_and_data(
+        dynamic_array_wtype, array_value_with_length, source_location
     )
-    (dynamic_array_value,) = assign(
-        context,
-        temp_description="array_value",
-        source=Intrinsic(
-            op=AVMOp.extract,
-            args=[array_value_with_length],
-            immediates=[2, 0],
-            source_location=statement.source_location,
-        ),
-        source_location=statement.source_location,
+    (array_length,) = context.visitor.materialise_value_provider(array_length_vp, "array_length")
+    (array_value,) = context.visitor.materialise_value_provider(array_value_vp, "array_value")
+
+    return ArrayIterator(
+        context=context,
+        size=array_length,
+        array_bytes_sans_length_header=array_value,
+        item_wtype=dynamic_array_wtype.element_type,
+        source_location=source_location,
     )
-
-    def get_dynamic_array_item_at_index(index_register: Register) -> ValueProvider:
-        return _read_nth_item_of_arc4_homogeneous_container(
-            context,
-            array_bytes_sans_length_header=dynamic_array_value,
-            item_wtype=dynamic_array_wtype.element_type,
-            index=index_register,
-            source_location=statement.source_location,
-        )
-
-    return ArrayIterator(dynamic_array_length, get_dynamic_array_item_at_index)
-
-
-def build_for_in_static_array(
-    context: IRFunctionBuildContext,
-    statement: awst_nodes.ForInLoop,
-    static_array_wtype: wtypes.ARC4StaticArray,
-    arc4_static_array_expression: awst_nodes.Expression,
-) -> ArrayIterator:
-    static_array_value = context.visitor.visit_and_materialise_single(arc4_static_array_expression)
-
-    static_array_length = UInt64Constant(
-        value=static_array_wtype.array_size, source_location=statement.source_location
-    )
-
-    def get_static_array_item_at_index(index_register: Register) -> ValueProvider:
-        return _read_nth_item_of_arc4_homogeneous_container(
-            context,
-            array_bytes_sans_length_header=static_array_value,
-            item_wtype=static_array_wtype.element_type,
-            index=index_register,
-            source_location=statement.source_location,
-        )
-
-    return ArrayIterator(static_array_length, get_static_array_item_at_index)
 
 
 def _get_arc4_array_data_and_length(
@@ -1641,6 +1576,37 @@ def _assert_index_in_bounds(
         source_location=source_location,
         comment="Index access is out of bounds",
     )
+
+
+def _get_arc4_array_item_count_and_data(
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
+    array: Value,
+    source_location: SourceLocation,
+) -> tuple[ValueProvider, ValueProvider]:
+    match wtype:
+        case wtypes.ARC4StaticArray(array_size=array_size):
+            length: ValueProvider = UInt64Constant(
+                value=array_size, source_location=source_location
+            )
+            array_data: ValueProvider = array
+        case wtypes.ARC4DynamicArray():
+            length = Intrinsic(
+                op=AVMOp.extract_uint16,
+                args=[
+                    array,
+                    UInt64Constant(value=0, source_location=source_location),
+                ],
+                source_location=source_location,
+            )
+            array_data = Intrinsic(
+                op=AVMOp.extract,
+                args=[array],
+                immediates=[2, 0],
+                source_location=source_location,
+            )
+        case _:
+            typing.assert_never(wtype)
+    return length, array_data
 
 
 def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:

@@ -147,27 +147,13 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 sequence.source_location,
             )
         case awst_nodes.Expression(
-            wtype=wtypes.ARC4DynamicArray() as dynamic_array_wtype
-        ) as arc4_dynamic_array_expression:
-            iterator = arc4.build_for_in_dynamic_array(
-                context, statement, dynamic_array_wtype, arc4_dynamic_array_expression
-            )
-            _iterate_indexable(
+            wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
+        ) as arc4_array_expression:
+            iterator = arc4.build_for_in_array(
                 context,
-                loop_body=statement.loop_body,
-                indexable_size=iterator.size,
-                get_value_at_index=iterator.get_value_at_index,
-                item_var=item_var,
-                index_var=index_var,
-                statement_loc=statement.source_location,
-                reverse_index=reverse_index,
-                reverse_items=reverse_items,
-            )
-        case awst_nodes.Expression(
-            wtype=wtypes.ARC4StaticArray() as static_array_wtype
-        ) as arc4_static_array_expression:
-            iterator = arc4.build_for_in_static_array(
-                context, statement, static_array_wtype, arc4_static_array_expression
+                array_wtype,
+                arc4_array_expression,
+                statement.source_location,
             )
             _iterate_indexable(
                 context,
