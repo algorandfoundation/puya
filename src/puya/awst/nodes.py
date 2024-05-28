@@ -390,7 +390,7 @@ class BytesEncoding(enum.StrEnum):
 class BytesConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
     value: bytes = attrs.field(validator=[literal_validator(wtypes.bytes_wtype)])
-    encoding: BytesEncoding = attrs.field(default=BytesEncoding.utf8)
+    encoding: BytesEncoding = attrs.field()
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)

@@ -12,7 +12,7 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
     sender: account = txn<Sender>()
     if (oca IS IN (UpdateApplication, DeleteApplication)) {
       if (oca == DeleteApplication) {
-        log('I was used ' + test_cases.simplish.contract::itoa(this.counter) + ' time(s) before I died')
+        log(hex<"4920776173207573656420"> + test_cases.simplish.contract::itoa(this.counter) + ' time(s) before I died')
       }
       return global<CreatorAddress>() == sender
     }
@@ -32,13 +32,13 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
       if (txn<NumAssets>() == 1u) {
         (asset_balance, asset_exists): tuple<uint64,bool> = asset_holding_get<AssetBalance>(sender, reinterpret_cast<asset>(0u))
         if (!(asset_exists)) {
-          msg: bytes = 'You do not have any of the asset'
+          msg: bytes = hex<"596F7520646F206E6F74206861766520616E79206F6620746865206173736574">
         } else {
-          msg: bytes = 'You have asset balance: ' + test_cases.simplish.contract::itoa(asset_balance)
+          msg: bytes = hex<"596F7520686176652061737365742062616C616E63653A20"> + test_cases.simplish.contract::itoa(asset_balance)
         }
         result: bool = true
       } else {
-        msg: bytes = 'not enough app args or foreign assets'
+        msg: bytes = hex<"6E6F7420656E6F756768206170702061726773206F7220666F726569676E20617373657473">
         result: bool = false
       }
     }
@@ -67,10 +67,10 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
       } else {
         if (method_name == 'circle_report') {
           (area, circumference): tuple<uint64,uint64> = (test_cases.simplish.contract::circle_area(radius), test_cases.simplish.contract::circle_circumference(radius))
-          result: bytes = 'Approximate area and circumference of circle with radius ' + test_cases.simplish.contract::itoa(radius) + ' = ' + test_cases.simplish.contract::itoa(area) + ', ' + test_cases.simplish.contract::itoa(circumference)
+          result: bytes = hex<"417070726F78696D617465206172656120616E642063697263756D666572656E6365206F6620636972636C6520776974682072616469757320"> + test_cases.simplish.contract::itoa(radius) + ' = ' + test_cases.simplish.contract::itoa(area) + ', ' + test_cases.simplish.contract::itoa(circumference)
         } else {
           status: bool = false
-          result: bytes = 'unknown method name'
+          result: bytes = hex<"756E6B6E6F776E206D6574686F64206E616D65">
         }
       }
     }
@@ -98,7 +98,7 @@ subroutine circle_area(radius: uint64): uint64
 
 subroutine itoa(i: uint64): bytes
 {
-  digits: bytes = '0123456789'
+  digits: bytes = hex<"30313233343536373839">
   radix: uint64 = len(digits)
   if (i < radix) {
     return digits[i]
@@ -114,12 +114,12 @@ subroutine test_intrinsics(): uint64
   _is: bytes = gloadss(4u, 4u)
   _foo_uint: uint64 = setbit(32u, 0u, 3u)
   _foo_int: uint64 = setbit(32u, 0u, 3u)
-  _foo_bytes: bytes = setbit('32', 0u, 3u)
+  _foo_bytes: bytes = setbit(hex<"3332">, 0u, 3u)
   test: bytes = app_global_get('foo')
   app_global_put('b', 'yeah')
   app_global_del('foo')
   _expect_bytes: bytes = test
   _abcd: tuple<uint64,uint64,uint64,uint64> = divmodw(1u, 2u, 3u, 4u)
-  _hello_str: bytes = base64_decode<StdEncoding>('SGVsbG8=')
+  _hello_str: bytes = base64_decode<StdEncoding>(hex<"534756736247383D">)
   return 0u
 }

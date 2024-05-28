@@ -74,7 +74,7 @@ class Reference(ARC4Contract):
         create="require",
     )
     def bare_abi_config(self) -> None:
-        log(b"Hello World")
+        log("Hello World")
 
     @arc4.abimethod
     def opt_into_asset(self, asset: Asset) -> None:

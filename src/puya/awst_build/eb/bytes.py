@@ -40,7 +40,6 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
-    convert_literal,
     convert_literal_to_expr,
     expect_operand_wtype,
 )
@@ -71,13 +70,19 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case []:
-                value: Expression = BytesConstant(value=b"", source_location=location)
+                value: Expression = BytesConstant(
+                    value=b"", encoding=BytesEncoding.unknown, source_location=location
+                )
             case [Literal(value=bytes(literal_value))]:
-                value = BytesConstant(value=literal_value, source_location=location)
+                value = BytesConstant(
+                    value=literal_value, encoding=BytesEncoding.unknown, source_location=location
+                )
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
-                value = BytesConstant(value=b"", source_location=location)
+                value = BytesConstant(
+                    value=b"", encoding=BytesEncoding.unknown, source_location=location
+                )
         return BytesExpressionBuilder(value)
 
     @typing.override

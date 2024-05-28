@@ -27,7 +27,7 @@ contract test_cases.simplish.contract.Simplish:
                 let (counter_value%0#0: uint64, counter_exists%0#0: bool) = (app_global_get_ex 0u "counter")
                 (assert counter_exists%0#0) // check counter exists
                 let tmp%4#0: bytes = test_cases.simplish.contract.itoa(counter_value%0#0)
-                let tmp%5#0: bytes = (concat "I was used " tmp%4#0)
+                let tmp%5#0: bytes = (concat 0x4920776173207573656420 tmp%4#0)
                 let tmp%6#0: bytes = (concat tmp%5#0 " time(s) before I died")
                 (log tmp%6#0)
                 goto block@7
@@ -73,17 +73,17 @@ contract test_cases.simplish.contract.Simplish:
                 let asset_exists#0: bool = tuple_assignment%3#0
                 goto asset_exists#0 ? block@19 : block@18
             block@18: // if_body_L55
-                let msg#0: bytes = "You do not have any of the asset"
+                let msg#0: bytes = 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
                 goto block@20
             block@19: // else_body_L55
                 let tmp%17#0: bytes = test_cases.simplish.contract.itoa(asset_balance#0)
-                let msg#0: bytes = (concat "You have asset balance: " tmp%17#0)
+                let msg#0: bytes = (concat 0x596f7520686176652061737365742062616c616e63653a20 tmp%17#0)
                 goto block@20
             block@20: // after_if_else_L55
                 let result#0: bool = 1u
                 goto block@22
             block@21: // else_body_L53
-                let msg#0: bytes = "not enough app args or foreign assets"
+                let msg#0: bytes = 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
                 let result#0: bool = 0u
                 goto block@22
             block@22: // after_if_else_L53
@@ -95,19 +95,19 @@ contract test_cases.simplish.contract.Simplish:
         
         subroutine test_cases.simplish.contract.itoa(i: uint64) -> bytes:
             block@0: // L117
-                let radix#0: uint64 = (len "0123456789")
+                let radix#0: uint64 = (len 0x30313233343536373839)
                 let tmp%0#0: bool = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L122
                 let index_plus_1%0#0: uint64 = (+ i#0 1u)
-                let tmp%1#0: bytes = (substring3 "0123456789" i#0 index_plus_1%0#0)
+                let tmp%1#0: bytes = (substring3 0x30313233343536373839 i#0 index_plus_1%0#0)
                 return tmp%1#0
             block@2: // after_if_else_L122
                 let tmp%2#0: uint64 = (/ i#0 radix#0)
                 let tmp%3#0: bytes = test_cases.simplish.contract.itoa(tmp%2#0)
                 let tmp%4#0: uint64 = (% i#0 radix#0)
                 let index_plus_1%1#0: uint64 = (+ tmp%4#0 1u)
-                let tmp%5#0: bytes = (substring3 "0123456789" tmp%4#0 index_plus_1%1#0)
+                let tmp%5#0: bytes = (substring3 0x30313233343536373839 tmp%4#0 index_plus_1%1#0)
                 let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
                 return tmp%6#0
         
@@ -145,7 +145,7 @@ contract test_cases.simplish.contract.Simplish:
                 let area#0: uint64 = tmp%5#0
                 let circumference#0: uint64 = tmp%6#0
                 let tmp%7#0: bytes = test_cases.simplish.contract.itoa(radius#0)
-                let tmp%8#0: bytes = (concat "Approximate area and circumference of circle with radius " tmp%7#0)
+                let tmp%8#0: bytes = (concat 0x417070726f78696d617465206172656120616e642063697263756d666572656e6365206f6620636972636c6520776974682072616469757320 tmp%7#0)
                 let tmp%9#0: bytes = (concat tmp%8#0 " = ")
                 let tmp%10#0: bytes = test_cases.simplish.contract.itoa(area#0)
                 let tmp%11#0: bytes = (concat tmp%9#0 tmp%10#0)
@@ -155,7 +155,7 @@ contract test_cases.simplish.contract.Simplish:
                 goto block@7
             block@6: // else_body_L82
                 let status#0: bool = 0u
-                let result#0: bytes = "unknown method name"
+                let result#0: bytes = 0x756e6b6e6f776e206d6574686f64206e616d65
                 goto block@7
             block@7: // after_if_else_L82
                 goto block@8

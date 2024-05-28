@@ -31,11 +31,11 @@ class MyContract(Contract):
     @subroutine
     def expensive_op(self, val: UInt64) -> UInt64:
         assert val != 42, "Can't be 42"
-        log(b"expensive_op")
+        log("expensive_op")
         return val
 
     @subroutine
     def side_effecting_op(self, val: UInt64) -> UInt64:
         assert val != 42, "Can't be 42"
-        log(b"side_effecting_op")
+        log("side_effecting_op")
         return val

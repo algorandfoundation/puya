@@ -32,7 +32,7 @@ class LocalStateContract(Contract, name="LocalStateWithOffsets"):
                 log(self.get_data_or_assert(offset))
             elif method == b"delete_data":
                 self.delete_data(offset)
-                log(b"Deleted")
+                log("Deleted")
             else:
                 return False
             return True
