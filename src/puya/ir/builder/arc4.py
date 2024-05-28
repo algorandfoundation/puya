@@ -859,9 +859,14 @@ def build_for_in_array(
     )
 
 
-def _get_arc4_array_data_and_length(
+def _get_arc4_array_tail_data_and_item_count(
     context: IRFunctionBuildContext, expr: awst_nodes.Expression, source_location: SourceLocation
 ) -> tuple[Value, Value]:
+    """
+    For ARC4 containers (dynamic array, static array) will return the tail data and item count
+    For native tuples will return the tuple items packed into the equivalent static array
+    of tail data and item count
+    """
     match expr:
         case awst_nodes.Expression(wtype=wtypes.ARC4DynamicArray(element_type=element_type)):
             dynamic_array = context.visitor.visit_and_materialise_single(expr)
@@ -928,6 +933,7 @@ def _get_arc4_array_data_and_length(
                     context,
                     target="data",
                     op=AVMOp.extract,
+                    # TODO: fix this, this will be an error if array_size > 127
                     immediates=[array_size * 2, 0],
                     args=[
                         static_array,
@@ -938,6 +944,7 @@ def _get_arc4_array_data_and_length(
             return static_array, static_array_length
         case awst_nodes.TupleExpression(wtype=wtypes.WTuple()) as tuple_expr:
             values = context.visitor.visit_and_materialise(tuple_expr)
+            # TODO: check values are all arc4 types?
             tuple_length = UInt64Constant(
                 value=len(values),
                 source_location=source_location,
@@ -1429,7 +1436,9 @@ def concat_values(
                         source_location=source_location,
                         byte_size=element_size // 8,
                     )
-            (r_data, r_length) = _get_arc4_array_data_and_length(context, right, source_location)
+            (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
+                context, right, source_location
+            )
             l_value = _get_arc4_array_as_dynamic_array(context, left)
             (concat_result,) = assign(
                 context,
@@ -1464,7 +1473,9 @@ def concat_values(
                         source_location=source_location,
                         byte_size=element_size // 8,
                     )
-            (r_data, r_length) = _get_arc4_array_data_and_length(context, right, source_location)
+            (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
+                context, right, source_location
+            )
             l_value = _get_arc4_array_as_dynamic_array(context, left)
             (concat_result,) = assign(
                 context,
