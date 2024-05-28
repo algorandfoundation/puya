@@ -59,7 +59,8 @@ def get_field_expr(arg_name: str, arg: NodeBuilder | Literal) -> tuple[TxnField,
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
     elif isinstance(arg, NodeBuilder):
-        if not (arg.value_type and field.valid_type(arg.value_type)):
+        arg_typ = arg.pytype
+        if not (arg_typ and field.valid_type(arg_typ.wtype)):
             raise CodeError("bad argument type", arg.source_location)
         field_expr = arg.rvalue()
     elif isinstance(arg, Literal):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
@@ -120,9 +119,9 @@ def extract_key_override(
                 encoding=BytesEncoding.utf8,
                 source_location=key_lit_loc,
             )
-        case NodeBuilder(value_type=wtypes.bytes_wtype) as eb:
+        case NodeBuilder(pytype=pytypes.BytesType) as eb:
             key_override = eb.rvalue()
-        case NodeBuilder(value_type=wtypes.string_wtype) as eb:
+        case NodeBuilder(pytype=pytypes.StringType) as eb:
             key_override = BytesRaw(expr=eb.rvalue(), source_location=location)
         case _:
             raise CodeError(

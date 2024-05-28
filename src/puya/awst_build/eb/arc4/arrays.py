@@ -222,7 +222,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
             case []:
                 const_op = intrinsic_factory.zero_address(location, as_type=wtype)
                 return AddressExpressionBuilder(const_op)
-            case [NodeBuilder(value_type=wtypes.account_wtype) as eb]:
+            case [NodeBuilder(pytype=pytypes.AccountType) as eb]:
                 address_bytes: Expression = get_bytes_expr(eb.rvalue())
             case [Literal(value=str(addr_value))]:
                 if not wtypes.valid_address(addr_value):
@@ -232,7 +232,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
                         location,
                     )
                 address_bytes = AddressConstant(value=addr_value, source_location=location)
-            case [NodeBuilder(value_type=wtypes.bytes_wtype) as eb]:
+            case [NodeBuilder(pytype=pytypes.BytesType) as eb]:
                 value = eb.rvalue()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
@@ -557,7 +557,7 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
         match other:
             case Literal(value=str(str_value), source_location=literal_loc):
                 rhs = get_bytes_expr(AddressConstant(value=str_value, source_location=literal_loc))
-            case NodeBuilder(value_type=wtypes.account_wtype):
+            case NodeBuilder(pytype=pytypes.AccountType):
                 rhs = get_bytes_expr(other.rvalue())
             case _:
                 return super().compare(other, op=op, location=location)

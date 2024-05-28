@@ -108,13 +108,6 @@ class NodeBuilder(abc.ABC):
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder: ...
 
     @property
-    @typing.final
-    def value_type(self) -> wtypes.WType | None:
-        if self.pytype is None:
-            return None
-        return self.pytype.wtype
-
-    @property
     @abc.abstractmethod
     def pytype(self) -> pytypes.PyType | None: ...
 
@@ -128,7 +121,7 @@ class NodeBuilder(abc.ABC):
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:
         """handle self {op} other"""
-        if self.value_type is None:
+        if self.pytype is None:
             raise CodeError(
                 f"expression is not a value type, so comparison with {op.value} is not supported",
                 location,
@@ -144,7 +137,7 @@ class NodeBuilder(abc.ABC):
         reverse: bool,
     ) -> NodeBuilder:
         """handle self {op} other"""
-        if self.value_type is None:
+        if self.pytype is None:
             raise CodeError(
                 f"expression is not a value type,"
                 f" so operations such as {op.value} are not supported",
@@ -155,7 +148,7 @@ class NodeBuilder(abc.ABC):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
-        if self.value_type is None:
+        if self.pytype is None:
             raise CodeError(
                 f"expression is not a value type,"
                 f" so operations such as {op.value}= are not supported",

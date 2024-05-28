@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from puya import arc4_util, log
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, Expression, Literal, TupleItemExpression
 from puya.awst_build import pytypes
@@ -33,11 +33,10 @@ class ARC4TupleGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         location: SourceLocation,
     ) -> NodeBuilder:
         match args:
-            case [NodeBuilder(value_type=wtypes.WTuple(types=item_types)) as eb]:
-                (at,) = arg_typs
-                assert isinstance(at, pytypes.TupleType)
-                typ = pytypes.GenericARC4TupleType.parameterise(at.items, location)
-                wtype = arc4_util.make_tuple_wtype(item_types, location)
+            case [NodeBuilder(pytype=pytypes.TupleType(items=items)) as eb]:
+                typ = pytypes.GenericARC4TupleType.parameterise(items, location)
+                wtype = typ.wtype
+                assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
                     ARC4Encode(value=eb.rvalue(), wtype=wtype, source_location=location), typ
                 )
@@ -48,9 +47,6 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericARC4TupleType
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4Tuple)
-        self._wtype = wtype
         super().__init__(typ, location)
 
     @typing.override
@@ -64,14 +60,16 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
     ) -> NodeBuilder:
 
         match args:
-            case [NodeBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
-                wtype = self._wtype
-                if wtype.types != tuple_wtype.types:
-                    expected_type = wtypes.WTuple(wtype.types, location)
+            case [NodeBuilder(pytype=pytypes.TupleType() as tuple_type) as eb]:
+                typ = self.produces2()
+                if typ.items != tuple_type.items:
+                    expected_type = pytypes.GenericTupleType.parameterise(typ.items, location)
                     raise CodeError(
-                        f"Invalid arg type: expected {expected_type}, got {tuple_wtype}",
+                        f"Invalid arg type: expected {expected_type}, got {tuple_type}",
                         location,
                     )
+                wtype = typ.wtype
+                assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
                     ARC4Encode(value=eb.rvalue(), wtype=wtype, source_location=location),
                     self.produces2(),

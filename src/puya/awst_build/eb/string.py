@@ -244,15 +244,15 @@ class _StringJoin(FunctionBuilder):
         location: SourceLocation,
     ) -> NodeBuilder:
         match args:
-            case [NodeBuilder(value_type=wtypes.WTuple(types=tuple_item_types)) as eb] if all(
-                tt == wtypes.string_wtype for tt in tuple_item_types
+            case [NodeBuilder(pytype=pytypes.TupleType(items=items)) as eb] if all(
+                tt == pytypes.StringType for tt in items
             ):
                 tuple_arg = SingleEvaluation(eb.rvalue())
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         sep = get_bytes_expr_builder(SingleEvaluation(self._base))
         joined_value: Expression | None = None
-        for idx, _ in enumerate(tuple_item_types):
+        for idx, _ in enumerate(items):
             item_expr = TupleItemExpression(tuple_arg, index=idx, source_location=location)
             bytes_expr = get_bytes_expr(item_expr)
             if joined_value is None:

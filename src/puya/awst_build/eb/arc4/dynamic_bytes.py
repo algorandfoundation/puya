@@ -69,14 +69,14 @@ def _coerce_to_byte(arg: NodeBuilder | Literal) -> Expression:
     match arg:
         case Literal(value=int()) as literal:
             return construct_from_literal(literal, pytypes.ARC4ByteType).rvalue()
-        case NodeBuilder(value_type=wtypes.ARC4UIntN(n=8) as wtype) as eb:
-            if wtype != wtypes.arc4_byte_type:
-                return ReinterpretCast(
-                    expr=arg.rvalue(),
-                    wtype=wtypes.arc4_byte_type,
-                    source_location=arg.source_location,
-                )
+        case NodeBuilder(pytype=pytypes.ARC4ByteType) as eb:
             return eb.rvalue()
+        case NodeBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
+            return ReinterpretCast(
+                expr=arg.rvalue(),
+                wtype=wtypes.arc4_byte_type,
+                source_location=arg.source_location,
+            )
         case _:
             raise CodeError("Expected a Byte, UInt64 or int type", arg.source_location)
 

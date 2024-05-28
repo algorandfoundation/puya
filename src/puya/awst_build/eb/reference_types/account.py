@@ -169,7 +169,7 @@ class _IsOptedIn(FunctionBuilder):
         location: SourceLocation,
     ) -> NodeBuilder:
         match args:
-            case [NodeBuilder(value_type=wtypes.asset_wtype) as asset]:
+            case [NodeBuilder(pytype=pytypes.AssetType) as asset]:
                 return BoolExpressionBuilder(
                     TupleItemExpression(
                         base=IntrinsicCall(
@@ -185,7 +185,7 @@ class _IsOptedIn(FunctionBuilder):
                         source_location=location,
                     )
                 )
-            case [NodeBuilder(value_type=wtypes.application_wtype) as app]:
+            case [NodeBuilder(pytype=pytypes.ApplicationType) as app]:
                 return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",

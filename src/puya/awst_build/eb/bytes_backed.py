@@ -5,7 +5,6 @@ from collections.abc import Sequence
 import mypy.nodes
 import typing_extensions
 
-from puya.awst import wtypes
 from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeClassExpressionBuilder
@@ -51,7 +50,7 @@ class _FromBytes(FunctionBuilder):
                 arg: Expression = BytesConstant(
                     value=bytes_val, encoding=BytesEncoding.unknown, source_location=literal_loc
                 )
-            case [NodeBuilder(value_type=wtypes.bytes_wtype) as eb]:
+            case [NodeBuilder(pytype=pytypes.BytesType) as eb]:
                 arg = eb.rvalue()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
