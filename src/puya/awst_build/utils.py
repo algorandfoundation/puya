@@ -193,24 +193,7 @@ def expect_operand_wtype(
         return convert_literal(literal_or_expr, target_wtype)
 
 
-@typing.overload
-def convert_literal(
-    literal_or_expr: Literal | Expression, target_wtype: wtypes.WType
-) -> Expression: ...
-
-
-@typing.overload
-def convert_literal(
-    literal_or_expr: ExpressionBuilder, target_wtype: wtypes.WType
-) -> ExpressionBuilder: ...
-
-
-def convert_literal(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
-) -> Expression | ExpressionBuilder:
-    if not isinstance(literal_or_expr, Literal):
-        return literal_or_expr
-
+def convert_literal(literal_or_expr: Literal, target_wtype: wtypes.WType) -> Expression:
     loc = literal_or_expr.source_location
     match literal_or_expr.value, target_wtype:
         case bool(bool_value), wtypes.bool_wtype:
@@ -246,12 +229,12 @@ def convert_literal(
 
 
 def convert_literal_to_expr(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
+    literal_or_expr: Literal | ExpressionBuilder, target_wtype: wtypes.WType
 ) -> Expression:
-    expr_or_builder = convert_literal(literal_or_expr, target_wtype)
-    if isinstance(expr_or_builder, ExpressionBuilder):
-        return expr_or_builder.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
-    return expr_or_builder
+    if isinstance(literal_or_expr, Literal):
+        return convert_literal(literal_or_expr, target_wtype)
+    else:
+        return literal_or_expr.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
 
 
 def bool_eval(
