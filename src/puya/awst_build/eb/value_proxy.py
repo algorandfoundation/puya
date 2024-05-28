@@ -8,8 +8,8 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
-    ExpressionBuilder,
     Iteration,
+    NodeBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import builder_for_instance
@@ -21,74 +21,70 @@ class ValueProxyExpressionBuilder(ValueExpressionBuilder):
         super().__init__(typ, expr)
 
     @property
-    def _proxied(self) -> ExpressionBuilder:
+    def _proxied(self) -> NodeBuilder:
         return builder_for_instance(self.pytype, self.expr)
 
     def delete(self, location: SourceLocation) -> Statement:
         return self._proxied.delete(location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return self._proxied.bool_eval(location, negate=negate)
 
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
         return self._proxied.unary_plus(location)
 
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
         return self._proxied.unary_minus(location)
 
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
         return self._proxied.bitwise_invert(location)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._proxied.contains(item, location)
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         return self._proxied.compare(other, op, location)
 
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: NodeBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return self._proxied.binary_op(other, op, location, reverse=reverse)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         return self._proxied.augmented_assignment(op, rhs, location)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._proxied.index(index, location)
 
     def slice_index(
         self,
-        begin_index: ExpressionBuilder | Literal | None,
-        end_index: ExpressionBuilder | Literal | None,
-        stride: ExpressionBuilder | Literal | None,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return self._proxied.slice_index(begin_index, end_index, stride, location)
 
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return self._proxied.call(args, arg_typs, arg_kinds, arg_names, location)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         return self._proxied.member_access(name, location)
 
     def iterate(self) -> Iteration:

@@ -18,8 +18,8 @@ from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
+    NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -45,12 +45,12 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StoragePro
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         arg_mapping = get_arg_mapping(
             positional_arg_names=(),
             args=zip(arg_names, args, strict=True),
@@ -82,7 +82,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyTy
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         box_exists = StateExists(
             field=self._box_key_expr(location),
             source_location=location,
@@ -92,7 +92,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyTy
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "create":
                 return _Create(location, box_proxy=self.expr)
@@ -206,12 +206,12 @@ class _IntrinsicMethod(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         args_map = get_arg_mapping(self.args, zip(arg_names, args, strict=True), location)
         try:
             stack_args = [
@@ -239,12 +239,12 @@ class _Create(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         try:
             (arg,) = args
         except ValueError:
@@ -268,12 +268,12 @@ class _Put(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         try:
             (arg,) = args
         except ValueError:

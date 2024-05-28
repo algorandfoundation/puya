@@ -56,7 +56,7 @@ from puya.awst_build.eb.arc4 import (
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
-    ExpressionBuilder,
+    NodeBuilder,
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
@@ -101,7 +101,7 @@ class ContractMethodInfo:
 
 
 class FunctionASTConverter(
-    BaseMyPyVisitor[Statement | Sequence[Statement] | None, ExpressionBuilder | Literal]
+    BaseMyPyVisitor[Statement | Sequence[Statement] | None, NodeBuilder | Literal]
 ):
     def __init__(
         self,
@@ -590,7 +590,7 @@ class FunctionASTConverter(
     # Expressions
     def _visit_ref_expr(
         self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr
-    ) -> ExpressionBuilder | Literal:
+    ) -> NodeBuilder | Literal:
         expr_loc = self._location(expr)
         # Do a straight forward lookup at the RefExpr level handle the cases of:
         #  - type aliases
@@ -735,7 +735,7 @@ class FunctionASTConverter(
     @staticmethod
     def _visit_ref_expr_of_builtins(
         fullname: str, location: SourceLocation
-    ) -> ExpressionBuilder | Literal:
+    ) -> NodeBuilder | Literal:
         assert fullname.startswith("builtins.")
         rest_of_name = fullname.removeprefix("builtins.")
         match rest_of_name:
@@ -761,7 +761,7 @@ class FunctionASTConverter(
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 
     @staticmethod
-    def _visit_ref_expr_of_algopy_op(fullname: str, location: SourceLocation) -> ExpressionBuilder:
+    def _visit_ref_expr_of_algopy_op(fullname: str, location: SourceLocation) -> NodeBuilder:
         from puya.awst_build import intrinsic_data
 
         name = fullname.removeprefix(constants.ALGOPY_OP_PREFIX)
@@ -774,10 +774,10 @@ class FunctionASTConverter(
             return IntrinsicFunctionExpressionBuilder(fullname, mappings, location)
         raise InternalError(f"No intrinsic data found for {fullname}", location)
 
-    def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> ExpressionBuilder | Literal:
+    def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> NodeBuilder | Literal:
         return self._visit_ref_expr(expr)
 
-    def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> ExpressionBuilder | Literal:
+    def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> NodeBuilder | Literal:
         expr_loc = self._location(expr)
         if isinstance(expr.expr, mypy.nodes.RefExpr):
             if isinstance(expr.expr.node, mypy.nodes.MypyFile):
@@ -804,7 +804,7 @@ class FunctionASTConverter(
         base_builder = require_expression_builder(base)
         return base_builder.member_access(name=expr.name, location=expr_loc)
 
-    def visit_call_expr(self, call: mypy.nodes.CallExpr) -> ExpressionBuilder | Literal:
+    def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder | Literal:
         if call.analyzed is not None:
             return self._visit_special_call_expr(call, analyzed=call.analyzed)
 
@@ -828,7 +828,7 @@ class FunctionASTConverter(
 
     def _visit_special_call_expr(
         self, call: mypy.nodes.CallExpr, *, analyzed: mypy.nodes.Expression
-    ) -> ExpressionBuilder | Literal:
+    ) -> NodeBuilder | Literal:
         match analyzed:
             case mypy.nodes.CastExpr(expr=inner_expr):
                 self.context.warning(
@@ -861,7 +861,7 @@ class FunctionASTConverter(
                     self._location(call),
                 )
 
-    def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> ExpressionBuilder | Literal:
+    def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> NodeBuilder | Literal:
         expr_loc = self._location(node)
         builder_or_literal = node.expr.accept(self)
         if isinstance(builder_or_literal, Literal):
@@ -880,7 +880,7 @@ class FunctionASTConverter(
                 # guard against future python unary operators
                 raise InternalError(f"Unable to interpret unary operator '{node.op}'", expr_loc)
 
-    def visit_op_expr(self, node: mypy.nodes.OpExpr) -> Literal | ExpressionBuilder:
+    def visit_op_expr(self, node: mypy.nodes.OpExpr) -> Literal | NodeBuilder:
         node_loc = self._location(node)
         lhs = node.left.accept(self)
         rhs = node.right.accept(self)
@@ -910,10 +910,10 @@ class FunctionASTConverter(
         except ValueError as ex:
             raise InternalError(f"Unknown binary operator: {node.op}") from ex
 
-        result: ExpressionBuilder = NotImplemented
-        if isinstance(lhs, ExpressionBuilder):
+        result: NodeBuilder = NotImplemented
+        if isinstance(lhs, NodeBuilder):
             result = lhs.binary_op(other=rhs, op=op, location=node_loc, reverse=False)
-        if result is NotImplemented and isinstance(rhs, ExpressionBuilder):
+        if result is NotImplemented and isinstance(rhs, NodeBuilder):
             result = rhs.binary_op(other=lhs, op=op, location=node_loc, reverse=True)
         if result is NotImplemented:
             raise CodeError(f"Unsupported operation {op.value} between types", node_loc)
@@ -923,10 +923,10 @@ class FunctionASTConverter(
         self,
         op: BinaryBooleanOperator,
         result_pytypes: Sequence[pytypes.PyType],
-        lhs: ExpressionBuilder | Literal,
-        rhs: ExpressionBuilder | Literal,
+        lhs: NodeBuilder | Literal,
+        rhs: NodeBuilder | Literal,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         # when in a boolean evaluation context, we can side step issues of type unions
         # and what not, and just assume everything is boolean.
         # note that this won't solve all potential use cases, and indeed some of them are
@@ -973,7 +973,7 @@ class FunctionASTConverter(
             lhs = temporary_assignment_if_required(lhs)
             # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
-            # TODO: this is a bit convoluted in terms of ExpressionBuilder <-> Expression
+            # TODO: this is a bit convoluted in terms of NodeBuilder <-> Expression
             condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).rvalue()
             expr_result = ConditionalExpression(
                 source_location=location,
@@ -984,7 +984,7 @@ class FunctionASTConverter(
             )
         return builder_for_instance(target_pytyp, expr_result)
 
-    def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
+    def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> NodeBuilder | Literal:
         expr_location = self._location(expr)
         if isinstance(expr.method_type, mypy.types.CallableType):
             result_pytyp = self.context.type_to_pytype(
@@ -1033,7 +1033,7 @@ class FunctionASTConverter(
         index_expr_or_literal = expr.index.accept(self)
         return base_expr.index(index=index_expr_or_literal, location=expr_location)
 
-    def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> ExpressionBuilder:
+    def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
         # TODO: conditional literals as literal builders
         condition = self._eval_condition(expr.cond)
         true_expr = require_expression_builder(expr.if_expr.accept(self)).rvalue()  # TODO: pytypes
@@ -1057,7 +1057,7 @@ class FunctionASTConverter(
         )
         return builder_for_instance(expr_pytype, cond_expr)
 
-    def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> ExpressionBuilder:
+    def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> NodeBuilder:
         from puya.awst_build.eb.bool import BoolExpressionBuilder
 
         expr_loc = self._location(expr)
@@ -1100,8 +1100,8 @@ class FunctionASTConverter(
     def _build_compare(
         self,
         operator: str,
-        lhs: ExpressionBuilder | Literal,
-        rhs: ExpressionBuilder | Literal,
+        lhs: NodeBuilder | Literal,
+        rhs: NodeBuilder | Literal,
     ) -> Expression:
         cmp_loc = lhs.source_location + rhs.source_location
         if isinstance(lhs, Literal) and isinstance(rhs, Literal):
@@ -1119,11 +1119,11 @@ class FunctionASTConverter(
                 contains_builder = container_builder.contains(lhs, cmp_loc)
                 return contains_builder.rvalue()
 
-        result: ExpressionBuilder = NotImplemented
-        if isinstance(lhs, ExpressionBuilder):
+        result: NodeBuilder = NotImplemented
+        if isinstance(lhs, NodeBuilder):
             op = BuilderComparisonOp(operator)
             result = lhs.compare(other=rhs, op=op, location=cmp_loc)
-        if result is NotImplemented and isinstance(rhs, ExpressionBuilder):
+        if result is NotImplemented and isinstance(rhs, NodeBuilder):
             op = BuilderComparisonOp(invert_ordered_binary_op(operator))
             result = rhs.compare(other=lhs, op=op, location=cmp_loc)
         if result is NotImplemented:
@@ -1140,7 +1140,7 @@ class FunctionASTConverter(
         bytes_const = extract_bytes_literal_from_mypy(expr)
         return Literal(self._location(expr), value=bytes_const)
 
-    def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> ExpressionBuilder:
+    def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> NodeBuilder:
         from puya.awst_build.eb.tuple import TupleExpressionBuilder
 
         items = [
@@ -1165,7 +1165,7 @@ class FunctionASTConverter(
 
         return TupleExpressionBuilder(tuple_expr, typ)
 
-    def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> ExpressionBuilder:
+    def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
         self._precondition(
             not isinstance(expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr),
@@ -1178,11 +1178,11 @@ class FunctionASTConverter(
         value = source.rvalue()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
-        # TODO: take PyType from source ExpressionBuilder
+        # TODO: take PyType from source NodeBuilder
         result_typ = self.context.mypy_expr_node_type(expr)
         return builder_for_instance(result_typ, result)
 
-    def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> ExpressionBuilder:
+    def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> NodeBuilder:
         super_loc = self._location(super_expr)
         if self.contract_method_info is None:
             raise CodeError("super() expression should not occur outside of class", super_loc)
@@ -1221,19 +1221,19 @@ class FunctionASTConverter(
 
     # unsupported expressions
 
-    def visit_list_comprehension(self, expr: mypy.nodes.ListComprehension) -> ExpressionBuilder:
+    def visit_list_comprehension(self, expr: mypy.nodes.ListComprehension) -> NodeBuilder:
         raise CodeError("List comprehensions are not supported", self._location(expr))
 
-    def visit_slice_expr(self, expr: mypy.nodes.SliceExpr) -> ExpressionBuilder:
+    def visit_slice_expr(self, expr: mypy.nodes.SliceExpr) -> NodeBuilder:
         raise CodeError("Slices are not supported outside of indexing", self._location(expr))
 
-    def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> ExpressionBuilder:
+    def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> NodeBuilder:
         raise CodeError("lambda functions are not supported", self._location(expr))
 
-    def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> ExpressionBuilder:
+    def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> NodeBuilder:
         raise CodeError("ellipsis expressions are not supported", self._location(expr))
 
-    def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> ExpressionBuilder:
+    def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> NodeBuilder:
         raise CodeError("Python lists are not supported", self._location(expr))
 
 
@@ -1249,12 +1249,12 @@ def is_self_member(
 @typing.overload
 def temporary_assignment_if_required(operand: Literal) -> Literal: ...
 @typing.overload
-def temporary_assignment_if_required(operand: ExpressionBuilder) -> ExpressionBuilder: ...
+def temporary_assignment_if_required(operand: NodeBuilder) -> NodeBuilder: ...
 
 
 def temporary_assignment_if_required(
-    operand: ExpressionBuilder | Literal,
-) -> ExpressionBuilder | Literal:
+    operand: NodeBuilder | Literal,
+) -> NodeBuilder | Literal:
     if isinstance(operand, Literal):
         return operand
 

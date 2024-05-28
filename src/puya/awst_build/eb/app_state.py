@@ -25,9 +25,9 @@ from puya.awst_build.eb._storage import (
     extract_key_override,
 )
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
     GenericClassExpressionBuilder,
+    NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -57,12 +57,12 @@ class AppStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageP
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -70,23 +70,23 @@ class AppStateGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
 def _init(
-    args: Sequence[ExpressionBuilder | Literal],
+    args: Sequence[NodeBuilder | Literal],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
     result_type: pytypes.StorageProxyType | None,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     type_or_value_arg_name = "type_or_initial_value"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_or_value_arg_name],
@@ -146,7 +146,7 @@ class AppStateExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]
         super().__init__(typ, expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         exists_expr = StateExists(field=self._build_field(location), source_location=location)
         if negate:
             expr: Expression = Not(location, exists_expr)
@@ -155,7 +155,7 @@ class AppStateExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]
         return BoolExpressionBuilder(expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         field = self._build_field(location)
         match name:
             case "value":
@@ -230,12 +230,12 @@ class _Maybe(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if args:
             raise CodeError("Unexpected/unhandled arguments", location)
         expr = StateGetEx(field=self.field, source_location=location)
@@ -254,12 +254,12 @@ class _Get(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args

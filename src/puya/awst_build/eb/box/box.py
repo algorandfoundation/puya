@@ -20,8 +20,8 @@ from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     GenericClassExpressionBuilder,
+    NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -46,12 +46,12 @@ class BoxClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyT
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -59,23 +59,23 @@ class BoxClassGenericExpressionBuilder(GenericClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
 def _init(
-    args: Sequence[ExpressionBuilder | Literal],
+    args: Sequence[NodeBuilder | Literal],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
     result_type: pytypes.StorageProxyType | None,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     type_arg_name = "type_"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_arg_name],
@@ -129,7 +129,7 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]
             source_location=location,
         )
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "value":
                 return BoxValueExpressionBuilder(self._typ.content, self._box_key_expr(location))
@@ -144,7 +144,7 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]
 
         return super().member_access(name, location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         box_exists = StateExists(
             field=self._box_key_expr(location),
             source_location=location,
@@ -195,7 +195,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "length":
                 return UInt64ExpressionBuilder(box_length_checked(self.expr, location))
@@ -204,20 +204,18 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
             case _:
                 return super().member_access(name, location)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         if self.wtype != wtypes.bytes_wtype:
             return super().index(index, location)
         return index_box_bytes(self.expr, index, location)
 
     def slice_index(
         self,
-        begin_index: ExpressionBuilder | Literal | None,
-        end_index: ExpressionBuilder | Literal | None,
-        stride: ExpressionBuilder | Literal | None,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if self.wtype != wtypes.bytes_wtype:
             return super().slice_index(begin_index, end_index, stride, location)
 
@@ -229,23 +227,21 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
         self._typed = expr
         super().__init__(pytypes.BytesType, BytesRaw(expr=expr, source_location=location))
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "length":
                 return UInt64ExpressionBuilder(box_length_checked(self._typed, location))
             case _:
                 return super().member_access(name, location)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return index_box_bytes(self._typed, index, location)
 
     def slice_index(
         self,
-        begin_index: ExpressionBuilder | Literal | None,
-        end_index: ExpressionBuilder | Literal | None,
-        stride: ExpressionBuilder | Literal | None,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return slice_box_bytes(self._typed, begin_index, end_index, stride, location)

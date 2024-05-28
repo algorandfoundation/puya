@@ -19,7 +19,7 @@ from puya.awst_build.eb._utils import (
     get_bytes_expr_builder,
 )
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
-from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, NodeBuilder, ValueExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
@@ -39,12 +39,12 @@ class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         typ = self.produces2()
         fixed_wtype = typ.wtype
         assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
@@ -91,7 +91,7 @@ class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMTyp
         super().__init__(typ, expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return arc4_bool_bytes(
             self.expr,
             false_bytes=b"\x00" * (self.pytype.bits // 8),
@@ -100,7 +100,7 @@ class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMTyp
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
@@ -109,8 +109,8 @@ class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMTyp
 
     @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         if isinstance(other, Literal):
             other = construct_from_literal(other, self.pytype)
         if other.pytype != self.pytype:

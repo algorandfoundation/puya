@@ -26,7 +26,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
-    ExpressionBuilder,
+    NodeBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -51,12 +51,12 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 const = UInt64Constant(value=0, source_location=location)
@@ -73,7 +73,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.UInt64Type, expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         as_bool = ReinterpretCast(
             expr=self.expr,
             wtype=wtypes.bool_wtype,
@@ -85,12 +85,12 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
             expr = as_bool
         return BoolExpressionBuilder(expr)
 
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
         # unary + is allowed, but for the current types it has no real impact
         # so just expand the existing expression to include the unary operator
         return UInt64ExpressionBuilder(attrs.evolve(self.expr, source_location=location))
 
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
         return UInt64ExpressionBuilder(
             UInt64UnaryOperation(
                 expr=self.expr,
@@ -100,8 +100,8 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         )
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass
@@ -117,12 +117,12 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
 
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: NodeBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass
@@ -139,7 +139,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         return UInt64ExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         if rhs.pytype == self.pytype:

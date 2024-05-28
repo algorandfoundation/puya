@@ -9,7 +9,7 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
-from puya.awst_build.eb.base import BuilderBinaryOp, ExpressionBuilder
+from puya.awst_build.eb.base import BuilderBinaryOp, NodeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import eval_slice_component
@@ -19,11 +19,11 @@ from puya.parse import SourceLocation
 
 def index_box_bytes(
     box: BoxValueExpression,
-    index: ExpressionBuilder | Literal,
+    index: NodeBuilder | Literal,
     location: SourceLocation,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
 
-    if isinstance(index, ExpressionBuilder):
+    if isinstance(index, NodeBuilder):
         # no negatives
         begin_index_expr = index.rvalue()
     elif not isinstance(index.value, int):
@@ -52,11 +52,11 @@ def index_box_bytes(
 
 def slice_box_bytes(
     box: BoxValueExpression,
-    begin_index: ExpressionBuilder | Literal | None,
-    end_index: ExpressionBuilder | Literal | None,
-    stride: ExpressionBuilder | Literal | None,
+    begin_index: NodeBuilder | Literal | None,
+    end_index: NodeBuilder | Literal | None,
+    stride: NodeBuilder | Literal | None,
     location: SourceLocation,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     if stride:
         raise CodeError("Stride is not supported when slicing boxes", location)
     len_expr = SingleEvaluation(box_length_unchecked(box, location))

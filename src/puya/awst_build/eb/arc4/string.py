@@ -23,7 +23,7 @@ from puya.awst_build.eb.arc4.base import (
     ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
+from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, NodeBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.errors import CodeError
 
@@ -44,12 +44,12 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if not args:
             return StringExpressionBuilder(_arc4_encode_str_literal("", location))
         if len(args) == 1:
@@ -65,9 +65,7 @@ def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression
     )
 
 
-def _expect_string_or_bytes(
-    expr: ExpressionBuilder | Literal, location: SourceLocation
-) -> Expression:
+def _expect_string_or_bytes(expr: NodeBuilder | Literal, location: SourceLocation) -> Expression:
     match expr:
         case Literal(value=str(string_literal)):
             return _arc4_encode_str_literal(string_literal, location)
@@ -76,14 +74,14 @@ def _expect_string_or_bytes(
                 f"Can't construct {pytypes.ARC4StringType} from Python literal {invalid_value!r}",
                 invalid_literal_location,
             )
-        case ExpressionBuilder(pytype=pytypes.ARC4StringType) as eb:
+        case NodeBuilder(pytype=pytypes.ARC4StringType) as eb:
             return eb.rvalue()
-        case ExpressionBuilder(pytype=pytypes.StringType) as eb:
+        case NodeBuilder(pytype=pytypes.StringType) as eb:
             bytes_expr = eb.rvalue()
             return ARC4Encode(
                 value=bytes_expr, wtype=wtypes.arc4_string_wtype, source_location=location
             )
-        case ExpressionBuilder(pytype=invalid_pytype, source_location=invalid_builder_location):
+        case NodeBuilder(pytype=invalid_pytype, source_location=invalid_builder_location):
             raise CodeError(
                 f"Can't construct {pytypes.ARC4StringType} from {invalid_pytype}",
                 invalid_builder_location,
@@ -97,7 +95,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
         super().__init__(pytypes.ARC4StringType, expr, native_pytype=pytypes.StringType)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         match op:
             case BuilderBinaryOp.add:
@@ -114,12 +112,12 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
 
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: NodeBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
@@ -139,13 +137,13 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
                 return super().binary_op(other, op, location, reverse=reverse)
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other_expr: Expression
         match other:
             case Literal(value=str(string_literal), source_location=literal_location):
                 other_expr = _arc4_encode_str_literal(string_literal, literal_location)
-            case ExpressionBuilder() as eb if eb.rvalue().wtype == wtypes.arc4_string_wtype:
+            case NodeBuilder() as eb if eb.rvalue().wtype == wtypes.arc4_string_wtype:
                 other_expr = eb.rvalue()
             case _:
                 raise CodeError("Expected arc4.String or str literal")
@@ -159,7 +157,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
             )
         )
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return arc4_bool_bytes(
             self.expr, false_bytes=b"\x00\x00", location=location, negate=negate
         )

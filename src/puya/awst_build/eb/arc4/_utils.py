@@ -13,7 +13,7 @@ from puya.awst import (
 from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_encode
-from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.base import NodeBuilder
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
@@ -27,7 +27,7 @@ _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
 def expect_arc4_operand_pytype(
-    literal_or_builder: awst_nodes.Literal | ExpressionBuilder, target_type: pytypes.PyType
+    literal_or_builder: awst_nodes.Literal | NodeBuilder, target_type: pytypes.PyType
 ) -> awst_nodes.Expression:
     target_wtype = target_type.wtype
     if isinstance(literal_or_builder, awst_nodes.Literal):
@@ -62,7 +62,7 @@ class ARC4Signature:
 def get_arc4_args_and_signature(
     method_sig: str,
     arg_typs: Sequence[pytypes.PyType],
-    native_args: Sequence[ExpressionBuilder | Literal],
+    native_args: Sequence[NodeBuilder | Literal],
     loc: SourceLocation,
 ) -> tuple[Sequence[Expression], ARC4Signature]:
     method_name, maybe_args, maybe_return_type = _parse_method_signature(method_sig, loc)

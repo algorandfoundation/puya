@@ -16,7 +16,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
-    ExpressionBuilder,
+    NodeBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -40,12 +40,12 @@ class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 false = BoolConstant(value=False, source_location=location)
@@ -60,14 +60,14 @@ class BoolExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BoolType, expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         if not negate:
             return self
         return BoolExpressionBuilder(Not(location, self.expr))
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass

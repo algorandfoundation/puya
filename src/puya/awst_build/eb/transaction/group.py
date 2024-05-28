@@ -17,7 +17,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_type
@@ -37,17 +37,17 @@ class GroupTransactionClassExpressionBuilder(
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         typ = self.produces2()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
-            case [ExpressionBuilder() as eb]:
+            case [NodeBuilder() as eb]:
                 group_index = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
             case [Literal(value=int(int_value), source_location=loc)]:
                 if int_value < 0:
@@ -89,7 +89,7 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
 
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _ArrayItem(self.expr, field, typ, location)
 
 
@@ -109,12 +109,12 @@ class _ArrayItem(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (arg,) = args

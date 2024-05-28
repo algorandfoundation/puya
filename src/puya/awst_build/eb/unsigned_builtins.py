@@ -16,9 +16,9 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     IntermediateExpressionBuilder,
     Iteration,
+    NodeBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.utils import expect_operand_type, require_expression_builder
@@ -41,12 +41,12 @@ class UnsignedRangeBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type).rvalue() for in_arg in args]
         match uint64_args:
             case [range_start, range_stop, range_step]:
@@ -96,12 +96,12 @@ class UnsignedEnumerateBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
         try:
@@ -141,12 +141,12 @@ class ReversedFunctionExpressionBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
         try:

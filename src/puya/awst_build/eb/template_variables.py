@@ -5,7 +5,7 @@ import mypy.nodes
 
 from puya.awst.nodes import Literal, TemplateVar
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
@@ -16,12 +16,12 @@ class GenericTemplateVariableExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         raise CodeError("TemplateVar usage requires type parameter", location)
 
 
@@ -34,12 +34,12 @@ class TemplateVariableExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         var_name_arg_name = "variable_name"
         arg_mapping = get_arg_mapping(
             positional_arg_names=[var_name_arg_name],

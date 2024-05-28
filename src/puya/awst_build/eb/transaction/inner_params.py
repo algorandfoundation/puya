@@ -18,8 +18,8 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
+    NodeBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -42,7 +42,7 @@ _parameter_mapping: typing.Final = {
 }
 
 
-def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[TxnField, Expression]:
+def get_field_expr(arg_name: str, arg: NodeBuilder | Literal) -> tuple[TxnField, Expression]:
     try:
         field, field_pytype = _parameter_mapping[arg_name]
     except KeyError as ex:
@@ -51,14 +51,14 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
         return remapped_field
     elif field.is_array:
         match arg:
-            case ExpressionBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+            case NodeBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
                 field.valid_type(t.wtype)
                 for t in tuple_item_types  # TODO: revisit this re serialize
             ):
                 expr = arg.rvalue()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    elif isinstance(arg, ExpressionBuilder):
+    elif isinstance(arg, NodeBuilder):
         if not (arg.value_type and field.valid_type(arg.value_type)):
             raise CodeError("bad argument type", arg.source_location)
         field_expr = arg.rvalue()
@@ -74,7 +74,7 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
 
 
 def _maybe_transform_program_field_expr(
-    field: TxnField, eb: ExpressionBuilder | Literal
+    field: TxnField, eb: NodeBuilder | Literal
 ) -> tuple[TxnField, Expression] | None:
     match field.immediate:
         case "ApprovalProgram":
@@ -89,7 +89,7 @@ def _maybe_transform_program_field_expr(
         )
 
     match eb:
-        case ExpressionBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+        case NodeBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
             t == pytypes.BytesType for t in tuple_item_types  # TODO: revisit this re serialize
         ):
             expr = eb.rvalue()
@@ -104,12 +104,12 @@ class InnerTxnParamsClassExpressionBuilder(
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         transaction_fields: dict[TxnField, Expression] = {
             TxnFields.fee: UInt64Constant(
                 source_location=self.source_location,
@@ -149,7 +149,7 @@ class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder[pytypes.Transaction
         super().__init__(typ, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         if name == "submit":
             return _Submit(self.expr, self.pytype.transaction_type, location)
         elif name == "set":
@@ -170,12 +170,12 @@ class _Submit(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 
         if args:
@@ -204,12 +204,12 @@ class _Copy(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if args:
             raise CodeError(f"Unexpected arguments for {self.expr}", location)
         return InnerTxnParamsExpressionBuilder(
@@ -230,12 +230,12 @@ class _Set(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if None in arg_names:
             raise CodeError(
                 "Positional arguments are not supported when setting transaction parameters",

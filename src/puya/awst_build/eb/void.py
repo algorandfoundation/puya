@@ -6,7 +6,7 @@ import mypy.nodes
 from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
+    NodeBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -21,7 +21,7 @@ class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

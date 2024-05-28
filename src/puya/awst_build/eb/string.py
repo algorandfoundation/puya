@@ -29,8 +29,8 @@ from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
-    ExpressionBuilder,
     FunctionBuilder,
+    NodeBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -57,12 +57,12 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 value = ""
@@ -80,7 +80,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.StringType, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
@@ -94,7 +94,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
                 return super().member_access(name, location)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         match op:
             case BuilderBinaryOp.add:
@@ -112,12 +112,12 @@ class StringExpressionBuilder(ValueExpressionBuilder):
 
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: NodeBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
@@ -136,8 +136,8 @@ class StringExpressionBuilder(ValueExpressionBuilder):
                 return NotImplemented
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass
@@ -151,15 +151,13 @@ class StringExpressionBuilder(ValueExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         bytes_expr = get_bytes_expr(self.expr)
         len_expr = intrinsic_factory.bytes_len(bytes_expr, location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         item_expr = get_bytes_expr(expect_operand_type(item, pytypes.StringType).rvalue())
         this_expr = get_bytes_expr(self.expr)
         is_substring_expr = SubroutineCallExpression(
@@ -183,12 +181,12 @@ class _StringStartsOrEndsWith(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         arg = get_bytes_expr_builder(
@@ -197,9 +195,9 @@ class _StringStartsOrEndsWith(FunctionBuilder):
         this = get_bytes_expr_builder(SingleEvaluation(self._base))
 
         this_length = this.member_access("length", location)
-        assert isinstance(this_length, ExpressionBuilder)
+        assert isinstance(this_length, NodeBuilder)
         arg_length = arg.member_access("length", location)
-        assert isinstance(arg_length, ExpressionBuilder)
+        assert isinstance(arg_length, NodeBuilder)
 
         arg_length_gt_this_length = arg_length.compare(
             this_length, op=BuilderComparisonOp.gt, location=location
@@ -239,16 +237,16 @@ class _StringJoin(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
-            case [
-                ExpressionBuilder(value_type=wtypes.WTuple(types=tuple_item_types)) as eb
-            ] if all(tt == wtypes.string_wtype for tt in tuple_item_types):
+            case [NodeBuilder(value_type=wtypes.WTuple(types=tuple_item_types)) as eb] if all(
+                tt == wtypes.string_wtype for tt in tuple_item_types
+            ):
                 tuple_arg = SingleEvaluation(eb.rvalue())
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)

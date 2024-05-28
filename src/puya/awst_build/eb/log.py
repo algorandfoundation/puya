@@ -14,7 +14,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -31,12 +31,12 @@ class LogBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         args_ = list(args)
         try:
             sep_index = arg_names.index("sep")
@@ -53,7 +53,7 @@ class LogBuilder(FunctionBuilder):
                         encoding=BytesEncoding.utf8,
                         source_location=sep_arg.source_location,
                     )
-                case ExpressionBuilder(pytype=pytypes.StringType) as eb:
+                case NodeBuilder(pytype=pytypes.StringType) as eb:
                     sep = ReinterpretCast(
                         expr=eb.rvalue(),
                         wtype=wtypes.bytes_wtype,
@@ -65,11 +65,11 @@ class LogBuilder(FunctionBuilder):
         log_value: Expression | None = None
         for arg in args_:
             match arg:
-                case ExpressionBuilder(pytype=pytypes.UInt64Type):
+                case NodeBuilder(pytype=pytypes.UInt64Type):
                     bytes_expr: Expression = intrinsic_factory.itob(
                         arg.rvalue(), arg.source_location
                     )
-                case ExpressionBuilder() as eb:
+                case NodeBuilder() as eb:
                     bytes_expr = eb.rvalue()
                 case Literal(value=int(int_literal)):
                     bytes_expr = intrinsic_factory.itob(

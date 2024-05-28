@@ -6,7 +6,7 @@ import mypy.nodes
 
 from puya.awst.nodes import BoxValueExpression, Literal, StateGet, StateGetEx
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_type
@@ -25,12 +25,12 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
@@ -45,12 +45,12 @@ class BoxMaybeExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if args:
             raise CodeError("Invalid/unexpected args", location)
 

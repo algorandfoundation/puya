@@ -12,8 +12,8 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
+    NodeBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
@@ -37,7 +37,7 @@ class InnerTransactionClassExpressionBuilder(
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -66,7 +66,7 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
 
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _ArrayItem(self.expr, field, typ, location)
 
 
@@ -86,14 +86,14 @@ class _ArrayItem(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
-            case [(ExpressionBuilder() | Literal(value=int())) as eb]:
+            case [(NodeBuilder() | Literal(value=int())) as eb]:
                 index_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
                 expr = InnerTransactionField(
                     itxn=self.transaction,
@@ -108,9 +108,9 @@ class _ArrayItem(FunctionBuilder):
 
 
 def _get_transaction_type_from_arg(
-    literal_or_expr: ExpressionBuilder | Literal,
+    literal_or_expr: NodeBuilder | Literal,
 ) -> TransactionType | None:
-    if isinstance(literal_or_expr, ExpressionBuilder):
+    if isinstance(literal_or_expr, NodeBuilder):
         wtype = literal_or_expr.rvalue().wtype
         if isinstance(wtype, wtypes.WInnerTransactionFields):
             return wtype.transaction_type
@@ -121,12 +121,12 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if len(args) > 1:
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
             result_typ = pytypes.GenericTupleType.parameterise(

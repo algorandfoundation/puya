@@ -18,7 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
-    ExpressionBuilder,
+    NodeBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -52,7 +52,7 @@ class ReferenceValueExpressionBuilder(ValueExpressionBuilder):
         self.field_bool_comment = field_bool_comment
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         if name == self.native_access_member:
             native_cast = ReinterpretCast(
                 expr=self.expr, wtype=self.native_type.wtype, source_location=location
@@ -94,7 +94,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         as_bool = ReinterpretCast(
             expr=self.expr,
             wtype=wtypes.bool_wtype,
@@ -108,8 +108,8 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
 
     @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if not (
             other.pytype == self.pytype  # can only compare with other of same type?

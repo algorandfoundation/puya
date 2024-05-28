@@ -21,7 +21,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, FunctionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, FunctionBuilder, NodeBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
@@ -46,12 +46,12 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 value: Expression = intrinsic_factory.zero_address(location)
@@ -63,7 +63,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                         location,
                     )
                 value = AddressConstant(value=addr_value, source_location=location)
-            case [ExpressionBuilder() as eb]:
+            case [NodeBuilder() as eb]:
                 value = expect_operand_type(eb, pytypes.BytesType).rvalue()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
@@ -119,13 +119,13 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         if name == "is_opted_in":
             return _IsOptedIn(self.expr, location)
         return super().member_access(name, location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         cmp_with_zero_expr = BytesComparisonExpression(
             source_location=location,
             lhs=self.expr,
@@ -137,8 +137,8 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if not (
             other.pytype == self.pytype  # can only compare with other Accounts?
@@ -162,14 +162,14 @@ class _IsOptedIn(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
-            case [ExpressionBuilder(value_type=wtypes.asset_wtype) as asset]:
+            case [NodeBuilder(value_type=wtypes.asset_wtype) as asset]:
                 return BoolExpressionBuilder(
                     TupleItemExpression(
                         base=IntrinsicCall(
@@ -185,7 +185,7 @@ class _IsOptedIn(FunctionBuilder):
                         source_location=location,
                     )
                 )
-            case [ExpressionBuilder(value_type=wtypes.application_wtype) as app]:
+            case [NodeBuilder(value_type=wtypes.application_wtype) as app]:
                 return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",

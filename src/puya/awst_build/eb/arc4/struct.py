@@ -8,7 +8,7 @@ from puya.awst.nodes import Expression, FieldExpression, Literal, NewStruct
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
-from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, NodeBuilder, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
@@ -37,12 +37,12 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         wtype = self._wtype
         ordered_field_names = wtype.names
         field_mapping = get_arg_mapping(
@@ -73,7 +73,7 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder[pytypes.StructType]):
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case field_name if self.pytype and (field := self.pytype.fields.get(field_name)):
                 result_expr = FieldExpression(
@@ -91,9 +91,9 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder[pytypes.StructType]):
                 return super().member_access(name, location)
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)

@@ -35,7 +35,7 @@ __all__ = [
     "Iteration",
     "BuilderComparisonOp",
     "BuilderBinaryOp",
-    "ExpressionBuilder",
+    "NodeBuilder",
     "StorageProxyConstructorResult",
     "FunctionBuilder",
     "IntermediateExpressionBuilder",
@@ -74,7 +74,7 @@ class BuilderBinaryOp(enum.StrEnum):
     bit_and = "&"
 
 
-class ExpressionBuilder(abc.ABC):
+class NodeBuilder(abc.ABC):
     def __init__(self, location: SourceLocation):
         self.source_location = location
 
@@ -92,22 +92,20 @@ class ExpressionBuilder(abc.ABC):
         # TODO: consider making a DeleteStatement which e.g. handles AppAccountStateExpression
 
     @abc.abstractmethod
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
 
     @abc.abstractmethod
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder: ...
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder: ...
 
     @abc.abstractmethod
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder: ...
+    def unary_minus(self, location: SourceLocation) -> NodeBuilder: ...
 
     @abc.abstractmethod
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder: ...
+    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder: ...
 
     @abc.abstractmethod
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder: ...
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder: ...
 
     @property
     @typing.final
@@ -127,8 +125,8 @@ class ExpressionBuilder(abc.ABC):
         return str(self.pytype)
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         """handle self {op} other"""
         if self.value_type is None:
             raise CodeError(
@@ -139,12 +137,12 @@ class ExpressionBuilder(abc.ABC):
 
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: NodeBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         """handle self {op} other"""
         if self.value_type is None:
             raise CodeError(
@@ -155,7 +153,7 @@ class ExpressionBuilder(abc.ABC):
         return NotImplemented
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         if self.value_type is None:
             raise CodeError(
@@ -167,41 +165,39 @@ class ExpressionBuilder(abc.ABC):
             f"{self._type_description} does not support augmented assignment", location
         )
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         """Handle self[index]"""
         raise CodeError(f"{self._type_description} does not support indexing", location)
 
     @typing.final
     def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, indexes: Sequence[NodeBuilder | Literal], location: SourceLocation
+    ) -> NodeBuilder:
         """Handle self[index]"""
         raise CodeError(f"{self._type_description} does not support multiple indexing", location)
 
     def slice_index(
         self,
-        begin_index: ExpressionBuilder | Literal | None,
-        end_index: ExpressionBuilder | Literal | None,
-        stride: ExpressionBuilder | Literal | None,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         """Handle self[begin_index:end_index:stride]"""
         raise CodeError(f"{self._type_description} does not support slicing", location)
 
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         """Handle self(args...)"""
         raise CodeError(f"{self._type_description} does not support calling", location)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         """Handle self.name"""
         raise CodeError(
             f"{self._type_description} does not support member access {name}", location
@@ -214,7 +210,7 @@ class ExpressionBuilder(abc.ABC):
         )
 
 
-class IntermediateExpressionBuilder(ExpressionBuilder, abc.ABC):
+class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
     """Never valid as an assignment source OR target"""
 
     def rvalue(self) -> Expression:
@@ -232,21 +228,19 @@ class IntermediateExpressionBuilder(ExpressionBuilder, abc.ABC):
             f"{self._type_description} is not valid as del target", self.source_location
         )
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return self._not_a_value(location)
 
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
     def _not_a_value(self, location: SourceLocation) -> typing.Never:
@@ -259,7 +253,7 @@ class FunctionBuilder(IntermediateExpressionBuilder):
         return None
 
 
-class StorageProxyConstructorResult(ExpressionBuilder, abc.ABC):
+class StorageProxyConstructorResult(NodeBuilder, abc.ABC):
     @typing.override
     @property
     @abc.abstractmethod
@@ -309,12 +303,12 @@ class TypeClassExpressionBuilder(
     @abc.abstractmethod
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder: ...
+    ) -> NodeBuilder: ...
 
 
 class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
@@ -327,22 +321,22 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
     @abc.abstractmethod
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder: ...
+    ) -> NodeBuilder: ...
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         raise CodeError(
             f"Cannot access member {name} without specifying class type parameters first",
             location,
         )
 
 
-class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
+class ValueExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
 
     def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)
@@ -383,24 +377,22 @@ class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
         raise CodeError(f"{self.pytype} is not valid as del target", location)
 
     @typing.override
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support indexing", location)
 
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support calling", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         raise CodeError(f"Unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
@@ -409,26 +401,24 @@ class ValueExpressionBuilder(ExpressionBuilder, typing.Generic[_TPyType_co]):
         raise CodeError(f"{self.pytype} does not support iteration", self.source_location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         # TODO: this should be abstract, we always want to consider this for types
         raise CodeError(f"{self.pytype} does not support boolean evaluation", location)
 
     @typing.override
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support unary plus operator", location)
 
     @typing.override
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support unary minus operator", location)
 
     @typing.override
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support bitwise inversion", location)
 
     @typing.override
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support in/not in checks", location)
 
 

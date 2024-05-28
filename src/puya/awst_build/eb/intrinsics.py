@@ -6,9 +6,9 @@ from puya import log
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
     IntermediateExpressionBuilder,
+    NodeBuilder,
 )
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
@@ -31,12 +31,12 @@ class Arc4SignatureBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case [Literal(value=str(str_value))]:
                 pass
@@ -65,16 +65,16 @@ class IntrinsicEnumClassExpressionBuilder(IntermediateExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         raise CodeError("Cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         value = self._data.get(name)
         if value is None:
             raise CodeError(f"Unknown member {name!r} of {self._type_name!r}", location)
@@ -98,7 +98,7 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
         return None
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         mapping = self._data.get(name)
         if mapping is None:
             raise CodeError(f"Unknown member {name!r} of {self._type_name!r}", location)
@@ -127,12 +127,12 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         primary_mapping = self._mappings[0]  # TODO: remove this assumption
         func_arg_names = (*primary_mapping.literal_arg_names, *primary_mapping.stack_inputs.keys())
 
@@ -146,7 +146,7 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
 
 
 def _best_op_mapping(
-    op_mappings: Sequence[FunctionOpMapping], args: dict[str, ExpressionBuilder | Literal]
+    op_mappings: Sequence[FunctionOpMapping], args: dict[str, NodeBuilder | Literal]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
     literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
@@ -161,8 +161,8 @@ def _map_call(
     ast_mapper: Sequence[FunctionOpMapping],
     callee: str,
     node_location: SourceLocation,
-    args: dict[str, ExpressionBuilder | Literal],
-) -> ExpressionBuilder:
+    args: dict[str, NodeBuilder | Literal],
+) -> NodeBuilder:
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:
@@ -196,7 +196,7 @@ def _map_call(
         arg_in = args.pop(arg_name, None)
         if arg_in is None:
             logger.error(f"Missing expected argument {arg_name}", location=node_location)
-        elif isinstance(arg_in, ExpressionBuilder):
+        elif isinstance(arg_in, NodeBuilder):
             if arg_in.pytype not in allowed_pytypes:
                 logger.error(
                     f'Invalid argument type "{arg_in.pytype}"'

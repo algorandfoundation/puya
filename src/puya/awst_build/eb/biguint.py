@@ -24,7 +24,7 @@ from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
-    ExpressionBuilder,
+    NodeBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -50,18 +50,18 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 value: Expression = BigUIntConstant(value=0, source_location=location)
             case [Literal(value=int(int_value))]:
                 value = BigUIntConstant(value=int_value, source_location=location)
-            case [ExpressionBuilder() as eb]:
+            case [NodeBuilder() as eb]:
                 value = uint64_to_biguint(eb, location)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
@@ -74,7 +74,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BigUIntType, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "bytes":
                 return BytesExpressionBuilder(
@@ -84,7 +84,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
                 )
         return super().member_access(name, location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         cmp_expr = NumericComparisonExpression(
             lhs=self.expr,
             operator=NumericComparison.eq if negate else NumericComparison.ne,
@@ -94,14 +94,14 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp_expr)
 
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
         # unary + is allowed, but for the current types it has no real impact
         # so just expand the existing expression to include the unary operator
         return BigUIntExpressionBuilder(attrs.evolve(self.expr, source_location=location))
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             other_expr = other.rvalue()
@@ -119,12 +119,12 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
 
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: NodeBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             other_expr = other.rvalue()
@@ -143,7 +143,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         return BigUIntExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         if rhs.pytype == self.pytype:

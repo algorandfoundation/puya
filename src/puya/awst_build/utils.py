@@ -24,7 +24,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.base import NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_type
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -148,10 +148,10 @@ def fold_binary_expr(
 
 
 def require_expression_builder(
-    builder_or_literal: ExpressionBuilder | Literal,
+    builder_or_literal: NodeBuilder | Literal,
     *,
     msg: str = "A Python literal is not valid at this location",
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     match builder_or_literal:
@@ -161,15 +161,15 @@ def require_expression_builder(
             )
         case Literal(source_location=literal_location):
             raise CodeError(msg, literal_location)
-        case ExpressionBuilder() as builder:
+        case NodeBuilder() as builder:
             return builder
         case _:
             typing.assert_never(builder_or_literal)
 
 
 def expect_operand_type(
-    literal_or_eb: Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> ExpressionBuilder:
+    literal_or_eb: Literal | NodeBuilder, target_type: pytypes.PyType
+) -> NodeBuilder:
     if isinstance(literal_or_eb, Literal):
         return construct_from_literal(literal_or_eb, target_type)
     if literal_or_eb.pytype != target_type:
@@ -181,8 +181,8 @@ def expect_operand_type(
 
 
 def convert_literal_to_builder(
-    literal_or_expr: Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> ExpressionBuilder:
+    literal_or_expr: Literal | NodeBuilder, target_type: pytypes.PyType
+) -> NodeBuilder:
     if isinstance(literal_or_expr, Literal):
         return construct_from_literal(literal_or_expr, target_type)
     else:
@@ -190,11 +190,11 @@ def convert_literal_to_builder(
 
 
 def bool_eval(
-    builder_or_literal: ExpressionBuilder | Literal, loc: SourceLocation, *, negate: bool = False
-) -> ExpressionBuilder:
+    builder_or_literal: NodeBuilder | Literal, loc: SourceLocation, *, negate: bool = False
+) -> NodeBuilder:
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
-    if isinstance(builder_or_literal, ExpressionBuilder):
+    if isinstance(builder_or_literal, NodeBuilder):
         return builder_or_literal.bool_eval(location=loc, negate=negate)
     constant_value = bool(builder_or_literal.value)
     if negate:
@@ -271,12 +271,12 @@ def snake_case(s: str) -> str:
 
 
 def eval_slice_component(
-    len_expr: Expression, val: ExpressionBuilder | Literal | None, location: SourceLocation
+    len_expr: Expression, val: NodeBuilder | Literal | None, location: SourceLocation
 ) -> Expression | None:
     if val is None:
         return None
 
-    if isinstance(val, ExpressionBuilder):
+    if isinstance(val, NodeBuilder):
         # no negatives to deal with here, easy
         index_expr = expect_operand_type(val, pytypes.UInt64Type).rvalue()
         temp_index = SingleEvaluation(index_expr)
@@ -354,31 +354,28 @@ def resolve_method_from_type_info(
 
 
 def construct_from_builder_or_literal(
-    literal_or_builder: Literal | ExpressionBuilder,
+    literal_or_builder: Literal | NodeBuilder,
     target_type: pytypes.PyType,
     loc: SourceLocation | None = None,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     loc = loc or literal_or_builder.source_location
-    if (
-        isinstance(literal_or_builder, ExpressionBuilder)
-        and literal_or_builder.pytype == target_type
-    ):
+    if isinstance(literal_or_builder, NodeBuilder) and literal_or_builder.pytype == target_type:
         return literal_or_builder
     return _construct_instance(target_type, literal_or_builder, loc)
 
 
 def construct_from_literal(
     literal: Literal, target_type: pytypes.PyType, loc: SourceLocation | None = None
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     loc = loc or literal.source_location
     return _construct_instance(target_type, literal, loc)
 
 
 def _construct_instance(
-    target_type: pytypes.PyType, arg: ExpressionBuilder | Literal, location: SourceLocation
-) -> ExpressionBuilder:
+    target_type: pytypes.PyType, arg: NodeBuilder | Literal, location: SourceLocation
+) -> NodeBuilder:
     builder = builder_for_type(target_type, location)
-    if isinstance(arg, ExpressionBuilder):
+    if isinstance(arg, NodeBuilder):
         arg_type = arg.pytype
         if arg_type is None:  # TODO: remove once EB heirarchy is fixed
             raise CodeError("bad expression type", arg.source_location)

@@ -8,7 +8,7 @@ import typing_extensions
 from puya.awst import wtypes
 from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -20,7 +20,7 @@ _TPyType_co = typing_extensions.TypeVar(
 
 class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TPyType_co], abc.ABC):
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         typ = self.produces2()
         match name:
             case "from_bytes":
@@ -40,18 +40,18 @@ class _FromBytes(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case [Literal(value=bytes(bytes_val), source_location=literal_loc)]:
                 arg: Expression = BytesConstant(
                     value=bytes_val, encoding=BytesEncoding.unknown, source_location=literal_loc
                 )
-            case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
+            case [NodeBuilder(value_type=wtypes.bytes_wtype) as eb]:
                 arg = eb.rvalue()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)

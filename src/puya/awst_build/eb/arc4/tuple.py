@@ -8,7 +8,7 @@ from puya.awst.nodes import ARC4Encode, Expression, Literal, TupleItemExpression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
-from puya.awst_build.eb.base import ExpressionBuilder, GenericClassExpressionBuilder
+from puya.awst_build.eb.base import GenericClassExpressionBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 
@@ -26,14 +26,14 @@ class ARC4TupleGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
-            case [ExpressionBuilder(value_type=wtypes.WTuple(types=item_types)) as eb]:
+            case [NodeBuilder(value_type=wtypes.WTuple(types=item_types)) as eb]:
                 (at,) = arg_typs
                 assert isinstance(at, pytypes.TupleType)
                 typ = pytypes.GenericARC4TupleType.parameterise(at.items, location)
@@ -56,15 +56,15 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
 
         match args:
-            case [ExpressionBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
+            case [NodeBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
                 wtype = self._wtype
                 if wtype.types != tuple_wtype.types:
                     expected_type = wtypes.WTuple(wtype.types, location)
@@ -86,9 +86,7 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.TupleType]
         native_pytype = pytypes.GenericTupleType.parameterise(typ.items, expr.source_location)
         super().__init__(typ, expr, native_pytype=native_pytype)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         index_expr_or_literal = index
         match index_expr_or_literal:
             case Literal(value=int(index_value)) as index_literal:
@@ -108,5 +106,5 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.TupleType]
             ),
         )
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)

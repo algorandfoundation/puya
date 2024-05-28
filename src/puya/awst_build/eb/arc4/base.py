@@ -25,8 +25,8 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
-    ExpressionBuilder,
     FunctionBuilder,
+    NodeBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -50,7 +50,7 @@ _TPyType_co = typing_extensions.TypeVar(
 
 
 class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TPyType_co], abc.ABC):
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "from_log":
                 return ARC4FromLogBuilder(location, self.produces2())
@@ -58,7 +58,7 @@ class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TPyType_co],
                 return super().member_access(name, location)
 
 
-def get_integer_literal_value(eb_or_literal: ExpressionBuilder | Literal, purpose: str) -> int:
+def get_integer_literal_value(eb_or_literal: NodeBuilder | Literal, purpose: str) -> int:
     match eb_or_literal:
         case Literal(value=int(lit_value)):
             return lit_value
@@ -105,14 +105,14 @@ class ARC4FromLogBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
-            case [ExpressionBuilder() as eb]:
+            case [NodeBuilder() as eb]:
                 result_expr = self.abi_expr_from_log(self.typ, eb.rvalue(), location)
                 return builder_for_instance(self.typ, result_expr)
             case _:
@@ -128,12 +128,12 @@ class CopyBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 expr_result = Copy(
@@ -149,7 +149,7 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC)
         self._native_pytype = native_pytype
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "native":
                 result_expr: Expression = ARC4Decode(
@@ -165,13 +165,13 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC)
 
     @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
     @typing.override
     @abc.abstractmethod
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         # TODO: lift this up to ValueExpressionBuilder
         raise NotImplementedError
 
@@ -179,9 +179,9 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC)
 def arc4_compare_bytes(
     lhs: ValueExpressionBuilder,
     op: BuilderComparisonOp,
-    rhs: ExpressionBuilder | Literal,
+    rhs: NodeBuilder | Literal,
     location: SourceLocation,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     if isinstance(rhs, Literal):
         raise CodeError(
             f"Cannot compare arc4 encoded value of {lhs.wtype} to a literal value", location
@@ -200,7 +200,7 @@ def arc4_compare_bytes(
 
 def arc4_bool_bytes(
     expr: Expression, false_bytes: bytes, location: SourceLocation, *, negate: bool
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     return BoolExpressionBuilder(
         BytesComparisonExpression(
             operator=EqualityComparison.eq if negate else EqualityComparison.ne,

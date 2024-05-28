@@ -19,9 +19,9 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
     GenericClassExpressionBuilder,
+    NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -47,12 +47,12 @@ class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageMap
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -60,23 +60,23 @@ class BoxMapClassGenericExpressionBuilder(GenericClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
 def _init(
-    args: Sequence[ExpressionBuilder | Literal],
+    args: Sequence[NodeBuilder | Literal],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
     result_type: pytypes.StorageMapProxyType | None,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     key_type_arg_name = "key_type"
     value_type_arg_name = "value_type"
     arg_mapping = get_arg_mapping(
@@ -126,16 +126,14 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageMapProx
         super().__init__(typ, expr)
 
     @typing.override
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return BoxValueExpressionBuilder(
             self._typ.content,
             _box_value_expr(self.expr, index, location, self._typ.content.wtype),
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "length":
                 return _Length(location, self.expr, self._typ)
@@ -147,9 +145,7 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageMapProx
                 return super().member_access(name, location)
 
     @typing.override
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         box_exists = StateExists(
             field=_box_value_expr(self.expr, item, location, self._typ.content.wtype),
             source_location=location,
@@ -208,12 +204,12 @@ class _Length(_MethodBase):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         if args_map:
@@ -232,12 +228,12 @@ class _Get(_MethodBase):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         args_map = get_arg_mapping(("key", "default"), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         default_value = expect_operand_type(
@@ -254,12 +250,12 @@ class _Maybe(_MethodBase):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         if args_map:
@@ -281,7 +277,7 @@ class _Maybe(_MethodBase):
 
 def _box_value_expr(
     key_prefix: Expression,
-    key: ExpressionBuilder | Literal,
+    key: NodeBuilder | Literal,
     location: SourceLocation,
     content_type: wtypes.WType,
 ) -> BoxValueExpression:

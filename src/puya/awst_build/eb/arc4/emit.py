@@ -9,7 +9,7 @@ from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
 from puya.awst.nodes import Literal, MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.errors import CodeError
 
@@ -25,15 +25,15 @@ class EmitBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case [
-                ExpressionBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
+                NodeBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
             ] if pytypes.ARC4StructBaseType in struct_type.mro:
                 event_name = struct_type.name.split(".")[-1]
                 event_arg = event_arg_eb.rvalue()

@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build.eb.base import ExpressionBuilder
+    from puya.awst_build.eb.base import NodeBuilder
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -32,12 +32,12 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case []:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
@@ -58,5 +58,5 @@ class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.ARC4BoolType, expr, native_pytype=pytypes.BoolType)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)

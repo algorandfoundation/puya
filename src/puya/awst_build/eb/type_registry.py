@@ -24,7 +24,7 @@ from puya.awst_build.eb import (
     unsigned_builtins,
     void,
 )
-from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.base import NodeBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
 from puya.errors import InternalError
 from puya.parse import SourceLocation
@@ -34,9 +34,9 @@ __all__ = [
     "builder_for_type",
 ]
 
-ExpressionBuilderFromSourceFactory = Callable[[SourceLocation], ExpressionBuilder]
+ExpressionBuilderFromSourceFactory = Callable[[SourceLocation], NodeBuilder]
 ExpressionBuilderFromPyTypeAndSourceFactory = Callable[
-    [pytypes.PyType, SourceLocation], ExpressionBuilder
+    [pytypes.PyType, SourceLocation], NodeBuilder
 ]
 FUNC_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
@@ -132,7 +132,7 @@ PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromPyTypeAnd
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
 }
 
-ExpressionBuilderFromExpressionFactory = Callable[[Expression], ExpressionBuilder]
+ExpressionBuilderFromExpressionFactory = Callable[[Expression], NodeBuilder]
 PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] = {
     pytypes.ARC4BoolType: arc4.ARC4BoolExpressionBuilder,
     pytypes.ARC4StringType: arc4.StringExpressionBuilder,
@@ -173,7 +173,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] 
     },
 }
 ExpressionBuilderFromExpressionAndPyTypeFactory = Callable[
-    [Expression, pytypes.PyType], ExpressionBuilder
+    [Expression, pytypes.PyType], NodeBuilder
 ]
 PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.PyType | None, ExpressionBuilderFromExpressionAndPyTypeFactory
@@ -198,7 +198,7 @@ PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionAndP
 }
 
 
-def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> ExpressionBuilder:
+def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> NodeBuilder:
     if eb := PYTYPE_TO_BUILDER.get(pytyp):
         return eb(expr)
     if eb_param_generic := PYTYPE_GENERIC_TO_BUILDER.get(pytyp.generic):
@@ -209,7 +209,7 @@ def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> ExpressionB
     raise InternalError(f"No builder for instance: {pytyp}", expr.source_location)
 
 
-def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> ExpressionBuilder:
+def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> NodeBuilder:
     if tb := PYTYPE_TO_TYPE_BUILDER.get(pytyp):
         return tb(expr_loc)
     if tb_param_generic := PYTYPE_GENERIC_TO_TYPE_BUILDER.get(pytyp.generic):

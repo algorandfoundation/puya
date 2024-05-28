@@ -15,7 +15,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb.base import ExpressionBuilder, StorageProxyConstructorResult
+from puya.awst_build.eb.base import NodeBuilder, StorageProxyConstructorResult
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -75,25 +75,23 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         raise self._assign_first(location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
+    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
 
     def _assign_first(self, location: SourceLocation) -> typing.Never:
@@ -106,7 +104,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
 
 def extract_key_override(
-    key_arg: ExpressionBuilder | Literal | None, location: SourceLocation, *, is_prefix: bool
+    key_arg: NodeBuilder | Literal | None, location: SourceLocation, *, is_prefix: bool
 ) -> Expression | None:
     key_override: Expression | None
     match key_arg:
@@ -122,9 +120,9 @@ def extract_key_override(
                 encoding=BytesEncoding.utf8,
                 source_location=key_lit_loc,
             )
-        case ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb:
+        case NodeBuilder(value_type=wtypes.bytes_wtype) as eb:
             key_override = eb.rvalue()
-        case ExpressionBuilder(value_type=wtypes.string_wtype) as eb:
+        case NodeBuilder(value_type=wtypes.string_wtype) as eb:
             key_override = BytesRaw(expr=eb.rvalue(), source_location=location)
         case _:
             raise CodeError(
@@ -134,7 +132,7 @@ def extract_key_override(
     return key_override
 
 
-def extract_description(descr_arg: ExpressionBuilder | Literal | None) -> str | None:
+def extract_description(descr_arg: NodeBuilder | Literal | None) -> str | None:
     match descr_arg:
         case None:
             return None

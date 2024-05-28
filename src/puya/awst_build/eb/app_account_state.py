@@ -26,9 +26,9 @@ from puya.awst_build.eb._storage import (
     extract_key_override,
 )
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
     GenericClassExpressionBuilder,
+    NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -52,12 +52,12 @@ class AppAccountStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.S
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -65,23 +65,23 @@ class AppAccountStateGenericClassExpressionBuilder(GenericClassExpressionBuilder
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
 def _init(
-    args: Sequence[ExpressionBuilder | Literal],
+    args: Sequence[NodeBuilder | Literal],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
     result_type: pytypes.StorageProxyType | None,
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     type_arg_name = "type_"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_arg_name],
@@ -133,7 +133,7 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder[pytypes.StoragePro
 
     def _build_field(
         self,
-        index: ExpressionBuilder | Literal,
+        index: NodeBuilder | Literal,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
         index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).rvalue()
@@ -162,21 +162,17 @@ class AppAccountStateExpressionBuilder(ValueExpressionBuilder[pytypes.StoragePro
             source_location=location,
         )
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         expr = self._build_field(index, location)
         return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         exists_expr = StateExists(
             field=self._build_field(item, location), source_location=location
         )
         return BoolExpressionBuilder(exists_expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "get":
                 return _Get(self.pytype.content, self._build_field, location)
@@ -223,7 +219,7 @@ class _AppAccountStateExpressionBuilderFromConstructor(
         )
 
 
-FieldBuilder = Callable[[ExpressionBuilder | Literal, SourceLocation], AppAccountStateExpression]
+FieldBuilder = Callable[[NodeBuilder | Literal, SourceLocation], AppAccountStateExpression]
 
 
 class _Get(FunctionBuilder):
@@ -237,12 +233,12 @@ class _Get(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if len(args) != 2:
             raise CodeError(f"Expected 2 arguments, got {len(args)}", location)
         if arg_names[0] == "default":
@@ -270,12 +266,12 @@ class _Maybe(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case [item]:
                 field = self._build_field(item, location)

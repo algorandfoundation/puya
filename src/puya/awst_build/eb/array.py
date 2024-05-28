@@ -8,10 +8,10 @@ from puya.awst import wtypes
 from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray, TupleExpression
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     FunctionBuilder,
     GenericClassExpressionBuilder,
     Iteration,
+    NodeBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -26,12 +26,12 @@ class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         if not args:
             raise CodeError("Empy arrays require a type annotation to be instantiated", location)
         non_literal_args = [
@@ -63,12 +63,12 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType])
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
@@ -91,15 +91,13 @@ class ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType]):
     def iterate(self) -> Iteration:
         return self.rvalue()
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "append":
                 return _Append(self.expr)
         return super().member_access(name, location)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         item_expr = expect_operand_type(item, self.pytype.items).rvalue()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)
@@ -114,12 +112,12 @@ class _Append(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         match args:
             case [elem]:
                 elem_expr = require_expression_builder(elem).rvalue()

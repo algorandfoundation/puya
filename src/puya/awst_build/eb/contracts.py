@@ -17,8 +17,8 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
-    ExpressionBuilder,
     IntermediateExpressionBuilder,
+    NodeBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.box import (
@@ -54,16 +54,16 @@ class ContractTypeExpressionBuilder(TypeClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder | Literal],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> NodeBuilder:
         raise CodeError("Cannot instantiate contract classes", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
         if func_or_dec is None:
             raise CodeError(f"Unknown member {name!r} of {self._type_info.fullname!r}", location)
@@ -90,7 +90,7 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
         return None  # TODO ?
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
         if state_decl is not None:
             return _builder_for_storage_access(state_decl, location)
@@ -112,7 +112,7 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
 
 def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
-) -> ExpressionBuilder:
+) -> NodeBuilder:
     match storage_decl.typ:
         case pytypes.PyType(generic=pytypes.GenericLocalStateType):
             return AppAccountStateExpressionBuilder(
