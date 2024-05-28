@@ -4,7 +4,6 @@ import re
 import typing
 
 import attrs
-import mypy.nodes
 
 from puya import arc4_util, log
 from puya.awst import (
@@ -14,8 +13,8 @@ from puya.awst import (
 from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_encode
+from puya.awst_build.eb._utils import construct_from_literal
 from puya.awst_build.eb.base import ExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_type
 from puya.awst_build.utils import convert_literal
 from puya.errors import CodeError
 
@@ -28,40 +27,13 @@ logger = log.get_logger(__name__)
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
-def convert_arc4_literal(
-    literal: awst_nodes.Literal,
-    target_type: pytypes.PyType,
-    loc: SourceLocation | None = None,
-) -> awst_nodes.Expression:
-    loc = loc or literal.source_location
-    builder = builder_for_type(target_type, loc)
-    match literal.value:
-        case int():
-            literal_typ = pytypes.IntLiteralType
-        case str():
-            literal_typ = pytypes.StrLiteralType
-        case bytes():
-            literal_typ = pytypes.BytesLiteralType
-        case bool():
-            literal_typ = pytypes.BoolType
-        case _:
-            typing.assert_never(literal.value)
-    return builder.call(
-        args=[literal],
-        arg_typs=[literal_typ],
-        arg_kinds=[mypy.nodes.ARG_POS],
-        arg_names=[None],
-        location=loc,
-    ).rvalue()
-
-
 def expect_arc4_operand_pytype(
     literal_or_builder: awst_nodes.Literal | ExpressionBuilder, target_type: pytypes.PyType
 ) -> awst_nodes.Expression:
     target_wtype = target_type.wtype
     if isinstance(literal_or_builder, awst_nodes.Literal):
         if isinstance(target_wtype, wtypes.ARC4Type):
-            return convert_arc4_literal(literal_or_builder, target_type)
+            return construct_from_literal(literal_or_builder, target_type).rvalue()
         return convert_literal(literal_or_builder, target_wtype)
 
     expr = literal_or_builder.rvalue()
