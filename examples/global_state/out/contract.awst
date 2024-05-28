@@ -19,8 +19,8 @@ contract AppStateContract
   {
     this.global_int_full: uint64 = 55u
     this.global_int_simplified: uint64 = 33u
-    this.global_bytes_full: bytes = 'Hello'
-    this.global_bytes_simplified: bytes = 'Hello'
+    this.global_bytes_full: bytes = hex<"48656C6C6F">
+    this.global_bytes_simplified: bytes = hex<"48656C6C6F">
     this.global_bool_full: bool = false
     this.global_bool_simplified: bool = true
   }
@@ -38,16 +38,16 @@ contract AppStateContract
     assert(this.global_bytes_simplified == 'Hello')
     assert(STATE_EXISTS(this.global_bytes_full))
     assert(this.global_bytes_full == 'Hello')
-    assert(STATE_GET(this.global_bytes_full, default='default') == 'Hello')
+    assert(STATE_GET(this.global_bytes_full, default=hex<"64656661756C74">) == 'Hello')
     assert(!(STATE_EXISTS(this.global_bytes_no_default)))
-    this.global_bytes_no_default: bytes = 'World'
+    this.global_bytes_no_default: bytes = hex<"576F726C64">
     (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(this.global_bytes_no_default)
     assert(b_exists)
     assert(b_value == 'World')
     STATE_DELETE(this.global_bytes_no_default)
     (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(this.global_bytes_no_default)
     assert(!(b_exists))
-    assert(STATE_GET(this.global_bytes_no_default, default='default') == 'default')
+    assert(STATE_GET(this.global_bytes_no_default, default=hex<"64656661756C74">) == 'default')
     assert(STATE_EXISTS(this.global_bool_full))
     assert(!(STATE_EXISTS(this.global_bool_no_default)))
     this.global_bool_no_default: bool = true

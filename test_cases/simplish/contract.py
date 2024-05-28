@@ -96,7 +96,7 @@ class Simplish(CallCounter):
 
     @subroutine
     def increment_counter(self) -> None:
-        log(b"Incrementing counter!")
+        log("Incrementing counter!")
         super().increment_counter()
 
 

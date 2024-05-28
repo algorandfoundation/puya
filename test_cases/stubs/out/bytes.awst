@@ -3,19 +3,19 @@ contract BytesContract
   approval_program(): uint64
   {
     base_64: bytes = b64<"QmFzZSA2NCBlbmNvZGVk">
-    assert(base_64 == 'Base 64 encoded')
+    assert(base_64 == hex<"4261736520363420656E636F646564">)
     base_32: bytes = b32<"IJQXGZJAGMZCAZLOMNXWIZLE">
-    assert(base_32 == 'Base 32 encoded')
+    assert(base_32 == hex<"4261736520333220656E636F646564">)
     base_16: bytes = hex<"4261736520313620656E636F646564">
-    assert(base_16 == 'Base 16 encoded')
-    empty: bytes = ''
+    assert(base_16 == hex<"4261736520313620656E636F646564">)
+    empty: bytes = hex<"">
     assert(reinterpret_cast<bool>(len(base_64)), comment="Non empty bytes should be Truthy")
     assert(!(reinterpret_cast<bool>(len(empty))), comment="Empty bytes should be Falsy")
-    assert('a' + 'b' == 'ab')
-    c: bytes = 'c'
+    assert(hex<"61"> + hex<"62"> == hex<"6162">)
+    c: bytes = hex<"63">
     c += 'd'
-    assert(c == 'cd')
-    abc: bytes = 'abc'
+    assert(c == hex<"6364">)
+    abc: bytes = hex<"616263">
     assert(abc[0u] == 'a')
     assert(abc[1:] == 'bc')
     assert(abc[1:1] == '')
@@ -23,10 +23,10 @@ contract BytesContract
     assert(abc[:-1] == 'ab')
     assert(abc[-2:] == 'bc')
     assert(abc[-2:-1] == 'b')
-    assert('1234567'[1:-1] == '23456')
+    assert(hex<"31323334353637">[1:-1] == '23456')
     assert(abc[-10:10] == 'abc')
-    true: bytes = '1'
-    false: bytes = ''
+    true: bytes = hex<"31">
+    false: bytes = hex<"">
     x: bool = (!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true
     assert(x)
     assert((!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true)
@@ -82,5 +82,5 @@ subroutine check_end_before_start_slicing(abc: bytes): void
 subroutine one_to_seven(): bytes
 {
   log('one_to_seven called')
-  return '1234567'
+  return hex<"31323334353637">
 }

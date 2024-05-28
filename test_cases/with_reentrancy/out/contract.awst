@@ -15,7 +15,7 @@ contract WithReentrancy
 
 subroutine itoa(i: uint64): bytes
 {
-  digits: bytes = '0123456789'
+  digits: bytes = hex<"30313233343536373839">
   radix: uint64 = len(digits)
   if (i < radix) {
     return digits[i]
@@ -35,7 +35,7 @@ subroutine silly(x: uint64): uint64
 {
   x: uint64 = x + 1u
   result: uint64 = test_cases.with_reentrancy.contract::silly2(x)
-  log('silly = ' + test_cases.with_reentrancy.contract::itoa(x))
+  log(hex<"73696C6C79203D20"> + test_cases.with_reentrancy.contract::itoa(x))
   return result
 }
 
@@ -43,7 +43,7 @@ subroutine silly2(x: uint64): uint64
 {
   x: uint64 = x + 2u
   result: uint64 = test_cases.with_reentrancy.contract::silly3(x)
-  log('silly2 = ' + test_cases.with_reentrancy.contract::itoa(x))
+  log(hex<"73696C6C7932203D20"> + test_cases.with_reentrancy.contract::itoa(x))
   return result
 }
 
@@ -60,6 +60,6 @@ subroutine silly3(x: uint64): uint64
   if (is_even) {
     result: uint64 = a
   }
-  log('silly3 = ' + test_cases.with_reentrancy.contract::itoa(x))
+  log(hex<"73696C6C7933203D20"> + test_cases.with_reentrancy.contract::itoa(x))
   return result
 }
