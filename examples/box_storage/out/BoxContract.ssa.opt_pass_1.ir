@@ -192,8 +192,12 @@ contract examples.box_storage.contract.BoxContract:
                 let tmp%9#0: bytes = (box_extract 0x30 tmp%3#0 tmp%8#0)
                 let tmp%10#0: bool = (== tmp%9#0 "Testing")
                 (assert tmp%10#0)
+                let length%0#0: uint64 = 5u
+                let value_as_bytes%0#0: bytes = (itob length%0#0)
+                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
+                let new_box_value%0#0: bytes = (concat value_as_uint16%0#0 "Hello")
                 let box_del_res%1#0: bool = (box_del 0x424f585f43)
-                (box_put 0x424f585f43 "\x00\x05Hello")
+                (box_put 0x424f585f43 new_box_value%0#0)
                 let (tmp%11#0: uint64, tmp%12#0: bool) = (box_len 0x424f585f43)
                 let tmp%13#0: bool = (< 2u tmp%11#0)
                 let tmp%14#0: uint64 = (select tmp%11#0 2u tmp%13#0)
