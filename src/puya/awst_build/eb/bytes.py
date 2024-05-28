@@ -164,7 +164,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             source_location=location,
             base=self.expr,
             index=index_expr,
-            wtype=self.wtype,
+            wtype=self.pytype.wtype,
         )
         return BytesExpressionBuilder(expr)
 
@@ -182,7 +182,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             base=self.expr,
             begin_index=_eval_slice_component(begin_index),
             end_index=_eval_slice_component(end_index),
-            wtype=self.wtype,
+            wtype=self.pytype.wtype,
             source_location=location,
         )
         return BytesExpressionBuilder(slice_expr)

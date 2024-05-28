@@ -3,7 +3,6 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     BytesConstant,
@@ -205,7 +204,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
                 return super().member_access(name, location)
 
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
-        if self.wtype != wtypes.bytes_wtype:
+        if self.pytype != pytypes.BytesType:
             return super().index(index, location)
         return index_box_bytes(self.expr, index, location)
 
@@ -216,7 +215,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
         stride: NodeBuilder | Literal | None,
         location: SourceLocation,
     ) -> NodeBuilder:
-        if self.wtype != wtypes.bytes_wtype:
+        if self.pytype != pytypes.BytesType:
             return super().slice_index(begin_index, end_index, stride, location)
 
         return slice_box_bytes(self.expr, begin_index, end_index, stride, location)

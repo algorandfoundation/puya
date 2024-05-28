@@ -389,7 +389,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                         left=lhs,
                         right=rhs,
                         source_location=location,
-                        wtype=self.wtype,
+                        wtype=self.pytyp.wtype,
                     ),
                     self.pytyp,
                 )

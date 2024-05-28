@@ -184,16 +184,15 @@ def arc4_compare_bytes(
 ) -> NodeBuilder:
     if isinstance(rhs, Literal):
         raise CodeError(
-            f"Cannot compare arc4 encoded value of {lhs.wtype} to a literal value", location
+            f"Cannot compare arc4 encoded value of {lhs.pytype} to a literal value", location
         )
-    other_expr = rhs.rvalue()
-    if other_expr.wtype != lhs.wtype:
+    if rhs.pytype != lhs.pytype:
         return NotImplemented
     cmp_expr = BytesComparisonExpression(
         source_location=location,
         lhs=get_bytes_expr(lhs.expr),
         operator=EqualityComparison(op.value),
-        rhs=get_bytes_expr(other_expr),
+        rhs=get_bytes_expr(rhs.rvalue()),
     )
     return BoolExpressionBuilder(cmp_expr)
 

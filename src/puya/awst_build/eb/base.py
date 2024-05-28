@@ -333,24 +333,19 @@ class ValueExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
 
     def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)
-        self._pytype = pytype
-        self.__expr = expr
-        if expr.wtype != self.wtype:
+        if expr.wtype != pytype.wtype:
             raise InternalError(
                 f"Invalid WType of {str(self.pytype)!r} expression for: {expr.wtype}",
                 expr.source_location,
             )
+        self._pytype = pytype
+        self.__expr = expr
 
     @typing.override
     @typing.final
     @property
     def pytype(self) -> _TPyType_co:
         return self._pytype
-
-    @typing.final
-    @property
-    def wtype(self) -> wtypes.WType:
-        return self._pytype.wtype
 
     @property
     def expr(self) -> Expression:

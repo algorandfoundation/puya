@@ -106,7 +106,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
                 )
             case _:
                 raise CodeError(
-                    f"Unsupported augmented assignment operation on {self.wtype}: {op.value}=",
+                    f"Unsupported augmented assignment operation on {self.pytype}: {op.value}=",
                     location,
                 )
 
