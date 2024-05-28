@@ -70,8 +70,8 @@ silly:
     // log(Bytes(b"silly = ") + itoa(x))
     frame_dig -1
     callsub itoa
-    byte "silly = "
-    uncover 1
+    byte 0x73696c6c79203d20
+    swap
     concat
     log
     // with_reentrancy/contract.py:37
@@ -99,8 +99,8 @@ silly2:
     // log(Bytes(b"silly2 = ") + itoa(x))
     frame_dig -1
     callsub itoa
-    byte "silly2 = "
-    uncover 1
+    byte 0x73696c6c7932203d20
+    swap
     concat
     log
     // with_reentrancy/contract.py:45
@@ -123,13 +123,13 @@ silly3:
     int 0
     ==
     dup
-    cover 1
+    swap
     // with_reentrancy/contract.py:51
     // a = x + 2
     frame_dig -1
     int 2
     +
-    cover 1
+    swap
     // with_reentrancy/contract.py:52
     // if is_even:
     bz silly3_else_body@2
@@ -171,8 +171,8 @@ silly3_after_if_else@5:
     // log(Bytes(b"silly3 = ") + itoa(x))
     frame_dig -1
     callsub itoa
-    byte "silly3 = "
-    uncover 1
+    byte 0x73696c6c7933203d20
+    swap
     concat
     log
     // with_reentrancy/contract.py:61
@@ -190,16 +190,16 @@ itoa:
     proto 1 1
     // with_reentrancy/contract.py:18
     // digits = Bytes(b"0123456789")
-    byte "0123456789"
+    byte 0x30313233343536373839
     // with_reentrancy/contract.py:19
     // radix = digits.length
     len
     dup
-    cover 1
+    swap
     // with_reentrancy/contract.py:20
     // if i < radix:
     frame_dig -1
-    uncover 1
+    swap
     <
     bz itoa_after_if_else@2
     // with_reentrancy/contract.py:21
@@ -209,13 +209,13 @@ itoa:
     +
     // with_reentrancy/contract.py:18
     // digits = Bytes(b"0123456789")
-    byte "0123456789"
+    byte 0x30313233343536373839
     // with_reentrancy/contract.py:21
     // return digits[i]
     frame_dig -1
     uncover 2
     substring3
-    uncover 1
+    swap
     retsub
 
 itoa_after_if_else@2:
@@ -227,21 +227,21 @@ itoa_after_if_else@2:
     cover 2
     /
     callsub itoa
-    cover 1
+    swap
     frame_dig -1
-    uncover 1
+    swap
     %
     dup
     int 1
     +
     // with_reentrancy/contract.py:18
     // digits = Bytes(b"0123456789")
-    byte "0123456789"
+    byte 0x30313233343536373839
     // with_reentrancy/contract.py:22
     // return itoa(i // radix) + digits[i % radix]
     uncover 2
     uncover 2
     substring3
     concat
-    uncover 1
+    swap
     retsub

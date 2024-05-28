@@ -31,7 +31,7 @@ class LocalStateContract(Contract):
                 log(self.get_data_or_assert(Txn.sender))
             elif method == b"delete_data":
                 self.delete_data(Txn.sender)
-                log(b"Deleted")
+                log("Deleted")
             else:
                 return False
             return True

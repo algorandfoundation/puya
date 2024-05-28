@@ -10,6 +10,7 @@ from puya.awst.nodes import (
     BytesEncoding,
     Expression,
     Literal,
+    ReinterpretCast,
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
@@ -40,7 +41,9 @@ class LogBuilder(FunctionBuilder):
         try:
             sep_index = arg_names.index("sep")
         except ValueError:
-            sep: Expression = BytesConstant(value=b"", source_location=location)
+            sep: Expression = BytesConstant(
+                value=b"", encoding=BytesEncoding.utf8, source_location=location
+            )
         else:
             sep_arg = args_.pop(sep_index)
             match sep_arg:
@@ -49,6 +52,12 @@ class LogBuilder(FunctionBuilder):
                         value=str_sep.encode("utf8"),
                         encoding=BytesEncoding.utf8,
                         source_location=sep_arg.source_location,
+                    )
+                case ExpressionBuilder(pytype=pytypes.StringType) as eb:
+                    sep = ReinterpretCast(
+                        expr=eb.rvalue(),
+                        wtype=wtypes.bytes_wtype,
+                        source_location=eb.source_location,
                     )
                 case _:
                     sep = expect_operand_wtype(sep_arg, wtypes.bytes_wtype)
@@ -69,11 +78,15 @@ class LogBuilder(FunctionBuilder):
                     )
                 case Literal(value=bytes(bytes_literal)):
                     bytes_expr = BytesConstant(
-                        value=bytes_literal, source_location=arg.source_location
+                        value=bytes_literal,
+                        encoding=BytesEncoding.unknown,
+                        source_location=arg.source_location,
                     )
                 case Literal(value=str(str_literal)):
                     bytes_expr = BytesConstant(
-                        value=str_literal.encode("utf8"), source_location=arg.source_location
+                        value=str_literal.encode("utf8"),
+                        encoding=BytesEncoding.utf8,
+                        source_location=arg.source_location,
                     )
                 case Literal() as lit:
                     raise CodeError(
@@ -91,5 +104,7 @@ class LogBuilder(FunctionBuilder):
                     arg.source_location,
                 )
         if log_value is None:
-            log_value = BytesConstant(value=b"", source_location=location)
+            log_value = BytesConstant(
+                value=b"", encoding=BytesEncoding.utf8, source_location=location
+            )
         return VoidExpressionBuilder(intrinsic_factory.log(log_value, location))

@@ -6,13 +6,13 @@ contract EnumerationContract
     assert(iteration_count == 6u)
     assert(item_sum == 90u)
     assert(index_sum == 3u)
-    (iteration_count, item_concat, index_sum): tuple<uint64,bytes,uint64> = test_cases.enumeration.contract::enumerate_tuple(('How', 'Now', 'Brown', 'Cow'))
+    (iteration_count, item_concat, index_sum): tuple<uint64,bytes,uint64> = test_cases.enumeration.contract::enumerate_tuple((hex<"486F77">, hex<"4E6F77">, hex<"42726F776E">, hex<"436F77">))
     assert(iteration_count == 8u)
-    assert(item_concat == 'HowNowBrownCowHowNowBrownCow')
+    assert(item_concat == hex<"486F774E6F7742726F776E436F77486F774E6F7742726F776E436F77">)
     assert(index_sum == 6u)
-    (iteration_count, item_concat, index_sum): tuple<uint64,bytes,uint64> = test_cases.enumeration.contract::enumerate_bytes('abcdefg')
+    (iteration_count, item_concat, index_sum): tuple<uint64,bytes,uint64> = test_cases.enumeration.contract::enumerate_bytes(hex<"61626364656667">)
     assert(iteration_count == 14u)
-    assert(item_concat == 'abcdefgabcdefg')
+    assert(item_concat == hex<"6162636465666761626364656667">)
     assert(index_sum == 21u)
     return true
   }
@@ -43,7 +43,7 @@ subroutine enumerate_urange(start: uint64, stop: uint64, step: uint64): tuple<ui
 subroutine enumerate_tuple(tup: tuple<bytes,bytes,bytes,bytes>): tuple<uint64,bytes,uint64>
 {
   iteration_count: uint64 = 0u
-  item_concat: bytes = ''
+  item_concat: bytes = hex<"">
   index_sum: uint64 = 0u
   for item in tup {
     iteration_count += 1u
@@ -60,7 +60,7 @@ subroutine enumerate_tuple(tup: tuple<bytes,bytes,bytes,bytes>): tuple<uint64,by
 subroutine enumerate_bytes(bytes_: bytes): tuple<uint64,bytes,uint64>
 {
   iteration_count: uint64 = 0u
-  item_concat: bytes = ''
+  item_concat: bytes = hex<"">
   index_sum: uint64 = 0u
   for item in bytes_ {
     iteration_count += 1u
