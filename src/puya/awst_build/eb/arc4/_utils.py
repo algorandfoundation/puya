@@ -1,22 +1,23 @@
 from __future__ import annotations
 
-import decimal
 import re
 import typing
 
 import attrs
+import mypy.nodes
 
 from puya import arc4_util, log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import DecimalConstant, Expression, Literal
+from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_encode
 from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.var_factory import builder_for_type
 from puya.awst_build.utils import convert_literal
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -32,75 +33,26 @@ def convert_arc4_literal(
     target_type: pytypes.PyType,
     loc: SourceLocation | None = None,
 ) -> awst_nodes.Expression:
-    literal_value: typing.Any = literal.value
     loc = loc or literal.source_location
-    target_wtype = target_type.wtype
-    match target_wtype:
-        case wtypes.ARC4UIntN():
-            return awst_nodes.IntegerConstant(
-                value=literal_value, wtype=target_wtype, source_location=loc
-            )
-        case wtypes.ARC4UFixedNxM() as fixed_wtype:
-            with decimal.localcontext(
-                decimal.Context(
-                    prec=160,
-                    traps=[
-                        decimal.Rounded,
-                        decimal.InvalidOperation,
-                        decimal.Overflow,
-                        decimal.DivisionByZero,
-                    ],
-                )
-            ):
-                try:
-                    d = decimal.Decimal(literal_value)
-                except ArithmeticError as ex:
-                    raise CodeError(f"Invalid decimal literal: {literal_value}", loc) from ex
-                if d < 0:
-                    raise CodeError("Negative numbers not allowed", loc)
-                try:
-                    q = d.quantize(decimal.Decimal(f"1e-{fixed_wtype.m}"))
-                except ArithmeticError as ex:
-                    raise CodeError(
-                        f"Too many decimals, expected max of {fixed_wtype.m}", loc
-                    ) from ex
-            return DecimalConstant(value=q, wtype=fixed_wtype, source_location=loc)
-        case wtypes.arc4_dynamic_bytes:
-            native_value: Expression = awst_nodes.BytesConstant(
-                value=literal_value,
-                source_location=loc,
-                encoding=awst_nodes.BytesEncoding.unknown,
-            )
-        case wtypes.arc4_string_wtype if isinstance(literal_value, str):
-            try:
-                literal_bytes = literal_value.encode("utf8")
-            except ValueError as ex:
-                raise CodeError(f"Can't UTF8 encode {literal_value!r}", loc) from ex
-            else:
-                native_value = awst_nodes.BytesConstant(
-                    value=literal_bytes,
-                    encoding=awst_nodes.BytesEncoding.utf8,
-                    source_location=loc,
-                )
-        case wtypes.arc4_bool_wtype:
-            native_value = awst_nodes.BoolConstant(
-                value=literal_value,
-                source_location=loc,
-            )
-
-        case wtypes.ARC4Type():
-            raise CodeError(
-                f"Can't construct {target_type} from Python literal {literal_value}", loc
-            )
+    builder = builder_for_type(target_type, loc)
+    match literal.value:
+        case int():
+            literal_typ = pytypes.IntLiteralType
+        case str():
+            literal_typ = pytypes.StrLiteralType
+        case bytes():
+            literal_typ = pytypes.BytesLiteralType
+        case bool():
+            literal_typ = pytypes.BoolType
         case _:
-            raise InternalError(
-                f"Expected ARC4 type for literal conversion target, got: {target_type}", loc
-            )
-    return awst_nodes.ARC4Encode(
-        value=native_value,
-        wtype=target_wtype,
-        source_location=loc,
-    )
+            typing.assert_never(literal.value)
+    return builder.call(
+        args=[literal],
+        arg_typs=[literal_typ],
+        arg_kinds=[mypy.nodes.ARG_POS],
+        arg_names=[None],
+        location=loc,
+    ).rvalue()
 
 
 def expect_arc4_operand_pytype(
