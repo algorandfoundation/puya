@@ -22,13 +22,13 @@ contract LocalStateContract
     }
     method: bytes = txna<ApplicationArgs, 0>()
     if (txn<NumAppArgs>() == 1u) {
-      if (method == 'get_guaranteed_data') {
+      if (method == hex<"6765745F67756172616E746565645F64617461">) {
         log(this::get_guaranteed_data(txn<Sender>()))
       } else {
-        if (method == 'get_data_or_assert') {
+        if (method == hex<"6765745F646174615F6F725F617373657274">) {
           log(this::get_data_or_assert(txn<Sender>()))
         } else {
-          if (method == 'delete_data') {
+          if (method == hex<"64656C6574655F64617461">) {
             this::delete_data(txn<Sender>())
             log('Deleted')
           } else {
@@ -39,10 +39,10 @@ contract LocalStateContract
       return true
     } else {
       if (txn<NumAppArgs>() == 2u) {
-        if (method == 'set_data') {
+        if (method == hex<"7365745F64617461">) {
           this::set_data(txn<Sender>(), txna<ApplicationArgs, 1>())
         } else {
-          if (method == 'get_data_with_default') {
+          if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
             log(this::get_data_with_default(txn<Sender>(), txna<ApplicationArgs, 1>()))
           } else {
             return false

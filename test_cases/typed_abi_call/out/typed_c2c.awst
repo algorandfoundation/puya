@@ -30,15 +30,15 @@ contract Greeter
   abimethod test_arg_conversion(app: application): void
   {
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('converted1', arc4.string)), ApplicationID=app))
-    assert(txn.LastLog == 'converted1')
+    assert(txn.LastLog == hex<"636F6E76657274656431">)
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(uint64)void"), 2arc4u64), ApplicationID=app))
     assert(txn.LastLog == itob(2u))
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(uint512)void"), 3arc4n512), ApplicationID=app))
     assert(txn.LastLog == bzero(56u) + itob(3u))
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(byte[])void"), arc4_encode(hex<"34">, arc4.dynamic_bytes)), ApplicationID=app))
-    assert(txn.LastLog == '4')
+    assert(txn.LastLog == hex<"34">)
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(bool)void"), arc4_encode(true, arc4.bool)), ApplicationID=app))
-    assert(txn.LastLog == 'True')
+    assert(txn.LastLog == hex<"54727565">)
   }
   
   abimethod test_15plus_args(app: application): void
@@ -50,13 +50,13 @@ contract Greeter
   abimethod test_void(app: application): void
   {
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World1', arc4.string)), ApplicationID=app))
-    assert(txn.LastLog == 'World1')
+    assert(txn.LastLog == hex<"576F726C6431">)
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World2', arc4.string)), ApplicationID=app))
-    assert(txn.LastLog == 'World2')
+    assert(txn.LastLog == hex<"576F726C6432">)
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World3', arc4.string)), ApplicationID=app))
-    assert(txn.LastLog == 'World3')
+    assert(txn.LastLog == hex<"576F726C6433">)
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World4', arc4.string)), ApplicationID=app))
-    assert(txn.LastLog == 'World4')
+    assert(txn.LastLog == hex<"576F726C6434">)
   }
   
   abimethod test_ref_types(app: application, asset: asset): void
@@ -78,7 +78,7 @@ contract Greeter
   abimethod test_native_bytes(app: application): void
   {
     (result1, _txn): tuple<bytes,inner_transaction_appl> = (arc4_decode(reinterpret_cast<arc4.dynamic_bytes>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=26, source=SINGLE_EVAL(id=27, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), arc4_encode(hex<"62">, arc4.dynamic_bytes)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=26, source=SINGLE_EVAL(id=27, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), arc4_encode(hex<"62">, arc4.dynamic_bytes)), ApplicationID=app))).LastLog)) == hex<"151F7C75">))), bytes), SINGLE_EVAL(id=27, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), arc4_encode(hex<"62">, arc4.dynamic_bytes)), ApplicationID=app))))
-    assert(result1 == 'echo: b')
+    assert(result1 == hex<"6563686F3A2062">)
     (result2, _txn): tuple<bytes,inner_transaction_appl> = (arc4_decode(reinterpret_cast<arc4.dynamic_bytes>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=28, source=SINGLE_EVAL(id=29, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), reinterpret_cast<arc4.dynamic_bytes>(concat(substring<6, 8>(itob(len(SINGLE_EVAL(id=30, source=hex<"62">)))), SINGLE_EVAL(id=30, source=hex<"62">)))), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=28, source=SINGLE_EVAL(id=29, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), reinterpret_cast<arc4.dynamic_bytes>(concat(substring<6, 8>(itob(len(SINGLE_EVAL(id=30, source=hex<"62">)))), SINGLE_EVAL(id=30, source=hex<"62">)))), ApplicationID=app))).LastLog)) == hex<"151F7C75">))), bytes), SINGLE_EVAL(id=29, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), reinterpret_cast<arc4.dynamic_bytes>(concat(substring<6, 8>(itob(len(SINGLE_EVAL(id=30, source=hex<"62">)))), SINGLE_EVAL(id=30, source=hex<"62">)))), ApplicationID=app))))
     assert(result2 == result1)
     (result3, _txn): tuple<bytes,inner_transaction_appl> = (arc4_decode(reinterpret_cast<arc4.dynamic_bytes>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=31, source=SINGLE_EVAL(id=32, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), arc4_encode(hex<"62">, arc4.dynamic_bytes)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=31, source=SINGLE_EVAL(id=32, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), arc4_encode(hex<"62">, arc4.dynamic_bytes)), ApplicationID=app))).LastLog)) == hex<"151F7C75">))), bytes), SINGLE_EVAL(id=32, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_bytes(byte[])byte[]"), arc4_encode(hex<"62">, arc4.dynamic_bytes)), ApplicationID=app))))
@@ -111,7 +111,7 @@ contract Greeter
     result1: arc4.tuple<arc4.string,arc4.dynamic_bytes,arc4.uint64,arc4.uint512> = reinterpret_cast<arc4.tuple<arc4.string,arc4.dynamic_bytes,arc4.uint64,arc4.uint512>>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=45, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=45, source=txn.LastLog)) == hex<"151F7C75">)))
     (s, b, u, bu): tuple<arc4.string,arc4.dynamic_bytes,arc4.uint64,arc4.uint512> = arc4_decode(result1, tuple<arc4.string,arc4.dynamic_bytes,arc4.uint64,arc4.uint512>)
     assert(arc4_decode(s, string) == 'echo: s1')
-    assert(extract<2, 0>(reinterpret_cast<bytes>(b)) == 'echo: b1')
+    assert(extract<2, 0>(reinterpret_cast<bytes>(b)) == hex<"6563686F3A206231">)
     assert(arc4_decode(u, uint64) == 2u)
     assert(arc4_decode(bu, biguint) == 3n)
     txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"), arc4_encode('s1', arc4.string), reinterpret_cast<arc4.dynamic_bytes>(concat(substring<6, 8>(itob(len(SINGLE_EVAL(id=46, source=hex<"6231">)))), SINGLE_EVAL(id=46, source=hex<"6231">))), arc4_encode(1u, arc4.uint64), arc4_encode(2n, arc4.uint512)), ApplicationID=app))

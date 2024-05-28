@@ -12,7 +12,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto reinterpret_bool%0#0 ? block@3 : block@10
             block@3: // if_body_L27
                 let awst_tmp%0#0: bytes = (txna ApplicationArgs 0)
-                switch awst_tmp%0#0 {"test1" => block@4, "test2" => block@5, "test3" => block@6, "test4" => block@7, * => return 1u}
+                switch awst_tmp%0#0 {0x7465737431 => block@4, 0x7465737432 => block@5, 0x7465737433 => block@6, 0x7465737434 => block@7, * => return 1u}
             block@4: // switch_case_0_L30
                 test_cases.inner_transactions.contract.MyContract.test1()
                 goto block@10
@@ -40,7 +40,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 3u)
-                ((itxn_field ConfigAssetUnitName) "unit")
+                ((itxn_field ConfigAssetUnitName) 0x756e6974)
                 ((itxn_field ConfigAssetName) name_value%0#0)
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
@@ -54,7 +54,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 3u)
-                ((itxn_field ConfigAssetUnitName) "unit")
+                ((itxn_field ConfigAssetUnitName) 0x756e6974)
                 ((itxn_field ConfigAssetName) name_value%1#0)
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
@@ -62,17 +62,17 @@ contract test_cases.inner_transactions.contract.MyContract:
                 itxn_submit
                 let asset2_txn.ConfigAssetName#0: bytes = (itxn ConfigAssetName)
                 let asset2_txn.CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
-                let tmp%0#0: bool = (== asset1_txn.ConfigAssetName#0 "AST1")
+                let tmp%0#0: bool = (== asset1_txn.ConfigAssetName#0 0x41535431)
                 (assert tmp%0#0) // asset1_txn is correct
-                let tmp%1#0: bool = (== asset2_txn.ConfigAssetName#0 "AST2")
+                let tmp%1#0: bool = (== asset2_txn.ConfigAssetName#0 0x41535432)
                 (assert tmp%1#0) // asset2_txn is correct
                 let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset1_txn.CreatedAssetID#0)
                 (assert check%0#0) // asset exists
-                let tmp%2#0: bool = (== value%0#0 "AST1")
+                let tmp%2#0: bool = (== value%0#0 0x41535431)
                 (assert tmp%2#0) // created asset 1 is correct
                 let (value%1#0: bytes, check%1#0: bool) = ((asset_params_get AssetName) asset2_txn.CreatedAssetID#0)
                 (assert check%1#0) // asset exists
-                let tmp%3#0: bool = (== value%1#0 "AST2")
+                let tmp%3#0: bool = (== value%1#0 0x41535432)
                 (assert tmp%3#0) // created asset 2 is correct
                 itxn_begin
                 ((itxn_field ClearStateProgramPages) 0x098101)
@@ -83,7 +83,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 3u)
-                ((itxn_field ConfigAssetUnitName) "unit")
+                ((itxn_field ConfigAssetUnitName) 0x756e6974)
                 ((itxn_field ConfigAssetName) 0x41535433)
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
@@ -92,20 +92,20 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_create_txn.CreatedApplicationID#0: uint64 = (gitxn 0 CreatedApplicationID)
                 let asset3_txn.ConfigAssetName#0: bytes = (itxn ConfigAssetName)
                 (assert app_create_txn.CreatedApplicationID#0) // created app
-                let tmp%4#0: bool = (== asset3_txn.ConfigAssetName#0 "AST3")
+                let tmp%4#0: bool = (== asset3_txn.ConfigAssetName#0 0x41535433)
                 (assert tmp%4#0) // asset3_txn is correct
                 itxn_begin
-                ((itxn_field Note) "3rd")
+                ((itxn_field Note) 0x337264)
                 ((itxn_field ClearStateProgramPages) 0x098101)
                 ((itxn_field ApprovalProgramPages) 0x098101)
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_next
-                ((itxn_field Note) "3rd")
+                ((itxn_field Note) 0x337264)
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 3u)
-                ((itxn_field ConfigAssetUnitName) "unit")
+                ((itxn_field ConfigAssetUnitName) 0x756e6974)
                 ((itxn_field ConfigAssetName) 0x41535433)
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
@@ -123,14 +123,14 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_params%%ApplicationArgs_length#0: uint64 = 2u
                 let create_app_params%%param_OnCompletion_idx_0#0: uint64 = NoOp
                 let create_app_params%%OnCompletion_length#0: uint64 = 1u
-                let create_app_params%%param_Note_idx_0#0: bytes = "with args param set"
+                let create_app_params%%param_Note_idx_0#0: bytes = 0x77697468206172677320706172616d20736574
                 goto block@3
             block@2: // else_body_L90
                 let create_app_params%%param_ApplicationArgs_idx_0#0: bytes = 0x33
                 let create_app_params%%param_ApplicationArgs_idx_1#0: bytes = 0x34
                 let create_app_params%%param_ApplicationArgs_idx_2#0: bytes = 0x35
                 let create_app_params%%ApplicationArgs_length#0: uint64 = 3u
-                let create_app_params%%param_Note_idx_0#0: bytes = "no args param set"
+                let create_app_params%%param_Note_idx_0#0: bytes = 0x6e6f206172677320706172616d20736574
                 let create_app_params%%OnCompletion_length#0: uint64 = 0u
                 goto block@3
             block@3: // after_if_else_L90
@@ -157,10 +157,10 @@ contract test_cases.inner_transactions.contract.MyContract:
                 itxn_submit
                 let create_app_txn.Note#0: bytes = (itxn Note)
                 let tmp%0#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%1#0: bool = (== tmp%0#0 "1")
+                let tmp%1#0: bool = (== tmp%0#0 0x31)
                 (assert tmp%1#0) // correct args used 1
                 let tmp%2#0: bytes = (itxna ApplicationArgs 1)
-                let tmp%3#0: bool = (== tmp%2#0 "2")
+                let tmp%3#0: bool = (== tmp%2#0 0x32)
                 (assert tmp%3#0) // correct args used 2
                 let tmp%4#0: uint64 = (txn NumAppArgs)
                 let tmp%5#0: bool = (> tmp%4#0 1u)
@@ -175,9 +175,9 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 let tmp%6#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%7#0: bool = (== tmp%6#0 "42")
+                let tmp%7#0: bool = (== tmp%6#0 0x3432)
                 (assert tmp%7#0) // correct args used 2
-                let tmp%8#0: bool = (== create_app_txn.Note#0 "with args param set")
+                let tmp%8#0: bool = (== create_app_txn.Note#0 0x77697468206172677320706172616d20736574)
                 (assert tmp%8#0)
                 goto block@11
             block@11: // after_if_else_L110
@@ -299,52 +299,52 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 let tmp%0#0: bytes = (gitxna 0 Logs 0)
-                let tmp%1#0: bool = (== tmp%0#0 "1")
+                let tmp%1#0: bool = (== tmp%0#0 0x31)
                 (assert tmp%1#0)
                 let tmp%2#0: bytes = (gitxna 1 Logs 0)
-                let tmp%3#0: bool = (== tmp%2#0 "2")
+                let tmp%3#0: bool = (== tmp%2#0 0x32)
                 (assert tmp%3#0)
                 let tmp%4#0: bytes = (gitxna 2 Logs 0)
-                let tmp%5#0: bool = (== tmp%4#0 "3")
+                let tmp%5#0: bool = (== tmp%4#0 0x33)
                 (assert tmp%5#0)
                 let tmp%6#0: bytes = (gitxna 3 Logs 0)
-                let tmp%7#0: bool = (== tmp%6#0 "4")
+                let tmp%7#0: bool = (== tmp%6#0 0x34)
                 (assert tmp%7#0)
                 let tmp%8#0: bytes = (gitxna 4 Logs 0)
-                let tmp%9#0: bool = (== tmp%8#0 "5")
+                let tmp%9#0: bool = (== tmp%8#0 0x35)
                 (assert tmp%9#0)
                 let tmp%10#0: bytes = (gitxna 5 Logs 0)
-                let tmp%11#0: bool = (== tmp%10#0 "6")
+                let tmp%11#0: bool = (== tmp%10#0 0x36)
                 (assert tmp%11#0)
                 let tmp%12#0: bytes = (gitxna 6 Logs 0)
-                let tmp%13#0: bool = (== tmp%12#0 "7")
+                let tmp%13#0: bool = (== tmp%12#0 0x37)
                 (assert tmp%13#0)
                 let tmp%14#0: bytes = (gitxna 7 Logs 0)
-                let tmp%15#0: bool = (== tmp%14#0 "8")
+                let tmp%15#0: bool = (== tmp%14#0 0x38)
                 (assert tmp%15#0)
                 let tmp%16#0: bytes = (gitxna 8 Logs 0)
-                let tmp%17#0: bool = (== tmp%16#0 "9")
+                let tmp%17#0: bool = (== tmp%16#0 0x39)
                 (assert tmp%17#0)
                 let tmp%18#0: bytes = (gitxna 9 Logs 0)
-                let tmp%19#0: bool = (== tmp%18#0 "10")
+                let tmp%19#0: bool = (== tmp%18#0 0x3130)
                 (assert tmp%19#0)
                 let tmp%20#0: bytes = (gitxna 10 Logs 0)
-                let tmp%21#0: bool = (== tmp%20#0 "11")
+                let tmp%21#0: bool = (== tmp%20#0 0x3131)
                 (assert tmp%21#0)
                 let tmp%22#0: bytes = (gitxna 11 Logs 0)
-                let tmp%23#0: bool = (== tmp%22#0 "12")
+                let tmp%23#0: bool = (== tmp%22#0 0x3132)
                 (assert tmp%23#0)
                 let tmp%24#0: bytes = (gitxna 12 Logs 0)
-                let tmp%25#0: bool = (== tmp%24#0 "13")
+                let tmp%25#0: bool = (== tmp%24#0 0x3133)
                 (assert tmp%25#0)
                 let tmp%26#0: bytes = (gitxna 13 Logs 0)
-                let tmp%27#0: bool = (== tmp%26#0 "14")
+                let tmp%27#0: bool = (== tmp%26#0 0x3134)
                 (assert tmp%27#0)
                 let tmp%28#0: bytes = (gitxna 14 Logs 0)
-                let tmp%29#0: bool = (== tmp%28#0 "15")
+                let tmp%29#0: bool = (== tmp%28#0 0x3135)
                 (assert tmp%29#0)
                 let tmp%30#0: bytes = (itxna Logs 0)
-                let tmp%31#0: bool = (== tmp%30#0 "16")
+                let tmp%31#0: bool = (== tmp%30#0 0x3136)
                 (assert tmp%31#0)
                 return 
         

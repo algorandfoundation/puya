@@ -4,28 +4,28 @@ contract Arc4DynamicBytesContract
   {
     total: uint64 = 0u
     dynamic_bytes: arc4.dynamic_bytes = new arc4.dynamic_bytes(2arc4u8, reinterpret_cast<arc4.byte>(3arc4u8), 1arc4u8)
-    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes)) == '\x02\x03\x01')
-    assert(reinterpret_cast<bytes>(dynamic_bytes) == '\x00\x03\x02\x03\x01')
+    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes)) == hex<"020301">)
+    assert(reinterpret_cast<bytes>(dynamic_bytes) == hex<"0003020301">)
     for uint8_item in dynamic_bytes {
       total += arc4_decode(uint8_item, uint64)
     }
     assert(total == 6u, comment="Total should be of dynamic_bytes items")
     dynamic_bytes2: arc4.dynamic_bytes = arc4_encode(hex<"0304">, arc4.dynamic_bytes)
-    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes2)) == '\x03\x04')
-    assert(reinterpret_cast<bytes>(dynamic_bytes2) == '\x00\x02\x03\x04')
+    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes2)) == hex<"0304">)
+    assert(reinterpret_cast<bytes>(dynamic_bytes2) == hex<"00020304">)
     for uint8_item in dynamic_bytes2 {
       total += arc4_decode(uint8_item, uint64)
     }
     dynamic_bytes3: arc4.dynamic_bytes = arc4_encode(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes2)), arc4.dynamic_bytes)
-    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes3)) == '\x03\x04')
-    assert(reinterpret_cast<bytes>(dynamic_bytes3) == '\x00\x02\x03\x04')
+    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes3)) == hex<"0304">)
+    assert(reinterpret_cast<bytes>(dynamic_bytes3) == hex<"00020304">)
     for uint8_item in dynamic_bytes3 {
       total += arc4_decode(uint8_item, uint64)
     }
     assert(total == 20u, comment="Total should now include sum of dynamic_bytes3 items")
     dynamic_bytes3.extend(arc4_encode(hex<"616263">, arc4.dynamic_bytes))
-    assert(reinterpret_cast<bytes>(dynamic_bytes3) == '\x00\x05\x03\x04abc')
-    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes3)) == '\x03\x04abc')
+    assert(reinterpret_cast<bytes>(dynamic_bytes3) == hex<"00050304616263">)
+    assert(extract<2, 0>(reinterpret_cast<bytes>(dynamic_bytes3)) == hex<"0304616263">)
     return true
   }
   

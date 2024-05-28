@@ -12,7 +12,7 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
     sender: account = txn<Sender>()
     if (oca IS IN (UpdateApplication, DeleteApplication)) {
       if (oca == DeleteApplication) {
-        log(hex<"4920776173207573656420"> + test_cases.simplish.contract::itoa(this.counter) + ' time(s) before I died')
+        log(hex<"4920776173207573656420"> + test_cases.simplish.contract::itoa(this.counter) + hex<"2074696D65287329206265666F726520492064696564">)
       }
       return global<CreatorAddress>() == sender
     }
@@ -57,17 +57,17 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
     assert(num_app_args == 2u, comment="insufficient arguments")
     radius: uint64 = btoi(txna<ApplicationArgs, 1>())
     status: bool = true
-    if (method_name == 'circle_area') {
+    if (method_name == hex<"636972636C655F61726561">) {
       area: uint64 = test_cases.simplish.contract::circle_area(radius)
       result: bytes = test_cases.simplish.contract::itoa(area)
     } else {
-      if (method_name == 'circle_circumference') {
+      if (method_name == hex<"636972636C655F63697263756D666572656E6365">) {
         circumference: uint64 = test_cases.simplish.contract::circle_circumference(radius)
         result: bytes = test_cases.simplish.contract::itoa(circumference)
       } else {
-        if (method_name == 'circle_report') {
+        if (method_name == hex<"636972636C655F7265706F7274">) {
           (area, circumference): tuple<uint64,uint64> = (test_cases.simplish.contract::circle_area(radius), test_cases.simplish.contract::circle_circumference(radius))
-          result: bytes = hex<"417070726F78696D617465206172656120616E642063697263756D666572656E6365206F6620636972636C6520776974682072616469757320"> + test_cases.simplish.contract::itoa(radius) + ' = ' + test_cases.simplish.contract::itoa(area) + ', ' + test_cases.simplish.contract::itoa(circumference)
+          result: bytes = hex<"417070726F78696D617465206172656120616E642063697263756D666572656E6365206F6620636972636C6520776974682072616469757320"> + test_cases.simplish.contract::itoa(radius) + hex<"203D20"> + test_cases.simplish.contract::itoa(area) + hex<"2C20"> + test_cases.simplish.contract::itoa(circumference)
         } else {
           status: bool = false
           result: bytes = hex<"756E6B6E6F776E206D6574686F64206E616D65">
@@ -115,9 +115,9 @@ subroutine test_intrinsics(): uint64
   _foo_uint: uint64 = setbit(32u, 0u, 3u)
   _foo_int: uint64 = setbit(32u, 0u, 3u)
   _foo_bytes: bytes = setbit(hex<"3332">, 0u, 3u)
-  test: bytes = app_global_get('foo')
-  app_global_put('b', 'yeah')
-  app_global_del('foo')
+  test: bytes = app_global_get(hex<"666F6F">)
+  app_global_put(hex<"62">, hex<"79656168">)
+  app_global_del(hex<"666F6F">)
   _expect_bytes: bytes = test
   _abcd: tuple<uint64,uint64,uint64,uint64> = divmodw(1u, 2u, 3u, 4u)
   _hello_str: bytes = base64_decode<StdEncoding>(hex<"534756736247383D">)

@@ -11,7 +11,7 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let continue_looping%0#0: bool = (< item_index_internal%0#1 3u)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L16
-                let uint8_item#0: bytes = (extract3 0x020301 item_index_internal%0#1 1u) // on error: Index access is out of bounds
+                let uint8_item#0: bytes = (extract3 0x020301 item_index_internal%0#1 1u)
                 let tmp%3#0: uint64 = (btoi uint8_item#0)
                 let total#2: uint64 = (+ total#1 tmp%3#0)
                 let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -27,14 +27,12 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let continue_looping%1#0: bool = (< item_index_internal%1#1 2u)
                 goto continue_looping%1#0 ? block@6 : block@8
             block@6: // for_body_L25
-                let uint8_item#1: bytes = (extract3 0x0304 item_index_internal%1#1 1u) // on error: Index access is out of bounds
+                let uint8_item#1: bytes = (extract3 0x0304 item_index_internal%1#1 1u)
                 let tmp%8#0: uint64 = (btoi uint8_item#1)
                 let total#4: uint64 = (+ total#3 tmp%8#0)
                 let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
                 goto block@5
             block@8: // after_for_L25
-                let tmp%11#0: bool = 1u
-                (assert tmp%11#0)
                 let item_index_internal%2#0: uint64 = 0u
                 goto block@9
             block@9: // for_header_L32
@@ -43,7 +41,7 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let continue_looping%2#0: bool = (< item_index_internal%2#1 2u)
                 goto continue_looping%2#0 ? block@10 : block@12
             block@10: // for_body_L32
-                let uint8_item#2: bytes = (extract3 0x0304 item_index_internal%2#1 1u) // on error: Index access is out of bounds
+                let uint8_item#2: bytes = (extract3 0x0304 item_index_internal%2#1 1u)
                 let tmp%13#0: uint64 = (btoi uint8_item#2)
                 let total#6: uint64 = (+ total#5 tmp%13#0)
                 let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
@@ -51,15 +49,11 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
             block@12: // after_for_L32
                 let tmp%14#0: bool = (== total#5 20u)
                 (assert tmp%14#0) // Total should now include sum of dynamic_bytes3 items
-                let concatenated%0#0: bytes = 0x0304616263
-                let len_%0#0: uint64 = (len concatenated%0#0)
-                let as_bytes%3#0: bytes = (itob len_%0#0)
-                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%3#0)
-                let dynamic_bytes3#2: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-                let tmp%15#0: bool = (== dynamic_bytes3#2 "\x00\x05\x03\x04abc")
+                let dynamic_bytes3#2: bytes = 0x00050304616263
+                let tmp%15#0: bool = (== dynamic_bytes3#2 0x00050304616263)
                 (assert tmp%15#0)
                 let tmp%16#0: bytes = ((extract 2 0) dynamic_bytes3#2)
-                let tmp%17#0: bool = (== tmp%16#0 "\x03\x04abc")
+                let tmp%17#0: bool = (== tmp%16#0 0x0304616263)
                 (assert tmp%17#0)
                 return 1u
     

@@ -28,19 +28,91 @@ class Node:
     source_location: SourceLocation
 
     def __attrs_post_init__(self) -> None:
+        def format_type_name(obj: object) -> str:
+            if isinstance(obj, type):
+                the_type = obj
+            else:
+                the_type = type(obj)
+            return repr(".".join((the_type.__module__, the_type.__qualname__)))
+
         typ = attrs.resolve_types(type(self))
         for field in attrs.fields(typ):
             field_value = getattr(self, field.name)
-            if isinstance(field.type, types.GenericAlias):
-                field_type = field.type.__origin__
-            else:
+            if not isinstance(field.type, types.GenericAlias):
                 field_type = field.type
-            if not isinstance(field_value, field_type):
-                raise InternalError(
-                    f"Bad type for {field.name!r} on {typ.__name__!r}:"
-                    f" expected {field_type.__name__!r}, got {type(field_value).__name__}",
-                    self.source_location,
-                )
+                if not isinstance(field_value, field_type):
+                    raise InternalError(
+                        f"Bad type for {field.name!r}"
+                        f" on {format_type_name(typ)}:"
+                        f" expected {format_type_name(field_type)},"
+                        f" got {format_type_name(field_value)}",
+                        self.source_location,
+                    )
+            else:
+                field_type = field.type.__origin__
+                if field_type == Mapping:
+                    if not isinstance(field_value, Mapping):
+                        raise InternalError(
+                            f"Bad type for {field.name!r}"
+                            f" on {format_type_name(typ)}:"
+                            f" expected {format_type_name(field_type)},"
+                            f" got {format_type_name(field_value)}",
+                            self.source_location,
+                        )
+                    key_type, value_type = field.type.__args__
+                    for k, v in field_value.items():
+                        if not isinstance(k, key_type):
+                            raise InternalError(
+                                f"Bad type for key data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(key_type)},"
+                                f" got {format_type_name(k)}",
+                                self.source_location,
+                            )
+                        if not isinstance(v, value_type):
+                            raise InternalError(
+                                f"Bad type for value data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(value_type)},"
+                                f" got {format_type_name(v)}",
+                                self.source_location,
+                            )
+                elif field_type in (Sequence, StableSet):
+                    if not isinstance(field_value, field_type):
+                        raise InternalError(
+                            f"Bad type for {field.name!r}"
+                            f" on {format_type_name(typ)}:"
+                            f" expected {format_type_name(field_type)},"
+                            f" got {format_type_name(field_value)}",
+                            self.source_location,
+                        )
+                    (item_type,) = field.type.__args__
+                    for it in field_value:
+                        if not isinstance(it, item_type):
+                            raise InternalError(
+                                f"Bad type for item data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(item_type)},"
+                                f" got {format_type_name(it)}",
+                                self.source_location,
+                            )
+                elif (
+                    field_type == tuple
+                    and len(field.type.__args__) == 2
+                    and field.type.__args__[1] == Ellipsis
+                ):
+                    item_type, _ = field.type.__args__
+                    for it in field_value:
+                        if not isinstance(it, item_type):
+                            raise InternalError(
+                                f"Bad type for item data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(item_type)},"
+                                f" got {format_type_name(it)}",
+                                self.source_location,
+                            )
+                else:
+                    raise InternalError(f"Can't validate generic type {field.type}")
 
 
 @attrs.frozen

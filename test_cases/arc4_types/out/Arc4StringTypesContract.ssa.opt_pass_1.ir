@@ -7,15 +7,15 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
                 let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
                 let some_bytes_as_string#0: bytes = (concat value_as_uint16%0#0 0x48656c6c6f20576f726c6421)
                 let some_bytes_as_bytes_again#0: bytes = ((extract 2 0) some_bytes_as_string#0)
-                let tmp%0#0: bool = (!= some_bytes_as_string#0 "Hello World!")
+                let tmp%0#0: bool = (!= some_bytes_as_string#0 0x48656c6c6f20576f726c6421)
                 (assert tmp%0#0) // Original bytes should not match encoded bytes
                 let length%1#0: uint64 = (len some_bytes_as_string#0)
                 let is_out_of_bounds%0#0: bool = (>= 2u length%1#0)
                 let bounded_index%0#0: uint64 = (select 2u length%1#0 is_out_of_bounds%0#0)
                 let tmp%1#0: bytes = (substring3 some_bytes_as_string#0 bounded_index%0#0 length%1#0)
-                let tmp%2#0: bool = (== tmp%1#0 "Hello World!")
+                let tmp%2#0: bool = (== tmp%1#0 0x48656c6c6f20576f726c6421)
                 (assert tmp%2#0) // Original bytes should match encoded if we strip the length header
-                let tmp%3#0: bool = (== some_bytes_as_bytes_again#0 "Hello World!")
+                let tmp%3#0: bool = (== some_bytes_as_bytes_again#0 0x48656c6c6f20576f726c6421)
                 (assert tmp%3#0)
                 let length%2#0: uint64 = 5u
                 let value_as_bytes%1#0: bytes = (itob length%2#0)

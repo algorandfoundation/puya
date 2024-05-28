@@ -13,18 +13,18 @@ contract BytesContract
     assert(!(reinterpret_cast<bool>(len(empty))), comment="Empty bytes should be Falsy")
     assert(hex<"61"> + hex<"62"> == hex<"6162">)
     c: bytes = hex<"63">
-    c += 'd'
+    c += hex<"64">
     assert(c == hex<"6364">)
     abc: bytes = hex<"616263">
-    assert(abc[0u] == 'a')
-    assert(abc[1:] == 'bc')
-    assert(abc[1:1] == '')
-    assert(abc[:1] == 'a')
-    assert(abc[:-1] == 'ab')
-    assert(abc[-2:] == 'bc')
-    assert(abc[-2:-1] == 'b')
-    assert(hex<"31323334353637">[1:-1] == '23456')
-    assert(abc[-10:10] == 'abc')
+    assert(abc[0u] == hex<"61">)
+    assert(abc[1:] == hex<"6263">)
+    assert(abc[1:1] == hex<"">)
+    assert(abc[:1] == hex<"61">)
+    assert(abc[:-1] == hex<"6162">)
+    assert(abc[-2:] == hex<"6263">)
+    assert(abc[-2:-1] == hex<"62">)
+    assert(hex<"31323334353637">[1:-1] == hex<"3233343536">)
+    assert(abc[-10:10] == hex<"616263">)
     true: bytes = hex<"31">
     false: bytes = hex<"">
     x: bool = (!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true
@@ -63,20 +63,20 @@ subroutine check_slicing_with_uint64(abc: bytes): void
 {
   one: uint64 = 1u
   ten: uint64 = 10u
-  assert(abc[one:] == 'bc')
-  assert(abc[one:one] == '')
-  assert(abc[:one] == 'a')
-  assert(test_cases.stubs.bytes::one_to_seven()[one:-1] == '23456')
-  assert(abc[0u:ten] == 'abc')
+  assert(abc[one:] == hex<"6263">)
+  assert(abc[one:one] == hex<"">)
+  assert(abc[:one] == hex<"61">)
+  assert(test_cases.stubs.bytes::one_to_seven()[one:-1] == hex<"3233343536">)
+  assert(abc[0u:ten] == hex<"616263">)
 }
 
 subroutine check_end_before_start_slicing(abc: bytes): void
 {
-  assert(abc[10:1] == '')
-  assert(abc[-10:-12] == '')
+  assert(abc[10:1] == hex<"">)
+  assert(abc[-10:-12] == hex<"">)
   one: uint64 = 1u
   ten: uint64 = 10u
-  assert(abc[ten:one] == '')
+  assert(abc[ten:one] == hex<"">)
 }
 
 subroutine one_to_seven(): bytes

@@ -16,16 +16,16 @@ contract MyContract
   {
     if (reinterpret_cast<bool>(txn<NumAppArgs>())) {
       switch (SINGLE_EVAL(id=0, source=txna<ApplicationArgs, 0>())) {
-        case 'test1': {
+        case hex<"7465737431">: {
           this::test1()
         }
-        case 'test2': {
+        case hex<"7465737432">: {
           this::test2()
         }
-        case 'test3': {
+        case hex<"7465737433">: {
           this::test3()
         }
-        case 'test4': {
+        case hex<"7465737434">: {
           this::test4()
         }
       }
@@ -41,22 +41,22 @@ contract MyContract
   subroutine test1(): void
   {
     this.name: bytes = hex<"41535431">
-    asset_params: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.name, ConfigAssetUnitName='unit', ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
+    asset_params: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.name, ConfigAssetUnitName=hex<"756E6974">, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
     this.name: bytes = hex<"41535432">
     asset1_txn: inner_transaction_acfg = submit_txn(asset_params)
     update_inner_transaction(asset_params,ConfigAssetName=this.name)
     asset2_txn: inner_transaction_acfg = submit_txn(asset_params)
-    assert(asset1_txn.ConfigAssetName == 'AST1', comment="asset1_txn is correct")
-    assert(asset2_txn.ConfigAssetName == 'AST2', comment="asset2_txn is correct")
-    assert(checked_maybe(asset_params_get<AssetName>(asset1_txn.CreatedAssetID)) == 'AST1', comment="created asset 1 is correct")
-    assert(checked_maybe(asset_params_get<AssetName>(asset2_txn.CreatedAssetID)) == 'AST2', comment="created asset 2 is correct")
+    assert(asset1_txn.ConfigAssetName == hex<"41535431">, comment="asset1_txn is correct")
+    assert(asset2_txn.ConfigAssetName == hex<"41535432">, comment="asset2_txn is correct")
+    assert(checked_maybe(asset_params_get<AssetName>(asset1_txn.CreatedAssetID)) == hex<"41535431">, comment="created asset 1 is correct")
+    assert(checked_maybe(asset_params_get<AssetName>(asset2_txn.CreatedAssetID)) == hex<"41535432">, comment="created asset 2 is correct")
     app_create_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">)
     update_inner_transaction(asset_params,ConfigAssetName=hex<"41535433">)
     (app_create_txn, asset3_txn): tuple<inner_transaction_appl,inner_transaction_acfg> = submit_txn(app_create_params, asset_params)
     assert(reinterpret_cast<bool>(app_create_txn.CreatedApplicationID), comment="created app")
-    assert(asset3_txn.ConfigAssetName == 'AST3', comment="asset3_txn is correct")
-    update_inner_transaction(app_create_params,Note='3rd')
-    update_inner_transaction(asset_params,Note='3rd')
+    assert(asset3_txn.ConfigAssetName == hex<"41535433">, comment="asset3_txn is correct")
+    update_inner_transaction(app_create_params,Note=hex<"337264">)
+    update_inner_transaction(asset_params,Note=hex<"337264">)
     submit_txn(app_create_params, asset_params)
   }
   
@@ -64,17 +64,17 @@ contract MyContract
   {
     if (reinterpret_cast<bool>(txn<NumAppArgs>())) {
       args: tuple<bytes,bytes> = (hex<"31">, hex<"32">)
-      create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=args, OnCompletion=NoOp, Note='with args param set')
+      create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=args, OnCompletion=NoOp, Note=hex<"77697468206172677320706172616D20736574">)
     } else {
-      create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=(hex<"33">, hex<"34">, hex<"35">), Note='no args param set')
+      create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, ApplicationArgs=(hex<"33">, hex<"34">, hex<"35">), Note=hex<"6E6F206172677320706172616D20736574">)
     }
     create_app_txn: inner_transaction_appl = submit_txn(create_app_params)
-    assert(create_app_txn.ApplicationArgs[0u] == '1', comment="correct args used 1")
-    assert(create_app_txn.ApplicationArgs[1u] == '2', comment="correct args used 2")
+    assert(create_app_txn.ApplicationArgs[0u] == hex<"31">, comment="correct args used 1")
+    assert(create_app_txn.ApplicationArgs[1u] == hex<"32">, comment="correct args used 2")
     if (txn<NumAppArgs>() > 1u) {
       create_app_txn2: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3432">)))
-      assert(create_app_txn2.ApplicationArgs[0u] == '42', comment="correct args used 2")
-      assert(create_app_txn.Note == 'with args param set')
+      assert(create_app_txn2.ApplicationArgs[0u] == hex<"3432">, comment="correct args used 2")
+      assert(create_app_txn.Note == hex<"77697468206172677320706172616D20736574">)
     }
   }
   
@@ -112,22 +112,22 @@ contract MyContract
     app_p_16: inner_transaction_fields_appl = app_p_1.copy()
     update_inner_transaction(app_p_16,ApplicationArgs=(hex<"3136">))
     (app1, app2, app3, app4, app5, app6, app7, app8, app9, app10, app11, app12, app13, app14, app15, app16): tuple<inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl,inner_transaction_appl> = submit_txn(app_p_1, app_p_2, app_p_3, app_p_4, app_p_5, app_p_6, app_p_7, app_p_8, app_p_9, app_p_10, app_p_11, app_p_12, app_p_13, app_p_14, app_p_15, app_p_16)
-    assert(app1.Logs[0u] == '1')
-    assert(app2.Logs[0u] == '2')
-    assert(app3.Logs[0u] == '3')
-    assert(app4.Logs[0u] == '4')
-    assert(app5.Logs[0u] == '5')
-    assert(app6.Logs[0u] == '6')
-    assert(app7.Logs[0u] == '7')
-    assert(app8.Logs[0u] == '8')
-    assert(app9.Logs[0u] == '9')
-    assert(app10.Logs[0u] == '10')
-    assert(app11.Logs[0u] == '11')
-    assert(app12.Logs[0u] == '12')
-    assert(app13.Logs[0u] == '13')
-    assert(app14.Logs[0u] == '14')
-    assert(app15.Logs[0u] == '15')
-    assert(app16.Logs[0u] == '16')
+    assert(app1.Logs[0u] == hex<"31">)
+    assert(app2.Logs[0u] == hex<"32">)
+    assert(app3.Logs[0u] == hex<"33">)
+    assert(app4.Logs[0u] == hex<"34">)
+    assert(app5.Logs[0u] == hex<"35">)
+    assert(app6.Logs[0u] == hex<"36">)
+    assert(app7.Logs[0u] == hex<"37">)
+    assert(app8.Logs[0u] == hex<"38">)
+    assert(app9.Logs[0u] == hex<"39">)
+    assert(app10.Logs[0u] == hex<"3130">)
+    assert(app11.Logs[0u] == hex<"3131">)
+    assert(app12.Logs[0u] == hex<"3132">)
+    assert(app13.Logs[0u] == hex<"3133">)
+    assert(app14.Logs[0u] == hex<"3134">)
+    assert(app15.Logs[0u] == hex<"3135">)
+    assert(app16.Logs[0u] == hex<"3136">)
   }
   
   subroutine test4(): void

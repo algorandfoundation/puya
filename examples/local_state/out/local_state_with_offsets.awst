@@ -22,13 +22,13 @@ contract LocalStateContract
     offset: uint64 = btoi(txna<ApplicationArgs, 0>())
     method: bytes = txna<ApplicationArgs, 1>()
     if (txn<NumAppArgs>() == 2u) {
-      if (method == 'get_guaranteed_data') {
+      if (method == hex<"6765745F67756172616E746565645F64617461">) {
         log(this::get_guaranteed_data(offset))
       } else {
-        if (method == 'get_data_or_assert') {
+        if (method == hex<"6765745F646174615F6F725F617373657274">) {
           log(this::get_data_or_assert(offset))
         } else {
-          if (method == 'delete_data') {
+          if (method == hex<"64656C6574655F64617461">) {
             this::delete_data(offset)
             log('Deleted')
           } else {
@@ -39,10 +39,10 @@ contract LocalStateContract
       return true
     } else {
       if (txn<NumAppArgs>() == 3u) {
-        if (method == 'set_data') {
+        if (method == hex<"7365745F64617461">) {
           this::set_data(offset, txna<ApplicationArgs, 2>())
         } else {
-          if (method == 'get_data_with_default') {
+          if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
             log(this::get_data_with_default(offset, txna<ApplicationArgs, 2>()))
           } else {
             return false

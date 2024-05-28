@@ -12,7 +12,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto reinterpret_bool%0#0 ? block@3 : block@10
             block@3: // if_body_L27
                 let awst_tmp%0#0: bytes = (txna ApplicationArgs 0)
-                switch awst_tmp%0#0 {"test1" => block@4, "test2" => block@5, "test3" => block@6, "test4" => block@7, * => block@8}
+                switch awst_tmp%0#0 {0x7465737431 => block@4, 0x7465737432 => block@5, 0x7465737433 => block@6, 0x7465737434 => block@7, * => block@8}
             block@4: // switch_case_0_L30
                 test_cases.inner_transactions.contract.MyContract.test1()
                 goto block@9
@@ -46,7 +46,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert name_exists%0#0) // check name exists
                 let asset_params%%param_ConfigAssetName_idx_0#0: bytes = name_value%0#0
                 let asset_params%%ConfigAssetName_length#0: uint64 = 1u
-                let asset_params%%param_ConfigAssetUnitName_idx_0#0: bytes = "unit"
+                let asset_params%%param_ConfigAssetUnitName_idx_0#0: bytes = 0x756e6974
                 let asset_params%%ConfigAssetUnitName_length#0: uint64 = 1u
                 let asset_params%%param_ConfigAssetDecimals_idx_0#0: uint64 = 3u
                 let asset_params%%ConfigAssetDecimals_length#0: uint64 = 1u
@@ -253,17 +253,17 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset2_txn.StateProofPK#0: bytes = itxn[asset2_txn#0].StateProofPK
                 let asset2_txn.NumApprovalProgramPages#0: uint64 = itxn[asset2_txn#0].NumApprovalProgramPages
                 let asset2_txn.NumClearStateProgramPages#0: uint64 = itxn[asset2_txn#0].NumClearStateProgramPages
-                let tmp%0#0: bool = (== asset1_txn.ConfigAssetName#0 "AST1")
+                let tmp%0#0: bool = (== asset1_txn.ConfigAssetName#0 0x41535431)
                 (assert tmp%0#0) // asset1_txn is correct
-                let tmp%1#0: bool = (== asset2_txn.ConfigAssetName#0 "AST2")
+                let tmp%1#0: bool = (== asset2_txn.ConfigAssetName#0 0x41535432)
                 (assert tmp%1#0) // asset2_txn is correct
                 let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset1_txn.CreatedAssetID#0)
                 (assert check%0#0) // asset exists
-                let tmp%2#0: bool = (== value%0#0 "AST1")
+                let tmp%2#0: bool = (== value%0#0 0x41535431)
                 (assert tmp%2#0) // created asset 1 is correct
                 let (value%1#0: bytes, check%1#0: bool) = ((asset_params_get AssetName) asset2_txn.CreatedAssetID#0)
                 (assert check%1#0) // asset exists
-                let tmp%3#0: bool = (== value%1#0 "AST2")
+                let tmp%3#0: bool = (== value%1#0 0x41535432)
                 (assert tmp%3#0) // created asset 2 is correct
                 let app_create_params#0: itxn_field_set = itxn_field_set(2)
                 let app_create_params%%param_Fee_idx_0#0: uint64 = 0u
@@ -471,13 +471,13 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset3_txn.NumClearStateProgramPages#0: uint64 = itxn[asset3_txn#0].NumClearStateProgramPages
                 let reinterpret_bool%0#0: bool = app_create_txn.CreatedApplicationID#0
                 (assert reinterpret_bool%0#0) // created app
-                let tmp%4#0: bool = (== asset3_txn.ConfigAssetName#0 "AST3")
+                let tmp%4#0: bool = (== asset3_txn.ConfigAssetName#0 0x41535433)
                 (assert tmp%4#0) // asset3_txn is correct
                 let app_create_params#1: itxn_field_set = itxn_field_set(4)
-                let app_create_params%%param_Note_idx_0#0: bytes = "3rd"
+                let app_create_params%%param_Note_idx_0#0: bytes = 0x337264
                 let app_create_params%%Note_length#1: uint64 = 1u
                 let asset_params#3: itxn_field_set = itxn_field_set(5)
-                let asset_params%%param_Note_idx_0#0: bytes = "3rd"
+                let asset_params%%param_Note_idx_0#0: bytes = 0x337264
                 let asset_params%%Note_length#1: uint64 = 1u
                 itxn_begin
                 let is_Note_count_gte_1%0#0: bool = (>= app_create_params%%Note_length#1 1u)
@@ -534,7 +534,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_params%%ApplicationArgs_length#0: uint64 = 2u
                 let create_app_params%%param_OnCompletion_idx_0#0: uint64 = NoOp
                 let create_app_params%%OnCompletion_length#0: uint64 = 1u
-                let create_app_params%%param_Note_idx_0#0: bytes = "with args param set"
+                let create_app_params%%param_Note_idx_0#0: bytes = 0x77697468206172677320706172616d20736574
                 let create_app_params%%Note_length#0: uint64 = 1u
                 let create_app_params%%Sender_length#0: uint64 = 0u
                 let create_app_params%%Receiver_length#0: uint64 = 0u
@@ -595,7 +595,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_params%%param_ApplicationArgs_idx_1#1: bytes = 0x34
                 let create_app_params%%param_ApplicationArgs_idx_2#0: bytes = 0x35
                 let create_app_params%%ApplicationArgs_length#1: uint64 = 3u
-                let create_app_params%%param_Note_idx_0#1: bytes = "no args param set"
+                let create_app_params%%param_Note_idx_0#1: bytes = 0x6e6f206172677320706172616d20736574
                 let create_app_params%%Note_length#1: uint64 = 1u
                 let create_app_params%%Sender_length#1: uint64 = 0u
                 let create_app_params%%Receiver_length#1: uint64 = 0u
@@ -742,10 +742,10 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_txn.NumApprovalProgramPages#0: uint64 = itxn[create_app_txn#0].NumApprovalProgramPages
                 let create_app_txn.NumClearStateProgramPages#0: uint64 = itxn[create_app_txn#0].NumClearStateProgramPages
                 let tmp%0#0: bytes = itxn[create_app_txn#0].ApplicationArgs[0u]
-                let tmp%1#0: bool = (== tmp%0#0 "1")
+                let tmp%1#0: bool = (== tmp%0#0 0x31)
                 (assert tmp%1#0) // correct args used 1
                 let tmp%2#0: bytes = itxn[create_app_txn#0].ApplicationArgs[1u]
-                let tmp%3#0: bool = (== tmp%2#0 "2")
+                let tmp%3#0: bool = (== tmp%2#0 0x32)
                 (assert tmp%3#0) // correct args used 2
                 let tmp%4#0: uint64 = (txn NumAppArgs)
                 let tmp%5#0: bool = (> tmp%4#0 1u)
@@ -883,9 +883,9 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_txn2.NumApprovalProgramPages#0: uint64 = itxn[create_app_txn2#0].NumApprovalProgramPages
                 let create_app_txn2.NumClearStateProgramPages#0: uint64 = itxn[create_app_txn2#0].NumClearStateProgramPages
                 let tmp%6#0: bytes = itxn[create_app_txn2#0].ApplicationArgs[0u]
-                let tmp%7#0: bool = (== tmp%6#0 "42")
+                let tmp%7#0: bool = (== tmp%6#0 0x3432)
                 (assert tmp%7#0) // correct args used 2
-                let tmp%8#0: bool = (== create_app_txn.Note#0 "with args param set")
+                let tmp%8#0: bool = (== create_app_txn.Note#0 0x77697468206172677320706172616d20736574)
                 (assert tmp%8#0)
                 goto block@11
             block@11: // after_if_else_L110
@@ -3005,52 +3005,52 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app16.NumApprovalProgramPages#0: uint64 = itxn[app16#0].NumApprovalProgramPages
                 let app16.NumClearStateProgramPages#0: uint64 = itxn[app16#0].NumClearStateProgramPages
                 let tmp%0#0: bytes = itxn[app1#0].Logs[0u]
-                let tmp%1#0: bool = (== tmp%0#0 "1")
+                let tmp%1#0: bool = (== tmp%0#0 0x31)
                 (assert tmp%1#0)
                 let tmp%2#0: bytes = itxn[app2#0].Logs[0u]
-                let tmp%3#0: bool = (== tmp%2#0 "2")
+                let tmp%3#0: bool = (== tmp%2#0 0x32)
                 (assert tmp%3#0)
                 let tmp%4#0: bytes = itxn[app3#0].Logs[0u]
-                let tmp%5#0: bool = (== tmp%4#0 "3")
+                let tmp%5#0: bool = (== tmp%4#0 0x33)
                 (assert tmp%5#0)
                 let tmp%6#0: bytes = itxn[app4#0].Logs[0u]
-                let tmp%7#0: bool = (== tmp%6#0 "4")
+                let tmp%7#0: bool = (== tmp%6#0 0x34)
                 (assert tmp%7#0)
                 let tmp%8#0: bytes = itxn[app5#0].Logs[0u]
-                let tmp%9#0: bool = (== tmp%8#0 "5")
+                let tmp%9#0: bool = (== tmp%8#0 0x35)
                 (assert tmp%9#0)
                 let tmp%10#0: bytes = itxn[app6#0].Logs[0u]
-                let tmp%11#0: bool = (== tmp%10#0 "6")
+                let tmp%11#0: bool = (== tmp%10#0 0x36)
                 (assert tmp%11#0)
                 let tmp%12#0: bytes = itxn[app7#0].Logs[0u]
-                let tmp%13#0: bool = (== tmp%12#0 "7")
+                let tmp%13#0: bool = (== tmp%12#0 0x37)
                 (assert tmp%13#0)
                 let tmp%14#0: bytes = itxn[app8#0].Logs[0u]
-                let tmp%15#0: bool = (== tmp%14#0 "8")
+                let tmp%15#0: bool = (== tmp%14#0 0x38)
                 (assert tmp%15#0)
                 let tmp%16#0: bytes = itxn[app9#0].Logs[0u]
-                let tmp%17#0: bool = (== tmp%16#0 "9")
+                let tmp%17#0: bool = (== tmp%16#0 0x39)
                 (assert tmp%17#0)
                 let tmp%18#0: bytes = itxn[app10#0].Logs[0u]
-                let tmp%19#0: bool = (== tmp%18#0 "10")
+                let tmp%19#0: bool = (== tmp%18#0 0x3130)
                 (assert tmp%19#0)
                 let tmp%20#0: bytes = itxn[app11#0].Logs[0u]
-                let tmp%21#0: bool = (== tmp%20#0 "11")
+                let tmp%21#0: bool = (== tmp%20#0 0x3131)
                 (assert tmp%21#0)
                 let tmp%22#0: bytes = itxn[app12#0].Logs[0u]
-                let tmp%23#0: bool = (== tmp%22#0 "12")
+                let tmp%23#0: bool = (== tmp%22#0 0x3132)
                 (assert tmp%23#0)
                 let tmp%24#0: bytes = itxn[app13#0].Logs[0u]
-                let tmp%25#0: bool = (== tmp%24#0 "13")
+                let tmp%25#0: bool = (== tmp%24#0 0x3133)
                 (assert tmp%25#0)
                 let tmp%26#0: bytes = itxn[app14#0].Logs[0u]
-                let tmp%27#0: bool = (== tmp%26#0 "14")
+                let tmp%27#0: bool = (== tmp%26#0 0x3134)
                 (assert tmp%27#0)
                 let tmp%28#0: bytes = itxn[app15#0].Logs[0u]
-                let tmp%29#0: bool = (== tmp%28#0 "15")
+                let tmp%29#0: bool = (== tmp%28#0 0x3135)
                 (assert tmp%29#0)
                 let tmp%30#0: bytes = itxn[app16#0].Logs[0u]
-                let tmp%31#0: bool = (== tmp%30#0 "16")
+                let tmp%31#0: bool = (== tmp%30#0 0x3136)
                 (assert tmp%31#0)
                 return 
         

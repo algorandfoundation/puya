@@ -2,7 +2,7 @@
 
 test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
     int 0
-    dup
+    dupn 2
     byte ""
     dupn 3
     // arc4_types/dynamic_bytes.py:11
@@ -10,56 +10,54 @@ test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
     int 0
     // arc4_types/dynamic_bytes.py:12
     // dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)
-    byte 0x
+    byte 0x0003
     byte 0x02
     concat
     byte 0x03
     concat
     byte 0x01
     concat
-    byte 0x0003
-    uncover 1
-    concat
-    dup
-    cover 1
     // arc4_types/dynamic_bytes.py:13
     // assert dynamic_bytes.native == b"\x02\x03\x01"
     dup
     extract 2 0
-    byte "\x02\x03\x01"
+    byte 0x020301
     ==
     assert
     // arc4_types/dynamic_bytes.py:14
     // assert dynamic_bytes.bytes == b"\x00\x03\x02\x03\x01"
     dup
-    byte "\x00\x03\x02\x03\x01"
+    byte 0x0003020301
     ==
     assert
     // arc4_types/dynamic_bytes.py:16
     // for uint8_item in dynamic_bytes:
+    dup
     int 0
     extract_uint16
+    swap
+    extract 2 0
     int 0
 
 main_for_header@1:
     // arc4_types/dynamic_bytes.py:16
     // for uint8_item in dynamic_bytes:
     dup
-    dig 2
+    dig 3
     <
     bz main_after_for@4
-    dig 2
-    extract 2 0
-    dig 1
+    dup
     int 1
     *
+    dig 2
+    swap
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     // arc4_types/dynamic_bytes.py:17
     // total += uint8_item.native
     btoi
     dig 4
-    uncover 1
+    swap
     +
     bury 4
     dup
@@ -77,32 +75,36 @@ main_after_for@4:
     assert // Total should be of dynamic_bytes items
     // arc4_types/dynamic_bytes.py:21
     // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x0304
-    len
-    itob
-    extract 6 2
-    byte 0x0304
-    concat
-    dup
-    bury 11
+    byte 0x00020304
     // arc4_types/dynamic_bytes.py:22
     // assert dynamic_bytes2.native == b"\x03\x04"
-    dup
     extract 2 0
-    byte "\x03\x04"
+    byte 0x0304
     ==
     assert
+    // arc4_types/dynamic_bytes.py:21
+    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
+    byte 0x00020304
     // arc4_types/dynamic_bytes.py:23
     // assert dynamic_bytes2.bytes == b"\x00\x02\x03\x04"
-    dup
-    byte "\x00\x02\x03\x04"
+    byte 0x00020304
     ==
     assert
+    // arc4_types/dynamic_bytes.py:21
+    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
+    byte 0x00020304
     // arc4_types/dynamic_bytes.py:25
     // for uint8_item in dynamic_bytes2:
     int 0
     extract_uint16
     bury 8
+    // arc4_types/dynamic_bytes.py:21
+    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
+    byte 0x00020304
+    // arc4_types/dynamic_bytes.py:25
+    // for uint8_item in dynamic_bytes2:
+    extract 2 0
+    bury 11
     int 0
     bury 6
 
@@ -113,18 +115,18 @@ main_for_header@5:
     dig 8
     <
     bz main_after_for@8
-    dig 9
-    extract 2 0
-    dig 6
+    dig 5
     int 1
     *
+    dig 11
+    swap
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     // arc4_types/dynamic_bytes.py:26
     // total += uint8_item.native
     btoi
     dig 4
-    uncover 1
+    swap
     +
     bury 4
     dig 5
@@ -134,15 +136,17 @@ main_for_header@5:
     b main_for_header@5
 
 main_after_for@8:
+    // arc4_types/dynamic_bytes.py:21
+    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
+    byte 0x00020304
     // arc4_types/dynamic_bytes.py:28
     // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
-    dig 9
     extract 2 0
     dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     dup
     bury 10
@@ -150,20 +154,23 @@ main_after_for@8:
     // assert dynamic_bytes3.native == b"\x03\x04"
     dup
     extract 2 0
-    byte "\x03\x04"
+    byte 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:30
     // assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
     dup
-    byte "\x00\x02\x03\x04"
+    byte 0x00020304
     ==
     assert
     // arc4_types/dynamic_bytes.py:32
     // for uint8_item in dynamic_bytes3:
+    dup
     int 0
     extract_uint16
-    bury 7
+    bury 8
+    extract 2 0
+    bury 10
     int 0
     bury 5
 
@@ -174,18 +181,18 @@ main_for_header@9:
     dig 7
     <
     bz main_after_for@12
-    dig 8
-    extract 2 0
-    dig 5
+    dig 4
     int 1
     *
+    dig 10
+    swap
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     // arc4_types/dynamic_bytes.py:33
     // total += uint8_item.native
     btoi
     dig 4
-    uncover 1
+    swap
     +
     bury 4
     dig 4
@@ -205,30 +212,25 @@ main_after_for@12:
     // dynamic_bytes3.extend(DynamicBytes(b"abc"))
     dig 8
     extract 2 0
-    byte 0x616263
-    len
-    itob
-    extract 6 2
-    byte 0x616263
-    concat
+    byte 0x0003616263
     extract 2 0
     concat
     dup
     len
     itob
-    extract 6 2
-    uncover 1
+    extract 6 0
+    swap
     concat
     // arc4_types/dynamic_bytes.py:38
     // assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
     dup
-    byte "\x00\x05\x03\x04abc"
+    byte 0x00050304616263
     ==
     assert
     // arc4_types/dynamic_bytes.py:39
     // assert dynamic_bytes3.native == b"\x03\x04abc"
     extract 2 0
-    byte "\x03\x04abc"
+    byte 0x0304616263
     ==
     assert
     // arc4_types/dynamic_bytes.py:41

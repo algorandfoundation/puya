@@ -12,11 +12,11 @@ contract Reference
   approval_program(): bool
   {
     if (txn<NumAppArgs>() == 1u) {
-      if (txna<ApplicationArgs, 0>() == 'opt_in') {
+      if (txna<ApplicationArgs, 0>() == hex<"6F70745F696E">) {
         asset: asset = txna<Assets, 0>()
         this::opt_into_asset(asset)
       } else {
-        if (txna<ApplicationArgs, 0>() == 'is_opted_in') {
+        if (txna<ApplicationArgs, 0>() == hex<"69735F6F707465645F696E">) {
           asset: asset = txna<Assets, 0>()
           this::is_opted_asset(asset)
         } else {
@@ -51,9 +51,9 @@ contract Reference
     assert(checked_maybe(asset_params_get<AssetTotal>(asset)) == 10000000u, comment="total")
     assert(checked_maybe(asset_params_get<AssetDecimals>(asset)) == 0u, comment="decimals")
     assert(!(checked_maybe(asset_params_get<AssetDefaultFrozen>(asset))), comment="default frozen")
-    assert(checked_maybe(asset_params_get<AssetUnitName>(asset)) == 'a', comment="unit_name")
-    assert(checked_maybe(asset_params_get<AssetName>(asset)) == 'asset a', comment="name")
-    assert(checked_maybe(asset_params_get<AssetURL>(asset)) == '', comment="URL")
+    assert(checked_maybe(asset_params_get<AssetUnitName>(asset)) == hex<"61">, comment="unit_name")
+    assert(checked_maybe(asset_params_get<AssetName>(asset)) == hex<"61737365742061">, comment="name")
+    assert(checked_maybe(asset_params_get<AssetURL>(asset)) == hex<"">, comment="URL")
     assert(checked_maybe(asset_params_get<AssetMetadataHash>(asset)) == bzero(32u), comment="hash")
     assert(checked_maybe(asset_params_get<AssetManager>(asset)) == global<ZeroAddress>(), comment="manager")
     assert(checked_maybe(asset_params_get<AssetReserve>(asset)) == global<ZeroAddress>(), comment="reserve")

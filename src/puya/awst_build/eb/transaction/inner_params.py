@@ -26,8 +26,8 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
-from puya.errors import CodeError
+from puya.awst_build.utils import convert_literal, expect_operand_type
+from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -47,7 +47,7 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
         field, field_pytype = _parameter_mapping[arg_name]
     except KeyError as ex:
         raise CodeError(f"{arg_name} is not a valid keyword argument", arg.source_location) from ex
-    if remapped_field := _maybe_transform_program_field_expr(field, field_pytype, arg):
+    if remapped_field := _maybe_transform_program_field_expr(field, arg):
         return remapped_field
     elif field.is_array:
         match arg:
@@ -58,33 +58,43 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
                 expr = arg.rvalue()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    elif (
-        isinstance(arg, ExpressionBuilder) and arg.value_type and field.valid_type(arg.value_type)
-    ):
+    elif isinstance(arg, ExpressionBuilder):
+        if not (arg.value_type and field.valid_type(arg.value_type)):
+            raise CodeError("bad argument type", arg.source_location)
         field_expr = arg.rvalue()
+    elif isinstance(arg, Literal):
+        # TODO: REMOVE HACK
+        if wtypes.string_wtype in field.additional_input_wtypes and isinstance(arg.value, str):
+            field_expr = convert_literal(arg, pytypes.StringType)
+        else:
+            field_expr = convert_literal(arg, field_pytype)
     else:
-        field_expr = expect_operand_type(arg, field_pytype)
+        typing.assert_never(arg)
     return field, field_expr
 
 
 def _maybe_transform_program_field_expr(
-    field: TxnField, field_pytype: pytypes.PyType, eb: ExpressionBuilder | Literal
+    field: TxnField, eb: ExpressionBuilder | Literal
 ) -> tuple[TxnField, Expression] | None:
-    immediate = field.immediate
-    if immediate not in ("ApprovalProgram", "ClearStateProgram"):
-        return None
-    field = (
-        TxnFields.approval_program_pages
-        if immediate == "ApprovalProgram"
-        else TxnFields.clear_state_program_pages
-    )
+    match field.immediate:
+        case "ApprovalProgram":
+            field = TxnFields.approval_program_pages
+        case "ClearStateProgram":
+            field = TxnFields.clear_state_program_pages
+        case _:
+            return None
+    if field.wtype != wtypes.bytes_wtype:
+        raise InternalError(
+            f"Unhandled type for program pages field: {field.wtype}", eb.source_location
+        )
+
     match eb:
-        case ValueExpressionBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
-            field.valid_type(t.wtype) for t in tuple_item_types  # TODO: revisit this re serialize
+        case ExpressionBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+            t == pytypes.BytesType for t in tuple_item_types  # TODO: revisit this re serialize
         ):
             expr = eb.rvalue()
         case _:
-            expr = expect_operand_type(eb, field_pytype)
+            expr = expect_operand_type(eb, pytypes.BytesType)
     return field, expr
 
 
