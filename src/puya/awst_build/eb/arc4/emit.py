@@ -6,11 +6,13 @@ from typing import TYPE_CHECKING
 import mypy.nodes
 
 from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
-from puya.awst.nodes import Literal, MethodConstant
+from puya.awst.nodes import Expression, MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -25,22 +27,15 @@ class EmitBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case [
-                ExpressionBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
-            ] if pytypes.ARC4StructBaseType in struct_type.mro:
-                event_name = struct_type.name.split(".")[-1]
-                event_arg = event_arg_eb.rvalue()
-            case [Literal(value=str(event_str)), *event_args]:
-                arc4_args, signature = get_arc4_args_and_signature(
-                    event_str, arg_typs[1:], event_args, location
-                )
+    ) -> InstanceBuilder:
+        inst_args = [require_instance_builder(a) for a in args]
+        match inst_args:
+            case [LiteralBuilder(value=str(event_str)), *event_args]:
+                arc4_args, signature = get_arc4_args_and_signature(event_str, event_args, location)
                 if signature.return_type is not None:
                     after_args = pytype_to_arc4(signature.return_type)
                     raise CodeError(
@@ -48,10 +43,14 @@ class EmitBuilder(FunctionBuilder):
                         location,
                     )
                 event_name = signature.method_name
-                event_arg = arc4_tuple_from_items(
-                    arc4_args,
-                    location,
+                event_arg: Expression = arc4_tuple_from_items(
+                    [a.resolve() for a in arc4_args], location
                 )
+            case [
+                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
+            ] if pytypes.ARC4StructBaseType in struct_type.mro:
+                event_name = struct_type.name.split(".")[-1]
+                event_arg = event_arg_eb.resolve()
             case _:
                 raise CodeError("Unexpected arguments", location)
         event_sig = f"{event_name}{wtype_to_arc4(event_arg.wtype)}"

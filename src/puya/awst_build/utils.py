@@ -1,6 +1,8 @@
+import contextlib
 import operator
 import re
 import typing
+import warnings
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
 import mypy.build
@@ -13,18 +15,16 @@ from puya.awst.nodes import (
     BoolConstant,
     ConstantValue,
     ContractReference,
-    Expression,
-    Literal,
-    NumericComparison,
-    NumericComparisonExpression,
-    SingleEvaluation,
-    UInt64BinaryOperation,
-    UInt64BinaryOperator,
-    UInt64Constant,
 )
-from puya.awst_build import constants, intrinsic_factory, pytypes
+from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_type
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -84,11 +84,28 @@ UNARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any], typing.Any]]] = {
 }
 
 
+@contextlib.contextmanager
+def _log_warnings(location: SourceLocation) -> Iterator[None]:
+    folding_warnings = []
+    try:
+        with warnings.catch_warnings(record=True, action="always") as folding_warnings:
+            yield
+    finally:
+        for warning in folding_warnings:
+            logger.warning(warning.message, location=location)
+
+
 def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> ConstantValue:
     if not (func := UNARY_OPS.get(op)):
         raise InternalError(f"Unhandled unary operator: {op}", location)
+    if op == "~" and isinstance(expr, int):
+        logger.warning(
+            "due to Python ints being signed, bitwise inversion yield a negative number",
+            location=location,
+        )
     try:
-        result = func(expr)
+        with _log_warnings(location):
+            result = func(expr)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
@@ -136,7 +153,8 @@ def fold_binary_expr(
     if not (func := BINARY_OPS.get(op)):
         raise InternalError(f"Unhandled binary operator: {op}", location)
     try:
-        result = func(lhs, rhs)
+        with _log_warnings(location):
+            result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
@@ -146,96 +164,50 @@ def fold_binary_expr(
     return typing.cast(ConstantValue, result)
 
 
-def require_expression_builder(
-    builder_or_literal: ExpressionBuilder | Literal,
+def require_instance_builder(
+    builder_or_literal: NodeBuilder,
     *,
-    msg: str = "A Python literal is not valid at this location",
-) -> ExpressionBuilder:
-    from puya.awst_build.eb.bool import BoolExpressionBuilder
-
+    non_instance_msg: str = "expression is not a value",
+) -> InstanceBuilder:
     match builder_or_literal:
-        case Literal(value=bool(value), source_location=literal_location):
-            return BoolExpressionBuilder(
-                BoolConstant(value=value, source_location=literal_location)
-            )
-        case Literal(source_location=literal_location):
-            raise CodeError(msg, literal_location)
-        case ExpressionBuilder() as builder:
+        case InstanceBuilder() as builder:
             return builder
+        case NodeBuilder(source_location=non_value_location):
+            raise CodeError(non_instance_msg, non_value_location)
         case _:
             typing.assert_never(builder_or_literal)
 
 
-def expect_operand_type(
-    literal_or_eb: Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> Expression:
-    if isinstance(literal_or_eb, Literal):
-        return convert_literal(literal_or_eb, target_type)
-    if literal_or_eb.pytype != target_type:
+def expect_operand_type(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+    operand = require_instance_builder(operand)
+    operand = maybe_resolve_literal(operand, target_type)
+    if operand.pytype != target_type:
         raise CodeError(
-            f"Expected type {target_type}, got type {literal_or_eb.pytype}",
-            literal_or_eb.source_location,
+            f"Expected type {target_type}, got type {operand.pytype}", operand.source_location
         )
-    return literal_or_eb.rvalue()
+    return operand
 
 
-def convert_literal(literal_or_expr: Literal, target_type: pytypes.PyType) -> Expression:
-    from puya.awst_build.eb._utils import construct_from_literal
-
-    return construct_from_literal(literal_or_expr, target_type).rvalue()
-    # loc = literal_or_expr.source_location
-    # match literal_or_expr.value, target_wtype:
-    #     case bool(bool_value), wtypes.bool_wtype:
-    #         return BoolConstant(value=bool_value, source_location=loc)
-    #     case int(int_value), wtypes.uint64_wtype | wtypes.biguint_wtype:
-    #         return IntegerConstant(value=int_value, wtype=target_wtype, source_location=loc)
-    #     case bytes(bytes_value), wtypes.bytes_wtype:
-    #         try:
-    #             # TODO: YEET ME
-    #             bytes_value.decode("utf8")
-    #         except ValueError:
-    #             encoding = BytesEncoding.unknown
-    #         else:
-    #             encoding = BytesEncoding.utf8
-    #         return BytesConstant(value=bytes_value, encoding=encoding, source_location=loc)
-    #     case str(str_value), wtypes.bytes_wtype:
-    #         return BytesConstant(
-    #             value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
-    #         )
-    #     case str(str_value), wtypes.string_wtype:
-    #         return StringConstant(value=str_value, source_location=loc)
-    #     case str(str_value), wtypes.account_wtype:
-    #         return AddressConstant(value=str_value, source_location=loc)
-    #     case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:
-    #         return ReinterpretCast(
-    #             expr=UInt64Constant(value=int_value, source_location=loc),
-    #             wtype=target_wtype,
-    #             source_location=loc,
-    #         )
-    # raise CodeError(
-    #     f"Can't construct {target_wtype} from Python literal {literal_or_expr.value!r}", loc
-    # )
-
-
-def convert_literal_to_expr(
-    literal_or_expr: Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> Expression:
-    if isinstance(literal_or_expr, Literal):
-        return convert_literal(literal_or_expr, target_type)
-    else:
-        return literal_or_expr.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
+def require_instance_builder_of_type(
+    builder: NodeBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
+    builder = require_instance_builder(builder)
+    if builder.pytype != target_type:
+        raise CodeError(
+            f"Expected type {target_type}, got type {builder.pytype}",
+            builder.source_location,
+        )
+    return builder
 
 
 def bool_eval(
-    builder_or_literal: ExpressionBuilder | Literal, loc: SourceLocation, *, negate: bool = False
-) -> ExpressionBuilder:
+    builder_or_literal: NodeBuilder, loc: SourceLocation
+) -> InstanceBuilder:  # TODO: yeet me
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
-    if isinstance(builder_or_literal, ExpressionBuilder):
-        return builder_or_literal.bool_eval(location=loc, negate=negate)
+    if not isinstance(builder_or_literal, LiteralBuilder):
+        return builder_or_literal.bool_eval(location=loc)
     constant_value = bool(builder_or_literal.value)
-    if negate:
-        constant_value = not constant_value
     return BoolExpressionBuilder(BoolConstant(value=constant_value, source_location=loc))
 
 
@@ -307,56 +279,6 @@ def snake_case(s: str) -> str:
     return re.sub(r"[-\s]", "_", s).lower()
 
 
-def eval_slice_component(
-    len_expr: Expression, val: ExpressionBuilder | Literal | None, location: SourceLocation
-) -> Expression | None:
-    if val is None:
-        return None
-
-    if isinstance(val, ExpressionBuilder):
-        # no negatives to deal with here, easy
-        index_expr = expect_operand_type(val, pytypes.UInt64Type)
-        temp_index = SingleEvaluation(index_expr)
-        return intrinsic_factory.select(
-            false=len_expr,
-            true=temp_index,
-            condition=NumericComparisonExpression(
-                lhs=temp_index,
-                operator=NumericComparison.lt,
-                rhs=len_expr,
-                source_location=location,
-            ),
-            loc=location,
-        )
-
-    int_lit = val.value
-    if not isinstance(int_lit, int):
-        raise CodeError(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
-    # take the min of abs(int_lit) and len(self.expr)
-    abs_lit_expr = UInt64Constant(value=abs(int_lit), source_location=val.source_location)
-    trunc_value_expr = intrinsic_factory.select(
-        false=len_expr,
-        true=abs_lit_expr,
-        condition=NumericComparisonExpression(
-            lhs=abs_lit_expr,
-            operator=NumericComparison.lt,
-            rhs=len_expr,
-            source_location=location,
-        ),
-        loc=location,
-    )
-    return (
-        trunc_value_expr
-        if int_lit >= 0
-        else UInt64BinaryOperation(
-            left=len_expr,
-            op=UInt64BinaryOperator.sub,
-            right=trunc_value_expr,
-            source_location=location,
-        )
-    )
-
-
 def resolve_method_from_type_info(
     type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
 ) -> mypy.nodes.FuncBase | mypy.nodes.Decorator | None:
@@ -388,3 +310,13 @@ def resolve_method_from_type_info(
                 location=location,
             )
             raise CodeError(f"unsupported reference to non-function member {name!r}", location)
+
+
+def maybe_resolve_literal(
+    operand: InstanceBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
+    if operand.pytype != target_type:
+        target_type_builder = builder_for_type(target_type, operand.source_location)
+        if isinstance(target_type_builder, LiteralConverter):
+            operand = operand.resolve_literal(target_type_builder)
+    return operand

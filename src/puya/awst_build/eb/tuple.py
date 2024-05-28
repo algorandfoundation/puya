@@ -11,25 +11,28 @@ from puya.awst.nodes import (
     Contains,
     Expression,
     IntegerConstant,
-    Literal,
     SliceExpression,
     TupleExpression,
     TupleItemExpression,
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.base import (
-    BuilderComparisonOp,
-    ExpressionBuilder,
-    GenericClassExpressionBuilder,
-    Iteration,
-    TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
+from puya.awst_build.eb._base import (
+    GenericTypeBuilder,
+    InstanceExpressionBuilder,
+    TypeBuilder,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import require_expression_builder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    Iteration,
+    LiteralBuilder,
+    NodeBuilder,
+)
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -37,24 +40,22 @@ from puya.utils import clamp, positive_index
 logger = log.get_logger(__name__)
 
 
-class GenericTupleTypeExpressionBuilder(GenericClassExpressionBuilder):
+class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        typ = pytypes.GenericTupleType.parameterise(arg_typs, location)
-        tuple_expr = TupleExpression.from_items(
-            [require_expression_builder(a).rvalue() for a in args], location
-        )
+    ) -> InstanceBuilder:
+        inst_args = [require_instance_builder(a) for a in args]
+        typ = pytypes.GenericTupleType.parameterise([ia.pytype for ia in inst_args], location)
+        tuple_expr = TupleExpression.from_items([ia.resolve() for ia in inst_args], location)
         return TupleExpressionBuilder(tuple_expr, typ)
 
 
-class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[pytypes.TupleType]):
+class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericTupleType
@@ -66,35 +67,37 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[pytypes.TupleType]):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
 
         tuple_expr = TupleExpression(
-            items=[require_expression_builder(a).rvalue() for a in args],
+            items=[require_instance_builder(a).resolve() for a in args],
             wtype=self._wtype,
             source_location=location,
         )
-        return TupleExpressionBuilder(tuple_expr, self.produces2())
+        return TupleExpressionBuilder(tuple_expr, self.produces())
 
 
-class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
+class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, expr)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
+    @typing.override
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError(f"cannot serialize {self.pytype}", location)
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the
         # result type, but also we can statically validate that value
         index_expr_or_literal = index
         match index_expr_or_literal:
-            case Literal(value=int(index_value)):
+            case LiteralBuilder(value=int(index_value)):
                 return self._index(index_value, location)
             case _:
                 raise CodeError(
@@ -102,25 +105,26 @@ class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
                     index_expr_or_literal.source_location,
                 )
 
-    def _index(self, index_value: int, location: SourceLocation) -> ExpressionBuilder:
+    def _index(self, index_value: int, location: SourceLocation) -> InstanceBuilder:
         try:
             item_typ = self.pytype.items[index_value]
         except IndexError as ex:
             raise CodeError("Tuple index out of bounds", location) from ex
         item_expr = TupleItemExpression(
-            base=self.expr,
+            base=self.resolve(),
             index=index_value,
             source_location=location,
         )
         return builder_for_instance(item_typ, item_expr)
 
+    @typing.override
     def slice_index(
         self,
-        begin_index: ExpressionBuilder | Literal | None,
-        end_index: ExpressionBuilder | Literal | None,
-        stride: ExpressionBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         if stride is not None:
             raise CodeError("Stride is not supported", location=stride.source_location)
 
@@ -135,7 +139,7 @@ class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
         return TupleExpressionBuilder(
             SliceExpression(
                 source_location=location,
-                base=self.expr,
+                base=self.resolve(),
                 begin_index=start_expr,
                 end_index=end_expr,
                 wtype=updated_wtype,
@@ -144,13 +148,13 @@ class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
         )
 
     def _convert_index(
-        self, index: ExpressionBuilder | Literal | None
+        self, index: NodeBuilder | None
     ) -> tuple[IntegerConstant | None, int | None]:
         match index:
             case None:
                 expr = None
                 idx = None
-            case Literal(value=int(idx), source_location=start_loc):
+            case LiteralBuilder(value=int(idx), source_location=start_loc):
                 positive_idx = positive_index(idx, self.pytype.items)
                 positive_idx_clamped = clamp(positive_idx, low=0, high=len(self.pytype.items) - 1)
                 expr = UInt64Constant(value=positive_idx_clamped, source_location=start_loc)
@@ -160,26 +164,28 @@ class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
                 )
         return expr, idx
 
+    @typing.override
     def iterate(self) -> Iteration:
-        return self.rvalue()
+        return self.resolve()
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        if isinstance(item, Literal):
+    @typing.override
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        if isinstance(item, LiteralBuilder):
             raise CodeError(
                 "Cannot use in/not in check with a Python literal against a tuple", location
             )
-        item_expr = item.rvalue()
-        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
+        item_expr = item.resolve()
+        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.resolve())
         return BoolExpressionBuilder(contains_expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
+    @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         match op:
             case BuilderComparisonOp.eq:
                 chain_op = BinaryBooleanOperator.and_
@@ -190,16 +196,15 @@ class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
             case _:
                 raise CodeError(f"The {op} operator on the tuple type is not supported", location)
 
-        other_eb = require_expression_builder(other)
-        if not isinstance(other_eb, TupleExpressionBuilder):
+        if not isinstance(other, TupleExpressionBuilder):
             return NotImplemented
-        if self.pytype.items != other_eb.pytype.items:
+        if self.pytype.items != other.pytype.items:
             return bool_eval_to_constant(value=result_if_types_differ, location=location)
 
         def compare_at_index(idx: int) -> Expression:
             left = self._index(idx, location)
-            right = other_eb._index(idx, location)  # noqa: SLF001
-            return left.compare(right, op=op, location=location).rvalue()
+            right = other._index(idx, location)  # noqa: SLF001
+            return left.compare(right, op=op, location=location).resolve()
 
         result = compare_at_index(0)
         for i in range(1, len(self.pytype.items)):

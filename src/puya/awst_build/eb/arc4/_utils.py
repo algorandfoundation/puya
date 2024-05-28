@@ -4,17 +4,17 @@ import re
 import typing
 
 import attrs
+import mypy.nodes
 
 from puya import arc4_util, log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
-from puya.awst_build.arc4_utils import arc4_encode
-from puya.awst_build.eb.base import ExpressionBuilder
-from puya.awst_build.utils import convert_literal
+from puya.awst_build.eb.factories import builder_for_type
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -26,24 +26,19 @@ logger = log.get_logger(__name__)
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
-def expect_arc4_operand_pytype(
-    literal_or_builder: awst_nodes.Literal | ExpressionBuilder, target_type: pytypes.PyType
-) -> awst_nodes.Expression:
-    target_wtype = target_type.wtype
-    if isinstance(literal_or_builder, awst_nodes.Literal):
-        return convert_literal(literal_or_builder, target_type)
-
-    expr = literal_or_builder.rvalue()
-    if wtypes.has_arc4_equivalent_type(expr.wtype):
-        new_wtype = wtypes.avm_to_arc4_equivalent_type(expr.wtype)
-        expr = arc4_encode(expr, new_wtype, literal_or_builder.source_location)
-
-    if expr.wtype != target_wtype:
-        raise CodeError(
-            f"Expected type {target_type}, got type {literal_or_builder.pytype}",
-            expr.source_location,
+def implicit_operand_conversion(
+    operand: NodeBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
+    operand = require_instance_builder(operand)
+    if operand.pytype != target_type:
+        target_type_builder = builder_for_type(target_type, operand.source_location)
+        operand = target_type_builder.call(
+            args=[operand],
+            arg_names=[None],
+            arg_kinds=[mypy.nodes.ARG_POS],
+            location=operand.source_location,  # TODO: fixme?
         )
-    return expr
+    return operand
 
 
 @attrs.frozen
@@ -61,42 +56,50 @@ class ARC4Signature:
 
 def get_arc4_args_and_signature(
     method_sig: str,
-    arg_typs: Sequence[pytypes.PyType],
-    native_args: Sequence[ExpressionBuilder | Literal],
+    native_args: Sequence[InstanceBuilder],
     loc: SourceLocation,
-) -> tuple[Sequence[Expression], ARC4Signature]:
-    method_name, maybe_args, maybe_return_type = _parse_method_signature(method_sig, loc)
-    arg_types = (
-        list(map(_implicit_literal_to_arc4_conversion, arg_typs))
-        if maybe_args is None
-        else maybe_args
-    )
-    num_args = len(native_args)
-    num_types = len(arg_types)
-    if num_types != num_args:
-        raise CodeError(
-            f"Number of arguments ({num_args}) does not match signature ({num_types})", loc
-        )
+) -> tuple[list[InstanceBuilder], ARC4Signature]:
+    method_name, arg_types, return_type = _parse_method_signature(method_sig, loc)
+    if arg_types is None:
+        arg_types = [_implicit_arc4_conversion(na.pytype, loc) for na in native_args]
+    else:
+        num_args = len(native_args)
+        sig_num_args = len(arg_types)
+        if sig_num_args != num_args:
+            raise CodeError(
+                f"number of arguments ({num_args}) does not match signature ({sig_num_args})", loc
+            )
 
     arc4_args = [
-        expect_arc4_operand_pytype(arg, pt) for arg, pt in zip(native_args, arg_types, strict=True)
+        implicit_operand_conversion(arg, pt)
+        for arg, pt in zip(native_args, arg_types, strict=True)
     ]
-    return arc4_args, ARC4Signature(method_name, arg_types, maybe_return_type)
+    return arc4_args, ARC4Signature(method_name, arg_types, return_type)
 
 
-def _implicit_literal_to_arc4_conversion(typ: pytypes.PyType) -> pytypes.PyType:
-    # infer arg from literal type
+def _implicit_arc4_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
     match typ:
-        case pytypes.StrLiteralType:
+        case pytypes.StrLiteralType | pytypes.StringType:
             return pytypes.ARC4StringType
         case pytypes.BoolType:
             return pytypes.ARC4BoolType
-        case pytypes.BytesLiteralType:
+        case pytypes.BytesLiteralType | pytypes.BytesType:
             return pytypes.ARC4DynamicBytesType
-        case pytypes.IntLiteralType:
+        case pytypes.IntLiteralType | pytypes.UInt64Type:
             return pytypes.ARC4UIntN_Aliases[64]
-        case _:
-            return typ
+        case pytypes.BigUIntType:
+            return pytypes.ARC4UIntN_Aliases[512]
+        case pytypes.TupleType(items=tuple_items):
+            return pytypes.GenericARC4TupleType.parameterise(
+                [_implicit_arc4_conversion(ti, loc) for ti in tuple_items], loc
+            )
+        case arc4_pytype if isinstance(arc4_pytype.wtype, wtypes.ARC4Type):
+            return arc4_pytype
+        case invalid_pytype:
+            raise CodeError(
+                f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
+                loc,
+            )
 
 
 def arc4_tuple_from_items(
@@ -161,12 +164,10 @@ def _parse_method_signature(
     signature: str, location: SourceLocation
 ) -> tuple[str, list[pytypes.PyType] | None, pytypes.PyType | None]:
     name, maybe_args, maybe_returns = _split_signature(signature, location)
-    args: list[pytypes.PyType] | None = None
-    returns: pytypes.PyType | None = None
-    if maybe_args:
-        args = [
-            arc4_util.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)
-        ]
-    if maybe_returns:
-        returns = arc4_util.arc4_to_pytype(maybe_returns, location)
+    args = (
+        [arc4_util.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)]
+        if maybe_args
+        else None
+    )
+    returns = arc4_util.arc4_to_pytype(maybe_returns, location) if maybe_returns else None
     return name, args, returns

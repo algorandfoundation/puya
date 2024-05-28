@@ -35,10 +35,10 @@ contract examples.merkle.contract.MerkleTree:
         
         subroutine examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> bool:
             block@0: // L14
-                let (root_value%0#0: bytes, root_exists%0#0: bool) = (app_global_get_ex 0u "root")
-                (assert root_exists%0#0) // check root exists
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
+                (assert maybe_exists%0#0) // check self.root exists
                 let (compute_root_hash%0#0: bytes, proof#1: bytes) = examples.merkle.contract.compute_root_hash(proof#0, leaf#0)
-                let tmp%0#0: bool = (== root_value%0#0 compute_root_hash%0#0)
+                let tmp%0#0: bool = (== maybe_value%0#0 compute_root_hash%0#0)
                 return tmp%0#0
         
         subroutine examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> <bytes, bytes>:

@@ -50,9 +50,9 @@ contract test_cases.inner_transactions.c2c.Greeter:
         
         subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
             block@0: // L10
-                let (hello_app_value%0#0: uint64, hello_app_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
-                (assert hello_app_exists%0#0) // check hello_app exists
-                let reinterpret_bool%0#0: bool = hello_app_value%0#0
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
+                (assert maybe_exists%0#0) // check self.hello_app exists
+                let reinterpret_bool%0#0: bool = maybe_value%0#0
                 let tmp%0#0: bool = (! reinterpret_bool%0#0)
                 (assert tmp%0#0) // already bootstrapped
                 itxn_begin
@@ -65,16 +65,16 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 itxn_submit
                 let new_state_value%0#0: uint64 = (itxn CreatedApplicationID)
                 (app_global_put "hello_app" new_state_value%0#0)
-                let (hello_app_value%1#0: uint64, hello_app_exists%1#0: bool) = (app_global_get_ex 0u "hello_app")
-                (assert hello_app_exists%1#0) // check hello_app exists
-                return hello_app_value%1#0
+                let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "hello_app")
+                (assert maybe_exists%1#0) // check self.hello_app exists
+                return maybe_value%1#0
         
         subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
             block@0: // L23
                 itxn_begin
-                let (hello_app_value%0#0: uint64, hello_app_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
-                (assert hello_app_exists%0#0) // check hello_app exists
-                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = hello_app_value%0#0
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
+                (assert maybe_exists%0#0) // check self.hello_app exists
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = maybe_value%0#0
                 let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = name#0
                 ((itxn_field ApplicationArgs) method "hello(string)string")
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)

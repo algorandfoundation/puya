@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import algo_constants
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -17,39 +18,50 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
 
-class GroupTransactionClassExpressionBuilder(
-    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
-):
+class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType], LiteralConverter):
+
+    @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.IntLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        typ = self.produces2()
+    ) -> InstanceBuilder:
+        typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
-            case [ExpressionBuilder() as eb]:
-                group_index = expect_operand_type(eb, pytypes.UInt64Type)
-            case [Literal(value=int(int_value), source_location=loc)]:
+            case [LiteralBuilder(value=int(int_value))]:
                 if int_value < 0:
                     raise CodeError(
                         "Transaction group index should be between non-negative", location
@@ -60,7 +72,9 @@ class GroupTransactionClassExpressionBuilder(
                         f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
                         location,
                     )
-                group_index = UInt64Constant(value=int_value, source_location=loc)
+                group_index: Expression = UInt64Constant(value=int_value, source_location=location)
+            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
+                group_index = eb.resolve()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         txn = (
@@ -84,13 +98,13 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
             wtype=field.wtype,
             op_code="gtxns",
             immediates=[field.immediate],
-            stack_args=[self.expr],
+            stack_args=[self.resolve()],
         )
 
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return _ArrayItem(self.expr, field, typ, location)
+    ) -> NodeBuilder:
+        return _ArrayItem(self.resolve(), field, typ, location)
 
 
 class _ArrayItem(FunctionBuilder):
@@ -109,16 +123,15 @@ class _ArrayItem(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (arg,) = args
-        index_expr = expect_operand_type(arg, pytypes.UInt64Type)
+        index_expr = expect_operand_type(arg, pytypes.UInt64Type).resolve()
         expr = IntrinsicCall(
             op_code="gtxnsas",
             immediates=[self.field.immediate],

@@ -9,19 +9,29 @@ from puya.awst.nodes import (
     Enumeration,
     Expression,
     IntegerConstant,
-    Literal,
+    Lvalue,
     Range,
     Reversed,
+    Statement,
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-    Iteration,
-    TypeClassExpressionBuilder,
+from puya.awst_build.eb._base import (
+    TypeBuilder,
 )
-from puya.awst_build.utils import expect_operand_type, require_expression_builder
+from puya.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
+    BuilderUnaryOp,
+    InstanceBuilder,
+    Iteration,
+    LiteralConverter,
+    NodeBuilder,
+)
+from puya.awst_build.utils import (
+    expect_operand_type,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -34,20 +44,21 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class UnsignedRangeBuilder(TypeClassExpressionBuilder):
+class UnsignedRangeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.urangeType, location)
 
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type) for in_arg in args]
+    ) -> InstanceBuilder:
+        uint64_args = [
+            expect_operand_type(in_arg, pytypes.UInt64Type).resolve() for in_arg in args
+        ]
         match uint64_args:
             case [range_start, range_stop, range_step]:
                 if isinstance(range_step, IntegerConstant) and range_step.value == 0:
@@ -71,37 +82,21 @@ class UnsignedRangeBuilder(TypeClassExpressionBuilder):
             stop=range_stop,
             step=range_step,
         )
-        return UnsignedRange(sequence)
+        return _IterableOnlyBuilder(sequence)
 
 
-class UnsignedRange(IntermediateExpressionBuilder):
-    def __init__(self, sequence: Range):
-        super().__init__(location=sequence.source_location)
-        self.sequence = sequence
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
-    @typing.override
-    def iterate(self) -> Iteration:
-        return self.sequence
-
-
-class UnsignedEnumerateBuilder(TypeClassExpressionBuilder):
+class UnsignedEnumerateBuilder(TypeBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         super().__init__(typ, location)
 
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
         try:
@@ -112,41 +107,23 @@ class UnsignedEnumerateBuilder(TypeClassExpressionBuilder):
                 "(ie, start must always be zero)",
                 location,
             ) from ex
-        sequence = require_expression_builder(arg).iterate()
-        return UnsignedEnumerate(sequence, location)
+        sequence = require_instance_builder(arg).iterate()
+        enumeration = Enumeration(expr=sequence, source_location=location)
+        return _IterableOnlyBuilder(enumeration)
 
 
-class UnsignedEnumerate(IntermediateExpressionBuilder):
-    def __init__(self, sequence: Expression | Range, location: SourceLocation):
-        super().__init__(location)
-        self._sequence = sequence
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
-    @typing.override
-    def iterate(self) -> Iteration:
-        return Enumeration(
-            expr=self._sequence,
-            source_location=self.source_location,
-        )
-
-
-class ReversedFunctionExpressionBuilder(TypeClassExpressionBuilder):
+class ReversedFunctionExpressionBuilder(TypeBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         super().__init__(typ, location)
 
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
         try:
@@ -156,23 +133,97 @@ class ReversedFunctionExpressionBuilder(TypeClassExpressionBuilder):
                 "reversed expects a single argument",
                 location,
             ) from ex
-        sequence = require_expression_builder(arg).iterate()
-        return ReversedExpressionBuilder(sequence, location)
+        sequence = require_instance_builder(arg).iterate()
+        reversed_ = Reversed(expr=sequence, source_location=location)
+        return _IterableOnlyBuilder(reversed_)
 
 
-class ReversedExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, sequence: Expression | Range, location: SourceLocation):
-        super().__init__(location)
-        self._sequence = sequence
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
+class _IterableOnlyBuilder(InstanceBuilder):
+    def __init__(self, expr: Iteration):
+        super().__init__(expr.source_location)
+        self._expr = expr
 
     @typing.override
     def iterate(self) -> Iteration:
-        return Reversed(
-            expr=self._sequence,
-            source_location=self.source_location,
-        )
+        return self._expr
+
+    @typing.override
+    @property
+    def pytype(self) -> typing.Never:
+        raise NotImplementedError("TODO")  # TODO
+
+    @typing.override
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+        return self
+
+    @typing.override
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return self._iterable_only(location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def resolve(self) -> Expression:
+        return self._iterable_only(self.source_location)
+
+    @typing.override
+    def resolve_lvalue(self) -> Lvalue:
+        return self._iterable_only(self.source_location)
+
+    @typing.override
+    def delete(self, location: SourceLocation) -> Statement:
+        return self._iterable_only(location)
+
+    @typing.override
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def binary_op(
+        self,
+        other: InstanceBuilder,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
+    ) -> Statement:
+        return self._iterable_only(location)
+
+    def _iterable_only(self, location: SourceLocation) -> typing.Never:
+        raise CodeError("expression is only usable as the source of a for-loop", location)

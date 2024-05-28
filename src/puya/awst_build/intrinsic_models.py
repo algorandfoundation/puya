@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
+from immutabledict import immutabledict
 
 from puya.awst_build import pytypes
 from puya.errors import InternalError
@@ -33,9 +34,13 @@ class PropertyOpMapping:
 class FunctionOpMapping:
     op_code: str
     """TEAL op code for this mapping"""
-    immediates: Mapping[str, type[str | int] | None] = attrs.field(default={})
+    immediates: Mapping[str, type[str | int] | None] = attrs.field(
+        default={}, converter=immutabledict
+    )
     """A sequence of constant values or references to an algopy argument to include in immediate"""
-    stack_inputs: Mapping[str, Sequence[pytypes.PyType]] = attrs.field(default={})
+    stack_inputs: Mapping[str, Sequence[pytypes.PyType]] = attrs.field(
+        default={}, converter=immutabledict
+    )
     """Mapping of stack argument names to valid types for the argument,
      in descending priority for literal conversions"""
     result: pytypes.PyType = pytypes.NoneType

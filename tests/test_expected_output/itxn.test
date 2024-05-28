@@ -42,20 +42,25 @@ class MyContract(Contract):
 
 ## case: test_inner_txn_local_only
 
-from algopy import ARC4Contract, TransactionType, itxn, arc4
+from algopy import *
 
 
 class MyContract(ARC4Contract):
+    def __init__(self) -> None:
+        self.foo = GlobalState(itxn.InnerTransactionResult) ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.foo_box = Box(itxn.InnerTransactionResult) ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.foo_box_map = BoxMap(itxn.InnerTransactionResult, String) ## E: ephemeral types (such as transaction related types) are not suitable for storage
+        self.box_foo_map = BoxMap(String, itxn.InnerTransactionResult) ## E: ephemeral types (such as transaction related types) are not suitable for storage
 
     @arc4.abimethod()
     def non_local_fields(self) -> None:
-        self.fields = itxn.InnerTransaction(type=TransactionType.Payment) ## E: Inner Transactions can only be assigned to local variables
+        self.fields = itxn.InnerTransaction(type=TransactionType.Payment) ## E: ephemeral types (such as transaction related types) are not suitable for storage
         txn = self.fields.submit()
 
     @arc4.abimethod()
     def non_local_itxn(self) -> None:
         fields = itxn.InnerTransaction(type=TransactionType.Payment)
-        self.txn = fields.submit() ## E: Inner Transactions can only be assigned to local variables
+        self.txn = fields.submit() ## E: ephemeral types (such as transaction related types) are not suitable for storage
 
 ## case: test_inner_txn_param_cant_be_aliased
 

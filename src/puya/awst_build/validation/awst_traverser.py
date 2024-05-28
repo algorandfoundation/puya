@@ -28,11 +28,10 @@ class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
 
     def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
         with self._enter_contract(statement):
-            for node in statement.symtable.values():
-                if isinstance(node, awst_nodes.ContractMethod):
-                    node.accept(self)
-                else:
-                    self.visit_app_state_definition(node)
+            for storage in statement.app_state.values():
+                self.visit_app_state_definition(storage)
+            for method in statement.methods.values():
+                method.accept(self)
 
     def visit_app_state_definition(self, state_defn: awst_nodes.AppStorageDefinition) -> None:
         pass

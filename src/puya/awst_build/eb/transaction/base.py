@@ -6,13 +6,17 @@ import typing
 from puya.awst import wtypes
 from puya.awst.nodes import TXN_FIELDS
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, ValueExpressionBuilder
+from puya.awst_build.eb._base import (
+    NotIterableInstanceExpressionBuilder,
+)
+from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
-from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
-    from puya.awst.nodes import Expression, Literal, TxnField
+    from puya.awst.nodes import Expression, TxnField
     from puya.parse import SourceLocation
 
 _PYTHON_MEMBER_FIELD_MAP = {
@@ -20,16 +24,21 @@ _PYTHON_MEMBER_FIELD_MAP = {
 }
 
 
-class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
+class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
+    @typing.override
+    @typing.final
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError("cannot serialize transaction type", location)
+
     @abc.abstractmethod
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression: ...
 
     @abc.abstractmethod
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> ExpressionBuilder: ...
+    ) -> NodeBuilder: ...
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         field_data = _PYTHON_MEMBER_FIELD_MAP.get(name)
         if field_data is None:
             return super().member_access(name, location)
@@ -39,6 +48,10 @@ class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
         else:
             expr = self.get_field_value(field, location)
             return builder_for_instance(typ, expr)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 _WType = typing.TypeVar("_WType", bound=wtypes.WType)

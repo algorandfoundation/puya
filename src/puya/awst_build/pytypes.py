@@ -19,6 +19,8 @@ from puya.utils import lazy_setdefault
 if typing.TYPE_CHECKING:
     from mypy.nodes import ArgKind
 
+    from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
+
 logger = log.get_logger(__name__)
 
 
@@ -299,16 +301,16 @@ class StructType(PyType):
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
         # TODO: this is a bit of a kludge
-        wtype_cls: Callable[
-            [Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
-        ]
+        wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct
         elif base is StructBaseType:
             wtype_cls = wtypes.WStructType
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
-        wtype = wtype_cls(field_wtypes, frozen, source_location)
+        wtype = wtype_cls(
+            field_wtypes, name=name, immutable=frozen, source_location=source_location
+        )
         self.__attrs_init__(
             bases=[base],
             mro=[base],
@@ -331,21 +333,18 @@ class _SimpleType(PyType):
 
 @typing.final
 @attrs.frozen
-class _LiteralOnlyType(PyType):
+class LiteralOnlyType(PyType):
     @typing.override
     @property
     def wtype(self) -> typing.Never:
         raise CodeError(f"Python literals of type {self} cannot be used as runtime values")
 
-    def __attrs_post_init__(self) -> None:
-        _register_builtin(self)
-
 
 NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
 BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
-IntLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.int")
-StrLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.str")
-BytesLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.bytes")
+IntLiteralType: typing.Final[PyType] = _register_builtin(LiteralOnlyType(name="builtins.int"))
+StrLiteralType: typing.Final[PyType] = _register_builtin(LiteralOnlyType(name="builtins.str"))
+BytesLiteralType: typing.Final[PyType] = _register_builtin(LiteralOnlyType(name="builtins.bytes"))
 
 UInt64Type: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_UINT64,
@@ -375,10 +374,6 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_APPLICATION,
     wtype=wtypes.application_wtype,
 )
-BytesBackedType: typing.Final[PyType] = _SimpleType(
-    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
-    wtype=wtypes.bytes_wtype,
-)
 
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_ON_COMPLETE_ACTION)
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_TRANSACTION_TYPE)
@@ -400,7 +395,8 @@ ARC4BoolType: typing.Final[PyType] = _SimpleType(
 @attrs.frozen
 class ARC4UIntNType(PyType):
     bits: int
-    wtype: wtypes.WType
+    wtype: wtypes.ARC4UIntN
+    native_type: PyType
 
 
 def _require_int_literal(
@@ -422,7 +418,9 @@ def _require_int_literal(
     )
 
 
-def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Parameterise:
+def _make_arc4_unsigned_int_parameterise(
+    *, native_type: PyType, max_bits: int | None = None
+) -> _Parameterise:
     def parameterise(
         self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> ARC4UIntNType:
@@ -441,7 +439,10 @@ def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Par
             generic=self,
             name=name,
             bits=bits,
-            wtype=wtypes.ARC4UIntN(bits, source_location),
+            native_type=native_type,
+            wtype=wtypes.ARC4UIntN(
+                n=bits, decode_type=native_type.wtype, source_location=source_location
+            ),
         )
 
     return parameterise
@@ -449,11 +450,11 @@ def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Par
 
 GenericARC4UIntNType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_UINTN,
-    parameterise=_make_arc4_unsigned_int_parameterise(max_bits=64),
+    parameterise=_make_arc4_unsigned_int_parameterise(native_type=UInt64Type, max_bits=64),
 )
 GenericARC4BigUIntNType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_BIG_UINTN,
-    parameterise=_make_arc4_unsigned_int_parameterise(),
+    parameterise=_make_arc4_unsigned_int_parameterise(native_type=BigUIntType),
 )
 
 
@@ -472,10 +473,11 @@ ARC4ByteType: typing.Final = _register_builtin(
     ARC4UIntNType(
         generic=None,
         name=constants.CLS_ARC4_BYTE,
-        wtype=wtypes.arc4_byte_type,
+        wtype=wtypes.arc4_byte_alias,
         bits=8,
         bases=[ARC4UIntN_Aliases[8]],
         mro=[ARC4UIntN_Aliases[8]],
+        native_type=UInt64Type,
     )
 )
 
@@ -611,7 +613,11 @@ GenericARC4DynamicArrayType: typing.Final = _GenericType(
 ARC4DynamicBytesType: typing.Final = _register_builtin(
     ArrayType(
         name=constants.CLS_ARC4_DYNAMIC_BYTES,
-        wtype=wtypes.arc4_dynamic_bytes,
+        wtype=wtypes.ARC4DynamicArray(
+            element_type=ARC4ByteType.wtype,
+            native_type=wtypes.bytes_wtype,
+            source_location=None,
+        ),
         size=0,
         items=ARC4ByteType,
         bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
@@ -655,7 +661,7 @@ GenericARC4StaticArrayType: typing.Final = _GenericType(
 ARC4AddressType: typing.Final = _register_builtin(
     ArrayType(
         name=constants.CLS_ARC4_ADDRESS,
-        wtype=wtypes.arc4_address_type,
+        wtype=wtypes.arc4_address_wtype,
         size=32,
         generic=None,
         items=ARC4ByteType,
@@ -675,22 +681,27 @@ ARC4AddressType: typing.Final = _register_builtin(
 )
 
 
-def _storage_parameterise(
-    self: _GenericType[StorageProxyType], args: _TypeArgs, source_location: SourceLocation | None
-) -> StorageProxyType:
-    try:
-        (arg,) = args
-    except ValueError:
-        raise CodeError(
-            f"Expected a single type parameter, got {len(args)} parameters", source_location
-        ) from None
-    name = f"{self.name}[{arg.name}]"
-    return StorageProxyType(
-        generic=self,
-        name=name,
-        content=arg,
-        wtype=wtypes.bytes_wtype,
-    )
+def _make_storage_parameterise(key_wtype: wtypes.WType) -> _Parameterise[StorageProxyType]:
+    def parameterise(
+        self: _GenericType[StorageProxyType],
+        args: _TypeArgs,
+        source_location: SourceLocation | None,
+    ) -> StorageProxyType:
+        try:
+            (arg,) = args
+        except ValueError:
+            raise CodeError(
+                f"Expected a single type parameter, got {len(args)} parameters", source_location
+            ) from None
+        name = f"{self.name}[{arg.name}]"
+        return StorageProxyType(
+            generic=self,
+            name=name,
+            content=arg,
+            wtype=key_wtype,
+        )
+
+    return parameterise
 
 
 def _parameterise_storage_map(
@@ -710,27 +721,27 @@ def _parameterise_storage_map(
         name=name,
         key=key,
         content=content,
-        wtype=wtypes.bytes_wtype,
+        wtype=wtypes.box_key,
     )
 
 
 GenericGlobalStateType: typing.Final = _GenericType(
     name=constants.CLS_GLOBAL_STATE,
-    parameterise=_storage_parameterise,
+    parameterise=_make_storage_parameterise(wtypes.state_key),
 )
 GenericLocalStateType: typing.Final = _GenericType(
     name=constants.CLS_LOCAL_STATE,
-    parameterise=_storage_parameterise,
+    parameterise=_make_storage_parameterise(wtypes.state_key),
 )
 GenericBoxType: typing.Final = _GenericType(
     name=constants.CLS_BOX_PROXY,
-    parameterise=_storage_parameterise,
+    parameterise=_make_storage_parameterise(wtypes.box_key),
 )
 BoxRefType: typing.Final = _register_builtin(
     StorageProxyType(
         name=constants.CLS_BOX_REF_PROXY,
         content=BytesType,
-        wtype=wtypes.bytes_wtype,
+        wtype=wtypes.box_key,
         generic=None,
     )
 )
@@ -834,21 +845,73 @@ class _CompileTimeType(PyType):
         _register_builtin(self)
 
 
-def _make_op_namespace_types() -> Sequence[PyType]:
-    from itertools import chain
+BytesBackedType: typing.Final[PyType] = _CompileTimeType(
+    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
+    wtype_error="{self} is not usable as a runtime type",
+)
 
-    from puya.awst_build.intrinsic_data import ENUM_CLASSES, NAMESPACE_CLASSES
+
+@attrs.frozen(kw_only=True)
+class IntrinsicEnumType(PyType):
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(
+        default=(StrLiteralType,),  # strictly true, but not sure if we want this?
+        init=False,
+    )
+    mro: Sequence[PyType] = attrs.field(default=(StrLiteralType,), init=False)
+    members: Mapping[str, str] = attrs.field(converter=immutabledict)
+
+    @property
+    def wtype(self) -> wtypes.WType:
+        raise CodeError(f"{self} is only valid as a literal argument to an algopy.op function")
+
+
+def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
+    from puya.awst_build.intrinsic_data import ENUM_CLASSES
 
     return [
-        _CompileTimeType(
-            name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
-            wtype_error="{self} is a namespace type only and not usable at runtime",
+        _register_builtin(
+            IntrinsicEnumType(
+                name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
+                members=cls_members,
+            )
         )
-        for cls_name in chain(ENUM_CLASSES, NAMESPACE_CLASSES)
+        for cls_name, cls_members in ENUM_CLASSES.items()
     ]
 
 
-OpNamespaceTypes: typing.Final = _make_op_namespace_types()
+OpEnumTypes: typing.Final = _make_intrinsic_enum_types()
+
+
+@attrs.frozen(kw_only=True)
+class IntrinsicNamespaceType(PyType):
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    members: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]] = attrs.field(
+        converter=immutabledict
+    )
+
+    @property
+    def wtype(self) -> wtypes.WType:
+        raise CodeError(f"{self} is a namespace type only and not usable at runtime")
+
+
+def _make_intrinsic_namespace_types() -> Sequence[IntrinsicNamespaceType]:
+    from puya.awst_build.intrinsic_data import NAMESPACE_CLASSES
+
+    return [
+        _register_builtin(
+            IntrinsicNamespaceType(
+                name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
+                members=cls_members,
+            )
+        )
+        for cls_name, cls_members in NAMESPACE_CLASSES.items()
+    ]
+
+
+OpNamespaceTypes: typing.Final = _make_intrinsic_namespace_types()
 
 StateTotalsType: typing.Final[PyType] = _CompileTimeType(
     name=f"{constants.ALGOPY_PREFIX}_contract.StateTotals",

@@ -11,42 +11,46 @@ from puya.awst.nodes import (
     BytesAugmentedAssignment,
     BytesBinaryOperation,
     BytesBinaryOperator,
-    BytesComparisonExpression,
     BytesConstant,
     BytesEncoding,
     BytesUnaryOperation,
     BytesUnaryOperator,
     CallArg,
-    EqualityComparison,
     Expression,
     FreeSubroutineTarget,
     IndexExpression,
     IntersectionSliceExpression,
-    Literal,
     Statement,
     SubroutineCallExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.constants import CLS_BYTES_ALIAS
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
+    FunctionBuilder,
+    InstanceExpressionBuilder,
+    TypeBuilder,
+)
+from puya.awst_build.eb._utils import compare_bytes
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
-    ExpressionBuilder,
-    FunctionBuilder,
+    BuilderUnaryOp,
+    InstanceBuilder,
     Iteration,
-    TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
 )
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
-    convert_literal_to_expr,
     expect_operand_type,
+    require_instance_builder_of_type,
 )
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
     import mypy.types
 
@@ -55,25 +59,41 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
+class BytesTypeBuilder(TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BytesType, location)
 
     @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.BytesLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case bytes(literal_value):
+                expr = BytesConstant(
+                    value=literal_value, encoding=BytesEncoding.unknown, source_location=location
+                )
+                return BytesExpressionBuilder(expr)
+        raise CodeError(f"can't covert literal {literal.value} to {self.produces()}", location)
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 value: Expression = BytesConstant(
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
                 )
-            case [Literal(value=bytes(literal_value))]:
+            case [LiteralBuilder(value=bytes(literal_value))]:
                 value = BytesConstant(
                     value=literal_value, encoding=BytesEncoding.unknown, source_location=location
                 )
@@ -86,7 +106,7 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
         return BytesExpressionBuilder(value)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         """Handle self.name"""
         match name:
             case "from_base32":
@@ -109,14 +129,13 @@ class BytesFromEncodedStrBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         match args:
-            case [Literal(value=str(encoded_value))]:
+            case [LiteralBuilder(value=str(encoded_value))]:
                 pass
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -147,103 +166,107 @@ class BytesFromEncodedStrBuilder(FunctionBuilder):
         return BytesExpressionBuilder(expr)
 
 
-class BytesExpressionBuilder(ValueExpressionBuilder):
+class BytesExpressionBuilder(InstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BytesType, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    @typing.override
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return self.resolve()
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                len_call = intrinsic_factory.bytes_len(expr=self.expr, loc=location)
+                len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
                 return UInt64ExpressionBuilder(len_call)
         return super().member_access(name, location)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        index_expr = expect_operand_type(index, pytypes.UInt64Type)
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        index_expr = expect_operand_type(index, pytypes.UInt64Type).resolve()
         expr = IndexExpression(
             source_location=location,
-            base=self.expr,
+            base=self.resolve(),
             index=index_expr,
-            wtype=self.wtype,
+            wtype=self.pytype.wtype,
         )
         return BytesExpressionBuilder(expr)
 
+    @typing.override
     def slice_index(
         self,
-        begin_index: ExpressionBuilder | Literal | None,
-        end_index: ExpressionBuilder | Literal | None,
-        stride: ExpressionBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         if stride is not None:
             raise CodeError("Stride is not supported", location=stride.source_location)
 
         slice_expr: Expression = IntersectionSliceExpression(
-            base=self.expr,
+            base=self.resolve(),
             begin_index=_eval_slice_component(begin_index),
             end_index=_eval_slice_component(end_index),
-            wtype=self.wtype,
+            wtype=self.pytype.wtype,
             source_location=location,
         )
         return BytesExpressionBuilder(slice_expr)
 
+    @typing.override
     def iterate(self) -> Iteration:
-        return self.rvalue()
+        return self.resolve()
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        len_expr = intrinsic_factory.bytes_len(self.expr, location)
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        len_expr = intrinsic_factory.bytes_len(self.resolve(), location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
-        return BytesExpressionBuilder(
-            BytesUnaryOperation(
-                expr=self.expr,
-                op=BytesUnaryOperator.bit_invert,
-                source_location=location,
+    @typing.override
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
+        if op == BuilderUnaryOp.bit_invert:
+            return BytesExpressionBuilder(
+                BytesUnaryOperation(
+                    expr=self.resolve(),
+                    op=BytesUnaryOperator.bit_invert,
+                    source_location=location,
+                )
             )
-        )
+        return super().unary_op(op, location)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        item_expr = expect_operand_type(item, pytypes.BytesType)
+    @typing.override
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        item_expr = expect_operand_type(item, pytypes.BytesType).resolve()
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
-            args=[CallArg(value=item_expr, name=None), CallArg(value=self.expr, name=None)],
+            args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
             wtype=wtypes.bool_wtype,
             source_location=location,
         )
         return BoolExpressionBuilder(is_substring_expr)
 
+    @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
-        if other_expr.wtype != self.wtype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison(op.value),
-            rhs=other_expr,
-        )
-        return BoolExpressionBuilder(cmp_expr)
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
+    @typing.override
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.pytype)
+    ) -> InstanceBuilder:
+        other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
+        # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
-        lhs = self.expr
-        rhs = other_expr
+        lhs = self.resolve()
+        rhs = other.resolve()
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         bin_op_expr = BytesBinaryOperation(
@@ -251,17 +274,19 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         )
         return BytesExpressionBuilder(bin_op_expr)
 
+    @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        value = convert_literal_to_expr(rhs, self.pytype)
+        rhs = rhs.resolve_literal(converter=BytesTypeBuilder(rhs.source_location))
+        # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
-        target = self.lvalue()
+        target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
-            source_location=location,
             target=target,
-            value=value,
             op=bytes_op,
+            value=rhs.resolve(),
+            source_location=location,
         )
 
 
@@ -274,10 +299,10 @@ def _translate_binary_bytes_operator(
         raise CodeError(f"Unsupported bytes operator {operator.value}", loc) from ex
 
 
-def _eval_slice_component(val: ExpressionBuilder | Literal | None) -> Expression | None | int:
+def _eval_slice_component(val: NodeBuilder | None) -> Expression | None | int:
     match val:
         case None:
             return None
-        case Literal(value=int(int_value)):
+        case LiteralBuilder(value=int(int_value)):
             return int_value
-    return expect_operand_type(val, pytypes.UInt64Type)
+    return require_instance_builder_of_type(val, pytypes.UInt64Type).resolve()

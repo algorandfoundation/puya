@@ -6,8 +6,8 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Type, WGroupTransaction
 from puya.awst_build import intrinsic_factory
-from puya.awst_build.arc4_utils import arc4_decode, arc4_encode
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
 from puya.models import (
@@ -183,7 +183,7 @@ def route_bare_methods(
 def log_arc4_compatible_result(
     location: SourceLocation, result_expression: awst_nodes.Expression
 ) -> awst_nodes.ExpressionStatement:
-    arc4_encoded = arc4_encode(
+    arc4_encoded = _arc4_encode(
         result_expression, wtypes.avm_to_arc4_equivalent_type(result_expression.wtype), location
     )
     return log_arc4_result(location, arc4_encoded)
@@ -391,9 +391,9 @@ def map_abi_args(
     args: Sequence[awst_nodes.SubroutineArgument], location: SourceLocation
 ) -> Iterable[awst_nodes.Expression]:
     abi_arg_index = 1  # 0th arg is for method selector
-    transaction_arg_offset = sum(1 for a in args if wtypes.is_transaction_type(a.wtype))
+    transaction_arg_offset = sum(1 for a in args if isinstance(a.wtype, WGroupTransaction))
 
-    non_transaction_args = [a for a in args if not wtypes.is_transaction_type(a.wtype)]
+    non_transaction_args = [a for a in args if not isinstance(a.wtype, WGroupTransaction)]
     last_arg: awst_nodes.Expression | None = None
     if len(non_transaction_args) > 15:
 
@@ -401,7 +401,7 @@ def map_abi_args(
             if wtypes.has_arc4_equivalent_type(wtype):
                 return wtypes.avm_to_arc4_equivalent_type(wtype)
             elif wtypes.is_reference_type(wtype):
-                return wtypes.arc4_byte_type
+                return wtypes.arc4_byte_alias
             else:
                 return wtype
 
@@ -453,7 +453,7 @@ def map_abi_args(
                 transaction_arg_offset -= 1
             case _ if wtypes.has_arc4_equivalent_type(arg.wtype):
                 abi_arg = get_arg(abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype))
-                decoded_abi_arg = arc4_decode(
+                decoded_abi_arg = _arc4_decode(
                     bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
                 )
                 yield decoded_abi_arg
@@ -478,7 +478,7 @@ def route_abi_methods(
         match method.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
-            case _ if wtypes.is_arc4_encoded_type(method.return_type):
+            case _ if isinstance(method.return_type, ARC4Type):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _ if wtypes.has_arc4_equivalent_type(method.return_type):
                 call_and_maybe_log = log_arc4_compatible_result(abi_loc, method_result)
@@ -719,3 +719,113 @@ def create_default_clear_state(contract: awst_nodes.ContractFragment) -> awst_no
         docstring=None,
         abimethod_config=None,
     )
+
+
+def _arc4_encode(
+    base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type, location: SourceLocation
+) -> awst_nodes.Expression:
+    """encode, with special handling of native tuples"""
+    match base.wtype:
+        case wtypes.WTuple(types=types):
+            base_temp = awst_nodes.SingleEvaluation(base)
+
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=awst_nodes.TupleExpression.from_items(
+                    items=[
+                        _maybe_arc4_encode(
+                            awst_nodes.TupleItemExpression(
+                                base=base_temp,
+                                index=i,
+                                source_location=location,
+                            ),
+                            t,
+                            location,
+                        )
+                        for i, t in enumerate(types)
+                    ],
+                    location=location,
+                ),
+                wtype=target_wtype,
+            )
+
+        case _:
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=base,
+                wtype=target_wtype,
+            )
+
+
+def _maybe_arc4_encode(
+    item: awst_nodes.Expression, wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.Expression:
+    """Encode as arc4 if wtype is not already an arc4 encoded type"""
+    if isinstance(wtype, ARC4Type):
+        return item
+    return _arc4_encode(item, wtypes.avm_to_arc4_equivalent_type(wtype), location)
+
+
+def _arc4_decode(
+    bytes_arg: awst_nodes.Expression,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+) -> awst_nodes.Expression:
+    """decode, with special handling of native tuples"""
+    match bytes_arg.wtype:
+        case wtypes.ARC4DynamicArray(
+            element_type=wtypes.ARC4UIntN(n=8)
+        ) if target_wtype == wtypes.bytes_wtype:
+            return intrinsic_factory.extract(bytes_arg, start=2, loc=location)
+        case wtypes.ARC4Tuple(types=tuple_types):
+            decode_expression = awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=wtypes.WTuple(tuple_types, location),
+                value=bytes_arg,
+            )
+            assert isinstance(
+                target_wtype, wtypes.WTuple
+            ), "Target wtype must be a WTuple when decoding ARC4Tuple"
+            if all(
+                target == current
+                for target, current in zip(target_wtype.types, tuple_types, strict=True)
+            ):
+                return decode_expression
+            decoded = awst_nodes.SingleEvaluation(decode_expression)
+            return awst_nodes.TupleExpression.from_items(
+                items=[
+                    _maybe_arc4_decode(
+                        awst_nodes.TupleItemExpression(
+                            base=decoded,
+                            index=i,
+                            source_location=location,
+                        ),
+                        target_wtype=t_t,
+                        current_wtype=t_c,
+                        location=location,
+                    )
+                    for i, (t_c, t_t) in enumerate(
+                        zip(tuple_types, target_wtype.types, strict=True)
+                    )
+                ],
+                location=location,
+            )
+
+        case _:
+            return awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=target_wtype,
+                value=bytes_arg,
+            )
+
+
+def _maybe_arc4_decode(
+    item: awst_nodes.Expression,
+    *,
+    current_wtype: wtypes.WType,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+) -> awst_nodes.Expression:
+    if current_wtype == target_wtype:
+        return item
+    return _arc4_decode(item, target_wtype, location)

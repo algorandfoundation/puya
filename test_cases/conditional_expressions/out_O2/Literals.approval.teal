@@ -1,0 +1,75 @@
+#pragma version 10
+
+test_cases.conditional_expressions.literals.Literals.approval_program:
+    int 0
+    callsub with_variable_condition
+    int 1
+    callsub with_variable_condition
+    int 1
+    return
+
+
+// test_cases.conditional_expressions.literals.Literals.with_variable_condition(condition: uint64) -> void:
+with_variable_condition:
+    proto 1 0
+    byte ""
+    dup
+    frame_dig -1
+    bz with_variable_condition_ternary_false@2
+    int 1
+    frame_bury 0
+    b with_variable_condition_ternary_merge@3
+
+with_variable_condition_ternary_false@2:
+    int 0
+    frame_bury 0
+
+with_variable_condition_ternary_merge@3:
+    frame_dig 0
+    frame_dig -1
+    ==
+    assert
+    frame_dig -1
+    bz with_variable_condition_ternary_false@5
+    int 1
+    b with_variable_condition_ternary_merge@6
+
+with_variable_condition_ternary_false@5:
+    int 0
+
+with_variable_condition_ternary_merge@6:
+    frame_dig 0
+    ==
+    assert
+    frame_dig -1
+    bz with_variable_condition_ternary_false@8
+    int 0
+    b with_variable_condition_ternary_merge@9
+
+with_variable_condition_ternary_false@8:
+    int 1
+
+with_variable_condition_ternary_merge@9:
+    frame_dig 0
+    +
+    dup
+    frame_bury 1
+    int 1
+    ==
+    assert
+    frame_dig -1
+    bz with_variable_condition_ternary_false@11
+    int 1
+    b with_variable_condition_ternary_merge@12
+
+with_variable_condition_ternary_false@11:
+    int 0
+
+with_variable_condition_ternary_merge@12:
+    frame_dig 1
+    <
+    frame_dig -1
+    !
+    ==
+    assert
+    retsub

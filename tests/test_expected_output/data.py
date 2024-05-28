@@ -487,6 +487,7 @@ class TestFile(pytest.File):
                 else case.approved_case_source
             )
             lines.extend(expected_output)
+        lines.append("")
         return lines
 
     def setup(self) -> None:

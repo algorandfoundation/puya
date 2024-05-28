@@ -3,26 +3,26 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst.nodes import Expression, Literal
+from puya.awst.nodes import Expression
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
+from puya.awst_build.eb._base import (
+    NotIterableInstanceExpressionBuilder,
+    TypeBuilder,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
+class VoidTypeExpressionBuilder(TypeBuilder):  # TODO: rename to None
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.NoneType, location)
 
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -31,11 +31,14 @@ class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
         raise CodeError("None is not usable as a value", location)
 
 
-class VoidExpressionBuilder(ValueExpressionBuilder):
+class VoidExpressionBuilder(NotIterableInstanceExpressionBuilder):  # TODO: rename to None
     def __init__(self, expr: Expression):
         super().__init__(pytypes.NoneType, expr)
 
-    def lvalue(self) -> typing.Never:
-        raise CodeError(
-            "None indicates an empty return and cannot be assigned", self.source_location
-        )
+    @typing.override
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError("None is not usable as a value", location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return bool_eval_to_constant(value=False, location=location, negate=negate)

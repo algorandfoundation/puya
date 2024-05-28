@@ -171,7 +171,7 @@ opt_into_asset:
     // # Verify a ASA hasn't already been opted into
     // assert self.asa.id == 0, "ASA already opted in"
     app_global_get_ex
-    assert // check asa exists
+    assert // check self.asa exists
     !
     assert // ASA already opted in
     // auction/contract.py:21
@@ -240,7 +240,7 @@ start_auction:
     // # Ensure the auction hasn't already been started
     // assert self.auction_end == 0, "auction already started"
     app_global_get_ex
-    assert // check auction_end exists
+    assert // check self.auction_end exists
     !
     assert // auction already started
     // auction/contract.py:54
@@ -317,7 +317,7 @@ bid:
     // # Ensure auction hasn't ended
     // assert Global.latest_timestamp < self.auction_end, "auction has ended"
     app_global_get_ex
-    assert // check auction_end exists
+    assert // check self.auction_end exists
     <
     assert // auction has ended
     // auction/contract.py:71-72
@@ -340,7 +340,7 @@ bid:
     // auction/contract.py:73
     // assert pay.amount > self.previous_bid, "Bid must be higher than previous bid"
     app_global_get_ex
-    assert // check previous_bid exists
+    assert // check self.previous_bid exists
     dig 1
     <
     assert // Bid must be higher than previous bid
@@ -393,7 +393,7 @@ claim_bids:
     swap
     dup
     uncover 2
-    assert // check claimable_amount exists for account
+    assert // check self.claimable_amount exists for account
     // auction/contract.py:86-87
     // # subtract previous bid if sender is previous bidder
     // if Txn.sender == self.previous_bidder:
@@ -406,7 +406,7 @@ claim_bids:
     // # subtract previous bid if sender is previous bidder
     // if Txn.sender == self.previous_bidder:
     app_global_get_ex
-    assert // check previous_bidder exists
+    assert // check self.previous_bidder exists
     ==
     bz claim_bids_after_if_else@2
     // auction/contract.py:88
@@ -418,7 +418,7 @@ claim_bids:
     // auction/contract.py:88
     // amount -= self.previous_bid
     app_global_get_ex
-    assert // check previous_bid exists
+    assert // check self.previous_bid exists
     frame_dig 0
     swap
     -
@@ -452,16 +452,16 @@ claim_bids_after_if_else@2:
     itxn_submit
     // auction/contract.py:95
     // self.claimable_amount[Txn.sender] = original_amount - amount
-    frame_dig 0
-    swap
-    -
     txn Sender
+    frame_dig 0
+    uncover 2
+    -
     // auction/contract.py:23
     // self.claimable_amount = LocalState(UInt64, key="claim", description="The claimable amount")
     byte "claim"
     // auction/contract.py:95
     // self.claimable_amount[Txn.sender] = original_amount - amount
-    uncover 2
+    swap
     app_local_put
     retsub
 
@@ -482,7 +482,7 @@ claim_asset:
     // auction/contract.py:99
     // assert Global.latest_timestamp > self.auction_end, "auction has not ended"
     app_global_get_ex
-    assert // check auction_end exists
+    assert // check self.auction_end exists
     >
     assert // auction has not ended
     // auction/contract.py:100-106
@@ -503,7 +503,7 @@ claim_asset:
     // auction/contract.py:103
     // asset_close_to=self.previous_bidder,
     app_global_get_ex
-    assert // check previous_bidder exists
+    assert // check self.previous_bidder exists
     // auction/contract.py:104
     // asset_receiver=self.previous_bidder,
     int 0
@@ -513,7 +513,7 @@ claim_asset:
     // auction/contract.py:104
     // asset_receiver=self.previous_bidder,
     app_global_get_ex
-    assert // check previous_bidder exists
+    assert // check self.previous_bidder exists
     // auction/contract.py:105
     // asset_amount=self.asa_amount,
     int 0
@@ -523,7 +523,7 @@ claim_asset:
     // auction/contract.py:105
     // asset_amount=self.asa_amount,
     app_global_get_ex
-    assert // check asa_amount exists
+    assert // check self.asa_amount exists
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetCloseTo
