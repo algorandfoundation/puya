@@ -26,7 +26,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -51,7 +51,7 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
             case ExpressionBuilder(
                 value_type=wtypes.WTuple(types=tuple_item_types) as wtype
             ) if all(field.valid_type(t) for t in tuple_item_types):
-                expr = expect_operand_wtype(arg, wtype)
+                expr = expect_operand_type(arg, wtype)
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
     elif (
@@ -59,7 +59,7 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
     ):
         field_expr = arg.rvalue()
     else:
-        field_expr = expect_operand_wtype(arg, field.wtype)
+        field_expr = expect_operand_type(arg, field.wtype)
     return field, field_expr
 
 
@@ -78,9 +78,9 @@ def _maybe_transform_program_field_expr(
         case ValueExpressionBuilder(wtype=wtypes.WTuple(types=tuple_item_types) as wtype) if all(
             field.valid_type(t) for t in tuple_item_types
         ):
-            expr = expect_operand_wtype(eb, wtype)
+            expr = expect_operand_type(eb, wtype)
         case _:
-            expr = expect_operand_wtype(eb, field.wtype)
+            expr = expect_operand_type(eb, field.wtype)
     return field, expr
 
 

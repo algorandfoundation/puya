@@ -75,7 +75,7 @@ from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
     bool_eval,
-    expect_operand_wtype,
+    expect_operand_type,
     extract_bytes_literal_from_mypy,
     fold_binary_expr,
     fold_unary_expr,
@@ -547,7 +547,7 @@ class FunctionASTConverter(
                     constants.CLS_ACCOUNT,
                 ):
                     case_value_builder_or_literal = inner_literal_expr.accept(self)
-                    case_value = expect_operand_wtype(case_value_builder_or_literal, subject.wtype)
+                    case_value = expect_operand_type(case_value_builder_or_literal, subject.wtype)
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.AsPattern(name=None, pattern=None), None:
@@ -962,8 +962,8 @@ class FunctionASTConverter(
             (target_pytyp,) = result_pytypes
             # TODO: use to PyType instead
             target_wtype = target_pytyp.wtype
-            lhs_expr = expect_operand_wtype(lhs, target_wtype)
-            rhs_expr = expect_operand_wtype(rhs, target_wtype)
+            lhs_expr = expect_operand_type(lhs, target_wtype)
+            rhs_expr = expect_operand_type(rhs, target_wtype)
 
         if target_pytyp is pytypes.BoolType:
             expr_result: Expression = BooleanBinaryOperation(

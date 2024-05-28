@@ -68,7 +68,7 @@ class BoolExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
+        other_expr = convert_literal_to_expr(other, self.pytype)
         if other_expr.wtype == self.wtype:
             pass
         else:

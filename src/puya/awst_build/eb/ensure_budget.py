@@ -15,7 +15,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
+from puya.awst_build.utils import expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -53,7 +53,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
         call_args = [
             CallArg(
                 name=required_budget_arg_name,
-                value=expect_operand_wtype(required_budget, wtypes.uint64_wtype),
+                value=expect_operand_type(required_budget, pytypes.UInt64Type),
             )
         ]
 

@@ -102,7 +102,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
+        other_expr = convert_literal_to_expr(other, self.pytype)
         if other_expr.wtype == self.wtype:
             pass
         else:
@@ -123,7 +123,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         *,
         reverse: bool,
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
+        other_expr = convert_literal_to_expr(other, self.pytype)
         if other_expr.wtype == self.wtype:
             pass
         else:
@@ -141,7 +141,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
     ) -> Statement:
-        value = convert_literal_to_expr(rhs, self.wtype)
+        value = convert_literal_to_expr(rhs, self.pytype)
         if value.wtype == self.wtype:
             pass
         else:

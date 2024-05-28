@@ -31,7 +31,7 @@ from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
-    expect_operand_wtype,
+    expect_operand_type,
     get_arg_mapping,
 )
 from puya.errors import CodeError
@@ -101,7 +101,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyTy
                     location,
                     box_proxy=self.expr,
                     op_code="box_del",
-                    arg_wtypes=(),
+                    arg_types=(),
                     args=(),
                     return_type=pytypes.BoolType,
                 )
@@ -110,7 +110,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyTy
                     location,
                     box_proxy=self.expr,
                     op_code="box_extract",
-                    arg_wtypes=(wtypes.uint64_wtype, wtypes.uint64_wtype),
+                    arg_types=(pytypes.UInt64Type, pytypes.UInt64Type),
                     args=("start_index", "length"),
                     return_type=pytypes.BytesType,
                 )
@@ -121,7 +121,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyTy
                     location,
                     box_proxy=self.expr,
                     op_code="box_replace",
-                    arg_wtypes=(wtypes.uint64_wtype, wtypes.bytes_wtype),
+                    arg_types=(pytypes.UInt64Type, pytypes.BytesType),
                     args=("start_index", "value"),
                     return_type=pytypes.NoneType,
                 )
@@ -130,7 +130,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyTy
                     location,
                     box_proxy=self.expr,
                     op_code="box_splice",
-                    arg_wtypes=(wtypes.uint64_wtype, wtypes.uint64_wtype, wtypes.bytes_wtype),
+                    arg_types=(pytypes.UInt64Type, pytypes.UInt64Type, pytypes.BytesType),
                     args=("start_index", "length", "value"),
                     return_type=pytypes.NoneType,
                 )
@@ -192,14 +192,14 @@ class _IntrinsicMethod(FunctionBuilder):
         *,
         box_proxy: Expression,
         op_code: str,
-        arg_wtypes: Sequence[wtypes.WType],
+        arg_types: Sequence[pytypes.PyType],
         return_type: pytypes.PyType,
         args: Sequence[str],
     ) -> None:
         super().__init__(location)
         self.box_proxy = box_proxy
         self.op_code = op_code
-        self.arg_wtypes = arg_wtypes
+        self.arg_types = arg_types
         self.args = args
         self.return_type = return_type
 
@@ -215,8 +215,8 @@ class _IntrinsicMethod(FunctionBuilder):
         args_map = get_arg_mapping(self.args, zip(arg_names, args, strict=True), location)
         try:
             stack_args = [
-                expect_operand_wtype(args_map.pop(arg_name), arg_wtype)
-                for arg_name, arg_wtype in zip(self.args, self.arg_wtypes, strict=True)
+                expect_operand_type(args_map.pop(arg_name), arg_type)
+                for arg_name, arg_type in zip(self.args, self.arg_types, strict=True)
             ]
         except KeyError as er:
             raise CodeError(f"Missing required arg '{er.args[0]}'", location) from None
@@ -249,7 +249,7 @@ class _Create(FunctionBuilder):
             (arg,) = args
         except ValueError:
             raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        size = expect_operand_wtype(arg, wtypes.uint64_wtype)
+        size = expect_operand_type(arg, pytypes.UInt64Type)
         return BoolExpressionBuilder(
             IntrinsicCall(
                 op_code="box_create",
@@ -278,7 +278,7 @@ class _Put(FunctionBuilder):
             (arg,) = args
         except ValueError:
             raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        data = expect_operand_wtype(arg, wtypes.bytes_wtype)
+        data = expect_operand_type(arg, pytypes.BytesType)
 
         return VoidExpressionBuilder(
             IntrinsicCall(
