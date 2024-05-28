@@ -78,7 +78,7 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[pytypes.TupleType]):
             wtype=self._wtype,
             source_location=location,
         )
-        return TupleExpressionBuilder(tuple_expr, self.produces2())
+        return TupleExpressionBuilder(tuple_expr, self.produces())
 
 
 class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):

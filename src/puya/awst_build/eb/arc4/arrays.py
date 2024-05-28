@@ -114,7 +114,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
-        typ = self.produces2()
+        typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         for a in non_literal_args:
@@ -185,7 +185,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
-        typ = self.produces2()
+        typ = self.produces()
         if typ.size != len(non_literal_args):
             raise CodeError(f"{typ} should be initialized with {typ.size} values", location)
         wtype = typ.wtype
@@ -200,7 +200,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
                 wtype=wtype,
                 source_location=location,
             ),
-            self.produces2(),
+            self.produces(),
         )
 
 
@@ -217,7 +217,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> NodeBuilder:
-        wtype = self.produces()
+        wtype = self.produces().wtype
         match args:
             case []:
                 const_op = intrinsic_factory.zero_address(location, as_type=wtype)

@@ -117,7 +117,7 @@ class InnerTxnParamsClassExpressionBuilder(
                 value=0,
             )
         }
-        transaction_type = self.produces2().transaction_type
+        transaction_type = self.produces().transaction_type
         if transaction_type:
             transaction_fields[TxnFields.type] = UInt64Constant(
                 source_location=self.source_location,
@@ -127,11 +127,12 @@ class InnerTxnParamsClassExpressionBuilder(
         for arg_name, arg in zip(arg_names, args, strict=True):
             if arg_name is None:
                 raise CodeError(
-                    f"Positional arguments are not supported for {self.produces()}", location
+                    f"Positional arguments are not supported for {self.produces()}",
+                    location,
                 )
             field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
-        typ = self.produces2()
+        typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WInnerTransactionFields)
         return InnerTxnParamsExpressionBuilder(

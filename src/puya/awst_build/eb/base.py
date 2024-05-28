@@ -6,7 +6,6 @@ import typing
 
 import typing_extensions
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ContractReference,
     Expression,
@@ -285,12 +284,8 @@ class TypeClassExpressionBuilder(
         return pytypes.TypeType(self._pytype)
 
     @typing.final
-    def produces2(self) -> _TPyType_co:
+    def produces(self) -> _TPyType_co:
         return self._pytype
-
-    @typing.final
-    def produces(self) -> wtypes.WType:
-        return self._pytype.wtype
 
     @typing.override
     @abc.abstractmethod

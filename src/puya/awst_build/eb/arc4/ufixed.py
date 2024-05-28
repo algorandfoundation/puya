@@ -45,7 +45,7 @@ class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> NodeBuilder:
-        typ = self.produces2()
+        typ = self.produces()
         fixed_wtype = typ.wtype
         assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
         loc = location

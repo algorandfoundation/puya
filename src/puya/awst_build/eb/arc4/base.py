@@ -53,7 +53,7 @@ class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TPyType_co],
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "from_log":
-                return ARC4FromLogBuilder(location, self.produces2())
+                return ARC4FromLogBuilder(location, self.produces())
             case _:
                 return super().member_access(name, location)
 

@@ -47,7 +47,7 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
                 )
-        wtype = self.produces()
+        wtype = self.produces().wtype
         assert isinstance(wtype, wtypes.ARC4Type)
         return ARC4BoolExpressionBuilder(
             ARC4Encode(value=native_bool, wtype=wtype, source_location=location)

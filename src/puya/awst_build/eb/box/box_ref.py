@@ -63,7 +63,7 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StoragePro
         key_override = extract_key_override(key_arg, location, is_prefix=False)
         if key_override is None:
             return StorageProxyDefinitionBuilder(
-                self.produces2(), location=location, description=None
+                self.produces(), location=location, description=None
             )
         return _BoxRefProxyExpressionBuilderFromConstructor(expr=key_override)
 

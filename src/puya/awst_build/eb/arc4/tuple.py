@@ -61,7 +61,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
 
         match args:
             case [NodeBuilder(pytype=pytypes.TupleType() as tuple_type) as eb]:
-                typ = self.produces2()
+                typ = self.produces()
                 if typ.items != tuple_type.items:
                     expected_type = pytypes.GenericTupleType.parameterise(typ.items, location)
                     raise CodeError(
@@ -72,7 +72,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
                 assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
                     ARC4Encode(value=eb.rvalue(), wtype=wtype, source_location=location),
-                    self.produces2(),
+                    self.produces(),
                 )
 
         raise CodeError("Invalid/unhandled arguments", location)

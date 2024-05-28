@@ -72,7 +72,7 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType])
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
-        array_type = self.produces2()
+        array_type = self.produces()
         for a in non_literal_args:
             expect_operand_type(a, array_type.items)
         array_expr = NewArray(

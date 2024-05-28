@@ -43,7 +43,7 @@ class InnerTransactionClassExpressionBuilder(
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> typing.Never:
-        typ = self.produces2()
+        typ = self.produces()
         params_typ = pytypes.InnerTransactionFieldsetTypes[typ.transaction_type]
         raise CodeError(
             f"{typ} cannot be instantiated directly, create a {params_typ} and submit instead",

@@ -42,7 +42,7 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> NodeBuilder:
-        typ = self.produces2()
+        typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         match args:

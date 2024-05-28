@@ -64,7 +64,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
         return ARC4StructExpressionBuilder(
-            NewStruct(wtype=wtype, values=values, source_location=location), self.produces2()
+            NewStruct(wtype=wtype, values=values, source_location=location), self.produces()
         )
 
 

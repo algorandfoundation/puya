@@ -20,7 +20,7 @@ _TPyType_co = typing_extensions.TypeVar(
 class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TPyType_co], abc.ABC):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        typ = self.produces2()
+        typ = self.produces()
         match name:
             case "from_bytes":
                 return _FromBytes(typ, location)
