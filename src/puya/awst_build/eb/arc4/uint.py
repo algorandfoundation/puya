@@ -81,6 +81,7 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]
             native_pytype = pytypes.BigUIntType
         super().__init__(typ, expr, native_pytype=native_pytype)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return arc4_bool_bytes(
             self.expr,
@@ -89,6 +90,7 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]
             negate=negate,
         )
 
+    @typing.override
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:

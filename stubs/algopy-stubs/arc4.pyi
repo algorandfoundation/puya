@@ -174,6 +174,9 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
+    def __eq__(self, other: typing.Self) -> bool:  # type: ignore[override]
+        """Compare for equality, note both operands must be the exact same type"""
+
 class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
 
@@ -187,6 +190,9 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
+
+    def __eq__(self, other: typing.Self) -> bool:  # type: ignore[override]
+        """Compare for equality, note both operands must be the exact same type"""
 
 class Byte(UIntN[typing.Literal[8]]):
     """An ARC4 alias for a UInt8"""
