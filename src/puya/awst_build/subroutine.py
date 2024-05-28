@@ -515,8 +515,9 @@ class FunctionASTConverter(
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
         subject_eb = require_expression_builder(stmt.subject.accept(self))
-        # TODO: PyType from EB
-        subject_typ = self.context.mypy_expr_node_type(stmt.subject)
+        subject_typ = subject_eb.pytype
+        if subject_typ is None:  # TODO: remove once EB heirarchy is fixed
+            raise CodeError("bad expression type", subject_eb.source_location)
         subject = temporary_assignment_if_required(subject_typ, subject_eb).rvalue()
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
@@ -547,7 +548,7 @@ class FunctionASTConverter(
                     constants.CLS_ACCOUNT,
                 ):
                     case_value_builder_or_literal = inner_literal_expr.accept(self)
-                    case_value = expect_operand_type(case_value_builder_or_literal, subject.wtype)
+                    case_value = expect_operand_type(case_value_builder_or_literal, subject_typ)
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.AsPattern(name=None, pattern=None), None:
@@ -960,10 +961,8 @@ class FunctionASTConverter(
             rhs_expr = bool_eval(rhs, location).rvalue()
         else:
             (target_pytyp,) = result_pytypes
-            # TODO: use to PyType instead
-            target_wtype = target_pytyp.wtype
-            lhs_expr = expect_operand_type(lhs, target_wtype)
-            rhs_expr = expect_operand_type(rhs, target_wtype)
+            lhs_expr = expect_operand_type(lhs, target_pytyp)
+            rhs_expr = expect_operand_type(rhs, target_pytyp)
 
         if target_pytyp is pytypes.BoolType:
             expr_result: Expression = BooleanBinaryOperation(

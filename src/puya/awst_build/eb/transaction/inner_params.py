@@ -36,22 +36,26 @@ if typing.TYPE_CHECKING:
 
     from puya.parse import SourceLocation
 
-_parameter_mapping: typing.Final = {get_field_python_name(f): f for f in INNER_PARAM_TXN_FIELDS}
+_parameter_mapping: typing.Final = {
+    get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype))
+    for f in INNER_PARAM_TXN_FIELDS
+}
 
 
 def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[TxnField, Expression]:
     try:
-        field = _parameter_mapping[arg_name]
+        field, field_pytype = _parameter_mapping[arg_name]
     except KeyError as ex:
         raise CodeError(f"{arg_name} is not a valid keyword argument", arg.source_location) from ex
-    if remapped_field := _maybe_transform_program_field_expr(field, arg):
+    if remapped_field := _maybe_transform_program_field_expr(field, field_pytype, arg):
         return remapped_field
     elif field.is_array:
         match arg:
-            case ExpressionBuilder(
-                value_type=wtypes.WTuple(types=tuple_item_types) as wtype
-            ) if all(field.valid_type(t) for t in tuple_item_types):
-                expr = expect_operand_type(arg, wtype)
+            case ExpressionBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+                field.valid_type(t.wtype)
+                for t in tuple_item_types  # TODO: revisit this re serialize
+            ):
+                expr = arg.rvalue()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
     elif (
@@ -59,12 +63,12 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
     ):
         field_expr = arg.rvalue()
     else:
-        field_expr = expect_operand_type(arg, field.wtype)
+        field_expr = expect_operand_type(arg, field_pytype)
     return field, field_expr
 
 
 def _maybe_transform_program_field_expr(
-    field: TxnField, eb: ExpressionBuilder | Literal
+    field: TxnField, field_pytype: pytypes.PyType, eb: ExpressionBuilder | Literal
 ) -> tuple[TxnField, Expression] | None:
     immediate = field.immediate
     if immediate not in ("ApprovalProgram", "ClearStateProgram"):
@@ -75,12 +79,12 @@ def _maybe_transform_program_field_expr(
         else TxnFields.clear_state_program_pages
     )
     match eb:
-        case ValueExpressionBuilder(wtype=wtypes.WTuple(types=tuple_item_types) as wtype) if all(
-            field.valid_type(t) for t in tuple_item_types
+        case ValueExpressionBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+            field.valid_type(t.wtype) for t in tuple_item_types  # TODO: revisit this re serialize
         ):
-            expr = expect_operand_type(eb, wtype)
+            expr = eb.rvalue()
         case _:
-            expr = expect_operand_type(eb, field.wtype)
+            expr = expect_operand_type(eb, field_pytype)
     return field, expr
 
 
