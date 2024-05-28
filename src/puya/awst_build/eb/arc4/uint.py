@@ -52,7 +52,7 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
     ) -> ExpressionBuilder:
         typ = self.produces2()
         wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4UFixedNxM)
+        assert isinstance(wtype, wtypes.ARC4UIntN)
         match args:
             case []:
                 expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)

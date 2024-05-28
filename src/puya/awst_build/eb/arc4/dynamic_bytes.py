@@ -3,7 +3,15 @@ from __future__ import annotations
 import typing
 
 from puya.awst import wtypes
-from puya.awst.nodes import ARC4Encode, Expression, Literal, NewArray, ReinterpretCast
+from puya.awst.nodes import (
+    ARC4Encode,
+    BytesConstant,
+    BytesEncoding,
+    Expression,
+    Literal,
+    NewArray,
+    ReinterpretCast,
+)
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_decode
 from puya.awst_build.eb.arc4._utils import convert_arc4_literal
@@ -34,22 +42,27 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        wtype = self.produces()
+        typ = self.produces2()
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         match args:
-            case [Literal(value=bytes()) as literal]:
-                return DynamicBytesExpressionBuilder(
-                    convert_arc4_literal(literal, self.produces2(), location)
+            case []:
+                bytes_expr: Expression = BytesConstant(
+                    value=b"", encoding=BytesEncoding.unknown, source_location=location
                 )
-            case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
-                return DynamicBytesExpressionBuilder(
-                    ARC4Encode(value=eb.rvalue(), source_location=location, wtype=wtype)
+            case [Literal(value=bytes(bytes_literal))]:
+                bytes_expr = BytesConstant(
+                    value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location
                 )
-
-        non_literal_args = tuple(_coerce_to_byte(a) for a in args)
-        return DynamicBytesExpressionBuilder(
-            NewArray(values=non_literal_args, wtype=wtype, source_location=location)
-        )
+            case [ExpressionBuilder(pytype=pytypes.BytesType) as eb]:
+                bytes_expr = eb.rvalue()
+            case _:
+                non_literal_args = tuple(_coerce_to_byte(a) for a in args)
+                return DynamicBytesExpressionBuilder(
+                    NewArray(values=non_literal_args, wtype=wtype, source_location=location)
+                )
+        encode_expr = ARC4Encode(value=bytes_expr, wtype=wtype, source_location=location)
+        return DynamicBytesExpressionBuilder(encode_expr)
 
 
 def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> Expression:
