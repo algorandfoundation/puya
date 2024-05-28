@@ -72,8 +72,8 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
         match args:
             case []:
                 value: Expression = BytesConstant(value=b"", source_location=location)
-            case [Literal(value=bytes()) as literal]:
-                value = convert_literal(literal, wtypes.bytes_wtype)
+            case [Literal(value=bytes(literal_value))]:
+                value = BytesConstant(value=literal_value, source_location=location)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
