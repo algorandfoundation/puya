@@ -11,7 +11,6 @@ from tempfile import TemporaryDirectory
 from textwrap import dedent
 
 import algokit_utils
-import algosdk.transaction
 import attrs
 import prettytable
 import puya.errors
@@ -22,8 +21,14 @@ from algokit_utils import (
     Program,
     execute_atc_with_logic_error,
 )
-from algosdk import constants, transaction
-from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk import abi, constants, transaction
+from algosdk.atomic_transaction_composer import (
+    AtomicTransactionComposer,
+    SimulateAtomicTransactionResponse,
+    TransactionWithSigner,
+)
+from algosdk.encoding import decode_address
+from algosdk.logic import get_application_address
 from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComplete, StateSchema
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
@@ -150,7 +155,7 @@ class AppCallResult:
 
     @property
     def app_address(self) -> str:
-        return algosdk.logic.get_application_address(self.app_id)
+        return get_application_address(self.app_id)
 
     def decode_logs(self, log_format: str) -> list[str | bytes | int]:
         """
@@ -235,7 +240,7 @@ class ATCRunner:
             TransactionWithSigner(
                 txn=transaction.PaymentTxn(
                     sender=self.sender,
-                    receiver=algosdk.logic.get_application_address(app_id),
+                    receiver=get_application_address(app_id),
                     amt=micro_algos,
                     sp=self.sp,
                 ),
@@ -313,7 +318,7 @@ class ATCRunner:
 
     def _write_trace_to_file(
         self,
-        simulate_response: algosdk.atomic_transaction_composer.SimulateAtomicTransactionResponse,
+        simulate_response: SimulateAtomicTransactionResponse,
         output_path: Path,
     ) -> None:
         def map_stack_addition(value: dict[str, typing.Any]) -> int | str:
@@ -746,7 +751,7 @@ def test_simplish(harness: _TestHarness) -> None:
 
 def test_address(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "constants" / "address_constant.py")
-    sender_bytes = algosdk.encoding.decode_address(harness.sender)
+    sender_bytes = decode_address(harness.sender)
     assert result.decode_logs("b") == [sender_bytes]
 
 
@@ -1390,3 +1395,51 @@ def test_arc4_copy_in_state(harness: _TestHarness) -> None:
 @pytest.mark.slow()
 def test_brute_force_rotation_search(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")
+
+
+def test_dynamic_arrays(harness: _TestHarness) -> None:
+    contract_dir = TEST_CASES_DIR / "arc4_dynamic_arrays"
+    result = harness.deploy(contract_dir, AppCallRequest(trace_output=contract_dir / "trace.log"))
+
+    (
+        dynamic_arr_bytes,
+        dynamic_0_bytes,
+        dynamic_1_bytes,
+        fixed_arr_bytes,
+        fixed_0_bytes,
+        fixed_1_bytes,
+        mixed_arr_bytes,
+        mixed_0_bytes,
+        mixed_1_bytes,
+    ) = result.decode_logs("b" * 9)
+
+    dynamic_struct_t = abi.ABIType.from_string("(string,string)")
+    fixed_struct_t = abi.ABIType.from_string("(uint64,byte[2])")
+    mixed_struct_t = abi.ABIType.from_string("(uint64,string,uint64)")
+    dynamic_arr_t, fixed_arr_t, mixed_arr_t = map(
+        abi.ArrayDynamicType, (dynamic_struct_t, fixed_struct_t, mixed_struct_t)
+    )
+    string1 = "aye"
+    string2 = "bee"
+    string3 = "Hello"
+    uint1 = 3
+    uint2 = 2**42
+    dynamic_struct0 = (string1, string2)
+    dynamic_struct1 = (string3, string1)
+    fixed_struct0 = (uint1, bytes((4, 5)))
+    fixed_struct1 = (uint2, bytes((42, 80)))
+    mixed_struct0 = (uint1, string1, uint2)
+    mixed_struct1 = (uint2, string2, uint1)
+
+    assert dynamic_arr_bytes == dynamic_arr_t.encode([dynamic_struct0, dynamic_struct1])
+    assert fixed_arr_bytes == fixed_arr_t.encode([fixed_struct0, fixed_struct1])
+    assert mixed_arr_bytes == mixed_arr_t.encode([mixed_struct0, (uint2, string2, uint1)])
+
+    assert fixed_0_bytes == fixed_struct_t.encode(fixed_struct0)
+    assert fixed_1_bytes == fixed_struct_t.encode(fixed_struct1)
+
+    assert dynamic_0_bytes == dynamic_struct_t.encode(dynamic_struct0)
+    assert dynamic_1_bytes == dynamic_struct_t.encode(dynamic_struct1)
+
+    assert mixed_0_bytes == mixed_struct_t.encode(mixed_struct0)
+    assert mixed_1_bytes == mixed_struct_t.encode(mixed_struct1)

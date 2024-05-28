@@ -1,0 +1,146 @@
+contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
+    program approval:
+        subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program() -> bool:
+            block@0: // L24
+                let array_data%0#1: bytes = (concat 0x 0x04)
+                let array_data%0#1: bytes = (concat array_data%0#1 0x05)
+                let byte_array1#0: bytes = array_data%0#1
+                let array_data%1#1: bytes = (concat 0x 0x2a)
+                let array_data%1#1: bytes = (concat array_data%1#1 0x50)
+                let byte_array2#0: bytes = array_data%1#1
+                let value_as_bytes%0#0: bytes = (itob 4u)
+                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
+                let encoded_tuple_buffer%0#1: bytes = (concat 0x value_as_uint16%0#0)
+                let data_length%0#0: uint64 = (len "\x00\x03aye")
+                let current_tail_offset%0#1: uint64 = (+ 4u data_length%0#0)
+                let value_as_bytes%1#0: bytes = (itob current_tail_offset%0#1)
+                let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
+                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 value_as_uint16%1#0)
+                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 "\x00\x03aye")
+                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 "\x00\x03bee")
+                let dynamic_struct1#0: bytes = encoded_tuple_buffer%0#1
+                let value_as_bytes%2#0: bytes = (itob 4u)
+                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
+                let encoded_tuple_buffer%1#1: bytes = (concat 0x value_as_uint16%2#0)
+                let data_length%2#0: uint64 = (len "\x00\x05Hello")
+                let current_tail_offset%1#1: uint64 = (+ 4u data_length%2#0)
+                let value_as_bytes%3#0: bytes = (itob current_tail_offset%1#1)
+                let value_as_uint16%3#0: bytes = ((extract 6 2) value_as_bytes%3#0)
+                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 value_as_uint16%3#0)
+                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 "\x00\x05Hello")
+                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 "\x00\x03aye")
+                let dynamic_struct2#0: bytes = encoded_tuple_buffer%1#1
+                let copy%0#0: bytes = dynamic_struct1#0
+                let copy%1#0: bytes = dynamic_struct2#0
+                let value_as_bytes%4#0: bytes = (itob 4u)
+                let value_as_uint16%4#0: bytes = ((extract 6 2) value_as_bytes%4#0)
+                let array_data%2#1: bytes = (concat 0x0002 value_as_uint16%4#0)
+                let element_length%0#0: uint64 = (len copy%0#0)
+                let next_offset%0#1: uint64 = (+ 4u element_length%0#0)
+                let value_as_bytes%5#0: bytes = (itob next_offset%0#1)
+                let value_as_uint16%5#0: bytes = ((extract 6 2) value_as_bytes%5#0)
+                let array_data%2#1: bytes = (concat array_data%2#1 value_as_uint16%5#0)
+                let array_data%2#1: bytes = (concat array_data%2#1 copy%0#0)
+                let array_data%2#1: bytes = (concat array_data%2#1 copy%1#0)
+                let dynamic_array#0: bytes = array_data%2#1
+                (log dynamic_array#0)
+                let array_length%0#0: uint64 = (extract_uint16 dynamic_array#0 0u)
+                let index_is_in_bounds%0#0: bool = (< 0u array_length%0#0)
+                (assert index_is_in_bounds%0#0) // Index access is out of bounds
+                let array_data_sans_header%0#0: bytes = ((extract 2 0) dynamic_array#0)
+                let item_index_index%0#0: uint64 = (* 0u 2u)
+                let item_index%0#0: uint64 = (extract_uint16 array_data_sans_header%0#0 item_index_index%0#0)
+                let item_length%0#0: uint64 = (extract_uint16 array_data_sans_header%0#0 item_index%0#0)
+                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
+                let tmp%0#0: bytes = (extract3 array_data_sans_header%0#0 item_index%0#0 item_length_plus_2%0#0)
+                (log tmp%0#0)
+                let array_length%1#0: uint64 = (extract_uint16 dynamic_array#0 0u)
+                let index_is_in_bounds%1#0: bool = (< 1u array_length%1#0)
+                (assert index_is_in_bounds%1#0) // Index access is out of bounds
+                let array_data_sans_header%1#0: bytes = ((extract 2 0) dynamic_array#0)
+                let item_index_index%1#0: uint64 = (* 1u 2u)
+                let item_index%1#0: uint64 = (extract_uint16 array_data_sans_header%1#0 item_index_index%1#0)
+                let item_length%1#0: uint64 = (extract_uint16 array_data_sans_header%1#0 item_index%1#0)
+                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
+                let tmp%1#0: bytes = (extract3 array_data_sans_header%1#0 item_index%1#0 item_length_plus_2%1#0)
+                (log tmp%1#0)
+                let encoded_tuple_buffer%2#1: bytes = (concat 0x 0x0000000000000003)
+                let encoded_tuple_buffer%2#1: bytes = (concat encoded_tuple_buffer%2#1 byte_array1#0)
+                let fixed1#0: bytes = encoded_tuple_buffer%2#1
+                let encoded_tuple_buffer%3#1: bytes = (concat 0x 0x0000040000000000)
+                let encoded_tuple_buffer%3#1: bytes = (concat encoded_tuple_buffer%3#1 byte_array2#0)
+                let fixed2#0: bytes = encoded_tuple_buffer%3#1
+                let copy%2#0: bytes = fixed1#0
+                let copy%3#0: bytes = fixed2#0
+                let array_data%3#1: bytes = (concat 0x0002 copy%2#0)
+                let array_data%3#1: bytes = (concat array_data%3#1 copy%3#0)
+                let dynamic_fixed#0: bytes = array_data%3#1
+                (log dynamic_fixed#0)
+                let array_length%2#0: uint64 = (extract_uint16 dynamic_fixed#0 0u)
+                let index_is_in_bounds%2#0: bool = (< 0u array_length%2#0)
+                (assert index_is_in_bounds%2#0) // Index access is out of bounds
+                let array_data_sans_header%2#0: bytes = ((extract 2 0) dynamic_fixed#0)
+                let item_index%2#0: uint64 = (* 0u 10u)
+                let tmp%2#0: bytes = (extract3 array_data_sans_header%2#0 item_index%2#0 10u)
+                (log tmp%2#0)
+                let array_length%3#0: uint64 = (extract_uint16 dynamic_fixed#0 0u)
+                let index_is_in_bounds%3#0: bool = (< 1u array_length%3#0)
+                (assert index_is_in_bounds%3#0) // Index access is out of bounds
+                let array_data_sans_header%3#0: bytes = ((extract 2 0) dynamic_fixed#0)
+                let item_index%3#0: uint64 = (* 1u 10u)
+                let tmp%3#0: bytes = (extract3 array_data_sans_header%3#0 item_index%3#0 10u)
+                (log tmp%3#0)
+                let encoded_tuple_buffer%4#1: bytes = (concat 0x 0x0000000000000003)
+                let value_as_bytes%6#0: bytes = (itob 18u)
+                let value_as_uint16%6#0: bytes = ((extract 6 2) value_as_bytes%6#0)
+                let encoded_tuple_buffer%4#1: bytes = (concat encoded_tuple_buffer%4#1 value_as_uint16%6#0)
+                let encoded_tuple_buffer%4#1: bytes = (concat encoded_tuple_buffer%4#1 0x0000040000000000)
+                let encoded_tuple_buffer%4#1: bytes = (concat encoded_tuple_buffer%4#1 "\x00\x03aye")
+                let mixed1#0: bytes = encoded_tuple_buffer%4#1
+                let encoded_tuple_buffer%5#1: bytes = (concat 0x 0x0000040000000000)
+                let value_as_bytes%7#0: bytes = (itob 18u)
+                let value_as_uint16%7#0: bytes = ((extract 6 2) value_as_bytes%7#0)
+                let encoded_tuple_buffer%5#1: bytes = (concat encoded_tuple_buffer%5#1 value_as_uint16%7#0)
+                let encoded_tuple_buffer%5#1: bytes = (concat encoded_tuple_buffer%5#1 0x0000000000000003)
+                let encoded_tuple_buffer%5#1: bytes = (concat encoded_tuple_buffer%5#1 "\x00\x03bee")
+                let mixed2#0: bytes = encoded_tuple_buffer%5#1
+                let copy%4#0: bytes = mixed1#0
+                let copy%5#0: bytes = mixed2#0
+                let value_as_bytes%8#0: bytes = (itob 4u)
+                let value_as_uint16%8#0: bytes = ((extract 6 2) value_as_bytes%8#0)
+                let array_data%4#1: bytes = (concat 0x0002 value_as_uint16%8#0)
+                let element_length%2#0: uint64 = (len copy%4#0)
+                let next_offset%1#1: uint64 = (+ 4u element_length%2#0)
+                let value_as_bytes%9#0: bytes = (itob next_offset%1#1)
+                let value_as_uint16%9#0: bytes = ((extract 6 2) value_as_bytes%9#0)
+                let array_data%4#1: bytes = (concat array_data%4#1 value_as_uint16%9#0)
+                let array_data%4#1: bytes = (concat array_data%4#1 copy%4#0)
+                let array_data%4#1: bytes = (concat array_data%4#1 copy%5#0)
+                let dynamic_mixed#0: bytes = array_data%4#1
+                (log dynamic_mixed#0)
+                let array_length%4#0: uint64 = (extract_uint16 dynamic_mixed#0 0u)
+                let index_is_in_bounds%4#0: bool = (< 0u array_length%4#0)
+                (assert index_is_in_bounds%4#0) // Index access is out of bounds
+                let array_data_sans_header%4#0: bytes = ((extract 2 0) dynamic_mixed#0)
+                let item_index_index%2#0: uint64 = (* 0u 2u)
+                let item_index%4#0: uint64 = (extract_uint16 array_data_sans_header%4#0 item_index_index%2#0)
+                let item_length%2#0: uint64 = (extract_uint16 array_data_sans_header%4#0 item_index%4#0)
+                let item_length_plus_2%2#0: uint64 = (+ item_length%2#0 2u)
+                let tmp%4#0: bytes = (extract3 array_data_sans_header%4#0 item_index%4#0 item_length_plus_2%2#0)
+                (log tmp%4#0)
+                let array_length%5#0: uint64 = (extract_uint16 dynamic_mixed#0 0u)
+                let index_is_in_bounds%5#0: bool = (< 1u array_length%5#0)
+                (assert index_is_in_bounds%5#0) // Index access is out of bounds
+                let array_data_sans_header%5#0: bytes = ((extract 2 0) dynamic_mixed#0)
+                let item_index_index%3#0: uint64 = (* 1u 2u)
+                let item_index%5#0: uint64 = (extract_uint16 array_data_sans_header%5#0 item_index_index%3#0)
+                let item_length%3#0: uint64 = (extract_uint16 array_data_sans_header%5#0 item_index%5#0)
+                let item_length_plus_2%3#0: uint64 = (+ item_length%3#0 2u)
+                let tmp%5#0: bytes = (extract3 array_data_sans_header%5#0 item_index%5#0 item_length_plus_2%3#0)
+                (log tmp%5#0)
+                return 1u
+    
+    program clear-state:
+        subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.clear_state_program() -> bool:
+            block@0: // L56
+                return 1u

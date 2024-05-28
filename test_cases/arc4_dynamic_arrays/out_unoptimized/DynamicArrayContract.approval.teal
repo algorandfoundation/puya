@@ -1,0 +1,365 @@
+#pragma version 10
+
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
+    // arc4_dynamic_arrays/contract.py:30
+    // byte_array1 = arc4.StaticArray(arc4.Byte(4), arc4.Byte(5))
+    byte 0x
+    byte 0x04
+    concat
+    byte 0x05
+    concat
+    // arc4_dynamic_arrays/contract.py:31
+    // byte_array2 = arc4.StaticArray(arc4.Byte(42), arc4.Byte(80))
+    byte 0x
+    byte 0x2a
+    concat
+    byte 0x50
+    concat
+    swap
+    // arc4_dynamic_arrays/contract.py:33
+    // dynamic_struct1 = DynamicStruct(string1, string2)
+    int 4
+    itob
+    extract 6 2
+    byte 0x
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:25
+    // string1 = arc4.String("aye")
+    byte "\x00\x03aye"
+    // arc4_dynamic_arrays/contract.py:33
+    // dynamic_struct1 = DynamicStruct(string1, string2)
+    len
+    int 4
+    swap
+    +
+    itob
+    extract 6 2
+    concat
+    // arc4_dynamic_arrays/contract.py:25
+    // string1 = arc4.String("aye")
+    byte "\x00\x03aye"
+    // arc4_dynamic_arrays/contract.py:33
+    // dynamic_struct1 = DynamicStruct(string1, string2)
+    concat
+    // arc4_dynamic_arrays/contract.py:26
+    // string2 = arc4.String("bee")
+    byte "\x00\x03bee"
+    // arc4_dynamic_arrays/contract.py:33
+    // dynamic_struct1 = DynamicStruct(string1, string2)
+    concat
+    // arc4_dynamic_arrays/contract.py:34
+    // dynamic_struct2 = DynamicStruct(string3, string1)
+    int 4
+    itob
+    extract 6 2
+    byte 0x
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:27
+    // string3 = arc4.String("Hello")
+    byte "\x00\x05Hello"
+    // arc4_dynamic_arrays/contract.py:34
+    // dynamic_struct2 = DynamicStruct(string3, string1)
+    len
+    int 4
+    swap
+    +
+    itob
+    extract 6 2
+    concat
+    // arc4_dynamic_arrays/contract.py:27
+    // string3 = arc4.String("Hello")
+    byte "\x00\x05Hello"
+    // arc4_dynamic_arrays/contract.py:34
+    // dynamic_struct2 = DynamicStruct(string3, string1)
+    concat
+    // arc4_dynamic_arrays/contract.py:25
+    // string1 = arc4.String("aye")
+    byte "\x00\x03aye"
+    // arc4_dynamic_arrays/contract.py:34
+    // dynamic_struct2 = DynamicStruct(string3, string1)
+    concat
+    // arc4_dynamic_arrays/contract.py:35
+    // dynamic_array = arc4.DynamicArray(dynamic_struct1.copy(), dynamic_struct2.copy())
+    swap
+    int 4
+    itob
+    extract 6 2
+    byte 0x0002
+    swap
+    concat
+    swap
+    dup
+    len
+    int 4
+    swap
+    +
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:36
+    // log(dynamic_array)
+    dup
+    log
+    // arc4_dynamic_arrays/contract.py:37
+    // log(dynamic_array[0])
+    dup
+    int 0
+    extract_uint16
+    int 0
+    swap
+    <
+    assert // Index access is out of bounds
+    dup
+    extract 2 0
+    int 0
+    int 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dig 1
+    dig 1
+    extract_uint16
+    int 2
+    +
+    uncover 2
+    uncover 2
+    uncover 2
+    extract3
+    log
+    // arc4_dynamic_arrays/contract.py:38
+    // log(dynamic_array[1])
+    dup
+    int 0
+    extract_uint16
+    int 1
+    swap
+    <
+    assert // Index access is out of bounds
+    extract 2 0
+    int 1
+    int 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dig 1
+    dig 1
+    extract_uint16
+    int 2
+    +
+    uncover 2
+    uncover 2
+    uncover 2
+    extract3
+    log
+    // arc4_dynamic_arrays/contract.py:40
+    // fixed1 = FixedStruct(uint1, byte_array1)
+    byte 0x
+    // arc4_dynamic_arrays/contract.py:28
+    // uint1 = arc4.UInt64(3)
+    byte 0x0000000000000003
+    // arc4_dynamic_arrays/contract.py:40
+    // fixed1 = FixedStruct(uint1, byte_array1)
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:41
+    // fixed2 = FixedStruct(uint2, byte_array2)
+    byte 0x
+    // arc4_dynamic_arrays/contract.py:29
+    // uint2 = arc4.UInt64(2**42)
+    byte 0x0000040000000000
+    // arc4_dynamic_arrays/contract.py:41
+    // fixed2 = FixedStruct(uint2, byte_array2)
+    concat
+    uncover 2
+    concat
+    // arc4_dynamic_arrays/contract.py:42
+    // dynamic_fixed = arc4.DynamicArray(fixed1.copy(), fixed2.copy())
+    swap
+    byte 0x0002
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:43
+    // log(dynamic_fixed)
+    dup
+    log
+    // arc4_dynamic_arrays/contract.py:44
+    // log(dynamic_fixed[0])
+    dup
+    int 0
+    extract_uint16
+    int 0
+    swap
+    <
+    assert // Index access is out of bounds
+    dup
+    extract 2 0
+    int 0
+    int 10
+    *
+    int 10
+    extract3
+    log
+    // arc4_dynamic_arrays/contract.py:45
+    // log(dynamic_fixed[1])
+    dup
+    int 0
+    extract_uint16
+    int 1
+    swap
+    <
+    assert // Index access is out of bounds
+    extract 2 0
+    int 1
+    int 10
+    *
+    int 10
+    extract3
+    log
+    // arc4_dynamic_arrays/contract.py:47
+    // mixed1 = MixedStruct(uint1, string1, uint2)
+    byte 0x
+    // arc4_dynamic_arrays/contract.py:28
+    // uint1 = arc4.UInt64(3)
+    byte 0x0000000000000003
+    // arc4_dynamic_arrays/contract.py:47
+    // mixed1 = MixedStruct(uint1, string1, uint2)
+    concat
+    int 18
+    itob
+    extract 6 2
+    concat
+    // arc4_dynamic_arrays/contract.py:29
+    // uint2 = arc4.UInt64(2**42)
+    byte 0x0000040000000000
+    // arc4_dynamic_arrays/contract.py:47
+    // mixed1 = MixedStruct(uint1, string1, uint2)
+    concat
+    // arc4_dynamic_arrays/contract.py:25
+    // string1 = arc4.String("aye")
+    byte "\x00\x03aye"
+    // arc4_dynamic_arrays/contract.py:47
+    // mixed1 = MixedStruct(uint1, string1, uint2)
+    concat
+    // arc4_dynamic_arrays/contract.py:48
+    // mixed2 = MixedStruct(uint2, string2, uint1)
+    byte 0x
+    // arc4_dynamic_arrays/contract.py:29
+    // uint2 = arc4.UInt64(2**42)
+    byte 0x0000040000000000
+    // arc4_dynamic_arrays/contract.py:48
+    // mixed2 = MixedStruct(uint2, string2, uint1)
+    concat
+    int 18
+    itob
+    extract 6 2
+    concat
+    // arc4_dynamic_arrays/contract.py:28
+    // uint1 = arc4.UInt64(3)
+    byte 0x0000000000000003
+    // arc4_dynamic_arrays/contract.py:48
+    // mixed2 = MixedStruct(uint2, string2, uint1)
+    concat
+    // arc4_dynamic_arrays/contract.py:26
+    // string2 = arc4.String("bee")
+    byte "\x00\x03bee"
+    // arc4_dynamic_arrays/contract.py:48
+    // mixed2 = MixedStruct(uint2, string2, uint1)
+    concat
+    // arc4_dynamic_arrays/contract.py:49
+    // dynamic_mixed = arc4.DynamicArray(mixed1.copy(), mixed2.copy())
+    swap
+    int 4
+    itob
+    extract 6 2
+    byte 0x0002
+    swap
+    concat
+    swap
+    dup
+    len
+    int 4
+    swap
+    +
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:50
+    // log(dynamic_mixed)
+    dup
+    log
+    // arc4_dynamic_arrays/contract.py:51
+    // log(dynamic_mixed[0])
+    dup
+    int 0
+    extract_uint16
+    int 0
+    swap
+    <
+    assert // Index access is out of bounds
+    dup
+    extract 2 0
+    int 0
+    int 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dig 1
+    dig 1
+    extract_uint16
+    int 2
+    +
+    uncover 2
+    uncover 2
+    uncover 2
+    extract3
+    log
+    // arc4_dynamic_arrays/contract.py:52
+    // log(dynamic_mixed[1])
+    dup
+    int 0
+    extract_uint16
+    int 1
+    swap
+    <
+    assert // Index access is out of bounds
+    extract 2 0
+    int 1
+    int 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dig 1
+    dig 1
+    extract_uint16
+    int 2
+    +
+    uncover 2
+    uncover 2
+    uncover 2
+    extract3
+    log
+    // arc4_dynamic_arrays/contract.py:54
+    // return True
+    int 1
+    return
