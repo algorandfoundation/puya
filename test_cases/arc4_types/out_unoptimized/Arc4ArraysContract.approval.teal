@@ -7,47 +7,45 @@ test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     dupn 5
     // arc4_types/array.py:25
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    byte 0x
+    byte 0x0002
     byte 0x01
     concat
     byte 0x02
     concat
-    byte 0x0002
-    uncover 1
-    concat
-    dup
-    cover 1
     // arc4_types/array.py:26
     // total = UInt64(0)
     int 0
-    cover 1
+    swap
     // arc4_types/array.py:27
     // for uint8_item in dynamic_uint8_array:
+    dup
     int 0
     extract_uint16
+    swap
+    extract 2 0
     int 0
 
 main_for_header@1:
     // arc4_types/array.py:27
     // for uint8_item in dynamic_uint8_array:
     dup
-    dig 2
+    dig 3
     <
     bz main_after_for@4
-    dig 3
-    extract 2 0
-    dig 1
+    dup
     int 1
     *
+    dig 2
+    swap
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     // arc4_types/array.py:28
     // total += uint8_item.native
     btoi
-    dig 3
-    uncover 1
+    dig 4
+    swap
     +
-    bury 3
+    bury 4
     dup
     int 1
     +
@@ -57,25 +55,23 @@ main_for_header@1:
 main_after_for@4:
     // arc4_types/array.py:30
     // assert total == 3, "Total should be sum of dynamic_uint8_array items"
-    dig 2
+    dig 3
     int 3
     ==
     assert // Total should be sum of dynamic_uint8_array items
     // arc4_types/array.py:31
     // aliased_dynamic = AliasedDynamicArray(UInt16(1))
-    byte 0x
+    byte 0x0001
     byte 0x0001
     concat
-    byte 0x0001
-    uncover 1
-    concat
-    dup
-    bury 16
     // arc4_types/array.py:32
     // for uint16_item in aliased_dynamic:
+    dup
     int 0
     extract_uint16
-    bury 10
+    bury 11
+    extract 2 0
+    bury 15
     int 0
     bury 8
 
@@ -86,20 +82,20 @@ main_for_header@5:
     dig 10
     <
     bz main_after_for@8
-    dig 14
-    extract 2 0
-    dig 8
+    dig 7
     int 2
     *
+    dig 15
+    swap
     int 2
-    extract3 // on error: Index access is out of bounds
+    extract3
     // arc4_types/array.py:33
     // total += uint16_item.native
     btoi
-    dig 3
-    uncover 1
+    dig 4
+    swap
     +
-    bury 3
+    bury 4
     dig 7
     int 1
     +
@@ -109,7 +105,7 @@ main_for_header@5:
 main_after_for@8:
     // arc4_types/array.py:34
     // assert total == 4, "Total should now include sum of aliased_dynamic items"
-    dig 2
+    dig 3
     int 4
     ==
     assert // Total should now include sum of aliased_dynamic items
@@ -127,30 +123,25 @@ main_after_for@8:
     extract 6 2
     byte "World"
     concat
-    cover 1
+    swap
     int 4
     itob
     extract 6 2
-    byte 0x
-    uncover 1
+    byte 0x0002
+    swap
     concat
     dig 1
     len
     int 4
-    uncover 1
+    swap
     +
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     concat
-    byte 0x0002
-    uncover 1
-    concat
-    dup
-    bury 15
     // arc4_types/array.py:36
     // assert dynamic_string_array.length == 2
     dup
@@ -162,29 +153,26 @@ main_after_for@8:
     // arc4_types/array.py:37
     // assert dynamic_string_array[0] == ARC4String("Hello")
     dup
-    extract 2 0
-    cover 1
-    dup
     int 0
     extract_uint16
     int 0
-    uncover 1
+    swap
     <
     assert // Index access is out of bounds
+    dup
+    extract 2 0
     int 0
     int 2
     *
-    dig 2
-    uncover 1
+    dig 1
+    swap
     extract_uint16
-    dig 2
+    dig 1
     dig 1
     extract_uint16
-    int 1
-    *
     int 2
     +
-    uncover 3
+    uncover 2
     uncover 2
     uncover 2
     extract3
@@ -202,9 +190,12 @@ main_after_for@8:
     bury 14
     // arc4_types/array.py:39
     // for index, string_item in uenumerate(dynamic_string_array):
+    dup
     int 0
     extract_uint16
-    bury 9
+    bury 10
+    extract 2 0
+    bury 14
     int 0
     bury 7
 
@@ -215,28 +206,25 @@ main_for_header@9:
     dig 9
     <
     bz main_after_for@15
-    dig 13
-    extract 2 0
-    dig 7
+    dig 6
     dup
-    cover 2
     int 2
     *
-    dig 1
-    uncover 1
+    dig 15
+    dup
+    cover 2
+    swap
     extract_uint16
     dig 1
     dig 1
     extract_uint16
-    int 1
-    *
     int 2
     +
     uncover 2
     uncover 2
     uncover 2
     extract3
-    cover 1
+    swap
     // arc4_types/array.py:40
     // if index == 0:
     int 0
@@ -253,10 +241,10 @@ main_else_body@12:
     // result += " " + string_item.native
     extract 2 0
     byte " "
-    uncover 1
+    swap
     concat
     dig 13
-    uncover 1
+    swap
     concat
     bury 13
 
@@ -285,9 +273,6 @@ main_after_for@15:
     concat
     byte 0x00000080
     concat
-    byte 0x
-    uncover 1
-    concat
     bury 11
     int 0
     bury 6
@@ -299,19 +284,20 @@ main_for_header@16:
     int 4
     <
     bz main_after_for@19
-    dig 10
-    dig 6
+    dig 5
     int 4
     *
+    dig 11
+    swap
     int 4
-    extract3 // on error: Index access is out of bounds
+    extract3
     // arc4_types/array.py:50
     // total += uint32_item.native
     btoi
-    dig 3
-    uncover 1
+    dig 4
+    swap
     +
-    bury 3
+    bury 4
     dig 5
     int 1
     +
@@ -321,7 +307,7 @@ main_for_header@16:
 main_after_for@19:
     // arc4_types/array.py:52
     // assert total == 4 + 1 + 10 + 255 + 128
-    dig 2
+    dig 3
     int 398
     ==
     assert
@@ -330,19 +316,25 @@ main_after_for@19:
     byte 0x
     byte 0x65
     concat
-    byte 0x
-    uncover 1
-    concat
     // arc4_types/array.py:58
     // assert (aliased_static[0].native + aliased_static[index].native) == 202
-    dup
     int 0
     int 1
     *
+    dig 1
+    swap
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
-    cover 1
+    swap
+    // arc4_types/array.py:56
+    // index = UInt64(0)
+    int 0
+    // arc4_types/array.py:58
+    // assert (aliased_static[0].native + aliased_static[index].native) == 202
+    int 1
+    <
+    assert // Index access is out of bounds
     // arc4_types/array.py:56
     // index = UInt64(0)
     int 0
@@ -351,7 +343,7 @@ main_after_for@19:
     int 1
     *
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     +
     int 202
@@ -371,27 +363,24 @@ main_after_for@19:
     extract 6 2
     byte "Pong"
     concat
-    cover 1
+    swap
     int 4
     itob
     extract 6 2
     byte 0x
-    uncover 1
+    swap
     concat
     dig 1
     len
     int 4
-    uncover 1
+    swap
     +
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
-    uncover 1
-    concat
-    byte 0x
-    uncover 1
+    swap
     concat
     bury 12
     // arc4_types/array.py:62
@@ -408,27 +397,25 @@ main_for_header@20:
     int 2
     <
     bz main_after_for@26
-    dig 11
-    dig 5
+    dig 4
     dup
-    cover 2
     int 2
     *
-    dig 1
-    uncover 1
+    dig 13
+    dup
+    cover 2
+    swap
     extract_uint16
     dig 1
     dig 1
     extract_uint16
-    int 1
-    *
     int 2
     +
     uncover 2
     uncover 2
     uncover 2
     extract3
-    cover 1
+    swap
     // arc4_types/array.py:64
     // if index == 0:
     int 0
@@ -445,10 +432,10 @@ main_else_body@23:
     // result += " " + string_item.native
     extract 2 0
     byte " "
-    uncover 1
+    swap
     concat
     dig 13
-    uncover 1
+    swap
     concat
     bury 13
 

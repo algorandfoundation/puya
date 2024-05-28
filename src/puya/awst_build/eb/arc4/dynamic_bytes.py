@@ -14,7 +14,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_decode
-from puya.awst_build.eb.arc4._utils import convert_arc4_literal
+from puya.awst_build.eb._utils import construct_from_literal
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
@@ -68,7 +68,7 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
 def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> Expression:
     match arg:
         case Literal(value=int()) as literal:
-            return convert_arc4_literal(literal, pytypes.ARC4ByteType)
+            return construct_from_literal(literal, pytypes.ARC4ByteType).rvalue()
         case ExpressionBuilder(value_type=wtypes.ARC4UIntN(n=8) as wtype) as eb:
             if wtype != wtypes.arc4_byte_type:
                 return ReinterpretCast(

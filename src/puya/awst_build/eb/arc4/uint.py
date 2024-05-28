@@ -13,9 +13,8 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     ReinterpretCast,
 )
-from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import uint64_to_biguint
-from puya.awst_build.eb.arc4._utils import convert_arc4_literal
+from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb._utils import construct_from_literal
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -94,30 +93,30 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
         if isinstance(other, Literal):
-            other_expr = convert_arc4_literal(other, self.pytype)
-        else:
-            other_expr = other.rvalue()
-        match other_expr.wtype:
-            case wtypes.biguint_wtype:
-                pass
-            case wtypes.ARC4UIntN():
-                other_expr = ReinterpretCast(
-                    expr=other_expr,
-                    wtype=wtypes.biguint_wtype,
-                    source_location=other_expr.source_location,
+            other = construct_from_literal(other, self.pytype)
+        match other.pytype:
+            case pytypes.BigUIntType:
+                other_expr = other.rvalue()
+            case pytypes.UInt64Type | pytypes.BoolType:
+                other_expr = intrinsic_factory.itob_as(
+                    other.rvalue(), wtypes.biguint_wtype, location
                 )
-            case wtypes.uint64_wtype:
-                other_expr = uint64_to_biguint(other, location)
+            case pytypes.ARC4UIntNType():
+                other_expr = ReinterpretCast(
+                    expr=other.rvalue(),
+                    wtype=wtypes.biguint_wtype,
+                    source_location=other.source_location,
+                )
             case _:
                 return NotImplemented
         cmp_expr = NumericComparisonExpression(
-            source_location=location,
+            operator=NumericComparison(op.value),
             lhs=ReinterpretCast(
                 expr=self.expr,
                 wtype=wtypes.biguint_wtype,
                 source_location=self.source_location,
             ),
-            operator=NumericComparison(op.value),
             rhs=other_expr,
+            source_location=location,
         )
         return BoolExpressionBuilder(cmp_expr)
