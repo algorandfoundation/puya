@@ -3,7 +3,7 @@ contract BoxContract
   boxes {
     ['box_a']: uint64
     ['b']: bytes
-    [hex<"424F585F43">]: arc4.string
+    [hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8>
     ['']: uint64 => string
   }
   
@@ -11,36 +11,36 @@ contract BoxContract
   {
   }
   
-  abimethod set_boxes(a: uint64, b: bytes, c: arc4.string): void
+  abimethod set_boxes(a: uint64, b: bytes, c: arc4.dynamic_array<arc4.uint8>): void
   {
-    this.box_a: uint64 = a
-    this.box_b: bytes = b
-    this.box_c: arc4.string = c
-    this.box_a += 3u
+    Box['box_a']: uint64 = a
+    Box['b']: bytes = b
+    Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = c
+    Box['box_a'] += 3u
   }
   
-  abimethod read_boxes(): tuple<uint64,bytes,arc4.string>
+  abimethod read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
   {
-    return (this.box_a, this.box_b, this.box_c)
+    return (Box['box_a'], Box['b'], Box[hex<"424F585F43">])
   }
   
   abimethod boxes_exist(): tuple<bool,bool,bool>
   {
-    return (STATE_EXISTS(this.box_a), STATE_EXISTS(this.box_b), STATE_EXISTS(this.box_c))
+    return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]))
   }
   
   abimethod slice_box(): void
   {
-    box_0: bytes = hex<"30">
+    box_0: box_key = hex<"30">
     Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
-    assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0]))) == 'Testing')
-    this.box_c: arc4.string = arc4_encode('Hello', arc4.string)
-    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]))) == 'Hello')
+    assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0]))) == hex<"54657374696E67">)
+    Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
+    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]))) == hex<"48656C6C6F">)
   }
   
   abimethod arc4_box(): void
   {
-    box_d: bytes = hex<"64">
+    box_d: box_key = hex<"64">
     Box[box_d]: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
     assert(reinterpret_cast<biguint>(Box[box_d][0u]) == reinterpret_cast<biguint>(0arc4u8))
     assert(reinterpret_cast<biguint>(Box[box_d][1u]) == reinterpret_cast<biguint>(1arc4u8))
@@ -50,7 +50,7 @@ contract BoxContract
   
   abimethod box_blob(): void
   {
-    box_blob: bytes = 'blob'
+    box_blob: box_key = 'blob'
     sender_bytes: bytes = reinterpret_cast<bytes>(txn<Sender>())
     app_address: bytes = reinterpret_cast<bytes>(global<CurrentApplicationAddress>())
     assert(box_create(box_blob, 8000u))
@@ -72,27 +72,27 @@ contract BoxContract
     key_0: uint64 = 0u
     key_1: uint64 = 1u
     value: string = 'Hmmmmm'
-    Box[concat('', BytesRaw(key_0))]: string = value
-    assert(checked_maybe(box_len(concat('', BytesRaw(key_0)))) == len(reinterpret_cast<bytes>(value)))
-    assert(checked_maybe(box_len(concat('', BytesRaw(key_0)))) == len(reinterpret_cast<bytes>(value)))
-    assert(STATE_GET(Box[concat('', BytesRaw(key_1))], default='default') == 'default')
-    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', BytesRaw(key_1))])
+    Box[concat('', itob(key_0))]: string = value
+    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
+    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
+    assert(STATE_GET(Box[concat('', itob(key_1))], default='default') == 'default')
+    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', itob(key_1))])
     assert(!(exists))
-    assert(STATE_EXISTS(Box[concat('', BytesRaw(key_0))]))
+    assert(STATE_EXISTS(Box[concat('', itob(key_0))]))
   }
   
   abimethod box_map_set(key: uint64, value: string): void
   {
-    Box[concat('', BytesRaw(key))]: string = value
+    Box[concat('', itob(key))]: string = value
   }
   
   abimethod box_map_get(key: uint64): string
   {
-    return Box[concat('', BytesRaw(key))]
+    return Box[concat('', itob(key))]
   }
   
   abimethod box_map_exists(key: uint64): bool
   {
-    return STATE_EXISTS(Box[concat('', BytesRaw(key))])
+    return STATE_EXISTS(Box[concat('', itob(key))])
   }
 }

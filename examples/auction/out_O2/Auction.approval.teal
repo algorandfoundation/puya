@@ -125,7 +125,7 @@ opt_into_asset:
     int 0
     byte "asa"
     app_global_get_ex
-    assert // check asa exists
+    assert // check self.asa exists
     !
     assert // ASA already opted in
     byte "asa"
@@ -154,7 +154,7 @@ start_auction:
     int 0
     byte "auction_end"
     app_global_get_ex
-    assert // check auction_end exists
+    assert // check self.auction_end exists
     !
     assert // auction already started
     frame_dig -1
@@ -192,7 +192,7 @@ bid:
     int 0
     byte "auction_end"
     app_global_get_ex
-    assert // check auction_end exists
+    assert // check self.auction_end exists
     <
     assert // auction has ended
     frame_dig -1
@@ -206,7 +206,7 @@ bid:
     int 0
     byte "previous_bid"
     app_global_get_ex
-    assert // check previous_bid exists
+    assert // check self.previous_bid exists
     dig 1
     <
     assert // Bid must be higher than previous bid
@@ -233,18 +233,18 @@ claim_bids:
     swap
     dup
     uncover 2
-    assert // check claimable_amount exists for account
+    assert // check self.claimable_amount exists for account
     txn Sender
     int 0
     byte "previous_bidder"
     app_global_get_ex
-    assert // check previous_bidder exists
+    assert // check self.previous_bidder exists
     ==
     bz claim_bids_after_if_else@2
     int 0
     byte "previous_bid"
     app_global_get_ex
-    assert // check previous_bid exists
+    assert // check self.previous_bid exists
     frame_dig 0
     swap
     -
@@ -262,12 +262,12 @@ claim_bids_after_if_else@2:
     int 0
     itxn_field Fee
     itxn_submit
-    frame_dig 0
-    swap
-    -
     txn Sender
-    byte "claim"
+    frame_dig 0
     uncover 2
+    -
+    byte "claim"
+    swap
     app_local_put
     retsub
 
@@ -279,22 +279,22 @@ claim_asset:
     int 0
     byte "auction_end"
     app_global_get_ex
-    assert // check auction_end exists
+    assert // check self.auction_end exists
     >
     assert // auction has not ended
     itxn_begin
     int 0
     byte "previous_bidder"
     app_global_get_ex
-    assert // check previous_bidder exists
+    assert // check self.previous_bidder exists
     int 0
     byte "previous_bidder"
     app_global_get_ex
-    assert // check previous_bidder exists
+    assert // check self.previous_bidder exists
     int 0
     byte "asa_amount"
     app_global_get_ex
-    assert // check asa_amount exists
+    assert // check self.asa_amount exists
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetCloseTo

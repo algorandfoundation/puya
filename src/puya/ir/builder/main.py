@@ -2,6 +2,7 @@ import typing
 from collections.abc import Sequence
 
 import puya.awst.visitors
+import puya.ir.builder.storage
 from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -9,9 +10,10 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
+from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, box, flow_control, state
+from puya.ir.builder import arc4, flow_control, storage
 from puya.ir.builder._utils import (
     assert_value,
     assign,
@@ -238,6 +240,7 @@ class FunctionIRBuilder(
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
+            ir_type=wtype_to_ir_type(expr),
             source_location=expr.source_location,
         )
 
@@ -529,24 +532,27 @@ class FunctionIRBuilder(
         return result
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
-        return state.visit_app_state_expression(self.context, expr)
+        return storage.visit_app_state_expression(self.context, expr)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> TExpression:
-        return state.visit_app_account_state_expression(self.context, expr)
+        return storage.visit_app_account_state_expression(self.context, expr)
+
+    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
+        return puya.ir.builder.storage.visit_box_value(self.context, expr)
 
     def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
-        return state.visit_state_get_ex(self.context, expr)
+        return storage.visit_state_get_ex(self.context, expr)
 
     def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
-        return state.visit_state_delete(self.context, statement)
+        return storage.visit_state_delete(self.context, statement)
 
     def visit_state_get(self, expr: awst_nodes.StateGet) -> TExpression:
-        return state.visit_state_get(self.context, expr)
+        return storage.visit_state_get(self.context, expr)
 
     def visit_state_exists(self, expr: awst_nodes.StateExists) -> TExpression:
-        return state.visit_state_exists(self.context, expr)
+        return storage.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         match expr.wtype:
@@ -791,11 +797,7 @@ class FunctionIRBuilder(
             match wtype:
                 case wtypes.void_wtype:
                     pass
-                case _ if (
-                    wtypes.is_inner_transaction_type(wtype)
-                    or wtypes.is_inner_transaction_field_type(wtype)
-                    or wtypes.is_inner_transaction_tuple_type(wtype)
-                ):
+                case _ if (isinstance(wtype, WInnerTransaction | WInnerTransactionFields)):
                     # inner transaction wtypes aren't true expressions
                     pass
                 case _:
@@ -949,7 +951,7 @@ class FunctionIRBuilder(
         return value_seq_or_provider
 
     def materialise_value_provider(
-        self, provider: ValueProvider, description: str
+        self, provider: ValueProvider, description: str | Sequence[str]
     ) -> Sequence[Value]:
         """
         Given a ValueProvider with arity of N, return a Value sequence of length N.
@@ -971,24 +973,6 @@ class FunctionIRBuilder(
             temp_description=description,
             source_location=provider.source_location,
         )
-
-    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
-        return box.visit_box_value(self.context, expr)
-
-    def visit_bytes_raw(self, expr: puya.awst.nodes.BytesRaw) -> TExpression:
-        value = self.visit_and_materialise_single(expr.expr)
-        backing = value.ir_type.maybe_avm_type
-        match backing:
-            case AVMType.bytes:
-                return value
-            case AVMType.uint64:
-                return Intrinsic(op=AVMOp.itob, args=[value], source_location=expr.source_location)
-            case str(type_name):
-                raise CodeError(
-                    f"Unable to extract raw bytes for type {type_name}", expr.source_location
-                )
-            case _:
-                typing.assert_never(backing)
 
 
 def create_uint64_binary_op(
@@ -1077,7 +1061,7 @@ def get_comparison_op_for_wtype(
                 case awst_nodes.NumericComparison.ne:
                     return AVMOp.neq
     raise InternalError(
-        f"Unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
+        f"unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
     )
 
 

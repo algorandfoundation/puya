@@ -3,25 +3,28 @@ from __future__ import annotations
 import typing
 
 from puya import log
-from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
+from puya.awst.nodes import Expression, IntrinsicCall, MethodConstant
+from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    FunctionBuilder,
-    IntermediateExpressionBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
+from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
+from puya.awst_build.eb.factories import builder_for_instance, builder_for_type
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
-from puya.awst_build.utils import convert_literal, get_arg_mapping
+from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Sequence
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -31,14 +34,13 @@ class Arc4SignatureBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         match args:
-            case [Literal(value=str(str_value))]:
+            case [LiteralBuilder(value=str(str_value))]:
                 pass
             case _:
                 logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
@@ -51,57 +53,43 @@ class Arc4SignatureBuilder(FunctionBuilder):
         )
 
 
-class IntrinsicEnumClassExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, type_name: str, data: Mapping[str, str], location: SourceLocation) -> None:
-        super().__init__(location)
-        self._type_name = type_name
-        self._data = data
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
+class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("Cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        value = self._data.get(name)
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        produces = self.produces()
+        value = produces.members.get(name)
         if value is None:
-            raise CodeError(f"Unknown member {name!r} of {self._type_name!r}", location)
-        return Literal(value=value, source_location=location)
+            raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
+        return LiteralBuilderImpl(value=value, source_location=location)
 
 
-class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(
+class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
+    @typing.override
+    def call(
         self,
-        type_name: str,
-        data: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]],
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
         location: SourceLocation,
-    ) -> None:
-        super().__init__(location)
-        self._type_name = type_name
-        self._data = data
+    ) -> InstanceBuilder:
+        raise CodeError("Cannot instantiate namespace type", location)
 
     @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
-        mapping = self._data.get(name)
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        produces = self.produces()
+        mapping = produces.members.get(name)
         if mapping is None:
-            raise CodeError(f"Unknown member {name!r} of {self._type_name!r}", location)
+            raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
         if isinstance(mapping, PropertyOpMapping):
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
@@ -111,7 +99,7 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
             )
             return builder_for_instance(mapping.typ, intrinsic_expr)
         else:
-            fullname = ".".join((self._type_name, name))
+            fullname = ".".join((produces.name, name))
             return IntrinsicFunctionExpressionBuilder(fullname, mapping, location)
 
 
@@ -127,17 +115,18 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         primary_mapping = self._mappings[0]  # TODO: remove this assumption
         func_arg_names = (*primary_mapping.literal_arg_names, *primary_mapping.stack_inputs.keys())
 
+        args_ = [require_instance_builder(a) for a in args]
+
         arg_mapping = get_arg_mapping(
-            func_arg_names, args=zip(arg_names, args, strict=False), location=location
+            func_arg_names, args=zip(arg_names, args_, strict=False), location=location
         )
         intrinsic_expr = _map_call(
             self._mappings, callee=self._fullname, node_location=location, args=arg_mapping
@@ -146,10 +135,12 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
 
 
 def _best_op_mapping(
-    op_mappings: Sequence[FunctionOpMapping], args: dict[str, ExpressionBuilder | Literal]
+    op_mappings: Sequence[FunctionOpMapping], args: dict[str, InstanceBuilder]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
-    literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
+    literal_arg_names = {
+        arg_name for arg_name, arg in args.items() if isinstance(arg, LiteralBuilder)
+    }
     for op_mapping in sorted(op_mappings, key=lambda om: len(om.literal_arg_names), reverse=True):
         if literal_arg_names.issuperset(op_mapping.literal_arg_names):
             return op_mapping
@@ -161,8 +152,8 @@ def _map_call(
     ast_mapper: Sequence[FunctionOpMapping],
     callee: str,
     node_location: SourceLocation,
-    args: dict[str, ExpressionBuilder | Literal],
-) -> ExpressionBuilder:
+    args: dict[str, InstanceBuilder],
+) -> InstanceBuilder:
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:
@@ -180,7 +171,7 @@ def _map_call(
                 if arg_in is None:
                     logger.error(f"Missing expected argument {arg_name}", location=node_location)
                 elif not (
-                    isinstance(arg_in, Literal)
+                    isinstance(arg_in, LiteralBuilder)
                     and isinstance(arg_value := arg_in.value, literal_type)
                 ):
                     logger.error(
@@ -196,27 +187,30 @@ def _map_call(
         arg_in = args.pop(arg_name, None)
         if arg_in is None:
             logger.error(f"Missing expected argument {arg_name}", location=node_location)
-        elif isinstance(arg_in, ExpressionBuilder):
-            if arg_in.pytype not in allowed_pytypes:
-                logger.error(
-                    f'Invalid argument type "{arg_in.pytype}"'
-                    f' for argument "{arg_name}" when calling {callee}',
-                    location=arg_in.source_location,
-                )
-            stack_args.append(arg_in.rvalue())
-        else:
+        elif isinstance(arg_in, LiteralBuilder):
             literal_value = arg_in.value
             for allowed_type in allowed_pytypes:
-                allowed_wtype = allowed_type.wtype  # TODO yeet me
-                if allowed_wtype.is_valid_literal(literal_value):
-                    literal_expr = convert_literal(arg_in, allowed_type)
-                    stack_args.append(literal_expr)
+                type_builder = builder_for_type(allowed_type, arg_in.source_location)
+                if (
+                    isinstance(type_builder, LiteralConverter)
+                    and arg_in.pytype in type_builder.convertable_literal_types
+                ):
+                    converted = type_builder.convert_literal(arg_in, arg_in.source_location)
+                    stack_args.append(converted.resolve())
                     break
             else:
                 logger.error(
                     f"Unhandled literal type '{type(literal_value).__name__}' for argument",
                     location=arg_in.source_location,
                 )
+        else:
+            if arg_in.pytype not in allowed_pytypes:
+                logger.error(
+                    f'Invalid argument type "{arg_in.pytype}"'
+                    f' for argument "{arg_name}" when calling {callee}',
+                    location=arg_in.source_location,
+                )
+            stack_args.append(arg_in.resolve())
 
     for arg_node in args.values():
         logger.error("Unexpected argument", location=arg_node.source_location)

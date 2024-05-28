@@ -17,43 +17,43 @@ contract AppStateContract
   
   constructor()
   {
-    this.global_int_full: uint64 = 55u
-    this.global_int_simplified: uint64 = 33u
-    this.global_bytes_full: bytes = hex<"48656C6C6F">
-    this.global_bytes_simplified: bytes = hex<"48656C6C6F">
-    this.global_bool_full: bool = false
-    this.global_bool_simplified: bool = true
+    GlobalState['global_int_full']: uint64 = 55u
+    GlobalState['global_int_simplified']: uint64 = 33u
+    GlobalState['global_bytes_full']: bytes = hex<"48656C6C6F">
+    GlobalState['global_bytes_simplified']: bytes = hex<"48656C6C6F">
+    GlobalState['global_bool_full']: bool = false
+    GlobalState['global_bool_simplified']: bool = true
   }
   
   approval_program(): bool
   {
-    assert(this.global_int_simplified == 33u)
-    assert(STATE_EXISTS(this.global_int_full))
-    assert(this.global_int_full == 55u)
-    assert(!(STATE_EXISTS(this.global_int_no_default)))
-    this.global_int_no_default: uint64 = 44u
-    (i_value, i_exists): tuple<uint64,bool> = STATE_GET_EX(this.global_int_no_default)
+    assert(GlobalState['global_int_simplified'] == 33u)
+    assert(STATE_EXISTS(GlobalState['global_int_full']))
+    assert(GlobalState['global_int_full'] == 55u)
+    assert(!(STATE_EXISTS(GlobalState['global_int_no_default'])))
+    GlobalState['global_int_no_default']: uint64 = 44u
+    (i_value, i_exists): tuple<uint64,bool> = STATE_GET_EX(GlobalState['global_int_no_default'])
     assert(i_exists)
     assert(i_value == 44u)
-    assert(this.global_bytes_simplified == 'Hello')
-    assert(STATE_EXISTS(this.global_bytes_full))
-    assert(this.global_bytes_full == 'Hello')
-    assert(STATE_GET(this.global_bytes_full, default=hex<"64656661756C74">) == 'Hello')
-    assert(!(STATE_EXISTS(this.global_bytes_no_default)))
-    this.global_bytes_no_default: bytes = hex<"576F726C64">
-    (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(this.global_bytes_no_default)
+    assert(GlobalState['global_bytes_simplified'] == hex<"48656C6C6F">)
+    assert(STATE_EXISTS(GlobalState['global_bytes_full']))
+    assert(GlobalState['global_bytes_full'] == hex<"48656C6C6F">)
+    assert(STATE_GET(GlobalState['global_bytes_full'], default=hex<"64656661756C74">) == hex<"48656C6C6F">)
+    assert(!(STATE_EXISTS(GlobalState['global_bytes_no_default'])))
+    GlobalState['global_bytes_no_default']: bytes = hex<"576F726C64">
+    (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(GlobalState['global_bytes_no_default'])
     assert(b_exists)
-    assert(b_value == 'World')
-    STATE_DELETE(this.global_bytes_no_default)
-    (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(this.global_bytes_no_default)
+    assert(b_value == hex<"576F726C64">)
+    STATE_DELETE(GlobalState['global_bytes_no_default'])
+    (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(GlobalState['global_bytes_no_default'])
     assert(!(b_exists))
-    assert(STATE_GET(this.global_bytes_no_default, default=hex<"64656661756C74">) == 'default')
-    assert(STATE_EXISTS(this.global_bool_full))
-    assert(!(STATE_EXISTS(this.global_bool_no_default)))
-    this.global_bool_no_default: bool = true
-    assert(!(this.global_bool_full))
-    assert(this.global_bool_simplified)
-    assert(this.global_bool_no_default)
+    assert(STATE_GET(GlobalState['global_bytes_no_default'], default=hex<"64656661756C74">) == hex<"64656661756C74">)
+    assert(STATE_EXISTS(GlobalState['global_bool_full']))
+    assert(!(STATE_EXISTS(GlobalState['global_bool_no_default'])))
+    GlobalState['global_bool_no_default']: bool = true
+    assert(!(GlobalState['global_bool_full']))
+    assert(GlobalState['global_bool_simplified'])
+    assert(GlobalState['global_bool_no_default'])
     return true
   }
   

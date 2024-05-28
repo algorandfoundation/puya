@@ -1,0 +1,26 @@
+contract Literals
+{
+  approval_program(): bool
+  {
+    this::with_variable_condition(condition=false)
+    this::with_variable_condition(condition=true)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine with_variable_condition(condition: bool): void
+  {
+    x: uint64 = (condition) ? (1u) : (0u)
+    assert(reinterpret_cast<bool>(x) == condition)
+    assert(x == (condition) ? (1u) : (0u))
+    y: uint64 = x + (condition) ? (0u) : (1u)
+    assert(y == 1u)
+    maybe: bool = y > (condition) ? (1u) : (0u)
+    assert(maybe == !(condition))
+    assert((condition) ? (true) : (true))
+  }
+}

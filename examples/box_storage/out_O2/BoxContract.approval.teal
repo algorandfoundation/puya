@@ -46,7 +46,7 @@ main_read_boxes_route@3:
     dup
     len
     itob
-    substring 6 8
+    extract 6 2
     swap
     concat
     swap
@@ -247,7 +247,7 @@ set_boxes:
     swap
     btoi
     swap
-    assert // Box must exist
+    assert // check self.box_a exists
     int 3
     +
     itob
@@ -265,13 +265,13 @@ read_boxes:
     swap
     btoi
     swap
-    assert // Box must exist
+    assert // check self.box_a exists
     byte "b"
     box_get
-    assert // Box must exist
+    assert // check self.box_b exists
     byte 0x424f585f43
     box_get
-    assert // Box must exist
+    assert // check self.box_c exists
     retsub
 
 
@@ -318,7 +318,7 @@ slice_box:
     byte 0x30
     cover 2
     box_extract
-    byte "Testing"
+    byte 0x54657374696e67
     ==
     assert
     byte 0x424f585f43
@@ -350,7 +350,7 @@ slice_box:
     byte 0x424f585f43
     cover 2
     box_extract
-    byte "Hello"
+    byte 0x48656c6c6f
     ==
     assert
     retsub
@@ -364,29 +364,29 @@ arc4_box:
     box_put
     byte 0x64
     box_get
-    assert // Box must exist
-    extract 0 1
+    assert // check Box exists
+    extract 0 1 // on error: Index access is out of bounds
     byte 0x00
     b==
     assert
     byte 0x64
     box_get
-    assert // Box must exist
-    extract 1 1
+    assert // check Box exists
+    extract 1 1 // on error: Index access is out of bounds
     byte 0x01
     b==
     assert
     byte 0x64
     box_get
-    assert // Box must exist
-    extract 2 1
+    assert // check Box exists
+    extract 2 1 // on error: Index access is out of bounds
     byte 0x02
     b==
     assert
     byte 0x64
     box_get
-    assert // Box must exist
-    extract 3 1
+    assert // check Box exists
+    extract 3 1 // on error: Index access is out of bounds
     byte 0x03
     b==
     assert
@@ -447,7 +447,7 @@ box_blob:
     assert // Blob exists
     byte "blob"
     box_len
-    assert // box exists
+    assert // check BoxRef exists
     int 64
     ==
     assert
@@ -467,13 +467,13 @@ box_map_test:
     box_put
     dup
     box_len
-    assert // box exists
+    assert // check self.box_map entry exists
     int 6
     ==
     assert
     dup
     box_len
-    assert // box exists
+    assert // check self.box_map entry exists
     int 6
     ==
     assert
@@ -516,7 +516,7 @@ box_map_get:
     frame_dig -1
     itob
     box_get
-    assert // Box must exist
+    assert // check self.box_map entry exists
     retsub
 
 

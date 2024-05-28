@@ -10,14 +10,13 @@ from puya.awst.nodes import (
     CallArg,
     FreeSubroutineTarget,
     InstanceSubroutineTarget,
-    Literal,
     SubroutineCallExpression,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import require_expression_builder
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -40,21 +39,18 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         call_args = list[CallArg]()
         for arg, arg_name, arg_kind in zip(args, arg_names, arg_kinds, strict=True):
             if arg_kind.is_star():
                 raise CodeError(
                     "argument unpacking at call site not currently supported", arg.source_location
                 )
-            call_args.append(
-                CallArg(name=arg_name, value=require_expression_builder(arg).rvalue())
-            )
+            call_args.append(CallArg(name=arg_name, value=require_instance_builder(arg).resolve()))
 
         func_type = self.func_type
         # bit of a kludge, but it works for us for now
@@ -93,12 +89,11 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         from puya.awst_build.eb.contracts import ContractSelfExpressionBuilder
 
         if not args and isinstance(args[0], ContractSelfExpressionBuilder):
@@ -106,4 +101,4 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
                 "First argument when calling a base class method directly should be self",
                 args[0].source_location,
             )
-        return super().call(args[1:], arg_typs[1:], arg_kinds[1:], arg_names[1:], location)
+        return super().call(args[1:], arg_kinds[1:], arg_names[1:], location)

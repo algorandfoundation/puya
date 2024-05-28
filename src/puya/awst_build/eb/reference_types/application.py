@@ -2,18 +2,23 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
+from puya.awst.nodes import Expression, ReinterpretCast, UInt64Constant
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
-from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.eb._base import TypeBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
+from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
@@ -21,26 +26,36 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
+class ApplicationTypeBuilder(TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ApplicationType, location)
 
     @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.IntLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [Literal(value=int(int_value), source_location=loc)]:
+            case [LiteralBuilder(value=int(int_value), source_location=loc)]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=loc)
-            case [ExpressionBuilder() as eb]:
-                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type)
+            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
+                uint64_expr = eb.resolve()
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
@@ -70,6 +85,7 @@ class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
         super().__init__(
             expr,
             typ=pytypes.ApplicationType,
+            typ_literal_converter=ApplicationTypeBuilder,
             native_access_member=native_access_member,
             field_mapping=field_mapping,
             field_op_code=field_op_code,

@@ -5,53 +5,58 @@ import mypy.nodes
 import mypy.types
 
 from puya.awst import wtypes
-from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray, TupleExpression
+from puya.awst.nodes import (
+    ArrayExtend,
+    Contains,
+    Expression,
+    NewArray,
+    TupleExpression,
+)
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
+from puya.awst_build.eb._base import (
     FunctionBuilder,
-    GenericClassExpressionBuilder,
-    Iteration,
-    TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
+    GenericTypeBuilder,
+    InstanceExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_expression_builder
+from puya.awst_build.utils import (
+    require_instance_builder,
+    require_instance_builder_of_type,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+class ArrayGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         if not args:
-            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
-        non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
-        ]
-        expected_type = arg_typs[0]
+            raise CodeError("empy arrays require a type annotation to be instantiated", location)
+        non_literal_args = [require_instance_builder(a) for a in args]
+        expected_type = non_literal_args[0].pytype
         for a in non_literal_args:
-            expect_operand_type(a, expected_type)
+            require_instance_builder_of_type(a, expected_type)
         array_type = pytypes.GenericArrayType.parameterise([expected_type], location)
         wtype = array_type.wtype
         assert isinstance(wtype, wtypes.WArray)
         array_expr = NewArray(
-            values=tuple(a.rvalue() for a in non_literal_args),
+            values=tuple(a.resolve() for a in non_literal_args),
             wtype=wtype,
             source_location=location,
         )
         return ArrayExpressionBuilder(array_expr, array_type)
 
 
-class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType]):
+class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericArrayType
@@ -63,46 +68,63 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType])
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
-        ]
-        array_type = self.produces2()
-        for a in non_literal_args:
-            expect_operand_type(a, array_type.items)
-        array_expr = NewArray(
-            values=tuple(a.rvalue() for a in non_literal_args),
-            wtype=self._wtype,
-            source_location=location,
+    ) -> InstanceBuilder:
+        array_type = self.produces()
+        values = tuple(
+            require_instance_builder_of_type(a, array_type.items).resolve() for a in args
         )
+        array_expr = NewArray(values=values, wtype=self._wtype, source_location=location)
         return ArrayExpressionBuilder(array_expr, array_type)
 
 
-class ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType]):
+class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)
 
-    def iterate(self) -> Iteration:
-        return self.rvalue()
+    @typing.override
+    @typing.final
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError(f"cannot serialize {self.pytype}", location)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    @typing.override
+    def iterate(self) -> Iteration:
+        return self.resolve()
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "append":
-                return _Append(self.expr)
+                return _Append(self.resolve())
         return super().member_access(name, location)
 
-    def contains(
-        self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        item_expr = expect_operand_type(item, self.pytype.items)
-        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
+    @typing.override
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        item_expr = require_instance_builder_of_type(item, self.pytype.items).resolve()
+        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.resolve())
         return BoolExpressionBuilder(contains_expr)
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        raise NotImplementedError
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        raise NotImplementedError
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        raise NotImplementedError
 
 
 class _Append(FunctionBuilder):
@@ -114,15 +136,14 @@ class _Append(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [elem]:
-                elem_expr = require_expression_builder(elem).rvalue()
+                elem_expr = require_instance_builder(elem).resolve()
 
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)

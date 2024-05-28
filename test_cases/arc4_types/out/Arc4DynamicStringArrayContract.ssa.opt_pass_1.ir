@@ -39,56 +39,61 @@ contract test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContra
         subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
             block@0: // L5
                 let length%0#0: uint64 = 1u
-                let value_as_bytes%0#0: bytes = (itob length%0#0)
-                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
-                let tmp%0#0: bytes = (concat value_as_uint16%0#0 "X")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "X")
                 let length%1#0: uint64 = 1u
-                let value_as_bytes%1#0: bytes = (itob length%1#0)
-                let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
-                let tmp%1#0: bytes = (concat value_as_uint16%1#0 "Y")
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "Y")
                 let length%2#0: uint64 = 1u
-                let value_as_bytes%2#0: bytes = (itob length%2#0)
-                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
-                let tmp%2#0: bytes = (concat value_as_uint16%2#0 "Z")
-                let value_as_uint16%3#0: bytes = 0x0006
-                let array_data%0#1: bytes = (concat 0x0003 value_as_uint16%3#0)
-                let element_length%0#0: uint64 = (len tmp%0#0)
-                let next_offset%0#1: uint64 = (+ 6u element_length%0#0)
-                let value_as_bytes%4#0: bytes = (itob next_offset%0#1)
-                let value_as_uint16%4#0: bytes = ((extract 6 2) value_as_bytes%4#0)
-                let array_data%0#2: bytes = (concat array_data%0#1 value_as_uint16%4#0)
-                let element_length%1#0: uint64 = (len tmp%1#0)
-                let next_offset%0#2: uint64 = (+ next_offset%0#1 element_length%1#0)
-                let value_as_bytes%5#0: bytes = (itob next_offset%0#2)
-                let value_as_uint16%5#0: bytes = ((extract 6 2) value_as_bytes%5#0)
-                let array_data%0#3: bytes = (concat array_data%0#2 value_as_uint16%5#0)
-                let element_length%2#0: uint64 = (len tmp%2#0)
-                let array_data%0#4: bytes = (concat array_data%0#3 tmp%0#0)
-                let array_data%0#5: bytes = (concat array_data%0#4 tmp%1#0)
-                let array_data%0#6: bytes = (concat array_data%0#5 tmp%2#0)
-                return array_data%0#6
+                let as_bytes%2#0: bytes = (itob length%2#0)
+                let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let encoded_value%2#0: bytes = (concat length_uint16%2#0 "Z")
+                let next_item_head%0#0: bytes = 0x0006
+                let result%0#0: bytes = next_item_head%0#0
+                let next_item_len%0#0: uint64 = (len encoded_value%0#0)
+                let tail_offset%0#0: uint64 = (+ 6u next_item_len%0#0)
+                let as_bytes%4#0: bytes = (itob tail_offset%0#0)
+                let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%4#0)
+                let result%1#0: bytes = (concat result%0#0 next_item_head%1#0)
+                let next_item_len%1#0: uint64 = (len encoded_value%1#0)
+                let tail_offset%1#0: uint64 = (+ tail_offset%0#0 next_item_len%1#0)
+                let as_bytes%5#0: bytes = (itob tail_offset%1#0)
+                let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%5#0)
+                let result%2#0: bytes = (concat result%1#0 next_item_head%2#0)
+                let next_item_len%2#0: uint64 = (len encoded_value%2#0)
+                let result%3#0: bytes = (concat result%2#0 encoded_value%0#0)
+                let result%4#0: bytes = (concat result%3#0 encoded_value%1#0)
+                let result%5#0: bytes = (concat result%4#0 encoded_value%2#0)
+                let array_data%0#0: bytes = (concat 0x0003 result%5#0)
+                return array_data%0#0
         
         subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
             block@0: // L13
-                let array_data%0#1: bytes = 0x000158
-                let array_data%1#1: bytes = 0x000159
-                let array_data%2#1: bytes = 0x00015a
-                let value_as_uint16%0#0: bytes = 0x0006
-                let array_data%3#1: bytes = (concat 0x0003 value_as_uint16%0#0)
-                let element_length%0#0: uint64 = (len array_data%0#1)
-                let next_offset%0#1: uint64 = (+ 6u element_length%0#0)
-                let value_as_bytes%1#0: bytes = (itob next_offset%0#1)
-                let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
-                let array_data%3#2: bytes = (concat array_data%3#1 value_as_uint16%1#0)
-                let element_length%1#0: uint64 = (len array_data%1#1)
-                let next_offset%0#2: uint64 = (+ next_offset%0#1 element_length%1#0)
-                let value_as_bytes%2#0: bytes = (itob next_offset%0#2)
-                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
-                let array_data%3#3: bytes = (concat array_data%3#2 value_as_uint16%2#0)
-                let element_length%2#0: uint64 = (len array_data%2#1)
-                let array_data%3#4: bytes = (concat array_data%3#3 array_data%0#1)
-                let array_data%3#5: bytes = (concat array_data%3#4 array_data%1#1)
-                let raw#0: bytes = (concat array_data%3#5 array_data%2#1)
+                let result%0#0: bytes = 0x58
+                let array_data%0#0: bytes = (concat 0x0001 result%0#0)
+                let result%1#0: bytes = 0x59
+                let array_data%1#0: bytes = (concat 0x0001 result%1#0)
+                let result%2#0: bytes = 0x5a
+                let array_data%2#0: bytes = (concat 0x0001 result%2#0)
+                let next_item_head%0#0: bytes = 0x0006
+                let result%3#0: bytes = next_item_head%0#0
+                let next_item_len%0#0: uint64 = (len array_data%0#0)
+                let tail_offset%0#0: uint64 = (+ 6u next_item_len%0#0)
+                let as_bytes%1#0: bytes = (itob tail_offset%0#0)
+                let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let result%4#0: bytes = (concat result%3#0 next_item_head%1#0)
+                let next_item_len%1#0: uint64 = (len array_data%1#0)
+                let tail_offset%1#0: uint64 = (+ tail_offset%0#0 next_item_len%1#0)
+                let as_bytes%2#0: bytes = (itob tail_offset%1#0)
+                let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let result%5#0: bytes = (concat result%4#0 next_item_head%2#0)
+                let next_item_len%2#0: uint64 = (len array_data%2#0)
+                let result%6#0: bytes = (concat result%5#0 array_data%0#0)
+                let result%7#0: bytes = (concat result%6#0 array_data%1#0)
+                let result%8#0: bytes = (concat result%7#0 array_data%2#0)
+                let raw#0: bytes = (concat 0x0003 result%8#0)
                 return raw#0
     
     program clear-state:

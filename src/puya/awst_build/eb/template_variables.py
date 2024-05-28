@@ -3,10 +3,11 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst.nodes import Literal, TemplateVar
+from puya.awst.nodes import TemplateVar
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -16,12 +17,11 @@ class GenericTemplateVariableExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("TemplateVar usage requires type parameter", location)
 
 
@@ -34,12 +34,11 @@ class TemplateVariableExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         var_name_arg_name = "variable_name"
         arg_mapping = get_arg_mapping(
             positional_arg_names=[var_name_arg_name],
@@ -58,7 +57,7 @@ class TemplateVariableExpressionBuilder(FunctionBuilder):
                 f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location
             )
         match prefix_arg:
-            case Literal(value=str(prefix_value)):
+            case LiteralBuilder(value=str(prefix_value)):
                 pass
             case None:
                 prefix_value = "TMPL_"
@@ -66,7 +65,7 @@ class TemplateVariableExpressionBuilder(FunctionBuilder):
                 raise CodeError("Invalid value for prefix argument", location)
 
         match var_name:
-            case Literal(value=str(str_value)):
+            case LiteralBuilder(value=str(str_value)):
                 result_expr = TemplateVar(
                     name=prefix_value + str_value,
                     wtype=self.result_type.wtype,

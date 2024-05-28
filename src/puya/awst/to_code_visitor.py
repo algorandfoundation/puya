@@ -70,22 +70,13 @@ class ToCodeVisitor(
         )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        if expr.member_name is not None:
-            return f"this.{expr.member_name}"
-        else:
-            return f"GlobalState[{expr.key.accept(self)}]"
+        return f"GlobalState[{expr.key.accept(self)}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        if expr.member_name is not None:
-            return f"this.{expr.member_name}[{expr.account.accept(self)}]"
-        else:
-            return f"LocalState[{expr.key.accept}, {expr.account.accept(self)}]"
+        return f"LocalState[{expr.key.accept(self)}, {expr.account.accept(self)}]"
 
     def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
-        if expr.member_name is not None:
-            return f"this.{expr.member_name}"
-        else:
-            return f"Box[{expr.key.accept(self)}]"
+        return f"Box[{expr.key.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.values)
@@ -328,14 +319,15 @@ class ToCodeVisitor(
         if expr.teal_alias:
             return expr.teal_alias
         match expr.wtype:
-            case wtypes.uint64_wtype | wtypes.WGroupTransaction():
+            case wtypes.uint64_wtype:
                 suffix = "u"
             case wtypes.biguint_wtype:
                 suffix = "n"
-            case wtypes.ARC4UIntN(n=n):
-                if n <= 64:
+            case wtypes.ARC4UIntN(n=n, decode_type=decode_type):
+                if decode_type == wtypes.uint64_wtype:
                     suffix = f"arc4u{n}"
                 else:
+                    assert decode_type == wtypes.biguint_wtype
                     suffix = f"arc4n{n}"
             case _:
                 raise InternalError(
@@ -572,9 +564,6 @@ class ToCodeVisitor(
 
     def visit_template_var(self, expr: nodes.TemplateVar) -> str:
         return f"TemplateVar[{expr.wtype}]({expr.name})"
-
-    def visit_bytes_raw(self, expr: nodes.BytesRaw) -> str:
-        return f"BytesRaw({expr.expr.accept(self)})"
 
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:

@@ -2,6 +2,7 @@ import decimal
 import enum
 import itertools
 import types
+import typing
 import typing as t
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
@@ -10,6 +11,8 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya import algo_constants
+from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
@@ -28,19 +31,93 @@ class Node:
     source_location: SourceLocation
 
     def __attrs_post_init__(self) -> None:
+        def format_type_name(obj: object) -> str:
+            if isinstance(obj, type):
+                the_type = obj
+            else:
+                the_type = type(obj)
+            return repr(".".join((the_type.__module__, the_type.__qualname__)))
+
         typ = attrs.resolve_types(type(self))
         for field in attrs.fields(typ):
             field_value = getattr(self, field.name)
-            if isinstance(field.type, types.GenericAlias):
-                field_type = field.type.__origin__
-            else:
+            if not field.init:
+                continue
+            if not isinstance(field.type, types.GenericAlias):
                 field_type = field.type
-            if not isinstance(field_value, field_type):
-                raise InternalError(
-                    f"Bad type for {field.name!r} on {typ.__name__!r}:"
-                    f" expected {field_type.__name__!r}, got {type(field_value).__name__}",
-                    self.source_location,
-                )
+                if not isinstance(field_value, field_type):
+                    raise InternalError(
+                        f"Bad type for {field.name!r}"
+                        f" on {format_type_name(typ)}:"
+                        f" expected {format_type_name(field_type)},"
+                        f" got {format_type_name(field_value)}",
+                        self.source_location,
+                    )
+            else:
+                field_type = field.type.__origin__
+                if field_type == Mapping:
+                    if not isinstance(field_value, Mapping):
+                        raise InternalError(
+                            f"Bad type for {field.name!r}"
+                            f" on {format_type_name(typ)}:"
+                            f" expected {format_type_name(field_type)},"
+                            f" got {format_type_name(field_value)}",
+                            self.source_location,
+                        )
+                    key_type, value_type = field.type.__args__
+                    for k, v in field_value.items():
+                        if not isinstance(k, key_type):
+                            raise InternalError(
+                                f"Bad type for key data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(key_type)},"
+                                f" got {format_type_name(k)}",
+                                self.source_location,
+                            )
+                        if not isinstance(v, value_type):
+                            raise InternalError(
+                                f"Bad type for value data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(value_type)},"
+                                f" got {format_type_name(v)}",
+                                self.source_location,
+                            )
+                elif field_type in (Sequence, StableSet):
+                    if not isinstance(field_value, field_type):
+                        raise InternalError(
+                            f"Bad type for {field.name!r}"
+                            f" on {format_type_name(typ)}:"
+                            f" expected {format_type_name(field_type)},"
+                            f" got {format_type_name(field_value)}",
+                            self.source_location,
+                        )
+                    (item_type,) = field.type.__args__
+                    for it in field_value:
+                        if not isinstance(it, item_type):
+                            raise InternalError(
+                                f"Bad type for item data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(item_type)},"
+                                f" got {format_type_name(it)}",
+                                self.source_location,
+                            )
+                elif (
+                    field_type == tuple
+                    and len(field.type.__args__) == 2
+                    and field.type.__args__[1] == Ellipsis
+                ):
+                    item_type, _ = field.type.__args__
+                    for it in field_value:
+                        if not isinstance(it, item_type):
+                            raise InternalError(
+                                f"Bad type for item data of {field.name!r}"
+                                f" on {format_type_name(typ)}:"
+                                f" expected {format_type_name(item_type)},"
+                                f" got {format_type_name(it)}",
+                                self.source_location,
+                            )
+                else:
+                    raise InternalError(f"Can't validate generic type {field.type}")
 
 
 @attrs.frozen
@@ -169,45 +246,6 @@ wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
 
 
 @attrs.frozen
-class Literal(Node):  # TODO: yeet me
-    """These shouldn't appear in the final AWST.
-
-    They are temporarily constructed during evaluation of sub-expressions, when we encounter
-    a literal in the native language (ie Python), and don't have the context to give it a wtype yet
-
-    For example, consider the int literal 42 (randomly selected by fair roll of D100) in the
-    following:
-
-        x = algopy.UInt(42)
-        x += 42
-        y = algopy.BigUInt(42)
-        z = algopy.InnerTransactionGroup.sender(42)
-
-
-    The "type" of 42 in each of these is different.
-    For BigUInt, since we know the value at compile time, we wouldn't want to emit a
-        push 42
-        itob
-    Since we can just encode it ourselves and push the result to the stack instead.
-    For InnerTransactionGroup.sender - this is actually not of any type, it must end up as a
-    literal in the TEAL code itself.
-    The type when adding to x should resolve to the UInt64 type, but only because it's in the
-    context of an augmented assignment.
-
-    So when we are visiting and arbitrary expression and encounter just a literal expression,
-    we need the surrounding context. To avoid having to repeat the transformation of the mypy
-    node in every context we could encounter one, we just return this Literal type instead,
-    which has no wtype. But it must be resolved before being used at the "outermost level"
-    of the current expression/statement, thus this Literal should not end up in the final AWST.
-
-    See also: require_non_literal, for a quick way to ensure that we do indeed have an expression
-    in cases where any Literals should have already been resolved.
-    """
-
-    value: ConstantValue
-
-
-@attrs.frozen
 class Block(Statement):
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
     description: str | None = None
@@ -274,22 +312,6 @@ class ReturnStatement(Statement):
         return visitor.visit_return_statement(self)
 
 
-def _validate_literal(value: object, wtype: WType, source_location: SourceLocation) -> None:
-    if not wtype.is_valid_literal(value):
-        raise CodeError(f"Invalid {wtype} value: {value!r}", source_location)
-
-
-def literal_validator(wtype: WType) -> t.Callable[[Node, object, t.Any], None]:
-    def validate(node: Node, _attribute: object, value: object) -> None:
-        if not isinstance(node, Node):
-            raise InternalError(
-                f"literal_validator used on type {type(node).__name__}, expected Node"
-            )
-        _validate_literal(value, wtype, node.source_location)
-
-    return validate
-
-
 @attrs.frozen(kw_only=True)
 class IntegerConstant(Expression):
     wtype: WType = attrs.field(
@@ -304,32 +326,6 @@ class IntegerConstant(Expression):
     value: int = attrs.field()
     teal_alias: str | None = None
 
-    @value.validator
-    def check(self, _attribute: object, value: int) -> None:
-        match self.wtype.bounds:
-            case wtypes.ValueBounds(min_value=min_value, max_value=max_value):
-                if value < min_value:
-                    raise CodeError(
-                        "integer constant is"
-                        f" below minimum value of {min_value} for type {self.wtype}",
-                        self.source_location,
-                    )
-                if value > max_value:
-                    raise CodeError(
-                        "integer constant is"
-                        f" greater than maximum value of {max_value} for type {self.wtype}",
-                        self.source_location,
-                    )
-            case None:
-                pass
-            case wtypes.SizeBounds():
-                raise InternalError(
-                    "Integer types should have ValueBounds or None, not SizeBounds",
-                    self.source_location,
-                )
-            case _:
-                t.assert_never(self.wtype.bounds)
-
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_integer_constant(self)
 
@@ -340,8 +336,20 @@ class DecimalConstant(Expression):
     value: decimal.Decimal = attrs.field()
 
     @value.validator
-    def check(self, _attribute: object, value: int) -> None:
-        _validate_literal(value, self.wtype, self.source_location)
+    def _validate_value(self, _attribute: object, value: decimal.Decimal) -> None:
+        sign, digits, exponent = value.as_tuple()
+        type_bits = self.wtype.n
+        type_precision = self.wtype.m
+        if sign != 0:  # is negative
+            raise CodeError("invalid decimal constant (value is negative)", self.source_location)
+        if not isinstance(exponent, int):  # is infinite
+            raise CodeError("invalid decimal constant (value is infinite)", self.source_location)
+        # note: input is expected to be quantized correctly already
+        if -exponent != type_precision:  # wrong precision
+            raise CodeError("invalid decimal constant (wrong precision)", self.source_location)
+        adjusted_int = int("".join(map(str, digits)))
+        if adjusted_int.bit_length() > type_bits:
+            raise CodeError("invalid decimal constant (too many bits)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_decimal_constant(self)
@@ -386,11 +394,45 @@ class BytesEncoding(enum.StrEnum):
     utf8 = enum.auto()
 
 
-@attrs.frozen
+@attrs.frozen(repr=False)
+class _WTypeIsBackedBy:
+    backed_by: t.Literal[AVMType.uint64, AVMType.bytes]
+
+    def __call__(
+        self,
+        inst: Node,
+        attr: attrs.Attribute,  # type: ignore[type-arg]
+        value: WType,
+    ) -> None:
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not isinstance(inst, Node):
+            raise InternalError(f"{self!r} used on type {type(inst).__name__}, expected Node")
+        if value.scalar_type != self.backed_by:
+            raise InternalError(
+                f"{type(inst).__name__}.{attr.name}: set to {value},"
+                f" which is not backed by {value.scalar_type}, not {self.backed_by.name}"
+            )
+
+    def __repr__(self) -> str:
+        return f"<wtype_is_{self.backed_by.name}_backed validator>"
+
+
+wtype_is_bytes_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.bytes)
+wtype_is_uint64_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.uint64)
+
+
+@attrs.frozen(kw_only=True)
 class BytesConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
-    value: bytes = attrs.field(validator=[literal_validator(wtypes.bytes_wtype)])
+    wtype: WType = attrs.field(default=wtypes.bytes_wtype, validator=wtype_is_bytes_backed)
+    value: bytes = attrs.field()
     encoding: BytesEncoding = attrs.field()
+
+    @value.validator
+    def _validate_value(self, _attribute: object, value: bytes) -> None:
+        if len(value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError("bytes constant exceeds max length", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
@@ -399,7 +441,18 @@ class BytesConstant(Expression):
 @attrs.frozen
 class StringConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.string_wtype, init=False)
-    value: str = attrs.field(validator=[literal_validator(wtypes.string_wtype)])
+    value: str = attrs.field()
+
+    @value.validator
+    def _validate_value(self, _attribute: object, value: str) -> None:
+        try:
+            bytes_value = value.encode("utf8")
+        except UnicodeEncodeError as ex:
+            raise CodeError(
+                "invalid UTF-8 string (encoding error: {ex})", self.source_location
+            ) from ex
+        if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError("string constant exceeds max byte array length", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)
@@ -423,15 +476,18 @@ class MethodConstant(Expression):
         return visitor.visit_method_constant(self)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class AddressConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.account_wtype, init=False)
-    value: str = attrs.field(validator=[literal_validator(wtypes.account_wtype)])
+    wtype: WType = attrs.field(
+        default=wtypes.account_wtype,
+        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_wtype),
+    )
+    value: str = attrs.field()
 
     @value.validator
-    def check(self, _attribute: object, value: str) -> None:
+    def _validate_value(self, _attribute: object, value: str) -> None:
         if not wtypes.valid_address(value):
-            raise CodeError(f"Invalid address: {value}", self.source_location)
+            raise CodeError("invalid address", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
@@ -440,17 +496,14 @@ class AddressConstant(Expression):
 @attrs.frozen
 class ARC4Encode(Expression):
     value: Expression
-    wtype: wtypes.ARC4Type = attrs.field(
-        validator=wtype_is_one_of(
-            wtypes.ARC4UIntN,
-            wtypes.ARC4UFixedNxM,
-            wtypes.ARC4Tuple,
-            wtypes.arc4_string_wtype,
-            wtypes.arc4_bool_wtype,
-            wtypes.arc4_dynamic_bytes,
-            wtypes.arc4_address_type,
-        )
-    )
+    wtype: wtypes.ARC4Type = attrs.field()
+
+    @wtype.validator
+    def _wtype_validator(self, _attribute: object, wtype: wtypes.ARC4Type) -> None:
+        if self.value.wtype not in wtype.encodeable_types:
+            raise InternalError(
+                f"cannot ARC4 encode {self.value.wtype} to {wtype}", self.source_location
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
@@ -506,7 +559,21 @@ class ArrayExtend(Expression):
 
 @attrs.frozen
 class ARC4Decode(Expression):
-    value: Expression
+    value: Expression = attrs.field()
+
+    @value.validator
+    def _value_wtype_validator(self, _attribute: object, value: Expression) -> None:
+        if not isinstance(value.wtype, wtypes.ARC4Type):
+            raise InternalError(
+                f"ARC4Decode should only be used with expressions of ARC4Type, got {value.wtype}",
+                self.source_location,
+            )
+        if self.wtype != value.wtype.decode_type:
+            raise InternalError(
+                f"ARC4Decode from {value.wtype} should have target type {value.wtype.decode_type},"
+                f" got {self.wtype}",
+                self.source_location,
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_decode(self)
@@ -970,8 +1037,9 @@ class IntersectionSliceExpression(Expression):
 
 @attrs.frozen
 class AppStateExpression(Expression):
-    key: Expression = attrs.field(validator=wtype_is_bytes)
-    member_name: str | None
+    key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
+    exists_assertion_message: str | None
+    """TEAL comment that will be emitted in a checked-read scenario"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
@@ -979,10 +1047,11 @@ class AppStateExpression(Expression):
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
-    key: Expression = attrs.field(validator=wtype_is_bytes)
-    member_name: str | None
+    key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
+    exists_assertion_message: str | None
+    """TEAL comment that will be emitted in a checked-read scenario"""
     account: Expression = attrs.field(
-        validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
+        validator=expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -991,8 +1060,9 @@ class AppAccountStateExpression(Expression):
 
 @attrs.frozen
 class BoxValueExpression(Expression):
-    key: Expression = attrs.field(validator=wtype_is_bytes)
-    member_name: str | None
+    key: Expression = attrs.field(validator=expression_has_wtype(wtypes.box_key))
+    exists_assertion_message: str | None
+    """TEAL comment that will be emitted in a checked-read scenario"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_value_expression(self)
@@ -1065,14 +1135,17 @@ class ConditionalExpression(Expression):
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     true_expr: Expression
     false_expr: Expression
+    wtype: WType = attrs.field(init=False)
 
-    def __attrs_post_init__(self) -> None:
-        super().__attrs_post_init__()
+    @wtype.default
+    def _wtype(self) -> WType:
         if self.true_expr.wtype != self.false_expr.wtype:
-            raise ValueError(
+            raise CodeError(
                 f"true and false expressions of conditional have differing types:"
-                f" {self.true_expr.wtype} and {self.false_expr.wtype}"
+                f" {self.true_expr.wtype} and {self.false_expr.wtype}",
+                self.source_location,
             )
+        return self.true_expr.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_conditional_expression(self)
@@ -1101,10 +1174,6 @@ class AssignmentStatement(Statement):
             )
         if self.value.wtype == wtypes.void_wtype:
             raise CodeError("void type cannot be assigned", self.source_location)
-        if not self.value.wtype.persistable and isinstance(self.target, StorageExpression):  # type: ignore[misc,arg-type]
-            raise CodeError(
-                "expression has type which is not persistable", self.value.source_location
-            )
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_assignment_statement(self)
@@ -1137,8 +1206,6 @@ class AssignmentExpression(Expression):
             )
         if value.wtype == wtypes.void_wtype:
             raise CodeError("void type cannot be assigned", source_location)
-        if not value.wtype.persistable and isinstance(target, StorageExpression):  # type: ignore[misc,arg-type]
-            raise CodeError("expression has type which is not persistable", value.source_location)
         self.__attrs_init__(
             source_location=source_location,
             target=target,
@@ -1204,7 +1271,10 @@ class NumericComparisonExpression(Expression):
 
 
 bytes_comparable = expression_has_wtype(
-    wtypes.bytes_wtype, wtypes.account_wtype, wtypes.string_wtype
+    wtypes.bytes_wtype,
+    wtypes.account_wtype,
+    wtypes.string_wtype,
+    wtypes.ARC4Type,
 )
 
 
@@ -1645,19 +1715,6 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class BytesRaw(Expression):  # TODO: rename to BytesSerialize? OR replace with EB method
-    """Get the raw bytes of a scalar expression.
-    Will use `itob` in case it's uint64 backed.
-    """
-
-    expr: Expression
-    wtype: wtypes.WType = attrs.field(default=wtypes.bytes_wtype, init=False)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_bytes_raw(self)
-
-
-@attrs.frozen
 class ConstantDeclaration(ModuleStatement):
     value: ConstantValue
 
@@ -1782,18 +1839,18 @@ class ContractFragment(ModuleStatement):
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
-    # note: important that symtable comes last so default factory has access to all other fields
-    symtable: Mapping[str, ContractMethod | AppStorageDefinition] = attrs.field(init=False)
+    # note: important that this comes last so default factory has access to all other fields
+    methods: Mapping[str, ContractMethod] = attrs.field(init=False)
 
-    @symtable.default
-    def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStorageDefinition]:
-        result: dict[str, ContractMethod | AppStorageDefinition] = {**self.app_state}
+    @methods.default
+    def _methods_factory(self) -> Mapping[str, ContractMethod]:
+        result: dict[str, ContractMethod] = {}
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
             self.subroutines,
         )
         for sub in all_subs:
-            if sub.name in result:
+            if sub.name in result or sub.name in self.app_state:
                 raise CodeError(
                     f"Duplicate symbol {sub.name} in contract {self.full_name}",
                     sub.source_location,

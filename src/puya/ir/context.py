@@ -108,21 +108,13 @@ class IRBuildContext(CompileContext):
             )
         return func
 
-    def resolve_state(  # TODO: yeet me
-        self, field_name: str, source_location: SourceLocation
-    ) -> awst_nodes.AppStorageDefinition:
-        node = self._resolve_contract_attribute(field_name, source_location)
-        if not isinstance(node, awst_nodes.AppStorageDefinition):
-            raise CodeError(f"State reference {field_name} resolved to {node}", source_location)
-        return node
-
     def _resolve_contract_attribute(
         self,
         name: str,
         source_location: SourceLocation,
         *,
         start: awst_nodes.ContractReference | None = None,
-    ) -> awst_nodes.ContractMethod | awst_nodes.AppStorageDefinition:
+    ) -> awst_nodes.ContractMethod:
         current = self.contract
         if current is None:
             raise InternalError(
@@ -140,7 +132,7 @@ class IRBuildContext(CompileContext):
             *[self.resolve_contract_reference(cref) for cref in start_contract.bases],
         ):
             with contextlib.suppress(KeyError):
-                return contract.symtable[name]
+                return contract.methods[name]
         raise CodeError(
             f"Unresolvable attribute '{name}' of {start_contract.full_name}",
             source_location,

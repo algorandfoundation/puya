@@ -284,6 +284,3 @@ class FunctionTraverser(
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
         expr.key.accept(self)
-
-    def visit_bytes_raw(self, expr: awst_nodes.BytesRaw) -> None:
-        expr.expr.accept(self)

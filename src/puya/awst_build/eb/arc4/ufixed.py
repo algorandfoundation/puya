@@ -7,52 +7,65 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BytesComparisonExpression,
     DecimalConstant,
-    EqualityComparison,
     Expression,
-    Literal,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import (
-    construct_from_literal,
-    get_bytes_expr,
-    get_bytes_expr_builder,
+from puya.awst_build.eb._base import (
+    NotIterableInstanceExpressionBuilder,
 )
-from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
-from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
-from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import (
+    compare_bytes,
+)
+from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
+    from collections.abc import Collection, Sequence
 
 __all__ = [
-    "UFixedNxMClassExpressionBuilder",
+    "UFixedNxMTypeBuilder",
     "UFixedNxMExpressionBuilder",
 ]
 
 
-class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
+class UFixedNxMTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+    @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.StrLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+
     @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        typ = self.produces2()
+    ) -> InstanceBuilder:
+        typ = self.produces()
         fixed_wtype = typ.wtype
         assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
         loc = location
         match args:
             case []:
                 literal_value = "0.0"
-            case [Literal(value=str(literal_value))]:
+            case [LiteralBuilder(value=str(literal_value))]:
                 pass
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -81,7 +94,10 @@ class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
         return UFixedNxMExpressionBuilder(result, typ)
 
 
-class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMType]):
+class UFixedNxMExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType],
+    BytesBackedInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType],
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UFixedNxMType)
         assert typ.generic in (
@@ -91,36 +107,17 @@ class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMTyp
         super().__init__(typ, expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
-            self.expr,
+            self,
             false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        match name:
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
-            case _:
-                return super().member_access(name, location)
-
-    @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        if isinstance(other, Literal):
-            other = construct_from_literal(other, self.pytype)
-        if other.pytype != self.pytype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            # TODO: here (and everywhere else) raise a CodeError instead of fatal if op isn't
-            #       in the supported enum
-            operator=EqualityComparison(op.value),
-            lhs=get_bytes_expr(self.expr),
-            rhs=get_bytes_expr(other.rvalue()),
-            source_location=location,
-        )
-        return BoolExpressionBuilder(cmp_expr)
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        other = other.resolve_literal(UFixedNxMTypeBuilder(self.pytype, other.source_location))
+        return compare_bytes(op=op, lhs=self, rhs=other, source_location=location)

@@ -2,61 +2,96 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import ARC4Encode, BoolConstant, Expression, Literal
+from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression
 from puya.awst_build import pytypes
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import compare_bytes
 from puya.awst_build.eb.arc4.base import (
-    ARC4ClassExpressionBuilder,
-    ARC4EncodedExpressionBuilder,
+    ARC4TypeBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, LiteralConverter
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
-    import mypy.nodes
-
-    from puya.awst_build.eb.base import ExpressionBuilder
+    from puya.awst_build.eb.interface import BuilderComparisonOp, NodeBuilder
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
+class ARC4BoolTypeBuilder(ARC4TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4BoolType, location)
 
     @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.BoolType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
-            case [val]:
-                native_bool = expect_operand_type(val, pytypes.BoolType)
+            case [InstanceBuilder(pytype=pytypes.BoolType) as eb]:
+                native_bool = eb.resolve()
             case _:
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
                 )
-        wtype = self.produces()
+        wtype = self.produces().wtype
         assert isinstance(wtype, wtypes.ARC4Type)
         return ARC4BoolExpressionBuilder(
             ARC4Encode(value=native_bool, wtype=wtype, source_location=location)
         )
 
 
-class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
+class ARC4BoolExpressionBuilder(
+    NotIterableInstanceExpressionBuilder, BytesBackedInstanceExpressionBuilder
+):
     def __init__(self, expr: Expression):
-        super().__init__(pytypes.ARC4BoolType, expr, native_pytype=pytypes.BoolType)
+        super().__init__(pytypes.ARC4BoolType, expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return arc4_bool_bytes(self, false_bytes=b"\x00", location=location, negate=negate)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        match name:
+            case "native":
+                result_expr: Expression = ARC4Decode(
+                    value=self.resolve(),
+                    wtype=pytypes.BoolType.wtype,
+                    source_location=location,
+                )
+                return BoolExpressionBuilder(result_expr)
+            case _:
+                return super().member_access(name, location)
+
+    @typing.override
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
