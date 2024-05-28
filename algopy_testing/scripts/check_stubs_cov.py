@@ -6,6 +6,8 @@ from typing import NamedTuple
 
 from prettytable import PrettyTable
 
+# TODO: update to follow the new project structure
+
 PROJECT_ROOT = (Path(__file__).parent / "..").resolve()
 VCS_ROOT = (PROJECT_ROOT / "..").resolve()
 STUBS = VCS_ROOT / "stubs" / "algopy-stubs"
@@ -29,7 +31,6 @@ class CoverageResult(NamedTuple):
 
 
 class ImplCoverage:
-
     def __init__(
         self, path: Path, defined: list[str] | None = None, missing: list[str] | None = None
     ):
