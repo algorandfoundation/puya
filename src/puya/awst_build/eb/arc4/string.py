@@ -71,9 +71,10 @@ def _expect_string_or_bytes(
     match expr:
         case Literal(value=str(string_literal)):
             return _arc4_encode_str_literal(string_literal, location)
-        case Literal(source_location=invalid_literal_location):
+        case Literal(value=invalid_value, source_location=invalid_literal_location):
             raise CodeError(
-                f"Invalid literal for {pytypes.ARC4StringType}", invalid_literal_location
+                f"Can't construct {pytypes.ARC4StringType} from Python literal {invalid_value!r}",
+                invalid_literal_location,
             )
         case ExpressionBuilder(pytype=pytypes.ARC4StringType) as eb:
             return eb.rvalue()
