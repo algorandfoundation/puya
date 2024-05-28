@@ -16,7 +16,7 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -60,12 +60,12 @@ class LogBuilder(FunctionBuilder):
                         source_location=eb.source_location,
                     )
                 case _:
-                    sep = expect_operand_wtype(sep_arg, wtypes.bytes_wtype)
+                    sep = expect_operand_type(sep_arg, pytypes.BytesType)
 
         log_value: Expression | None = None
         for arg in args_:
             match arg:
-                case ExpressionBuilder(value_type=wtypes.uint64_wtype):
+                case ExpressionBuilder(pytype=pytypes.UInt64Type):
                     bytes_expr: Expression = intrinsic_factory.itob(
                         arg.rvalue(), arg.source_location
                     )

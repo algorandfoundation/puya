@@ -9,27 +9,20 @@ import mypy.types
 from mypy.types import get_proper_type, is_named_instance
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
-    AddressConstant,
     BoolConstant,
-    BytesConstant,
-    BytesEncoding,
     ConstantValue,
     ContractReference,
     Expression,
-    IntegerConstant,
     Literal,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
     SingleEvaluation,
-    StringConstant,
     UInt64BinaryOperation,
     UInt64BinaryOperator,
     UInt64Constant,
 )
-from puya.awst_build import constants, intrinsic_factory
+from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.errors import CodeError, InternalError
@@ -173,66 +166,62 @@ def require_expression_builder(
             typing.assert_never(builder_or_literal)
 
 
-def expect_operand_wtype(
-    literal_or_eb: Literal | ExpressionBuilder, target_wtype: wtypes.WType
+def expect_operand_type(
+    literal_or_eb: Literal | ExpressionBuilder, target_type: pytypes.PyType
 ) -> Expression:
-    literal_or_expr: Literal | Expression
-    if isinstance(literal_or_eb, ExpressionBuilder):
-        literal_or_expr = literal_or_eb.rvalue()
-    else:
-        literal_or_expr = literal_or_eb
-
-    if isinstance(literal_or_expr, Expression):
-        if literal_or_expr.wtype != target_wtype:
-            raise CodeError(
-                f"Expected type {target_wtype}, got type {literal_or_expr.wtype}",
-                literal_or_expr.source_location,
-            )
-        return literal_or_expr
-    else:
-        return convert_literal(literal_or_expr, target_wtype)
+    if isinstance(literal_or_eb, Literal):
+        return convert_literal(literal_or_eb, target_type)
+    if literal_or_eb.pytype != target_type:
+        raise CodeError(
+            f"Expected type {target_type}, got type {literal_or_eb.pytype}",
+            literal_or_eb.source_location,
+        )
+    return literal_or_eb.rvalue()
 
 
-def convert_literal(literal_or_expr: Literal, target_wtype: wtypes.WType) -> Expression:
-    loc = literal_or_expr.source_location
-    match literal_or_expr.value, target_wtype:
-        case bool(bool_value), wtypes.bool_wtype:
-            return BoolConstant(value=bool_value, source_location=loc)
-        case int(int_value), wtypes.uint64_wtype | wtypes.biguint_wtype:
-            return IntegerConstant(value=int_value, wtype=target_wtype, source_location=loc)
-        case bytes(bytes_value), wtypes.bytes_wtype:
-            try:
-                # TODO: YEET ME
-                bytes_value.decode("utf8")
-            except ValueError:
-                encoding = BytesEncoding.unknown
-            else:
-                encoding = BytesEncoding.utf8
-            return BytesConstant(value=bytes_value, encoding=encoding, source_location=loc)
-        case str(str_value), wtypes.bytes_wtype:
-            return BytesConstant(
-                value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
-            )
-        case str(str_value), wtypes.string_wtype:
-            return StringConstant(value=str_value, source_location=loc)
-        case str(str_value), wtypes.account_wtype:
-            return AddressConstant(value=str_value, source_location=loc)
-        case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:
-            return ReinterpretCast(
-                expr=UInt64Constant(value=int_value, source_location=loc),
-                wtype=target_wtype,
-                source_location=loc,
-            )
-    raise CodeError(
-        f"Can't construct {target_wtype} from Python literal {literal_or_expr.value!r}", loc
-    )
+def convert_literal(literal_or_expr: Literal, target_type: pytypes.PyType) -> Expression:
+    from puya.awst_build.eb._utils import construct_from_literal
+
+    return construct_from_literal(literal_or_expr, target_type).rvalue()
+    # loc = literal_or_expr.source_location
+    # match literal_or_expr.value, target_wtype:
+    #     case bool(bool_value), wtypes.bool_wtype:
+    #         return BoolConstant(value=bool_value, source_location=loc)
+    #     case int(int_value), wtypes.uint64_wtype | wtypes.biguint_wtype:
+    #         return IntegerConstant(value=int_value, wtype=target_wtype, source_location=loc)
+    #     case bytes(bytes_value), wtypes.bytes_wtype:
+    #         try:
+    #             # TODO: YEET ME
+    #             bytes_value.decode("utf8")
+    #         except ValueError:
+    #             encoding = BytesEncoding.unknown
+    #         else:
+    #             encoding = BytesEncoding.utf8
+    #         return BytesConstant(value=bytes_value, encoding=encoding, source_location=loc)
+    #     case str(str_value), wtypes.bytes_wtype:
+    #         return BytesConstant(
+    #             value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
+    #         )
+    #     case str(str_value), wtypes.string_wtype:
+    #         return StringConstant(value=str_value, source_location=loc)
+    #     case str(str_value), wtypes.account_wtype:
+    #         return AddressConstant(value=str_value, source_location=loc)
+    #     case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:
+    #         return ReinterpretCast(
+    #             expr=UInt64Constant(value=int_value, source_location=loc),
+    #             wtype=target_wtype,
+    #             source_location=loc,
+    #         )
+    # raise CodeError(
+    #     f"Can't construct {target_wtype} from Python literal {literal_or_expr.value!r}", loc
+    # )
 
 
 def convert_literal_to_expr(
-    literal_or_expr: Literal | ExpressionBuilder, target_wtype: wtypes.WType
+    literal_or_expr: Literal | ExpressionBuilder, target_type: pytypes.PyType
 ) -> Expression:
     if isinstance(literal_or_expr, Literal):
-        return convert_literal(literal_or_expr, target_wtype)
+        return convert_literal(literal_or_expr, target_type)
     else:
         return literal_or_expr.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
 
@@ -326,7 +315,7 @@ def eval_slice_component(
 
     if isinstance(val, ExpressionBuilder):
         # no negatives to deal with here, easy
-        index_expr = expect_operand_wtype(val, wtypes.uint64_wtype)
+        index_expr = expect_operand_type(val, pytypes.UInt64Type)
         temp_index = SingleEvaluation(index_expr)
         return intrinsic_factory.select(
             false=len_expr,

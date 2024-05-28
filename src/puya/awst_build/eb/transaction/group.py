@@ -20,7 +20,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, FunctionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -48,7 +48,7 @@ class GroupTransactionClassExpressionBuilder(
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
             case [ExpressionBuilder() as eb]:
-                group_index = expect_operand_wtype(eb, wtypes.uint64_wtype)
+                group_index = expect_operand_type(eb, pytypes.UInt64Type)
             case [Literal(value=int(int_value), source_location=loc)]:
                 if int_value < 0:
                     raise CodeError(
@@ -118,7 +118,7 @@ class _ArrayItem(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (arg,) = args
-        index_expr = expect_operand_wtype(arg, wtypes.uint64_wtype)
+        index_expr = expect_operand_type(arg, pytypes.UInt64Type)
         expr = IntrinsicCall(
             op_code="gtxnsas",
             immediates=[self.field.immediate],

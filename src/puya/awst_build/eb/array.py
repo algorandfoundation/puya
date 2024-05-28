@@ -17,7 +17,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype, require_expression_builder
+from puya.awst_build.utils import expect_operand_type, require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -39,7 +39,7 @@ class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         ]
         expected_type = arg_typs[0]
         for a in non_literal_args:
-            expect_operand_wtype(a, expected_type.wtype)
+            expect_operand_type(a, expected_type)
         array_type = pytypes.GenericArrayType.parameterise([expected_type], location)
         wtype = array_type.wtype
         assert isinstance(wtype, wtypes.WArray)
@@ -74,7 +74,7 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType])
         ]
         array_type = self.produces2()
         for a in non_literal_args:
-            expect_operand_wtype(a, array_type.items.wtype)
+            expect_operand_type(a, array_type.items)
         array_expr = NewArray(
             values=tuple(a.rvalue() for a in non_literal_args),
             wtype=self._wtype,
@@ -100,7 +100,7 @@ class ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType]):
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        item_expr = expect_operand_wtype(item, self.pytype.items.wtype)
+        item_expr = expect_operand_type(item, self.pytype.items)
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)
 

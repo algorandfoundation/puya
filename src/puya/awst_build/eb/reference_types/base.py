@@ -110,7 +110,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
+        other_expr = convert_literal_to_expr(other, self.pytype)
         if not (
             other_expr.wtype == self.wtype  # can only compare with other of same type?
             and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)

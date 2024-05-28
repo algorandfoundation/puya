@@ -1645,7 +1645,7 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class BytesRaw(Expression):  # TODO: rename to BytesSerialize?
+class BytesRaw(Expression):  # TODO: rename to BytesSerialize? OR replace with EB method
     """Get the raw bytes of a scalar expression.
     Will use `itob` in case it's uint64 backed.
     """

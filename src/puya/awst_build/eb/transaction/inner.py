@@ -19,7 +19,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -94,7 +94,7 @@ class _ArrayItem(FunctionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [(ExpressionBuilder() | Literal(value=int())) as eb]:
-                index_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
+                index_expr = expect_operand_type(eb, pytypes.UInt64Type)
                 expr = InnerTransactionField(
                     itxn=self.transaction,
                     field=self.field,
@@ -130,18 +130,16 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         if len(args) > 1:
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
             result_typ = pytypes.GenericTupleType.parameterise(
-                [
-                    pytypes.InnerTransactionResultTypes[_get_transaction_type_from_arg(a)]
-                    for a in args
-                ],
+                [pytypes.InnerTransactionResultTypes[transaction_types[a]] for a in args],
                 location,
             )
             return TupleExpressionBuilder(
                 SubmitInnerTransaction(
                     wtype=result_typ.wtype,
                     itxns=tuple(
-                        expect_operand_wtype(
-                            a, wtypes.WInnerTransactionFields.from_type(transaction_types[a])
+                        expect_operand_type(
+                            a,
+                            pytypes.InnerTransactionFieldsetTypes[transaction_types[a]],
                         )
                         for a in args
                     ),

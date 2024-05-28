@@ -20,7 +20,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -53,7 +53,7 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
             case [Literal(value=int(int_value))]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=location)
             case [ExpressionBuilder() as eb]:
-                uint64_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
+                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
@@ -87,7 +87,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [ExpressionBuilder() as eb]:
-                account_expr = expect_operand_wtype(eb, wtypes.account_wtype)
+                account_expr = expect_operand_type(eb, pytypes.AccountType)
                 immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
                 asset_params_get = IntrinsicCall(
                     source_location=location,
