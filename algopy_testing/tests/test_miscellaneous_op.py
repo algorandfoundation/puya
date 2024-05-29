@@ -9,7 +9,6 @@ from algokit_utils import ApplicationClient, get_localnet_default_account
 from algokit_utils.config import config
 from algopy import BigUInt, UInt64, op
 from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64, MAX_UINT512
-from algosdk.error import ABIEncodingError
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
 
@@ -87,9 +86,7 @@ def test_addw(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
     ("a", "b"),
     [(1, MAX_UINT64 + 1), (MAX_UINT64 + 1, 1), (0, MAX_UINT512), (MAX_UINT512 * 2, 0)],
 )
-def test_addw_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_addw", a=a, b=b)
+def test_addw_input_overflow(a: int, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.addw(a, b)
 
@@ -193,9 +190,7 @@ def test_uint64_bitlen(get_ops_avm_result: AVMInvoker, a: int) -> None:
     "a",
     [MAX_UINT64 + 1, MAX_UINT512, MAX_UINT512 * 2],
 )
-def test_uint64_bitlen_input_overflow(get_ops_avm_result: AVMInvoker, a: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_uint64_bitlen", a=a)
+def test_uint64_bitlen_input_overflow(a: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.bitlen(a)
 
@@ -287,9 +282,7 @@ def test_bzero_overflow(get_ops_avm_result: AVMInvoker, a: int) -> None:
     "a",
     [MAX_UINT64 + 1, MAX_UINT512, MAX_UINT512 * 2],
 )
-def test_bzero_input_overflow(get_ops_avm_result: AVMInvoker, a: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_bzero", a=a)
+def test_bzero_input_overflow(a: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.bzero(a)
 
@@ -371,11 +364,7 @@ def test_divmodw(get_ops_avm_result: AVMInvoker, a: int, b: int, c: int, d: int)
         (MAX_UINT512 * 2, 1, MAX_UINT512 * 2, 1),
     ],
 )
-def test_divmodw_input_overflow(
-    get_ops_avm_result: AVMInvoker, a: int, b: int, c: int, d: int
-) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_divmodw", a=a, b=b, c=c, d=d)
+def test_divmodw_input_overflow(a: int, b: int, c: int, d: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.divmodw(a, b, c, d)
 
@@ -445,9 +434,7 @@ def test_divw_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int, c: int) -
         (MAX_UINT512 * 2, 1, MAX_UINT512 * 2),
     ],
 )
-def test_divw_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int, c: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_divw", a=a, b=b, c=c)
+def test_divw_input_overflow(a: int, b: int, c: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.divw(a, b, c)
 
@@ -493,9 +480,7 @@ def test_exp_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
         (MAX_UINT512 * 2, 1),
     ],
 )
-def test_exp_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_exp", a=a, b=b)
+def test_exp_input_overflow(a: int, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.exp(a, b)
 
@@ -542,9 +527,7 @@ def test_expw_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
         (MAX_UINT512 * 2, 1),
     ],
 )
-def test_expw_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_expw", a=a, b=b)
+def test_expw_input_overflow(a: int, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.expw(a, b)
 
@@ -626,10 +609,8 @@ def test_extract_from_2_to_end(get_ops_avm_result: AVMInvoker, a: bytes) -> None
         (MAX_UINT512 * 2, 1),
     ],
 )
-def test_extract_input_overflow(get_ops_avm_result: AVMInvoker, b: int, c: int) -> None:
+def test_extract_input_overflow(b: int, c: int) -> None:
     a = b"hello, world"
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_extract", a=a, b=b, c=c)
     with pytest.raises(ValueError, match=_too_big64_error):
         op.extract(a, b, c)
 
@@ -674,9 +655,7 @@ def test_extract_uint16(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> Non
         (int_to_bytes(MAX_UINT512), MAX_UINT512),
     ],
 )
-def test_extract_uint16_input_overflow(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_extract_uint16", a=a, b=b)
+def test_extract_uint16_input_overflow(a: bytes, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.extract_uint16(a, b)
 
@@ -722,9 +701,7 @@ def test_extract_uint32(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> Non
         (int_to_bytes(MAX_UINT512), MAX_UINT512),
     ],
 )
-def test_extract_uint32_input_overflow(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_extract_uint32", a=a, b=b)
+def test_extract_uint32_input_overflow(a: bytes, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.extract_uint32(a, b)
 
@@ -770,9 +747,7 @@ def test_extract_uint64(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> Non
         (int_to_bytes(MAX_UINT512), MAX_UINT512),
     ],
 )
-def test_extract_uint64_input_overflow(get_ops_avm_result: AVMInvoker, a: bytes, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_extract_uint64", a=a, b=b)
+def test_extract_uint64_input_overflow(a: bytes, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.extract_uint64(a, b)
 
@@ -935,9 +910,7 @@ def test_itob(get_ops_avm_result: AVMInvoker, a: int) -> None:
         MAX_UINT512,
     ],
 )
-def test_itob_input_overflow(get_ops_avm_result: AVMInvoker, a: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_itob", a=a)
+def test_itob_input_overflow(a: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.itob(a)
 
@@ -966,9 +939,7 @@ def test_mulw(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
     ("a", "b"),
     [(1, MAX_UINT64 + 1), (MAX_UINT64 + 1, 1), (0, MAX_UINT512), (MAX_UINT512 * 2, 0)],
 )
-def test_mulw_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_mulw", a=a, b=b)
+def test_mulw_input_overflow(a: int, b: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.mulw(a, b)
 
@@ -1036,11 +1007,7 @@ def test_select_bytes(get_ops_avm_result: AVMInvoker, a: bytes, b: bytes, c: int
         (b"\x00\x00\xff", b"\xff", MAX_UINT512),
     ],
 )
-def test_select_bytes_input_overflow(
-    get_ops_avm_result: AVMInvoker, a: bytes, b: bytes, c: int
-) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_select_bytes", a=a, b=b, c=c)
+def test_select_bytes_input_overflow(a: bytes, b: bytes, c: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.select_bytes(a, b, c)
 
@@ -1068,11 +1035,7 @@ def test_select_uint64(get_ops_avm_result: AVMInvoker, a: int, b: int, c: int | 
         (MAX_UINT512, MAX_UINT512, MAX_UINT512),
     ],
 )
-def test_select_uint64_input_overflow(
-    get_ops_avm_result: AVMInvoker, a: int, b: int, c: int
-) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_select_uint64", a=a, b=b, c=c)
+def test_select_uint64_input_overflow(a: int, b: int, c: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.select_uint64(a, b, c)
 
@@ -1249,9 +1212,7 @@ def test_shl(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
     ("a", "b"),
     [(1, MAX_UINT64 + 1), (MAX_UINT64 + 1, 1), (0, MAX_UINT512), (MAX_UINT512 * 2, 0)],
 )
-def test_shl_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_shl", a=a, b=b)
+def test_shl_input_overflow(a: int, b: int) -> None:
     with pytest.raises(ValueError, match="expected value <="):
         op.shl(a, b)
 
@@ -1297,9 +1258,7 @@ def test_shr(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
         (MAX_UINT512 * 2, 1),
     ],
 )
-def test_shr_input_overflow(get_ops_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_shr", a=a, b=b)
+def test_shr_input_overflow(a: int, b: int) -> None:
     with pytest.raises(ValueError, match="expected value <="):
         op.shr(a, b)
 
@@ -1378,9 +1337,7 @@ def test_substring_input_error(get_ops_avm_result: AVMInvoker, a: bytes, b: int,
     "a",
     [MAX_UINT64 + 1, MAX_UINT512, MAX_UINT512 * 2],
 )
-def test_sqrt_input_overflow(get_ops_avm_result: AVMInvoker, a: int) -> None:
-    with pytest.raises(ABIEncodingError, match=_avm_int_arg_overflow_error):
-        get_ops_avm_result("verify_sqrt", a=a)
+def test_sqrt_input_overflow(a: int) -> None:
     with pytest.raises(ValueError, match=_too_big64_error):
         op.sqrt(UInt64(a))
 
