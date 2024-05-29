@@ -26,3 +26,8 @@ class ECDSA(Enum):
 
 class VrfVerify(Enum):
     VrfAlgorand = 0
+
+
+class Base64(Enum):
+    URLEncoding = 0
+    StdEncoding = 1

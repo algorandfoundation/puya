@@ -75,5 +75,6 @@ def as_string(value: object) -> str:
         case _:
             raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
 
+
 def int_to_bytes(x: int) -> bytes:
     return x.to_bytes((x.bit_length() + 7) // 8, "big")
