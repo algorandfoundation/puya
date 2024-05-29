@@ -9,7 +9,7 @@ from puya import log
 from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.avm_ops_models import OpSignature, StackType, Variant
+from puya.ir.avm_ops_models import ImmediateKind, OpSignature, StackType, Variant
 from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
 from puya.ir.visitor import IRVisitor
 from puya.models import ContractMetaData, LogicSignatureMetaData
@@ -371,6 +371,28 @@ class Intrinsic(Op, ValueProvider):
     def _validate_args(self, _attribute: object, args: list[Value]) -> None:
         arg_types = [a.ir_type for a in args]
         self._check_stack_types("argument", self.op_signature.args, arg_types)
+
+    @immediates.validator
+    def _validate_immediates(self, _attribute: object, immediates: list[int | str]) -> None:
+        if len(self.op.immediate_types) != len(immediates):
+            logger.error("Incorrect number of immediates", location=self.source_location)
+            return
+        for imm_type, imm in zip(self.op.immediate_types, immediates, strict=True):
+            match imm_type:
+                case ImmediateKind.uint8:
+                    if not isinstance(imm, int) or not (0 <= imm <= 255):
+                        logger.critical(
+                            "Invalid immediate, expected value between 0 and 255",
+                            location=self.source_location,
+                        )
+                case ImmediateKind.arg_enum:
+                    if not isinstance(imm, str):
+                        logger.critical(
+                            "Invalid immediate, expected enum value",
+                            location=self.source_location,
+                        )
+                case _:
+                    typing.assert_never(imm_type)
 
     def _check_stack_types(
         self,
