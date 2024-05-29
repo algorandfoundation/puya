@@ -63,15 +63,10 @@ def as_bytes(value: object, *, max_size: int = MAX_BYTES_SIZE) -> bytes:
 
 
 def as_string(value: object) -> str:
-    from algopy_testing.primitives.bytes import Bytes
     from algopy_testing.primitives.string import String
 
     match value:
-        case bytes(bytes_value) | Bytes(value=bytes_value):
-            return bytes_value.decode("utf-8")
         case str(string_value) | String(value=string_value):
-            pass
+            return string_value
         case _:
             raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
-
-    return string_value

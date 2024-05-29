@@ -69,120 +69,24 @@ class TxnFields:
     state_proof_pk: bytes | None = None
     num_approval_program_pages: int | None = None
     num_clear_state_program_pages: int | None = None
-
-    @staticmethod
-    def application_args(a: int) -> bytes:
-        raise NotImplementedError("'application_args' is not implemented")
-
-    @staticmethod
-    def accounts(a: int) -> str:
-        raise NotImplementedError("'accounts' is not implemented")
-
-    @staticmethod
-    def assets(a: int) -> int:
-        raise NotImplementedError("'assets' is not implemented")
-
-    @staticmethod
-    def applications(a: int) -> int:
-        raise NotImplementedError("'applications' is not implemented")
-
-    @staticmethod
-    def logs(a: int) -> bytes:
-        raise NotImplementedError("'logs' is not implemented")
-
-    @staticmethod
-    def approval_program_pages(a: int) -> bytes:
-        raise NotImplementedError("'approval_program_pages' is not implemented")
-
-    @staticmethod
-    def clear_state_program_pages(a: int) -> bytes:
-        raise NotImplementedError("'clear_state_program_pages' is not implemented")
+    application_args: tuple[bytes, ...] | None = None
+    accounts: tuple[str, ...] | None = None
+    assets: tuple[int, ...] | None = None
+    applications: tuple[int, ...] | None = None
+    logs: tuple[bytes, ...] | None = None
+    approval_program_pages: tuple[bytes, ...] | None = None
+    clear_state_program_pages: tuple[bytes, ...] | None = None
 
 
 class _Txn:
-    def __getattr__(self, name: str) -> object:  # noqa: PLR0911
+    def __getattr__(self, name: str) -> object:
         from algopy_testing.context import get_test_context
-        from algopy_testing.models.account import Account
-        from algopy_testing.models.application import Application
-        from algopy_testing.models.asset import Asset
-        from algopy_testing.primitives.bytes import Bytes
-        from algopy_testing.primitives.uint64 import UInt64
 
         if name in TxnFields.__annotations__:
             context = get_test_context()
             if not context or not context.transaction_state:
                 raise ValueError("Txn state is not set")
-            value = getattr(context.transaction_state, name)
-            if value is None:
-                return None
-            if name in {
-                "fee",
-                "first_valid",
-                "first_valid_time",
-                "last_valid",
-                "amount",
-                "vote_first",
-                "vote_last",
-                "vote_key_dilution",
-                "type_enum",
-                "asset_amount",
-                "group_index",
-                "on_completion",
-                "num_app_args",
-                "num_accounts",
-                "config_asset_total",
-                "config_asset_decimals",
-                "num_assets",
-                "num_applications",
-                "global_num_uint",
-                "global_num_byte_slice",
-                "local_num_uint",
-                "local_num_byte_slice",
-                "extra_program_pages",
-                "num_logs",
-                "created_asset_id",
-                "created_application_id",
-                "num_approval_program_pages",
-                "num_clear_state_program_pages",
-            }:
-                return UInt64(value)
-            if name in {
-                "sender",
-                "receiver",
-                "close_remainder_to",
-                "asset_sender",
-                "asset_receiver",
-                "asset_close_to",
-                "rekey_to",
-                "config_asset_manager",
-                "config_asset_reserve",
-                "config_asset_freeze",
-                "config_asset_clawback",
-                "freeze_asset_account",
-            }:
-                return Account(value)
-            if name in {
-                "note",
-                "lease",
-                "vote_pk",
-                "selection_pk",
-                "type",
-                "tx_id",
-                "approval_program",
-                "clear_state_program",
-                "config_asset_unit_name",
-                "config_asset_name",
-                "config_asset_url",
-                "config_asset_metadata_hash",
-                "last_log",
-                "state_proof_pk",
-            }:
-                return Bytes(value)
-            if name in {"xfer_asset", "application_id", "config_asset", "freeze_asset"}:
-                return Asset(value)
-            if name in {"created_application_id"}:
-                return Application(value)
-            return value
+            return getattr(context.transaction_state, name)
         raise AttributeError(f"'Txn' object has no attribute '{name}'")
 
 

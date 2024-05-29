@@ -1,9 +1,1 @@
-# TODO: Refine further, currently simplified to limit the scope of state management abstractions PR
-
-
-class AssetTransferTransaction:
-    pass
-
-
-class PaymentTransaction:
-    pass
+from algopy_testing.gtxn import *  # noqa: F403

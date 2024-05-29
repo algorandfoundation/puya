@@ -64,84 +64,15 @@ class ITxnFields:
 
 
 class _Itxn:
-    def __getattr__(self, name: str) -> object:  # noqa: PLR0911
+    def __getattr__(self, name: str) -> object:
         from algopy_testing.context import get_test_context
-        from algopy_testing.models.account import Account
-        from algopy_testing.models.application import Application
-        from algopy_testing.models.asset import Asset
-        from algopy_testing.primitives.bytes import Bytes
-        from algopy_testing.primitives.uint64 import UInt64
 
         if name in ITxnFields.__annotations__:
             context = get_test_context()
             if not context or not context.itxn_state:
                 raise ValueError("ITxn fields are not set")
-            value = getattr(context.itxn_state, name)
-            if value is None:
-                return None
-            if name in {
-                "fee",
-                "first_valid",
-                "last_valid",
-                "amount",
-                "vote_first",
-                "vote_last",
-                "vote_key_dilution",
-                "type_enum",
-                "xfer_asset",
-                "asset_amount",
-                "group_index",
-                "application_id",
-                "on_completion",
-                "config_asset",
-                "config_asset_total",
-                "config_asset_decimals",
-                "global_num_uint",
-                "global_num_byte_slice",
-                "local_num_uint",
-                "local_num_byte_slice",
-                "extra_program_pages",
-                "created_asset_id",
-                "created_application_id",
-            }:
-                return UInt64(value)
-            if name in {
-                "sender",
-                "receiver",
-                "close_remainder_to",
-                "asset_sender",
-                "asset_receiver",
-                "asset_close_to",
-                "rekey_to",
-                "config_asset_manager",
-                "config_asset_reserve",
-                "config_asset_freeze",
-                "config_asset_clawback",
-                "freeze_asset_account",
-            }:
-                return Account(value)
-            if name in {
-                "note",
-                "lease",
-                "vote_pk",
-                "selection_pk",
-                "type",
-                "tx_id",
-                "approval_program",
-                "clear_state_program",
-                "config_asset_unit_name",
-                "config_asset_name",
-                "config_asset_url",
-                "config_asset_metadata_hash",
-                "last_log",
-                "state_proof_pk",
-            }:
-                return Bytes(value)
-            if name in {"xfer_asset", "config_asset", "freeze_asset"}:
-                return Asset(value)
-            if name in {"application_id", "created_application_id"}:
-                return Application(value)
-            return value
+            return getattr(context.itxn_state, name)
+
         raise AttributeError(f"'Itxn' object has no attribute '{name}'")
 
 

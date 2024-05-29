@@ -34,41 +34,13 @@ class GlobalFields:
 class _Global:
     def __getattr__(self, name: str) -> object:
         from algopy_testing.context import get_test_context
-        from algopy_testing.models.account import Account
-        from algopy_testing.primitives.bytes import Bytes
-        from algopy_testing.primitives.uint64 import UInt64
 
         if name in GlobalFields.__annotations__:
             context = get_test_context()
             if not context or not context.global_state:
                 raise ValueError("Global state is not set")
-            value = getattr(context.global_state, name)
-            if value is None:
-                return None
-            if name in {
-                "min_txn_fee",
-                "min_balance",
-                "max_txn_life",
-                "group_size",
-                "logic_sig_version",
-                "round",
-                "latest_timestamp",
-                "current_application_id",
-                "caller_application_id",
-                "asset_create_min_balance",
-                "asset_opt_in_min_balance",
-            }:
-                return UInt64(value)
-            if name in {
-                "zero_address",
-                "creator_address",
-                "current_application_address",
-                "caller_application_address",
-            }:
-                return Account(value)
-            if name in {"group_id", "genesis_hash"}:
-                return Bytes(value)
-            return value
+            return getattr(context.global_state, name)
+
         raise AttributeError(f"'Global' object has no attribute '{name}'")
 
 

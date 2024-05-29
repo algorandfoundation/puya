@@ -11,7 +11,7 @@ from prettytable import PrettyTable
 PROJECT_ROOT = (Path(__file__).parent / "..").resolve()
 VCS_ROOT = (PROJECT_ROOT / "..").resolve()
 STUBS = VCS_ROOT / "stubs" / "algopy-stubs"
-IMPL = PROJECT_ROOT / "src" / "algopy"
+IMPL = PROJECT_ROOT / "src"
 ROOT_MODULE = "algopy"
 
 
@@ -120,6 +120,9 @@ def collect_stubs(stubs_dir: Path, relative_module: str) -> dict[str, ASTNodeDef
 def collect_coverage(stubs: dict[str, ASTNodeDefinition]) -> list[CoverageResult]:
     result = []
     for full_name, stub in stubs.items():
+        if "op.pyi" in str(stub.path):
+            print("stop")
+
         coverage = _get_impl_coverage(full_name, stub)
         result.append(
             CoverageResult(
@@ -181,7 +184,12 @@ def _get_impl_coverage(symbol: str, stub: ASTNodeDefinition) -> ImplCoverage | N
         impl = getattr(mod, name)
     except AttributeError:
         return None
-    impl_path = Path(inspect.getfile(impl))
+
+    try:
+        impl_path = Path(inspect.getfile(impl))
+    except Exception as e:
+        print(e)
+        return None
     return _compare_stub_impl(stub.node, impl, impl_path)
 
 

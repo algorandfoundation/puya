@@ -34,8 +34,11 @@ class Account:
 
     def __init__(self, value: str | Bytes = algosdk.constants.ZERO_ADDRESS, /):
         if not isinstance(value, str | Bytes):
-            raise TypeError("Invalid value for AccountProtocol")
-        self._public_key = as_string(value)
+            raise TypeError("Invalid value for Account")
+        if isinstance(value, Bytes):
+            self._public_key = algosdk.encoding.encode_address(value)
+        else:
+            self._public_key = value
 
     def __repr__(self) -> str:
         return self._public_key
@@ -62,7 +65,15 @@ class Account:
 
     @classmethod
     def from_bytes(cls, value: Bytes | bytes) -> Self:
-        return cls(as_string(value))
+        if len(value) != 32:
+            raise ValueError(
+                f"Invalid account value byte length: {len(value)} bytes; must be 32 bytes long."
+            )
+        if isinstance(value, bytes):
+            decoded_value = algosdk.encoding.encode_address(value)
+        else:
+            decoded_value = str(value)
+        return cls(decoded_value)
 
     @property
     def bytes(self) -> Bytes:

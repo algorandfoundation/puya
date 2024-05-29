@@ -102,6 +102,8 @@ fix = [
   "black .",
   "ruff check --fix",
 ]
+check_examples = [ 'black --check examples', 'ruff check examples']
+fix_examples = [ 'black examples', 'ruff check --fix examples']
 
 # cicd environment
 [tool.hatch.envs.cicd]
@@ -120,6 +122,7 @@ localnet_start = [
 type = "virtual"
 path = ".venv.examples"
 python = "3.12"
+detached = true
 dependencies = [
     "algorand-python @ {root:uri}/../stubs",
     "algorand-python-testing @ {root:uri}",
@@ -134,6 +137,14 @@ dependencies = [
 
 [tool.hatch.envs.examples.scripts]
 tests = "pytest examples"
+pre_commit = [
+    "hatch run lint:fix_examples",
+    "hatch run mypy examples",
+]
+check = [
+    "hatch run lint:check_examples",
+    "hatch run mypy examples",
+]
 
 
 # tool configurations
