@@ -86,11 +86,11 @@ def test_claim_bids(
     context: TestContext[Any], contract: AuctionContract, mocker: MagicMock
 ) -> None:
     # Arrange
-    dummy_address = "A" * 58
-    context.transaction_state.sender = Account(dummy_address)
-    contract.claimable_amount[dummy_address] = 300
-    contract.previous_bidder = dummy_address
-    contract.previous_bid = 100
+    dummy_account = Account("A" * 58)
+    context.transaction_state.sender = dummy_account
+    contract.claimable_amount[dummy_account] = 300
+    contract.previous_bidder = dummy_account
+    contract.previous_bid = UInt64(100)
     mock_itxn_payment = mocker.patch("algopy.itxn.Payment")
 
     # Act
@@ -99,20 +99,20 @@ def test_claim_bids(
     # Assert
     mock_itxn_payment.assert_called_once_with(
         amount=200,
-        receiver=dummy_address,
+        receiver=dummy_account,
     )
-    assert contract.claimable_amount[dummy_address] == 100
+    assert contract.claimable_amount[dummy_account] == 100
 
 
 def test_claim_asset(
     context: TestContext[Any], contract: AuctionContract, mocker: MagicMock
 ) -> None:
     # Arrange
-    dummy_address = "A" * 58
+    dummy_account = Account("A" * 58)
     context.global_state.latest_timestamp = UInt64(2000)
     contract.auction_end = UInt64(1000)
-    contract.previous_bidder = dummy_address
-    contract.asa_amount = 1000
+    contract.previous_bidder = dummy_account
+    contract.asa_amount = UInt64(1000)
     asset = Asset(123)
     mock_itxn_axfer = mocker.patch("algopy.itxn.AssetTransfer")
 
@@ -122,8 +122,8 @@ def test_claim_asset(
     # Assert
     mock_itxn_axfer.assert_called_once_with(
         xfer_asset=asset,
-        asset_close_to=dummy_address,
-        asset_receiver=dummy_address,
+        asset_close_to=dummy_account,
+        asset_receiver=dummy_account,
         asset_amount=1000,
     )
 

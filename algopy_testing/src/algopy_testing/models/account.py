@@ -33,7 +33,7 @@ class Account:
     total_box_bytes: UInt64 | None = None
 
     def __init__(self, value: str | Bytes = algosdk.constants.ZERO_ADDRESS, /):
-        if not isinstance(value, str | Bytes):
+        if not isinstance(value, (str | Bytes)):
             raise TypeError("Invalid value for Account")
         if isinstance(value, Bytes):
             public_key = algosdk.encoding.encode_address(value)
