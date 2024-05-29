@@ -489,8 +489,8 @@ class FunctionIRBuilder(
         elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
             return arc4.arc4_array_index(
                 self.context,
-                expr.base.wtype,
-                base=base,
+                array_wtype=expr.base.wtype,
+                array=base,
                 index=index,
                 source_location=expr.source_location,
             )

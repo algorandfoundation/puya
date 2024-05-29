@@ -23,16 +23,14 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 let tmp%14#0: bytes = (txna ApplicationArgs 6)
                 let is_true%0#0: uint64 = (getbit tmp%14#0 0u)
                 let item0%0#0: bytes = (setbit 0x00 0u is_true%0#0)
-                let item1%0#0: bytes = (extract3 tmp%14#0 1u 8u)
-                let item_index%0#0: uint64 = (extract_uint16 tmp%14#0 9u)
-                let item_length%0#0: uint64 = (extract_uint16 tmp%14#0 item_index%0#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let item2%0#0: bytes = (extract3 tmp%14#0 item_index%0#0 item_length_plus_2%0#0)
-                let item3%0#0: bytes = (extract3 tmp%14#0 11u 64u)
-                let item_index%1#0: uint64 = (extract_uint16 tmp%14#0 75u)
-                let item_length%1#0: uint64 = (extract_uint16 tmp%14#0 item_index%1#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let item4%0#0: bytes = (extract3 tmp%14#0 item_index%1#0 item_length_plus_2%1#0)
+                let item1%0#0: bytes = (extract3 tmp%14#0 1u 8u) // on error: Index access is out of bounds
+                let item_start_offset%0#0: uint64 = (extract_uint16 tmp%14#0 9u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 tmp%14#0 75u)
+                let item2%0#0: bytes = (substring3 tmp%14#0 item_start_offset%0#0 item_end_offset%0#0)
+                let item3%0#0: bytes = (extract3 tmp%14#0 11u 64u) // on error: Index access is out of bounds
+                let item_start_offset%1#0: uint64 = (extract_uint16 tmp%14#0 75u)
+                let item_end_offset%1#0: uint64 = (len tmp%14#0)
+                let item4%0#0: bytes = (substring3 tmp%14#0 item_start_offset%1#0 item_end_offset%1#0)
                 let awst_tmp%0#0: bytes = item0%0#0
                 let awst_tmp%1#0: bytes = item1%0#0
                 let awst_tmp%2#0: bytes = item2%0#0
@@ -82,8 +80,8 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 let tmp%29#0: bool = (txn ApplicationID)
                 (assert tmp%29#0) // is not creating
                 let tmp%30#0: bytes = (txna ApplicationArgs 1)
-                let item0%1#0: bytes = (extract3 tmp%30#0 0u 1u)
-                let item1%1#0: bytes = (extract3 tmp%30#0 1u 32u)
+                let item0%1#0: bytes = (extract3 tmp%30#0 0u 1u) // on error: Index access is out of bounds
+                let item1%1#0: bytes = (extract3 tmp%30#0 1u 32u) // on error: Index access is out of bounds
                 let (awst_tmp%11#0: bytes, awst_tmp%12#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
                 let encoded_tuple_buffer%1#1: bytes = (concat 0x awst_tmp%11#0)
                 let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 awst_tmp%12#0)

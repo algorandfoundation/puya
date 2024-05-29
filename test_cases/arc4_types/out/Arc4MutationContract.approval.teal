@@ -194,17 +194,22 @@ dynamic_array_string:
     dup
     int 0
     extract_uint16
+    swap
     dup
+    extract 2 0
+    swap
+    dig 2
     int 2
     *
-    int 2
-    +
+    swap
     dig 2
     len
-    dig 3
-    cover 2
-    substring3
     swap
+    uncover 3
+    uncover 3
+    uncover 3
+    substring3
+    uncover 2
     callsub dynamic_array_concat_variable_size
     // arc4_types/mutation.py:231
     // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
@@ -300,18 +305,23 @@ array_of_array_dynamic:
     // arc4_types/mutation.py:78
     // array_of_array[0].append(UInt8(255))
     dup
+    extract 2 0
+    swap
+    dup
     int 0
     extract_uint16
     assert // Index access is out of bounds
-    dup
-    extract 2 0
-    dup
+    dig 1
     int 0
     extract_uint16
-    dup2
+    dig 2
+    dig 1
     extract_uint16
     int 2
     +
+    uncover 3
+    uncover 2
+    uncover 2
     extract3
     extract 2 0
     byte 0xff
@@ -333,18 +343,23 @@ array_of_array_dynamic:
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
     dup
+    extract 2 0
+    swap
+    dup
     int 0
     extract_uint16
     assert // Index access is out of bounds
-    dup
-    extract 2 0
-    dup
+    dig 1
     int 0
     extract_uint16
-    dup2
+    dig 2
+    dig 1
     extract_uint16
     int 2
     +
+    uncover 3
+    uncover 2
+    uncover 2
     extract3
     dup
     int 0
@@ -389,7 +404,7 @@ array_of_array_static:
     // arc4_types/mutation.py:97
     // array_of_array[1][0] = UInt8(1)
     dup
-    extract 2 2
+    extract 2 2 // on error: Index access is out of bounds
     byte 0x01
     replace2 0
     replace2 2

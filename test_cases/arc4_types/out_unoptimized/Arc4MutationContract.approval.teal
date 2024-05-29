@@ -906,20 +906,21 @@ dynamic_array_string:
     dup
     int 0
     extract_uint16
+    swap
     dup
+    extract 2 0
+    swap
+    dig 2
     int 2
     *
-    int 2
-    +
+    swap
     dig 2
     len
     swap
-    dig 3
-    swap
-    uncover 2
+    uncover 3
+    uncover 3
+    uncover 3
     substring3
-    uncover 2
-    swap
     uncover 2
     callsub dynamic_array_concat_variable_size
     // arc4_types/mutation.py:231
@@ -1624,26 +1625,29 @@ array_of_array_dynamic:
     // arc4_types/mutation.py:78
     // array_of_array[0].append(UInt8(255))
     dup
+    extract 2 0
+    swap
+    dup
     int 0
     extract_uint16
     int 0
     swap
     <
     assert // Index access is out of bounds
-    dup
-    extract 2 0
     int 0
     int 2
     *
-    dig 1
+    dig 2
     swap
     extract_uint16
-    dig 1
+    dig 2
     dig 1
     extract_uint16
+    int 1
+    *
     int 2
     +
-    uncover 2
+    uncover 3
     uncover 2
     uncover 2
     extract3
@@ -1669,26 +1673,29 @@ array_of_array_dynamic:
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
     dup
+    extract 2 0
+    swap
+    dup
     int 0
     extract_uint16
     int 0
     swap
     <
     assert // Index access is out of bounds
-    dup
-    extract 2 0
     int 0
     int 2
     *
-    dig 1
+    dig 2
     swap
     extract_uint16
-    dig 1
+    dig 2
     dig 1
     extract_uint16
+    int 1
+    *
     int 2
     +
-    uncover 2
+    uncover 3
     uncover 2
     uncover 2
     extract3
@@ -1767,13 +1774,12 @@ array_of_array_static:
     assert
     // arc4_types/mutation.py:97
     // array_of_array[1][0] = UInt8(1)
+    dup
     int 1
     int 2
     *
-    dig 1
-    swap
     int 2
-    extract3
+    extract3 // on error: Index access is out of bounds
     int 0
     byte 0x01
     replace3
@@ -2312,17 +2318,19 @@ array_concat:
     dup
     int 0
     extract_uint16
+    swap
+    extract 2 0
+    swap
     dup
     int 2
     *
-    int 2
-    +
+    swap
     dig 2
     len
     swap
     uncover 3
-    swap
-    uncover 2
+    uncover 3
+    uncover 3
     substring3
     int 2
     itob

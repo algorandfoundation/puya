@@ -38,13 +38,15 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let assigned_value%0#0: bytes = 0x05
                 let updated_target%0#0: bytes = (replace3 my_array#0 2u assigned_value%0#0)
                 let my_array#1: bytes = updated_target%0#0
-                let item_index%0#0: uint64 = (* 2u 1u)
-                let reinterpret_biguint%0#0: biguint = (extract3 my_array_copy#0 item_index%0#0 1u)
+                let array_head_and_tail%0#0: bytes = my_array_copy#0
+                let item_offset%0#0: uint64 = (* 2u 1u)
+                let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%1#0: biguint = 0x03
                 let tmp%1#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
                 (assert tmp%1#0) // my_array_copy should be unchanged
-                let item_index%1#0: uint64 = (* 2u 1u)
-                let reinterpret_biguint%2#0: biguint = (extract3 my_array#1 item_index%1#0 1u)
+                let array_head_and_tail%1#0: bytes = my_array#1
+                let item_offset%1#0: uint64 = (* 2u 1u)
+                let reinterpret_biguint%2#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%3#0: biguint = 0x05
                 let tmp%2#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
                 (assert tmp%2#0) // my_array should be mutated
@@ -56,15 +58,15 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 (assert t#0)
                 let tmp%3#0: bool = (! f#0)
                 (assert tmp%3#0)
-                let item_index%2#0: uint64 = (* 1u 1u)
-                let reinterpret_biguint%4#0: biguint = (extract3 my_array#2 item_index%2#0 1u)
+                let array_head_and_tail%2#0: bytes = my_array#2
+                let item_offset%2#0: uint64 = (* 1u 1u)
+                let reinterpret_biguint%4#0: biguint = (extract3 array_head_and_tail%2#0 item_offset%2#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%5#0: biguint = 0x05
                 let tmp%4#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
                 (assert tmp%4#0) // my_array has been mutated by the subroutine
-                let item_index%3#0: uint64 = (extract_uint16 my_struct#1 2u)
-                let item_length%0#0: uint64 = (extract_uint16 my_struct#1 item_index%3#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let tmp%5#0: bytes = (extract3 my_struct#1 item_index%3#0 item_length_plus_2%0#0)
+                let item_start_offset%0#0: uint64 = (extract_uint16 my_struct#1 2u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 my_struct#1 4u)
+                let tmp%5#0: bytes = (substring3 my_struct#1 item_start_offset%0#0 item_end_offset%0#0)
                 let tmp%6#0: bool = (== tmp%5#0 "\x00\x07AARRGH!")
                 (assert tmp%6#0) // my_struct has been mutated by the subroutine
                 let copy%2#0: bytes = my_array_copy#0
@@ -72,15 +74,15 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(copy%2#0, copy%3#0)
                 let copy%3#1: bytes = other_routine%7#0
                 let copy%2#1: bytes = other_routine%6#0
-                let item_index%4#0: uint64 = (* 1u 1u)
-                let reinterpret_biguint%6#0: biguint = (extract3 my_array_copy#0 item_index%4#0 1u)
+                let array_head_and_tail%3#0: bytes = my_array_copy#0
+                let item_offset%3#0: uint64 = (* 1u 1u)
+                let reinterpret_biguint%6#0: biguint = (extract3 array_head_and_tail%3#0 item_offset%3#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%7#0: biguint = 0x02
                 let tmp%7#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
                 (assert tmp%7#0) // my_array_copy should not be mutated by the subroutine
-                let item_index%5#0: uint64 = (extract_uint16 my_struct_copy#0 2u)
-                let item_length%1#0: uint64 = (extract_uint16 my_struct_copy#0 item_index%5#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let tmp%8#0: bytes = (extract3 my_struct_copy#0 item_index%5#0 item_length_plus_2%1#0)
+                let item_start_offset%1#0: uint64 = (extract_uint16 my_struct_copy#0 2u)
+                let item_end_offset%1#0: uint64 = (extract_uint16 my_struct_copy#0 4u)
+                let tmp%8#0: bytes = (substring3 my_struct_copy#0 item_start_offset%1#0 item_end_offset%1#0)
                 let tmp%9#0: bool = (== tmp%8#0 "\x00\x05Happy")
                 (assert tmp%9#0) // my_struct_copy should not be mutated by the subroutine
                 let copy%4#0: bytes = my_array_copy#0
@@ -88,15 +90,17 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let (other_routine_2%0#0: bytes, other_routine_2%1#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(my_array_copy_2#0)
                 let my_array_copy_2#1: bytes = other_routine_2%1#0
                 let my_array_copy_2#2: bytes = (other_routine_2%0#0)
-                let item_index%6#0: uint64 = (* 0u 1u)
-                let reinterpret_biguint%8#0: biguint = (extract3 my_array_copy_2#2 item_index%6#0 1u)
+                let array_head_and_tail%4#0: bytes = my_array_copy_2#2
+                let item_offset%4#0: uint64 = (* 0u 1u)
+                let reinterpret_biguint%8#0: biguint = (extract3 array_head_and_tail%4#0 item_offset%4#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%9#0: biguint = 0x01
                 let tmp%10#0: bool = (b== reinterpret_biguint%8#0 reinterpret_biguint%9#0)
                 (assert tmp%10#0) // my_array_copy_2 should have original value
                 let (other_routine_2%2#0: bytes, other_routine_2%3#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(my_array_copy_2#2)
                 let my_array_copy_2#3: bytes = other_routine_2%3#0
-                let item_index%7#0: uint64 = (* 0u 1u)
-                let reinterpret_biguint%10#0: biguint = (extract3 my_array_copy_2#3 item_index%7#0 1u)
+                let array_head_and_tail%5#0: bytes = my_array_copy_2#3
+                let item_offset%5#0: uint64 = (* 0u 1u)
+                let reinterpret_biguint%10#0: biguint = (extract3 array_head_and_tail%5#0 item_offset%5#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%11#0: biguint = 0x0a
                 let tmp%11#0: bool = (b== reinterpret_biguint%10#0 reinterpret_biguint%11#0)
                 (assert tmp%11#0) // my_array_copy_2 should have mutated value
@@ -105,7 +109,7 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let encoded_tuple_buffer%1#0: bytes = 0x
                 let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#0 copy%5#0)
                 let nested#0: bytes = encoded_tuple_buffer%1#1
-                let tmp%12#0: bytes = (extract3 nested#0 0u 4u)
+                let tmp%12#0: bytes = (extract3 nested#0 0u 4u) // on error: Index access is out of bounds
                 let copy%6#0: bytes = tmp%12#0
                 let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(copy%6#0)
                 let copy%6#1: bytes = other_routine_2%5#0

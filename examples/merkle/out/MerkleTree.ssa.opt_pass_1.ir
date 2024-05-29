@@ -52,10 +52,9 @@ contract examples.merkle.contract.MerkleTree:
                 let continue_looping%0#0: bool = (< idx#0 tmp%0#0)
                 goto continue_looping%0#0 ? block@2 : block@5
             block@2: // for_body_L22
-                (assert continue_looping%0#0) // Index access is out of bounds
-                let array_data_sans_header%0#0: bytes = ((extract 2 0) proof#0)
-                let item_index%0#0: uint64 = (* idx#0 32u)
-                let tmp%1#0: bytes = (extract3 array_data_sans_header%0#0 item_index%0#0 32u)
+                let array_head_and_tail%0#0: bytes = ((extract 2 0) proof#0)
+                let item_offset%0#0: uint64 = (* idx#0 32u)
+                let tmp%1#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 32u) // on error: Index access is out of bounds
                 let computed#2: bytes = examples.merkle.contract.hash_pair(computed#3, tmp%1#0)
                 let range_item%0#3: uint64 = (+ idx#0 1u)
                 goto block@1

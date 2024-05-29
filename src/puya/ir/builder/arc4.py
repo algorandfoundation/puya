@@ -7,6 +7,7 @@ from puya.arc4_util import (
     determine_arc4_tuple_head_size,
     get_arc4_fixed_bit_size,
     is_arc4_dynamic_size,
+    is_arc4_static_size,
 )
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -43,18 +44,19 @@ from puya.utils import bits_to_bytes
 @attrs.frozen(kw_only=True)
 class ArrayIterator:
     context: IRFunctionBuildContext
-    size: Value
-    item_wtype: wtypes.WType
-    array_bytes_sans_length_header: Value
+    array_wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray
+    array: Value
+    array_length: Value
     source_location: SourceLocation
 
     def get_value_at_index(self, index: Register) -> ValueProvider:
-        return _read_nth_item_of_arc4_homogeneous_container(
-            context=self.context,
-            array_bytes_sans_length_header=self.array_bytes_sans_length_header,
-            item_wtype=self.item_wtype,
+        return arc4_array_index(
+            self.context,
+            array_wtype=self.array_wtype,
+            array=self.array,
             index=index,
             source_location=self.source_location,
+            assert_bounds=False,  # iteration is always within bounds
         )
 
 
@@ -105,7 +107,7 @@ def _visit_arc4_tuple_decode(
     for index in range(len(wtype.types)):
         item_value = _read_nth_item_of_arc4_heterogeneous_container(
             context,
-            array_bytes_sans_length_header=value,
+            array_head_and_tail=value,
             tuple_type=wtype,
             index=index,
             source_location=source_location,
@@ -186,34 +188,146 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
 
 def arc4_array_index(
     context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
-    base: Value,
+    *,
+    array_wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
+    array: Value,
+    index: Value,
+    source_location: SourceLocation,
+    assert_bounds: bool = True,
+) -> ValueProvider:
+    factory = _OpFactory(context, source_location)
+    array_length_vp = _get_arc4_array_length(array_wtype, array, source_location)
+    array_head_and_tail_vp = _get_arc4_array_head_and_tail(array_wtype, array, source_location)
+    array_head_and_tail = factory.assign(array_head_and_tail_vp, "array_head_and_tail")
+    item_wtype = array_wtype.element_type
+
+    if is_arc4_dynamic_size(item_wtype):
+        inner_element_size = _maybe_get_inner_element_size(item_wtype)
+        if inner_element_size is not None:
+            if assert_bounds:
+                _assert_index_in_bounds(context, index, array_length_vp, source_location)
+            return _read_dynamic_item_using_length_from_arc4_container(
+                context,
+                array_head_and_tail=array_head_and_tail,
+                inner_element_size=inner_element_size,
+                index=index,
+                source_location=source_location,
+            )
+        else:
+            # no _assert_index_in_bounds here as end offset calculation implicitly checks
+            return _read_dynamic_item_using_end_offset_from_arc4_container(
+                context,
+                array_length_vp=array_length_vp,
+                array_head_and_tail=array_head_and_tail,
+                index=index,
+                source_location=source_location,
+            )
+    if item_wtype == wtypes.arc4_bool_wtype:
+        if assert_bounds:
+            # this catches the edge case of bit arrays that are not a multiple of 8
+            # e.g. reading index 6 & 7 of an array that has a length of 6
+            _assert_index_in_bounds(context, index, array_length_vp, source_location)
+        return _read_nth_bool_from_arc4_container(
+            context,
+            data=array_head_and_tail,
+            index=index,
+            source_location=source_location,
+        )
+    else:
+        item_bit_size = get_arc4_fixed_bit_size(item_wtype)
+        # no _assert_index_in_bounds here as static items will error on read if past end of array
+        return _read_static_item_from_arc4_container(
+            data=array_head_and_tail,
+            offset=factory.mul(index, item_bit_size // 8, "item_offset"),
+            item_wtype=item_wtype,
+            source_location=source_location,
+        )
+
+
+def _maybe_get_inner_element_size(item_wtype: wtypes.ARC4Type) -> int | None:
+    match item_wtype:
+        case wtypes.arc4_string_wtype:
+            inner_static_element_type = wtypes.arc4_byte_type
+        case wtypes.ARC4Array(element_type=inner_static_element_type) if is_arc4_static_size(
+            inner_static_element_type
+        ):
+            pass
+        case _:
+            return None
+    return get_arc4_fixed_bit_size(inner_static_element_type) // 8
+
+
+def _read_dynamic_item_using_length_from_arc4_container(
+    context: IRFunctionBuildContext,
+    *,
+    array_head_and_tail: Value,
+    inner_element_size: int,
     index: Value,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    """
-    If expr is an ARC4 index expression will return the resulting ValueProvider.
-    Returns None if not an ARC4 expression
-    """
+    factory = _OpFactory(context, source_location)
+    item_offset_offset = factory.mul(index, 2, "item_offset_offset")
+    item_start_offset = factory.extract_uint16(
+        array_head_and_tail, item_offset_offset, "item_offset"
+    )
+    item_length = factory.extract_uint16(array_head_and_tail, item_start_offset, "item_length")
+    item_length_in_bytes = factory.mul(item_length, inner_element_size, "item_length_in_bytes")
+    item_total_length = factory.add(item_length_in_bytes, 2, "item_head_tail_length")
+    return Intrinsic(
+        op=AVMOp.extract3,
+        args=[array_head_and_tail, item_start_offset, item_total_length],
+        source_location=source_location,
+    )
 
-    length, array_data_sans_header = _get_arc4_array_item_count_and_data(
-        wtype, base, source_location
+
+def _read_dynamic_item_using_end_offset_from_arc4_container(
+    context: IRFunctionBuildContext,
+    *,
+    array_length_vp: ValueProvider,
+    array_head_and_tail: Value,
+    index: Value,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    factory = _OpFactory(context, source_location)
+    item_offset_offset = factory.mul(index, 2, "item_offset_offset")
+    item_start_offset = factory.extract_uint16(
+        array_head_and_tail, item_offset_offset, "item_offset"
     )
-    _assert_index_in_bounds(
-        context,
-        index=index,
-        length=length,
+
+    array_length = factory.assign(array_length_vp, "array_length")
+    next_item_index = factory.add(index, 1, "next_index")
+    # three possible outcomes of this op will determine the end offset
+    # next_item_index < array_length -> has_next is true, use next_item_offset
+    # next_item_index == array_length -> has_next is false, use array_length
+    # next_item_index > array_length -> op will fail, comment provides context to error
+    has_next = factory.assign(
+        Intrinsic(
+            op=AVMOp.sub,
+            args=[array_length, next_item_index],
+            source_location=source_location,
+            comment="on error: Index access is out of bounds",
+        ),
+        "has_next",
+    )
+    end_of_array = factory.len(array_head_and_tail, "end_of_array")
+    next_item_offset_offset = factory.mul(next_item_index, 2, "next_item_offset_offset")
+    # next_item_offset_offset will be past the array head when has_next is false, but this is ok as
+    # the value will not be used. Additionally, next_item_offset_offset will always be a valid
+    # offset in the overall array, because there will be at least 1 element (due to has_next
+    # checking out of bounds) and this element will be dynamically sized,
+    # which means it's data has at least one u16 in its header
+    # e.g. reading here...   has at least one u16 ........
+    #                    v                               v
+    # ArrayHead(u16, u16) ArrayTail(DynamicItemHead(... u16, ...), ..., DynamicItemTail, ...)
+    next_item_offset = factory.extract_uint16(
+        array_head_and_tail, next_item_offset_offset, "next_item_offset"
+    )
+
+    item_end_offset = factory.select(end_of_array, next_item_offset, has_next, "end_offset")
+    return Intrinsic(
+        op=AVMOp.substring3,
+        args=[array_head_and_tail, item_start_offset, item_end_offset],
         source_location=source_location,
-    )
-    (array_value,) = context.visitor.materialise_value_provider(
-        array_data_sans_header, "array_data_sans_header"
-    )
-    return _read_nth_item_of_arc4_homogeneous_container(
-        context,
-        source_location=source_location,
-        array_bytes_sans_length_header=array_value,
-        index=index,
-        item_wtype=wtype.element_type,
     )
 
 
@@ -226,7 +340,7 @@ def arc4_tuple_index(
 ) -> ValueProvider:
     return _read_nth_item_of_arc4_heterogeneous_container(
         context,
-        array_bytes_sans_length_header=base,
+        array_head_and_tail=base,
         index=index,
         tuple_type=wtype,
         source_location=source_location,
@@ -260,7 +374,7 @@ def _value_as_uint16(
 def _visit_arc4_tuple_encode(
     context: IRFunctionBuildContext,
     elements: Sequence[Value],
-    tuple_items: Sequence[wtypes.WType],
+    tuple_items: Sequence[wtypes.ARC4Type],
     expr_loc: SourceLocation,
 ) -> ValueProvider:
     header_size = determine_arc4_tuple_head_size(tuple_items, round_end_result=True)
@@ -360,6 +474,8 @@ def _set_bit(
 
 
 def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray) -> ValueProvider:
+    if not isinstance(expr.wtype, wtypes.ARC4Array):
+        raise InternalError("Expected ARC4 Array expression", expr.source_location)
     len_prefix = (
         len(expr.values).to_bytes(2, "big")
         if isinstance(expr.wtype, wtypes.ARC4DynamicArray)
@@ -467,15 +583,40 @@ def _arc4_replace_struct_item(
         raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location)
     index_int = wtype.names.index(field_name)
 
-    element_size = get_arc4_fixed_bit_size(element_type)
     header_up_to_item = determine_arc4_tuple_head_size(
         wtype.types[0:index_int],
-        round_end_result=element_size != 1,
+        round_end_result=element_type != wtypes.arc4_bool_wtype,
     )
-    if not element_size:
-        dynamic_indices = [
-            index for index, t in enumerate(wtype.types) if not get_arc4_fixed_bit_size(t)
-        ]
+    if element_type == wtypes.arc4_bool_wtype:
+        # Use Set bit
+        (is_true,) = assign_intrinsic_op(
+            context,
+            target="is_true",
+            source_location=source_location,
+            op=AVMOp.getbit,
+            args=[value, 0],
+        )
+        (updated_data,) = assign_intrinsic_op(
+            context,
+            target="updated_data",
+            source_location=source_location,
+            op=AVMOp.setbit,
+            args=(base, header_up_to_item, is_true),
+            return_type=[base.ir_type],
+        )
+        return updated_data
+    elif is_arc4_static_size(element_type):
+        (updated_data,) = assign_intrinsic_op(
+            context,
+            target="updated_data",
+            source_location=source_location,
+            op=AVMOp.replace2,
+            immediates=[header_up_to_item // 8],
+            args=[base, value],
+        )
+        return updated_data
+    else:
+        dynamic_indices = [index for index, t in enumerate(wtype.types) if is_arc4_dynamic_size(t)]
 
         (item_offset,) = assign_intrinsic_op(
             context,
@@ -643,40 +784,12 @@ def _arc4_replace_struct_item(
                 args=[tail_cursor, 2],
             )
         return updated_data
-    elif element_size == 1:
-        # Use Set bit
-        (is_true,) = assign_intrinsic_op(
-            context,
-            target="is_true",
-            source_location=source_location,
-            op=AVMOp.getbit,
-            args=[value, 0],
-        )
-        (updated_data,) = assign_intrinsic_op(
-            context,
-            target="updated_data",
-            source_location=source_location,
-            op=AVMOp.setbit,
-            args=(base, header_up_to_item, is_true),
-            return_type=[base.ir_type],
-        )
-        return updated_data
-    else:
-        (updated_data,) = assign_intrinsic_op(
-            context,
-            target="updated_data",
-            source_location=source_location,
-            op=AVMOp.replace2,
-            immediates=[header_up_to_item // 8],
-            args=[base, value],
-        )
-        return updated_data
 
 
 def _read_nth_item_of_arc4_heterogeneous_container(
     context: IRFunctionBuildContext,
     *,
-    array_bytes_sans_length_header: Value,
+    array_head_and_tail: Value,
     tuple_type: wtypes.ARC4Tuple | wtypes.ARC4Struct,
     index: int,
     source_location: SourceLocation,
@@ -684,177 +797,126 @@ def _read_nth_item_of_arc4_heterogeneous_container(
     tuple_item_types = tuple_type.types
 
     item_wtype = tuple_item_types[index]
-    item_bit_size = get_arc4_fixed_bit_size(item_wtype)
     head_up_to_item = determine_arc4_tuple_head_size(
         tuple_item_types[:index], round_end_result=False
     )
-    if item_bit_size is not None:
-        item_index: Value = UInt64Constant(
-            value=(
-                head_up_to_item
-                if item_wtype == wtypes.arc4_bool_wtype
-                else bits_to_bytes(head_up_to_item)
-            ),
-            source_location=source_location,
-        )
-    else:
-        item_index_value = Intrinsic(
-            op=AVMOp.extract_uint16,
-            args=[
-                array_bytes_sans_length_header,
-                UInt64Constant(
-                    value=bits_to_bytes(head_up_to_item), source_location=source_location
-                ),
-            ],
-            source_location=source_location,
-        )
-        (item_index,) = assign(
+    if item_wtype == wtypes.arc4_bool_wtype:
+        return _read_nth_bool_from_arc4_container(
             context,
-            temp_description="item_index",
-            source=item_index_value,
-            source_location=source_location,
-        )
-    return _read_nth_item_of_arc4_container(
-        context,
-        data=array_bytes_sans_length_header,
-        index=item_index,
-        item_wtype=item_wtype,
-        item_bit_size=item_bit_size,
-        source_location=source_location,
-    )
-
-
-def _read_nth_item_of_arc4_homogeneous_container(
-    context: IRFunctionBuildContext,
-    *,
-    array_bytes_sans_length_header: Value,
-    item_wtype: wtypes.WType,
-    index: Value,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    item_bit_size = get_arc4_fixed_bit_size(item_wtype)
-    if item_bit_size is not None:
-        item_index_value = Intrinsic(
-            op=AVMOp.mul,
-            args=[
-                index,
-                UInt64Constant(
-                    value=(
-                        item_bit_size
-                        if item_wtype == wtypes.arc4_bool_wtype
-                        else (item_bit_size // 8)
-                    ),
-                    source_location=source_location,
-                ),
-            ],
-            source_location=source_location,
-        )
-    else:
-        (item_index_index,) = assign(
-            context,
-            source_location=source_location,
-            temp_description="item_index_index",
-            source=Intrinsic(
+            data=array_head_and_tail,
+            index=UInt64Constant(
+                value=head_up_to_item,
                 source_location=source_location,
-                op=AVMOp.mul,
-                args=[index, UInt64Constant(value=2, source_location=source_location)],
             ),
-        )
-        item_index_value = Intrinsic(
             source_location=source_location,
+        )
+    head_offset = UInt64Constant(
+        value=bits_to_bytes(head_up_to_item), source_location=source_location
+    )
+    if is_arc4_dynamic_size(item_wtype):
+        (item_start_offset,) = assign_intrinsic_op(
+            context,
+            target="item_start_offset",
             op=AVMOp.extract_uint16,
-            args=[array_bytes_sans_length_header, item_index_index],
+            args=[array_head_and_tail, head_offset],
+            source_location=source_location,
         )
 
-    (item_index,) = assign(
-        context,
-        temp_description="item_index",
-        source=item_index_value,
-        source_location=source_location,
-    )
+        next_index = index + 1
+        for tuple_item_index, tuple_item_type in enumerate(
+            tuple_item_types[next_index:], start=next_index
+        ):
+            if is_arc4_dynamic_size(tuple_item_type):
+                head_up_to_next_dynamic_item = determine_arc4_tuple_head_size(
+                    tuple_item_types[:tuple_item_index], round_end_result=False
+                )
+                next_dynamic_head_offset = UInt64Constant(
+                    value=bits_to_bytes(head_up_to_next_dynamic_item),
+                    source_location=source_location,
+                )
+                (item_end_offset,) = assign_intrinsic_op(
+                    context,
+                    target="item_end_offset",
+                    op=AVMOp.extract_uint16,
+                    args=[array_head_and_tail, next_dynamic_head_offset],
+                    source_location=source_location,
+                )
+                break
+        else:
+            (item_end_offset,) = assign_intrinsic_op(
+                context,
+                target="item_end_offset",
+                op=AVMOp.len_,
+                args=[array_head_and_tail],
+                source_location=source_location,
+            )
+        return Intrinsic(
+            op=AVMOp.substring3,
+            args=[array_head_and_tail, item_start_offset, item_end_offset],
+            source_location=source_location,
+        )
+    else:
+        return _read_static_item_from_arc4_container(
+            data=array_head_and_tail,
+            offset=head_offset,
+            item_wtype=item_wtype,
+            source_location=source_location,
+        )
 
-    return _read_nth_item_of_arc4_container(
-        context,
-        data=array_bytes_sans_length_header,
-        index=item_index,
-        item_wtype=item_wtype,
-        item_bit_size=item_bit_size,
-        source_location=source_location,
-    )
 
-
-def _read_nth_item_of_arc4_container(
+def _read_nth_bool_from_arc4_container(
     context: IRFunctionBuildContext,
     *,
     data: Value,
     index: Value,
-    item_wtype: wtypes.WType,
-    item_bit_size: int | None,
     source_location: SourceLocation,
 ) -> ValueProvider:
-    """
-    Reads the nth item of an arc4 array, tuple, or struct
-    """
-    if item_wtype == wtypes.arc4_bool_wtype:
-        # item_index is the bit position
-        (is_true,) = assign(
-            context,
-            temp_description="is_true",
-            source=Intrinsic(op=AVMOp.getbit, args=[data, index], source_location=source_location),
-            source_location=source_location,
-        )
-        return encode_arc4_bool(is_true, source_location)
-    if item_bit_size is not None:
-        # item_index is the byte position of our fixed length item
-        end: Value = UInt64Constant(value=item_bit_size // 8, source_location=source_location)
-    else:
-        # item_index is the position of the 'length' bytes of our variable length item
-        (item_length,) = assign(
-            context,
-            temp_description="item_length",
-            source=Intrinsic(
-                op=AVMOp.extract_uint16,
-                args=[data, index],
-                source_location=source_location,
-            ),
-            source_location=source_location,
-        )
-        (end,) = assign(
-            context,
-            temp_description="item_length_plus_2",
-            source=Intrinsic(
-                op=AVMOp.add,
-                args=[
-                    item_length,
-                    UInt64Constant(value=2, source_location=source_location),
-                ],
-                source_location=source_location,
-            ),
-            source_location=source_location,
-        )
-    return Intrinsic(op=AVMOp.extract3, args=[data, index, end], source_location=source_location)
+    # index is the bit position
+    (is_true,) = assign(
+        context,
+        temp_description="is_true",
+        source=Intrinsic(op=AVMOp.getbit, args=[data, index], source_location=source_location),
+        source_location=source_location,
+    )
+    return encode_arc4_bool(is_true, source_location)
+
+
+def _read_static_item_from_arc4_container(
+    *,
+    data: Value,
+    offset: Value,
+    item_wtype: wtypes.ARC4Type,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    item_bit_size = get_arc4_fixed_bit_size(item_wtype)
+    item_length = UInt64Constant(value=item_bit_size // 8, source_location=source_location)
+    return Intrinsic(
+        op=AVMOp.extract3,
+        args=[data, offset, item_length],
+        source_location=source_location,
+        comment="on error: Index access is out of bounds",
+    )
 
 
 def build_for_in_array(
     context: IRFunctionBuildContext,
-    dynamic_array_wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
-    arc4_dynamic_array_expression: awst_nodes.Expression,
+    array_wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
+    array_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> ArrayIterator:
-    array_value_with_length = context.visitor.visit_and_materialise_single(
-        arc4_dynamic_array_expression
+    array = context.visitor.visit_and_materialise_single(array_expr)
+    length_vp = _get_arc4_array_length(array_wtype, array, source_location)
+    (array_length,) = assign(
+        context,
+        length_vp,
+        temp_description="array_length",
+        source_location=source_location,
     )
-    array_length_vp, array_value_vp = _get_arc4_array_item_count_and_data(
-        dynamic_array_wtype, array_value_with_length, source_location
-    )
-    (array_length,) = context.visitor.materialise_value_provider(array_length_vp, "array_length")
-    (array_value,) = context.visitor.materialise_value_provider(array_value_vp, "array_value")
-
     return ArrayIterator(
         context=context,
-        size=array_length,
-        array_bytes_sans_length_header=array_value,
-        item_wtype=dynamic_array_wtype.element_type,
+        array=array,
+        array_length=array_length,
+        array_wtype=array_wtype,
         source_location=source_location,
     )
 
@@ -868,83 +930,35 @@ def _get_arc4_array_tail_data_and_item_count(
     of tail data and item count
     """
     match expr:
-        case awst_nodes.Expression(wtype=wtypes.ARC4DynamicArray(element_type=element_type)):
-            dynamic_array = context.visitor.visit_and_materialise_single(expr)
-            (array_length,) = assign_intrinsic_op(
+        case awst_nodes.Expression(
+            wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as arr_wtype
+        ):
+            array = context.visitor.visit_and_materialise_single(expr)
+            (array_length,) = assign(
                 context,
-                target="array_length",
-                op=AVMOp.extract_uint16,
-                args=[
-                    dynamic_array,
-                    0,
-                ],
+                _get_arc4_array_length(arr_wtype, array, source_location),
+                temp_description="array_length",
                 source_location=source_location,
             )
-            if get_arc4_fixed_bit_size(element_type) is None:
-                (start_of_data,) = assign_intrinsic_op(
-                    context,
-                    target="start_of_data",
-                    op=AVMOp.mul,
-                    args=[array_length, 2],
-                    source_location=source_location,
-                )
-                (start_of_data,) = assign_intrinsic_op(
-                    context,
-                    target=start_of_data,
-                    op=AVMOp.add,
-                    args=[start_of_data, 2],
-                    source_location=source_location,
-                )
-                (total_length,) = assign_intrinsic_op(
-                    context,
-                    target="total_length",
-                    op=AVMOp.len_,
-                    args=[
-                        dynamic_array,
-                    ],
-                    source_location=source_location,
-                )
-                (data,) = assign_intrinsic_op(
-                    context,
-                    target="data",
-                    op=AVMOp.substring3,
-                    args=[dynamic_array, start_of_data, total_length],
-                    source_location=source_location,
-                )
-            else:
-                (data,) = assign_intrinsic_op(
-                    context,
-                    target="data",
-                    op=AVMOp.extract,
-                    immediates=[2, 0],
-                    args=[
-                        dynamic_array,
-                    ],
-                    source_location=source_location,
-                )
-            return data, array_length
-        case awst_nodes.Expression(
-            wtype=wtypes.ARC4StaticArray(element_type=element_type, array_size=array_size)
-        ):
-            static_array = context.visitor.visit_and_materialise_single(expr)
-            static_array_length = UInt64Constant(value=array_size, source_location=source_location)
-            if get_arc4_fixed_bit_size(element_type) is None:
-                (data,) = assign_intrinsic_op(
-                    context,
-                    target="data",
-                    op=AVMOp.extract,
-                    # TODO: fix this, this will be an error if array_size > 127
-                    immediates=[array_size * 2, 0],
-                    args=[
-                        static_array,
-                    ],
-                    source_location=source_location,
-                )
-                return data, static_array_length
-            return static_array, static_array_length
-        case awst_nodes.TupleExpression(wtype=wtypes.WTuple()) as tuple_expr:
+            (array_head_and_tail,) = assign(
+                context,
+                _get_arc4_array_head_and_tail(arr_wtype, array, source_location),
+                temp_description="array_head_and_tail",
+                source_location=source_location,
+            )
+            array_tail = _get_arc4_array_tail(
+                context,
+                element_wtype=arr_wtype.element_type,
+                array_head_and_tail=array_head_and_tail,
+                array_length=array_length,
+                source_location=source_location,
+            )
+            return array_tail, array_length
+        case awst_nodes.TupleExpression() as tuple_expr:
+            if not all(isinstance(t, wtypes.ARC4Type) for t in tuple_expr.wtype.types):
+                raise InternalError("Expected tuple to contain only ARC4 types", source_location)
+
             values = context.visitor.visit_and_materialise(tuple_expr)
-            # TODO: check values are all arc4 types?
             tuple_length = UInt64Constant(
                 value=len(values),
                 source_location=source_location,
@@ -1182,9 +1196,7 @@ def _arc4_replace_array_item(
 
     index = context.visitor.visit_and_materialise_single(index_value_expr)
 
-    element_size = get_arc4_fixed_bit_size(wtype.element_type)
-
-    if not element_size:
+    if is_arc4_dynamic_size(wtype.element_type):
         if isinstance(wtype, wtypes.ARC4DynamicArray):
             (updated_value,) = assign(
                 context,
@@ -1239,6 +1251,7 @@ def _arc4_replace_array_item(
         source_location,
     )
 
+    element_size = get_arc4_fixed_bit_size(wtype.element_type)
     dynamic_offset = 0 if isinstance(wtype, wtypes.ARC4StaticArray) else 2
     if element_size == 1:
         dynamic_offset *= 8
@@ -1418,24 +1431,23 @@ def concat_values(
             awst_nodes.Expression(wtype=wtypes.ARC4Array(element_type=left_element_type)),
             awst_nodes.Expression(wtype=wtypes.ARC4Array(element_type=right_element_type)),
         ) if left_element_type == right_element_type:
-            element_size = get_arc4_fixed_bit_size(left_element_type)
-            match element_size:
-                case 1:
-                    method_name = "dynamic_array_concat_bits"
-                    additional_args: list[Value] = [
-                        UInt64Constant(value=1, source_location=source_location)
-                    ]
-                case None:
-                    method_name = "dynamic_array_concat_variable_size"
-                    additional_args = []
-                case _:
-                    return _concat_dynamic_array_fixed_size(
-                        context,
-                        left=left,
-                        right=right,
-                        source_location=source_location,
-                        byte_size=element_size // 8,
-                    )
+            if left_element_type == wtypes.arc4_bool_wtype:
+                method_name = "dynamic_array_concat_bits"
+                additional_args: list[Value] = [
+                    UInt64Constant(value=1, source_location=source_location)
+                ]
+            elif is_arc4_dynamic_size(left_element_type):
+                method_name = "dynamic_array_concat_variable_size"
+                additional_args = []
+            else:
+                element_size = get_arc4_fixed_bit_size(left_element_type)
+                return _concat_dynamic_array_fixed_size(
+                    context,
+                    left=left,
+                    right=right,
+                    source_location=source_location,
+                    byte_size=element_size // 8,
+                )
             (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
                 context, right, source_location
             )
@@ -1457,22 +1469,21 @@ def concat_values(
             awst_nodes.Expression(wtype=wtypes.ARC4Array(element_type=left_element_type)),
             awst_nodes.Expression(wtype=wtypes.WTuple(types=tuple_types)),
         ) if all(t == left_element_type for t in tuple_types):
-            element_size = get_arc4_fixed_bit_size(left_element_type)
-            match element_size:
-                case 1:
-                    method_name = "dynamic_array_concat_bits"
-                    additional_args = [UInt64Constant(value=0, source_location=source_location)]
-                case None:
-                    method_name = "dynamic_array_concat_variable_size"
-                    additional_args = []
-                case _:
-                    return _concat_dynamic_array_fixed_size(
-                        context,
-                        left=left,
-                        right=right,
-                        source_location=source_location,
-                        byte_size=element_size // 8,
-                    )
+            if left_element_type == wtypes.arc4_bool_wtype:
+                method_name = "dynamic_array_concat_bits"
+                additional_args = [UInt64Constant(value=0, source_location=source_location)]
+            elif is_arc4_dynamic_size(left_element_type):
+                method_name = "dynamic_array_concat_variable_size"
+                additional_args = []
+            else:
+                element_size = get_arc4_fixed_bit_size(left_element_type)
+                return _concat_dynamic_array_fixed_size(
+                    context,
+                    left=left,
+                    right=right,
+                    source_location=source_location,
+                    byte_size=element_size // 8,
+                )
             (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
                 context, right, source_location
             )
@@ -1511,28 +1522,25 @@ def pop_arc4_array(
     array_wtype: wtypes.ARC4DynamicArray,
 ) -> ValueProvider:
     source_location = expr.source_location
-    element_size = get_arc4_fixed_bit_size(array_wtype.element_type)
     popped = mktemp(context, IRType.bytes, source_location, description="popped")
     data = mktemp(context, IRType.bytes, source_location, description="data")
     base = context.visitor.visit_and_materialise_single(expr.base)
-    match element_size:
-        case 1:
-            method_name = "dynamic_array_pop_bit"
-            args: list[Value] = [base]
-
-        case int(fixed_size):
-            method_name = "dynamic_array_pop_fixed_size"
-            args = [
-                base,
-                UInt64Constant(
-                    value=fixed_size // 8,
-                    source_location=source_location,
-                ),
-            ]
-
-        case _:
-            method_name = "dynamic_array_pop_variable_size"
-            args = [base]
+    if array_wtype.element_type == wtypes.arc4_bool_wtype:
+        method_name = "dynamic_array_pop_bit"
+        args: list[Value] = [base]
+    elif is_arc4_dynamic_size(array_wtype.element_type):
+        method_name = "dynamic_array_pop_variable_size"
+        args = [base]
+    else:
+        fixed_size = get_arc4_fixed_bit_size(array_wtype.element_type)
+        method_name = "dynamic_array_pop_fixed_size"
+        args = [
+            base,
+            UInt64Constant(
+                value=fixed_size // 8,
+                source_location=source_location,
+            ),
+        ]
 
     (popped, data) = assign(
         context,
@@ -1550,6 +1558,15 @@ def pop_arc4_array(
     handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
 
     return popped
+
+
+def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
+    value = BytesConstant(
+        value=0x00.to_bytes(1, "big"),
+        source_location=source_location,
+        encoding=AVMBytesEncoding.base16,
+    )
+    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
 
 
 def _assert_index_in_bounds(
@@ -1589,19 +1606,16 @@ def _assert_index_in_bounds(
     )
 
 
-def _get_arc4_array_item_count_and_data(
+def _get_arc4_array_length(
     wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
     array: Value,
     source_location: SourceLocation,
-) -> tuple[ValueProvider, ValueProvider]:
+) -> ValueProvider:
     match wtype:
         case wtypes.ARC4StaticArray(array_size=array_size):
-            length: ValueProvider = UInt64Constant(
-                value=array_size, source_location=source_location
-            )
-            array_data: ValueProvider = array
+            return UInt64Constant(value=array_size, source_location=source_location)
         case wtypes.ARC4DynamicArray():
-            length = Intrinsic(
+            return Intrinsic(
                 op=AVMOp.extract_uint16,
                 args=[
                     array,
@@ -1609,7 +1623,20 @@ def _get_arc4_array_item_count_and_data(
                 ],
                 source_location=source_location,
             )
-            array_data = Intrinsic(
+        case _:
+            typing.assert_never(wtype)
+
+
+def _get_arc4_array_head_and_tail(
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
+    array: Value,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    match wtype:
+        case wtypes.ARC4StaticArray():
+            return array
+        case wtypes.ARC4DynamicArray():
+            return Intrinsic(
                 op=AVMOp.extract,
                 args=[array],
                 immediates=[2, 0],
@@ -1617,13 +1644,127 @@ def _get_arc4_array_item_count_and_data(
             )
         case _:
             typing.assert_never(wtype)
-    return length, array_data
 
 
-def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
-    value = BytesConstant(
-        value=0x00.to_bytes(1, "big"),
+def _get_arc4_array_tail(
+    context: IRFunctionBuildContext,
+    *,
+    element_wtype: wtypes.ARC4Type,
+    array_length: Value,
+    array_head_and_tail: Value,
+    source_location: SourceLocation,
+) -> Value:
+    if not is_arc4_dynamic_size(element_wtype):
+        # no header for static sized elements
+        return array_head_and_tail
+
+    # special case to use extract with immediate length of 0 where possible
+    # TODO: have an IR pseudo op, extract_to_end that handles this for non constant values?
+    if isinstance(array_length, UInt64Constant) and array_length.value <= 127:
+        (data,) = assign_intrinsic_op(
+            context,
+            target="data",
+            op=AVMOp.extract,
+            immediates=[array_length.value * 2, 0],
+            args=[array_head_and_tail],
+            source_location=source_location,
+        )
+        return data
+    (start_of_tail,) = assign_intrinsic_op(
+        context,
+        target="start_of_tail",
+        op=AVMOp.mul,
+        args=[array_length, 2],
         source_location=source_location,
-        encoding=AVMBytesEncoding.base16,
     )
-    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
+    (total_length,) = assign_intrinsic_op(
+        context,
+        target="total_length",
+        op=AVMOp.len_,
+        args=[array_head_and_tail],
+        source_location=source_location,
+    )
+    (data,) = assign_intrinsic_op(
+        context,
+        target="data",
+        op=AVMOp.substring3,
+        args=[array_head_and_tail, start_of_tail, total_length],
+        source_location=source_location,
+    )
+    return data
+
+
+@attrs.frozen
+class _OpFactory:
+    context: IRFunctionBuildContext
+    source_location: SourceLocation
+
+    def assign(self, value: ValueProvider, temp_desc: str) -> Register:
+        (register,) = assign(
+            self.context,
+            value,
+            temp_description=temp_desc,
+            source_location=self.source_location,
+        )
+        return register
+
+    def add(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.add,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def mul(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.mul,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def len(self, value: Value, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.len_,
+            args=[value],
+            source_location=self.source_location,
+        )
+        return result
+
+    def eq(self, a: Value, b: Value, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.eq,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def select(self, false: Value, true: Value, condition: Value, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.select,
+            args=[false, true, condition],
+            return_type=(true.ir_type,),
+            source_location=self.source_location,
+        )
+        return result
+
+    def extract_uint16(self, a: Value, b: Value, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.extract_uint16,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result

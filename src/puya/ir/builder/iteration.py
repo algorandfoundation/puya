@@ -158,7 +158,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             _iterate_indexable(
                 context,
                 loop_body=statement.loop_body,
-                indexable_size=iterator.size,
+                indexable_size=iterator.array_length,
                 get_value_at_index=iterator.get_value_at_index,
                 item_var=item_var,
                 index_var=index_var,

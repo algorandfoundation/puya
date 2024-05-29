@@ -106,17 +106,14 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
         
         subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> <uint64, bytes>:
             block@0: // L54
-                let a#0: bytes = ((extract 0 1) test_tuple#0)
-                let b#0: bytes = ((extract 1 1) test_tuple#0)
-                let item_index%0#0: uint64 = (extract_uint16 test_tuple#0 2u)
-                let item_length%0#0: uint64 = (extract_uint16 test_tuple#0 item_index%0#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let c#0: bytes = (extract3 test_tuple#0 item_index%0#0 item_length_plus_2%0#0)
-                let item_index%1#0: uint64 = (extract_uint16 test_tuple#0 4u)
-                let item_length%1#0: uint64 = (extract_uint16 test_tuple#0 item_index%1#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let d#0: bytes = (extract3 test_tuple#0 item_index%1#0 item_length_plus_2%1#0)
-                let e#0: bytes = ((extract 6 1) test_tuple#0)
+                let a#0: bytes = ((extract 0 1) test_tuple#0) // on error: Index access is out of bounds
+                let b#0: bytes = ((extract 1 1) test_tuple#0) // on error: Index access is out of bounds
+                let item_start_offset%0#0: uint64 = (extract_uint16 test_tuple#0 2u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 test_tuple#0 4u)
+                let c#0: bytes = (substring3 test_tuple#0 item_start_offset%0#0 item_end_offset%0#0)
+                let item_end_offset%1#0: uint64 = (len test_tuple#0)
+                let d#0: bytes = (substring3 test_tuple#0 item_end_offset%0#0 item_end_offset%1#0)
+                let e#0: bytes = ((extract 6 1) test_tuple#0) // on error: Index access is out of bounds
                 let tmp%4#0: uint64 = (btoi a#0)
                 let tmp%5#0: uint64 = (btoi b#0)
                 let tmp%6#0: uint64 = (+ tmp%4#0 tmp%5#0)

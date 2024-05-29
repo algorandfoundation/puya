@@ -523,12 +523,12 @@ debug: Simplified (== tmp%69#0 NoOp) to (! tmp%69#0)
 debug: Simplified (== tmp%73#0 NoOp) to (! tmp%73#0)
 debug: Simplified (== tmp%77#0 NoOp) to (! tmp%77#0)
 debug: Simplified (== tmp%89#0 NoOp) to (! tmp%89#0)
-debug: Simplified (extract3 tmp%106#0 0u 1u) to ((extract 0 1) tmp%106#0)
-debug: Simplified (extract3 tmp%108#0 1u 1u) to ((extract 1 1) tmp%108#0)
-debug: Simplified (extract3 tmp%110#0 2u 1u) to ((extract 2 1) tmp%110#0)
-debug: Simplified (extract3 tmp%112#0 3u 1u) to ((extract 3 1) tmp%112#0)
-debug: Simplified (extract3 tmp%114#0 4u 4u) to ((extract 4 4) tmp%114#0)
-debug: Simplified (extract3 tmp%116#0 8u 1u) to ((extract 8 1) tmp%116#0)
+debug: Simplified (extract3 tmp%106#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) tmp%106#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%108#0 1u 1u) // on error: Index access is out of bounds to ((extract 1 1) tmp%108#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%110#0 2u 1u) // on error: Index access is out of bounds to ((extract 2 1) tmp%110#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%112#0 3u 1u) // on error: Index access is out of bounds to ((extract 3 1) tmp%112#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%114#0 4u 4u) // on error: Index access is out of bounds to ((extract 4 4) tmp%114#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%116#0 8u 1u) // on error: Index access is out of bounds to ((extract 8 1) tmp%116#0) // on error: Index access is out of bounds
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
 debug: Removing unused variable encoded_tuple_buffer%0#0
@@ -5247,8 +5247,8 @@ debug: Replacing {tmp%20#0, value%2#0} with result3#0 made 1 modifications
 debug: Found equivalence set: tmp%22#0, check%2#0
 debug: Replacing {check%2#0} with tmp%22#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 result1#0 4u 8u) to ((extract 4 8) result1#0)
-debug: Simplified (extract3 result1#0 12u 64u) to ((extract 12 64) result1#0)
+debug: Simplified (extract3 result1#0 4u 8u) // on error: Index access is out of bounds to ((extract 4 8) result1#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 result1#0 12u 64u) // on error: Index access is out of bounds to ((extract 12 64) result1#0) // on error: Index access is out of bounds
 debug: Simplified (len "s1") to 2u
 debug: Simplified (len "b1") to 2u
 debug: Simplified (len 2b) to 1u
@@ -5626,6 +5626,9 @@ debug: Merged linear block@3: // next_txn_L201 into block@0: // L165
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 result1#0 2u) with copy of existing registers [Register(ir_type=uint64, name='item_end_offset%0', version=0, source_location=typed_abi_call/typed_c2c.py:181:22-36)]
+debug: Found equivalence set: item_end_offset%0#0, item_start_offset%1#0
+debug: Replacing {item_start_offset%1#0} with item_end_offset%0#0 made 1 modifications
 debug: Optimizing subroutine test_cases.typed_abi_call.typed_c2c.Greeter.clear_state_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
@@ -7696,92 +7699,82 @@ debug: Inserted test_native_tuple_block@0.ops[26]: 'store tmp%1#0 to l-stack (co
 debug: Replaced test_native_tuple_block@0.ops[28]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
 debug: Inserted test_native_tuple_block@0.ops[31]: 'store tmp%2#0 to l-stack (copy)'
 debug: Replaced test_native_tuple_block@0.ops[33]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[42]: 'store item_length%0#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[44]: 'load item_length%0#0' with 'load item_length%0#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[60]: 'store item_length%1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[62]: 'load item_length%1#0' with 'load item_length%1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[79]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[81]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[84]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[86]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[90]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[92]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[95]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[97]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[101]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[103]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[106]: 'store tmp%8#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[108]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[113]: 'store tmp%9#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[115]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[139]: 'store txn.LastLog#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[141]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[146]: 'store tmp%17#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[148]: 'load tmp%17#0' with 'load tmp%17#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[151]: 'store tmp%18#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[153]: 'load tmp%18#0' with 'load tmp%18#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[158]: 'store tmp%19#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[160]: 'load tmp%19#0' with 'load tmp%19#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[181]: 'store txn.LastLog#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[183]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[188]: 'store tmp%21#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[190]: 'load tmp%21#0' with 'load tmp%21#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[193]: 'store tmp%22#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[195]: 'load tmp%22#0' with 'load tmp%22#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[200]: 'store tmp%23#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[202]: 'load tmp%23#0' with 'load tmp%23#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[38]: 'store item_index%0#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[41]: 'load item_index%0#0' with 'load item_index%0#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[57]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[60]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[64]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[66]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[69]: 'store tmp%4#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[71]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[75]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[77]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[80]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[82]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[86]: 'store tmp%7#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[88]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[91]: 'store tmp%8#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[93]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[98]: 'store tmp%9#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[100]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[124]: 'store txn.LastLog#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[126]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[131]: 'store tmp%17#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[133]: 'load tmp%17#0' with 'load tmp%17#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[136]: 'store tmp%18#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[138]: 'load tmp%18#0' with 'load tmp%18#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[143]: 'store tmp%19#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[145]: 'load tmp%19#0' with 'load tmp%19#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[166]: 'store txn.LastLog#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[168]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[173]: 'store tmp%21#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[175]: 'load tmp%21#0' with 'load tmp%21#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[178]: 'store tmp%22#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[180]: 'load tmp%22#0' with 'load tmp%22#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[185]: 'store tmp%23#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[187]: 'load tmp%23#0' with 'load tmp%23#0 from l-stack (no copy)'
 debug: Inserted test_native_tuple_block@0.ops[22]: 'store txn.LastLog#0 to l-stack (copy)'
 debug: Replaced test_native_tuple_block@0.ops[25]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[49]: 'store item_length_plus_2%0#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[53]: 'load item_length_plus_2%0#0' with 'load item_length_plus_2%0#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[69]: 'store item_length_plus_2%1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[73]: 'load item_length_plus_2%1#0' with 'load item_length_plus_2%1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[77]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[80]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[148]: 'store txn.LastLog#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[151]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[191]: 'store txn.LastLog#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[194]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[43]: 'store item_end_offset%0#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[47]: 'load item_end_offset%0#0' with 'load item_end_offset%0#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[51]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[54]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[53]: 'store item_end_offset%1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[57]: 'load item_end_offset%1#0' with 'load item_end_offset%1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[61]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[64]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[132]: 'store txn.LastLog#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[135]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[175]: 'store txn.LastLog#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[178]: 'load txn.LastLog#0' with 'load txn.LastLog#0 from l-stack (no copy)'
 debug: Inserted test_native_tuple_block@0.ops[37]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[42]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[58]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[63]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[53]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[58]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[75]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[80]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[43]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[41]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[42]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[47]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[48]: 'store result1#0 to l-stack (copy)'
 debug: Replaced test_native_tuple_block@0.ops[53]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[45]: 'store item_index%0#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[56]: 'load item_index%0#0' with 'load item_index%0#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[67]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[77]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[69]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[80]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[134]: 'store val_as_bytes%0#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[144]: 'load val_as_bytes%0#0' with 'load val_as_bytes%0#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[59]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[64]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[40]: 'store item_start_offset%0#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[50]: 'load item_start_offset%0#0' with 'load item_start_offset%0#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[52]: 'store item_end_offset%0#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[62]: 'load item_end_offset%0#0' with 'load item_end_offset%0#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[116]: 'store val_as_bytes%0#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[126]: 'load val_as_bytes%0#0' with 'load val_as_bytes%0#0 from l-stack (no copy)'
 debug: Inserted test_native_tuple_block@0.ops[24]: 'store result1#0 to l-stack (copy)'
 debug: Replaced test_native_tuple_block@0.ops[37]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[160]: 'store result2#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[174]: 'load result2#0' with 'load result2#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[204]: 'store result3#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[218]: 'load result3#0' with 'load result3#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[84]: 'store b#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[104]: 'load b#0' with 'load b#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[89]: 'store u#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[116]: 'load u#0' with 'load u#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[60]: 'store s#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[95]: 'load s#0' with 'load s#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[94]: 'store bu#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[129]: 'load bu#0' with 'load bu#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[178]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[222]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
-debug: Inserted test_native_tuple_block@0.ops[93]: 'store result1#0 to l-stack (copy)'
-debug: Replaced test_native_tuple_block@0.ops[178]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[142]: 'store result2#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[156]: 'load result2#0' with 'load result2#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[186]: 'store result3#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[200]: 'load result3#0' with 'load result3#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[55]: 'store s#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[75]: 'load s#0' with 'load s#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[67]: 'store b#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[87]: 'load b#0' with 'load b#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[72]: 'store u#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[99]: 'load u#0' with 'load u#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[76]: 'store bu#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[111]: 'load bu#0' with 'load bu#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[160]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[204]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
+debug: Inserted test_native_tuple_block@0.ops[75]: 'store result1#0 to l-stack (copy)'
+debug: Replaced test_native_tuple_block@0.ops[160]: 'load result1#0' with 'load result1#0 from l-stack (no copy)'
 info: Writing typed_abi_call/out/Logger.approval.teal
 info: Writing typed_abi_call/out/Logger.clear.teal
 info: Writing typed_abi_call/out/Logger.arc32.json

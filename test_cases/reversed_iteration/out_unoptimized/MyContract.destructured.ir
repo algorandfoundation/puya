@@ -39,8 +39,8 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 goto continue_looping%2#0 ? block@8 : block@10
             block@8: // for_body_L11
                 let reverse_index_internal%0#0: uint64 = (- reverse_index_internal%0#0 1u)
-                let item_index%0#0: uint64 = (* reverse_index_internal%0#0 1u)
-                let x#0: bytes = (extract3 0x item_index%0#0 1u)
+                let item_offset%0#0: uint64 = (* reverse_index_internal%0#0 1u)
+                let x#0: bytes = (extract3 0x item_offset%0#0 1u) // on error: Index access is out of bounds
                 (log x#0)
                 goto block@9
             block@9: // for_footer_L11
@@ -168,11 +168,13 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 goto continue_looping%6#0 ? block@26 : block@28
             block@26: // for_body_L30
                 let reverse_index_internal%1#0: uint64 = (- reverse_index_internal%1#0 1u)
-                let item_index_index%0#0: uint64 = (* reverse_index_internal%1#0 2u)
-                let item_index%1#0: uint64 = (extract_uint16 some_strings#0 item_index_index%0#0)
-                let item_length%0#0: uint64 = (extract_uint16 some_strings#0 item_index%1#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let str_item#0: bytes = (extract3 some_strings#0 item_index%1#0 item_length_plus_2%0#0)
+                let array_head_and_tail%1#0: bytes = some_strings#0
+                let item_offset_offset%0#0: uint64 = (* reverse_index_internal%1#0 2u)
+                let item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%1#0 item_offset_offset%0#0)
+                let item_length%0#0: uint64 = (extract_uint16 array_head_and_tail%1#0 item_offset%1#0)
+                let item_length_in_bytes%0#0: uint64 = (* item_length%0#0 1u)
+                let item_head_tail_length%0#0: uint64 = (+ item_length_in_bytes%0#0 2u)
+                let str_item#0: bytes = (extract3 array_head_and_tail%1#0 item_offset%1#0 item_head_tail_length%0#0)
                 let expr_value_trimmed%0#0: bytes = ((extract 2 0) some_string_reversed#0)
                 let expr_value_trimmed%1#0: bytes = ((extract 2 0) str_item#0)
                 let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)

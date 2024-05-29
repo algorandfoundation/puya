@@ -54,7 +54,7 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let boolean_packing#0: bytes = encoded_tuple_buffer%1#11
                 let tmp%10#0: bool = (== boolean_packing#0 0x04bd8010)
                 (assert tmp%10#0)
-                let item0%0#0: bytes = (extract3 boolean_packing#0 0u 1u)
+                let item0%0#0: bytes = (extract3 boolean_packing#0 0u 1u) // on error: Index access is out of bounds
                 let is_true%7#0: uint64 = (getbit boolean_packing#0 8u)
                 let item1%0#0: bytes = (setbit 0x00 0u is_true%7#0)
                 let is_true%8#0: uint64 = (getbit boolean_packing#0 9u)
@@ -73,7 +73,7 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let item8%0#0: bytes = (setbit 0x00 0u is_true%14#0)
                 let is_true%15#0: uint64 = (getbit boolean_packing#0 16u)
                 let item9%0#0: bytes = (setbit 0x00 0u is_true%15#0)
-                let item10%0#0: bytes = (extract3 boolean_packing#0 3u 1u)
+                let item10%0#0: bytes = (extract3 boolean_packing#0 3u 1u) // on error: Index access is out of bounds
                 let a#0: bytes = item0%0#0
                 let b#0: bytes = item1%0#0
                 let c#0: bytes = item2%0#0
@@ -85,7 +85,7 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let i#0: bytes = item8%0#0
                 let j#0: bytes = item9%0#0
                 let k#0: bytes = item10%0#0
-                let reinterpret_biguint%0#0: biguint = (extract3 boolean_packing#0 3u 1u)
+                let reinterpret_biguint%0#0: biguint = (extract3 boolean_packing#0 3u 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%1#0: biguint = k#0
                 let tmp%11#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
                 (assert tmp%11#0)
@@ -169,7 +169,7 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let tmp%23#0: uint64 = (btoi k#0)
                 let tmp%24#0: bool = (== tmp%23#0 16u)
                 (assert tmp%24#0) // k is 16
-                let item0%1#0: bytes = (extract3 boolean_packing#0 0u 1u)
+                let item0%1#0: bytes = (extract3 boolean_packing#0 0u 1u) // on error: Index access is out of bounds
                 let is_true%16#0: uint64 = (getbit boolean_packing#0 8u)
                 let item1%1#0: bytes = (setbit 0x00 0u is_true%16#0)
                 let is_true%17#0: uint64 = (getbit boolean_packing#0 9u)
@@ -188,7 +188,7 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let item8%1#0: bytes = (setbit 0x00 0u is_true%23#0)
                 let is_true%24#0: uint64 = (getbit boolean_packing#0 16u)
                 let item9%1#0: bytes = (setbit 0x00 0u is_true%24#0)
-                let item10%1#0: bytes = (extract3 boolean_packing#0 3u 1u)
+                let item10%1#0: bytes = (extract3 boolean_packing#0 3u 1u) // on error: Index access is out of bounds
                 let current_tail_offset%2#0: uint64 = 4u
                 let encoded_tuple_buffer%2#0: bytes = 0x
                 let encoded_tuple_buffer%2#1: bytes = (concat encoded_tuple_buffer%2#0 item0%1#0)
@@ -223,34 +223,31 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
         
         subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> <uint64, bytes>:
             block@0: // L54
-                let item0%0#0: bytes = (extract3 test_tuple#0 0u 1u)
-                let item1%0#0: bytes = (extract3 test_tuple#0 1u 1u)
-                let item_index%0#0: uint64 = (extract_uint16 test_tuple#0 2u)
-                let item_length%0#0: uint64 = (extract_uint16 test_tuple#0 item_index%0#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let item2%0#0: bytes = (extract3 test_tuple#0 item_index%0#0 item_length_plus_2%0#0)
-                let item_index%1#0: uint64 = (extract_uint16 test_tuple#0 4u)
-                let item_length%1#0: uint64 = (extract_uint16 test_tuple#0 item_index%1#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let item3%0#0: bytes = (extract3 test_tuple#0 item_index%1#0 item_length_plus_2%1#0)
-                let item4%0#0: bytes = (extract3 test_tuple#0 6u 1u)
+                let item0%0#0: bytes = (extract3 test_tuple#0 0u 1u) // on error: Index access is out of bounds
+                let item1%0#0: bytes = (extract3 test_tuple#0 1u 1u) // on error: Index access is out of bounds
+                let item_start_offset%0#0: uint64 = (extract_uint16 test_tuple#0 2u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 test_tuple#0 4u)
+                let item2%0#0: bytes = (substring3 test_tuple#0 item_start_offset%0#0 item_end_offset%0#0)
+                let item_start_offset%1#0: uint64 = (extract_uint16 test_tuple#0 4u)
+                let item_end_offset%1#0: uint64 = (len test_tuple#0)
+                let item3%0#0: bytes = (substring3 test_tuple#0 item_start_offset%1#0 item_end_offset%1#0)
+                let item4%0#0: bytes = (extract3 test_tuple#0 6u 1u) // on error: Index access is out of bounds
                 let a#0: bytes = item0%0#0
                 let b#0: bytes = item1%0#0
                 let c#0: bytes = item2%0#0
                 let d#0: bytes = item3%0#0
                 let e#0: bytes = item4%0#0
-                let reinterpret_biguint%0#0: biguint = (extract3 test_tuple#0 0u 1u)
+                let reinterpret_biguint%0#0: biguint = (extract3 test_tuple#0 0u 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%1#0: biguint = a#0
                 let tmp%0#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
                 (assert tmp%0#0)
-                let reinterpret_biguint%2#0: biguint = (extract3 test_tuple#0 6u 1u)
+                let reinterpret_biguint%2#0: biguint = (extract3 test_tuple#0 6u 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%3#0: biguint = e#0
                 let tmp%1#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
                 (assert tmp%1#0)
-                let item_index%2#0: uint64 = (extract_uint16 test_tuple#0 4u)
-                let item_length%2#0: uint64 = (extract_uint16 test_tuple#0 item_index%2#0)
-                let item_length_plus_2%2#0: uint64 = (+ item_length%2#0 2u)
-                let tmp%2#0: bytes = (extract3 test_tuple#0 item_index%2#0 item_length_plus_2%2#0)
+                let item_start_offset%2#0: uint64 = (extract_uint16 test_tuple#0 4u)
+                let item_end_offset%2#0: uint64 = (len test_tuple#0)
+                let tmp%2#0: bytes = (substring3 test_tuple#0 item_start_offset%2#0 item_end_offset%2#0)
                 let tmp%3#0: bool = (== tmp%2#0 d#0)
                 (assert tmp%3#0)
                 let tmp%4#0: uint64 = (btoi a#0)

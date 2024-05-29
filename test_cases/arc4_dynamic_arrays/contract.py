@@ -1,6 +1,11 @@
 import typing
 
-from algopy import Contract, arc4, log
+from algopy import ARC4Contract, arc4, log, subroutine
+
+
+class StaticStruct(arc4.Struct):
+    a: arc4.UInt64
+    b: arc4.StaticArray[arc4.Byte, typing.Literal[2]]
 
 
 class DynamicStruct(arc4.Struct):
@@ -8,50 +13,118 @@ class DynamicStruct(arc4.Struct):
     b: arc4.String
 
 
-class FixedStruct(arc4.Struct):
-    a: arc4.UInt64
-    b: arc4.StaticArray[arc4.Byte, typing.Literal[2]]
-
-
-class MixedStruct(arc4.Struct):
+class MixedSingleStruct(arc4.Struct):
     a: arc4.UInt64
     b: arc4.String
     c: arc4.UInt64
 
 
-class DynamicArrayContract(Contract):
+class MixedMultipleStruct(arc4.Struct):
+    a: arc4.UInt64
+    b: arc4.String
+    c: arc4.UInt64
+    d: arc4.String
+    e: arc4.UInt64
 
-    def approval_program(self) -> bool:
-        string1 = arc4.String("aye")
-        string2 = arc4.String("bee")
-        string3 = arc4.String("Hello")
-        uint1 = arc4.UInt64(3)
-        uint2 = arc4.UInt64(2**42)
-        byte_array1 = arc4.StaticArray(arc4.Byte(4), arc4.Byte(5))
-        byte_array2 = arc4.StaticArray(arc4.Byte(42), arc4.Byte(80))
 
-        dynamic_struct1 = DynamicStruct(string1, string2)
-        dynamic_struct2 = DynamicStruct(string3, string1)
-        dynamic_array = arc4.DynamicArray(dynamic_struct1.copy(), dynamic_struct2.copy())
-        log(dynamic_array)
-        log(dynamic_array[0])
-        log(dynamic_array[1])
+class DynamicArrayContract(ARC4Contract):
 
-        fixed1 = FixedStruct(uint1, byte_array1)
-        fixed2 = FixedStruct(uint2, byte_array2)
-        dynamic_fixed = arc4.DynamicArray(fixed1.copy(), fixed2.copy())
-        log(dynamic_fixed)
-        log(dynamic_fixed[0])
-        log(dynamic_fixed[1])
+    @arc4.abimethod()
+    def test_static_elements(self) -> None:
+        byte_array1 = arc4.StaticArray(get_byte1(), get_byte2())
+        byte_array2 = arc4.StaticArray(get_byte3(), get_byte4())
 
-        mixed1 = MixedStruct(uint1, string1, uint2)
-        mixed2 = MixedStruct(uint2, string2, uint1)
-        dynamic_mixed = arc4.DynamicArray(mixed1.copy(), mixed2.copy())
-        log(dynamic_mixed)
-        log(dynamic_mixed[0])
-        log(dynamic_mixed[1])
+        struct1 = StaticStruct(get_uint1(), byte_array1)
+        struct2 = StaticStruct(get_uint2(), byte_array2)
+        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        log(array)
+        log(array[0])
+        log(array[1])
 
-        return True
+        assert array.pop() == struct2
+        assert array.pop() == struct1
 
-    def clear_state_program(self) -> bool:
-        return True
+    @arc4.abimethod()
+    def test_dynamic_elements(self) -> None:
+        struct1 = DynamicStruct(get_string1(), get_string2())
+        struct2 = DynamicStruct(get_string3(), get_string1())
+        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        log(array)
+        log(array[0])
+        log(array[1])
+
+        assert array.pop() == struct2
+        assert array.pop() == struct1
+
+    @arc4.abimethod()
+    def test_mixed_single_dynamic_elements(self) -> None:
+        struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
+        struct2 = MixedSingleStruct(get_uint2(), get_string2(), get_uint1())
+        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        log(array)
+        log(array[0])
+        log(array[1])
+
+        assert array.pop() == struct2
+        assert array.pop() == struct1
+
+    @arc4.abimethod()
+    def test_mixed_multiple_dynamic_elements(self) -> None:
+        struct1 = MixedMultipleStruct(
+            get_uint1(), get_string1(), get_uint2(), get_string2(), get_uint1()
+        )
+        struct2 = MixedMultipleStruct(
+            get_uint2(), get_string3(), get_uint1(), get_string1(), get_uint2()
+        )
+        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        log(array)
+        log(array[0])
+        log(array[1])
+
+        assert array.pop() == struct2
+        assert array.pop() == struct1
+
+
+@subroutine
+def get_string1() -> arc4.String:
+    return arc4.String("a")
+
+
+@subroutine
+def get_string2() -> arc4.String:
+    return arc4.String("bee")
+
+
+@subroutine
+def get_string3() -> arc4.String:
+    return arc4.String("Hello World")
+
+
+@subroutine
+def get_uint1() -> arc4.UInt64:
+    return arc4.UInt64(3)
+
+
+@subroutine
+def get_uint2() -> arc4.UInt64:
+    return arc4.UInt64(2**42)
+
+
+@subroutine
+def get_byte1() -> arc4.Byte:
+    return arc4.Byte(4)
+
+
+@subroutine
+def get_byte2() -> arc4.Byte:
+    return arc4.Byte(5)
+
+
+@subroutine
+def get_byte3() -> arc4.Byte:
+    return arc4.Byte(42)
+
+
+@subroutine
+def get_byte4() -> arc4.Byte:
+    return arc4.Byte(255)

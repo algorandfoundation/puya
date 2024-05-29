@@ -185,30 +185,28 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%108#0: bytes = (txna ApplicationArgs 13)
                 let tmp%109#0: bytes = (txna ApplicationArgs 14)
                 let tmp%110#0: bytes = (txna ApplicationArgs 15)
-                let tmp%111#0: bytes = (extract3 tmp%110#0 0u 8u)
+                let tmp%111#0: bytes = (extract3 tmp%110#0 0u 8u) // on error: Index access is out of bounds
                 let tmp%112#0: bytes = (txna ApplicationArgs 15)
-                let tmp%113#0: bytes = (extract3 tmp%112#0 8u 8u)
+                let tmp%113#0: bytes = (extract3 tmp%112#0 8u 8u) // on error: Index access is out of bounds
                 let tmp%114#0: bytes = (txna ApplicationArgs 15)
-                let tmp%115#0: bytes = (extract3 tmp%114#0 16u 8u)
+                let tmp%115#0: bytes = (extract3 tmp%114#0 16u 8u) // on error: Index access is out of bounds
                 let tmp%116#0: uint64 = (btoi tmp%115#0)
                 let tmp%117#0: bytes = (txna ApplicationArgs 15)
-                let tmp%118#0: bytes = (extract3 tmp%117#0 24u 8u)
+                let tmp%118#0: bytes = (extract3 tmp%117#0 24u 8u) // on error: Index access is out of bounds
                 let tmp%119#0: bytes = (txna ApplicationArgs 15)
-                let tmp%120#0: bytes = (extract3 tmp%119#0 32u 8u)
+                let tmp%120#0: bytes = (extract3 tmp%119#0 32u 8u) // on error: Index access is out of bounds
                 let tmp%121#0: bytes = (txna ApplicationArgs 15)
-                let item_index%0#0: uint64 = (extract_uint16 tmp%121#0 40u)
-                let item_length%0#0: uint64 = (extract_uint16 tmp%121#0 item_index%0#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let tmp%122#0: bytes = (extract3 tmp%121#0 item_index%0#0 item_length_plus_2%0#0)
+                let item_start_offset%0#0: uint64 = (extract_uint16 tmp%121#0 40u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 tmp%121#0 42u)
+                let tmp%122#0: bytes = (substring3 tmp%121#0 item_start_offset%0#0 item_end_offset%0#0)
                 let tmp%123#0: bytes = ((extract 2 0) tmp%122#0)
                 let tmp%124#0: bytes = (txna ApplicationArgs 15)
-                let item_index%1#0: uint64 = (extract_uint16 tmp%124#0 42u)
-                let item_length%1#0: uint64 = (extract_uint16 tmp%124#0 item_index%1#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let tmp%125#0: bytes = (extract3 tmp%124#0 item_index%1#0 item_length_plus_2%1#0)
+                let item_start_offset%1#0: uint64 = (extract_uint16 tmp%124#0 42u)
+                let item_end_offset%1#0: uint64 = (len tmp%124#0)
+                let tmp%125#0: bytes = (substring3 tmp%124#0 item_start_offset%1#0 item_end_offset%1#0)
                 let tmp%126#0: bytes = ((extract 2 0) tmp%125#0)
                 let tmp%127#0: bytes = (txna ApplicationArgs 15)
-                let tmp%128#0: bytes = (extract3 tmp%127#0 44u 1u)
+                let tmp%128#0: bytes = (extract3 tmp%127#0 44u 1u) // on error: Index access is out of bounds
                 let tmp%129#0: uint64 = (btoi tmp%128#0)
                 let tmp%130#0: uint64 = ((txnas Assets) tmp%129#0)
                 let tmp%131#0: uint64 = (txn GroupIndex)
@@ -218,9 +216,9 @@ contract test_cases.abi_routing.contract.Reference:
                 let (value%2#0: uint64, check%2#0: bool) = (awst_tmp%2#0, tmp%133#0)
                 (assert check%2#0) // transaction type is pay
                 let tmp%134#0: bytes = (txna ApplicationArgs 15)
-                let tmp%135#0: bytes = (extract3 tmp%134#0 45u 8u)
+                let tmp%135#0: bytes = (extract3 tmp%134#0 45u 8u) // on error: Index access is out of bounds
                 let tmp%136#0: bytes = (txna ApplicationArgs 15)
-                let tmp%137#0: bytes = (extract3 tmp%136#0 53u 8u)
+                let tmp%137#0: bytes = (extract3 tmp%136#0 53u 8u) // on error: Index access is out of bounds
                 let tmp%138#0: bytes = test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(tmp%90#0, tmp%91#0, tmp%92#0, tmp%94#0, tmp%97#0, tmp%98#0, tmp%99#0, value%1#0, tmp%103#0, tmp%104#0, tmp%105#0, tmp%106#0, tmp%107#0, tmp%108#0, tmp%109#0, tmp%111#0, tmp%113#0, tmp%116#0, tmp%118#0, tmp%120#0, tmp%123#0, tmp%126#0, tmp%130#0, value%2#0, tmp%135#0, tmp%137#0)
                 let tmp%139#0: bytes = (concat 0x151f7c75 tmp%138#0)
                 (log tmp%139#0)
@@ -359,18 +357,21 @@ contract test_cases.abi_routing.contract.Reference:
                 (assert tmp%6#0) // wrong application from storage
                 let tmp%7#0: bool = (== application_from_function#0 456u)
                 (assert tmp%7#0) // wrong application from function
-                let item_index%0#0: uint64 = (* 0u 1u)
-                let reinterpret_biguint%0#0: biguint = (extract3 bytes_from_storage#0 item_index%0#0 1u)
+                let array_head_and_tail%0#0: bytes = bytes_from_storage#0
+                let item_offset%0#0: uint64 = (* 0u 1u)
+                let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%1#0: biguint = 0x07
                 let tmp%8#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
                 (assert tmp%8#0) // wrong 0th byte from storage
-                let item_index%1#0: uint64 = (* 1u 1u)
-                let reinterpret_biguint%2#0: biguint = (extract3 bytes_from_storage#0 item_index%1#0 1u)
+                let array_head_and_tail%1#0: bytes = bytes_from_storage#0
+                let item_offset%1#0: uint64 = (* 1u 1u)
+                let reinterpret_biguint%2#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%3#0: biguint = 0x08
                 let tmp%9#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
                 (assert tmp%9#0) // wrong 1st byte from storage
-                let item_index%2#0: uint64 = (* 2u 1u)
-                let reinterpret_biguint%4#0: biguint = (extract3 bytes_from_storage#0 item_index%2#0 1u)
+                let array_head_and_tail%2#0: bytes = bytes_from_storage#0
+                let item_offset%2#0: uint64 = (* 2u 1u)
+                let reinterpret_biguint%4#0: biguint = (extract3 array_head_and_tail%2#0 item_offset%2#0 1u) // on error: Index access is out of bounds
                 let reinterpret_biguint%5#0: biguint = 0x09
                 let tmp%10#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
                 (assert tmp%10#0) // wrong 2nd byte from storage

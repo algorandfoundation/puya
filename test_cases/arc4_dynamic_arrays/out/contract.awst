@@ -1,53 +1,121 @@
+struct StaticStruct {
+  a: algopy.arc4.UInt64
+  b: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]]
+}
+
 struct DynamicStruct {
   a: algopy.arc4.String
   b: algopy.arc4.String
 }
 
-struct FixedStruct {
-  a: algopy.arc4.UInt64
-  b: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]]
-}
-
-struct MixedStruct {
+struct MixedSingleStruct {
   a: algopy.arc4.UInt64
   b: algopy.arc4.String
   c: algopy.arc4.UInt64
 }
 
+struct MixedMultipleStruct {
+  a: algopy.arc4.UInt64
+  b: algopy.arc4.String
+  c: algopy.arc4.UInt64
+  d: algopy.arc4.String
+  e: algopy.arc4.UInt64
+}
+
 contract DynamicArrayContract
 {
-  approval_program(): bool
+  abimethod test_static_elements(): None
   {
-    string1: algopy.arc4.String = arc4_encode('aye', algopy.arc4.String)
-    string2: algopy.arc4.String = arc4_encode('bee', algopy.arc4.String)
-    string3: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
-    uint1: algopy.arc4.UInt64 = 3arc4u64
-    uint2: algopy.arc4.UInt64 = 4398046511104arc4u64
-    byte_array1: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](4arc4u8, 5arc4u8)
-    byte_array2: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](42arc4u8, 80arc4u8)
-    dynamic_struct1: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=string1, b=string2)
-    dynamic_struct2: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=string3, b=string1)
-    dynamic_array: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.DynamicStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.DynamicStruct](dynamic_struct1.copy(), dynamic_struct2.copy())
-    log(dynamic_array)
-    log(dynamic_array[0u])
-    log(dynamic_array[1u])
-    fixed1: test_cases.arc4_dynamic_arrays.contract.FixedStruct = new test_cases.arc4_dynamic_arrays.contract.FixedStruct(a=uint1, b=byte_array1)
-    fixed2: test_cases.arc4_dynamic_arrays.contract.FixedStruct = new test_cases.arc4_dynamic_arrays.contract.FixedStruct(a=uint2, b=byte_array2)
-    dynamic_fixed: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.FixedStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.FixedStruct](fixed1.copy(), fixed2.copy())
-    log(dynamic_fixed)
-    log(dynamic_fixed[0u])
-    log(dynamic_fixed[1u])
-    mixed1: test_cases.arc4_dynamic_arrays.contract.MixedStruct = new test_cases.arc4_dynamic_arrays.contract.MixedStruct(a=uint1, b=string1, c=uint2)
-    mixed2: test_cases.arc4_dynamic_arrays.contract.MixedStruct = new test_cases.arc4_dynamic_arrays.contract.MixedStruct(a=uint2, b=string2, c=uint1)
-    dynamic_mixed: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.MixedStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.MixedStruct](mixed1.copy(), mixed2.copy())
-    log(dynamic_mixed)
-    log(dynamic_mixed[0u])
-    log(dynamic_mixed[1u])
-    return true
+    byte_array1: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](test_cases.arc4_dynamic_arrays.contract::get_byte1(), test_cases.arc4_dynamic_arrays.contract::get_byte2())
+    byte_array2: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](test_cases.arc4_dynamic_arrays.contract::get_byte3(), test_cases.arc4_dynamic_arrays.contract::get_byte4())
+    struct1: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint1(), b=byte_array1)
+    struct2: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint2(), b=byte_array2)
+    array: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.StaticStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.StaticStruct](struct1.copy(), struct2.copy())
+    log(array)
+    log(array[0u])
+    log(array[1u])
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct2))
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct1))
   }
   
-  clear_state_program(): bool
+  abimethod test_dynamic_elements(): None
   {
-    return true
+    struct1: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract::get_string1(), b=test_cases.arc4_dynamic_arrays.contract::get_string2())
+    struct2: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract::get_string3(), b=test_cases.arc4_dynamic_arrays.contract::get_string1())
+    array: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.DynamicStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.DynamicStruct](struct1.copy(), struct2.copy())
+    log(array)
+    log(array[0u])
+    log(array[1u])
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct2))
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct1))
   }
+  
+  abimethod test_mixed_single_dynamic_elements(): None
+  {
+    struct1: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint1(), b=test_cases.arc4_dynamic_arrays.contract::get_string1(), c=test_cases.arc4_dynamic_arrays.contract::get_uint2())
+    struct2: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint2(), b=test_cases.arc4_dynamic_arrays.contract::get_string2(), c=test_cases.arc4_dynamic_arrays.contract::get_uint1())
+    array: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct](struct1.copy(), struct2.copy())
+    log(array)
+    log(array[0u])
+    log(array[1u])
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct2))
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct1))
+  }
+  
+  abimethod test_mixed_multiple_dynamic_elements(): None
+  {
+    struct1: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint1(), b=test_cases.arc4_dynamic_arrays.contract::get_string1(), c=test_cases.arc4_dynamic_arrays.contract::get_uint2(), d=test_cases.arc4_dynamic_arrays.contract::get_string2(), e=test_cases.arc4_dynamic_arrays.contract::get_uint1())
+    struct2: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint2(), b=test_cases.arc4_dynamic_arrays.contract::get_string3(), c=test_cases.arc4_dynamic_arrays.contract::get_uint1(), d=test_cases.arc4_dynamic_arrays.contract::get_string1(), e=test_cases.arc4_dynamic_arrays.contract::get_uint2())
+    array: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct](struct1.copy(), struct2.copy())
+    log(array)
+    log(array[0u])
+    log(array[1u])
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct2))
+    assert(reinterpret_cast<algopy.Bytes>(array.pop()) == reinterpret_cast<algopy.Bytes>(struct1))
+  }
+}
+
+subroutine get_string1(): algopy.arc4.String
+{
+  return arc4_encode('a', algopy.arc4.String)
+}
+
+subroutine get_string2(): algopy.arc4.String
+{
+  return arc4_encode('bee', algopy.arc4.String)
+}
+
+subroutine get_string3(): algopy.arc4.String
+{
+  return arc4_encode('Hello World', algopy.arc4.String)
+}
+
+subroutine get_uint1(): algopy.arc4.UInt64
+{
+  return 3arc4u64
+}
+
+subroutine get_uint2(): algopy.arc4.UInt64
+{
+  return 4398046511104arc4u64
+}
+
+subroutine get_byte1(): algopy.arc4.Byte
+{
+  return 4arc4u8
+}
+
+subroutine get_byte2(): algopy.arc4.Byte
+{
+  return 5arc4u8
+}
+
+subroutine get_byte3(): algopy.arc4.Byte
+{
+  return 42arc4u8
+}
+
+subroutine get_byte4(): algopy.arc4.Byte
+{
+  return 255arc4u8
 }

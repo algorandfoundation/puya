@@ -13,15 +13,15 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let tmp%2#0: bool = (== dynamic_bytes#0 "\x00\x03\x02\x03\x01")
                 (assert tmp%2#0)
                 let array_length%0#0: uint64 = (extract_uint16 dynamic_bytes#0 0u)
-                let array_value%0#0: bytes = ((extract 2 0) dynamic_bytes#0)
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L16
                 let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L16
-                let item_index%0#0: uint64 = (* item_index_internal%0#0 1u)
-                let uint8_item#0: bytes = (extract3 array_value%0#0 item_index%0#0 1u)
+                let array_head_and_tail%0#0: bytes = ((extract 2 0) dynamic_bytes#0)
+                let item_offset%0#0: uint64 = (* item_index_internal%0#0 1u)
+                let uint8_item#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 let tmp%3#0: uint64 = (btoi uint8_item#0)
                 let total#0: uint64 = (+ total#0 tmp%3#0)
                 goto block@3
@@ -37,15 +37,15 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let tmp%7#0: bool = (== 0x00020304 "\x00\x02\x03\x04")
                 (assert tmp%7#0)
                 let array_length%1#0: uint64 = (extract_uint16 0x00020304 0u)
-                let array_value%1#0: bytes = ((extract 2 0) 0x00020304)
                 let item_index_internal%1#0: uint64 = 0u
                 goto block@5
             block@5: // for_header_L25
                 let continue_looping%1#0: bool = (< item_index_internal%1#0 array_length%1#0)
                 goto continue_looping%1#0 ? block@6 : block@8
             block@6: // for_body_L25
-                let item_index%1#0: uint64 = (* item_index_internal%1#0 1u)
-                let uint8_item#0: bytes = (extract3 array_value%1#0 item_index%1#0 1u)
+                let array_head_and_tail%1#0: bytes = ((extract 2 0) 0x00020304)
+                let item_offset%1#0: uint64 = (* item_index_internal%1#0 1u)
+                let uint8_item#0: bytes = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
                 let tmp%8#0: uint64 = (btoi uint8_item#0)
                 let total#0: uint64 = (+ total#0 tmp%8#0)
                 goto block@7
@@ -64,15 +64,15 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let tmp%12#0: bool = (== dynamic_bytes3#0 "\x00\x02\x03\x04")
                 (assert tmp%12#0)
                 let array_length%2#0: uint64 = (extract_uint16 dynamic_bytes3#0 0u)
-                let array_value%2#0: bytes = ((extract 2 0) dynamic_bytes3#0)
                 let item_index_internal%2#0: uint64 = 0u
                 goto block@9
             block@9: // for_header_L32
                 let continue_looping%2#0: bool = (< item_index_internal%2#0 array_length%2#0)
                 goto continue_looping%2#0 ? block@10 : block@12
             block@10: // for_body_L32
-                let item_index%2#0: uint64 = (* item_index_internal%2#0 1u)
-                let uint8_item#0: bytes = (extract3 array_value%2#0 item_index%2#0 1u)
+                let array_head_and_tail%2#0: bytes = ((extract 2 0) dynamic_bytes3#0)
+                let item_offset%2#0: uint64 = (* item_index_internal%2#0 1u)
+                let uint8_item#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%2#0 1u) // on error: Index access is out of bounds
                 let tmp%13#0: uint64 = (btoi uint8_item#0)
                 let total#0: uint64 = (+ total#0 tmp%13#0)
                 goto block@11

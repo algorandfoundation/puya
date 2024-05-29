@@ -21,9 +21,9 @@ main_new_game_route@1:
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     swap
-    extract 8 8
+    extract 8 8 // on error: Index access is out of bounds
     swap
     btoi
     swap
@@ -46,9 +46,9 @@ main_join_game_route@2:
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     swap
-    extract 8 8
+    extract 8 8 // on error: Index access is out of bounds
     swap
     btoi
     swap
@@ -87,9 +87,9 @@ main_play_route@4:
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     swap
-    extract 8 8
+    extract 8 8 // on error: Index access is out of bounds
     swap
     btoi
     swap
@@ -183,15 +183,11 @@ new_game_bool_merge@8:
     assert // check game exists
     frame_dig -1
     int 3
-    <
-    assert // Index access is out of bounds
-    frame_dig -1
-    int 3
     *
     dup
     cover 2
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig 0
     assert // Index access is out of bounds
     frame_dig -2
@@ -201,6 +197,10 @@ new_game_bool_merge@8:
     byte "game"
     app_global_get_ex
     assert // check game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
     cover 2
     replace3
     byte "game"
@@ -277,20 +277,14 @@ make_move_bool_merge@4:
     assert // check game exists
     frame_dig -1
     int 3
-    <
-    assert // Index access is out of bounds
-    frame_dig -1
-    int 3
     *
     dup
     cover 2
     int 3
-    extract3
-    frame_dig 0
-    assert // Index access is out of bounds
+    extract3 // on error: Index access is out of bounds
     frame_dig -2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x00
     b==
     assert // Square is already taken
@@ -302,7 +296,9 @@ make_move_bool_merge@4:
     assert // check game exists
     dig 1
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
+    frame_dig 0
+    assert // Index access is out of bounds
     frame_dig -2
     frame_dig -3
     replace3
@@ -310,6 +306,10 @@ make_move_bool_merge@4:
     byte "game"
     app_global_get_ex
     assert // check game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
     cover 2
     replace3
     byte "game"
@@ -380,23 +380,19 @@ did_win:
     // if g[row][0] == g[row][1] == g[row][2]:
     frame_dig -1
     int 3
-    <
-    assert // Index access is out of bounds
-    frame_dig -1
-    int 3
     *
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     dupn 2
-    extract 0 1
+    extract 0 1 // on error: Index access is out of bounds
     swap
-    extract 1 1
+    extract 1 1 // on error: Index access is out of bounds
     dup
     cover 2
     b==
     bz did_win_after_if_else@3
     frame_dig 4
-    extract 2 1
+    extract 2 1 // on error: Index access is out of bounds
     frame_dig 5
     b==
     bz did_win_after_if_else@3
@@ -411,32 +407,28 @@ did_win_after_if_else@3:
     // if g[0][column] == g[1][column] == g[2][column]:
     frame_dig 3
     dup
-    extract 0 3
+    extract 0 3 // on error: Index access is out of bounds
     dup
     frame_bury 1
     frame_dig -2
-    int 3
-    <
-    assert // Index access is out of bounds
-    frame_dig -2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     swap
-    extract 3 3
+    extract 3 3 // on error: Index access is out of bounds
     dup
     frame_bury 2
     frame_dig -2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     dup
     frame_bury 0
     b==
     bz did_win_after_if_else@6
     frame_dig 3
-    extract 6 3
+    extract 6 3 // on error: Index access is out of bounds
     frame_dig -2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig 0
     b==
     bz did_win_after_if_else@6
@@ -451,20 +443,20 @@ did_win_after_if_else@6:
     // # if player owns center, check diagonals
     // if player == g[1][1]:
     frame_dig 2
-    extract 1 1
+    extract 1 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@14
     // tictactoe/tictactoe.py:84
     // if g[0][0] == player == g[2][2]:
     frame_dig 1
-    extract 0 1
+    extract 0 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@10
     frame_dig 3
-    extract 6 3
-    extract 2 1
+    extract 6 3 // on error: Index access is out of bounds
+    extract 2 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@10
@@ -478,13 +470,13 @@ did_win_after_if_else@10:
     // tictactoe/tictactoe.py:86
     // if g[0][2] == player == g[2][0]:
     frame_dig 1
-    extract 2 1
+    extract 2 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@14
     frame_dig 3
-    extract 6 3
-    extract 0 1
+    extract 6 3 // on error: Index access is out of bounds
+    extract 0 1 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@14

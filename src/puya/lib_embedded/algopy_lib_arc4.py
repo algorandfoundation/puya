@@ -66,16 +66,16 @@ def dynamic_array_pop_variable_size(source: Bytes) -> tuple[Bytes, Bytes]:
     array_length = extract_uint16(source, 0)
     length_minus_1 = array_length - 1
     popped_header_offset = length_minus_1 * 2
-    data_sans_header = extract(source, 2, 0)
-    popped_header = extract_uint16(data_sans_header, popped_header_offset)
+    head_and_tail = extract(source, 2, 0)
+    popped_offset = extract_uint16(head_and_tail, popped_header_offset)
 
-    popped = substring(data_sans_header, popped_header, data_sans_header.length)
-    data_sans_header = substring(data_sans_header, 0, popped_header_offset) + substring(
-        data_sans_header, popped_header_offset + 2, popped_header
+    popped = substring(head_and_tail, popped_offset, head_and_tail.length)
+    head_and_tail = substring(head_and_tail, 0, popped_header_offset) + substring(
+        head_and_tail, popped_header_offset + 2, popped_offset
     )
 
     updated = extract(itob(length_minus_1), 6, 0) + recalculate_array_offsets_static(
-        array_data=data_sans_header, length=length_minus_1, start_at_index=UInt64(0)
+        array_data=head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
     )
 
     return popped, updated

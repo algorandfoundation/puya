@@ -114,25 +114,23 @@ mutating_copies:
     swap
     // arc4_types/mutable_params.py:48
     // assert my_array_copy[2] == UInt8(3), "my_array_copy should be unchanged"
+    dig 2
     int 2
     int 1
     *
-    dig 3
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x03
     b==
     assert // my_array_copy should be unchanged
     // arc4_types/mutable_params.py:49
     // assert my_array[2] == UInt8(5), "my_array should be mutated"
+    dig 1
     int 2
     int 1
     *
-    dig 2
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x05
     b==
     assert // my_array should be mutated
@@ -155,13 +153,12 @@ mutating_copies:
     assert
     // arc4_types/mutable_params.py:56
     // assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
+    dup
     int 1
     int 1
     *
-    dig 1
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x05
     b==
     assert // my_array has been mutated by the subroutine
@@ -170,15 +167,14 @@ mutating_copies:
     dig 1
     int 2
     extract_uint16
+    swap
     dig 2
-    dig 1
+    int 4
     extract_uint16
-    int 2
-    +
+    uncover 3
     uncover 3
     uncover 2
-    uncover 2
-    extract3
+    substring3
     // arc4_types/mutable_params.py:58-60
     // assert my_struct.s_val_1 == String(
     //     "AARRGH!"
@@ -198,13 +194,12 @@ mutating_copies:
     pop
     // arc4_types/mutable_params.py:65
     // assert my_array_copy[1] == UInt8(
+    dig 1
     int 1
     int 1
     *
-    dig 2
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     // arc4_types/mutable_params.py:65-67
     // assert my_array_copy[1] == UInt8(
     //     2
@@ -217,15 +212,14 @@ mutating_copies:
     dig 2
     int 2
     extract_uint16
+    swap
     dig 3
-    dig 1
+    int 4
     extract_uint16
-    int 2
-    +
     uncover 4
+    uncover 3
     uncover 2
-    uncover 2
-    extract3
+    substring3
     // arc4_types/mutable_params.py:69-71
     // assert my_struct_copy.s_val_1 == String(
     //     "Happy"
@@ -242,13 +236,12 @@ mutating_copies:
     pop
     // arc4_types/mutable_params.py:77
     // assert my_array_copy_2[0] == UInt8(1), "my_array_copy_2 should have original value"
+    dup
     int 0
     int 1
     *
-    dig 1
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x01
     b==
     assert // my_array_copy_2 should have original value
@@ -263,7 +256,7 @@ mutating_copies:
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x0a
     b==
     assert // my_array_copy_2 should have mutated value
@@ -277,7 +270,7 @@ mutating_copies:
     // self.other_routine_2(nested.test_array.copy())
     int 0
     int 4
-    extract3
+    extract3 // on error: Index access is out of bounds
     callsub other_routine_2
     pop
     pop

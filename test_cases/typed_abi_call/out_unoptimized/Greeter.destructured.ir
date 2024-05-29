@@ -859,16 +859,14 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let check%0#0: bool = tmp%2#0
                 (assert check%0#0) // ARC4 prefix is valid
                 let result1#0: bytes = value%0#0
-                let item_index%0#0: uint64 = (extract_uint16 result1#0 0u)
-                let item_length%0#0: uint64 = (extract_uint16 result1#0 item_index%0#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let item0%0#0: bytes = (extract3 result1#0 item_index%0#0 item_length_plus_2%0#0)
-                let item_index%1#0: uint64 = (extract_uint16 result1#0 2u)
-                let item_length%1#0: uint64 = (extract_uint16 result1#0 item_index%1#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let item1%0#0: bytes = (extract3 result1#0 item_index%1#0 item_length_plus_2%1#0)
-                let item2%0#0: bytes = (extract3 result1#0 4u 8u)
-                let item3%0#0: bytes = (extract3 result1#0 12u 64u)
+                let item_start_offset%0#0: uint64 = (extract_uint16 result1#0 0u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 result1#0 2u)
+                let item0%0#0: bytes = (substring3 result1#0 item_start_offset%0#0 item_end_offset%0#0)
+                let item_start_offset%1#0: uint64 = (extract_uint16 result1#0 2u)
+                let item_end_offset%1#0: uint64 = (len result1#0)
+                let item1%0#0: bytes = (substring3 result1#0 item_start_offset%1#0 item_end_offset%1#0)
+                let item2%0#0: bytes = (extract3 result1#0 4u 8u) // on error: Index access is out of bounds
+                let item3%0#0: bytes = (extract3 result1#0 12u 64u) // on error: Index access is out of bounds
                 let s#0: bytes = item0%0#0
                 let b#0: bytes = item1%0#0
                 let u#0: bytes = item2%0#0

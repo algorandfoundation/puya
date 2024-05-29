@@ -1045,14 +1045,14 @@ debug: Found equivalence set: array_length%1#0, reverse_index_internal%1#0
 debug: Found equivalence set: array_data%2#4, dynamic_string_array#0
 debug: Replacing {array_data%2#4} with dynamic_string_array#0 made 1 modifications
 debug: Found equivalence set: array_length%3#0, reverse_index_internal%2#0
-debug: Found equivalence set: array_data%3#4, static_uint32_array#0
-debug: Replacing {array_data%3#4} with static_uint32_array#0 made 1 modifications
+debug: Found equivalence set: array_data%3#4, static_uint32_array#0, array_head_and_tail%4#0
+debug: Replacing {array_data%3#4, array_head_and_tail%4#0} with static_uint32_array#0 made 2 modifications
 debug: Found equivalence set: item_index_internal%2#1, index#0
 debug: Replacing {item_index_internal%2#1} with index#0 made 4 modifications
-debug: Found equivalence set: array_data%4#1, aliased_static#0
-debug: Replacing {array_data%4#1} with aliased_static#0 made 1 modifications
-debug: Found equivalence set: array_data%5#4, static_string_array#0
-debug: Replacing {array_data%5#4} with static_string_array#0 made 1 modifications
+debug: Found equivalence set: array_data%4#1, aliased_static#0, array_head_and_tail%5#0, array_head_and_tail%6#0
+debug: Replacing {array_data%4#1, array_head_and_tail%5#0, array_head_and_tail%6#0} with aliased_static#0 made 3 modifications
+debug: Found equivalence set: array_data%5#4, static_string_array#0, array_head_and_tail%7#0
+debug: Replacing {array_data%5#4, array_head_and_tail%7#0} with static_string_array#0 made 4 modifications
 debug: Found equivalence set: item_index_internal%4#1, index#2
 debug: Replacing {item_index_internal%4#1} with index#2 made 4 modifications
 debug: Optimizer: Intrinsic Simplifier
@@ -1063,16 +1063,18 @@ debug: Simplified ((extract 6 2) value_as_bytes%0#0) to 0x0004
 debug: Simplified (len "/x00/x05Hello") to 7u
 debug: Simplified (len "/x00/x05World") to 7u
 debug: Simplified (* 0u 2u) to 0u
+debug: Simplified (* item_length%0#0 1u) to item_length%0#0
+debug: Simplified (* item_length%1#0 1u) to item_length%1#0
 debug: Simplified (== index#0 0u) to (! index#0)
 debug: Simplified (concat 0x 0x00000001) to 0x00000001
 debug: Simplified (concat 0x 0x65) to 0x65
 debug: Simplified (* 0u 1u) to 0u
-debug: Simplified (< 0u 1u) to 1u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified ((extract 6 2) value_as_bytes%2#0) to 0x0004
 debug: Simplified (concat 0x value_as_uint16%2#0) to value_as_uint16%2#0
 debug: Simplified (len "/x00/x04Ping") to 6u
 debug: Simplified (len "/x00/x04Pong") to 6u
+debug: Simplified (* item_length%2#0 1u) to item_length%2#0
 debug: Simplified (== index#2 0u) to (! index#2)
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%0#0
@@ -1083,14 +1085,15 @@ debug: Removing unused variable value_as_bytes%0#0
 debug: Removing unused variable next_offset%0#2
 debug: Removing unused variable index_is_in_bounds%0#0
 debug: Removing unused variable array_data%3#0
+debug: Removing unused variable array_length%4#0
 debug: Removing unused variable reverse_index_internal%3#0
 debug: Removing unused variable array_data%4#0
 debug: Removing unused variable index#1
-debug: Removing unused variable array_length%4#0
 debug: Removing unused variable array_data%5#0
 debug: Removing unused variable next_offset%1#0
 debug: Removing unused variable value_as_bytes%2#0
 debug: Removing unused variable next_offset%1#2
+debug: Removing unused variable array_length%5#0
 debug: Removing unused variable reverse_index_internal%4#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
@@ -1114,15 +1117,21 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) with copy of existing registers [Register(ir_type=uint64, name='tmp%4', version=0, source_location=arc4_types/array.py:36:15-42)]
 debug: Replacing redundant declaration let array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) with copy of existing registers [Register(ir_type=uint64, name='tmp%4', version=0, source_location=arc4_types/array.py:36:15-42)]
-debug: Replacing redundant declaration let array_value%2#0: bytes = ((extract 2 0) dynamic_string_array#0) with copy of existing registers [Register(ir_type=bytes, name='array_data_sans_header%0', version=0, source_location=arc4_types/array.py:37:15-38)]
-debug: Found equivalence set: item_index_internal%0#1, item_index%0#0
-debug: Replacing {item_index%0#0} with item_index_internal%0#1 made 1 modifications
+debug: Replacing redundant declaration let array_head_and_tail%3#0: bytes = ((extract 2 0) dynamic_string_array#0) with copy of existing registers [Register(ir_type=bytes, name='array_head_and_tail%2', version=0, source_location=arc4_types/array.py:37:15-38)]
+debug: Found equivalence set: item_index_internal%0#1, item_offset%0#0
+debug: Replacing {item_offset%0#0} with item_index_internal%0#1 made 1 modifications
 debug: Found equivalence set: tmp%4#0, array_length%2#0, array_length%3#0
 debug: Replacing {array_length%2#0, array_length%3#0} with tmp%4#0 made 2 modifications
-debug: Found equivalence set: array_data_sans_header%0#0, array_value%2#0
-debug: Replacing {array_value%2#0} with array_data_sans_header%0#0 made 3 modifications
+debug: Found equivalence set: item_length%0#0, item_length_in_bytes%0#0
+debug: Replacing {item_length_in_bytes%0#0} with item_length%0#0 made 1 modifications
+debug: Found equivalence set: array_head_and_tail%2#0, array_head_and_tail%3#0
+debug: Replacing {array_head_and_tail%3#0} with array_head_and_tail%2#0 made 3 modifications
+debug: Found equivalence set: item_length%1#0, item_length_in_bytes%1#0
+debug: Replacing {item_length_in_bytes%1#0} with item_length%1#0 made 1 modifications
 debug: Found equivalence set: value_as_uint16%2#0, array_data%5#1
 debug: Replacing {array_data%5#1} with value_as_uint16%2#0 made 1 modifications
+debug: Found equivalence set: item_length%2#0, item_length_in_bytes%2#0
+debug: Replacing {item_length_in_bytes%2#0} with item_length%2#0 made 1 modifications
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
@@ -1159,8 +1168,8 @@ debug: Simplified ((extract 2 0) 0x00010001) to 0x0001
 debug: Simplified (concat 0x0002 0x0004) to 0x00020004
 debug: Simplified (+ 4u 7u) to 11u
 debug: Simplified (concat 0x00000001 0x0000000a) to 0x000000010000000a
-debug: Simplified (extract3 0x65 0u 1u) to 0x65
-debug: Simplified (extract3 0x65 0u 1u) to 0x65
+debug: Simplified (extract3 0x65 0u 1u) // on error: Index access is out of bounds to 0x65
+debug: Simplified (extract3 0x65 0u 1u) // on error: Index access is out of bounds to 0x65
 debug: Simplified (+ 4u 6u) to 10u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%0#1
@@ -1168,13 +1177,12 @@ debug: Removing unused variable aliased_dynamic#0
 debug: Removing unused variable value_as_uint16%0#0
 debug: Removing unused variable element_length%0#0
 debug: Removing unused variable element_length%1#0
-debug: Removing unused variable item_index_index%0#0
+debug: Removing unused variable item_offset_offset%0#0
 debug: Removing unused variable tmp%8#0
 debug: Removing unused variable array_data%3#1
 debug: Removing unused variable aliased_static#0
-debug: Removing unused variable item_index%5#0
-debug: Removing unused variable index_is_in_bounds%1#0
-debug: Removing unused variable item_index%6#0
+debug: Removing unused variable item_offset%5#0
+debug: Removing unused variable item_offset%6#0
 debug: Removing unused variable value_as_uint16%2#0
 debug: Removing unused variable element_length%2#0
 debug: Removing unused variable element_length%3#0
@@ -1223,7 +1231,7 @@ debug: Simplified ((extract 6 2) value_as_bytes%3#0) to 0x000a
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable dynamic_uint8_array#0
 debug: Removing unused variable array_length%1#0
-debug: Removing unused variable array_value%1#0
+debug: Removing unused variable array_head_and_tail%1#0
 debug: Removing unused variable array_data%2#1
 debug: Removing unused variable next_offset%0#1
 debug: Removing unused variable value_as_bytes%1#0
@@ -1272,7 +1280,7 @@ debug: Simplified (+ 101u 101u) to 202u
 debug: Simplified (concat 0x0004 0x000a) to 0x0004000a
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_length%0#0
-debug: Removing unused variable array_value%0#0
+debug: Removing unused variable array_head_and_tail%0#0
 debug: Removing unused variable value_as_uint16%1#0
 debug: Removing unused variable array_data%3#3
 debug: Removing unused variable tmp%15#0
@@ -1437,7 +1445,7 @@ debug: Simplified (== 2u 2u) to 1u
 debug: Simplified (extract_uint16 0x0004000b000548656c6c6f0005576f726c64 0u) to 4u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%4#0
-debug: Removing unused variable array_data_sans_header%0#0
+debug: Removing unused variable array_head_and_tail%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1475,7 +1483,7 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (extract_uint16 0x0004000b000548656c6c6f0005576f726c64 4u) to 5u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%5#0
-debug: Removing unused variable item_index%2#0
+debug: Removing unused variable item_offset%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1549,7 +1557,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (extract3 0x0004000b000548656c6c6f0005576f726c64 4u 7u) to 0x000548656c6c6f
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable item_length_plus_2%0#0
+debug: Removing unused variable item_head_tail_length%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1815,8 +1823,8 @@ debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.app
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_data%0#12, static_boolean_array#0
-debug: Replacing {array_data%0#12} with static_boolean_array#0 made 1 modifications
+debug: Found equivalence set: array_data%0#12, static_boolean_array#0, array_head_and_tail%0#0, array_head_and_tail%1#0
+debug: Replacing {array_data%0#12, array_head_and_tail%0#0, array_head_and_tail%1#0} with static_boolean_array#0 made 3 modifications
 debug: Found equivalence set: array_data%1#3, dynamic_boolean_array#0
 debug: Replacing {array_data%1#3} with dynamic_boolean_array#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
@@ -1835,10 +1843,8 @@ debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (concat 0x tmp%2#0) to tmp%2#0
-debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (- 12u 1u) to 11u
-debug: Simplified (* tmp%18#0 1u) to tmp%18#0
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
@@ -1919,10 +1925,8 @@ debug: Removing unused variable tmp%11#0
 debug: Removing unused variable tmp%12#0
 debug: Removing unused variable tmp%13#0
 debug: Removing unused variable array_data%0#1
-debug: Removing unused variable item_index%0#0
 debug: Removing unused variable tmp%16#0
 debug: Removing unused variable tmp%18#0
-debug: Removing unused variable item_index%1#0
 debug: Removing unused variable tmp%20#0
 debug: Removing unused variable tmp%22#0
 debug: Removing unused variable tmp%23#0
@@ -2945,19 +2949,19 @@ debug: Merged linear block@11: // for_footer_L32 into block@10: // for_body_L32
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let array_value%0#0: bytes = ((extract 2 0) dynamic_bytes#0) with copy of existing registers [Register(ir_type=bytes, name='tmp%0', version=0, source_location=arc4_types/dynamic_bytes.py:13:15-35)]
-debug: Replacing redundant declaration let array_value%2#0: bytes = ((extract 2 0) dynamic_bytes3#0) with copy of existing registers [Register(ir_type=bytes, name='tmp%10', version=0, source_location=arc4_types/dynamic_bytes.py:29:15-36)]
+debug: Replacing redundant declaration let array_head_and_tail%0#0: bytes = ((extract 2 0) dynamic_bytes#0) with copy of existing registers [Register(ir_type=bytes, name='tmp%0', version=0, source_location=arc4_types/dynamic_bytes.py:13:15-35)]
+debug: Replacing redundant declaration let array_head_and_tail%2#0: bytes = ((extract 2 0) dynamic_bytes3#0) with copy of existing registers [Register(ir_type=bytes, name='tmp%10', version=0, source_location=arc4_types/dynamic_bytes.py:29:15-36)]
 debug: Replacing redundant declaration let expr_value_trimmed%0#0: bytes = ((extract 2 0) dynamic_bytes3#0) with copy of existing registers [Register(ir_type=bytes, name='tmp%10', version=0, source_location=arc4_types/dynamic_bytes.py:29:15-36)]
-debug: Found equivalence set: tmp%0#0, array_value%0#0
-debug: Replacing {array_value%0#0} with tmp%0#0 made 1 modifications
-debug: Found equivalence set: item_index_internal%0#1, item_index%0#0
-debug: Replacing {item_index%0#0} with item_index_internal%0#1 made 1 modifications
-debug: Found equivalence set: tmp%10#0, array_value%2#0, expr_value_trimmed%0#0
-debug: Replacing {array_value%2#0, expr_value_trimmed%0#0} with tmp%10#0 made 2 modifications
-debug: Found equivalence set: item_index_internal%1#1, item_index%1#0
-debug: Replacing {item_index%1#0} with item_index_internal%1#1 made 1 modifications
-debug: Found equivalence set: item_index_internal%2#1, item_index%2#0
-debug: Replacing {item_index%2#0} with item_index_internal%2#1 made 1 modifications
+debug: Found equivalence set: tmp%0#0, array_head_and_tail%0#0
+debug: Replacing {array_head_and_tail%0#0} with tmp%0#0 made 1 modifications
+debug: Found equivalence set: item_index_internal%0#1, item_offset%0#0
+debug: Replacing {item_offset%0#0} with item_index_internal%0#1 made 1 modifications
+debug: Found equivalence set: item_index_internal%1#1, item_offset%1#0
+debug: Replacing {item_offset%1#0} with item_index_internal%1#1 made 1 modifications
+debug: Found equivalence set: tmp%10#0, expr_value_trimmed%0#0, array_head_and_tail%2#0
+debug: Replacing {expr_value_trimmed%0#0, array_head_and_tail%2#0} with tmp%10#0 made 2 modifications
+debug: Found equivalence set: item_index_internal%2#1, item_offset%2#0
+debug: Replacing {item_offset%2#0} with item_index_internal%2#1 made 1 modifications
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
@@ -2984,7 +2988,7 @@ debug: Removing unused variable array_data%0#1
 debug: Removing unused variable tmp%5#0
 debug: Removing unused variable tmp%7#0
 debug: Removing unused variable array_length%1#0
-debug: Removing unused variable array_value%1#0
+debug: Removing unused variable array_head_and_tail%1#0
 debug: Removing unused variable tmp%9#0
 debug: Removing unused variable expr_value_trimmed%1#0
 debug: Optimizer: Inner Txn Field Replacer
@@ -4023,16 +4027,16 @@ debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutablePar
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_data%0#4, my_array#0, copy%0#0, my_array_copy#0, copy%2#0, copy%4#0, my_array_copy_2#0
-debug: Replacing {array_data%0#4, copy%0#0, my_array_copy#0, copy%2#0, copy%4#0, my_array_copy_2#0} with my_array#0 made 5 modifications
+debug: Found equivalence set: array_data%0#4, my_array#0, copy%0#0, my_array_copy#0, array_head_and_tail%0#0, copy%2#0, array_head_and_tail%3#0, copy%4#0, my_array_copy_2#0
+debug: Replacing {array_data%0#4, copy%0#0, my_array_copy#0, array_head_and_tail%0#0, copy%2#0, array_head_and_tail%3#0, copy%4#0, my_array_copy_2#0} with my_array#0 made 5 modifications
 debug: Found equivalence set: encoded_tuple_buffer%0#6, my_struct#0, copy%1#0, my_struct_copy#0, copy%3#0
 debug: Replacing {encoded_tuple_buffer%0#6, copy%1#0, my_struct_copy#0, copy%3#0} with my_struct#0 made 5 modifications
-debug: Found equivalence set: updated_target%0#0, my_array#1
-debug: Replacing {updated_target%0#0} with my_array#1 made 1 modifications
+debug: Found equivalence set: updated_target%0#0, my_array#1, array_head_and_tail%1#0
+debug: Replacing {updated_target%0#0, array_head_and_tail%1#0} with my_array#1 made 2 modifications
 debug: Found equivalence set: other_routine%3#0, my_struct#1
 debug: Replacing {other_routine%3#0} with my_struct#1 made 1 modifications
-debug: Found equivalence set: other_routine%2#0, my_array#2, copy%5#0
-debug: Replacing {other_routine%2#0, copy%5#0} with my_array#2 made 2 modifications
+debug: Found equivalence set: other_routine%2#0, my_array#2, array_head_and_tail%2#0, copy%5#0
+debug: Replacing {other_routine%2#0, array_head_and_tail%2#0, copy%5#0} with my_array#2 made 3 modifications
 debug: Found equivalence set: other_routine%0#0, t#0
 debug: Replacing {other_routine%0#0} with t#0 made 1 modifications
 debug: Found equivalence set: other_routine%1#0, f#0
@@ -4041,10 +4045,10 @@ debug: Found equivalence set: other_routine%7#0, copy%3#1
 debug: Found equivalence set: other_routine%6#0, copy%2#1
 debug: Found equivalence set: other_routine_2%1#0, my_array_copy_2#1
 debug: Replacing {other_routine_2%1#0} with my_array_copy_2#1 made 1 modifications
-debug: Found equivalence set: other_routine_2%0#0, my_array_copy_2#2
-debug: Replacing {other_routine_2%0#0} with my_array_copy_2#2 made 1 modifications
-debug: Found equivalence set: other_routine_2%3#0, my_array_copy_2#3
-debug: Replacing {other_routine_2%3#0} with my_array_copy_2#3 made 1 modifications
+debug: Found equivalence set: other_routine_2%0#0, my_array_copy_2#2, array_head_and_tail%4#0
+debug: Replacing {other_routine_2%0#0, array_head_and_tail%4#0} with my_array_copy_2#2 made 2 modifications
+debug: Found equivalence set: other_routine_2%3#0, my_array_copy_2#3, array_head_and_tail%5#0
+debug: Replacing {other_routine_2%3#0, array_head_and_tail%5#0} with my_array_copy_2#3 made 2 modifications
 debug: Found equivalence set: encoded_tuple_buffer%1#1, nested#0
 debug: Replacing {encoded_tuple_buffer%1#1} with nested#0 made 1 modifications
 debug: Found equivalence set: tmp%12#0, copy%6#0
@@ -4065,7 +4069,7 @@ debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (concat 0x my_array#2) to my_array#2
-debug: Simplified (extract3 nested#0 0u 4u) to ((extract 0 4) nested#0)
+debug: Simplified (extract3 nested#0 0u 4u) // on error: Index access is out of bounds to ((extract 0 4) nested#0) // on error: Index access is out of bounds
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%0#0
 debug: Removing unused variable current_tail_offset%0#0
@@ -4161,12 +4165,12 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x01 0x02) to 0x0102
 debug: Simplified (concat 0x80 0x32) to 0x8032
 debug: Simplified (+ 6u 7u) to 13u
-debug: Simplified (extract3 my_array#0 2u 1u) to ((extract 2 1) my_array#0)
-debug: Simplified (extract3 my_array#1 2u 1u) to ((extract 2 1) my_array#1)
-debug: Simplified (extract3 my_array#2 1u 1u) to ((extract 1 1) my_array#2)
-debug: Simplified (extract3 my_array#0 1u 1u) to ((extract 1 1) my_array#0)
-debug: Simplified (extract3 my_array_copy_2#2 0u 1u) to ((extract 0 1) my_array_copy_2#2)
-debug: Simplified (extract3 my_array_copy_2#3 0u 1u) to ((extract 0 1) my_array_copy_2#3)
+debug: Simplified (extract3 my_array#0 2u 1u) // on error: Index access is out of bounds to ((extract 2 1) my_array#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 my_array#1 2u 1u) // on error: Index access is out of bounds to ((extract 2 1) my_array#1) // on error: Index access is out of bounds
+debug: Simplified (extract3 my_array#2 1u 1u) // on error: Index access is out of bounds to ((extract 1 1) my_array#2) // on error: Index access is out of bounds
+debug: Simplified (extract3 my_array#0 1u 1u) // on error: Index access is out of bounds to ((extract 1 1) my_array#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 my_array_copy_2#2 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) my_array_copy_2#2) // on error: Index access is out of bounds
+debug: Simplified (extract3 my_array_copy_2#3 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) my_array_copy_2#3) // on error: Index access is out of bounds
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%0#1
 debug: Removing unused variable tmp%0#0
@@ -4174,13 +4178,13 @@ debug: Removing unused variable encoded_tuple_buffer%0#1
 debug: Removing unused variable value_as_uint16%0#0
 debug: Removing unused variable data_length%0#0
 debug: Removing unused variable data_length%1#0
-debug: Removing unused variable item_index%0#0
-debug: Removing unused variable item_index%1#0
-debug: Removing unused variable item_index%2#0
+debug: Removing unused variable item_offset%0#0
+debug: Removing unused variable item_offset%1#0
+debug: Removing unused variable item_offset%2#0
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#0, my_struct#0)
-debug: Removing unused variable item_index%4#0
-debug: Removing unused variable item_index%6#0
-debug: Removing unused variable item_index%7#0
+debug: Removing unused variable item_offset%3#0
+debug: Removing unused variable item_offset%4#0
+debug: Removing unused variable item_offset%5#0
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(tmp%12#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
@@ -4370,8 +4374,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x80320006000d "/x00/x05Happy") to 0x80320006000d00054861707079
-debug: Simplified ((extract 2 1) 0x01020304) to 0x03
-debug: Simplified ((extract 1 1) 0x01020304) to 0x02
+debug: Simplified ((extract 2 1) 0x01020304) // on error: Index access is out of bounds to 0x03
+debug: Simplified ((extract 1 1) 0x01020304) // on error: Index access is out of bounds to 0x02
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable my_array#0
 debug: Removing unused variable encoded_tuple_buffer%0#4
@@ -4499,6 +4503,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 2u) to 6u
+debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 4u) to 13u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable my_struct#0
 debug: Removing unused variable tmp%1#0
@@ -4561,10 +4566,11 @@ debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutablePar
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 6u) to 5u
+debug: Simplified (substring3 0x80320006000d00054861707079000444617973 6u 13u) to 0x00054861707079
 debug: Optimizer: Remove Unused Variables
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, 0x80320006000d00054861707079000444617973)
-debug: Removing unused variable item_index%5#0
+debug: Removing unused variable item_start_offset%1#0
+debug: Removing unused variable item_end_offset%1#0
 debug: Not removing unused assignment since source is not marked as pure: let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(tmp%12#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
@@ -4607,128 +4613,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_8.ir
 debug: Begin optimization pass 9/100
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (+ 5u 2u) to 7u
-debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, 0x80320006000d00054861707079000444617973)
-debug: Removing unused variable item_length%1#0
-debug: Not removing unused assignment since source is not marked as pure: let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(tmp%12#0)
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.clear_state_program
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_9.ir
-debug: Begin optimization pass 10/100
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 0x80320006000d00054861707079000444617973 6u 7u) to 0x00054861707079
-debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, 0x80320006000d00054861707079000444617973)
-debug: Removing unused variable item_length_plus_2%1#0
-debug: Not removing unused assignment since source is not marked as pure: let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(tmp%12#0)
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.clear_state_program
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_10.ir
-debug: Begin optimization pass 11/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -4788,8 +4672,8 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_11.ir
-debug: Begin optimization pass 12/100
+debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_9.ir
+debug: Begin optimization pass 10/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -4848,8 +4732,8 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_12.ir
-debug: Begin optimization pass 13/100
+debug: Output IR to arc4_types/out/Arc4MutableParamsContract.ssa.opt_pass_10.ir
+debug: Begin optimization pass 11/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -4907,7 +4791,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 13, ending loop
+debug: No optimizations performed in pass 11, ending loop
 debug: Removing Phis from test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Removing Phis from test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies
 debug: Removing Phis from test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
@@ -5005,10 +4889,10 @@ debug: Found equivalence set: concat_result%1#0, dynamic_bool_array#2
 debug: Replacing {concat_result%1#0} with dynamic_bool_array#2 made 1 modifications
 debug: Found equivalence set: concat_result%2#0, dynamic_bool_array#3
 debug: Replacing {concat_result%2#0} with dynamic_bool_array#3 made 1 modifications
-debug: Found equivalence set: data%3#1, dynamic_bool_array#4
-debug: Replacing {data%3#1} with dynamic_bool_array#4 made 1 modifications
-debug: Found equivalence set: data%4#1, dynamic_bool_array#5
-debug: Replacing {data%4#1} with dynamic_bool_array#5 made 1 modifications
+debug: Found equivalence set: data%2#1, dynamic_bool_array#4
+debug: Replacing {data%2#1} with dynamic_bool_array#4 made 1 modifications
+debug: Found equivalence set: data%3#1, dynamic_bool_array#5
+debug: Replacing {data%3#1} with dynamic_bool_array#5 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
@@ -5052,7 +4936,7 @@ debug: Removing unused variable array_data%0#0
 debug: Removing unused variable data%0#0
 debug: Removing unused variable array_data%1#0
 debug: Removing unused variable array_data%2#0
-debug: Removing unused variable data%2#0
+debug: Removing unused variable data%1#0
 debug: Removing unused variable array_data%3#0
 debug: Removing unused variable array_data%4#0
 debug: Optimizer: Inner Txn Field Replacer
@@ -5177,8 +5061,10 @@ debug: Simplified (concat 0x array_data%0#1) to array_data%0#1
 debug: Simplified (concat 0x0001 0x10) to 0x000110
 debug: Simplified (concat 0x array_data%1#1) to array_data%1#1
 debug: Simplified (* 0u 2u) to 0u
+debug: Simplified (* item_length%0#0 1u) to item_length%0#0
 debug: Simplified (concat 0x 0xff) to 0xff
 debug: Simplified (* 0u 2u) to 0u
+debug: Simplified (* item_length%1#0 1u) to item_length%1#0
 debug: Simplified (replace3 tmp%5#0 3u 0x00) to ((replace2 3) tmp%5#0 0x00)
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_of_array#0
@@ -5204,8 +5090,8 @@ debug: Found equivalence set: array_data%2#2, array_of_array#0
 debug: Replacing {array_data%2#2} with array_of_array#0 made 1 modifications
 debug: Found equivalence set: array_data%3#2, assigned_value%0#0
 debug: Replacing {assigned_value%0#0} with array_data%3#2 made 1 modifications
-debug: Found equivalence set: updated_target%0#0, array_of_array#1
-debug: Replacing {updated_target%0#0} with array_of_array#1 made 1 modifications
+debug: Found equivalence set: updated_target%0#0, array_of_array#1, array_head_and_tail%0#0
+debug: Replacing {updated_target%0#0, array_head_and_tail%0#0} with array_of_array#1 made 2 modifications
 debug: Found equivalence set: updated_target%1#0, assigned_value%2#0
 debug: Replacing {assigned_value%2#0} with updated_target%1#0 made 1 modifications
 debug: Found equivalence set: updated_target%2#0, array_of_array#2
@@ -5598,7 +5484,7 @@ debug: Removing unused variable tmp%16#0
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%18#0
 debug: Removing unused variable tmp%20#0
-debug: Removing unused variable data%2#1
+debug: Removing unused variable data%1#1
 debug: Removing unused variable tmp%21#0
 debug: Removing unused variable tmp%22#0
 debug: Removing unused variable tmp%23#0
@@ -5686,6 +5572,10 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: item_length%0#0, item_length_in_bytes%0#0
+debug: Replacing {item_length_in_bytes%0#0} with item_length%0#0 made 1 modifications
+debug: Found equivalence set: item_length%1#0, item_length_in_bytes%1#0
+debug: Replacing {item_length_in_bytes%1#0} with item_length%1#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
@@ -5693,9 +5583,9 @@ debug: Removing unused variable array_data%0#1
 debug: Removing unused variable data%0#1
 debug: Removing unused variable array_data%1#1
 debug: Removing unused variable data%1#1
-debug: Removing unused variable item_index_index%0#0
+debug: Removing unused variable item_offset_offset%0#0
 debug: Removing unused variable data%2#1
-debug: Removing unused variable item_index_index%1#0
+debug: Removing unused variable item_offset_offset%1#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -5711,12 +5601,12 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x0a 0x09) to 0x0a09
 debug: Simplified (concat 0x40 0x80) to 0x4080
 debug: Simplified (concat 0xff 0xfe) to 0xfffe
-debug: Simplified (extract3 array_of_array#1 2u 2u) to ((extract 2 2) array_of_array#1)
+debug: Simplified (extract3 array_of_array#1 2u 2u) // on error: Index access is out of bounds to ((extract 2 2) array_of_array#1) // on error: Index access is out of bounds
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%0#1
 debug: Removing unused variable array_data%1#1
 debug: Removing unused variable array_data%3#1
-debug: Removing unused variable item_index%0#0
+debug: Removing unused variable item_offset%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -6393,7 +6283,7 @@ debug: Simplified (concat 0x0004010203 0x04) to 0x000401020304
 debug: Simplified (concat 0x0005010203 0x04) to 0x000501020304
 debug: Simplified (concat 0x00020004 0x000b) to 0x00020004000b
 debug: Simplified (extract_uint16 0x000100020005576f726c64 0u) to 1u
-debug: Simplified (len 0x000100020005576f726c64) to 11u
+debug: Simplified ((extract 2 0) 0x000100020005576f726c64) to 0x00020005576f726c64
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable expr_value_trimmed%0#0
 debug: Removing unused variable array_data%1#3
@@ -6663,13 +6553,14 @@ debug: Simplified (len 0x01020304) to 4u
 debug: Simplified (concat 0x000501020304 0x05) to 0x00050102030405
 debug: Simplified (concat 0x00020004000b "/x00/x05Hello") to 0x00020004000b000548656c6c6f
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (len 0x00020005576f726c64) to 9u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable concatenated%0#0
 debug: Removing unused variable array_data%1#4
 debug: Removing unused variable array_data%2#4
 debug: Removing unused variable array_data%3#2
 debug: Removing unused variable array_length%0#0
-debug: Removing unused variable total_length%0#0
+debug: Removing unused variable array_head_and_tail%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -6929,13 +6820,14 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified ((extract 6 0) len_bytes%0#0) to 0x0004
 debug: Simplified (concat 0x00020004000b000548656c6c6f "/x00/x05World") to 0x00020004000b000548656c6c6f0005576f726c64
-debug: Simplified (+ 2u 2u) to 4u
+debug: Simplified (substring3 0x00020005576f726c64 2u 9u) to 0x0005576f726c64
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable len_%0#0
 debug: Removing unused variable len_bytes%0#0
 debug: Removing unused variable array_data%2#5
 debug: Removing unused variable array_data%3#3
-debug: Removing unused variable start_of_data%0#0
+debug: Removing unused variable start_of_tail%0#0
+debug: Removing unused variable total_length%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -7182,11 +7074,10 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x0004 0x01020304) to 0x000401020304
-debug: Simplified (substring3 0x000100020005576f726c64 4u 11u) to 0x0005576f726c64
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable len_16_bit%0#0
 debug: Removing unused variable hello_world#0
-debug: Removing unused variable start_of_data%0#1
+debug: Removing unused variable data%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -7428,7 +7319,6 @@ debug: Simplified (== 0x000401020304 0x000401020304) to 1u
 debug: Simplified ((extract 2 0) 0x000401020304) to 0x01020304
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_concat_tuple#0
-debug: Removing unused variable data%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -10102,8 +9992,7 @@ debug: Coalescing dynamic_bool_array#1 with [dynamic_bool_array#2, dynamic_bool_
 debug: Coalescing resulted in 10 replacement/s
 debug: Coalescing local variables in test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string using strategy RootOperandGrouping
 debug: Coalescing dynamic_string_array#1 with [dynamic_string_array#2, dynamic_string_array#4, dynamic_string_array#5, dynamic_string_array#6, dynamic_string_array#7]
-debug: Coalescing start_of_data%0#0 with [start_of_data%0#1]
-debug: Coalescing resulted in 13 replacement/s
+debug: Coalescing resulted in 11 replacement/s
 debug: Coalescing local variables in test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic using strategy RootOperandGrouping
 debug: Coalescing array_of_array#1 with [array_of_array#2, array_of_array#3, array_of_array#4]
 debug: Coalescing resulted in 12 replacement/s
@@ -10126,7 +10015,7 @@ debug: Coalescing local variables in algopy_lib_arc4.dynamic_array_pop_fixed_siz
 debug: Coalescing result#0 with [result#1]
 debug: Coalescing resulted in 2 replacement/s
 debug: Coalescing local variables in algopy_lib_arc4.dynamic_array_pop_variable_size using strategy RootOperandGrouping
-debug: Coalescing data_sans_header#0 with [data_sans_header#1]
+debug: Coalescing head_and_tail#0 with [head_and_tail#1]
 debug: Coalescing resulted in 2 replacement/s
 debug: Coalescing local variables in algopy_lib_arc4.dynamic_array_concat_bits using strategy RootOperandGrouping
 debug: Coalescing result#0 with [result#1, result#6, result#12, result#4, result#3]
@@ -11548,8 +11437,8 @@ debug: Found equivalence set: nested_decode%0#0, encoded_tuple_buffer%3#3
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x000000083cfbf217) to 0x000000083cfbf217
 debug: Simplified (concat 0x 0x000000083cfbf217) to 0x000000083cfbf217
-debug: Simplified (extract3 coord_3#0 0u 8u) to ((extract 0 8) coord_3#0)
-debug: Simplified (extract3 coord_3#0 8u 8u) to ((extract 8 8) coord_3#0)
+debug: Simplified (extract3 coord_3#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) coord_3#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 coord_3#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) coord_3#0) // on error: Index access is out of bounds
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
@@ -11587,10 +11476,10 @@ debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 v1#0 0u 8u) to ((extract 0 8) v1#0)
-debug: Simplified (extract3 v2#0 0u 8u) to ((extract 0 8) v2#0)
-debug: Simplified (extract3 v1#0 8u 8u) to ((extract 8 8) v1#0)
-debug: Simplified (extract3 v2#0 8u 8u) to ((extract 8 8) v2#0)
+debug: Simplified (extract3 v1#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) v1#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 v2#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) v2#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 v1#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) v1#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 v2#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) v2#0) // on error: Index access is out of bounds
 debug: Simplified (concat 0x tmp%2#0) to tmp%2#0
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
@@ -11630,9 +11519,9 @@ debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 vector_flags#0 0u 16u) to ((extract 0 16) vector_flags#0)
-debug: Simplified (extract3 tmp%0#0 0u 8u) to ((extract 0 8) tmp%0#0)
-debug: Simplified (extract3 vector_flags#0 16u 1u) to ((extract 16 1) vector_flags#0)
+debug: Simplified (extract3 vector_flags#0 0u 16u) // on error: Index access is out of bounds to ((extract 0 16) vector_flags#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 tmp%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) tmp%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 vector_flags#0 16u 1u) // on error: Index access is out of bounds to ((extract 16 1) vector_flags#0) // on error: Index access is out of bounds
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
@@ -12500,11 +12389,11 @@ debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (concat 0x 0x04) to 0x04
-debug: Simplified (extract3 boolean_packing#0 0u 1u) to ((extract 0 1) boolean_packing#0)
-debug: Simplified (extract3 boolean_packing#0 3u 1u) to ((extract 3 1) boolean_packing#0)
-debug: Simplified (extract3 boolean_packing#0 3u 1u) to ((extract 3 1) boolean_packing#0)
-debug: Simplified (extract3 boolean_packing#0 0u 1u) to ((extract 0 1) boolean_packing#0)
-debug: Simplified (extract3 boolean_packing#0 3u 1u) to ((extract 3 1) boolean_packing#0)
+debug: Simplified (extract3 boolean_packing#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) boolean_packing#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 boolean_packing#0 3u 1u) // on error: Index access is out of bounds to ((extract 3 1) boolean_packing#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 boolean_packing#0 3u 1u) // on error: Index access is out of bounds to ((extract 3 1) boolean_packing#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 boolean_packing#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) boolean_packing#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 boolean_packing#0 3u 1u) // on error: Index access is out of bounds to ((extract 3 1) boolean_packing#0) // on error: Index access is out of bounds
 debug: Simplified (concat 0x item0%1#0) to item0%1#0
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
@@ -12530,8 +12419,8 @@ debug: Not removing empty block block@19: // ternary_true_L40 because it's used 
 debug: Not removing empty block block@20: // ternary_false_L40 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let reinterpret_biguint%0#0: biguint = ((extract 3 1) boolean_packing#0) with copy of existing registers [Register(ir_type=bytes, name='k', version=0, source_location=arc4_types/tuples.py:36:38-39)]
-debug: Replacing redundant declaration let item0%1#0: bytes = ((extract 0 1) boolean_packing#0) with copy of existing registers [Register(ir_type=bytes, name='a', version=0, source_location=arc4_types/tuples.py:36:8-9)]
+debug: Replacing redundant declaration let reinterpret_biguint%0#0: biguint = ((extract 3 1) boolean_packing#0) // on error: Index access is out of bounds with copy of existing registers [Register(ir_type=bytes, name='k', version=0, source_location=arc4_types/tuples.py:36:38-39)]
+debug: Replacing redundant declaration let item0%1#0: bytes = ((extract 0 1) boolean_packing#0) // on error: Index access is out of bounds with copy of existing registers [Register(ir_type=bytes, name='a', version=0, source_location=arc4_types/tuples.py:36:8-9)]
 debug: Replacing redundant declaration let is_true%16#0: uint64 = (getbit boolean_packing#0 8u) with copy of existing registers [Register(ir_type=uint64, name='is_true%7', version=0, source_location=arc4_types/tuples.py:36:42-64)]
 debug: Replacing redundant declaration let is_true%17#0: uint64 = (getbit boolean_packing#0 9u) with copy of existing registers [Register(ir_type=uint64, name='is_true%8', version=0, source_location=arc4_types/tuples.py:36:42-64)]
 debug: Replacing redundant declaration let is_true%18#0: uint64 = (getbit boolean_packing#0 10u) with copy of existing registers [Register(ir_type=uint64, name='is_true%9', version=0, source_location=arc4_types/tuples.py:36:42-64)]
@@ -12541,7 +12430,7 @@ debug: Replacing redundant declaration let is_true%21#0: uint64 = (getbit boolea
 debug: Replacing redundant declaration let is_true%22#0: uint64 = (getbit boolean_packing#0 14u) with copy of existing registers [Register(ir_type=uint64, name='is_true%13', version=0, source_location=arc4_types/tuples.py:36:42-64)]
 debug: Replacing redundant declaration let is_true%23#0: uint64 = (getbit boolean_packing#0 15u) with copy of existing registers [Register(ir_type=uint64, name='is_true%14', version=0, source_location=arc4_types/tuples.py:36:42-64)]
 debug: Replacing redundant declaration let is_true%24#0: uint64 = (getbit boolean_packing#0 16u) with copy of existing registers [Register(ir_type=uint64, name='is_true%15', version=0, source_location=arc4_types/tuples.py:36:42-64)]
-debug: Replacing redundant declaration let item10%1#0: bytes = ((extract 3 1) boolean_packing#0) with copy of existing registers [Register(ir_type=bytes, name='k', version=0, source_location=arc4_types/tuples.py:36:38-39)]
+debug: Replacing redundant declaration let item10%1#0: bytes = ((extract 3 1) boolean_packing#0) // on error: Index access is out of bounds with copy of existing registers [Register(ir_type=bytes, name='k', version=0, source_location=arc4_types/tuples.py:36:38-39)]
 debug: Found equivalence set: k#0, reinterpret_biguint%0#0, item10%1#0
 debug: Replacing {reinterpret_biguint%0#0, item10%1#0} with k#0 made 2 modifications
 debug: Found equivalence set: a#0, item0%1#0, encoded_tuple_buffer%2#1
@@ -12606,11 +12495,11 @@ debug: Replacing {item3%0#0} with d#0 made 1 modifications
 debug: Found equivalence set: item4%0#0, e#0, reinterpret_biguint%3#0
 debug: Replacing {item4%0#0, reinterpret_biguint%3#0} with e#0 made 2 modifications
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 test_tuple#0 0u 1u) to ((extract 0 1) test_tuple#0)
-debug: Simplified (extract3 test_tuple#0 1u 1u) to ((extract 1 1) test_tuple#0)
-debug: Simplified (extract3 test_tuple#0 6u 1u) to ((extract 6 1) test_tuple#0)
-debug: Simplified (extract3 test_tuple#0 0u 1u) to ((extract 0 1) test_tuple#0)
-debug: Simplified (extract3 test_tuple#0 6u 1u) to ((extract 6 1) test_tuple#0)
+debug: Simplified (extract3 test_tuple#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) test_tuple#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 test_tuple#0 1u 1u) // on error: Index access is out of bounds to ((extract 1 1) test_tuple#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 test_tuple#0 6u 1u) // on error: Index access is out of bounds to ((extract 6 1) test_tuple#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 test_tuple#0 0u 1u) // on error: Index access is out of bounds to ((extract 0 1) test_tuple#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 test_tuple#0 6u 1u) // on error: Index access is out of bounds to ((extract 6 1) test_tuple#0) // on error: Index access is out of bounds
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
@@ -12618,22 +12507,20 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let reinterpret_biguint%0#0: biguint = ((extract 0 1) test_tuple#0) with copy of existing registers [Register(ir_type=bytes, name='a', version=0, source_location=arc4_types/tuples.py:56:8-9)]
-debug: Replacing redundant declaration let reinterpret_biguint%2#0: biguint = ((extract 6 1) test_tuple#0) with copy of existing registers [Register(ir_type=bytes, name='e', version=0, source_location=arc4_types/tuples.py:56:20-21)]
-debug: Replacing redundant declaration let item_index%2#0: uint64 = (extract_uint16 test_tuple#0 4u) with copy of existing registers [Register(ir_type=uint64, name='item_index%1', version=0, source_location=arc4_types/tuples.py:56:24-41)]
+debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 test_tuple#0 4u) with copy of existing registers [Register(ir_type=uint64, name='item_end_offset%0', version=0, source_location=arc4_types/tuples.py:56:24-41)]
+debug: Replacing redundant declaration let reinterpret_biguint%0#0: biguint = ((extract 0 1) test_tuple#0) // on error: Index access is out of bounds with copy of existing registers [Register(ir_type=bytes, name='a', version=0, source_location=arc4_types/tuples.py:56:8-9)]
+debug: Replacing redundant declaration let reinterpret_biguint%2#0: biguint = ((extract 6 1) test_tuple#0) // on error: Index access is out of bounds with copy of existing registers [Register(ir_type=bytes, name='e', version=0, source_location=arc4_types/tuples.py:56:20-21)]
+debug: Replacing redundant declaration let item_start_offset%2#0: uint64 = (extract_uint16 test_tuple#0 4u) with copy of existing registers [Register(ir_type=uint64, name='item_end_offset%0', version=0, source_location=arc4_types/tuples.py:56:24-41)]
+debug: Replacing redundant declaration let item_end_offset%2#0: uint64 = (len test_tuple#0) with copy of existing registers [Register(ir_type=uint64, name='item_end_offset%1', version=0, source_location=arc4_types/tuples.py:56:24-41)]
+debug: Found equivalence set: item_end_offset%0#0, item_start_offset%1#0, item_start_offset%2#0
+debug: Replacing {item_start_offset%1#0, item_start_offset%2#0} with item_end_offset%0#0 made 2 modifications
 debug: Found equivalence set: a#0, reinterpret_biguint%0#0
 debug: Replacing {reinterpret_biguint%0#0} with a#0 made 1 modifications
 debug: Found equivalence set: e#0, reinterpret_biguint%2#0
 debug: Replacing {reinterpret_biguint%2#0} with e#0 made 1 modifications
-debug: Found equivalence set: item_index%1#0, item_index%2#0
-debug: Replacing {item_index%2#0} with item_index%1#0 made 2 modifications
-debug: Replacing redundant declaration let item_length%2#0: uint64 = (extract_uint16 test_tuple#0 item_index%1#0) with copy of existing registers [Register(ir_type=uint64, name='item_length%1', version=0, source_location=arc4_types/tuples.py:56:24-41)]
-debug: Found equivalence set: item_length%1#0, item_length%2#0
-debug: Replacing {item_length%2#0} with item_length%1#0 made 1 modifications
-debug: Replacing redundant declaration let item_length_plus_2%2#0: uint64 = (+ item_length%1#0 2u) with copy of existing registers [Register(ir_type=uint64, name='item_length_plus_2%1', version=0, source_location=arc4_types/tuples.py:56:24-41)]
-debug: Found equivalence set: item_length_plus_2%1#0, item_length_plus_2%2#0
-debug: Replacing {item_length_plus_2%2#0} with item_length_plus_2%1#0 made 1 modifications
-debug: Replacing redundant declaration let tmp%2#0: bytes = (extract3 test_tuple#0 item_index%1#0 item_length_plus_2%1#0) with copy of existing registers [Register(ir_type=bytes, name='d', version=0, source_location=arc4_types/tuples.py:56:17-18)]
+debug: Found equivalence set: item_end_offset%1#0, item_end_offset%2#0
+debug: Replacing {item_end_offset%2#0} with item_end_offset%1#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%2#0: bytes = (substring3 test_tuple#0 item_end_offset%0#0 item_end_offset%1#0) with copy of existing registers [Register(ir_type=bytes, name='d', version=0, source_location=arc4_types/tuples.py:56:17-18)]
 debug: Found equivalence set: d#0, tmp%2#0
 debug: Replacing {tmp%2#0} with d#0 made 1 modifications
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.clear_state_program
@@ -13169,7 +13056,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== 0x04bd8010 0x04bd8010) to 1u
-debug: Simplified ((extract 0 1) 0x04bd8010) to 0x04
+debug: Simplified ((extract 0 1) 0x04bd8010) // on error: Index access is out of bounds to 0x04
 debug: Simplified (getbit 0x04bd8010 8u) to 1u
 debug: Simplified (getbit 0x04bd8010 9u) to 0u
 debug: Simplified (getbit 0x04bd8010 10u) to 1u
@@ -13179,7 +13066,7 @@ debug: Simplified (getbit 0x04bd8010 13u) to 1u
 debug: Simplified (getbit 0x04bd8010 14u) to 0u
 debug: Simplified (getbit 0x04bd8010 15u) to 1u
 debug: Simplified (getbit 0x04bd8010 16u) to 1u
-debug: Simplified ((extract 3 1) 0x04bd8010) to 0x10
+debug: Simplified ((extract 3 1) 0x04bd8010) // on error: Index access is out of bounds to 0x10
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable boolean_packing#0
 debug: Optimizer: Inner Txn Field Replacer
@@ -13926,8 +13813,8 @@ debug: Inserted main_for_header@5.ops[3]: 'store continue_looping%1#0 to l-stack
 debug: Replaced main_for_header@5.ops[5]: 'load continue_looping%1#0' with 'load continue_looping%1#0 from l-stack (no copy)'
 debug: Inserted main_for_body@6.ops[8]: 'store uint16_item#0 to l-stack (copy)'
 debug: Replaced main_for_body@6.ops[10]: 'load uint16_item#0' with 'load uint16_item#0 from l-stack (no copy)'
-debug: Inserted main_for_body@6.ops[3]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced main_for_body@6.ops[6]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
+debug: Inserted main_for_body@6.ops[3]: 'store item_offset%1#0 to l-stack (copy)'
+debug: Replaced main_for_body@6.ops[6]: 'load item_offset%1#0' with 'load item_offset%1#0 from l-stack (no copy)'
 debug: Inserted main_for_body@6.ops[13]: 'store tmp%2#0 to l-stack (copy)'
 debug: Replaced main_for_body@6.ops[16]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
 debug: Inserted main_for_body@6.ops[1]: 'store item_index_internal%1#0 to l-stack (copy)'
@@ -13940,14 +13827,14 @@ debug: Inserted main_for_header@9.ops[3]: 'store continue_looping%2#0 to l-stack
 debug: Replaced main_for_header@9.ops[5]: 'load continue_looping%2#0' with 'load continue_looping%2#0 from l-stack (no copy)'
 debug: Inserted main_for_body@10.ops[11]: 'store item_length%1#0 to l-stack (copy)'
 debug: Replaced main_for_body@10.ops[13]: 'load item_length%1#0' with 'load item_length%1#0 from l-stack (no copy)'
-debug: Inserted main_for_body@10.ops[3]: 'store item_index_index%1#0 to l-stack (copy)'
-debug: Replaced main_for_body@10.ops[6]: 'load item_index_index%1#0' with 'load item_index_index%1#0 from l-stack (no copy)'
-debug: Inserted main_for_body@10.ops[8]: 'store item_index%3#0 to l-stack (copy)'
-debug: Replaced main_for_body@10.ops[11]: 'load item_index%3#0' with 'load item_index%3#0 from l-stack (no copy)'
-debug: Inserted main_for_body@10.ops[18]: 'store item_length_plus_2%1#0 to l-stack (copy)'
-debug: Replaced main_for_body@10.ops[22]: 'load item_length_plus_2%1#0' with 'load item_length_plus_2%1#0 from l-stack (no copy)'
-debug: Inserted main_for_body@10.ops[12]: 'store item_index%3#0 to l-stack (copy)'
-debug: Replaced main_for_body@10.ops[22]: 'load item_index%3#0' with 'load item_index%3#0 from l-stack (no copy)'
+debug: Inserted main_for_body@10.ops[3]: 'store item_offset_offset%1#0 to l-stack (copy)'
+debug: Replaced main_for_body@10.ops[6]: 'load item_offset_offset%1#0' with 'load item_offset_offset%1#0 from l-stack (no copy)'
+debug: Inserted main_for_body@10.ops[8]: 'store item_offset%3#0 to l-stack (copy)'
+debug: Replaced main_for_body@10.ops[11]: 'load item_offset%3#0' with 'load item_offset%3#0 from l-stack (no copy)'
+debug: Inserted main_for_body@10.ops[18]: 'store item_head_tail_length%1#0 to l-stack (copy)'
+debug: Replaced main_for_body@10.ops[22]: 'load item_head_tail_length%1#0' with 'load item_head_tail_length%1#0 from l-stack (no copy)'
+debug: Inserted main_for_body@10.ops[12]: 'store item_offset%3#0 to l-stack (copy)'
+debug: Replaced main_for_body@10.ops[22]: 'load item_offset%3#0' with 'load item_offset%3#0 from l-stack (no copy)'
 debug: Inserted main_for_body@10.ops[1]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@10.ops[27]: 'load index#0' with 'load index#0 from l-stack (no copy)'
 debug: Inserted main_else_body@12.ops[2]: 'store tmp%9#0 to l-stack (copy)'
@@ -13962,8 +13849,8 @@ debug: Inserted main_for_header@16.ops[3]: 'store continue_looping%3#0 to l-stac
 debug: Replaced main_for_header@16.ops[5]: 'load continue_looping%3#0' with 'load continue_looping%3#0 from l-stack (no copy)'
 debug: Inserted main_for_body@17.ops[8]: 'store uint32_item#0 to l-stack (copy)'
 debug: Replaced main_for_body@17.ops[10]: 'load uint32_item#0' with 'load uint32_item#0 from l-stack (no copy)'
-debug: Inserted main_for_body@17.ops[3]: 'store item_index%4#0 to l-stack (copy)'
-debug: Replaced main_for_body@17.ops[6]: 'load item_index%4#0' with 'load item_index%4#0 from l-stack (no copy)'
+debug: Inserted main_for_body@17.ops[3]: 'store item_offset%4#0 to l-stack (copy)'
+debug: Replaced main_for_body@17.ops[6]: 'load item_offset%4#0' with 'load item_offset%4#0 from l-stack (no copy)'
 debug: Inserted main_for_body@17.ops[13]: 'store tmp%12#0 to l-stack (copy)'
 debug: Replaced main_for_body@17.ops[16]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
 debug: Inserted main_for_body@17.ops[1]: 'store item_index_internal%3#0 to l-stack (copy)'
@@ -13976,14 +13863,14 @@ debug: Inserted main_for_header@20.ops[3]: 'store continue_looping%4#0 to l-stac
 debug: Replaced main_for_header@20.ops[5]: 'load continue_looping%4#0' with 'load continue_looping%4#0 from l-stack (no copy)'
 debug: Inserted main_for_body@21.ops[11]: 'store item_length%2#0 to l-stack (copy)'
 debug: Replaced main_for_body@21.ops[13]: 'load item_length%2#0' with 'load item_length%2#0 from l-stack (no copy)'
-debug: Inserted main_for_body@21.ops[3]: 'store item_index_index%2#0 to l-stack (copy)'
-debug: Replaced main_for_body@21.ops[6]: 'load item_index_index%2#0' with 'load item_index_index%2#0 from l-stack (no copy)'
-debug: Inserted main_for_body@21.ops[8]: 'store item_index%7#0 to l-stack (copy)'
-debug: Replaced main_for_body@21.ops[11]: 'load item_index%7#0' with 'load item_index%7#0 from l-stack (no copy)'
-debug: Inserted main_for_body@21.ops[18]: 'store item_length_plus_2%2#0 to l-stack (copy)'
-debug: Replaced main_for_body@21.ops[22]: 'load item_length_plus_2%2#0' with 'load item_length_plus_2%2#0 from l-stack (no copy)'
-debug: Inserted main_for_body@21.ops[12]: 'store item_index%7#0 to l-stack (copy)'
-debug: Replaced main_for_body@21.ops[22]: 'load item_index%7#0' with 'load item_index%7#0 from l-stack (no copy)'
+debug: Inserted main_for_body@21.ops[3]: 'store item_offset_offset%2#0 to l-stack (copy)'
+debug: Replaced main_for_body@21.ops[6]: 'load item_offset_offset%2#0' with 'load item_offset_offset%2#0 from l-stack (no copy)'
+debug: Inserted main_for_body@21.ops[8]: 'store item_offset%7#0 to l-stack (copy)'
+debug: Replaced main_for_body@21.ops[11]: 'load item_offset%7#0' with 'load item_offset%7#0 from l-stack (no copy)'
+debug: Inserted main_for_body@21.ops[18]: 'store item_head_tail_length%2#0 to l-stack (copy)'
+debug: Replaced main_for_body@21.ops[22]: 'load item_head_tail_length%2#0' with 'load item_head_tail_length%2#0 from l-stack (no copy)'
+debug: Inserted main_for_body@21.ops[12]: 'store item_offset%7#0 to l-stack (copy)'
+debug: Replaced main_for_body@21.ops[22]: 'load item_offset%7#0' with 'load item_offset%7#0 from l-stack (no copy)'
 debug: Inserted main_for_body@21.ops[1]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@21.ops[27]: 'load index#0' with 'load index#0 from l-stack (no copy)'
 debug: Inserted main_else_body@23.ops[2]: 'store tmp%21#0 to l-stack (copy)'
@@ -14106,48 +13993,44 @@ debug: Inserted mutating_copies_block@0.ops[34]: 'store reinterpret_biguint%4#0 
 debug: Replaced mutating_copies_block@0.ops[36]: 'load reinterpret_biguint%4#0' with 'load reinterpret_biguint%4#0 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[39]: 'store tmp%4#0 to l-stack (copy)'
 debug: Replaced mutating_copies_block@0.ops[41]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[50]: 'store item_length%0#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[52]: 'load item_length%0#0' with 'load item_length%0#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[60]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[62]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[65]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[67]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[79]: 'store my_array_copy_2#2 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[81]: 'load my_array_copy_2#2' with 'load my_array_copy_2#2 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[83]: 'store reinterpret_biguint%8#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[85]: 'load reinterpret_biguint%8#0' with 'load reinterpret_biguint%8#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[88]: 'store tmp%10#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[90]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[98]: 'store reinterpret_biguint%10#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[100]: 'load reinterpret_biguint%10#0' with 'load reinterpret_biguint%10#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[103]: 'store tmp%11#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[105]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[109]: 'store tmp%12#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[111]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[46]: 'store item_index%3#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[49]: 'load item_index%3#0' with 'load item_index%3#0 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[95]: 'store my_array_copy_2#2 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[98]: 'load my_array_copy_2#2' with 'load my_array_copy_2#2 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[56]: 'store item_length_plus_2%0#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[60]: 'load item_length_plus_2%0#0' with 'load item_length_plus_2%0#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[55]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[57]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[60]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[62]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[74]: 'store my_array_copy_2#2 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[76]: 'load my_array_copy_2#2' with 'load my_array_copy_2#2 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[78]: 'store reinterpret_biguint%8#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[80]: 'load reinterpret_biguint%8#0' with 'load reinterpret_biguint%8#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[83]: 'store tmp%10#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[85]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[93]: 'store reinterpret_biguint%10#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[95]: 'load reinterpret_biguint%10#0' with 'load reinterpret_biguint%10#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[98]: 'store tmp%11#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[100]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[104]: 'store tmp%12#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[106]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[89]: 'store my_array_copy_2#2 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[92]: 'load my_array_copy_2#2' with 'load my_array_copy_2#2 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[50]: 'store item_end_offset%0#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[54]: 'load item_end_offset%0#0' with 'load item_end_offset%0#0 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[21]: 'store f#0 to l-stack (copy)'
 debug: Replaced mutating_copies_block@0.ops[27]: 'load f#0' with 'load f#0 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[45]: 'store my_struct#1 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[50]: 'load my_struct#1' with 'load my_struct#1 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[51]: 'store my_struct#1 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[61]: 'load my_struct#1' with 'load my_struct#1 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[53]: 'store item_index%3#0 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[63]: 'load item_index%3#0' with 'load item_index%3#0 from l-stack (no copy)'
+debug: Replaced mutating_copies_block@0.ops[49]: 'load my_struct#1' with 'load my_struct#1 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[50]: 'store my_struct#1 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[55]: 'load my_struct#1' with 'load my_struct#1 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[48]: 'store item_start_offset%0#0 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[57]: 'load item_start_offset%0#0' with 'load item_start_offset%0#0 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[6]: 'store my_array#1 to l-stack (copy)'
 debug: Replaced mutating_copies_block@0.ops[17]: 'load my_array#1' with 'load my_array#1 from l-stack (no copy)'
-debug: Inserted mutating_copies_block@0.ops[89]: 'store my_array_copy_2#2 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[100]: 'load my_array_copy_2#2' with 'load my_array_copy_2#2 from l-stack (no copy)'
+debug: Inserted mutating_copies_block@0.ops[83]: 'store my_array_copy_2#2 to l-stack (copy)'
+debug: Replaced mutating_copies_block@0.ops[94]: 'load my_array_copy_2#2' with 'load my_array_copy_2#2 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[21]: 'store my_array#1 to l-stack (copy)'
 debug: Replaced mutating_copies_block@0.ops[35]: 'load my_array#1' with 'load my_array#1 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[20]: 'store my_struct#1 to l-stack (copy)'
 debug: Replaced mutating_copies_block@0.ops[47]: 'load my_struct#1' with 'load my_struct#1 from l-stack (no copy)'
 debug: Inserted mutating_copies_block@0.ops[37]: 'store my_array#1 to l-stack (copy)'
-debug: Replaced mutating_copies_block@0.ops[119]: 'load my_array#1' with 'load my_array#1 from l-stack (no copy)'
+debug: Replaced mutating_copies_block@0.ops[113]: 'load my_array#1' with 'load my_array#1 from l-stack (no copy)'
 debug: Inserted other_routine_block@0.ops[28]: 'store updated_data%0#0 to l-stack (copy)'
 debug: Replaced other_routine_block@0.ops[30]: 'load updated_data%0#0' with 'load updated_data%0#0 from l-stack (no copy)'
 debug: Inserted other_routine_block@0.ops[37]: 'store tail_cursor%0#0 to l-stack (copy)'
@@ -14202,8 +14085,8 @@ debug: Inserted dynamic_array_bool_block@0.ops[69]: 'store tmp%34#0 to l-stack (
 debug: Replaced dynamic_array_bool_block@0.ops[71]: 'load tmp%34#0' with 'load tmp%34#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_bool_block@0.ops[76]: 'store tmp%42#0 to l-stack (copy)'
 debug: Replaced dynamic_array_bool_block@0.ops[78]: 'load tmp%42#0' with 'load tmp%42#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_bool_block@0.ops[20]: 'store data%1#0 to l-stack (copy)'
-debug: Replaced dynamic_array_bool_block@0.ops[23]: 'load data%1#0' with 'load data%1#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_bool_block@0.ops[20]: 'store array_head_and_tail%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_bool_block@0.ops[23]: 'load array_head_and_tail%0#0' with 'load array_head_and_tail%0#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_bool_block@0.ops[19]: 'store dynamic_bool_array#1 to l-stack (copy)'
 debug: Replaced dynamic_array_bool_block@0.ops[23]: 'load dynamic_bool_array#1' with 'load dynamic_bool_array#1 from l-stack (no copy)'
 debug: Inserted dynamic_array_bool_block@0.ops[15]: 'store dynamic_bool_array#1 to l-stack (copy)'
@@ -14224,52 +14107,52 @@ debug: Inserted dynamic_array_string_block@0.ops[4]: 'store dynamic_string_array
 debug: Replaced dynamic_array_string_block@0.ops[6]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
 debug: Inserted dynamic_array_string_block@0.ops[9]: 'store tmp%1#0 to l-stack (copy)'
 debug: Replaced dynamic_array_string_block@0.ops[11]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[16]: 'store array_length%0#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[18]: 'load array_length%0#0' with 'load array_length%0#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[21]: 'store start_of_data%0#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[23]: 'load start_of_data%0#0' with 'load start_of_data%0#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[39]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[41]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[44]: 'store tmp%2#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[46]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[52]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[54]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[58]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[60]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[63]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[65]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[70]: 'store popped%0#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[72]: 'load popped%0#1' with 'load popped%0#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[75]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[77]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[82]: 'store popped%1#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[84]: 'load popped%1#1' with 'load popped%1#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[87]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[89]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[94]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[96]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[34]: 'store data%1#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[37]: 'load data%1#0' with 'load data%1#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[28]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[31]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[30]: 'store total_length%0#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[34]: 'load total_length%0#0' with 'load total_length%0#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[26]: 'store start_of_data%0#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[34]: 'load start_of_data%0#0' with 'load start_of_data%0#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[34]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[40]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[36]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[38]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[41]: 'store tmp%2#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[43]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[49]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[51]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[55]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[57]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[60]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[62]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[67]: 'store popped%0#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[69]: 'load popped%0#1' with 'load popped%0#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[72]: 'store tmp%4#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[74]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[79]: 'store popped%1#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[81]: 'load popped%1#1' with 'load popped%1#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[84]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[86]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[91]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[93]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[31]: 'store data%1#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[34]: 'load data%1#0' with 'load data%1#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[25]: 'store array_head_and_tail%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[28]: 'load array_head_and_tail%0#0' with 'load array_head_and_tail%0#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[27]: 'store total_length%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[31]: 'load total_length%0#0' with 'load total_length%0#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[14]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[18]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[17]: 'store array_length%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[22]: 'load array_length%0#0' with 'load array_length%0#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[21]: 'store array_head_and_tail%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[27]: 'load array_head_and_tail%0#0' with 'load array_head_and_tail%0#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[26]: 'store start_of_tail%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[34]: 'load start_of_tail%0#0' with 'load start_of_tail%0#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_string_block@0.ops[7]: 'store dynamic_string_array#1 to l-stack (copy)'
 debug: Replaced dynamic_array_string_block@0.ops[14]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[67]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[74]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[76]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[87]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[89]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[100]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[15]: 'store dynamic_string_array#1 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[30]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
-debug: Inserted dynamic_array_string_block@0.ops[21]: 'store array_length%0#0 to l-stack (copy)'
-debug: Replaced dynamic_array_string_block@0.ops[45]: 'load array_length%0#0' with 'load array_length%0#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[66]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[73]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[75]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[86]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[88]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[99]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[25]: 'store array_length%0#0 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[43]: 'load array_length%0#0' with 'load array_length%0#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_string_block@0.ops[21]: 'store dynamic_string_array#1 to l-stack (copy)'
+debug: Replaced dynamic_array_string_block@0.ops[42]: 'load dynamic_string_array#1' with 'load dynamic_string_array#1 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[4]: 'store array_of_array#1 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[6]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[9]: 'store tmp%1#0 to l-stack (copy)'
@@ -14278,85 +14161,85 @@ debug: Inserted array_of_array_dynamic_block@0.ops[17]: 'store array_of_array#1 
 debug: Replaced array_of_array_dynamic_block@0.ops[19]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[22]: 'store tmp%2#0 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[24]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[29]: 'store array_length%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[31]: 'load array_length%0#0' with 'load array_length%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[35]: 'store array_data_sans_header%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[37]: 'load array_data_sans_header%0#0' with 'load array_data_sans_header%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[44]: 'store item_length%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[46]: 'load item_length%0#0' with 'load item_length%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[54]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[56]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[58]: 'store expr_value_trimmed%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[60]: 'load expr_value_trimmed%0#0' with 'load expr_value_trimmed%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[63]: 'store concatenated%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[65]: 'load concatenated%0#0' with 'load concatenated%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[67]: 'store len_%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[69]: 'load len_%0#0' with 'load len_%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[71]: 'store len_bytes%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[73]: 'load len_bytes%0#0' with 'load len_bytes%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[75]: 'store len_16_bit%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[77]: 'load len_16_bit%0#0' with 'load len_16_bit%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[85]: 'store array_of_array#1 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[87]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[90]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[92]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[97]: 'store array_length%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[99]: 'load array_length%1#0' with 'load array_length%1#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[103]: 'store array_data_sans_header%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[105]: 'load array_data_sans_header%1#0' with 'load array_data_sans_header%1#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[112]: 'store item_length%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[114]: 'load item_length%1#0' with 'load item_length%1#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[122]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[124]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[131]: 'store index_is_in_bounds%2#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[133]: 'load index_is_in_bounds%2#0' with 'load index_is_in_bounds%2#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[143]: 'store array_of_array#1 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[145]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[148]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[150]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[40]: 'store item_index%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[43]: 'load item_index%0#0' with 'load item_index%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[81]: 'store concat_result%2#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[84]: 'load concat_result%2#0' with 'load concat_result%2#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[110]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[113]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[130]: 'store array_length%2#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[133]: 'load array_length%2#0' with 'load array_length%2#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[142]: 'store updated_target%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[145]: 'load updated_target%0#0' with 'load updated_target%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[50]: 'store item_length_plus_2%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[54]: 'load item_length_plus_2%0#0' with 'load item_length_plus_2%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[121]: 'store item_length_plus_2%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[125]: 'load item_length_plus_2%1#0' with 'load item_length_plus_2%1#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[38]: 'store array_data_sans_header%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[43]: 'load array_data_sans_header%0#0' with 'load array_data_sans_header%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[110]: 'store array_data_sans_header%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[115]: 'load array_data_sans_header%1#0' with 'load array_data_sans_header%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[32]: 'store array_length%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[34]: 'load array_length%0#0' with 'load array_length%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[43]: 'store item_length%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[45]: 'load item_length%0#0' with 'load item_length%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[53]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[55]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[57]: 'store expr_value_trimmed%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[59]: 'load expr_value_trimmed%0#0' with 'load expr_value_trimmed%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[62]: 'store concatenated%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[64]: 'load concatenated%0#0' with 'load concatenated%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[66]: 'store len_%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[68]: 'load len_%0#0' with 'load len_%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[70]: 'store len_bytes%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[72]: 'load len_bytes%0#0' with 'load len_bytes%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[74]: 'store len_16_bit%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[76]: 'load len_16_bit%0#0' with 'load len_16_bit%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[84]: 'store array_of_array#1 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[86]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[89]: 'store tmp%4#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[91]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[99]: 'store array_length%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[101]: 'load array_length%1#0' with 'load array_length%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[110]: 'store item_length%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[112]: 'load item_length%1#0' with 'load item_length%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[120]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[122]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[129]: 'store index_is_in_bounds%2#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[131]: 'load index_is_in_bounds%2#0' with 'load index_is_in_bounds%2#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[141]: 'store array_of_array#1 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[143]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[146]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[148]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[39]: 'store item_offset%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[42]: 'load item_offset%0#0' with 'load item_offset%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[80]: 'store concat_result%2#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[83]: 'load concat_result%2#0' with 'load concat_result%2#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[108]: 'store item_offset%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[111]: 'load item_offset%1#0' with 'load item_offset%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[128]: 'store array_length%2#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[131]: 'load array_length%2#0' with 'load array_length%2#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[140]: 'store updated_target%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[143]: 'load updated_target%0#0' with 'load updated_target%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[27]: 'store array_of_array#1 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[30]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[50]: 'store item_head_tail_length%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[54]: 'load item_head_tail_length%0#0' with 'load item_head_tail_length%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[98]: 'store array_of_array#1 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[101]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[121]: 'store item_head_tail_length%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[125]: 'load item_head_tail_length%1#0' with 'load item_head_tail_length%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[38]: 'store array_head_and_tail%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[43]: 'load array_head_and_tail%0#0' with 'load array_head_and_tail%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[110]: 'store array_head_and_tail%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[115]: 'load array_head_and_tail%1#0' with 'load array_head_and_tail%1#0 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[7]: 'store array_of_array#1 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[14]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[21]: 'store array_of_array#1 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[28]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[29]: 'store array_of_array#1 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[36]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[95]: 'store array_of_array#1 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[102]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[103]: 'store array_of_array#1 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[110]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[47]: 'store array_data_sans_header%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[57]: 'load array_data_sans_header%0#0' with 'load array_data_sans_header%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[49]: 'store item_index%0#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[59]: 'load item_index%0#0' with 'load item_index%0#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[123]: 'store array_data_sans_header%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[133]: 'load array_data_sans_header%1#0' with 'load array_data_sans_header%1#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[125]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced array_of_array_dynamic_block@0.ops[135]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[94]: 'store array_of_array#1 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[101]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[31]: 'store array_head_and_tail%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[40]: 'load array_head_and_tail%0#0' with 'load array_head_and_tail%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[105]: 'store array_head_and_tail%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[114]: 'load array_head_and_tail%1#0' with 'load array_head_and_tail%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[47]: 'store array_head_and_tail%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[57]: 'load array_head_and_tail%0#0' with 'load array_head_and_tail%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[49]: 'store item_offset%0#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[59]: 'load item_offset%0#0' with 'load item_offset%0#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[123]: 'store array_head_and_tail%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[133]: 'load array_head_and_tail%1#0' with 'load array_head_and_tail%1#0 from l-stack (no copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[125]: 'store item_offset%1#0 to l-stack (copy)'
+debug: Replaced array_of_array_dynamic_block@0.ops[135]: 'load item_offset%1#0' with 'load item_offset%1#0 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[74]: 'store concatenated%0#0 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[87]: 'load concatenated%0#0' with 'load concatenated%0#0 from l-stack (no copy)'
 debug: Inserted array_of_array_dynamic_block@0.ops[142]: 'store tmp%5#0 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[154]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[114]: 'store array_of_array#1 to l-stack (copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[111]: 'store array_of_array#1 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[160]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
-debug: Inserted array_of_array_dynamic_block@0.ops[37]: 'store array_of_array#1 to l-stack (copy)'
+debug: Inserted array_of_array_dynamic_block@0.ops[34]: 'store array_of_array#1 to l-stack (copy)'
 debug: Replaced array_of_array_dynamic_block@0.ops[92]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
 debug: Inserted array_of_array_static_block@0.ops[3]: 'store array_of_array#1 to l-stack (copy)'
 debug: Replaced array_of_array_static_block@0.ops[5]: 'load array_of_array#1' with 'load array_of_array#1 from l-stack (no copy)'
@@ -14496,8 +14379,8 @@ debug: Inserted dynamic_array_pop_variable_size_block@0.ops[3]: 'store array_len
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[5]: 'load array_length#0' with 'load array_length#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[8]: 'store length_minus_1#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[10]: 'load length_minus_1#0' with 'load length_minus_1#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[16]: 'store data_sans_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[18]: 'load data_sans_header#0' with 'load data_sans_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[16]: 'store head_and_tail#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[18]: 'load head_and_tail#0' with 'load head_and_tail#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[50]: 'store tmp%4#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[52]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[38]: 'store tmp%2#0 to l-stack (copy)'
@@ -14508,34 +14391,34 @@ debug: Inserted dynamic_array_pop_variable_size_block@0.ops[61]: 'store tmp%6#0 
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[64]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[66]: 'store updated#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[69]: 'load updated#0' with 'load updated#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[23]: 'store data_sans_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[26]: 'load data_sans_header#0' with 'load data_sans_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[23]: 'store head_and_tail#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[26]: 'load head_and_tail#0' with 'load head_and_tail#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[25]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[29]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[35]: 'store popped_header_offset#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[38]: 'load popped_header_offset#0' with 'load popped_header_offset#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[19]: 'store data_sans_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[23]: 'load data_sans_header#0' with 'load data_sans_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[19]: 'store head_and_tail#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[23]: 'load head_and_tail#0' with 'load head_and_tail#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[13]: 'store popped_header_offset#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[21]: 'load popped_header_offset#0' with 'load popped_header_offset#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[23]: 'store popped_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[31]: 'load popped_header#0' with 'load popped_header#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[31]: 'store data_sans_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[36]: 'load data_sans_header#0' with 'load data_sans_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[23]: 'store popped_offset#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[31]: 'load popped_offset#0' with 'load popped_offset#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[31]: 'store head_and_tail#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[36]: 'load head_and_tail#0' with 'load head_and_tail#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[63]: 'store tmp%5#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[71]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[56]: 'store data_sans_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[66]: 'load data_sans_header#0' with 'load data_sans_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[56]: 'store head_and_tail#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[66]: 'load head_and_tail#0' with 'load head_and_tail#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[59]: 'store length_minus_1#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[68]: 'load length_minus_1#0' with 'load length_minus_1#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[37]: 'store data_sans_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[48]: 'load data_sans_header#0' with 'load data_sans_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[37]: 'store head_and_tail#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[48]: 'load head_and_tail#0' with 'load head_and_tail#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[42]: 'store tmp%1#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[55]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[22]: 'store popped_header_offset#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[40]: 'load popped_header_offset#0' with 'load popped_header_offset#0 from l-stack (no copy)'
-debug: Inserted dynamic_array_pop_variable_size_block@0.ops[34]: 'store popped_header#0 to l-stack (copy)'
-debug: Replaced dynamic_array_pop_variable_size_block@0.ops[53]: 'load popped_header#0' with 'load popped_header#0 from l-stack (no copy)'
+debug: Inserted dynamic_array_pop_variable_size_block@0.ops[34]: 'store popped_offset#0 to l-stack (copy)'
+debug: Replaced dynamic_array_pop_variable_size_block@0.ops[53]: 'load popped_offset#0' with 'load popped_offset#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[37]: 'store popped#0 to l-stack (copy)'
 debug: Replaced dynamic_array_pop_variable_size_block@0.ops[83]: 'load popped#0' with 'load popped#0 from l-stack (no copy)'
 debug: Inserted dynamic_array_pop_variable_size_block@0.ops[11]: 'store length_minus_1#0 to l-stack (copy)'
@@ -14798,60 +14681,52 @@ debug: Inserted main_block@0.ops[2]: 'store concat#0 to l-stack (copy)'
 debug: Replaced main_block@0.ops[5]: 'load concat#0' with 'load concat#0 from l-stack (no copy)'
 debug: Inserted main_block@0.ops[4]: 'store total#0 to l-stack (copy)'
 debug: Replaced main_block@0.ops[17]: 'load total#0' with 'load total#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[13]: 'store item_length%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[15]: 'load item_length%0#0' with 'load item_length%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[31]: 'store item_length%1#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[33]: 'load item_length%1#0' with 'load item_length%1#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[64]: 'store tmp%8#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[66]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[76]: 'store text#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[78]: 'load text#0' with 'load text#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[80]: 'store length%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[82]: 'load length%0#0' with 'load length%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[84]: 'store value_as_bytes%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[86]: 'load value_as_bytes%0#0' with 'load value_as_bytes%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[88]: 'store value_as_uint16%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[90]: 'load value_as_uint16%0#0' with 'load value_as_uint16%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[9]: 'store item_index%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[12]: 'load item_index%0#0' with 'load item_index%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[28]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[31]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[52]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[55]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[60]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[63]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[76]: 'store tmp%10#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[79]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[98]: 'store tmp%11#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[101]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[19]: 'store item_length_plus_2%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[23]: 'load item_length_plus_2%0#0' with 'load item_length_plus_2%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[39]: 'store item_length_plus_2%1#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[43]: 'load item_length_plus_2%1#0' with 'load item_length_plus_2%1#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[51]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[57]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[60]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[66]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[77]: 'store tmp%9#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[83]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[13]: 'store item_index%0#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[23]: 'load item_index%0#0' with 'load item_index%0#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[34]: 'store item_index%1#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[44]: 'load item_index%1#0' with 'load item_index%1#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[91]: 'store text#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[104]: 'load text#0' with 'load text#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[50]: 'store e#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[65]: 'load e#0' with 'load e#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[47]: 'store d#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[83]: 'load d#0' with 'load d#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[73]: 'store total#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[111]: 'load total#0' with 'load total#0 from l-stack (no copy)'
-debug: Inserted test_stuff_block@0.ops[26]: 'store c#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[76]: 'load c#0' with 'load c#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[49]: 'store tmp%8#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[51]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[61]: 'store text#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[63]: 'load text#0' with 'load text#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[65]: 'store length%0#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[67]: 'load length%0#0' with 'load length%0#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[69]: 'store value_as_bytes%0#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[71]: 'load value_as_bytes%0#0' with 'load value_as_bytes%0#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[73]: 'store value_as_uint16%0#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[75]: 'load value_as_uint16%0#0' with 'load value_as_uint16%0#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[35]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[38]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[43]: 'store tmp%7#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[46]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[59]: 'store tmp%10#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[62]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[81]: 'store tmp%11#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[84]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[13]: 'store item_end_offset%0#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[17]: 'load item_end_offset%0#0' with 'load item_end_offset%0#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[22]: 'store item_end_offset%1#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[26]: 'load item_end_offset%1#0' with 'load item_end_offset%1#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[34]: 'store tmp%4#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[40]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[43]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[49]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[60]: 'store tmp%9#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[66]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[9]: 'store item_start_offset%0#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[17]: 'load item_start_offset%0#0' with 'load item_start_offset%0#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[19]: 'store item_end_offset%0#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[27]: 'load item_end_offset%0#0' with 'load item_end_offset%0#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[74]: 'store text#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[87]: 'load text#0' with 'load text#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[33]: 'store e#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[48]: 'load e#0' with 'load e#0 from l-stack (no copy)'
 debug: Inserted test_stuff_block@0.ops[2]: 'store a#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[55]: 'load a#0' with 'load a#0 from l-stack (no copy)'
+debug: Replaced test_stuff_block@0.ops[36]: 'load a#0' with 'load a#0 from l-stack (no copy)'
 debug: Inserted test_stuff_block@0.ops[6]: 'store b#0 to l-stack (copy)'
-debug: Replaced test_stuff_block@0.ops[60]: 'load b#0' with 'load b#0 from l-stack (no copy)'
+debug: Replaced test_stuff_block@0.ops[41]: 'load b#0' with 'load b#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[32]: 'store d#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[68]: 'load d#0' with 'load d#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[58]: 'store total#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[96]: 'load total#0' with 'load total#0 from l-stack (no copy)'
+debug: Inserted test_stuff_block@0.ops[23]: 'store c#0 to l-stack (copy)'
+debug: Replaced test_stuff_block@0.ops[61]: 'load c#0' with 'load c#0 from l-stack (no copy)'
 info: Writing arc4_types/out/Arc4AddressContract.approval.teal
 info: Writing arc4_types/out/Arc4AddressContract.clear.teal
 info: Writing arc4_types/out/Arc4ArraysContract.approval.teal

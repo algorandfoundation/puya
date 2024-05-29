@@ -1,23 +1,624 @@
 #pragma version 10
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
-    byte 0x00020004001200040009000361796500036265650004000b000548656c6c6f0003617965
-    log
-    byte 0x000400090003
-    log
-    byte 0x0004000b0005
-    log
-    byte 0x00020000000000000003040500000400000000002a50
-    log
-    byte 0x00000000000000030405
-    log
-    byte 0x00000400000000002a50
-    log
-    byte 0x00020004001b00000000000000030012000004000000000000036179650000040000000000001200000000000000030003626565
-    log
-    byte 0x0000
-    log
-    byte 0x0000
-    log
+    txn NumAppArgs
+    bz main_bare_routing@8
+    method "test_static_elements()void"
+    method "test_dynamic_elements()void"
+    method "test_mixed_single_dynamic_elements()void"
+    method "test_mixed_multiple_dynamic_elements()void"
+    txna ApplicationArgs 0
+    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5
+    err // reject transaction
+
+main_test_static_elements_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_static_elements
     int 1
     return
+
+main_test_dynamic_elements_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_dynamic_elements
+    int 1
+    return
+
+main_test_mixed_single_dynamic_elements_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_mixed_single_dynamic_elements
+    int 1
+    return
+
+main_test_mixed_multiple_dynamic_elements_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_mixed_multiple_dynamic_elements
+    int 1
+    return
+
+main_bare_routing@8:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
+test_static_elements:
+    proto 0 0
+    callsub get_byte1
+    callsub get_byte2
+    concat
+    callsub get_byte3
+    callsub get_byte4
+    concat
+    callsub get_uint1
+    uncover 2
+    concat
+    callsub get_uint2
+    uncover 2
+    concat
+    byte 0x0002
+    dig 2
+    concat
+    dig 1
+    concat
+    dup
+    log
+    dup
+    extract 2 0
+    dup
+    extract 0 10 // on error: Index access is out of bounds
+    log
+    extract 10 10 // on error: Index access is out of bounds
+    log
+    int 10
+    callsub dynamic_array_pop_fixed_size
+    swap
+    uncover 2
+    ==
+    assert
+    int 10
+    callsub dynamic_array_pop_fixed_size
+    pop
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_byte1() -> bytes:
+get_byte1:
+    proto 0 1
+    byte 0x04
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_byte2() -> bytes:
+get_byte2:
+    proto 0 1
+    byte 0x05
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_byte3() -> bytes:
+get_byte3:
+    proto 0 1
+    byte 0x2a
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_byte4() -> bytes:
+get_byte4:
+    proto 0 1
+    byte 0xff
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_uint1() -> bytes:
+get_uint1:
+    proto 0 1
+    byte 0x0000000000000003
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_uint2() -> bytes:
+get_uint2:
+    proto 0 1
+    byte 0x0000040000000000
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements() -> void:
+test_dynamic_elements:
+    proto 0 0
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_string3
+    callsub get_string1
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    dig 1
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x00020004
+    swap
+    concat
+    dig 2
+    concat
+    dig 1
+    concat
+    dup
+    log
+    dup
+    extract 2 0
+    dup
+    int 0
+    extract_uint16
+    cover 2
+    dig 1
+    int 0
+    extract_uint16
+    dup
+    int 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    swap
+    dig 3
+    int 2
+    extract_uint16
+    dig 2
+    dig 1
+    uncover 3
+    select
+    dig 4
+    uncover 7
+    uncover 2
+    substring3
+    log
+    uncover 2
+    int 2
+    - // on error: Index access is out of bounds
+    dig 3
+    int 4
+    extract_uint16
+    uncover 3
+    swap
+    uncover 2
+    select
+    substring3
+    log
+    callsub dynamic_array_pop_variable_size
+    swap
+    uncover 2
+    ==
+    assert
+    callsub dynamic_array_pop_variable_size
+    pop
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_string1() -> bytes:
+get_string1:
+    proto 0 1
+    byte "\x00\x01a"
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_string2() -> bytes:
+get_string2:
+    proto 0 1
+    byte "\x00\x03bee"
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_string3() -> bytes:
+get_string3:
+    proto 0 1
+    byte "\x00\x0bHello World"
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements() -> void:
+test_mixed_single_dynamic_elements:
+    proto 0 0
+    callsub get_uint1
+    callsub get_string1
+    swap
+    callsub get_uint2
+    swap
+    byte 0x0012
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_uint2
+    callsub get_string2
+    swap
+    callsub get_uint1
+    swap
+    byte 0x0012
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x00020004
+    swap
+    concat
+    dig 1
+    concat
+    dig 2
+    concat
+    dup
+    log
+    dup
+    extract 2 0
+    dup
+    int 0
+    extract_uint16
+    cover 2
+    dig 1
+    int 0
+    extract_uint16
+    dup
+    int 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    swap
+    dig 3
+    int 2
+    extract_uint16
+    dig 2
+    dig 1
+    uncover 3
+    select
+    dig 4
+    uncover 7
+    uncover 2
+    substring3
+    log
+    uncover 2
+    int 2
+    - // on error: Index access is out of bounds
+    dig 3
+    int 4
+    extract_uint16
+    uncover 3
+    swap
+    uncover 2
+    select
+    substring3
+    log
+    callsub dynamic_array_pop_variable_size
+    swap
+    uncover 3
+    ==
+    assert
+    callsub dynamic_array_pop_variable_size
+    pop
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
+test_mixed_multiple_dynamic_elements:
+    proto 0 0
+    callsub get_uint1
+    callsub get_string1
+    swap
+    callsub get_uint2
+    cover 2
+    callsub get_string2
+    cover 3
+    callsub get_uint1
+    cover 3
+    byte 0x001c
+    concat
+    dig 1
+    len
+    int 28
+    +
+    swap
+    uncover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_uint2
+    callsub get_string3
+    swap
+    callsub get_uint1
+    cover 2
+    callsub get_string1
+    cover 3
+    callsub get_uint2
+    cover 3
+    byte 0x001c
+    concat
+    dig 1
+    len
+    int 28
+    +
+    swap
+    uncover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    dig 1
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x00020004
+    swap
+    concat
+    dig 2
+    concat
+    dig 1
+    concat
+    dup
+    log
+    dup
+    extract 2 0
+    dup
+    int 0
+    extract_uint16
+    cover 2
+    dig 1
+    int 0
+    extract_uint16
+    dup
+    int 1
+    - // on error: Index access is out of bounds
+    dig 2
+    len
+    swap
+    dig 3
+    int 2
+    extract_uint16
+    dig 2
+    dig 1
+    uncover 3
+    select
+    dig 4
+    uncover 7
+    uncover 2
+    substring3
+    log
+    uncover 2
+    int 2
+    - // on error: Index access is out of bounds
+    dig 3
+    int 4
+    extract_uint16
+    uncover 3
+    swap
+    uncover 2
+    select
+    substring3
+    log
+    callsub dynamic_array_pop_variable_size
+    swap
+    uncover 2
+    ==
+    assert
+    callsub dynamic_array_pop_variable_size
+    pop
+    ==
+    assert
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+dynamic_array_pop_fixed_size:
+    proto 2 2
+    frame_dig -2
+    int 0
+    extract_uint16
+    int 1
+    -
+    itob
+    extract 6 0
+    frame_dig -2
+    swap
+    replace2 0
+    dup
+    len
+    frame_dig -1
+    -
+    dup2
+    frame_dig -1
+    extract3
+    cover 2
+    int 0
+    swap
+    substring3
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_pop_variable_size(source: bytes) -> bytes, bytes:
+dynamic_array_pop_variable_size:
+    proto 1 2
+    frame_dig -1
+    int 0
+    extract_uint16
+    int 1
+    -
+    dup
+    int 2
+    *
+    frame_dig -1
+    extract 2 0
+    dup
+    dig 2
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    dig 3
+    uncover 3
+    substring3
+    cover 3
+    dup
+    int 0
+    dig 4
+    substring3
+    cover 2
+    uncover 3
+    int 2
+    +
+    uncover 2
+    substring3
+    concat
+    dig 2
+    itob
+    extract 6 0
+    swap
+    uncover 3
+    int 0
+    callsub recalculate_array_offsets_static
+    concat
+    retsub
+
+
+// algopy_lib_arc4.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
+recalculate_array_offsets_static:
+    proto 3 1
+    byte ""
+    dup
+    frame_dig -1
+    int 2
+    *
+    frame_dig -1
+    bnz recalculate_array_offsets_static_else_body@2
+    frame_dig -2
+    int 2
+    *
+    frame_bury 1
+    b recalculate_array_offsets_static_after_if_else@3
+
+recalculate_array_offsets_static_else_body@2:
+    frame_dig -3
+    frame_dig 2
+    extract_uint16
+    frame_bury 1
+
+recalculate_array_offsets_static_after_if_else@3:
+    frame_dig -1
+    frame_bury 0
+
+recalculate_array_offsets_static_for_header@4:
+    frame_dig 0
+    frame_dig -2
+    <
+    bz recalculate_array_offsets_static_after_for@8
+    frame_dig 1
+    dup
+    itob
+    extract 6 0
+    frame_dig -3
+    frame_dig 2
+    dup
+    cover 4
+    uncover 2
+    replace3
+    dup
+    frame_bury -3
+    dig 1
+    extract_uint16
+    int 2
+    +
+    +
+    frame_bury 1
+    int 2
+    +
+    frame_bury 2
+    frame_dig 0
+    int 1
+    +
+    frame_bury 0
+    b recalculate_array_offsets_static_for_header@4
+
+recalculate_array_offsets_static_after_for@8:
+    frame_dig -3
+    frame_bury 0
+    retsub

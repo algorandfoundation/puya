@@ -13,7 +13,7 @@ mutating_copies:
     byte 0x05
     replace2 2
     dup
-    extract 2 1
+    extract 2 1 // on error: Index access is out of bounds
     byte 0x05
     b==
     assert // my_array should be mutated
@@ -26,21 +26,20 @@ mutating_copies:
     !
     assert
     dup
-    extract 1 1
+    extract 1 1 // on error: Index access is out of bounds
     byte 0x05
     b==
     assert // my_array has been mutated by the subroutine
     dig 1
     int 2
     extract_uint16
+    swap
     dig 2
-    dig 1
+    int 4
     extract_uint16
-    int 2
-    +
-    uncover 2
+    swap
     cover 3
-    extract3
+    substring3
     byte "\x00\x07AARRGH!"
     ==
     assert // my_struct has been mutated by the subroutine
@@ -52,17 +51,17 @@ mutating_copies:
     callsub other_routine_2
     pop
     dup
-    extract 0 1
+    extract 0 1 // on error: Index access is out of bounds
     byte 0x01
     b==
     assert // my_array_copy_2 should have original value
     callsub other_routine_2
     bury 1
-    extract 0 1
+    extract 0 1 // on error: Index access is out of bounds
     byte 0x0a
     b==
     assert // my_array_copy_2 should have mutated value
-    extract 0 4
+    extract 0 4 // on error: Index access is out of bounds
     callsub other_routine_2
     popn 2
     retsub

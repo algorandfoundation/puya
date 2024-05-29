@@ -94,7 +94,6 @@ compute_root_hash:
     // @subroutine
     // def compute_root_hash(proof: Proof, leaf: Bytes) -> Bytes:
     proto 2 2
-    byte ""
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig -2
@@ -106,40 +105,36 @@ compute_root_hash:
 compute_root_hash_for_header@1:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
-    frame_dig 3
-    frame_dig 1
+    frame_dig 2
+    frame_dig 0
     <
-    dup
-    frame_bury 0
     bz compute_root_hash_after_for@5
     // merkle/contract.py:23
     // computed = hash_pair(computed, proof[idx].bytes)
-    frame_dig 0
-    assert // Index access is out of bounds
     frame_dig -2
     extract 2 0
-    frame_dig 3
+    frame_dig 2
     dup
     cover 2
     int 32
     *
     int 32
-    extract3
-    frame_dig 2
+    extract3 // on error: Index access is out of bounds
+    frame_dig 1
     swap
     callsub hash_pair
-    frame_bury 2
+    frame_bury 1
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     int 1
     +
-    frame_bury 3
+    frame_bury 2
     b compute_root_hash_for_header@1
 
 compute_root_hash_after_for@5:
     // merkle/contract.py:24
     // return computed
-    frame_dig 2
+    frame_dig 1
     frame_dig -2
     frame_bury 1
     frame_bury 0

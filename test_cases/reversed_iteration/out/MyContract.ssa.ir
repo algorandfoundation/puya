@@ -33,18 +33,20 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let range_item%0#3: uint64 = (- range_item%0#2 1u)
                 goto block@3
             block@6: // after_for_L8
+                let array_length%0#0: uint64 = 0u
                 let item_index_internal%0#0: uint64 = 0u
-                let reverse_index_internal%0#0: uint64 = 0u
+                let reverse_index_internal%0#0: uint64 = array_length%0#0
                 goto block@7
             block@7: // for_header_L11
                 let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@6, item_index_internal%0#2 <- block@9)
                 let reverse_index_internal%0#1: uint64 = φ(reverse_index_internal%0#0 <- block@6, reverse_index_internal%0#2 <- block@9)
-                let continue_looping%2#0: bool = (< item_index_internal%0#1 0u)
+                let continue_looping%2#0: bool = (< item_index_internal%0#1 array_length%0#0)
                 goto continue_looping%2#0 ? block@8 : block@10
             block@8: // for_body_L11
                 let reverse_index_internal%0#2: uint64 = (- reverse_index_internal%0#1 1u)
-                let item_index%0#0: uint64 = (* reverse_index_internal%0#2 1u)
-                let x#0: bytes = (extract3 0x item_index%0#0 1u)
+                let array_head_and_tail%0#0: bytes = 0x
+                let item_offset%0#0: uint64 = (* reverse_index_internal%0#2 1u)
+                let x#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 (log x#0)
                 goto block@9
             block@9: // for_footer_L11
@@ -84,8 +86,8 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let index#0: uint64 = range_index%0#1
                 let val_as_bytes%0#0: bytes = (itob item#0)
                 let assigned_value%0#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-                let array_length%0#0: uint64 = 4u
-                let index_is_in_bounds%0#0: bool = (< index#0 array_length%0#0)
+                let array_length%1#0: uint64 = 4u
+                let index_is_in_bounds%0#0: bool = (< index#0 array_length%1#0)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let write_offset%0#0: uint64 = (* index#0 1u)
                 let updated_target%0#0: bytes = (replace3 test_array#1 write_offset%0#0 assigned_value%0#0)
@@ -127,8 +129,8 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let index#1: uint64 = next_index%0#0
                 let val_as_bytes%1#0: bytes = (itob item#1)
                 let assigned_value%1#0: bytes = ((extract 7 1) val_as_bytes%1#0)
-                let array_length%1#0: uint64 = 4u
-                let index_is_in_bounds%1#0: bool = (< index#1 array_length%1#0)
+                let array_length%2#0: uint64 = 4u
+                let index_is_in_bounds%1#0: bool = (< index#1 array_length%2#0)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
                 let write_offset%1#0: uint64 = (* index#1 1u)
                 let updated_target%1#0: bytes = (replace3 test_array#6 write_offset%1#0 assigned_value%1#0)
@@ -171,22 +173,25 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let array_data%1#6: bytes = (concat array_data%1#5 "\x00\x01c")
                 let some_strings#0: bytes = array_data%1#6
                 let some_string_reversed#0: bytes = "\x00\x00"
+                let array_length%3#0: uint64 = 3u
                 let item_index_internal%1#0: uint64 = 0u
-                let reverse_index_internal%1#0: uint64 = 3u
+                let reverse_index_internal%1#0: uint64 = array_length%3#0
                 goto block@25
             block@25: // for_header_L30
                 let item_index_internal%1#1: uint64 = φ(item_index_internal%1#0 <- block@24, item_index_internal%1#2 <- block@27)
                 let reverse_index_internal%1#1: uint64 = φ(reverse_index_internal%1#0 <- block@24, reverse_index_internal%1#2 <- block@27)
                 let some_string_reversed#1: bytes = φ(some_string_reversed#0 <- block@24, some_string_reversed#2 <- block@27)
-                let continue_looping%6#0: bool = (< item_index_internal%1#1 3u)
+                let continue_looping%6#0: bool = (< item_index_internal%1#1 array_length%3#0)
                 goto continue_looping%6#0 ? block@26 : block@28
             block@26: // for_body_L30
                 let reverse_index_internal%1#2: uint64 = (- reverse_index_internal%1#1 1u)
-                let item_index_index%0#0: uint64 = (* reverse_index_internal%1#2 2u)
-                let item_index%1#0: uint64 = (extract_uint16 some_strings#0 item_index_index%0#0)
-                let item_length%0#0: uint64 = (extract_uint16 some_strings#0 item_index%1#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let str_item#0: bytes = (extract3 some_strings#0 item_index%1#0 item_length_plus_2%0#0)
+                let array_head_and_tail%1#0: bytes = some_strings#0
+                let item_offset_offset%0#0: uint64 = (* reverse_index_internal%1#2 2u)
+                let item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%1#0 item_offset_offset%0#0)
+                let item_length%0#0: uint64 = (extract_uint16 array_head_and_tail%1#0 item_offset%1#0)
+                let item_length_in_bytes%0#0: uint64 = (* item_length%0#0 1u)
+                let item_head_tail_length%0#0: uint64 = (+ item_length_in_bytes%0#0 2u)
+                let str_item#0: bytes = (extract3 array_head_and_tail%1#0 item_offset%1#0 item_head_tail_length%0#0)
                 let expr_value_trimmed%0#0: bytes = ((extract 2 0) some_string_reversed#1)
                 let expr_value_trimmed%1#0: bytes = ((extract 2 0) str_item#0)
                 let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)

@@ -11,7 +11,7 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let continue_looping%0#0: bool = (< item_index_internal%0#1 2u)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L27
-                let uint8_item#0: bytes = (extract3 0x0102 item_index_internal%0#1 1u)
+                let uint8_item#0: bytes = (extract3 0x0102 item_index_internal%0#1 1u) // on error: Index access is out of bounds
                 let tmp%0#0: uint64 = (btoi uint8_item#0)
                 let total#2: uint64 = (+ total#1 tmp%0#0)
                 let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -27,8 +27,8 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let continue_looping%1#0: bool = (< item_index_internal%1#1 1u)
                 goto continue_looping%1#0 ? block@6 : block@8
             block@6: // for_body_L32
-                let item_index%1#0: uint64 = (* item_index_internal%1#1 2u)
-                let uint16_item#0: bytes = (extract3 0x0001 item_index%1#0 2u)
+                let item_offset%1#0: uint64 = (* item_index_internal%1#1 2u)
+                let uint16_item#0: bytes = (extract3 0x0001 item_offset%1#0 2u) // on error: Index access is out of bounds
                 let tmp%2#0: uint64 = (btoi uint16_item#0)
                 let total#4: uint64 = (+ total#3 tmp%2#0)
                 let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
@@ -39,12 +39,12 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let tmp%4#0: uint64 = 2u
                 let tmp%5#0: bool = (== tmp%4#0 2u)
                 (assert tmp%5#0)
+                let array_head_and_tail%2#0: bytes = 0x0004000b000548656c6c6f0005576f726c64
                 (assert tmp%4#0) // Index access is out of bounds
-                let array_data_sans_header%0#0: bytes = 0x0004000b000548656c6c6f0005576f726c64
-                let item_index%2#0: uint64 = (extract_uint16 array_data_sans_header%0#0 0u)
-                let item_length%0#0: uint64 = (extract_uint16 array_data_sans_header%0#0 item_index%2#0)
-                let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let tmp%6#0: bytes = (extract3 array_data_sans_header%0#0 item_index%2#0 item_length_plus_2%0#0)
+                let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 0u)
+                let item_length%0#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset%2#0)
+                let item_head_tail_length%0#0: uint64 = (+ item_length%0#0 2u)
+                let tmp%6#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%2#0 item_head_tail_length%0#0)
                 let tmp%7#0: bool = (== tmp%6#0 "\x00\x05Hello")
                 (assert tmp%7#0)
                 let result#0: bytes = ""
@@ -56,11 +56,11 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let continue_looping%2#0: bool = (< index#0 tmp%4#0)
                 goto continue_looping%2#0 ? block@10 : block@15
             block@10: // for_body_L39
-                let item_index_index%1#0: uint64 = (* index#0 2u)
-                let item_index%3#0: uint64 = (extract_uint16 array_data_sans_header%0#0 item_index_index%1#0)
-                let item_length%1#0: uint64 = (extract_uint16 array_data_sans_header%0#0 item_index%3#0)
-                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
-                let string_item#0: bytes = (extract3 array_data_sans_header%0#0 item_index%3#0 item_length_plus_2%1#0)
+                let item_offset_offset%1#0: uint64 = (* index#0 2u)
+                let item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset_offset%1#0)
+                let item_length%1#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset%3#0)
+                let item_head_tail_length%1#0: uint64 = (+ item_length%1#0 2u)
+                let string_item#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%3#0 item_head_tail_length%1#0)
                 goto index#0 ? block@12 : block@11
             block@11: // if_body_L40
                 let result#1: bytes = ((extract 2 0) string_item#0)
@@ -85,8 +85,8 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let continue_looping%3#0: bool = (< item_index_internal%3#1 4u)
                 goto continue_looping%3#0 ? block@17 : block@19
             block@17: // for_body_L49
-                let item_index%4#0: uint64 = (* item_index_internal%3#1 4u)
-                let uint32_item#0: bytes = (extract3 0x000000010000000a000000ff00000080 item_index%4#0 4u)
+                let item_offset%4#0: uint64 = (* item_index_internal%3#1 4u)
+                let uint32_item#0: bytes = (extract3 0x000000010000000a000000ff00000080 item_offset%4#0 4u) // on error: Index access is out of bounds
                 let tmp%12#0: uint64 = (btoi uint32_item#0)
                 let total#6: uint64 = (+ total#5 tmp%12#0)
                 let item_index_internal%3#2: uint64 = (+ item_index_internal%3#1 1u)
@@ -103,11 +103,11 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let continue_looping%4#0: bool = (< index#2 2u)
                 goto continue_looping%4#0 ? block@21 : block@26
             block@21: // for_body_L63
-                let item_index_index%2#0: uint64 = (* index#2 2u)
-                let item_index%7#0: uint64 = (extract_uint16 0x0004000a000450696e670004506f6e67 item_index_index%2#0)
-                let item_length%2#0: uint64 = (extract_uint16 0x0004000a000450696e670004506f6e67 item_index%7#0)
-                let item_length_plus_2%2#0: uint64 = (+ item_length%2#0 2u)
-                let string_item#1: bytes = (extract3 0x0004000a000450696e670004506f6e67 item_index%7#0 item_length_plus_2%2#0)
+                let item_offset_offset%2#0: uint64 = (* index#2 2u)
+                let item_offset%7#0: uint64 = (extract_uint16 0x0004000a000450696e670004506f6e67 item_offset_offset%2#0)
+                let item_length%2#0: uint64 = (extract_uint16 0x0004000a000450696e670004506f6e67 item_offset%7#0)
+                let item_head_tail_length%2#0: uint64 = (+ item_length%2#0 2u)
+                let string_item#1: bytes = (extract3 0x0004000a000450696e670004506f6e67 item_offset%7#0 item_head_tail_length%2#0)
                 goto index#2 ? block@23 : block@22
             block@22: // if_body_L64
                 let result#6: bytes = ((extract 2 0) string_item#1)

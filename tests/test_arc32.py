@@ -7,7 +7,7 @@ import algokit_utils.config
 import algosdk
 import pytest
 from algokit_utils import LogicError
-from algosdk import constants, transaction
+from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
     AtomicTransactionComposer,
     TransactionWithSigner,
@@ -1093,3 +1093,80 @@ def _get_tic_tac_toe_game_status(
         winner_index  # type: ignore[index]
     ]
     return board, winner
+
+
+def test_dynamic_arrays(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "arc4_dynamic_arrays")
+        ),
+        signer=account,
+    )
+    app_client.create()
+
+    string1 = "a"
+    string2 = "bee"
+    string3 = "Hello World"
+    uint1 = 3
+    uint2 = 2**42
+
+    # static
+    static_struct_t = abi.ABIType.from_string("(uint64,byte[2])")
+    static_arr_t = abi.ArrayDynamicType(static_struct_t)
+    static_struct0 = (uint1, bytes((4, 5)))
+    static_struct1 = (uint2, bytes((42, 255)))
+
+    static_result = app_client.call("test_static_elements")
+    (static_arr_bytes, static_0_bytes, static_1_bytes) = decode_logs(
+        static_result.tx_info["logs"], "bbb"
+    )
+
+    assert static_arr_bytes == static_arr_t.encode([static_struct0, static_struct1])
+    assert static_0_bytes == static_struct_t.encode(static_struct0)
+    assert static_1_bytes == static_struct_t.encode(static_struct1)
+
+    # dynamic
+    dynamic_struct_t = abi.ABIType.from_string("(string,string)")
+    dynamic_arr_t = abi.ABIType.from_string("(string,string)[]")
+    dynamic_struct0 = (string1, string2)
+    dynamic_struct1 = (string3, string1)
+
+    dynamic_result = app_client.call("test_dynamic_elements")
+    (dynamic_arr_bytes, dynamic_0_bytes, dynamic_1_bytes) = decode_logs(
+        dynamic_result.tx_info["logs"], "bbb"
+    )
+
+    assert dynamic_arr_bytes == dynamic_arr_t.encode([dynamic_struct0, dynamic_struct1])
+    assert dynamic_0_bytes == dynamic_struct_t.encode(dynamic_struct0)
+    assert dynamic_1_bytes == dynamic_struct_t.encode(dynamic_struct1)
+
+    # mixed single dynamic
+    mixed1_struct_t = abi.ABIType.from_string("(uint64,string,uint64)")
+    mixed1_arr_t = abi.ArrayDynamicType(mixed1_struct_t)
+    mixed1_struct0 = (uint1, string1, uint2)
+    mixed1_struct1 = (uint2, string2, uint1)
+
+    mixed_single_result = app_client.call("test_mixed_single_dynamic_elements")
+    (mixed1_arr_bytes, mixed1_0_bytes, mixed1_1_bytes) = decode_logs(
+        mixed_single_result.tx_info["logs"], "bbb"
+    )
+
+    assert mixed1_arr_bytes == mixed1_arr_t.encode([mixed1_struct0, mixed1_struct1])
+    assert mixed1_0_bytes == mixed1_struct_t.encode(mixed1_struct0)
+    assert mixed1_1_bytes == mixed1_struct_t.encode(mixed1_struct1)
+
+    # mixed multiple dynamic
+    mixed2_struct_t = abi.ABIType.from_string("(uint64,string,uint64,string,uint64)")
+    mixed2_arr_t = abi.ArrayDynamicType(mixed2_struct_t)
+    mixed2_struct0 = (uint1, string1, uint2, string2, uint1)
+    mixed2_struct1 = (uint2, string3, uint1, string1, uint2)
+
+    mixed_multiple_result = app_client.call("test_mixed_multiple_dynamic_elements")
+    (mixed2_arr_bytes, mixed2_0_bytes, mixed2_1_bytes) = decode_logs(
+        mixed_multiple_result.tx_info["logs"], "bbb"
+    )
+
+    assert mixed2_arr_bytes == mixed2_arr_t.encode([mixed2_struct0, mixed2_struct1])
+    assert mixed2_0_bytes == mixed2_struct_t.encode(mixed2_struct0)
+    assert mixed2_1_bytes == mixed2_struct_t.encode(mixed2_struct1)
