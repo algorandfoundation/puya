@@ -8,7 +8,7 @@ from algopy import BigUInt, UInt64
 from algopy_testing.constants import MAX_UINT64, MAX_UINT512, UINT512_BYTES_LENGTH
 
 from tests.common import AVMInvoker
-from tests.primitives.util import int_to_bytes
+from tests.util import int_to_bytes
 
 _negative_value_error = "expected positive value"
 _too_big512_error = re.escape(f"expected value <= {MAX_UINT512}")

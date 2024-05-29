@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64, MAX_UINT512
+from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT8, MAX_UINT64, MAX_UINT512
 
 
 def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
@@ -30,6 +30,10 @@ def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
     if max is not None and int_value > max:
         raise ValueError(f"expected value <= {max}, got: {int_value}")
     return int_value
+
+
+def as_int8(value: object) -> int:
+    return as_int(value, max=MAX_UINT8)
 
 
 def as_int64(value: object) -> int:
@@ -70,3 +74,6 @@ def as_string(value: object) -> str:
             return string_value
         case _:
             raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
+
+def int_to_bytes(x: int) -> bytes:
+    return x.to_bytes((x.bit_length() + 7) // 8, "big")

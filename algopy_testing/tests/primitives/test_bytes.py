@@ -6,7 +6,7 @@ from algopy_testing.constants import MAX_BYTES_SIZE
 from algopy_testing.primitives.bytes import Bytes
 
 from tests.common import AVMInvoker
-from tests.primitives.util import get_sha256_hash, int_to_bytes
+from tests.util import get_sha256_hash, int_to_bytes
 
 
 @pytest.mark.parametrize(
