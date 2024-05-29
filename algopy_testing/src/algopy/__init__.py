@@ -22,7 +22,16 @@ class LocalState:
         key: bytes | str = "",
         description: str = "",
     ) -> None:
-        pass
+        self.type_ = type_
+        self.key = key
+        self.description = description
+        self._state: dict[bytes | str, object] = {}
+
+    def __setitem__(self, key: bytes | str, value: object) -> None:
+        self._state[key] = value
+
+    def __getitem__(self, key: bytes | str) -> object:
+        return self._state[key]
 
 
 _P = ParamSpec("_P")
