@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Account:
     _public_key: str
     balance: UInt64 | None = None
@@ -36,9 +36,10 @@ class Account:
         if not isinstance(value, str | Bytes):
             raise TypeError("Invalid value for Account")
         if isinstance(value, Bytes):
-            self._public_key = algosdk.encoding.encode_address(value)
+            public_key = algosdk.encoding.encode_address(value)
         else:
-            self._public_key = value
+            public_key = value
+        object.__setattr__(self, "_public_key", public_key)
 
     def __repr__(self) -> str:
         return self._public_key
@@ -56,6 +57,9 @@ class Account:
 
     def __bool__(self) -> bool:
         return self._public_key != algosdk.constants.ZERO_ADDRESS
+
+    def __hash__(self) -> int:
+        return hash(self._public_key)
 
     def is_opted_in(self, asset_or_app: Asset | Application, /) -> bool:
         raise NotImplementedError(

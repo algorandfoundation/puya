@@ -25,13 +25,50 @@ class LocalState:
         self.type_ = type_
         self.key = key
         self.description = description
-        self._state: dict[bytes | str, object] = {}
+        self._state: dict[object, object] = {}
 
-    def __setitem__(self, key: bytes | str, value: object) -> None:
+    def __setitem__(self, key: object, value: object) -> None:
+        if isinstance(key, Account):
+            key = str(key)
+        elif isinstance(key, Application | Asset):
+            key = key.id.value if key.id else None
         self._state[key] = value
 
-    def __getitem__(self, key: bytes | str) -> object:
+    def __getitem__(self, key: object) -> object:
+        if isinstance(key, Account):
+            key = str(key)
+        elif isinstance(key, Application | Asset):
+            key = key.id.value if key.id else None
         return self._state[key]
+
+    def __delitem__(self, key: object) -> None:
+        if isinstance(key, Account):
+            key = str(key)
+        elif isinstance(key, Application | Asset):
+            key = key.id.value if key.id else None
+        del self._state[key]
+
+    def __contains__(self, key: object) -> bool:
+        if isinstance(key, Account):
+            key = str(key)
+        elif isinstance(key, Application | Asset):
+            key = key.id.value if key.id else None
+        return key in self._state
+
+    def get(self, key: object, default: object = None) -> object:
+        if isinstance(key, Account):
+            key = str(key)
+        elif isinstance(key, Application | Asset):
+            key = key.id.value if key.id else None
+        return self._state.get(key, default)
+
+    def maybe(self, key: object) -> tuple[object, bool]:
+        if isinstance(key, Account):
+            key = str(key)
+        elif isinstance(key, Application | Asset):
+            key = key.id.value if key.id else None
+        value = self._state.get(key)
+        return value, key in self._state
 
 
 _P = ParamSpec("_P")

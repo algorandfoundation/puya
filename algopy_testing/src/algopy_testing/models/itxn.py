@@ -1,66 +1,73 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from algopy_testing.models.account import Account
+    from algopy_testing.models.application import Application
+    from algopy_testing.models.asset import Asset
+    from algopy_testing.primitives.bytes import Bytes
+    from algopy_testing.primitives.uint64 import UInt64
 
 T = TypeVar("T")
 
 
 @dataclass
 class ITxnFields:
-    sender: str | None = None
-    fee: int | None = None
-    first_valid: int | None = None
-    last_valid: int | None = None
-    note: bytes | None = None
-    lease: bytes | None = None
-    receiver: str | None = None
-    amount: int | None = None
-    close_remainder_to: str | None = None
-    vote_pk: bytes | None = None
-    selection_pk: bytes | None = None
-    vote_first: int | None = None
-    vote_last: int | None = None
-    vote_key_dilution: int | None = None
-    type: bytes | None = None
-    type_enum: int | None = None
-    xfer_asset: int | None = None
-    asset_amount: int | None = None
-    asset_sender: str | None = None
-    asset_receiver: str | None = None
-    asset_close_to: str | None = None
-    group_index: int | None = None
-    tx_id: bytes | None = None
-    application_id: int | None = None
-    on_completion: int | None = None
-    approval_program: bytes | None = None
-    clear_state_program: bytes | None = None
-    rekey_to: str | None = None
-    config_asset: int | None = None
-    config_asset_total: int | None = None
-    config_asset_decimals: int | None = None
+    sender: Account | None = None
+    fee: UInt64 | None = None
+    first_valid: UInt64 | None = None
+    last_valid: UInt64 | None = None
+    note: Bytes | None = None
+    lease: Bytes | None = None
+    receiver: Account | None = None
+    amount: UInt64 | None = None
+    close_remainder_to: Account | None = None
+    vote_pk: Bytes | None = None
+    selection_pk: Bytes | None = None
+    vote_first: UInt64 | None = None
+    vote_last: UInt64 | None = None
+    vote_key_dilution: UInt64 | None = None
+    type: Bytes | None = None
+    type_enum: UInt64 | None = None
+    xfer_asset: Asset | None = None
+    asset_amount: UInt64 | None = None
+    asset_sender: Account | None = None
+    asset_receiver: Account | None = None
+    asset_close_to: Account | None = None
+    group_index: UInt64 | None = None
+    tx_id: Bytes | None = None
+    application_id: Application | None = None
+    on_completion: UInt64 | None = None
+    approval_program: Bytes | None = None
+    clear_state_program: Bytes | None = None
+    rekey_to: Account | None = None
+    config_asset: Asset | None = None
+    config_asset_total: UInt64 | None = None
+    config_asset_decimals: UInt64 | None = None
     config_asset_default_frozen: bool | None = None
-    config_asset_unit_name: bytes | None = None
-    config_asset_name: bytes | None = None
-    config_asset_url: bytes | None = None
-    config_asset_metadata_hash: bytes | None = None
-    config_asset_manager: str | None = None
-    config_asset_reserve: str | None = None
-    config_asset_freeze: str | None = None
-    config_asset_clawback: str | None = None
-    freeze_asset: int | None = None
-    freeze_asset_account: str | None = None
+    config_asset_unit_name: Bytes | None = None
+    config_asset_name: Bytes | None = None
+    config_asset_url: Bytes | None = None
+    config_asset_metadata_hash: Bytes | None = None
+    config_asset_manager: Account | None = None
+    config_asset_reserve: Account | None = None
+    config_asset_freeze: Account | None = None
+    config_asset_clawback: Account | None = None
+    freeze_asset: Asset | None = None
+    freeze_asset_account: Account | None = None
     freeze_asset_frozen: bool | None = None
-    global_num_uint: int | None = None
-    global_num_byte_slice: int | None = None
-    local_num_uint: int | None = None
-    local_num_byte_slice: int | None = None
-    extra_program_pages: int | None = None
+    global_num_uint: UInt64 | None = None
+    global_num_byte_slice: UInt64 | None = None
+    local_num_uint: UInt64 | None = None
+    local_num_byte_slice: UInt64 | None = None
+    extra_program_pages: UInt64 | None = None
     nonparticipation: bool | None = None
-    created_asset_id: int | None = None
-    created_application_id: int | None = None
-    last_log: bytes | None = None
-    state_proof_pk: bytes | None = None
+    created_asset_id: Asset | None = None
+    created_application_id: Application | None = None
+    last_log: Bytes | None = None
+    state_proof_pk: Bytes | None = None
 
 
 class _Itxn:

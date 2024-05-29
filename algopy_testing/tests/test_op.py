@@ -180,7 +180,7 @@ def test_ed25519verify(
     assert crypto_ops_client.approval
     with blockchain_context() as ctx:
         # TODO: dynamically pick approval vs clear based on OnComplete value
-        ctx.transaction_state.approval_program = crypto_ops_client.approval.raw_binary
+        ctx.transaction_state.approval_program = Bytes(crypto_ops_client.approval.raw_binary)
 
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"

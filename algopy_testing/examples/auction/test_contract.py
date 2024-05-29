@@ -3,7 +3,7 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from algopy import Asset, UInt64, gtxn
+from algopy import Account, Asset, UInt64, gtxn
 from algopy_testing import TestContext, blockchain_context
 
 from .contract import AuctionContract
@@ -25,8 +25,8 @@ def test_opt_into_asset(
 ) -> None:
     # Arrange
     dummy_address = "A" * 58
-    context.global_state.creator_address = dummy_address
-    context.transaction_state.sender = dummy_address
+    context.global_state.creator_address = Account(dummy_address)
+    context.transaction_state.sender = Account(dummy_address)
     asset = Asset(123)
     mock_itxn_axfer = mocker.patch("algopy.itxn.AssetTransfer")
 
@@ -44,10 +44,10 @@ def test_start_auction(
     # Arrange
     dummy_address = "A" * 58
     dummy_app_address = "B" * 58
-    context.global_state.creator_address = dummy_address
-    context.global_state.current_application_address = dummy_app_address
-    context.global_state.latest_timestamp = 1000
-    context.transaction_state.sender = dummy_address
+    context.global_state.creator_address = Account(dummy_address)
+    context.global_state.current_application_address = Account(dummy_app_address)
+    context.global_state.latest_timestamp = UInt64(1000)
+    context.transaction_state.sender = Account(dummy_address)
     axfer = mocker.Mock(spec=gtxn.AssetTransferTransaction)
     axfer.asset_receiver = dummy_app_address
     axfer.asset_amount = 1000
@@ -64,14 +64,14 @@ def test_start_auction(
 def test_bid(context: TestContext[Any], contract: AuctionContract, mocker: MagicMock) -> None:
     # Arrange
     dummy_address = "A" * 58
-    context.global_state.creator_address = dummy_address
-    context.global_state.latest_timestamp = 1000
-    context.transaction_state.sender = dummy_address
-    contract.auction_end = 2000
-    contract.previous_bid = 100
+    context.global_state.creator_address = Account(dummy_address)
+    context.global_state.latest_timestamp = UInt64(1000)
+    context.transaction_state.sender = Account(dummy_address)
+    contract.auction_end = UInt64(2000)
+    contract.previous_bid = UInt64(100)
     pay = mocker.Mock(spec=gtxn.PaymentTransaction)
-    pay.sender = dummy_address
-    pay.amount = 200
+    pay.sender = Account(dummy_address)
+    pay.amount = UInt64(200)
 
     # Act
     contract.bid(pay)
@@ -87,7 +87,7 @@ def test_claim_bids(
 ) -> None:
     # Arrange
     dummy_address = "A" * 58
-    context.transaction_state.sender = dummy_address
+    context.transaction_state.sender = Account(dummy_address)
     contract.claimable_amount[dummy_address] = 300
     contract.previous_bidder = dummy_address
     contract.previous_bid = 100
@@ -109,8 +109,8 @@ def test_claim_asset(
 ) -> None:
     # Arrange
     dummy_address = "A" * 58
-    context.global_state.latest_timestamp = 2000
-    contract.auction_end = 1000
+    context.global_state.latest_timestamp = UInt64(2000)
+    contract.auction_end = UInt64(1000)
     contract.previous_bidder = dummy_address
     contract.asa_amount = 1000
     asset = Asset(123)
@@ -133,7 +133,7 @@ def test_delete_application(
 ) -> None:
     # Arrange
     dummy_address = "A" * 58
-    context.global_state.creator_address = dummy_address
+    context.global_state.creator_address = Account(dummy_address)
     mock_itxn_payment = mocker.patch("algopy.itxn.Payment")
 
     # Act

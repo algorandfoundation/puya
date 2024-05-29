@@ -76,7 +76,7 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
     if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 
-    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(program_bytes))
+    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(program_bytes.value))
     address_bytes = as_bytes(decoded_address)
     a = algosdk.constants.logic_data_prefix + address_bytes + a
     return ed25519verify_bare(a, b, c)

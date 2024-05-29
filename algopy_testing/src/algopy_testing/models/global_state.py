@@ -1,30 +1,36 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from algopy_testing.models.account import Account
+    from algopy_testing.models.application import Application
+    from algopy_testing.primitives.bytes import Bytes
+    from algopy_testing.primitives.uint64 import UInt64
 
 T = TypeVar("T")
 
 
 @dataclass
 class GlobalFields:
-    min_txn_fee: int | None = None
-    min_balance: int | None = None
-    max_txn_life: int | None = None
-    zero_address: str | None = None
-    group_size: int | None = None
-    logic_sig_version: int | None = None
-    round: int | None = None
-    latest_timestamp: int | None = None
-    current_application_id: int | None = None
-    creator_address: str | None = None
-    current_application_address: str | None = None
-    group_id: bytes | None = None
-    caller_application_id: int | None = None
-    caller_application_address: str | None = None
-    asset_create_min_balance: int | None = None
-    asset_opt_in_min_balance: int | None = None
-    genesis_hash: bytes | None = None
+    min_txn_fee: UInt64 | None = None
+    min_balance: UInt64 | None = None
+    max_txn_life: UInt64 | None = None
+    zero_address: Account | None = None
+    group_size: UInt64 | None = None
+    logic_sig_version: UInt64 | None = None
+    round: UInt64 | None = None
+    latest_timestamp: UInt64 | None = None
+    current_application_id: UInt64 | None = None
+    creator_address: Account | None = None
+    current_application_address: Account | None = None
+    group_id: Bytes | None = None
+    caller_application_id: Application | None = None
+    caller_application_address: Account | None = None
+    asset_create_min_balance: UInt64 | None = None
+    asset_opt_in_min_balance: UInt64 | None = None
+    genesis_hash: Bytes | None = None
 
     @staticmethod
     def opcode_budget() -> int:

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Asset:
     id: UInt64 | None = None
     total: UInt64 | None = None
@@ -30,7 +30,11 @@ class Asset:
     def __init__(self, asset_id: UInt64 | int = 0, /):
         from algopy_testing.primitives.uint64 import UInt64
 
-        self.id = asset_id if isinstance(asset_id, UInt64) else UInt64(asset_id)
+        object.__setattr__(
+            self,
+            "id",
+            asset_id if isinstance(asset_id, UInt64) else UInt64(asset_id),
+        )
 
     def balance(self, _account: Account, /) -> UInt64:
         raise NotImplementedError(
@@ -55,3 +59,6 @@ class Asset:
     # truthiness
     def __bool__(self) -> bool:
         return self.id != 0
+
+    def __hash__(self) -> int:
+        return hash(self.id)
