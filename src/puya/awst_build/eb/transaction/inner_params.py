@@ -110,7 +110,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelate
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         transaction_fields: dict[TxnField, Expression] = {
             TxnFields.fee: UInt64Constant(
                 source_location=self.source_location,
@@ -183,7 +183,7 @@ class _Submit(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 
         if args:
@@ -217,7 +217,7 @@ class _Copy(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if args:
             raise CodeError(f"Unexpected arguments for {self.expr}", location)
         return InnerTxnParamsExpressionBuilder(
@@ -243,7 +243,7 @@ class _Set(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if None in arg_names:
             raise CodeError(
                 "Positional arguments are not supported when setting transaction parameters",

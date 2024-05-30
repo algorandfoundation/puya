@@ -14,7 +14,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
+from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -36,7 +36,7 @@ class LogBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         args_ = list(args)
         try:
             sep_index = arg_names.index("sep")

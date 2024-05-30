@@ -14,7 +14,7 @@ from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_encode
 from puya.awst_build.eb.base import NodeBuilder
-from puya.awst_build.utils import construct_from_literal
+from puya.awst_build.utils import construct_from_literal, require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -33,7 +33,7 @@ def expect_arc4_operand_pytype(
     if isinstance(literal_or_builder, awst_nodes.Literal):
         return construct_from_literal(literal_or_builder, target_type).rvalue()
 
-    expr = literal_or_builder.rvalue()
+    expr = require_instance_builder(literal_or_builder).rvalue()
     if wtypes.has_arc4_equivalent_type(expr.wtype):
         new_wtype = wtypes.avm_to_arc4_equivalent_type(expr.wtype)
         expr = arc4_encode(expr, new_wtype, literal_or_builder.source_location)

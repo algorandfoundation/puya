@@ -43,7 +43,7 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
@@ -85,6 +85,6 @@ class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)

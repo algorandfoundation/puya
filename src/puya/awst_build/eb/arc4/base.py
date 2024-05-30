@@ -102,7 +102,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [NodeBuilder() as eb]:
                 result_expr = self.abi_expr_from_log(self.typ, eb.rvalue(), location)
@@ -125,7 +125,7 @@ class CopyBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 expr_result = Copy(

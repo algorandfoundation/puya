@@ -9,7 +9,7 @@ from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
 from puya.awst.nodes import Literal, MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
+from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.errors import CodeError
 
@@ -30,7 +30,7 @@ class EmitBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [
                 NodeBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb

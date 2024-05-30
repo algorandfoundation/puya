@@ -56,7 +56,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 value: Expression = intrinsic_factory.zero_address(location)
@@ -142,8 +142,8 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if not (
             other.pytype == self.pytype  # can only compare with other Accounts?
@@ -172,9 +172,9 @@ class _IsOptedIn(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
-            case [NodeBuilder(pytype=pytypes.AssetType) as asset]:
+            case [InstanceBuilder(pytype=pytypes.AssetType) as asset]:
                 return BoolExpressionBuilder(
                     TupleItemExpression(
                         base=IntrinsicCall(
@@ -190,7 +190,7 @@ class _IsOptedIn(FunctionBuilder):
                         source_location=location,
                     )
                 )
-            case [NodeBuilder(pytype=pytypes.ApplicationType) as app]:
+            case [InstanceBuilder(pytype=pytypes.ApplicationType) as app]:
                 return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",

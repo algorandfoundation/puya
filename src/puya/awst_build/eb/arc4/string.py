@@ -56,7 +56,7 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if not args:
             return StringExpressionBuilder(_arc4_encode_str_literal("", location))
         if len(args) == 1:
@@ -103,7 +103,7 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
     ) -> Statement:
         match op:
             case BuilderBinaryOp.add:
@@ -121,12 +121,12 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
     @typing.override
     def binary_op(
         self,
-        other: NodeBuilder | Literal,
+        other: InstanceBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
@@ -147,8 +147,8 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         other_expr: Expression
         match other:
             case Literal(value=str(string_literal), source_location=literal_location):

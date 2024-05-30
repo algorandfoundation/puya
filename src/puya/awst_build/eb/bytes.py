@@ -69,7 +69,7 @@ class BytesClassExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 value: Expression = BytesConstant(
@@ -116,7 +116,7 @@ class BytesFromEncodedStrBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [Literal(value=str(encoded_value))]:
                 pass
@@ -215,7 +215,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return super().unary_op(op, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         item_expr = expect_operand_type(item, pytypes.BytesType).rvalue()
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
@@ -227,8 +227,8 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype != self.pytype:
             return NotImplemented
@@ -243,12 +243,12 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     @typing.override
     def binary_op(
         self,
-        other: NodeBuilder | Literal,
+        other: InstanceBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
@@ -263,7 +263,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         # TODO: missing type check

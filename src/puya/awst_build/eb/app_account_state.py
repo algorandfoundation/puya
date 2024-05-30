@@ -60,7 +60,7 @@ class AppAccountStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -73,7 +73,7 @@ class AppAccountStateGenericClassExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
@@ -171,7 +171,7 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
         return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         exists_expr = StateExists(
             field=self._build_field(item, location), source_location=location
         )
@@ -262,7 +262,7 @@ class _Get(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if len(args) != 2:
             raise CodeError(f"Expected 2 arguments, got {len(args)}", location)
         if arg_names[0] == "default":
@@ -295,7 +295,7 @@ class _Maybe(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [item]:
                 field = self._build_field(item, location)

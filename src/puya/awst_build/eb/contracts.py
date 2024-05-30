@@ -19,7 +19,6 @@ from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilde
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
     InstanceBuilder,
-    IntermediateExpressionBuilder,
     NodeBuilder,
     TypeBuilder,
 )
@@ -61,7 +60,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("Cannot instantiate contract classes", location)
 
     @typing.override
@@ -75,7 +74,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         )
 
 
-class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
+class ContractSelfExpressionBuilder(NodeBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,

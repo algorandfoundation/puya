@@ -51,7 +51,7 @@ class BoxRefClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         arg_mapping = get_arg_mapping(
             positional_arg_names=(),
             args=zip(arg_names, args, strict=True),
@@ -212,7 +212,7 @@ class _IntrinsicMethod(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         args_map = get_arg_mapping(self.args, zip(arg_names, args, strict=True), location)
         try:
             stack_args = [
@@ -245,7 +245,7 @@ class _Create(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         try:
             (arg,) = args
         except ValueError:
@@ -274,7 +274,7 @@ class _Put(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         try:
             (arg,) = args
         except ValueError:

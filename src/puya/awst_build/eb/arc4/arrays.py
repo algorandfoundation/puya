@@ -72,7 +72,7 @@ class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [
@@ -111,7 +111,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
@@ -140,7 +140,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [
@@ -182,7 +182,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
@@ -217,7 +217,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         wtype = self.produces().wtype
         match args:
             case []:
@@ -309,13 +309,13 @@ class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], 
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
     @typing.override
     @typing.final
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         raise CodeError("item containment with ARC4 arrays is currently unsupported", location)
 
     @typing.override
@@ -358,7 +358,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
     ) -> Statement:
         match op:
             case BuilderBinaryOp.add:
@@ -382,12 +382,12 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     @typing.override
     def binary_op(
         self,
-        other: NodeBuilder | Literal,
+        other: InstanceBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
@@ -438,7 +438,7 @@ class _Append(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
 
         args_expr = [expect_arc4_operand_pytype(a, self.typ.items) for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
@@ -466,7 +466,7 @@ class _Pop(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 result_expr = ArrayPop(
@@ -491,7 +491,7 @@ class _Extend(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         other = match_array_concat_arg(
             args,
             self.typ.items.wtype,
@@ -569,8 +569,8 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         match other:
             case Literal(value=str(str_value), source_location=literal_loc):
                 rhs = get_bytes_expr(AddressConstant(value=str_value, source_location=literal_loc))

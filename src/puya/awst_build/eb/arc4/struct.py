@@ -47,7 +47,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         wtype = self._wtype
         ordered_field_names = wtype.names
         field_mapping = get_arg_mapping(
@@ -96,8 +96,8 @@ class ARC4StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.S
                 return super().member_access(name, location)
 
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

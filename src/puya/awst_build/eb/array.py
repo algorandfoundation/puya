@@ -39,7 +39,7 @@ class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("Empy arrays require a type annotation to be instantiated", location)
         non_literal_args = [
@@ -76,7 +76,7 @@ class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals") for a in args
         ]
@@ -108,7 +108,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         return super().member_access(name, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         item_expr = expect_operand_type(item, self.pytype.items).rvalue()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)
@@ -146,7 +146,7 @@ class _Append(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [elem]:
                 elem_expr = require_expression_builder(elem).rvalue()

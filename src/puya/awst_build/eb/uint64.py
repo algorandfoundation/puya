@@ -58,7 +58,7 @@ class UInt64ClassExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 const = UInt64Constant(value=0, source_location=location)
@@ -105,8 +105,8 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
                 return super().unary_op(op, location)
 
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass
@@ -122,12 +122,12 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     def binary_op(
         self,
-        other: NodeBuilder | Literal,
+        other: InstanceBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass
@@ -144,7 +144,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return UInt64ExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         if rhs.pytype == self.pytype:

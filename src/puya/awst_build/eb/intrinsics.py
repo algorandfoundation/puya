@@ -8,6 +8,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import (
     FunctionBuilder,
+    InstanceBuilder,
     NodeBuilder,
     TypeBuilder,
 )
@@ -36,7 +37,7 @@ class Arc4SignatureBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [Literal(value=str(str_value))]:
                 pass
@@ -60,7 +61,7 @@ class IntrinsicEnumClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicEnumType]
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("Cannot instantiate enumeration type", location)
 
     @typing.override
@@ -81,7 +82,7 @@ class IntrinsicNamespaceClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicName
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("Cannot instantiate namespace type", location)
 
     @typing.override
@@ -120,7 +121,7 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         primary_mapping = self._mappings[0]  # TODO: remove this assumption
         func_arg_names = (*primary_mapping.literal_arg_names, *primary_mapping.stack_inputs.keys())
 

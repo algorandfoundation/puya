@@ -13,6 +13,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
+    InstanceBuilder,
     NodeBuilder,
     TypeBuilder,
 )
@@ -89,7 +90,7 @@ class _ArrayItem(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [(NodeBuilder() | Literal(value=int())) as eb]:
                 index_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
@@ -124,7 +125,7 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if len(args) > 1:
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
             result_typ = pytypes.GenericTupleType.parameterise(

@@ -7,7 +7,7 @@ import typing_extensions
 
 from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -44,13 +44,13 @@ class _FromBytes(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [Literal(value=bytes(bytes_val), source_location=literal_loc)]:
                 arg: Expression = BytesConstant(
                     value=bytes_val, encoding=BytesEncoding.unknown, source_location=literal_loc
                 )
-            case [NodeBuilder(pytype=pytypes.BytesType) as eb]:
+            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 arg = eb.rvalue()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)

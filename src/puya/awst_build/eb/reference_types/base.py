@@ -110,8 +110,8 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if not (
             other.pytype == self.pytype  # can only compare with other of same type?

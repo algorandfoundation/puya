@@ -13,7 +13,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
@@ -35,7 +35,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         required_budget_arg_name = "required_budget"
         fee_source_arg_name = "fee_source"
         arg_mapping = get_arg_mapping(
@@ -97,7 +97,7 @@ class OpUpFeeSourceClassBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("Cannot instantiate enumeration type", location)
 
     @typing.override

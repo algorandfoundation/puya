@@ -17,7 +17,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_type
@@ -40,7 +40,7 @@ class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
@@ -112,7 +112,7 @@ class _ArrayItem(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (arg,) = args

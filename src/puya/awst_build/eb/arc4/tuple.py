@@ -42,7 +42,7 @@ class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [NodeBuilder(pytype=pytypes.TupleType(items=items)) as eb]:
                 typ = pytypes.GenericARC4TupleType.parameterise(items, location)
@@ -68,7 +68,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
 
         match args:
             case [NodeBuilder(pytype=pytypes.TupleType() as tuple_type) as eb]:
@@ -138,12 +138,12 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         raise CodeError("item containment with ARC4 tuples is currently unsupported", location)
 
     @typing.override

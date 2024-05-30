@@ -29,6 +29,9 @@ from puya.awst_build.eb.var_factory import builder_for_type
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
+if typing.TYPE_CHECKING:
+    from puya.awst_build.eb.bool import BoolExpressionBuilder  # noqa: TCH004
+
 logger = log.get_logger(__name__)
 
 
@@ -147,11 +150,14 @@ def fold_binary_expr(
     return typing.cast(ConstantValue, result)
 
 
+_TBuilder = typing.TypeVar("_TBuilder", bound=NodeBuilder)
+
+
 def require_expression_builder(
-    builder_or_literal: NodeBuilder | Literal,
+    builder_or_literal: _TBuilder | Literal,
     *,
     msg: str = "A Python literal is not valid at this location",
-) -> NodeBuilder:
+) -> _TBuilder | BoolExpressionBuilder:
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     match builder_or_literal:
@@ -190,9 +196,25 @@ def require_instance_builder(
             typing.assert_never(builder_or_literal)
 
 
+def require_instance_builder_or_literal(
+    builder_or_literal: NodeBuilder | Literal,
+    *,
+    non_instance_msg: str = "expression is not a value",
+) -> InstanceBuilder | Literal:
+    match builder_or_literal:
+        case Literal() as literal:
+            return literal
+        case InstanceBuilder() as builder:
+            return builder
+        case NodeBuilder(source_location=non_value_location):
+            raise CodeError(non_instance_msg, non_value_location)
+        case _:
+            typing.assert_never(builder_or_literal)
+
+
 def expect_operand_type(
     literal_or_eb: Literal | NodeBuilder, target_type: pytypes.PyType
-) -> NodeBuilder:
+) -> InstanceBuilder:
     if isinstance(literal_or_eb, Literal):
         return construct_from_literal(literal_or_eb, target_type)
     if literal_or_eb.pytype != target_type:
@@ -200,12 +222,13 @@ def expect_operand_type(
             f"Expected type {target_type}, got type {literal_or_eb.pytype}",
             literal_or_eb.source_location,
         )
+    assert isinstance(literal_or_eb, InstanceBuilder)  # TODO: hmmm
     return literal_or_eb
 
 
 def convert_literal_to_builder(
-    literal_or_expr: Literal | NodeBuilder, target_type: pytypes.PyType
-) -> NodeBuilder:
+    literal_or_expr: Literal | _TBuilder, target_type: pytypes.PyType
+) -> _TBuilder | InstanceBuilder:
     if isinstance(literal_or_expr, Literal):
         return construct_from_literal(literal_or_expr, target_type)
     else:
@@ -373,26 +396,29 @@ def resolve_method_from_type_info(
 
 
 def construct_from_builder_or_literal(
-    literal_or_builder: Literal | NodeBuilder,
+    literal_or_builder: Literal | InstanceBuilder,
     target_type: pytypes.PyType,
     loc: SourceLocation | None = None,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     loc = loc or literal_or_builder.source_location
-    if isinstance(literal_or_builder, NodeBuilder) and literal_or_builder.pytype == target_type:
+    if (
+        isinstance(literal_or_builder, InstanceBuilder)
+        and literal_or_builder.pytype == target_type
+    ):
         return literal_or_builder
     return _construct_instance(target_type, literal_or_builder, loc)
 
 
 def construct_from_literal(
     literal: Literal, target_type: pytypes.PyType, loc: SourceLocation | None = None
-) -> NodeBuilder:
+) -> InstanceBuilder:
     loc = loc or literal.source_location
     return _construct_instance(target_type, literal, loc)
 
 
 def _construct_instance(
     target_type: pytypes.PyType, arg: NodeBuilder | Literal, location: SourceLocation
-) -> NodeBuilder:
+) -> InstanceBuilder:
     builder = builder_for_type(target_type, location)
     if isinstance(arg, NodeBuilder):
         arg_type = arg.pytype

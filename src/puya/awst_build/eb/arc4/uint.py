@@ -55,7 +55,7 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4UIntN)
@@ -109,8 +109,8 @@ class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UI
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         if isinstance(other, Literal):
             other = construct_from_literal(other, self.pytype)
         match other.pytype:

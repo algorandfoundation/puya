@@ -15,9 +15,9 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder
+from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import require_expression_builder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -45,16 +45,14 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         call_args = list[CallArg]()
         for arg, arg_name, arg_kind in zip(args, arg_names, arg_kinds, strict=True):
             if arg_kind.is_star():
                 raise CodeError(
                     "argument unpacking at call site not currently supported", arg.source_location
                 )
-            call_args.append(
-                CallArg(name=arg_name, value=require_expression_builder(arg).rvalue())
-            )
+            call_args.append(CallArg(name=arg_name, value=require_instance_builder(arg).rvalue()))
 
         func_type = self.func_type
         # bit of a kludge, but it works for us for now
@@ -98,7 +96,7 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         from puya.awst_build.eb.contracts import ContractSelfExpressionBuilder
 
         if not args and isinstance(args[0], ContractSelfExpressionBuilder):

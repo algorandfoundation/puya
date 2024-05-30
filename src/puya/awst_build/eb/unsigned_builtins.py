@@ -26,7 +26,10 @@ from puya.awst_build.eb.base import (
     NodeBuilder,
     TypeBuilder,
 )
-from puya.awst_build.utils import expect_operand_type, require_expression_builder
+from puya.awst_build.utils import (
+    expect_operand_type,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -51,7 +54,7 @@ class UnsignedRangeBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type).rvalue() for in_arg in args]
         match uint64_args:
             case [range_start, range_stop, range_step]:
@@ -91,7 +94,7 @@ class UnsignedEnumerateBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
         try:
@@ -102,7 +105,7 @@ class UnsignedEnumerateBuilder(TypeBuilder):
                 "(ie, start must always be zero)",
                 location,
             ) from ex
-        sequence = require_expression_builder(arg).iterate()
+        sequence = require_instance_builder(arg).iterate()
         enumeration = Enumeration(expr=sequence, source_location=location)
         return _IterableOnlyBuilder(enumeration)
 
@@ -119,7 +122,7 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
         try:
@@ -129,12 +132,12 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
                 "reversed expects a single argument",
                 location,
             ) from ex
-        sequence = require_expression_builder(arg).iterate()
+        sequence = require_instance_builder(arg).iterate()
         reversed_ = Reversed(expr=sequence, source_location=location)
         return _IterableOnlyBuilder(reversed_)
 
 
-class _IterableOnlyBuilder(NodeBuilder):
+class _IterableOnlyBuilder(InstanceBuilder):
     def __init__(self, expr: Iteration):
         super().__init__(expr.source_location)
         self._expr = expr
@@ -145,8 +148,8 @@ class _IterableOnlyBuilder(NodeBuilder):
 
     @typing.override
     @property
-    def pytype(self) -> None:
-        return None
+    def pytype(self) -> typing.Never:
+        raise NotImplementedError("TODO")  # TODO
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
@@ -169,7 +172,7 @@ class _IterableOnlyBuilder(NodeBuilder):
         return self._iterable_only(location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override
@@ -192,24 +195,24 @@ class _IterableOnlyBuilder(NodeBuilder):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override
     def binary_op(
         self,
-        other: NodeBuilder | Literal,
+        other: InstanceBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
     ) -> Statement:
         return self._iterable_only(location)
 

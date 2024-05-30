@@ -46,7 +46,7 @@ class BoolClassExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 false = BoolConstant(value=False, source_location=location)
@@ -67,8 +67,8 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return BoolExpressionBuilder(Not(location, self.expr))
 
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass

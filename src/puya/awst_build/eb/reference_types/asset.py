@@ -15,6 +15,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
+    InstanceBuilder,
     NodeBuilder,
     TypeBuilder,
 )
@@ -46,7 +47,7 @@ class AssetClassExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case []:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
@@ -84,7 +85,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         match args:
             case [NodeBuilder() as eb]:
                 account_expr = expect_operand_type(eb, pytypes.AccountType).rvalue()

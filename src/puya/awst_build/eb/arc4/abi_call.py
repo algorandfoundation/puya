@@ -38,6 +38,7 @@ from puya.awst_build.eb.arc4._utils import (
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
     FunctionBuilder,
+    InstanceBuilder,
     NodeBuilder,
     TypeBuilder,
 )
@@ -100,7 +101,7 @@ class ARC4ClientClassExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("ARC4Client subclasses cannot be instantiated", location)
 
     @typing.override
@@ -130,7 +131,7 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError(
             f"Can't invoke client methods directly, use {constants.CLS_ARC4_ABI_CALL}", location
         )
@@ -145,7 +146,7 @@ class ABICallGenericClassExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _abi_call(args, arg_typs, arg_kinds, arg_names, location, abi_return_type=None)
 
 
@@ -163,7 +164,7 @@ class ABICallClassExpressionBuilder(FunctionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _abi_call(
             args, arg_typs, arg_kinds, arg_names, location, abi_return_type=self.abi_return_type
         )

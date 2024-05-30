@@ -56,7 +56,7 @@ class BoxMapClassExpressionBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -69,7 +69,7 @@ class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
@@ -149,7 +149,7 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
                 return super().member_access(name, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         box_exists = StateExists(
             field=_box_value_expr(self.expr, item, location, self._typ.content.wtype),
             source_location=location,
@@ -231,7 +231,7 @@ class _Length(_MethodBase):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         if args_map:
@@ -255,7 +255,7 @@ class _Get(_MethodBase):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         args_map = get_arg_mapping(("key", "default"), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         default_value = expect_operand_type(
@@ -277,7 +277,7 @@ class _Maybe(_MethodBase):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         if args_map:

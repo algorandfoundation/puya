@@ -49,7 +49,7 @@ class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         typ = self.produces()
         fixed_wtype = typ.wtype
         assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
@@ -114,8 +114,8 @@ class UFixedNxMExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.AR
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         if isinstance(other, Literal):
             other = construct_from_literal(other, self.pytype)
         if other.pytype != self.pytype:

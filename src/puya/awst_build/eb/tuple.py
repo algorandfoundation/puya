@@ -47,7 +47,7 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         typ = pytypes.GenericTupleType.parameterise(arg_typs, location)
         tuple_expr = TupleExpression.from_items(
             [require_expression_builder(a).rvalue() for a in args], location
@@ -72,7 +72,7 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
 
         tuple_expr = TupleExpression(
             items=[require_expression_builder(a).rvalue() for a in args],
@@ -166,7 +166,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return self.rvalue()
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         if isinstance(item, Literal):
             raise CodeError(
                 "Cannot use in/not in check with a Python literal against a tuple", location
@@ -181,8 +181,8 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         match op:
             case BuilderComparisonOp.eq:
                 chain_op = BinaryBooleanOperator.and_

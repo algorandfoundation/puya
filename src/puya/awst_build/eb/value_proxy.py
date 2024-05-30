@@ -20,7 +20,7 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         super().__init__(typ, expr)
 
     @property
-    def _proxied(self) -> NodeBuilder:
+    def _proxied(self) -> InstanceBuilder:
         return builder_for_instance(self.pytype, self.expr)
 
     @typing.override
@@ -36,29 +36,29 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         return self._proxied.unary_op(op, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return self._proxied.contains(item, location)
 
     @typing.override
     def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
+        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
         return self._proxied.compare(other, op, location)
 
     @typing.override
     def binary_op(
         self,
-        other: NodeBuilder | Literal,
+        other: InstanceBuilder | Literal,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return self._proxied.binary_op(other, op, location, reverse=reverse)
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
     ) -> Statement:
         return self._proxied.augmented_assignment(op, rhs, location)
 

@@ -31,7 +31,7 @@ class StructSubclassExpressionBuilder(TypeBuilder[pytypes.StructType]):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise NotImplementedError
 
 

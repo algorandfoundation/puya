@@ -58,6 +58,7 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     CallableBuilder,
+    InstanceBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
 )
@@ -81,9 +82,10 @@ from puya.awst_build.utils import (
     qualified_class_name,
     require_expression_builder,
     require_instance_builder,
+    require_instance_builder_or_literal,
     resolve_method_from_type_info,
 )
-from puya.errors import CodeError, InternalError, PuyaError
+from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op, lazy_setdefault
@@ -273,7 +275,7 @@ class FunctionASTConverter(
                 " check for a stray comma at the end of the statement",
                 stmt_loc,
             )
-        expr = require_expression_builder(stmt.expr.accept(self)).rvalue()
+        expr = require_instance_builder(stmt.expr.accept(self)).rvalue()
         if expr.wtype is not wtypes.void_wtype:
             if (
                 # special case to ignore ignoring the result of typing.reveal_type
@@ -501,7 +503,7 @@ class FunctionASTConverter(
                 )
             return ReturnStatement(source_location=loc, value=None)
 
-        returning_builder = require_expression_builder(return_expr.accept(self))
+        returning_builder = require_instance_builder(return_expr.accept(self))
         if returning_builder.pytype != self._return_type:
             self._error(
                 f"invalid return type of {returning_builder.pytype}, expected {self._return_type}",
@@ -511,7 +513,7 @@ class FunctionASTConverter(
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
-        subject_eb = require_expression_builder(stmt.subject.accept(self))
+        subject_eb = require_instance_builder(stmt.subject.accept(self))
         subject_typ = subject_eb.pytype
         if subject_typ is None:  # TODO: remove once EB heirarchy is fixed
             raise CodeError("bad expression type", subject_eb.source_location)
@@ -544,7 +546,9 @@ class FunctionASTConverter(
                     constants.CLS_STRING,
                     constants.CLS_ACCOUNT,
                 ):
-                    case_value_builder_or_literal = inner_literal_expr.accept(self)
+                    case_value_builder_or_literal = require_instance_builder_or_literal(
+                        inner_literal_expr.accept(self)
+                    )
                     case_value = expect_operand_type(
                         case_value_builder_or_literal, subject_typ
                     ).rvalue()
@@ -816,32 +820,22 @@ class FunctionASTConverter(
                 self.context.warning(
                     "use of typing.cast, output may be invalid or insecure TEAL", call
                 )
-                return inner_expr.accept(self)
             case mypy.nodes.AssertTypeExpr(expr=inner_expr):
                 # just FYI... in case the user thinks this has a runtime effect
                 # (it doesn't, not even in Python)
                 self.context.warning(
                     "use of typing.assert_type has no effect on compilation", call
                 )
-                return inner_expr.accept(self)
             case mypy.nodes.RevealExpr(expr=mypy.nodes.Expression() as inner_expr):
-                result = inner_expr.accept(self)
-                if isinstance(result, Literal):
-                    self.context.info(f"algopy node is literal of {result.value!r}", call)
-                else:
-                    try:
-                        the_value = result.rvalue()
-                    except PuyaError:
-                        self.context.info(f"algopy node is {result!r}", call)
-                    else:
-                        self.context.info(f'algopy type is "{the_value.wtype.name}"', call)
-                return result
+                pass
             case _:
                 raise CodeError(
                     f"Unsupported special function call"
                     f" of analyzed type {type(analyzed).__name__}",
                     self._location(call),
                 )
+
+        return inner_expr.accept(self)
 
     def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> NodeBuilder | Literal:
         expr_loc = self._location(node)
@@ -854,15 +848,15 @@ class FunctionASTConverter(
                 return builder_or_literal.bool_eval(expr_loc, negate=True)
             case op_str if op_str in BuilderUnaryOp:
                 builder_op = BuilderUnaryOp(op_str)
-                return builder_or_literal.unary_op(builder_op, expr_loc)
+                return require_instance_builder(builder_or_literal).unary_op(builder_op, expr_loc)
             case _:
                 # guard against future python unary operators
                 raise InternalError(f"Unable to interpret unary operator '{node.op}'", expr_loc)
 
     def visit_op_expr(self, node: mypy.nodes.OpExpr) -> Literal | NodeBuilder:
         node_loc = self._location(node)
-        lhs = node.left.accept(self)
-        rhs = node.right.accept(self)
+        lhs = require_instance_builder_or_literal(node.left.accept(self))
+        rhs = require_instance_builder_or_literal(node.right.accept(self))
 
         # constant fold if both literals
         if isinstance(lhs, Literal) and isinstance(rhs, Literal):
@@ -902,10 +896,10 @@ class FunctionASTConverter(
         self,
         op: BinaryBooleanOperator,
         result_pytypes: Sequence[pytypes.PyType],
-        lhs: NodeBuilder | Literal,
-        rhs: NodeBuilder | Literal,
+        lhs: InstanceBuilder | Literal,
+        rhs: InstanceBuilder | Literal,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         # when in a boolean evaluation context, we can side step issues of type unions
         # and what not, and just assume everything is boolean.
         # note that this won't solve all potential use cases, and indeed some of them are
@@ -988,7 +982,7 @@ class FunctionASTConverter(
             case _:
                 typing.assert_never(expr.analyzed)
 
-        base_expr = expr.base.accept(self)
+        base_expr = require_instance_builder_or_literal(expr.base.accept(self))
         if isinstance(base_expr, Literal):
             raise CodeError(  # TODO: yeet me
                 "Python literals cannot be indexed or sliced", base_expr.source_location
@@ -1010,26 +1004,21 @@ class FunctionASTConverter(
         return base_expr.index(index=index_expr_or_literal, location=expr_location)
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
-        # TODO: conditional literals as literal builders
+        expr_loc = self._location(expr)
         condition = self._eval_condition(expr.cond)
-        true_expr = require_expression_builder(expr.if_expr.accept(self)).rvalue()  # TODO: pytypes
-        false_expr = require_expression_builder(expr.else_expr.accept(self)).rvalue()  # TODO: ^
-        expr_pytype = self.context.mypy_expr_node_type(expr)
-        if expr_pytype.wtype != true_expr.wtype:
-            self._error(
-                "Incompatible result type for 'true' expression", true_expr.source_location
-            )
-        if expr_pytype.wtype != false_expr.wtype:
-            self._error(
-                "Incompatible result type for 'else' expression branch", false_expr.source_location
-            )
+        # TODO: conditional literals as literal builders
+        true_b = require_instance_builder(expr.if_expr.accept(self))
+        false_b = require_instance_builder(expr.else_expr.accept(self))
+        if true_b.pytype != false_b.pytype:
+            self._error("Incompatible result types for 'true' and 'false' expressions", expr_loc)
+        expr_pytype = true_b.pytype
 
         cond_expr = ConditionalExpression(
-            source_location=self._location(expr),
             condition=condition,
-            true_expr=true_expr,
-            false_expr=false_expr,
+            true_expr=true_b.rvalue(),
+            false_expr=false_b.rvalue(),
             wtype=expr_pytype.wtype,
+            source_location=expr_loc,
         )
         return builder_for_instance(expr_pytype, cond_expr)
 
@@ -1051,7 +1040,7 @@ class FunctionASTConverter(
         #       type signatures that should be possible, and we can always know it's value at
         #       compile time, but it would always result in a constant ...
 
-        operands = [o.accept(self) for o in expr.operands]
+        operands = [require_instance_builder_or_literal(o.accept(self)) for o in expr.operands]
         operands[1:-1] = [
             temporary_assignment_if_required(operand) for operand in list(operands)[1:-1]
         ]
@@ -1076,8 +1065,8 @@ class FunctionASTConverter(
     def _build_compare(
         self,
         operator: str,
-        lhs: NodeBuilder | Literal,
-        rhs: NodeBuilder | Literal,
+        lhs: InstanceBuilder | Literal,
+        rhs: InstanceBuilder | Literal,
     ) -> Expression:
         cmp_loc = lhs.source_location + rhs.source_location
         if isinstance(lhs, Literal) and isinstance(rhs, Literal):
@@ -1095,7 +1084,7 @@ class FunctionASTConverter(
                 contains_builder = container_builder.contains(lhs, cmp_loc)
                 return contains_builder.rvalue()
 
-        result: NodeBuilder = NotImplemented
+        result: InstanceBuilder = NotImplemented
         if isinstance(lhs, NodeBuilder):
             op = BuilderComparisonOp(operator)
             result = lhs.compare(other=rhs, op=op, location=cmp_loc)
@@ -1120,9 +1109,10 @@ class FunctionASTConverter(
         from puya.awst_build.eb.tuple import TupleExpressionBuilder
 
         items = [
-            require_expression_builder(
+            require_instance_builder(
                 mypy_item.accept(self),
-                msg="Python literals (other than True/False) are not valid as tuple elements",
+                literal_msg="Python literals (other than True/False)"
+                " are not valid as tuple elements",
             ).rvalue()
             for mypy_item in mypy_expr.items
         ]
@@ -1150,7 +1140,7 @@ class FunctionASTConverter(
         )
         # TODO: test if self. assignment?
         with self._leave_bool_context():
-            source = require_expression_builder(expr.value.accept(self))
+            source = require_instance_builder(expr.value.accept(self))
         value = source.rvalue()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
@@ -1225,12 +1215,12 @@ def is_self_member(
 @typing.overload
 def temporary_assignment_if_required(operand: Literal) -> Literal: ...
 @typing.overload
-def temporary_assignment_if_required(operand: NodeBuilder) -> NodeBuilder: ...
+def temporary_assignment_if_required(operand: InstanceBuilder) -> InstanceBuilder: ...
 
 
 def temporary_assignment_if_required(
-    operand: NodeBuilder | Literal,
-) -> NodeBuilder | Literal:
+    operand: InstanceBuilder | Literal,
+) -> InstanceBuilder | Literal:
     if isinstance(operand, Literal):
         return operand
 

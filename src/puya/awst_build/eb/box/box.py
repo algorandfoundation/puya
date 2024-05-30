@@ -51,7 +51,7 @@ class BoxClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
@@ -64,7 +64,7 @@ class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return _init(args, arg_typs, arg_names, location, result_type=None)
 
 
