@@ -83,6 +83,16 @@ class NodeBuilder(abc.ABC):
     def __init__(self, location: SourceLocation):
         self.source_location = location
 
+    @property
+    @abc.abstractmethod
+    def pytype(self) -> pytypes.PyType | None: ...
+
+    @property
+    def _type_description(self) -> str:
+        if self.pytype is None:
+            return type(self).__name__
+        return str(self.pytype)
+
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         """Handle self.name"""
         raise CodeError(
@@ -108,19 +118,6 @@ class NodeBuilder(abc.ABC):
 
     @abc.abstractmethod
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder: ...
-
-    @abc.abstractmethod
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder: ...
-
-    @property
-    @abc.abstractmethod
-    def pytype(self) -> pytypes.PyType | None: ...
-
-    @property
-    def _type_description(self) -> str:
-        if self.pytype is None:
-            return type(self).__name__
-        return str(self.pytype)
 
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -163,6 +160,10 @@ class NodeBuilder(abc.ABC):
             f"{self._type_description} does not support augmented assignment", location
         )
 
+    # collection/iterable methods
+    @abc.abstractmethod
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder: ...
+
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         """Handle self[index]"""
         raise CodeError(f"{self._type_description} does not support indexing", location)
@@ -177,6 +178,15 @@ class NodeBuilder(abc.ABC):
         """Handle self[begin_index:end_index:stride]"""
         raise CodeError(f"{self._type_description} does not support slicing", location)
 
+    def iterate(self) -> Iteration:
+        """Produce target of ForInLoop"""
+        raise CodeError(
+            f"{self._type_description} does not support iteration", self.source_location
+        )
+
+
+class CallableBuilder(NodeBuilder, abc.ABC):
+    @abc.abstractmethod
     def call(
         self,
         args: Sequence[NodeBuilder | Literal],
@@ -186,13 +196,6 @@ class NodeBuilder(abc.ABC):
         location: SourceLocation,
     ) -> NodeBuilder:
         """Handle self(args...)"""
-        raise CodeError(f"{self._type_description} does not support calling", location)
-
-    def iterate(self) -> Iteration:
-        """Produce target of ForInLoop"""
-        raise CodeError(
-            f"{self._type_description} does not support iteration", self.source_location
-        )
 
 
 class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
@@ -232,7 +235,7 @@ class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
         raise CodeError(f"{self._type_description} is not a value", location)
 
 
-class FunctionBuilder(IntermediateExpressionBuilder):
+class FunctionBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
     @property
     def pytype(self) -> None:  # TODO: give function type
         return None
@@ -263,7 +266,9 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class TypeBuilder(IntermediateExpressionBuilder, typing.Generic[_TPyType_co], abc.ABC):
+class TypeBuilder(
+    IntermediateExpressionBuilder, typing.Generic[_TPyType_co], CallableBuilder, abc.ABC
+):
     # TODO: better error messages for rvalue/lvalue/delete
 
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):
@@ -278,34 +283,12 @@ class TypeBuilder(IntermediateExpressionBuilder, typing.Generic[_TPyType_co], ab
     def produces(self) -> _TPyType_co:
         return self._pytype
 
-    @typing.override
-    @abc.abstractmethod
-    def call(
-        self,
-        args: Sequence[NodeBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> NodeBuilder: ...
 
-
-class GenericTypeBuilder(IntermediateExpressionBuilder, abc.ABC):
+class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
     @typing.override
     @property
     def pytype(self) -> None:  # TODO: ??
         return None
-
-    @typing.override
-    @abc.abstractmethod
-    def call(
-        self,
-        args: Sequence[NodeBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> NodeBuilder: ...
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
@@ -354,17 +337,6 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
     @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support indexing", location)
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> NodeBuilder:
-        raise CodeError(f"{self.pytype} does not support calling", location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:

@@ -1,8 +1,3 @@
-from collections.abc import Sequence
-
-import mypy.nodes
-import mypy.types
-
 from puya.awst.nodes import Expression, Literal, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
@@ -68,16 +63,6 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         location: SourceLocation,
     ) -> NodeBuilder:
         return self._proxied.slice_index(begin_index, end_index, stride, location)
-
-    def call(
-        self,
-        args: Sequence[NodeBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> NodeBuilder:
-        return self._proxied.call(args, arg_typs, arg_kinds, arg_names, location)
 
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         return self._proxied.member_access(name, location)

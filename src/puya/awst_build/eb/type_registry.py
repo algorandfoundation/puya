@@ -24,7 +24,7 @@ from puya.awst_build.eb import (
     unsigned_builtins,
     void,
 )
-from puya.awst_build.eb.base import NodeBuilder
+from puya.awst_build.eb.base import CallableBuilder, NodeBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
 from puya.errors import InternalError
 from puya.parse import SourceLocation
@@ -34,11 +34,11 @@ __all__ = [
     "builder_for_type",
 ]
 
-ExpressionBuilderFromSourceFactory = Callable[[SourceLocation], NodeBuilder]
-ExpressionBuilderFromPyTypeAndSourceFactory = Callable[
-    [pytypes.PyType, SourceLocation], NodeBuilder
+CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
+CallableBuilderFromPyTypeAndSourceFactory = Callable[
+    [pytypes.PyType, SourceLocation], CallableBuilder
 ]
-FUNC_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
+FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
     constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
     constants.LOG: log.LogBuilder,
@@ -55,7 +55,7 @@ FUNC_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
         for name, mappings in intrinsic_data.FUNC_TO_AST_MAPPER.items()
     },
 }
-PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory] = {
+PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] = {
     pytypes.NoneType: void.VoidTypeExpressionBuilder,
     pytypes.BoolType: bool_.BoolClassExpressionBuilder,
     pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
@@ -123,7 +123,7 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory]
     },
 }
 PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
-    pytypes.PyType | None, ExpressionBuilderFromPyTypeAndSourceFactory
+    pytypes.PyType | None, CallableBuilderFromPyTypeAndSourceFactory
 ] = {
     pytypes.uenumerateGenericType: unsigned_builtins.UnsignedEnumerateBuilder,
     pytypes.reversedGenericType: unsigned_builtins.ReversedFunctionExpressionBuilder,
@@ -143,7 +143,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayClassExpressionBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayClassExpressionBuilder,
 }
-PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromPyTypeAndSourceFactory] = {
+PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructClassExpressionBuilder,
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
 }
@@ -225,7 +225,7 @@ def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> NodeBuilder
     raise InternalError(f"No builder for instance: {pytyp}", expr.source_location)
 
 
-def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> NodeBuilder:
+def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> CallableBuilder:
     if tb := PYTYPE_TO_TYPE_BUILDER.get(pytyp):
         return tb(expr_loc)
     if tb_param_generic := PYTYPE_GENERIC_TO_TYPE_BUILDER.get(pytyp.generic):
