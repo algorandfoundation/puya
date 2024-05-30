@@ -39,7 +39,11 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type
+from puya.awst_build.utils import (
+    convert_literal_to_builder,
+    expect_operand_type,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -165,7 +169,9 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         return len_builder.bool_eval(location, negate=negate)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         item_expr = get_bytes_expr(expect_operand_type(item, pytypes.StringType).rvalue())
         this_expr = get_bytes_expr(self.expr)
         is_substring_expr = SubroutineCallExpression(
@@ -227,10 +233,8 @@ class _StringStartsOrEndsWith(FunctionBuilder):
         )
         this = get_bytes_expr_builder(SingleEvaluation(self._base))
 
-        this_length = this.member_access("length", location)
-        assert isinstance(this_length, NodeBuilder)
-        arg_length = arg.member_access("length", location)
-        assert isinstance(arg_length, NodeBuilder)
+        this_length = require_instance_builder(this.member_access("length", location))
+        arg_length = require_instance_builder(arg.member_access("length", location))
 
         arg_length_gt_this_length = arg_length.compare(
             this_length, op=BuilderComparisonOp.gt, location=location

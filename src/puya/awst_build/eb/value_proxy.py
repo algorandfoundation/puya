@@ -36,7 +36,9 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         return self._proxied.unary_op(op, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         return self._proxied.contains(item, location)
 
     @typing.override

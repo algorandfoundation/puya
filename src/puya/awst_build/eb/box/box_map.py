@@ -149,7 +149,9 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
                 return super().member_access(name, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         box_exists = StateExists(
             field=_box_value_expr(self.expr, item, location, self._typ.content.wtype),
             source_location=location,

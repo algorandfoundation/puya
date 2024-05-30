@@ -229,7 +229,9 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """Handle self {op}= rhs"""
 
     @abc.abstractmethod
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         """Handle item in self"""
         raise CodeError("expression is not iterable", self.source_location)
 
@@ -343,7 +345,9 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
 class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
     @typing.final
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         return super().contains(item, location)
 
     @typing.final

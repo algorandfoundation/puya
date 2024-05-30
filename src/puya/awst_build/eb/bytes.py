@@ -215,7 +215,9 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return super().unary_op(op, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         item_expr = expect_operand_type(item, pytypes.BytesType).rvalue()
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),

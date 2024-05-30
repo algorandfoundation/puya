@@ -143,7 +143,9 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return arc4_compare_bytes(self, op, other, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         raise CodeError("item containment with ARC4 tuples is currently unsupported", location)
 
     @typing.override

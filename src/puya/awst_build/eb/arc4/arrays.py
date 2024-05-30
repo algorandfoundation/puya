@@ -315,7 +315,9 @@ class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], 
 
     @typing.override
     @typing.final
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         raise CodeError("item containment with ARC4 arrays is currently unsupported", location)
 
     @typing.override

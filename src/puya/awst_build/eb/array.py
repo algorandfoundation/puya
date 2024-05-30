@@ -108,7 +108,9 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         return super().member_access(name, location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         item_expr = expect_operand_type(item, self.pytype.items).rvalue()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)

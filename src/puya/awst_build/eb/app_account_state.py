@@ -171,7 +171,9 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
         return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         exists_expr = StateExists(
             field=self._build_field(item, location), source_location=location
         )

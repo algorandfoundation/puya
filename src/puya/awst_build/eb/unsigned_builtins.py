@@ -172,7 +172,9 @@ class _IterableOnlyBuilder(InstanceBuilder):
         return self._iterable_only(location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override

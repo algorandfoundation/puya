@@ -30,7 +30,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import require_expression_builder
+from puya.awst_build.utils import require_expression_builder, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -50,7 +50,7 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         typ = pytypes.GenericTupleType.parameterise(arg_typs, location)
         tuple_expr = TupleExpression.from_items(
-            [require_expression_builder(a).rvalue() for a in args], location
+            [require_instance_builder(a).rvalue() for a in args], location
         )
         return TupleExpressionBuilder(tuple_expr, typ)
 
@@ -75,7 +75,7 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     ) -> InstanceBuilder:
 
         tuple_expr = TupleExpression(
-            items=[require_expression_builder(a).rvalue() for a in args],
+            items=[require_instance_builder(a).rvalue() for a in args],
             wtype=self._wtype,
             source_location=location,
         )
@@ -102,7 +102,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                     index_expr_or_literal.source_location,
                 )
 
-    def _index(self, index_value: int, location: SourceLocation) -> NodeBuilder:
+    def _index(self, index_value: int, location: SourceLocation) -> InstanceBuilder:
         try:
             item_typ = self.pytype.items[index_value]
         except IndexError as ex:
@@ -166,7 +166,9 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return self.rvalue()
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         if isinstance(item, Literal):
             raise CodeError(
                 "Cannot use in/not in check with a Python literal against a tuple", location

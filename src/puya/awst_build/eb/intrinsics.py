@@ -15,7 +15,11 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
-from puya.awst_build.utils import construct_from_literal, get_arg_mapping
+from puya.awst_build.utils import (
+    construct_from_literal,
+    get_arg_mapping,
+    require_instance_builder_or_literal,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -125,8 +129,10 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         primary_mapping = self._mappings[0]  # TODO: remove this assumption
         func_arg_names = (*primary_mapping.literal_arg_names, *primary_mapping.stack_inputs.keys())
 
+        args_ = [require_instance_builder_or_literal(a) for a in args]
+
         arg_mapping = get_arg_mapping(
-            func_arg_names, args=zip(arg_names, args, strict=False), location=location
+            func_arg_names, args=zip(arg_names, args_, strict=False), location=location
         )
         intrinsic_expr = _map_call(
             self._mappings, callee=self._fullname, node_location=location, args=arg_mapping
@@ -135,7 +141,7 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
 
 
 def _best_op_mapping(
-    op_mappings: Sequence[FunctionOpMapping], args: dict[str, NodeBuilder | Literal]
+    op_mappings: Sequence[FunctionOpMapping], args: dict[str, InstanceBuilder | Literal]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
     literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
@@ -150,8 +156,8 @@ def _map_call(
     ast_mapper: Sequence[FunctionOpMapping],
     callee: str,
     node_location: SourceLocation,
-    args: dict[str, NodeBuilder | Literal],
-) -> NodeBuilder:
+    args: dict[str, InstanceBuilder | Literal],
+) -> InstanceBuilder:
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:
@@ -185,7 +191,7 @@ def _map_call(
         arg_in = args.pop(arg_name, None)
         if arg_in is None:
             logger.error(f"Missing expected argument {arg_name}", location=node_location)
-        elif isinstance(arg_in, NodeBuilder):
+        elif isinstance(arg_in, InstanceBuilder):
             if arg_in.pytype not in allowed_pytypes:
                 logger.error(
                     f'Invalid argument type "{arg_in.pytype}"'
@@ -194,6 +200,7 @@ def _map_call(
                 )
             stack_args.append(arg_in.rvalue())
         else:
+            typing.assert_type(arg_in, Literal)
             literal_value = arg_in.value
             for allowed_type in allowed_pytypes:
                 allowed_wtype = allowed_type.wtype  # TODO yeet me

@@ -43,5 +43,5 @@ def get_bytes_expr(expr: Expression) -> ReinterpretCast:
     )
 
 
-def get_bytes_expr_builder(expr: Expression) -> NodeBuilder:
+def get_bytes_expr_builder(expr: Expression) -> InstanceBuilder:
     return BytesExpressionBuilder(get_bytes_expr(expr))

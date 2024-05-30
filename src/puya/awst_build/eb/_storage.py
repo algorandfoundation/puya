@@ -90,7 +90,9 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(location)
 
     @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def contains(
+        self, item: InstanceBuilder | Literal, location: SourceLocation
+    ) -> InstanceBuilder:
         return self._assign_first(location)
 
     @typing.override
