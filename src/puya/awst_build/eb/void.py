@@ -6,9 +6,9 @@ import mypy.nodes
 from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
+    InstanceExpressionBuilder,
     NodeBuilder,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -31,6 +31,6 @@ class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
         raise CodeError("None is not usable as a value", location)
 
 
-class VoidExpressionBuilder(ValueExpressionBuilder):
+class VoidExpressionBuilder(InstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.NoneType, expr)

@@ -27,10 +27,10 @@ from puya.awst_build.eb._storage import (
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericClassExpressionBuilder,
+    InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
@@ -137,7 +137,7 @@ def _init(
     )
 
 
-class AppStateExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
+class AppStateExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyType]):
 
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)

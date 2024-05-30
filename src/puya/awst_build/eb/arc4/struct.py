@@ -8,7 +8,7 @@ from puya.awst.nodes import Expression, FieldExpression, Literal, NewStruct
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
-from puya.awst_build.eb.base import BuilderComparisonOp, NodeBuilder, ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, InstanceExpressionBuilder, NodeBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
@@ -68,7 +68,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
         )
 
 
-class ARC4StructExpressionBuilder(ValueExpressionBuilder[pytypes.StructType]):
+class ARC4StructExpressionBuilder(InstanceExpressionBuilder[pytypes.StructType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)

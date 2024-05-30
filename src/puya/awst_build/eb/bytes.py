@@ -32,10 +32,10 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     FunctionBuilder,
+    InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -147,7 +147,7 @@ class BytesFromEncodedStrBuilder(FunctionBuilder):
         return BytesExpressionBuilder(expr)
 
 
-class BytesExpressionBuilder(ValueExpressionBuilder):
+class BytesExpressionBuilder(InstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BytesType, expr)
 

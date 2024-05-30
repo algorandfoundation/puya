@@ -21,10 +21,10 @@ from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_k
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericClassExpressionBuilder,
+    InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked
@@ -117,7 +117,7 @@ def _init(
     )
 
 
-class BoxMapProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageMapProxyType]):
+class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType

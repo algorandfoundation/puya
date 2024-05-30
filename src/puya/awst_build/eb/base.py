@@ -40,7 +40,7 @@ __all__ = [
     "IntermediateExpressionBuilder",
     "TypeClassExpressionBuilder",
     "GenericClassExpressionBuilder",
-    "ValueExpressionBuilder",
+    "InstanceExpressionBuilder",
 ]
 
 Iteration: typing.TypeAlias = Expression | Range
@@ -324,7 +324,7 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
         )
 
 
-class ValueExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
+class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
 
     def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)

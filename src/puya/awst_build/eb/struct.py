@@ -6,9 +6,9 @@ import mypy.types
 from puya.awst.nodes import Expression, FieldExpression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
+    InstanceExpressionBuilder,
     NodeBuilder,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
@@ -32,7 +32,7 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StructT
         raise NotImplementedError
 
 
-class StructExpressionBuilder(ValueExpressionBuilder[pytypes.StructType]):
+class StructExpressionBuilder(InstanceExpressionBuilder[pytypes.StructType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)

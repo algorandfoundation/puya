@@ -20,10 +20,10 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     GenericClassExpressionBuilder,
+    InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
@@ -112,7 +112,7 @@ def _init(
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
 
 
-class BoxProxyExpressionBuilder(ValueExpressionBuilder[pytypes.StorageProxyType]):
+class BoxProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType

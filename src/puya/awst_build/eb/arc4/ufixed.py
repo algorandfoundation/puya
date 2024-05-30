@@ -19,7 +19,7 @@ from puya.awst_build.eb._utils import (
     get_bytes_expr_builder,
 )
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
-from puya.awst_build.eb.base import BuilderComparisonOp, NodeBuilder, ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, InstanceExpressionBuilder, NodeBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
@@ -81,7 +81,7 @@ class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
         return UFixedNxMExpressionBuilder(result, typ)
 
 
-class UFixedNxMExpressionBuilder(ValueExpressionBuilder[pytypes.ARC4UFixedNxMType]):
+class UFixedNxMExpressionBuilder(InstanceExpressionBuilder[pytypes.ARC4UFixedNxMType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UFixedNxMType)
         assert typ.generic in (

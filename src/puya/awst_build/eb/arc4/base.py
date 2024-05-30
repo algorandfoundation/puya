@@ -26,8 +26,8 @@ from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     FunctionBuilder,
+    InstanceExpressionBuilder,
     NodeBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
@@ -143,7 +143,7 @@ class CopyBuilder(FunctionBuilder):
         raise CodeError("Invalid/Unexpected arguments", location)
 
 
-class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC):
+class ARC4EncodedExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
     def __init__(self, pytype: _TPyType_co, expr: Expression, native_pytype: pytypes.PyType):
         super().__init__(pytype, expr)
         self._native_pytype = native_pytype
@@ -172,12 +172,12 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder[_TPyType_co], abc.ABC)
     @typing.override
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        # TODO: lift this up to ValueExpressionBuilder
+        # TODO: lift this up to InstanceExpressionBuilder
         raise NotImplementedError
 
 
 def arc4_compare_bytes(
-    lhs: ValueExpressionBuilder,
+    lhs: InstanceExpressionBuilder,
     op: BuilderComparisonOp,
     rhs: NodeBuilder | Literal,
     location: SourceLocation,

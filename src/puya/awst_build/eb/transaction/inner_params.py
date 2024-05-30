@@ -19,9 +19,9 @@ from puya.awst_build import pytypes
 from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb.base import (
     FunctionBuilder,
+    InstanceExpressionBuilder,
     NodeBuilder,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
@@ -145,7 +145,7 @@ class InnerTxnParamsClassExpressionBuilder(
         )
 
 
-class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder[pytypes.TransactionRelatedType]):
+class InnerTxnParamsExpressionBuilder(InstanceExpressionBuilder[pytypes.TransactionRelatedType]):
     def __init__(self, expr: Expression, typ: pytypes.TransactionRelatedType):
         assert isinstance(typ, pytypes.TransactionRelatedType)
         super().__init__(typ, expr)

@@ -10,10 +10,10 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericClassExpressionBuilder,
+    InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
@@ -83,7 +83,7 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType])
         return ArrayExpressionBuilder(array_expr, array_type)
 
 
-class ArrayExpressionBuilder(ValueExpressionBuilder[pytypes.ArrayType]):
+class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)

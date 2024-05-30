@@ -22,10 +22,10 @@ from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     GenericClassExpressionBuilder,
+    InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
     TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
@@ -81,7 +81,7 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[pytypes.TupleType]):
         return TupleExpressionBuilder(tuple_expr, self.produces())
 
 
-class TupleExpressionBuilder(ValueExpressionBuilder[pytypes.TupleType]):
+class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, expr)
