@@ -6,7 +6,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     Expression,
     InnerTransactionField,
-    Literal,
     SubmitInnerTransaction,
     TxnField,
 )
@@ -35,7 +34,7 @@ class InnerTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -84,14 +83,14 @@ class _ArrayItem(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [(NodeBuilder() | Literal(value=int())) as eb]:
+            case [NodeBuilder() as eb]:
                 index_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
                 expr = InnerTransactionField(
                     itxn=self.transaction,
@@ -106,7 +105,7 @@ class _ArrayItem(FunctionBuilder):
 
 
 def _get_transaction_type_from_arg(
-    literal_or_expr: NodeBuilder | Literal,
+    literal_or_expr: NodeBuilder,
 ) -> TransactionType | None:
     if isinstance(literal_or_expr, InstanceBuilder):
         wtype = literal_or_expr.rvalue().wtype
@@ -119,7 +118,7 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

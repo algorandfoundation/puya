@@ -13,7 +13,6 @@ from puya.awst.nodes import (
     BigUIntBinaryOperator,
     BigUIntConstant,
     Expression,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -32,6 +31,7 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
+    LiteralBuilder,
     NodeBuilder,
 )
 from puya.awst_build.utils import convert_literal_to_builder
@@ -54,7 +54,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -63,7 +63,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         match args:
             case []:
                 value: Expression = BigUIntConstant(value=0, source_location=location)
-            case [Literal(value=int(int_value))]:
+            case [LiteralBuilder(value=int(int_value))]:
                 value = BigUIntConstant(value=int_value, source_location=location)
             case [NodeBuilder() as eb]:
                 value = uint64_to_biguint(eb, location)
@@ -78,7 +78,7 @@ class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BigUIntType, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "bytes":
                 return BytesExpressionBuilder(
@@ -106,7 +106,7 @@ class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return super().unary_op(op, location)
 
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
@@ -125,7 +125,7 @@ class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -149,7 +149,7 @@ class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return BigUIntExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         if rhs.pytype == self.pytype:

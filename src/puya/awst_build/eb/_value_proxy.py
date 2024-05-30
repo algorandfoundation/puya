@@ -1,6 +1,6 @@
 import typing
 
-from puya.awst.nodes import Expression, Literal, Statement
+from puya.awst.nodes import Expression, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     InstanceExpressionBuilder,
@@ -38,21 +38,19 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         return self._proxied.unary_op(op, location)
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return self._proxied.contains(item, location)
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return self._proxied.compare(other, op, location)
 
     @typing.override
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -62,26 +60,26 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         return self._proxied.augmented_assignment(op, rhs, location)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return self._proxied.index(index, location)
 
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         return self._proxied.slice_index(begin_index, end_index, stride, location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         return self._proxied.member_access(name, location)
 
     @typing.override

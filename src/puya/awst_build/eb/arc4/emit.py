@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 import mypy.nodes
 
 from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
-from puya.awst.nodes import Literal, MethodConstant
+from puya.awst.nodes import MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.errors import CodeError
 
@@ -26,19 +26,14 @@ class EmitBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [
-                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
-            ] if pytypes.ARC4StructBaseType in struct_type.mro:
-                event_name = struct_type.name.split(".")[-1]
-                event_arg = event_arg_eb.rvalue()
-            case [Literal(value=str(event_str)), *event_args]:
+            case [LiteralBuilder(value=str(event_str)), *event_args]:
                 arc4_args, signature = get_arc4_args_and_signature(
                     event_str, arg_typs[1:], event_args, location
                 )
@@ -53,6 +48,11 @@ class EmitBuilder(FunctionBuilder):
                     arc4_args,
                     location,
                 )
+            case [
+                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
+            ] if pytypes.ARC4StructBaseType in struct_type.mro:
+                event_name = struct_type.name.split(".")[-1]
+                event_arg = event_arg_eb.rvalue()
             case _:
                 raise CodeError("Unexpected arguments", location)
         event_sig = f"{event_name}{wtype_to_arc4(event_arg.wtype)}"

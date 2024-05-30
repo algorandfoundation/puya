@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     ContractReference,
     Expression,
     IntrinsicCall,
-    Literal,
     Not,
     StateExists,
 )
@@ -48,7 +47,7 @@ class BoxRefClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -95,7 +94,7 @@ class BoxRefProxyExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "create":
                 return _Create(location, box_proxy=self.expr)
@@ -209,7 +208,7 @@ class _IntrinsicMethod(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -242,7 +241,7 @@ class _Create(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -271,7 +270,7 @@ class _Put(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

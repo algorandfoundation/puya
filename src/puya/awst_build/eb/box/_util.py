@@ -4,7 +4,6 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
-    Literal,
     SingleEvaluation,
     TupleItemExpression,
     UInt64Constant,
@@ -19,7 +18,7 @@ from puya.parse import SourceLocation
 
 def index_box_bytes(
     box: BoxValueExpression,
-    index: InstanceBuilder | Literal,
+    index: InstanceBuilder,
     location: SourceLocation,
 ) -> InstanceBuilder:
 
@@ -52,9 +51,9 @@ def index_box_bytes(
 
 def slice_box_bytes(
     box: BoxValueExpression,
-    begin_index: InstanceBuilder | Literal | None,
-    end_index: InstanceBuilder | Literal | None,
-    stride: InstanceBuilder | Literal | None,
+    begin_index: InstanceBuilder | None,
+    end_index: InstanceBuilder | None,
+    stride: InstanceBuilder | None,
     location: SourceLocation,
 ) -> InstanceBuilder:
     if stride:

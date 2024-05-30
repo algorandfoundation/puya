@@ -5,11 +5,16 @@ from collections.abc import Sequence
 import mypy.nodes
 import typing_extensions
 
-from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
+from puya.awst.nodes import (
+    BytesConstant,
+    BytesEncoding,
+    Expression,
+    ReinterpretCast,
+)
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -40,14 +45,14 @@ class _FromBytes(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [Literal(value=bytes(bytes_val), source_location=literal_loc)]:
+            case [LiteralBuilder(value=bytes(bytes_val), source_location=literal_loc)]:
                 arg: Expression = BytesConstant(
                     value=bytes_val, encoding=BytesEncoding.unknown, source_location=literal_loc
                 )

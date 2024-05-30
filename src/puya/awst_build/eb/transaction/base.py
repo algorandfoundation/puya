@@ -16,7 +16,7 @@ from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.errors import InternalError
 
 if typing.TYPE_CHECKING:
-    from puya.awst.nodes import Expression, Literal, TxnField
+    from puya.awst.nodes import Expression, TxnField
     from puya.parse import SourceLocation
 
 _PYTHON_MEMBER_FIELD_MAP = {
@@ -33,7 +33,7 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
     ) -> NodeBuilder: ...
 
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         field_data = _PYTHON_MEMBER_FIELD_MAP.get(name)
         if field_data is None:
             return super().member_access(name, location)

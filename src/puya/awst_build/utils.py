@@ -14,7 +14,6 @@ from puya.awst.nodes import (
     ConstantValue,
     ContractReference,
     Expression,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     SingleEvaluation,
@@ -25,7 +24,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.factories import builder_for_type
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -91,6 +90,11 @@ UNARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any], typing.Any]]] = {
 def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> ConstantValue:
     if not (func := UNARY_OPS.get(op)):
         raise InternalError(f"Unhandled unary operator: {op}", location)
+    if op == "~" and isinstance(expr, int):
+        logger.warning(
+            "due to Python ints being signed, bitwise inversion yield a negative number",
+            location=location,
+        )
     try:
         result = func(expr)
     except Exception as ex:
@@ -154,18 +158,18 @@ _TBuilder = typing.TypeVar("_TBuilder", bound=NodeBuilder)
 
 
 def require_expression_builder(
-    builder_or_literal: _TBuilder | Literal,
+    builder_or_literal: _TBuilder,
     *,
     msg: str = "A Python literal is not valid at this location",
 ) -> "_TBuilder | BoolExpressionBuilder":
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     match builder_or_literal:
-        case Literal(value=bool(value), source_location=literal_location):
+        case LiteralBuilder(value=bool(value), source_location=literal_location):
             return BoolExpressionBuilder(
                 BoolConstant(value=value, source_location=literal_location)
             )
-        case Literal(source_location=literal_location):
+        case LiteralBuilder(source_location=literal_location):
             raise CodeError(msg, literal_location)
         case NodeBuilder() as builder:
             return builder
@@ -174,7 +178,7 @@ def require_expression_builder(
 
 
 def require_instance_builder(
-    builder_or_literal: NodeBuilder | Literal,
+    builder_or_literal: NodeBuilder,
     *,
     literal_msg: str = "A Python literal is not valid at this location",
     non_instance_msg: str = "expression is not a value",
@@ -182,11 +186,11 @@ def require_instance_builder(
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     match builder_or_literal:
-        case Literal(value=bool(value), source_location=literal_location):
+        case LiteralBuilder(value=bool(value), source_location=literal_location):
             return BoolExpressionBuilder(
                 BoolConstant(value=value, source_location=literal_location)
             )
-        case Literal(source_location=literal_location):
+        case LiteralBuilder(source_location=literal_location):
             raise CodeError(literal_msg, literal_location)
         case InstanceBuilder() as builder:
             return builder
@@ -197,12 +201,12 @@ def require_instance_builder(
 
 
 def require_instance_builder_or_literal(
-    builder_or_literal: NodeBuilder | Literal,
+    builder_or_literal: NodeBuilder,
     *,
     non_instance_msg: str = "expression is not a value",
-) -> InstanceBuilder | Literal:
+) -> InstanceBuilder:
     match builder_or_literal:
-        case Literal() as literal:
+        case LiteralBuilder() as literal:
             return literal
         case InstanceBuilder() as builder:
             return builder
@@ -213,9 +217,9 @@ def require_instance_builder_or_literal(
 
 
 def expect_operand_type(
-    literal_or_eb: Literal | NodeBuilder, target_type: pytypes.PyType
+    literal_or_eb: NodeBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
-    if isinstance(literal_or_eb, Literal):
+    if isinstance(literal_or_eb, LiteralBuilder):
         return construct_from_literal(literal_or_eb, target_type)
     if literal_or_eb.pytype != target_type:
         raise CodeError(
@@ -227,18 +231,18 @@ def expect_operand_type(
 
 
 def convert_literal_to_builder(
-    literal_or_expr: Literal | _TBuilder, target_type: pytypes.PyType
+    literal_or_expr: _TBuilder, target_type: pytypes.PyType
 ) -> _TBuilder | InstanceBuilder:
-    if isinstance(literal_or_expr, Literal):
+    if isinstance(literal_or_expr, LiteralBuilder):
         return construct_from_literal(literal_or_expr, target_type)
     else:
         return literal_or_expr
 
 
-def bool_eval(builder_or_literal: NodeBuilder | Literal, loc: SourceLocation) -> InstanceBuilder:
+def bool_eval(builder_or_literal: NodeBuilder, loc: SourceLocation) -> InstanceBuilder:
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
-    if isinstance(builder_or_literal, NodeBuilder):
+    if not isinstance(builder_or_literal, LiteralBuilder):
         return builder_or_literal.bool_eval(location=loc)
     constant_value = bool(builder_or_literal.value)
     return BoolExpressionBuilder(BoolConstant(value=constant_value, source_location=loc))
@@ -313,12 +317,12 @@ def snake_case(s: str) -> str:
 
 
 def eval_slice_component(
-    len_expr: Expression, val: NodeBuilder | Literal | None, location: SourceLocation
+    len_expr: Expression, val: NodeBuilder | None, location: SourceLocation
 ) -> Expression | None:
     if val is None:
         return None
 
-    if isinstance(val, NodeBuilder):
+    if not isinstance(val, LiteralBuilder):
         # no negatives to deal with here, easy
         index_expr = expect_operand_type(val, pytypes.UInt64Type).rvalue()
         temp_index = SingleEvaluation(index_expr)
@@ -396,7 +400,7 @@ def resolve_method_from_type_info(
 
 
 def construct_from_builder_or_literal(
-    literal_or_builder: Literal | InstanceBuilder,
+    literal_or_builder: InstanceBuilder,
     target_type: pytypes.PyType,
     loc: SourceLocation | None = None,
 ) -> InstanceBuilder:
@@ -410,20 +414,18 @@ def construct_from_builder_or_literal(
 
 
 def construct_from_literal(
-    literal: Literal, target_type: pytypes.PyType, loc: SourceLocation | None = None
+    literal: LiteralBuilder, target_type: pytypes.PyType, loc: SourceLocation | None = None
 ) -> InstanceBuilder:
     loc = loc or literal.source_location
     return _construct_instance(target_type, literal, loc)
 
 
 def _construct_instance(
-    target_type: pytypes.PyType, arg: NodeBuilder | Literal, location: SourceLocation
+    target_type: pytypes.PyType, arg: NodeBuilder, location: SourceLocation
 ) -> InstanceBuilder:
     builder = builder_for_type(target_type, location)
     if isinstance(arg, NodeBuilder):
         arg_type = arg.pytype
-        if arg_type is None:  # TODO: remove once EB heirarchy is fixed
-            raise CodeError("bad expression type", arg.source_location)
     else:
         arg_type = _get_literal_type(arg)
     return builder.call(
@@ -435,7 +437,7 @@ def _construct_instance(
     )
 
 
-def _get_literal_type(literal: Literal) -> pytypes.PyType:
+def _get_literal_type(literal: LiteralBuilder) -> pytypes.PyType:
     match literal.value:
         case int():
             arg_type = pytypes.IntLiteralType

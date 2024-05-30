@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst.nodes import BoxValueExpression, Literal, StateGet, StateGetEx
+from puya.awst.nodes import BoxValueExpression, StateGet, StateGetEx
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -26,7 +26,7 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -46,7 +46,7 @@ class BoxMaybeExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

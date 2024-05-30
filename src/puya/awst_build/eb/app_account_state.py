@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     ContractReference,
     Expression,
     IntegerConstant,
-    Literal,
     StateDelete,
     StateExists,
     StateGet,
@@ -62,7 +61,7 @@ class AppAccountStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -75,7 +74,7 @@ class AppAccountStateGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -85,7 +84,7 @@ class AppAccountStateGenericClassExpressionBuilder(GenericTypeBuilder):
 
 
 def _init(
-    args: Sequence[NodeBuilder | Literal],
+    args: Sequence[NodeBuilder],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
@@ -143,7 +142,7 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
 
     def _build_field(
         self,
-        index: InstanceBuilder | Literal,
+        index: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
         index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).rvalue()
@@ -173,21 +172,19 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
         )
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         expr = self._build_field(index, location)
         return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         exists_expr = StateExists(
             field=self._build_field(item, location), source_location=location
         )
         return BoolExpressionBuilder(exists_expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "get":
                 return _Get(self.pytype.content, self._build_field, location)
@@ -202,9 +199,9 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError("cannot slice account states", self.source_location)
@@ -252,7 +249,7 @@ class _AppAccountStateExpressionBuilderFromConstructor(
         )
 
 
-FieldBuilder = Callable[[InstanceBuilder | Literal, SourceLocation], AppAccountStateExpression]
+FieldBuilder = Callable[[InstanceBuilder, SourceLocation], AppAccountStateExpression]
 
 
 class _Get(FunctionBuilder):
@@ -266,7 +263,7 @@ class _Get(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -300,7 +297,7 @@ class _Maybe(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

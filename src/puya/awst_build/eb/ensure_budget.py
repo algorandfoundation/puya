@@ -8,13 +8,13 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     CallArg,
     FreeSubroutineTarget,
-    Literal,
     SubroutineCallExpression,
     UInt64Constant,
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb._literals import LiteralBuilderImpl
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
@@ -31,7 +31,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -59,7 +59,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
         ]
 
         match arg_mapping.pop(fee_source_arg_name, None):
-            case Literal(
+            case LiteralBuilder(
                 value=int(fee_source_value), source_location=fee_source_loc
             ) if 0 <= fee_source_value <= 2:
                 fee_source_expr = UInt64Constant(
@@ -93,7 +93,7 @@ class OpUpFeeSourceClassBuilder(TypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -102,13 +102,13 @@ class OpUpFeeSourceClassBuilder(TypeBuilder):
         raise CodeError("Cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "GroupCredit":
-                return Literal(value=0, source_location=location)
+                return LiteralBuilderImpl(value=0, source_location=location)
             case "AppAccount":
-                return Literal(value=1, source_location=location)
+                return LiteralBuilderImpl(value=1, source_location=location)
             case "Any":
-                return Literal(value=2, source_location=location)
+                return LiteralBuilderImpl(value=2, source_location=location)
             case _:
                 return super().member_access(name, location)

@@ -8,7 +8,6 @@ from puya import log
 from puya.awst.nodes import (
     BoolConstant,
     Expression,
-    Literal,
     Not,
     NumericComparison,
     NumericComparisonExpression,
@@ -19,7 +18,7 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import bool_eval, convert_literal_to_builder
+from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -39,7 +38,7 @@ class BoolClassExpressionBuilder(TypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -49,8 +48,10 @@ class BoolClassExpressionBuilder(TypeBuilder):
             case []:
                 false = BoolConstant(value=False, source_location=location)
                 return BoolExpressionBuilder(false)
-            case [arg]:
-                return bool_eval(arg, location)
+            case [InstanceBuilder(pytype=pytypes.BoolType) as already_bool]:
+                return already_bool
+            case [NodeBuilder() as nb]:
+                return nb.bool_eval(location)
             case _:
                 raise CodeError("Too many arguments", location=location)
 
@@ -65,7 +66,7 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return BoolExpressionBuilder(Not(location, self.expr))
 
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:

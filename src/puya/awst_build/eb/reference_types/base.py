@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
-    Literal,
     Not,
     NumericComparison,
     NumericComparisonExpression,
@@ -52,7 +51,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
         self.field_bool_comment = field_bool_comment
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == self.native_access_member:
             native_cast = ReinterpretCast(
                 expr=self.expr, wtype=self.native_type.wtype, source_location=location
@@ -108,7 +107,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if not (

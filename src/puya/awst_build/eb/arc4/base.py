@@ -15,7 +15,6 @@ from puya.awst.nodes import (
     Copy,
     EqualityComparison,
     Expression,
-    Literal,
     ReinterpretCast,
     SingleEvaluation,
     TupleExpression,
@@ -29,7 +28,12 @@ from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -95,7 +99,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -118,7 +122,7 @@ class CopyBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -136,10 +140,10 @@ class CopyBuilder(FunctionBuilder):
 def arc4_compare_bytes(
     lhs: InstanceExpressionBuilder,
     op: BuilderComparisonOp,
-    rhs: InstanceBuilder | Literal,
+    rhs: InstanceBuilder,
     location: SourceLocation,
 ) -> InstanceBuilder:
-    if isinstance(rhs, Literal):
+    if isinstance(rhs, LiteralBuilder):
         raise CodeError(
             f"Cannot compare arc4 encoded value of {lhs.pytype} to a literal value", location
         )

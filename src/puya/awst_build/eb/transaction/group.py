@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -19,7 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -36,7 +35,7 @@ class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -46,9 +45,7 @@ class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
-            case [NodeBuilder() as eb]:
-                group_index = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
-            case [Literal(value=int(int_value), source_location=loc)]:
+            case [LiteralBuilder(value=int(int_value), source_location=loc)]:
                 if int_value < 0:
                     raise CodeError(
                         "Transaction group index should be between non-negative", location
@@ -60,6 +57,8 @@ class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
                         location,
                     )
                 group_index = UInt64Constant(value=int_value, source_location=loc)
+            case [NodeBuilder() as eb]:
+                group_index = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         txn = (
@@ -108,7 +107,7 @@ class _ArrayItem(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

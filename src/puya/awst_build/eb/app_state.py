@@ -9,7 +9,6 @@ from puya.awst.nodes import (
     BytesConstant,
     ContractReference,
     Expression,
-    Literal,
     Not,
     StateDelete,
     StateExists,
@@ -60,7 +59,7 @@ class AppStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -73,7 +72,7 @@ class AppStateGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -83,7 +82,7 @@ class AppStateGenericClassExpressionBuilder(GenericTypeBuilder):
 
 
 def _init(
-    args: Sequence[NodeBuilder | Literal],
+    args: Sequence[NodeBuilder],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
@@ -158,7 +157,7 @@ class AppStateExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.Sto
         return BoolExpressionBuilder(expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         field = self._build_field(location)
         match name:
             case "value":
@@ -233,7 +232,7 @@ class _Maybe(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -257,7 +256,7 @@ class _Get(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

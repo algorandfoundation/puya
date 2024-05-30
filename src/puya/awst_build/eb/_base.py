@@ -8,7 +8,6 @@ import typing_extensions
 from puya.awst.nodes import (
     Expression,
     FieldExpression,
-    Literal,
     Lvalue,
     Statement,
     TupleExpression,
@@ -84,7 +83,7 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
@@ -96,7 +95,7 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
 
     @typing.override
     @typing.final
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         raise CodeError("generic type requires parameters", location)
 
     @typing.override
@@ -144,7 +143,7 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
         raise CodeError(f"{self.pytype} is not valid as del target", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
@@ -153,14 +152,14 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return NotImplemented
 
     @typing.override
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -170,7 +169,7 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         raise CodeError(f"{self.pytype} does not support augmented assignment", location)
 
@@ -178,9 +177,7 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
 class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
     @typing.final
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return super().contains(item, location)
 
     @typing.final
@@ -190,16 +187,16 @@ class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
 
     @typing.final
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return super().index(index, location)
 
     @typing.final
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         return super().slice_index(begin_index, end_index, stride, location)

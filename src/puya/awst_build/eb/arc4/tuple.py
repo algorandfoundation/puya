@@ -4,7 +4,7 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, Literal, TupleItemExpression
+from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     GenericTypeBuilder,
@@ -20,6 +20,7 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     Iteration,
+    LiteralBuilder,
     NodeBuilder,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
@@ -39,7 +40,7 @@ class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -65,7 +66,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -98,10 +99,10 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         super().__init__(typ, expr)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         index_expr_or_literal = index
         match index_expr_or_literal:
-            case Literal(value=int(index_value)) as index_literal:
+            case LiteralBuilder(value=int(index_value)) as index_literal:
                 pass
             case _:
                 raise CodeError("arc4.Tuple can only be indexed by int constants")
@@ -123,7 +124,7 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
@@ -140,14 +141,12 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         raise CodeError("item containment with ARC4 tuples is currently unsupported", location)
 
     @typing.override
@@ -158,9 +157,9 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError("slicing ARC4 tuples is currently unsupported", location)

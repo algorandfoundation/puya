@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
-    Literal,
     ReinterpretCast,
     UInt64Constant,
 )
@@ -18,7 +17,7 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -41,7 +40,7 @@ class AssetClassExpressionBuilder(TypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -50,7 +49,7 @@ class AssetClassExpressionBuilder(TypeBuilder):
         match args:
             case []:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [Literal(value=int(int_value))]:
+            case [LiteralBuilder(value=int(int_value))]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=location)
             case [NodeBuilder() as eb]:
                 uint64_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
@@ -79,7 +78,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -132,7 +131,7 @@ class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name in ASSET_HOLDING_FIELD_MAPPING:
             return AssetHoldingExpressionBuilder(self.expr, name, location)
         return super().member_access(name, location)

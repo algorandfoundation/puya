@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     BytesRaw,
     ContractReference,
     Expression,
-    Literal,
     Lvalue,
     Statement,
 )
@@ -20,6 +19,7 @@ from puya.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     Iteration,
+    LiteralBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
 )
@@ -90,21 +90,19 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(location)
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return self._assign_first(location)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return self._assign_first(location)
 
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         return self._assign_first(location)
@@ -114,19 +112,19 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(self.source_location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return self._assign_first(location)
 
     @typing.override
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -136,7 +134,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         return self._assign_first(location)
 
@@ -150,17 +148,17 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
 
 def extract_key_override(
-    key_arg: NodeBuilder | Literal | None, location: SourceLocation, *, is_prefix: bool
+    key_arg: NodeBuilder | None, location: SourceLocation, *, is_prefix: bool
 ) -> Expression | None:
     key_override: Expression | None
     match key_arg:
         case None:
             key_override = None
-        case Literal(value=bytes(bytes_value), source_location=key_lit_loc):
+        case LiteralBuilder(value=bytes(bytes_value), source_location=key_lit_loc):
             key_override = BytesConstant(
                 value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
             )
-        case Literal(value=str(str_value), source_location=key_lit_loc):
+        case LiteralBuilder(value=str(str_value), source_location=key_lit_loc):
             key_override = BytesConstant(
                 value=str_value.encode("utf8"),
                 encoding=BytesEncoding.utf8,
@@ -178,11 +176,11 @@ def extract_key_override(
     return key_override
 
 
-def extract_description(descr_arg: NodeBuilder | Literal | None) -> str | None:
+def extract_description(descr_arg: NodeBuilder | None) -> str | None:
     match descr_arg:
         case None:
             return None
-        case Literal(value=str(str_value)):
+        case LiteralBuilder(value=str(str_value)):
             return str_value
         case _:
             raise CodeError("description should be a str literal", descr_arg.source_location)

@@ -7,7 +7,7 @@ import typing
 import mypy.nodes
 import typing_extensions
 
-from puya.awst.nodes import ContractReference, Expression, Literal, Lvalue, Range, Statement
+from puya.awst.nodes import ConstantValue, ContractReference, Expression, Lvalue, Range, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.errors import CodeError
@@ -62,7 +62,7 @@ class NodeBuilder(abc.ABC):
     def pytype(self) -> pytypes.PyType | None: ...
 
     @abc.abstractmethod
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         """Handle self.name"""
 
     @abc.abstractmethod
@@ -74,7 +74,7 @@ class CallableBuilder(NodeBuilder, abc.ABC):
     @abc.abstractmethod
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -112,14 +112,14 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         """Handle self {op} other"""
 
     @abc.abstractmethod
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -129,14 +129,12 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         """Handle self {op}= rhs"""
 
     @abc.abstractmethod
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         """Handle item in self"""
         raise CodeError("expression is not iterable", self.source_location)
 
@@ -146,20 +144,26 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         raise CodeError("expression is not iterable", self.source_location)
 
     @abc.abstractmethod
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         """Handle self[index]"""
         raise CodeError("expression is not a collection", self.source_location)
 
     @abc.abstractmethod
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         """Handle self[begin_index:end_index:stride]"""
         raise CodeError("expression is not a collection", self.source_location)
+
+
+class LiteralBuilder(InstanceBuilder, abc.ABC):
+    @property
+    @abc.abstractmethod
+    def value(self) -> ConstantValue: ...
 
 
 class StorageProxyConstructorResult(

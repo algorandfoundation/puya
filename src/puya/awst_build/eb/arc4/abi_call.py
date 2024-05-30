@@ -18,7 +18,6 @@ from puya.awst.nodes import (
     CreateInnerTransaction,
     Expression,
     InnerTransactionField,
-    Literal,
     MethodConstant,
     SingleEvaluation,
     SubmitInnerTransaction,
@@ -40,7 +39,7 @@ from puya.awst_build.eb.arc4._utils import (
     get_arc4_args_and_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
@@ -99,7 +98,7 @@ class ARC4ClientClassExpressionBuilder(TypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -108,7 +107,7 @@ class ARC4ClientClassExpressionBuilder(TypeBuilder):
         raise CodeError("ARC4Client subclasses cannot be instantiated", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
         if func_or_dec is None:
             raise CodeError(f"Unknown member {name!r} of {self.type_info.fullname!r}", location)
@@ -129,7 +128,7 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -144,7 +143,7 @@ class ABICallGenericClassExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -162,7 +161,7 @@ class ABICallClassExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -175,14 +174,14 @@ class ABICallClassExpressionBuilder(FunctionBuilder):
 
 @attrs.frozen
 class _ABICallExpr:
-    method: NodeBuilder | Literal
-    abi_args: Sequence[NodeBuilder | Literal]
-    transaction_kwargs: dict[str, NodeBuilder | Literal]
+    method: NodeBuilder
+    abi_args: Sequence[NodeBuilder]
+    transaction_kwargs: dict[str, NodeBuilder]
     abi_arg_typs: Sequence[pytypes.PyType]
 
 
 def _abi_call(
-    args: Sequence[NodeBuilder | Literal],
+    args: Sequence[NodeBuilder],
     arg_typs: Sequence[pytypes.PyType],
     arg_kinds: list[mypy.nodes.ArgKind],
     arg_names: list[str | None],
@@ -194,7 +193,7 @@ def _abi_call(
     method = abi_call_expr.method
 
     match method:
-        case Literal(value=str(method_str)):
+        case LiteralBuilder(value=str(method_str)):
             arc4_args, signature = get_arc4_args_and_signature(
                 method_str, abi_call_expr.abi_arg_typs, abi_call_expr.abi_args, location
             )
@@ -283,7 +282,7 @@ def _create_abi_call_expr(
     signature: ARC4Signature,
     abi_args: Sequence[Expression],
     declared_result_pytype: pytypes.PyType | None,
-    transaction_kwargs: dict[str, NodeBuilder | Literal],
+    transaction_kwargs: dict[str, NodeBuilder],
     location: SourceLocation,
 ) -> InstanceBuilder:
     if signature.return_type is None:
@@ -424,15 +423,15 @@ def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
 
 
 def _extract_abi_call_args(
-    args: Sequence[NodeBuilder | Literal],
+    args: Sequence[NodeBuilder],
     arg_typs: Sequence[pytypes.PyType],
     arg_kinds: list[mypy.nodes.ArgKind],
     arg_names: list[str | None],
     location: SourceLocation,
 ) -> _ABICallExpr:
-    method: NodeBuilder | Literal | None = None
-    abi_args = list[NodeBuilder | Literal]()
-    kwargs = dict[str, NodeBuilder | Literal]()
+    method: NodeBuilder | None = None
+    abi_args = list[NodeBuilder]()
+    kwargs = dict[str, NodeBuilder]()
     abi_arg_typs = []
     for i in range(len(args)):
         arg_kind = arg_kinds[i]

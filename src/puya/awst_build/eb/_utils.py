@@ -4,7 +4,7 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import BoolConstant, Expression, Literal, ReinterpretCast
+from puya.awst.nodes import BoolConstant, Expression, ReinterpretCast
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
@@ -27,7 +27,7 @@ def bool_eval_to_constant(
     return BoolExpressionBuilder(const)
 
 
-def uint64_to_biguint(arg_in: NodeBuilder | Literal, location: SourceLocation) -> Expression:
+def uint64_to_biguint(arg_in: NodeBuilder, location: SourceLocation) -> Expression:
     arg = expect_operand_type(arg_in, pytypes.UInt64Type).rvalue()
 
     return intrinsic_factory.itob_as(

@@ -9,7 +9,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     Expression,
-    Literal,
     Not,
     NumericComparison,
     NumericComparisonExpression,
@@ -33,6 +32,7 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
+    LiteralBuilder,
     NodeBuilder,
 )
 from puya.awst_build.utils import convert_literal_to_builder
@@ -55,7 +55,7 @@ class UInt64ClassExpressionBuilder(TypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -64,7 +64,7 @@ class UInt64ClassExpressionBuilder(TypeBuilder):
         match args:
             case []:
                 const = UInt64Constant(value=0, source_location=location)
-            case [Literal(value=int(int_value))]:
+            case [LiteralBuilder(value=int(int_value))]:
                 const = UInt64Constant(value=int_value, source_location=location)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
@@ -107,7 +107,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
                 return super().unary_op(op, location)
 
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
@@ -124,7 +124,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -146,7 +146,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return UInt64ExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         if rhs.pytype == self.pytype:

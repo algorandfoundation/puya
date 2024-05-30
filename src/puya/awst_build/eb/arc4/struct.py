@@ -4,7 +4,7 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, FieldExpression, Literal, NewStruct
+from puya.awst.nodes import Expression, FieldExpression, NewStruct
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
@@ -43,7 +43,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -79,7 +79,7 @@ class ARC4StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.S
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case field_name if self.pytype and (field := self.pytype.fields.get(field_name)):
                 result_expr = FieldExpression(
@@ -97,7 +97,7 @@ class ARC4StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.S
                 return super().member_access(name, location)
 
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)
 

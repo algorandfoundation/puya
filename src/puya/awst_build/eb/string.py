@@ -15,7 +15,6 @@ from puya.awst.nodes import (
     EqualityComparison,
     Expression,
     FreeSubroutineTarget,
-    Literal,
     ReinterpretCast,
     SingleEvaluation,
     Statement,
@@ -38,6 +37,7 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     Iteration,
+    LiteralBuilder,
     NodeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -65,7 +65,7 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -74,7 +74,7 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         match args:
             case []:
                 value = ""
-            case [Literal(value=str(value))]:
+            case [LiteralBuilder(value=str(value))]:
                 pass
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
@@ -89,7 +89,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         super().__init__(pytypes.StringType, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
@@ -104,7 +104,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         match op:
             case BuilderBinaryOp.add:
@@ -123,7 +123,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
     @typing.override
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -148,7 +148,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
@@ -171,9 +171,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         return len_builder.bool_eval(location, negate=negate)
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         item_expr = get_bytes_expr(expect_operand_type(item, pytypes.StringType).rvalue())
         this_expr = get_bytes_expr(self.expr)
         is_substring_expr = SubroutineCallExpression(
@@ -195,7 +193,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         )
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         raise CodeError(
             "string indexing in not supported due to lack of UTF8 support in AVM", location
         )
@@ -203,9 +201,9 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError(
@@ -222,7 +220,7 @@ class _StringStartsOrEndsWith(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -276,7 +274,7 @@ class _StringJoin(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

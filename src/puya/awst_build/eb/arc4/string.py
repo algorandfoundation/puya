@@ -13,7 +13,6 @@ from puya.awst.nodes import (
     EqualityComparison,
     Expression,
     ExpressionStatement,
-    Literal,
     Statement,
     StringConstant,
 )
@@ -31,6 +30,7 @@ from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     InstanceBuilder,
+    LiteralBuilder,
     NodeBuilder,
 )
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
@@ -54,7 +54,7 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -75,12 +75,12 @@ def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression
     )
 
 
-def _expect_string_or_bytes(expr: NodeBuilder | Literal, location: SourceLocation) -> Expression:
+def _expect_string_or_bytes(expr: NodeBuilder, location: SourceLocation) -> Expression:
     expr = require_instance_builder_or_literal(expr)
     match expr:
-        case Literal(value=str(string_literal)):
+        case LiteralBuilder(value=str(string_literal)):
             return _arc4_encode_str_literal(string_literal, location)
-        case Literal(value=invalid_value, source_location=invalid_literal_location):
+        case LiteralBuilder(value=invalid_value, source_location=invalid_literal_location):
             raise CodeError(
                 f"Can't construct {pytypes.ARC4StringType} from Python literal {invalid_value!r}",
                 invalid_literal_location,
@@ -107,7 +107,7 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: InstanceBuilder | Literal, location: SourceLocation
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         match op:
             case BuilderBinaryOp.add:
@@ -125,7 +125,7 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
     @typing.override
     def binary_op(
         self,
-        other: InstanceBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
@@ -151,11 +151,11 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other_expr: Expression
         match other:
-            case Literal(value=str(string_literal), source_location=literal_location):
+            case LiteralBuilder(value=str(string_literal), source_location=literal_location):
                 other_expr = _arc4_encode_str_literal(string_literal, literal_location)
             case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
                 other_expr = eb.rvalue()
@@ -180,7 +180,7 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 result_expr: Expression = ARC4Decode(

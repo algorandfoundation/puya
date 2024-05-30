@@ -241,45 +241,6 @@ wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
 
 
 @attrs.frozen
-class Literal(Node):  # TODO: yeet me
-    """These shouldn't appear in the final AWST.
-
-    They are temporarily constructed during evaluation of sub-expressions, when we encounter
-    a literal in the native language (ie Python), and don't have the context to give it a wtype yet
-
-    For example, consider the int literal 42 (randomly selected by fair roll of D100) in the
-    following:
-
-        x = algopy.UInt(42)
-        x += 42
-        y = algopy.BigUInt(42)
-        z = algopy.InnerTransactionGroup.sender(42)
-
-
-    The "type" of 42 in each of these is different.
-    For BigUInt, since we know the value at compile time, we wouldn't want to emit a
-        push 42
-        itob
-    Since we can just encode it ourselves and push the result to the stack instead.
-    For InnerTransactionGroup.sender - this is actually not of any type, it must end up as a
-    literal in the TEAL code itself.
-    The type when adding to x should resolve to the UInt64 type, but only because it's in the
-    context of an augmented assignment.
-
-    So when we are visiting and arbitrary expression and encounter just a literal expression,
-    we need the surrounding context. To avoid having to repeat the transformation of the mypy
-    node in every context we could encounter one, we just return this Literal type instead,
-    which has no wtype. But it must be resolved before being used at the "outermost level"
-    of the current expression/statement, thus this Literal should not end up in the final AWST.
-
-    See also: require_non_literal, for a quick way to ensure that we do indeed have an expression
-    in cases where any Literals should have already been resolved.
-    """
-
-    value: ConstantValue
-
-
-@attrs.frozen
 class Block(Statement):
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
     description: str | None = None

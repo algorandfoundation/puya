@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     Contains,
     Expression,
     IntegerConstant,
-    Literal,
     SliceExpression,
     TupleExpression,
     TupleItemExpression,
@@ -30,6 +29,7 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     Iteration,
+    LiteralBuilder,
     NodeBuilder,
 )
 from puya.awst_build.utils import require_expression_builder, require_instance_builder
@@ -44,7 +44,7 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -69,7 +69,7 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -90,13 +90,13 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         super().__init__(typ, expr)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the
         # result type, but also we can statically validate that value
         index_expr_or_literal = index
         match index_expr_or_literal:
-            case Literal(value=int(index_value)):
+            case LiteralBuilder(value=int(index_value)):
                 return self._index(index_value, location)
             case _:
                 raise CodeError(
@@ -119,9 +119,9 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         if stride is not None:
@@ -147,13 +147,13 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         )
 
     def _convert_index(
-        self, index: NodeBuilder | Literal | None
+        self, index: NodeBuilder | None
     ) -> tuple[IntegerConstant | None, int | None]:
         match index:
             case None:
                 expr = None
                 idx = None
-            case Literal(value=int(idx), source_location=start_loc):
+            case LiteralBuilder(value=int(idx), source_location=start_loc):
                 positive_idx = positive_index(idx, self.pytype.items)
                 positive_idx_clamped = clamp(positive_idx, low=0, high=len(self.pytype.items) - 1)
                 expr = UInt64Constant(value=positive_idx_clamped, source_location=start_loc)
@@ -168,10 +168,8 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return self.rvalue()
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
-        if isinstance(item, Literal):
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        if isinstance(item, LiteralBuilder):
             raise CodeError(
                 "Cannot use in/not in check with a Python literal against a tuple", location
             )
@@ -185,7 +183,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         match op:
             case BuilderComparisonOp.eq:

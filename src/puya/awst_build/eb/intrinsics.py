@@ -3,16 +3,17 @@ from __future__ import annotations
 import typing
 
 from puya import log
-from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
+from puya.awst.nodes import Expression, IntrinsicCall, MethodConstant
 from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb._base import (
     FunctionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import (
     construct_from_literal,
@@ -35,14 +36,14 @@ class Arc4SignatureBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [Literal(value=str(str_value))]:
+            case [LiteralBuilder(value=str(str_value))]:
                 pass
             case _:
                 logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
@@ -59,7 +60,7 @@ class IntrinsicEnumClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicEnumType]
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -68,19 +69,19 @@ class IntrinsicEnumClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicEnumType]
         raise CodeError("Cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         produces = self.produces()
         value = produces.members.get(name)
         if value is None:
             raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
-        return Literal(value=value, source_location=location)
+        return LiteralBuilderImpl(value=value, source_location=location)
 
 
 class IntrinsicNamespaceClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -119,7 +120,7 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -140,10 +141,12 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
 
 
 def _best_op_mapping(
-    op_mappings: Sequence[FunctionOpMapping], args: dict[str, InstanceBuilder | Literal]
+    op_mappings: Sequence[FunctionOpMapping], args: dict[str, InstanceBuilder]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
-    literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
+    literal_arg_names = {
+        arg_name for arg_name, arg in args.items() if isinstance(arg, LiteralBuilder)
+    }
     for op_mapping in sorted(op_mappings, key=lambda om: len(om.literal_arg_names), reverse=True):
         if literal_arg_names.issuperset(op_mapping.literal_arg_names):
             return op_mapping
@@ -155,7 +158,7 @@ def _map_call(
     ast_mapper: Sequence[FunctionOpMapping],
     callee: str,
     node_location: SourceLocation,
-    args: dict[str, InstanceBuilder | Literal],
+    args: dict[str, InstanceBuilder],
 ) -> InstanceBuilder:
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
@@ -174,7 +177,7 @@ def _map_call(
                 if arg_in is None:
                     logger.error(f"Missing expected argument {arg_name}", location=node_location)
                 elif not (
-                    isinstance(arg_in, Literal)
+                    isinstance(arg_in, LiteralBuilder)
                     and isinstance(arg_value := arg_in.value, literal_type)
                 ):
                     logger.error(
@@ -190,16 +193,7 @@ def _map_call(
         arg_in = args.pop(arg_name, None)
         if arg_in is None:
             logger.error(f"Missing expected argument {arg_name}", location=node_location)
-        elif isinstance(arg_in, InstanceBuilder):
-            if arg_in.pytype not in allowed_pytypes:
-                logger.error(
-                    f'Invalid argument type "{arg_in.pytype}"'
-                    f' for argument "{arg_name}" when calling {callee}',
-                    location=arg_in.source_location,
-                )
-            stack_args.append(arg_in.rvalue())
-        else:
-            typing.assert_type(arg_in, Literal)
+        elif isinstance(arg_in, LiteralBuilder):
             literal_value = arg_in.value
             for allowed_type in allowed_pytypes:
                 allowed_wtype = allowed_type.wtype  # TODO yeet me
@@ -212,6 +206,14 @@ def _map_call(
                     f"Unhandled literal type '{type(literal_value).__name__}' for argument",
                     location=arg_in.source_location,
                 )
+        else:
+            if arg_in.pytype not in allowed_pytypes:
+                logger.error(
+                    f'Invalid argument type "{arg_in.pytype}"'
+                    f' for argument "{arg_name}" when calling {callee}',
+                    location=arg_in.source_location,
+                )
+            stack_args.append(arg_in.rvalue())
 
     for arg_node in args.values():
         logger.error("Unexpected argument", location=arg_node.source_location)

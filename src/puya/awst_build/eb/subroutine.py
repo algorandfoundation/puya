@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     CallArg,
     FreeSubroutineTarget,
     InstanceSubroutineTarget,
-    Literal,
     SubroutineCallExpression,
 )
 from puya.awst_build import pytypes
@@ -41,7 +40,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -92,7 +91,7 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

@@ -4,7 +4,7 @@ from collections.abc import Sequence
 import mypy.nodes
 import mypy.types
 
-from puya.awst.nodes import Expression, FieldExpression, Literal
+from puya.awst.nodes import Expression, FieldExpression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
@@ -25,7 +25,7 @@ class StructSubclassExpressionBuilder(TypeBuilder[pytypes.StructType]):
 
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

@@ -9,7 +9,6 @@ from puya.awst.nodes import (
     ARC4Encode,
     Expression,
     IntegerConstant,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -25,7 +24,12 @@ from puya.awst_build.eb.arc4.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+)
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
@@ -48,7 +52,7 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -60,7 +64,7 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
         match args:
             case []:
                 expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
-            case [Literal(value=int(int_value))]:
+            case [LiteralBuilder(value=int(int_value))]:
                 expr = IntegerConstant(value=int_value, wtype=wtype, source_location=location)
             case [
                 InstanceBuilder(
@@ -82,7 +86,7 @@ class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UI
         super().__init__(typ, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 result_expr = ARC4Decode(
@@ -107,9 +111,9 @@ class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UI
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        if isinstance(other, Literal):
+        if isinstance(other, LiteralBuilder):
             other = construct_from_literal(other, self.pytype)
         match other.pytype:
             case pytypes.BigUIntType:

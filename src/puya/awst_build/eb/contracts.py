@@ -9,7 +9,6 @@ from puya.awst.nodes import (
     AppStateExpression,
     BaseClassSubroutineTarget,
     InstanceSubroutineTarget,
-    Literal,
 )
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
@@ -54,7 +53,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

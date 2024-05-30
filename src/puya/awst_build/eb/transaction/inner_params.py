@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     Copy,
     CreateInnerTransaction,
     Expression,
-    Literal,
     SubmitInnerTransaction,
     TxnField,
     TxnFields,
@@ -23,7 +22,7 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
@@ -47,7 +46,7 @@ _parameter_mapping: typing.Final = {
 }
 
 
-def get_field_expr(arg_name: str, arg: InstanceBuilder | Literal) -> tuple[TxnField, Expression]:
+def get_field_expr(arg_name: str, arg: InstanceBuilder) -> tuple[TxnField, Expression]:
     try:
         field, field_pytype = _parameter_mapping[arg_name]
     except KeyError as ex:
@@ -63,24 +62,22 @@ def get_field_expr(arg_name: str, arg: InstanceBuilder | Literal) -> tuple[TxnFi
                 expr = arg.rvalue()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    elif isinstance(arg, InstanceBuilder):
-        arg_typ = arg.pytype
-        if not (arg_typ and field.valid_type(arg_typ.wtype)):
-            raise CodeError("bad argument type", arg.source_location)
-        field_expr = arg.rvalue()
-    elif isinstance(arg, Literal):
+    elif isinstance(arg, LiteralBuilder):
         # TODO: REMOVE HACK
         if wtypes.string_wtype in field.additional_input_wtypes and isinstance(arg.value, str):
             field_expr = construct_from_literal(arg, pytypes.StringType).rvalue()
         else:
             field_expr = construct_from_literal(arg, field_pytype).rvalue()
     else:
-        typing.assert_never(arg)
+        arg_typ = arg.pytype
+        if not (arg_typ and field.valid_type(arg_typ.wtype)):
+            raise CodeError("bad argument type", arg.source_location)
+        field_expr = arg.rvalue()
     return field, field_expr
 
 
 def _maybe_transform_program_field_expr(
-    field: TxnField, eb: InstanceBuilder | Literal
+    field: TxnField, eb: InstanceBuilder
 ) -> tuple[TxnField, Expression] | None:
     match field.immediate:
         case "ApprovalProgram":
@@ -108,7 +105,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelate
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -156,7 +153,7 @@ class InnerTxnParamsExpressionBuilder(
         super().__init__(typ, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "submit":
             return _Submit(self.expr, self.pytype.transaction_type, location)
         elif name == "set":
@@ -181,7 +178,7 @@ class _Submit(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -215,7 +212,7 @@ class _Copy(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -241,7 +238,7 @@ class _Set(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

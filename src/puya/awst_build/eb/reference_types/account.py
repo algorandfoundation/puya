@@ -12,7 +12,6 @@ from puya.awst.nodes import (
     EqualityComparison,
     Expression,
     IntrinsicCall,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -26,7 +25,12 @@ from puya.awst_build.eb._base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+)
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type
 from puya.errors import CodeError
@@ -49,7 +53,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -58,7 +62,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         match args:
             case []:
                 value: Expression = intrinsic_factory.zero_address(location)
-            case [Literal(value=str(addr_value))]:
+            case [LiteralBuilder(value=str(addr_value))]:
                 if not wtypes.valid_address(addr_value):
                     raise CodeError(
                         f"Invalid address value. Address literals should be"
@@ -122,7 +126,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "is_opted_in":
             return _IsOptedIn(self.expr, location)
         return super().member_access(name, location)
@@ -140,7 +144,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if not (
@@ -165,7 +169,7 @@ class _IsOptedIn(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],

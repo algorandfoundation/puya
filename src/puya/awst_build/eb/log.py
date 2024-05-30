@@ -9,13 +9,12 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     Expression,
-    Literal,
     ReinterpretCast,
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import FunctionBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -32,7 +31,7 @@ class LogBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -48,7 +47,7 @@ class LogBuilder(FunctionBuilder):
         else:
             sep_arg = args_.pop(sep_index)
             match sep_arg:
-                case Literal(value=str() as str_sep):
+                case LiteralBuilder(value=str() as str_sep):
                     sep = BytesConstant(
                         value=str_sep.encode("utf8"),
                         encoding=BytesEncoding.utf8,
@@ -66,34 +65,34 @@ class LogBuilder(FunctionBuilder):
         log_value: Expression | None = None
         for arg in args_:
             match arg:
-                case InstanceBuilder(pytype=pytypes.UInt64Type):
+                case LiteralBuilder(value=int(int_literal)):
                     bytes_expr: Expression = intrinsic_factory.itob(
-                        arg.rvalue(), arg.source_location
-                    )
-                case InstanceBuilder() as eb:
-                    bytes_expr = eb.rvalue()
-                case Literal(value=int(int_literal)):
-                    bytes_expr = intrinsic_factory.itob(
                         UInt64Constant(value=int_literal, source_location=arg.source_location),
                         arg.source_location,
                     )
-                case Literal(value=bytes(bytes_literal)):
+                case LiteralBuilder(value=bytes(bytes_literal)):
                     bytes_expr = BytesConstant(
                         value=bytes_literal,
                         encoding=BytesEncoding.unknown,
                         source_location=arg.source_location,
                     )
-                case Literal(value=str(str_literal)):
+                case LiteralBuilder(value=str(str_literal)):
                     bytes_expr = BytesConstant(
                         value=str_literal.encode("utf8"),
                         encoding=BytesEncoding.utf8,
                         source_location=arg.source_location,
                     )
-                case Literal() as lit:
+                case LiteralBuilder() as lit:
                     raise CodeError(
                         f"Unexpected argument type: {type(lit.value).__name__}",
                         arg.source_location,
                     )
+                case InstanceBuilder(pytype=pytypes.UInt64Type):
+                    bytes_expr = intrinsic_factory.itob(
+                        arg.rvalue(), arg.source_location
+                    )
+                case InstanceBuilder() as eb:
+                    bytes_expr = eb.rvalue()
                 case _:
                     raise CodeError("Unexpected argument", arg.source_location)
             if log_value is None:

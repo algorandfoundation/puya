@@ -4,7 +4,7 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression, Literal
+from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import get_bytes_expr_builder
@@ -35,7 +35,7 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -66,7 +66,7 @@ class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
         return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 result_expr: Expression = ARC4Decode(
@@ -82,6 +82,6 @@ class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def compare(
-        self, other: InstanceBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         return arc4_compare_bytes(self, op, other, location)

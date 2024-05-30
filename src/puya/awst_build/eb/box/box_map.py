@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     BytesRaw,
     ContractReference,
     Expression,
-    Literal,
     StateExists,
     StateGet,
     StateGetEx,
@@ -57,7 +56,7 @@ class BoxMapClassExpressionBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -70,7 +69,7 @@ class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -80,7 +79,7 @@ class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
 
 
 def _init(
-    args: Sequence[NodeBuilder | Literal],
+    args: Sequence[NodeBuilder],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
@@ -136,14 +135,14 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
         super().__init__(typ, expr)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return BoxValueExpressionBuilder(
             self._typ.content,
             _box_value_expr(self.expr, index, location, self._typ.content.wtype),
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
                 return _Length(location, self.expr, self._typ)
@@ -155,9 +154,7 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
                 return super().member_access(name, location)
 
     @typing.override
-    def contains(
-        self, item: InstanceBuilder | Literal, location: SourceLocation
-    ) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         box_exists = StateExists(
             field=_box_value_expr(self.expr, item, location, self._typ.content.wtype),
             source_location=location,
@@ -167,9 +164,9 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError("slicing of BoxMap is not supported", location)
@@ -234,7 +231,7 @@ class _Length(_MethodBase):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -258,7 +255,7 @@ class _Get(_MethodBase):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -280,7 +277,7 @@ class _Maybe(_MethodBase):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -307,7 +304,7 @@ class _Maybe(_MethodBase):
 
 def _box_value_expr(
     key_prefix: Expression,
-    key: NodeBuilder | Literal,
+    key: NodeBuilder,
     location: SourceLocation,
     content_type: wtypes.WType,
 ) -> BoxValueExpression:

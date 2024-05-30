@@ -9,7 +9,6 @@ from puya.awst.nodes import (
     BytesRaw,
     ContractReference,
     Expression,
-    Literal,
     Not,
     StateDelete,
     StateExists,
@@ -48,7 +47,7 @@ class BoxClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -61,7 +60,7 @@ class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
-        args: Sequence[NodeBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
@@ -71,7 +70,7 @@ class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
 
 
 def _init(
-    args: Sequence[NodeBuilder | Literal],
+    args: Sequence[NodeBuilder],
     arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
@@ -132,7 +131,7 @@ class BoxProxyExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.Sto
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "value":
                 return BoxValueExpressionBuilder(self._typ.content, self._box_key_expr(location))
@@ -201,7 +200,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
         return StateDelete(field=self.expr, source_location=location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
                 return UInt64ExpressionBuilder(box_length_checked(self.expr, location))
@@ -211,7 +210,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
                 return super().member_access(name, location)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
             return super().index(index, location)
         return index_box_bytes(self.expr, index, location)
@@ -219,9 +218,9 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
@@ -236,7 +235,7 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
         super().__init__(pytypes.BytesType, BytesRaw(expr=expr, source_location=location))
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
                 return UInt64ExpressionBuilder(box_length_checked(self._typed, location))
@@ -244,15 +243,15 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
                 return super().member_access(name, location)
 
     @typing.override
-    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return index_box_bytes(self._typed, index, location)
 
     @typing.override
     def slice_index(
         self,
-        begin_index: InstanceBuilder | Literal | None,
-        end_index: InstanceBuilder | Literal | None,
-        stride: InstanceBuilder | Literal | None,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
         return slice_box_bytes(self._typed, begin_index, end_index, stride, location)
