@@ -83,6 +83,16 @@ class NodeBuilder(abc.ABC):
     def __init__(self, location: SourceLocation):
         self.source_location = location
 
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        """Handle self.name"""
+        raise CodeError(
+            f"{self._type_description} does not support member access {name}", location
+        )
+
+    @abc.abstractmethod
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
+
     @abc.abstractmethod
     def rvalue(self) -> Expression:
         """Produce an expression for use as an intermediary"""
@@ -95,10 +105,6 @@ class NodeBuilder(abc.ABC):
     def delete(self, location: SourceLocation) -> Statement:
         """Handle del operator statement"""
         # TODO: consider making a DeleteStatement which e.g. handles AppAccountStateExpression
-
-    @abc.abstractmethod
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
 
     @abc.abstractmethod
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder: ...
@@ -181,12 +187,6 @@ class NodeBuilder(abc.ABC):
     ) -> NodeBuilder:
         """Handle self(args...)"""
         raise CodeError(f"{self._type_description} does not support calling", location)
-
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        """Handle self.name"""
-        raise CodeError(
-            f"{self._type_description} does not support member access {name}", location
-        )
 
     def iterate(self) -> Iteration:
         """Produce target of ForInLoop"""
