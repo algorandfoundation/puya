@@ -30,7 +30,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 if typing.TYPE_CHECKING:
-    from puya.awst_build.eb.bool import BoolExpressionBuilder  # noqa: TCH004
+    from puya.awst_build.eb.bool import BoolExpressionBuilder
 
 logger = log.get_logger(__name__)
 
@@ -157,7 +157,7 @@ def require_expression_builder(
     builder_or_literal: _TBuilder | Literal,
     *,
     msg: str = "A Python literal is not valid at this location",
-) -> _TBuilder | BoolExpressionBuilder:
+) -> "_TBuilder | BoolExpressionBuilder":
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     match builder_or_literal:
