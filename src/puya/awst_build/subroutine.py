@@ -64,11 +64,6 @@ from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
 )
-from puya.awst_build.eb.intrinsics import (
-    IntrinsicEnumClassExpressionBuilder,
-    IntrinsicFunctionExpressionBuilder,
-    IntrinsicNamespaceClassExpressionBuilder,
-)
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.type_registry import builder_for_instance, builder_for_type
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -605,8 +600,7 @@ class FunctionASTConverter(
         if py_typ := self.context.lookup_pytype(expr.fullname):  # noqa: SIM102
             # side step these ones for now
             if (
-                py_typ not in pytypes.OpNamespaceTypes
-                and pytypes.ContractBaseType not in py_typ.mro
+                pytypes.ContractBaseType not in py_typ.mro
                 and pytypes.ARC4ClientBaseType not in py_typ.bases
             ):
                 return builder_for_type(py_typ, expr_loc)
@@ -621,8 +615,6 @@ class FunctionASTConverter(
         fullname = get_unaliased_fullname(expr)
         if fullname.startswith("builtins."):
             return self._visit_ref_expr_of_builtins(fullname, expr_loc)
-        if fullname.startswith(constants.ALGOPY_OP_PREFIX):
-            return self._visit_ref_expr_of_algopy_op(fullname, expr_loc)
         if func_builder := type_registry.FUNC_NAME_TO_BUILDER.get(fullname):
             return func_builder(expr_loc)
         match expr:
@@ -759,20 +751,6 @@ class FunctionASTConverter(
                 )
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
-
-    @staticmethod
-    def _visit_ref_expr_of_algopy_op(fullname: str, location: SourceLocation) -> NodeBuilder:
-        from puya.awst_build import intrinsic_data
-
-        name = fullname.removeprefix(constants.ALGOPY_OP_PREFIX)
-
-        if (enum_data := intrinsic_data.ENUM_CLASSES.get(name)) is not None:
-            return IntrinsicEnumClassExpressionBuilder(fullname, enum_data, location)
-        if (cls_data := intrinsic_data.NAMESPACE_CLASSES.get(name)) is not None:
-            return IntrinsicNamespaceClassExpressionBuilder(fullname, cls_data, location)
-        if (mappings := intrinsic_data.FUNC_TO_AST_MAPPER.get(name)) is not None:
-            return IntrinsicFunctionExpressionBuilder(fullname, mappings, location)
-        raise InternalError(f"No intrinsic data found for {fullname}", location)
 
     def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> NodeBuilder | Literal:
         return self._visit_ref_expr(expr)

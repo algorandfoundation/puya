@@ -4,11 +4,12 @@ import typing
 
 from puya import log
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
+from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    IntermediateExpressionBuilder,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
@@ -17,11 +18,10 @@ from puya.awst_build.utils import construct_from_literal, get_arg_mapping
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Sequence
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -51,17 +51,7 @@ class Arc4SignatureBuilder(FunctionBuilder):
         )
 
 
-class IntrinsicEnumClassExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, type_name: str, data: Mapping[str, str], location: SourceLocation) -> None:
-        super().__init__(location)
-        self._type_name = type_name
-        self._data = data
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
+class IntrinsicEnumClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
     @typing.override
     def call(
         self,
@@ -75,33 +65,31 @@ class IntrinsicEnumClassExpressionBuilder(IntermediateExpressionBuilder):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        value = self._data.get(name)
+        produces = self.produces()
+        value = produces.members.get(name)
         if value is None:
-            raise CodeError(f"Unknown member {name!r} of {self._type_name!r}", location)
+            raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
         return Literal(value=value, source_location=location)
 
 
-class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(
-        self,
-        type_name: str,
-        data: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]],
-        location: SourceLocation,
-    ) -> None:
-        super().__init__(location)
-        self._type_name = type_name
-        self._data = data
-
+class IntrinsicNamespaceClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
     @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
+    def call(
+        self,
+        args: Sequence[NodeBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise CodeError("Cannot instantiate namespace type", location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        mapping = self._data.get(name)
+        produces = self.produces()
+        mapping = produces.members.get(name)
         if mapping is None:
-            raise CodeError(f"Unknown member {name!r} of {self._type_name!r}", location)
+            raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
         if isinstance(mapping, PropertyOpMapping):
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
@@ -111,7 +99,7 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
             )
             return builder_for_instance(mapping.typ, intrinsic_expr)
         else:
-            fullname = ".".join((self._type_name, name))
+            fullname = ".".join((produces.name, name))
             return IntrinsicFunctionExpressionBuilder(fullname, mapping, location)
 
 

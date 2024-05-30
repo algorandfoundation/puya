@@ -19,6 +19,8 @@ from puya.utils import lazy_setdefault
 if typing.TYPE_CHECKING:
     from mypy.nodes import ArgKind
 
+    from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
+
 logger = log.get_logger(__name__)
 
 
@@ -834,21 +836,67 @@ class _CompileTimeType(PyType):
         _register_builtin(self)
 
 
-def _make_op_namespace_types() -> Sequence[PyType]:
-    from itertools import chain
+@attrs.frozen(kw_only=True)
+class IntrinsicEnumType(PyType):
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(
+        default=(StrLiteralType,),  # strictly true, but not sure if we want this?
+        init=False,
+    )
+    mro: Sequence[PyType] = attrs.field(default=(StrLiteralType,), init=False)
+    members: Mapping[str, str] = attrs.field(converter=immutabledict)
 
-    from puya.awst_build.intrinsic_data import ENUM_CLASSES, NAMESPACE_CLASSES
+    @property
+    def wtype(self) -> wtypes.WType:
+        raise CodeError(f"{self} is only valid as a literal argument to an algopy.op function")
+
+
+def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
+    from puya.awst_build.intrinsic_data import ENUM_CLASSES
 
     return [
-        _CompileTimeType(
-            name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
-            wtype_error="{self} is a namespace type only and not usable at runtime",
+        _register_builtin(
+            IntrinsicEnumType(
+                name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
+                members=cls_members,
+            )
         )
-        for cls_name in chain(ENUM_CLASSES, NAMESPACE_CLASSES)
+        for cls_name, cls_members in ENUM_CLASSES.items()
     ]
 
 
-OpNamespaceTypes: typing.Final = _make_op_namespace_types()
+OpEnumTypes: typing.Final = _make_intrinsic_enum_types()
+
+
+@attrs.frozen(kw_only=True)
+class IntrinsicNamespaceType(PyType):
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    members: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]] = attrs.field(
+        converter=immutabledict
+    )
+
+    @property
+    def wtype(self) -> wtypes.WType:
+        raise CodeError(f"{self} is a namespace type only and not usable at runtime")
+
+
+def _make_intrinsic_namespace_types() -> Sequence[IntrinsicNamespaceType]:
+    from puya.awst_build.intrinsic_data import NAMESPACE_CLASSES
+
+    return [
+        _register_builtin(
+            IntrinsicNamespaceType(
+                name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
+                members=cls_members,
+            )
+        )
+        for cls_name, cls_members in NAMESPACE_CLASSES.items()
+    ]
+
+
+OpNamespaceTypes: typing.Final = _make_intrinsic_namespace_types()
 
 StateTotalsType: typing.Final[PyType] = _CompileTimeType(
     name=f"{constants.ALGOPY_PREFIX}_contract.StateTotals",

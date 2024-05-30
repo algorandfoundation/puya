@@ -2,7 +2,7 @@ import functools
 from collections.abc import Callable
 
 from puya.awst.nodes import Expression
-from puya.awst_build import constants, pytypes
+from puya.awst_build import constants, intrinsic_data, pytypes
 from puya.awst_build.eb import (
     app_account_state,
     app_state,
@@ -48,6 +48,12 @@ FUNC_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_TEMPLATE_VAR_METHOD: (
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
+    **{
+        (fullname := "".join((constants.ALGOPY_OP_PREFIX, name))): functools.partial(
+            intrinsics.IntrinsicFunctionExpressionBuilder, fullname, mappings
+        )
+        for name, mappings in intrinsic_data.FUNC_TO_AST_MAPPER.items()
+    },
 }
 PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory] = {
     pytypes.NoneType: void.VoidTypeExpressionBuilder,
@@ -84,6 +90,16 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory]
     pytypes.BytesType: bytes_.BytesClassExpressionBuilder,
     pytypes.StringType: string.StringClassExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ClassExpressionBuilder,
+    **{
+        op_enum_typ: functools.partial(intrinsics.IntrinsicEnumClassExpressionBuilder, op_enum_typ)
+        for op_enum_typ in pytypes.OpEnumTypes
+    },
+    **{
+        op_namespace_typ: functools.partial(
+            intrinsics.IntrinsicNamespaceClassExpressionBuilder, op_namespace_typ
+        )
+        for op_namespace_typ in pytypes.OpNamespaceTypes
+    },
     **{
         gtxn_pytyp: functools.partial(
             transaction.GroupTransactionClassExpressionBuilder, gtxn_pytyp
