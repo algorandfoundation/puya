@@ -34,8 +34,3 @@ class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
 class VoidExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.NoneType, expr)
-
-    def lvalue(self) -> typing.Never:
-        raise CodeError(
-            "None indicates an empty return and cannot be assigned", self.source_location
-        )

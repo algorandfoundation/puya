@@ -347,9 +347,10 @@ class ValueExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
         return self.__expr
 
     @typing.override
+    @typing.final
     def lvalue(self) -> Lvalue:
         resolved = self.rvalue()
-        return _validate_lvalue(resolved)
+        return _validate_lvalue(self._pytype, resolved)
 
     @typing.override
     def rvalue(self) -> Expression:
@@ -405,7 +406,12 @@ class ValueExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
         raise CodeError(f"{self.pytype} does not support in/not in checks", location)
 
 
-def _validate_lvalue(resolved: Expression) -> Lvalue:
+def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:
+    if typ == pytypes.NoneType:
+        raise CodeError(
+            "None indicates an empty return and cannot be assigned",
+            resolved.source_location,
+        )
     if isinstance(resolved, TupleItemExpression):
         raise CodeError("Tuple items cannot be reassigned", resolved.source_location)
     if not isinstance(resolved, Lvalue):  # type: ignore[arg-type,misc]
@@ -423,6 +429,7 @@ def _validate_lvalue(resolved: Expression) -> Lvalue:
                 resolved.source_location,
             )
     elif isinstance(resolved, TupleExpression):
-        for item in resolved.items:
-            _validate_lvalue(item)
+        assert isinstance(typ, pytypes.TupleType)
+        for item_typ, item in zip(typ.items, resolved.items, strict=True):
+            _validate_lvalue(item_typ, item)
     return typing.cast(Lvalue, resolved)
