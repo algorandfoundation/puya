@@ -26,6 +26,7 @@ from puya.awst_build.eb.arc4.base import (
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
@@ -167,7 +168,7 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
             self.expr, false_bytes=b"\x00\x00", location=location, negate=negate
         )

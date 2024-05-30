@@ -17,6 +17,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -127,7 +128,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         raise NotImplementedError
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         raise NotImplementedError
 
 

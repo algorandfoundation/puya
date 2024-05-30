@@ -25,6 +25,7 @@ from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     FunctionBuilder,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     NodeBuilder,
 )
@@ -139,7 +140,7 @@ def arc4_compare_bytes(
     op: BuilderComparisonOp,
     rhs: NodeBuilder | Literal,
     location: SourceLocation,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     if isinstance(rhs, Literal):
         raise CodeError(
             f"Cannot compare arc4 encoded value of {lhs.pytype} to a literal value", location
@@ -157,7 +158,7 @@ def arc4_compare_bytes(
 
 def arc4_bool_bytes(
     expr: Expression, false_bytes: bytes, location: SourceLocation, *, negate: bool
-) -> NodeBuilder:
+) -> InstanceBuilder:
     return BoolExpressionBuilder(
         BytesComparisonExpression(
             operator=EqualityComparison.eq if negate else EqualityComparison.ne,

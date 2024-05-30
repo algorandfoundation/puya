@@ -12,7 +12,7 @@ from puya.awst_build.eb.arc4.base import (
     arc4_bool_bytes,
     arc4_compare_bytes,
 )
-from puya.awst_build.eb.base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb.base import InstanceBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -65,7 +65,7 @@ class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
         super().__init__(pytypes.ARC4BoolType, expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)
 
     @typing.override

@@ -18,6 +18,7 @@ from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
+    InstanceBuilder,
     IntermediateExpressionBuilder,
     NodeBuilder,
     TypeBuilder,
@@ -111,7 +112,7 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 

@@ -80,6 +80,7 @@ from puya.awst_build.utils import (
     iterate_user_bases,
     qualified_class_name,
     require_expression_builder,
+    require_instance_builder,
     resolve_method_from_type_info,
 )
 from puya.errors import CodeError, InternalError, PuyaError
@@ -319,7 +320,7 @@ class FunctionASTConverter(
                             " and it should be a NameExpr",
                             stmt_loc,
                         )
-        rvalue = require_expression_builder(stmt.rvalue.accept(self))
+        rvalue = require_instance_builder(stmt.rvalue.accept(self))
         if isinstance(rvalue, StorageProxyConstructorResult):
             try:
                 (lvalue,) = stmt.lvalues
@@ -391,7 +392,7 @@ class FunctionASTConverter(
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
         builder_or_literal = lvalue.accept(self)
-        builder = require_expression_builder(builder_or_literal)
+        builder = require_instance_builder(builder_or_literal)
         return builder.lvalue()
 
     def empty_statement(self, _tmt: mypy.nodes.Statement) -> None:
@@ -399,7 +400,7 @@ class FunctionASTConverter(
 
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> Statement:
         stmt_loc = self._location(stmt)
-        builder = require_expression_builder(stmt.lvalue.accept(self))
+        builder = require_instance_builder(stmt.lvalue.accept(self))
         rhs = stmt.rvalue.accept(self)
         try:
             op = BuilderBinaryOp(stmt.op)
@@ -452,7 +453,7 @@ class FunctionASTConverter(
         stmt_loc = self._location(stmt)
         if stmt.else_body is not None:
             self._error("else clause on for loop not supported", stmt_loc)
-        sequence_builder = require_expression_builder(stmt.expr.accept(self))
+        sequence_builder = require_instance_builder(stmt.expr.accept(self))
         sequence = sequence_builder.iterate()
         items = self.resolve_lvalue(stmt.index)
         loop_body = self.visit_block(stmt.body)
@@ -487,7 +488,7 @@ class FunctionASTConverter(
 
     def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> Statement:
         stmt_expr = stmt.expr.accept(self)
-        del_item = require_expression_builder(stmt_expr)
+        del_item = require_instance_builder(stmt_expr)
         return del_item.delete(self._location(stmt))
 
     def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> ReturnStatement | None:
@@ -521,7 +522,7 @@ class FunctionASTConverter(
             match pattern, guard:
                 case mypy.patterns.ValuePattern(expr=case_expr), None:
                     case_value_builder_or_literal = case_expr.accept(self)
-                    case_value = require_expression_builder(case_value_builder_or_literal).rvalue()
+                    case_value = require_instance_builder(case_value_builder_or_literal).rvalue()
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.SingletonPattern(value=bool() as bool_literal), None:

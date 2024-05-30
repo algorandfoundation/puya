@@ -6,6 +6,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -27,11 +28,11 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         return self._proxied.delete(location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return self._proxied.bool_eval(location, negate=negate)
 
     @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         return self._proxied.unary_op(op, location)
 
     @typing.override

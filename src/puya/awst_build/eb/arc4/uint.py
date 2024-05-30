@@ -22,6 +22,7 @@ from puya.awst_build.eb.arc4.base import (
 )
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
@@ -98,7 +99,7 @@ class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UI
                 return super().member_access(name, location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
             self.expr,
             false_bytes=b"\x00" * (self.pytype.bits // 8),

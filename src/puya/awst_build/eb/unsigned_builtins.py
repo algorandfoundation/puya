@@ -21,6 +21,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
+    InstanceBuilder,
     Iteration,
     NodeBuilder,
     TypeBuilder,
@@ -148,7 +149,7 @@ class _IterableOnlyBuilder(NodeBuilder):
         return None
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override
@@ -164,7 +165,7 @@ class _IterableOnlyBuilder(NodeBuilder):
         return self._iterable_only(location)
 
     @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override

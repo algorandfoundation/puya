@@ -27,6 +27,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
@@ -74,7 +75,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.UInt64Type, expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         as_bool = ReinterpretCast(
             expr=self.expr,
             wtype=wtypes.bool_wtype,
@@ -86,7 +87,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             expr = as_bool
         return BoolExpressionBuilder(expr)
 
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         match op:
             case BuilderUnaryOp.positive:
                 # unary + is allowed, but for the current types it has no real impact

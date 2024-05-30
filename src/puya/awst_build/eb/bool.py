@@ -16,6 +16,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
@@ -60,7 +61,7 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BoolType, expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         if not negate:
             return self
         return BoolExpressionBuilder(Not(location, self.expr))

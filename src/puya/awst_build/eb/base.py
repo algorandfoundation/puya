@@ -94,7 +94,7 @@ class NodeBuilder(abc.ABC):
         """Handle self.name"""
 
     @abc.abstractmethod
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
 
 
@@ -119,7 +119,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
 
     @typing.override
     @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         from puya.awst_build.eb._utils import bool_eval_to_constant
 
         return bool_eval_to_constant(value=True, location=location, negate=negate)
@@ -154,7 +154,7 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @typing.override
     @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         from puya.awst_build.eb._utils import bool_eval_to_constant
 
         return bool_eval_to_constant(value=True, location=location, negate=negate)
@@ -177,7 +177,7 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
 
     @typing.override
     @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         from puya.awst_build.eb._utils import bool_eval_to_constant
 
         return bool_eval_to_constant(value=True, location=location, negate=negate)
@@ -202,7 +202,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """Handle del self"""
 
     @abc.abstractmethod
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         """Handle {op} self"""
 
     @abc.abstractmethod
@@ -313,7 +313,7 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
         raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         raise CodeError(f"{self.pytype} does not support unary {op.value!r} operator", location)
 
     @typing.override

@@ -25,6 +25,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
@@ -85,7 +86,7 @@ class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
                 )
         return super().member_access(name, location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         cmp_expr = NumericComparisonExpression(
             lhs=self.expr,
             operator=NumericComparison.eq if negate else NumericComparison.ne,
@@ -95,7 +96,7 @@ class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp_expr)
 
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         if op == BuilderUnaryOp.positive:
             # unary + is allowed, but for the current types it has no real impact
             # so just expand the existing expression to include the unary operator

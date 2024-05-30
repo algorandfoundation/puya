@@ -21,7 +21,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import BuilderComparisonOp, FunctionBuilder, NodeBuilder
+from puya.awst_build.eb.base import (
+    BuilderComparisonOp,
+    FunctionBuilder,
+    InstanceBuilder,
+    NodeBuilder,
+)
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
@@ -125,7 +130,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         return super().member_access(name, location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         cmp_with_zero_expr = BytesComparisonExpression(
             source_location=location,
             lhs=self.expr,

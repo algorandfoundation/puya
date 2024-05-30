@@ -10,6 +10,7 @@ from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_buil
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
@@ -99,5 +100,5 @@ class ARC4StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.S
     ) -> NodeBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)

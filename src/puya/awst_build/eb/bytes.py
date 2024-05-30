@@ -33,6 +33,7 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     FunctionBuilder,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -196,13 +197,13 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return self.rvalue()
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         len_expr = intrinsic_factory.bytes_len(self.expr, location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
     @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         if op == BuilderUnaryOp.bit_invert:
             return BytesExpressionBuilder(
                 BytesUnaryOperation(

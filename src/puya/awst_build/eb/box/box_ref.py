@@ -19,6 +19,7 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     FunctionBuilder,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     StorageProxyConstructorResult,
@@ -82,7 +83,7 @@ class BoxRefProxyExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         box_exists = StateExists(
             field=self._box_key_expr(location),
             source_location=location,

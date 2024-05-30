@@ -14,6 +14,7 @@ from puya.awst_build.eb.arc4.base import (
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     GenericTypeBuilder,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -116,7 +117,7 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
     @typing.override

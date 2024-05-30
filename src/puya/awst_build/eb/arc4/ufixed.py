@@ -21,6 +21,7 @@ from puya.awst_build.eb._utils import (
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
@@ -95,7 +96,7 @@ class UFixedNxMExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.AR
         super().__init__(typ, expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
             self.expr,
             false_bytes=b"\x00" * (self.pytype.bits // 8),

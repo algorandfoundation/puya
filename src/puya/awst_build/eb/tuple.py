@@ -22,6 +22,7 @@ from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     GenericTypeBuilder,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -175,7 +176,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return BoolExpressionBuilder(contains_expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
     @typing.override

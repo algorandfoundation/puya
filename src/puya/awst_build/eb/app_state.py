@@ -27,6 +27,7 @@ from puya.awst_build.eb._storage import (
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     StorageProxyConstructorResult,
@@ -146,7 +147,7 @@ class AppStateExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.Sto
         super().__init__(typ, expr)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         exists_expr = StateExists(field=self._build_field(location), source_location=location)
         if negate:
             expr: Expression = Not(location, exists_expr)

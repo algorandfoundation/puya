@@ -19,6 +19,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
+    InstanceBuilder,
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
@@ -95,7 +96,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         as_bool = ReinterpretCast(
             expr=self.expr,
             wtype=wtypes.bool_wtype,

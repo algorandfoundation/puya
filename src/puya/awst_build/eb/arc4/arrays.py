@@ -39,6 +39,7 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     FunctionBuilder,
     GenericTypeBuilder,
+    InstanceBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -414,7 +415,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                 return super().binary_op(other, op, location, reverse=reverse)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
             expr=self.expr,
             false_bytes=b"\x00\x00",
@@ -547,7 +548,7 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                 return super().member_access(name, location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=self._size > 0, location=location, negate=negate)
 
 
@@ -556,7 +557,7 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
         super().__init__(expr, pytypes.ARC4AddressType)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         cmp_with_zero_expr = BytesComparisonExpression(
             lhs=get_bytes_expr(self.expr),
             operator=EqualityComparison.eq if negate else EqualityComparison.ne,

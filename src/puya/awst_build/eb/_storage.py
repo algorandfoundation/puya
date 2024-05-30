@@ -82,11 +82,11 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         raise self._assign_first(location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return self._assign_first(location)
 
     @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         return self._assign_first(location)
 
     @typing.override
