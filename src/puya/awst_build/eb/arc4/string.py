@@ -18,13 +18,13 @@ from puya.awst.nodes import (
     StringConstant,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb._base import (
+    NotIterableInstanceExpressionBuilder,
+)
 from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_bool_bytes,
-)
-from puya.awst_build.eb.base import (
-    NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (

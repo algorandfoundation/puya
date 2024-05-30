@@ -17,12 +17,12 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import convert_literal_to_builder
 
 if typing.TYPE_CHECKING:

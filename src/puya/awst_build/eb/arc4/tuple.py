@@ -6,15 +6,16 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, Literal, TupleItemExpression
 from puya.awst_build import pytypes
+from puya.awst_build.eb._base import (
+    GenericTypeBuilder,
+    InstanceExpressionBuilder,
+)
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_compare_bytes,
 )
-from puya.awst_build.eb.base import (
-    GenericTypeBuilder,
-    InstanceExpressionBuilder,
-)
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -22,7 +23,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:

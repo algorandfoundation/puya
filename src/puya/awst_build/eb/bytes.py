@@ -28,7 +28,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.constants import CLS_BYTES_ALIAS
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     FunctionBuilder,
     InstanceExpressionBuilder,
     TypeBuilder,

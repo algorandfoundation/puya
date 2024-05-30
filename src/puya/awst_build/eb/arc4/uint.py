@@ -15,17 +15,17 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb._base import (
+    NotIterableInstanceExpressionBuilder,
+)
 from puya.awst_build.eb._utils import get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.eb.base import (
-    NotIterableInstanceExpressionBuilder,
-)
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 

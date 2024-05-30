@@ -21,15 +21,15 @@ from puya.awst.nodes import (
     TupleExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._utils import get_bytes_expr
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     FunctionBuilder,
     InstanceExpressionBuilder,
 )
+from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:

@@ -21,7 +21,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     FunctionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder

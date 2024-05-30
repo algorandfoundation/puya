@@ -29,6 +29,10 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_method_data
+from puya.awst_build.eb._base import (
+    FunctionBuilder,
+    TypeBuilder,
+)
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
@@ -36,10 +40,6 @@ from puya.awst_build.eb.arc4._utils import (
     get_arc4_args_and_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
-from puya.awst_build.eb.base import (
-    FunctionBuilder,
-    TypeBuilder,
-)
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder

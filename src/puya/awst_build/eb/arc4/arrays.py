@@ -31,16 +31,17 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr, get_bytes_expr_builder
-from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
-from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes, arc4_compare_bytes
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
     InstanceExpressionBuilder,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
+from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes, arc4_compare_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -50,7 +51,6 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,

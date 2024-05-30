@@ -14,7 +14,7 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )

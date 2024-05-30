@@ -6,7 +6,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import TypeBuilder
+from puya.awst_build.eb._base import TypeBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_type

@@ -18,20 +18,20 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     GenericTypeBuilder,
     InstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     Iteration,
     NodeBuilder,
 )
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import require_expression_builder, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation

@@ -6,13 +6,13 @@ import mypy.types
 
 from puya.awst.nodes import Expression, FieldExpression, Literal
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

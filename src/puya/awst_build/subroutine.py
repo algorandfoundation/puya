@@ -48,7 +48,6 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb import type_registry
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -57,6 +56,11 @@ from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
+)
+from puya.awst_build.eb.factories import (
+    builder_for_instance,
+    builder_for_type,
+    try_get_builder_for_func,
 )
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -68,7 +72,6 @@ from puya.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.type_registry import builder_for_instance, builder_for_type
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
@@ -622,8 +625,8 @@ class FunctionASTConverter(
         fullname = get_unaliased_fullname(expr)
         if fullname.startswith("builtins."):
             return self._visit_ref_expr_of_builtins(fullname, expr_loc)
-        if func_builder := type_registry.FUNC_NAME_TO_BUILDER.get(fullname):
-            return func_builder(expr_loc)
+        if func_builder := try_get_builder_for_func(fullname, expr_loc):
+            return func_builder
         match expr:
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if py_typ:
                 if pytypes.ContractBaseType in py_typ.mro:

@@ -20,19 +20,21 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._base import (
+    FunctionBuilder,
+    GenericTypeBuilder,
+    InstanceExpressionBuilder,
+    TypeBuilder,
+)
 from puya.awst_build.eb._storage import (
     StorageProxyDefinitionBuilder,
     extract_description,
     extract_key_override,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.base import (
-    FunctionBuilder,
-    GenericTypeBuilder,
-    InstanceExpressionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
@@ -40,8 +42,6 @@ from puya.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import (
     convert_literal_to_builder,
     expect_operand_type,

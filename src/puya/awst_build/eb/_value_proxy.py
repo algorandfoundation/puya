@@ -2,9 +2,10 @@ import typing
 
 from puya.awst.nodes import Expression, Literal, Statement
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     InstanceExpressionBuilder,
 )
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -13,7 +14,6 @@ from puya.awst_build.eb.interface import (
     Iteration,
     NodeBuilder,
 )
-from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.parse import SourceLocation
 
 

@@ -20,10 +20,10 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import uint64_to_biguint
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
+from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder

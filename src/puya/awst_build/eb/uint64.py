@@ -23,7 +23,7 @@ from puya.awst.nodes import (
     UInt64UnaryOperator,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
