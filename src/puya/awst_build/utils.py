@@ -189,16 +189,12 @@ def convert_literal_to_builder(
         return literal_or_expr
 
 
-def bool_eval(
-    builder_or_literal: NodeBuilder | Literal, loc: SourceLocation, *, negate: bool = False
-) -> NodeBuilder:
+def bool_eval(builder_or_literal: NodeBuilder | Literal, loc: SourceLocation) -> NodeBuilder:
     from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     if isinstance(builder_or_literal, NodeBuilder):
-        return builder_or_literal.bool_eval(location=loc, negate=negate)
+        return builder_or_literal.bool_eval(location=loc)
     constant_value = bool(builder_or_literal.value)
-    if negate:
-        constant_value = not constant_value
     return BoolExpressionBuilder(BoolConstant(value=constant_value, source_location=loc))
 
 
