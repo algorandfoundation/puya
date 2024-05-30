@@ -18,6 +18,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
+    InstanceBuilder,
     Iteration,
     NodeBuilder,
     StorageProxyConstructorResult,
@@ -163,9 +164,9 @@ def extract_key_override(
                 encoding=BytesEncoding.utf8,
                 source_location=key_lit_loc,
             )
-        case NodeBuilder(pytype=pytypes.BytesType) as eb:
+        case InstanceBuilder(pytype=pytypes.BytesType) as eb:
             key_override = eb.rvalue()
-        case NodeBuilder(pytype=pytypes.StringType) as eb:
+        case InstanceBuilder(pytype=pytypes.StringType) as eb:
             key_override = BytesRaw(expr=eb.rvalue(), source_location=location)
         case _:
             raise CodeError(
