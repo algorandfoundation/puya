@@ -37,7 +37,6 @@ __all__ = [
     "CallableBuilder",
     "StorageProxyConstructorResult",
     "FunctionBuilder",
-    "IntermediateExpressionBuilder",
     "TypeBuilder",
     "GenericTypeBuilder",
     "InstanceExpressionBuilder",
@@ -96,6 +95,118 @@ class NodeBuilder(abc.ABC):
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
+
+
+class CallableBuilder(NodeBuilder, abc.ABC):
+    @abc.abstractmethod
+    def call(
+        self,
+        args: Sequence[NodeBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        """Handle self(args...)"""
+
+
+class FunctionBuilder(CallableBuilder, abc.ABC):
+    @property
+    @typing.final
+    def pytype(self) -> None:  # TODO: give function type
+        return None
+
+    @typing.override
+    @typing.final
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+    @typing.override
+    @typing.final
+    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
+        raise CodeError("function attribute access is not supported", location)
+
+
+class StorageProxyConstructorResult(NodeBuilder, abc.ABC):
+    @typing.override
+    @property
+    @abc.abstractmethod
+    def pytype(self) -> pytypes.StorageProxyType | pytypes.StorageMapProxyType: ...
+
+    @property
+    @abc.abstractmethod
+    def initial_value(self) -> Expression | None: ...
+
+    @abc.abstractmethod
+    def build_definition(
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
+    ) -> AppStorageDeclaration: ...
+
+
+_TPyType_co = typing_extensions.TypeVar(
+    "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
+)
+
+
+class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
+    # TODO: better error messages for rvalue/lvalue/delete
+
+    def __init__(self, pytype: _TPyType_co, location: SourceLocation):
+        super().__init__(location)
+        self._pytype = pytype
+
+    @typing.final
+    @typing.override
+    @property
+    def pytype(self) -> pytypes.TypeType:
+        return pytypes.TypeType(self._pytype)
+
+    @typing.final
+    def produces(self) -> _TPyType_co:
+        return self._pytype
+
+    @typing.override
+    @typing.final
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
+
+
+class GenericTypeBuilder(CallableBuilder, abc.ABC):
+    @typing.override
+    @property
+    def pytype(self) -> None:  # TODO: ??
+        return None
+
+    @typing.override
+    @typing.final
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        raise CodeError("generic type requires parameters", location)
+
+    @typing.override
+    @typing.final
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+
+class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
+    @typing.override
+    @property
+    @abc.abstractmethod
+    def pytype(self) -> _TPyType_co: ...
 
     @abc.abstractmethod
     def rvalue(self) -> Expression:
@@ -163,193 +274,7 @@ class NodeBuilder(abc.ABC):
         raise CodeError("expression is not a collection", self.source_location)
 
 
-class CallableBuilder(NodeBuilder, abc.ABC):
-    @abc.abstractmethod
-    def call(
-        self,
-        args: Sequence[NodeBuilder | Literal],
-        arg_typs: Sequence[pytypes.PyType],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> NodeBuilder:
-        """Handle self(args...)"""
-
-
-class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
-    """Never valid as an assignment source OR target"""
-
-    @typing.final
-    @typing.override
-    def rvalue(self) -> Expression:
-        return self._not_a_value(self.source_location)
-
-    @typing.final
-    @typing.override
-    def lvalue(self) -> Lvalue:
-        return self._not_a_value(self.source_location)
-
-    @typing.final
-    @typing.override
-    def delete(self, location: SourceLocation) -> Statement:
-        return self._not_a_value(location)
-
-    @typing.final
-    @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
-        return self._not_a_value(location)
-
-    @typing.final
-    @typing.override
-    def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
-        return self._not_a_value(location)
-
-    @typing.final
-    @typing.override
-    def binary_op(
-        self,
-        other: NodeBuilder | Literal,
-        op: BuilderBinaryOp,
-        location: SourceLocation,
-        *,
-        reverse: bool,
-    ) -> NodeBuilder:
-        return self._not_a_value(location)
-
-    @typing.final
-    @typing.override
-    def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
-    ) -> Statement:
-        return self._not_a_value(location)
-
-    @typing.final
-    @typing.override
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
-        return super().contains(item, location)
-
-    @typing.final
-    @typing.override
-    def iterate(self) -> Iteration:
-        return super().iterate()
-
-    @typing.final
-    @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
-        return super().index(index, location)
-
-    @typing.final
-    @typing.override
-    def slice_index(
-        self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
-        location: SourceLocation,
-    ) -> NodeBuilder:
-        return super().slice_index(begin_index, end_index, stride, location)
-
-    def _not_a_value(self, location: SourceLocation) -> typing.Never:
-        raise CodeError("expression is not a value", location)
-
-
-class FunctionBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
-    @property
-    @typing.final
-    def pytype(self) -> None:  # TODO: give function type
-        return None
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        from puya.awst_build.eb._utils import bool_eval_to_constant
-
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
-
-    @typing.override
-    @typing.final
-    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
-        raise CodeError("function attribute access is not supported", location)
-
-
-class StorageProxyConstructorResult(NodeBuilder, abc.ABC):
-    @typing.override
-    @property
-    @abc.abstractmethod
-    def pytype(self) -> pytypes.StorageProxyType | pytypes.StorageMapProxyType: ...
-
-    @property
-    @abc.abstractmethod
-    def initial_value(self) -> Expression | None: ...
-
-    @abc.abstractmethod
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration: ...
-
-
-_TPyType_co = typing_extensions.TypeVar(
-    "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
-)
-
-
-class TypeBuilder(
-    IntermediateExpressionBuilder, typing.Generic[_TPyType_co], CallableBuilder, abc.ABC
-):
-    # TODO: better error messages for rvalue/lvalue/delete
-
-    def __init__(self, pytype: _TPyType_co, location: SourceLocation):
-        super().__init__(location)
-        self._pytype = pytype
-
-    @typing.final
-    @typing.override
-    @property
-    def pytype(self) -> pytypes.TypeType:
-        return pytypes.TypeType(self._pytype)
-
-    @typing.final
-    def produces(self) -> _TPyType_co:
-        return self._pytype
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        from puya.awst_build.eb._utils import bool_eval_to_constant
-
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
-
-
-class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
-    @typing.override
-    @typing.final
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        raise CodeError("generic type requires parameters", location)
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        from puya.awst_build.eb._utils import bool_eval_to_constant
-
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
-
-
-class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
+class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
 
     def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)
