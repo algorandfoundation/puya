@@ -24,7 +24,7 @@ from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked
@@ -37,7 +37,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageMapProxyType]):
+class BoxMapClassExpressionBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType

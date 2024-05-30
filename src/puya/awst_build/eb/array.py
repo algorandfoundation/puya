@@ -13,7 +13,7 @@ from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
@@ -51,7 +51,7 @@ class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         return ArrayExpressionBuilder(array_expr, array_type)
 
 
-class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.ArrayType]):
+class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericArrayType

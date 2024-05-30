@@ -25,7 +25,7 @@ from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
@@ -54,7 +54,7 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
         return TupleExpressionBuilder(tuple_expr, typ)
 
 
-class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[pytypes.TupleType]):
+class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericTupleType

@@ -8,14 +8,14 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class StructSubclassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StructType]):
+class StructSubclassExpressionBuilder(TypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
         # assert pytypes.StructBaseType in typ.mro TODO?

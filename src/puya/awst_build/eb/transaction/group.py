@@ -17,7 +17,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import expect_operand_type
@@ -31,9 +31,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class GroupTransactionClassExpressionBuilder(
-    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
-):
+class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
     @typing.override
     def call(
         self,

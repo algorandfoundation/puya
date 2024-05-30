@@ -19,7 +19,7 @@ from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.box import (
     BoxMapProxyExpressionBuilder,
@@ -38,7 +38,7 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class ContractTypeExpressionBuilder(TypeClassExpressionBuilder):
+class ContractTypeExpressionBuilder(TypeBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,

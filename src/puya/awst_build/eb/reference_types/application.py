@@ -6,7 +6,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import NodeBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.base import NodeBuilder, TypeBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 
@@ -21,7 +21,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
+class ApplicationClassExpressionBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ApplicationType, location)
 

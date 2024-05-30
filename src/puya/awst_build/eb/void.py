@@ -8,13 +8,13 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class VoidTypeExpressionBuilder(TypeClassExpressionBuilder):
+class VoidTypeExpressionBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.NoneType, location)
 

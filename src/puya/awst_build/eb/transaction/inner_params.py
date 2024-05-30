@@ -21,7 +21,7 @@ from puya.awst_build.eb.base import (
     FunctionBuilder,
     InstanceExpressionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
@@ -99,9 +99,7 @@ def _maybe_transform_program_field_expr(
     return field, expr
 
 
-class InnerTxnParamsClassExpressionBuilder(
-    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
-):
+class InnerTxnParamsClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
     @typing.override
     def call(
         self,

@@ -22,7 +22,7 @@ from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
@@ -38,7 +38,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
+class BoxRefClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, location: SourceLocation) -> None:
         super().__init__(pytypes.BoxRefType, location)
 

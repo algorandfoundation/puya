@@ -13,7 +13,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
@@ -85,7 +85,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
         return VoidExpressionBuilder(call_expr)
 
 
-class OpUpFeeSourceClassBuilder(TypeClassExpressionBuilder):
+class OpUpFeeSourceClassBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
 

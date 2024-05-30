@@ -39,7 +39,7 @@ from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
@@ -80,7 +80,7 @@ _APP_TRANSACTION_FIELDS = {
 }
 
 
-class ARC4ClientClassExpressionBuilder(TypeClassExpressionBuilder):
+class ARC4ClientClassExpressionBuilder(TypeBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,

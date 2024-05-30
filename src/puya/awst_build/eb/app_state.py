@@ -30,7 +30,7 @@ from puya.awst_build.eb.base import (
     InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
@@ -47,7 +47,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class AppStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyType]):
+class AppStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericGlobalStateType

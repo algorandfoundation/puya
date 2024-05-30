@@ -7,7 +7,7 @@ import typing_extensions
 
 from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeClassExpressionBuilder
+from puya.awst_build.eb.base import FunctionBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -17,7 +17,7 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TPyType_co], abc.ABC):
+class BytesBackedClassExpressionBuilder(TypeBuilder[_TPyType_co], abc.ABC):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         typ = self.produces()

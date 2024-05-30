@@ -18,7 +18,7 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     InstanceExpressionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.utils import bool_eval, convert_literal_to_builder
 from puya.errors import CodeError
@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoolClassExpressionBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BoolType, location)
 

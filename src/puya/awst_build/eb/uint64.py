@@ -28,7 +28,7 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     InstanceExpressionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_builder
@@ -44,7 +44,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
+class UInt64ClassExpressionBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
 

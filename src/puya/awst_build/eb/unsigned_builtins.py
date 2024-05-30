@@ -19,7 +19,7 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     Iteration,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.utils import expect_operand_type, require_expression_builder
 from puya.errors import CodeError
@@ -34,7 +34,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class UnsignedRangeBuilder(TypeClassExpressionBuilder):
+class UnsignedRangeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.urangeType, location)
 
@@ -89,7 +89,7 @@ class UnsignedRange(IntermediateExpressionBuilder):
         return self.sequence
 
 
-class UnsignedEnumerateBuilder(TypeClassExpressionBuilder):
+class UnsignedEnumerateBuilder(TypeBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         super().__init__(typ, location)
 
@@ -134,7 +134,7 @@ class UnsignedEnumerate(IntermediateExpressionBuilder):
         )
 
 
-class ReversedFunctionExpressionBuilder(TypeClassExpressionBuilder):
+class ReversedFunctionExpressionBuilder(TypeBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         super().__init__(typ, location)
 

@@ -38,7 +38,7 @@ __all__ = [
     "StorageProxyConstructorResult",
     "FunctionBuilder",
     "IntermediateExpressionBuilder",
-    "TypeClassExpressionBuilder",
+    "TypeBuilder",
     "GenericTypeBuilder",
     "InstanceExpressionBuilder",
 ]
@@ -270,9 +270,7 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class TypeClassExpressionBuilder(
-    IntermediateExpressionBuilder, typing.Generic[_TPyType_co], abc.ABC
-):
+class TypeBuilder(IntermediateExpressionBuilder, typing.Generic[_TPyType_co], abc.ABC):
     # TODO: better error messages for rvalue/lvalue/delete
 
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):

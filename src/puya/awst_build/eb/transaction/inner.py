@@ -14,7 +14,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     NodeBuilder,
-    TypeClassExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
@@ -31,9 +31,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class InnerTransactionClassExpressionBuilder(
-    TypeClassExpressionBuilder[pytypes.TransactionRelatedType]
-):
+class InnerTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
     @typing.override
     def call(
         self,
