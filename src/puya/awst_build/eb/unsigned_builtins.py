@@ -183,5 +183,9 @@ class _IterableOnlyBuilder(NodeBuilder):
     ) -> NodeBuilder:
         return self._iterable_only(location)
 
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        return self._iterable_only(location)
+
     def _iterable_only(self, location: SourceLocation) -> typing.Never:
         raise CodeError("expression is only usable as the source of a for-loop", location)

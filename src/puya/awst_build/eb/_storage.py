@@ -108,6 +108,10 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
     def iterate(self) -> Iteration:
         return self._assign_first(self.source_location)
 
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        return self._assign_first(location)
+
     def _assign_first(self, location: SourceLocation) -> typing.Never:
         raise CodeError(
             f"{self._typ} with inferred"

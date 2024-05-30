@@ -95,11 +95,9 @@ class NodeBuilder(abc.ABC):
             return type(self).__name__
         return str(self.pytype)
 
+    @abc.abstractmethod
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         """Handle self.name"""
-        raise CodeError(
-            f"{self._type_description} does not support member access {name}", location
-        )
 
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
@@ -115,11 +113,11 @@ class NodeBuilder(abc.ABC):
 
     @abc.abstractmethod
     def delete(self, location: SourceLocation) -> Statement:
-        """Handle del operator statement"""
-        # TODO: consider making a DeleteStatement which e.g. handles AppAccountStateExpression
+        """Handle del self"""
 
     @abc.abstractmethod
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder: ...
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        """Handle {op} self"""
 
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -259,14 +257,21 @@ class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
 
 class FunctionBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
     @property
+    @typing.final
     def pytype(self) -> None:  # TODO: give function type
         return None
 
     @typing.override
+    @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         from puya.awst_build.eb._utils import bool_eval_to_constant
 
         return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+    @typing.override
+    @typing.final
+    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
+        raise CodeError("function attribute access is not supported", location)
 
 
 class StorageProxyConstructorResult(NodeBuilder, abc.ABC):
@@ -303,6 +308,8 @@ class TypeBuilder(
         super().__init__(location)
         self._pytype = pytype
 
+    @typing.final
+    @typing.override
     @property
     def pytype(self) -> pytypes.TypeType:
         return pytypes.TypeType(self._pytype)
@@ -312,10 +319,15 @@ class TypeBuilder(
         return self._pytype
 
     @typing.override
+    @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         from puya.awst_build.eb._utils import bool_eval_to_constant
 
         return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
 class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
@@ -325,13 +337,12 @@ class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC
         return None
 
     @typing.override
+    @typing.final
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        raise CodeError(
-            f"Cannot access member {name} without specifying class type parameters first",
-            location,
-        )
+        raise CodeError("generic type requires parameters", location)
 
     @typing.override
+    @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         from puya.awst_build.eb._utils import bool_eval_to_constant
 
