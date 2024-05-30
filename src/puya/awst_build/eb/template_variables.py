@@ -5,7 +5,8 @@ import mypy.nodes
 
 from puya.awst.nodes import Literal, TemplateVar
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.base import FunctionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError

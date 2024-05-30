@@ -13,10 +13,9 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    InstanceBuilder,
-    NodeBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance

@@ -23,16 +23,18 @@ from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
-    InstanceBuilder,
     InstanceExpressionBuilder,
-    Iteration,
-    NodeBuilder,
-    StorageProxyConstructorResult,
     TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked
 from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    Iteration,
+    NodeBuilder,
+    StorageProxyConstructorResult,
+)
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance

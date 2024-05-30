@@ -15,7 +15,8 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import FunctionBuilder, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.base import FunctionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError

@@ -20,15 +20,17 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     GenericTypeBuilder,
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
-    StorageProxyConstructorResult,
     TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked, index_box_bytes, slice_box_bytes
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    NodeBuilder,
+    StorageProxyConstructorResult,
+)
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping

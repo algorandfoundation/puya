@@ -15,12 +15,10 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import bool_eval, convert_literal_to_builder
 from puya.errors import CodeError
 

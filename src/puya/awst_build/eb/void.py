@@ -7,11 +7,10 @@ from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

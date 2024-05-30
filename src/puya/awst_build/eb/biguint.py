@@ -22,16 +22,18 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.base import (
-    BuilderBinaryOp,
-    BuilderComparisonOp,
-    BuilderUnaryOp,
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
+    BuilderUnaryOp,
+    InstanceBuilder,
+    NodeBuilder,
+)
 from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 

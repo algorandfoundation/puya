@@ -17,13 +17,11 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
-    InstanceBuilder,
     InstanceExpressionBuilder,
-    Iteration,
-    NodeBuilder,
     TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,

@@ -12,10 +12,12 @@ from puya.awst_build.eb.arc4.base import (
     arc4_compare_bytes,
 )
 from puya.awst_build.eb.base import (
-    BuilderComparisonOp,
     GenericTypeBuilder,
-    InstanceBuilder,
     InstanceExpressionBuilder,
+)
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
     Iteration,
     NodeBuilder,
 )

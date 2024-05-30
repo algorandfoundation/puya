@@ -6,9 +6,9 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import BoolConstant, Expression, Literal, ReinterpretCast
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.base import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import expect_operand_type
 
 if typing.TYPE_CHECKING:

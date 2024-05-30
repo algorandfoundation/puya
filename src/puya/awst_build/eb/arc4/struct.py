@@ -9,12 +9,10 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
 from puya.awst_build.eb.base import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import (
     get_arg_mapping,

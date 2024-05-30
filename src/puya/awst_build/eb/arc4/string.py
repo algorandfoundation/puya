@@ -24,13 +24,15 @@ from puya.awst_build.eb.arc4.base import (
     arc4_bool_bytes,
 )
 from puya.awst_build.eb.base import (
+    NotIterableInstanceExpressionBuilder,
+)
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     InstanceBuilder,
     NodeBuilder,
-    NotIterableInstanceExpressionBuilder,
 )
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
 from puya.awst_build.utils import require_instance_builder_or_literal
 from puya.errors import CodeError, InternalError

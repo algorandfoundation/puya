@@ -12,7 +12,7 @@ from puya.awst_build.eb.arc4.base import (
     arc4_bool_bytes,
     arc4_compare_bytes,
 )
-from puya.awst_build.eb.base import InstanceBuilder, NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb.base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
@@ -22,10 +22,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build.eb.base import (
-        BuilderComparisonOp,
-        NodeBuilder,
-    )
+    from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

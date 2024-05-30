@@ -3,11 +3,13 @@ import typing
 from puya.awst.nodes import Expression, Literal, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
+    InstanceExpressionBuilder,
+)
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
 )

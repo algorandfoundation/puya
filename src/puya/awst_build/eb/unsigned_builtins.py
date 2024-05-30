@@ -18,13 +18,15 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
+    TypeBuilder,
+)
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
     Iteration,
     NodeBuilder,
-    TypeBuilder,
 )
 from puya.awst_build.utils import (
     expect_operand_type,

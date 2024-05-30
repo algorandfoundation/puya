@@ -24,7 +24,7 @@ from puya.awst_build.eb import (
     unsigned_builtins,
     void,
 )
-from puya.awst_build.eb.base import CallableBuilder, InstanceBuilder
+from puya.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
 from puya.errors import InternalError
 from puya.parse import SourceLocation

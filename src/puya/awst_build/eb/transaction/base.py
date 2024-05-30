@@ -8,10 +8,9 @@ from puya.awst.nodes import TXN_FIELDS
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import InternalError

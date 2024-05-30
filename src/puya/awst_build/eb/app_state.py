@@ -27,13 +27,15 @@ from puya.awst_build.eb._storage import (
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
-    StorageProxyConstructorResult,
     TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    NodeBuilder,
+    StorageProxyConstructorResult,
+)
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance

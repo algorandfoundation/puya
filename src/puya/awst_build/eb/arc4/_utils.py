@@ -13,7 +13,7 @@ from puya.awst import (
 from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_encode
-from puya.awst_build.eb.base import NodeBuilder
+from puya.awst_build.eb.interface import NodeBuilder
 from puya.awst_build.utils import construct_from_literal, require_instance_builder
 from puya.errors import CodeError
 

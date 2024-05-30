@@ -14,7 +14,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,

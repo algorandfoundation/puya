@@ -38,10 +38,9 @@ from puya.awst_build.eb.arc4._utils import (
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    InstanceBuilder,
-    NodeBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name

@@ -20,11 +20,10 @@ from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    InstanceBuilder,
-    NodeBuilder,
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder

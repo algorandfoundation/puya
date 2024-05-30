@@ -8,11 +8,10 @@ from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    InstanceBuilder,
-    NodeBuilder,
     TypeBuilder,
 )
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import (

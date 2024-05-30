@@ -53,7 +53,12 @@ from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
 )
-from puya.awst_build.eb.base import (
+from puya.awst_build.eb.bool import BoolClassExpressionBuilder
+from puya.awst_build.eb.contracts import (
+    ContractSelfExpressionBuilder,
+    ContractTypeExpressionBuilder,
+)
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
@@ -61,11 +66,6 @@ from puya.awst_build.eb.base import (
     InstanceBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
-)
-from puya.awst_build.eb.bool import BoolClassExpressionBuilder
-from puya.awst_build.eb.contracts import (
-    ContractSelfExpressionBuilder,
-    ContractTypeExpressionBuilder,
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.type_registry import builder_for_instance, builder_for_type

@@ -27,17 +27,19 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
-    BuilderBinaryOp,
-    BuilderComparisonOp,
     FunctionBuilder,
-    InstanceBuilder,
     InstanceExpressionBuilder,
-    Iteration,
-    NodeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
+    InstanceBuilder,
+    Iteration,
+    NodeBuilder,
+)
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
     convert_literal_to_builder,

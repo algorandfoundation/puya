@@ -18,8 +18,6 @@ from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
-    InstanceBuilder,
-    NodeBuilder,
     TypeBuilder,
 )
 from puya.awst_build.eb.box import (
@@ -27,6 +25,7 @@ from puya.awst_build.eb.box import (
     BoxProxyExpressionBuilder,
     BoxRefProxyExpressionBuilder,
 )
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
     SubroutineInvokerExpressionBuilder,

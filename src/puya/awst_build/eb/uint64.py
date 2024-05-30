@@ -24,15 +24,17 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
+    NotIterableInstanceExpressionBuilder,
+    TypeBuilder,
+)
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
     NodeBuilder,
-    NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
 )
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 

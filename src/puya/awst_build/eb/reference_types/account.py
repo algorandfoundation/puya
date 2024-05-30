@@ -22,13 +22,11 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.base import (
-    BuilderComparisonOp,
     FunctionBuilder,
-    InstanceBuilder,
-    NodeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type
 from puya.errors import CodeError

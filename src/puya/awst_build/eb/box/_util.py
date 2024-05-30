@@ -9,8 +9,8 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
-from puya.awst_build.eb.base import BuilderBinaryOp, InstanceBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
+from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import eval_slice_component
 from puya.errors import CodeError
