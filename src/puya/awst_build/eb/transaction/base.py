@@ -6,6 +6,7 @@ import typing
 from puya.awst import wtypes
 from puya.awst.nodes import TXN_FIELDS
 from puya.awst_build import pytypes
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
@@ -42,6 +43,10 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
         else:
             expr = self.get_field_value(field, location)
             return builder_for_instance(typ, expr)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 _WType = typing.TypeVar("_WType", bound=wtypes.WType)

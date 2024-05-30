@@ -5,6 +5,7 @@ import mypy.nodes
 
 from puya.awst.nodes import Expression, Literal
 from puya.awst_build import pytypes
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
@@ -34,3 +35,7 @@ class VoidTypeExpressionBuilder(TypeBuilder):
 class VoidExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.NoneType, expr)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=False, location=location, negate=negate)

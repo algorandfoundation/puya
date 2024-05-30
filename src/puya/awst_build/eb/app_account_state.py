@@ -25,6 +25,7 @@ from puya.awst_build.eb._storage import (
     extract_description,
     extract_key_override,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
@@ -126,20 +127,6 @@ def _init(
 
 
 class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyType]):
-    @typing.override
-    def iterate(self) -> Iteration:
-        raise CodeError("cannot iterate account states", self.source_location)
-
-    @typing.override
-    def slice_index(
-        self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
-        location: SourceLocation,
-    ) -> NodeBuilder:
-        raise CodeError("cannot slice account states", self.source_location)
-
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType
@@ -197,6 +184,24 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
             case "maybe":
                 return _Maybe(self.pytype.content, self._build_field, location)
         return super().member_access(name, location)
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        raise CodeError("cannot iterate account states", self.source_location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise CodeError("cannot slice account states", self.source_location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 class _AppAccountStateExpressionBuilderFromConstructor(

@@ -19,6 +19,7 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
@@ -167,6 +168,10 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
     @typing.override
     def iterate(self) -> Iteration:
         raise CodeError("iteration of BoxMap is not supported", self.source_location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 class _BoxMapProxyExpressionBuilderFromConstructor(

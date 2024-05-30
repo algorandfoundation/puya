@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import typing
 
 from immutabledict import immutabledict
@@ -32,7 +33,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder):
+class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
     def __init__(
         self,
         expr: Expression,

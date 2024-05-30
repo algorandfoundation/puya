@@ -224,10 +224,6 @@ class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
         )
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        return self._not_a_value(location)
-
-    @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
@@ -265,6 +261,12 @@ class FunctionBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
     @property
     def pytype(self) -> None:  # TODO: give function type
         return None
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 class StorageProxyConstructorResult(NodeBuilder, abc.ABC):
@@ -309,6 +311,12 @@ class TypeBuilder(
     def produces(self) -> _TPyType_co:
         return self._pytype
 
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
+
 
 class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
     @typing.override
@@ -322,6 +330,12 @@ class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC
             f"Cannot access member {name} without specifying class type parameters first",
             location,
         )
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
@@ -365,16 +379,11 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.AB
         raise CodeError(f"Unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        # TODO: this should be abstract, we always want to consider this for types
-        raise CodeError(f"{self.pytype} does not support boolean evaluation", location)
-
-    @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support unary {op.value!r} operator", location)
 
 
-class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co]):
+class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
     @typing.final
     @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:

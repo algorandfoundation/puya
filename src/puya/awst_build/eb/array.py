@@ -126,6 +126,10 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
     ) -> NodeBuilder:
         raise NotImplementedError
 
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        raise NotImplementedError
+
 
 class _Append(FunctionBuilder):
     def __init__(self, array: Expression):

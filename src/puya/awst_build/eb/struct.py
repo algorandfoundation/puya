@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -5,6 +6,7 @@ import mypy.types
 
 from puya.awst.nodes import Expression, FieldExpression, Literal
 from puya.awst_build import pytypes
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     NodeBuilder,
     NotIterableInstanceExpressionBuilder,
@@ -37,6 +39,7 @@ class StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.Struc
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         try:
             field_type = self.pytype.fields[name]
@@ -44,3 +47,7 @@ class StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.Struc
             raise CodeError(f"Invalid struct field: {name}", location) from ex
         field_expr = FieldExpression(location, field_type.wtype, self.expr, name)
         return builder_for_instance(field_type, field_expr)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)

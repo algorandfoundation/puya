@@ -17,6 +17,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.constants import TransactionType
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     FunctionBuilder,
     NodeBuilder,
@@ -159,6 +160,10 @@ class InnerTxnParamsExpressionBuilder(
         elif name == "copy":
             return _Copy(self.expr, self.pytype, location)
         return super().member_access(name, location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 class _Submit(FunctionBuilder):

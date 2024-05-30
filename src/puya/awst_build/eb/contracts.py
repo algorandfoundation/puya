@@ -14,6 +14,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
@@ -108,6 +109,10 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
             location=location,
             func_type=func_type,
         )
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
 def _builder_for_storage_access(
