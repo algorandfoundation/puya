@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Account:
     _public_key: str
     balance: UInt64 | None = None
@@ -39,7 +39,7 @@ class Account:
             public_key = algosdk.encoding.encode_address(value)
         else:
             public_key = value
-        object.__setattr__(self, "_public_key", public_key)
+        self._public_key = public_key
 
     def __repr__(self) -> str:
         return self._public_key

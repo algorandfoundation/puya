@@ -12,6 +12,79 @@ if TYPE_CHECKING:
 
 T = TypeVar("T")
 
+from typing import TypedDict
+
+
+class TxnFieldsDict(TypedDict, total=False):
+    sender: Account
+    fee: UInt64
+    first_valid: UInt64
+    first_valid_time: UInt64
+    last_valid: UInt64
+    note: Bytes
+    lease: Bytes
+    receiver: Account
+    amount: UInt64
+    close_remainder_to: Account
+    vote_pk: Bytes
+    selection_pk: Bytes
+    vote_first: UInt64
+    vote_last: UInt64
+    vote_key_dilution: UInt64
+    type: Bytes
+    type_enum: UInt64
+    xfer_asset: Asset
+    asset_amount: UInt64
+    asset_sender: Account
+    asset_receiver: Account
+    asset_close_to: Account
+    group_index: UInt64
+    tx_id: Bytes
+    application_id: Application
+    on_completion: UInt64
+    num_app_args: UInt64
+    num_accounts: UInt64
+    approval_program: Bytes
+    clear_state_program: Bytes
+    rekey_to: Account
+    config_asset: Asset
+    config_asset_total: UInt64
+    config_asset_decimals: UInt64
+    config_asset_default_frozen: bool
+    config_asset_unit_name: Bytes
+    config_asset_name: Bytes
+    config_asset_url: Bytes
+    config_asset_metadata_hash: Bytes
+    config_asset_manager: Account
+    config_asset_reserve: Account
+    config_asset_freeze: Account
+    config_asset_clawback: Account
+    freeze_asset: Asset
+    freeze_asset_account: Account
+    freeze_asset_frozen: bool
+    num_assets: UInt64
+    num_applications: UInt64
+    global_num_uint: UInt64
+    global_num_byte_slice: UInt64
+    local_num_uint: UInt64
+    local_num_byte_slice: UInt64
+    extra_program_pages: UInt64
+    nonparticipation: bool
+    num_logs: UInt64
+    created_asset_id: Asset
+    created_application_id: Application
+    last_log: Bytes
+    state_proof_pk: Bytes
+    num_approval_program_pages: UInt64
+    num_clear_state_program_pages: UInt64
+    application_args: tuple[Bytes, ...]
+    accounts: tuple[Account, ...]
+    assets: tuple[Asset, ...]
+    applications: tuple[Application, ...]
+    logs: tuple[Bytes, ...]
+    approval_program_pages: tuple[Bytes, ...]
+    clear_state_program_pages: tuple[Bytes, ...]
+
 
 @dataclass
 class TxnFields:

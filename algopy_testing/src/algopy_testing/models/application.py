@@ -13,7 +13,7 @@ from algopy_testing.primitives.uint64 import UInt64
 T = TypeVar("T")
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Application:
     id: UInt64 | None = None
     approval_program: Bytes | None = None
@@ -27,11 +27,7 @@ class Application:
     address: Account | None = None
 
     def __init__(self, application_id: UInt64 | int = 0, /):
-        object.__setattr__(
-            self,
-            "id",
-            application_id if isinstance(application_id, UInt64) else UInt64(application_id),
-        )
+        self.id = application_id if isinstance(application_id, UInt64) else UInt64(application_id)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Application):

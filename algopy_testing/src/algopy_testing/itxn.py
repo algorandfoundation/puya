@@ -1,7 +1,7 @@
 import typing
-from dataclasses import dataclass, field
-from unittest.mock import MagicMock
+from dataclasses import dataclass
 
+from algopy_testing.context import get_test_context
 from algopy_testing.enums import OnCompleteAction, TransactionType
 from algopy_testing.models.account import Account
 from algopy_testing.models.application import Application
@@ -12,16 +12,22 @@ from algopy_testing.primitives.uint64 import UInt64
 
 
 @dataclass
-class _InnerTransaction:
+class BaseInnerTransaction:
     def submit(self) -> object:
-        raise NotImplementedError
+        context = get_test_context()
+
+        if not context:
+            raise RuntimeError("No test context found")
+        context.add_inner_transaction(self)
+
+        return self
 
     def copy(self) -> typing.Self:
-        raise NotImplementedError
+        return self.__class__(**self.__dict__)
 
 
 @dataclass
-class InnerTransaction(_InnerTransaction):
+class InnerTransaction(BaseInnerTransaction):
     """Creates a set of fields used to submit an inner transaction of any type"""
 
     type: TransactionType | None = None
@@ -75,7 +81,7 @@ class InnerTransaction(_InnerTransaction):
 
 
 @dataclass
-class Payment(_InnerTransaction):
+class Payment(BaseInnerTransaction):
     receiver: Account | None = None
     amount: UInt64 | None = None
     close_remainder_to: Account | None = None
@@ -86,7 +92,7 @@ class Payment(_InnerTransaction):
 
 
 @dataclass
-class KeyRegistration(_InnerTransaction):
+class KeyRegistration(BaseInnerTransaction):
     vote_key: Bytes | None = None
     selection_key: Bytes | None = None
     vote_first: UInt64 | None = None
@@ -101,7 +107,7 @@ class KeyRegistration(_InnerTransaction):
 
 
 @dataclass
-class AssetConfig(_InnerTransaction):
+class AssetConfig(BaseInnerTransaction):
     config_asset: Asset | None = None
     total: UInt64 | None = None
     unit_name: String | None = None
@@ -121,12 +127,12 @@ class AssetConfig(_InnerTransaction):
 
 
 @dataclass
-class AssetTransfer(_InnerTransaction):
+class AssetTransfer(BaseInnerTransaction):
     xfer_asset: Asset | None = None
     asset_amount: UInt64 | None = None
     asset_sender: Account | None = None
     asset_receiver: Account | None = None
-    asset_close_to: Account = field(default_factory=lambda: MagicMock(spec=Account))
+    asset_close_to: Account | None = None
     sender: Account | None = None
     fee: UInt64 | None = None
     note: String | None = None
@@ -134,7 +140,7 @@ class AssetTransfer(_InnerTransaction):
 
 
 @dataclass
-class AssetFreeze(_InnerTransaction):
+class AssetFreeze(BaseInnerTransaction):
     freeze_asset: Asset | None = None
     freeze_account: Account | None = None
     frozen: bool | None = None
@@ -145,7 +151,7 @@ class AssetFreeze(_InnerTransaction):
 
 
 @dataclass
-class ApplicationCall(_InnerTransaction):
+class ApplicationCall(BaseInnerTransaction):
     app_id: Application | None = None
     approval_program: Bytes | None = None
     clear_state_program: Bytes | None = None

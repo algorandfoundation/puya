@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, TypedDict, TypeVar
 
 if TYPE_CHECKING:
     from algopy_testing.models.account import Account
@@ -70,15 +70,71 @@ class ITxnFields:
     state_proof_pk: Bytes | None = None
 
 
+class ITxnFieldsDict(TypedDict, total=False):
+    sender: Account
+    fee: UInt64
+    first_valid: UInt64
+    last_valid: UInt64
+    note: Bytes
+    lease: Bytes
+    receiver: Account
+    amount: UInt64
+    close_remainder_to: Account
+    vote_pk: Bytes
+    selection_pk: Bytes
+    vote_first: UInt64
+    vote_last: UInt64
+    vote_key_dilution: UInt64
+    type: Bytes
+    type_enum: UInt64
+    xfer_asset: Asset
+    asset_amount: UInt64
+    asset_sender: Account
+    asset_receiver: Account
+    asset_close_to: Account
+    group_index: UInt64
+    tx_id: Bytes
+    application_id: Application
+    on_completion: UInt64
+    approval_program: Bytes
+    clear_state_program: Bytes
+    rekey_to: Account
+    config_asset: Asset
+    config_asset_total: UInt64
+    config_asset_decimals: UInt64
+    config_asset_default_frozen: bool
+    config_asset_unit_name: Bytes
+    config_asset_name: Bytes
+    config_asset_url: Bytes
+    config_asset_metadata_hash: Bytes
+    config_asset_manager: Account
+    config_asset_reserve: Account
+    config_asset_freeze: Account
+    config_asset_clawback: Account
+    freeze_asset: Asset
+    freeze_asset_account: Account
+    freeze_asset_frozen: bool
+    global_num_uint: UInt64
+    global_num_byte_slice: UInt64
+    local_num_uint: UInt64
+    local_num_byte_slice: UInt64
+    extra_program_pages: UInt64
+    nonparticipation: bool
+    created_asset_id: Asset
+    created_application_id: Application
+    last_log: Bytes
+    state_proof_pk: Bytes
+
+
 class _Itxn:
     def __getattr__(self, name: str) -> object:
         from algopy_testing.context import get_test_context
 
         if name in ITxnFields.__annotations__:
             context = get_test_context()
-            if not context or not context.itxn_state:
+            if not context or not context.itxn_fields:
                 raise ValueError("ITxn fields are not set")
-            return getattr(context.itxn_state, name)
+            return getattr(context.itxn_fields, name)
 
         raise AttributeError(f"'Itxn' object has no attribute '{name}'")
 
