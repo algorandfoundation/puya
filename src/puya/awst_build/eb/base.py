@@ -89,12 +89,6 @@ class NodeBuilder(abc.ABC):
     @abc.abstractmethod
     def pytype(self) -> pytypes.PyType | None: ...
 
-    @property
-    def _type_description(self) -> str:
-        if self.pytype is None:
-            return type(self).__name__
-        return str(self.pytype)
-
     @abc.abstractmethod
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         """Handle self.name"""
@@ -119,17 +113,13 @@ class NodeBuilder(abc.ABC):
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         """Handle {op} self"""
 
+    @abc.abstractmethod
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:
-        """handle self {op} other"""
-        if self.pytype is None:
-            raise CodeError(
-                f"expression is not a value type, so comparison with {op.value} is not supported",
-                location,
-            )
-        return NotImplemented
+        """Handle self {op} other"""
 
+    @abc.abstractmethod
     def binary_op(
         self,
         other: NodeBuilder | Literal,
@@ -138,27 +128,13 @@ class NodeBuilder(abc.ABC):
         *,
         reverse: bool,
     ) -> NodeBuilder:
-        """handle self {op} other"""
-        if self.pytype is None:
-            raise CodeError(
-                f"expression is not a value type,"
-                f" so operations such as {op.value} are not supported",
-                location,
-            )
-        return NotImplemented
+        """Handle self {op} other"""
 
+    @abc.abstractmethod
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
-        if self.pytype is None:
-            raise CodeError(
-                f"expression is not a value type,"
-                f" so operations such as {op.value}= are not supported",
-                location,
-            )
-        raise CodeError(
-            f"{self._type_description} does not support augmented assignment", location
-        )
+        """Handle self {op}= rhs"""
 
     @abc.abstractmethod
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
@@ -203,26 +179,50 @@ class CallableBuilder(NodeBuilder, abc.ABC):
 class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
     """Never valid as an assignment source OR target"""
 
+    @typing.final
     @typing.override
     def rvalue(self) -> Expression:
-        raise CodeError(
-            f"{self._type_description} is not valid as an rvalue", self.source_location
-        )
+        return self._not_a_value(self.source_location)
 
+    @typing.final
     @typing.override
     def lvalue(self) -> Lvalue:
-        raise CodeError(
-            f"{self._type_description} is not valid as an lvalue", self.source_location
-        )
+        return self._not_a_value(self.source_location)
 
+    @typing.final
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        raise CodeError(
-            f"{self._type_description} is not valid as del target", self.source_location
-        )
+        return self._not_a_value(location)
 
+    @typing.final
     @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        return self._not_a_value(location)
+
+    @typing.final
+    @typing.override
+    def compare(
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
+        return self._not_a_value(location)
+
+    @typing.final
+    @typing.override
+    def binary_op(
+        self,
+        other: NodeBuilder | Literal,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> NodeBuilder:
+        return self._not_a_value(location)
+
+    @typing.final
+    @typing.override
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+    ) -> Statement:
         return self._not_a_value(location)
 
     @typing.final
@@ -252,7 +252,7 @@ class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
         return super().slice_index(begin_index, end_index, stride, location)
 
     def _not_a_value(self, location: SourceLocation) -> typing.Never:
-        raise CodeError(f"{self._type_description} is not a value", location)
+        raise CodeError("expression is not a value", location)
 
 
 class FunctionBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC):
@@ -355,7 +355,7 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.AB
         super().__init__(expr.source_location)
         if expr.wtype != pytype.wtype:
             raise InternalError(
-                f"Invalid WType of {str(self.pytype)!r} expression for: {expr.wtype}",
+                f"invalid WType of {str(self.pytype)!r} expression for: {expr.wtype}",
                 expr.source_location,
             )
         self._pytype = pytype
@@ -387,11 +387,34 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.AB
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        raise CodeError(f"Unrecognised member of {self.pytype}: {name}", location)
+        raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support unary {op.value!r} operator", location)
+
+    @typing.override
+    def compare(
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
+        return NotImplemented
+
+    @typing.override
+    def binary_op(
+        self,
+        other: NodeBuilder | Literal,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> NodeBuilder:
+        return NotImplemented
+
+    @typing.override
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+    ) -> Statement:
+        raise CodeError(f"{self.pytype} does not support augmented assignment", location)
 
 
 class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):

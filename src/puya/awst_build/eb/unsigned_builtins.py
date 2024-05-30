@@ -18,6 +18,8 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
     BuilderUnaryOp,
     Iteration,
     NodeBuilder,
@@ -185,6 +187,29 @@ class _IterableOnlyBuilder(NodeBuilder):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        return self._iterable_only(location)
+
+    @typing.override
+    def compare(
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def binary_op(
+        self,
+        other: NodeBuilder | Literal,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
+    ) -> Statement:
         return self._iterable_only(location)
 
     def _iterable_only(self, location: SourceLocation) -> typing.Never:
