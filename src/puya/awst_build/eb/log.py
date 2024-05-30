@@ -53,7 +53,7 @@ class LogBuilder(FunctionBuilder):
                         encoding=BytesEncoding.utf8,
                         source_location=sep_arg.source_location,
                     )
-                case NodeBuilder(pytype=pytypes.StringType) as eb:
+                case InstanceBuilder(pytype=pytypes.StringType) as eb:
                     sep = ReinterpretCast(
                         expr=eb.rvalue(),
                         wtype=wtypes.bytes_wtype,
@@ -65,11 +65,11 @@ class LogBuilder(FunctionBuilder):
         log_value: Expression | None = None
         for arg in args_:
             match arg:
-                case NodeBuilder(pytype=pytypes.UInt64Type):
+                case InstanceBuilder(pytype=pytypes.UInt64Type):
                     bytes_expr: Expression = intrinsic_factory.itob(
                         arg.rvalue(), arg.source_location
                     )
-                case NodeBuilder() as eb:
+                case InstanceBuilder() as eb:
                     bytes_expr = eb.rvalue()
                 case Literal(value=int(int_literal)):
                     bytes_expr = intrinsic_factory.itob(

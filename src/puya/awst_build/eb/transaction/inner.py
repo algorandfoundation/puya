@@ -109,7 +109,7 @@ class _ArrayItem(FunctionBuilder):
 def _get_transaction_type_from_arg(
     literal_or_expr: NodeBuilder | Literal,
 ) -> TransactionType | None:
-    if isinstance(literal_or_expr, NodeBuilder):
+    if isinstance(literal_or_expr, InstanceBuilder):
         wtype = literal_or_expr.rvalue().wtype
         if isinstance(wtype, wtypes.WInnerTransactionFields):
             return wtype.transaction_type

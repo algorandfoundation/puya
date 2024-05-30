@@ -281,7 +281,7 @@ class _StringJoin(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [NodeBuilder(pytype=pytypes.TupleType(items=items)) as eb] if all(
+            case [InstanceBuilder(pytype=pytypes.TupleType(items=items)) as eb] if all(
                 tt == pytypes.StringType for tt in items
             ):
                 tuple_arg = SingleEvaluation(eb.rvalue())

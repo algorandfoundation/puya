@@ -44,7 +44,7 @@ class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [NodeBuilder(pytype=pytypes.TupleType(items=items)) as eb]:
+            case [InstanceBuilder(pytype=pytypes.TupleType(items=items)) as eb]:
                 typ = pytypes.GenericARC4TupleType.parameterise(items, location)
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)
@@ -71,7 +71,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
     ) -> InstanceBuilder:
 
         match args:
-            case [NodeBuilder(pytype=pytypes.TupleType() as tuple_type) as eb]:
+            case [InstanceBuilder(pytype=pytypes.TupleType() as tuple_type) as eb]:
                 typ = self.produces()
                 if typ.items != tuple_type.items:
                     expected_type = pytypes.GenericTupleType.parameterise(typ.items, location)

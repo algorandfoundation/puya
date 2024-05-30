@@ -25,7 +25,10 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_expression_builder
+from puya.awst_build.utils import (
+    expect_operand_type,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -41,9 +44,10 @@ class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         if not args:
-            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+            raise CodeError("empy arrays require a type annotation to be instantiated", location)
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
+            require_instance_builder(a, literal_msg="array arguments must be non literals")
+            for a in args
         ]
         expected_type = arg_typs[0]
         for a in non_literal_args:
@@ -78,7 +82,8 @@ class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
+            require_instance_builder(a, literal_msg="array arguments must be non literals")
+            for a in args
         ]
         array_type = self.produces()
         for a in non_literal_args:
@@ -151,7 +156,7 @@ class _Append(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [elem]:
-                elem_expr = require_expression_builder(elem).rvalue()
+                elem_expr = require_instance_builder(elem).rvalue()
 
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)

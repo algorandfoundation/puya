@@ -32,7 +32,8 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
-from puya.errors import CodeError
+from puya.awst_build.utils import require_instance_builder_or_literal
+from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -73,6 +74,7 @@ def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression
 
 
 def _expect_string_or_bytes(expr: NodeBuilder | Literal, location: SourceLocation) -> Expression:
+    expr = require_instance_builder_or_literal(expr)
     match expr:
         case Literal(value=str(string_literal)):
             return _arc4_encode_str_literal(string_literal, location)
@@ -81,14 +83,14 @@ def _expect_string_or_bytes(expr: NodeBuilder | Literal, location: SourceLocatio
                 f"Can't construct {pytypes.ARC4StringType} from Python literal {invalid_value!r}",
                 invalid_literal_location,
             )
-        case NodeBuilder(pytype=pytypes.ARC4StringType) as eb:
+        case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
             return eb.rvalue()
-        case NodeBuilder(pytype=pytypes.StringType) as eb:
+        case InstanceBuilder(pytype=pytypes.StringType) as eb:
             bytes_expr = eb.rvalue()
             return ARC4Encode(
                 value=bytes_expr, wtype=wtypes.arc4_string_wtype, source_location=location
             )
-        case NodeBuilder(pytype=invalid_pytype, source_location=invalid_builder_location):
+        case InstanceBuilder(pytype=invalid_pytype, source_location=invalid_builder_location):
             raise CodeError(
                 f"Can't construct {pytypes.ARC4StringType} from {invalid_pytype}",
                 invalid_builder_location,
@@ -153,10 +155,12 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
         match other:
             case Literal(value=str(string_literal), source_location=literal_location):
                 other_expr = _arc4_encode_str_literal(string_literal, literal_location)
-            case NodeBuilder() as eb if eb.rvalue().wtype == wtypes.arc4_string_wtype:
+            case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
                 other_expr = eb.rvalue()
+            case InstanceBuilder(pytype=pytypes.StringType):
+                raise InternalError("need to implement this")  # TODO
             case _:
-                raise CodeError("Expected arc4.String or str literal")
+                return NotImplemented
 
         return BoolExpressionBuilder(
             BytesComparisonExpression(

@@ -65,7 +65,7 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
             case [Literal(value=int(int_value))]:
                 expr = IntegerConstant(value=int_value, wtype=wtype, source_location=location)
             case [
-                NodeBuilder(
+                InstanceBuilder(
                     pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)
                 ) as eb
             ]:

@@ -104,7 +104,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [NodeBuilder() as eb]:
+            case [InstanceBuilder() as eb]:
                 result_expr = self.abi_expr_from_log(self.typ, eb.rvalue(), location)
                 return builder_for_instance(self.typ, result_expr)
             case _:
@@ -138,7 +138,7 @@ class CopyBuilder(FunctionBuilder):
 def arc4_compare_bytes(
     lhs: InstanceExpressionBuilder,
     op: BuilderComparisonOp,
-    rhs: NodeBuilder | Literal,
+    rhs: InstanceBuilder | Literal,
     location: SourceLocation,
 ) -> InstanceBuilder:
     if isinstance(rhs, Literal):

@@ -16,7 +16,10 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import get_arg_mapping, require_expression_builder
+from puya.awst_build.utils import (
+    get_arg_mapping,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -61,7 +64,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
                 raise CodeError(f"Missing required argument {field_name}", location)
-            field_expr = require_expression_builder(field_value).rvalue()
+            field_expr = require_instance_builder(field_value).rvalue()
             if field_expr.wtype != field_type:
                 raise CodeError("Invalid type for field", field_expr.source_location)
             values[field_name] = field_expr
