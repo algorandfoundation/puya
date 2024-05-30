@@ -10,13 +10,11 @@ from puya.awst.nodes import (
     ContractReference,
     Expression,
     FieldExpression,
-    IndexExpression,
     Literal,
     Lvalue,
     Range,
     Statement,
     TupleExpression,
-    TupleItemExpression,
 )
 from puya.awst_build import pytypes
 from puya.errors import CodeError, InternalError
@@ -403,20 +401,14 @@ def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:
             "None indicates an empty return and cannot be assigned",
             resolved.source_location,
         )
-    if isinstance(resolved, TupleItemExpression):
-        raise CodeError("Tuple items cannot be reassigned", resolved.source_location)
     if not isinstance(resolved, Lvalue):  # type: ignore[arg-type,misc]
-        raise CodeError("expression is not valid as assignment target", resolved.source_location)
-    if isinstance(resolved, IndexExpression):
+        raise CodeError(
+            "expression is not valid as an assignment target", resolved.source_location
+        )
+    if isinstance(resolved, FieldExpression):
         if resolved.base.wtype.immutable:
             raise CodeError(
-                "expression is not valid as assignment target - collection is immutable",
-                resolved.source_location,
-            )
-    elif isinstance(resolved, FieldExpression):
-        if resolved.base.wtype.immutable:
-            raise CodeError(
-                "expression is not valid as assignment target - object is immutable",
+                "expression is not valid as an assignment target - object is immutable",
                 resolved.source_location,
             )
     elif isinstance(resolved, TupleExpression):
