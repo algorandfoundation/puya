@@ -40,7 +40,12 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type, get_arg_mapping
+from puya.awst_build.utils import (
+    convert_literal_to_builder,
+    expect_operand_type,
+    get_arg_mapping,
+    require_instance_builder_or_literal,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -84,7 +89,7 @@ def _init(
     location: SourceLocation,
     *,
     result_type: pytypes.StorageProxyType | None,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     type_arg_name = "type_"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_arg_name],
@@ -136,7 +141,7 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
 
     def _build_field(
         self,
-        index: NodeBuilder | Literal,
+        index: InstanceBuilder | Literal,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
         index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).rvalue()
@@ -166,7 +171,7 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
         )
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         expr = self._build_field(index, location)
         return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
@@ -245,7 +250,7 @@ class _AppAccountStateExpressionBuilderFromConstructor(
         )
 
 
-FieldBuilder = Callable[[NodeBuilder | Literal, SourceLocation], AppAccountStateExpression]
+FieldBuilder = Callable[[InstanceBuilder | Literal, SourceLocation], AppAccountStateExpression]
 
 
 class _Get(FunctionBuilder):
@@ -271,6 +276,7 @@ class _Get(FunctionBuilder):
             default_arg, item = args
         else:
             item, default_arg = args
+        item = require_instance_builder_or_literal(item)
         default_expr = expect_operand_type(default_arg, self._content_typ).rvalue()
         expr = StateGet(
             field=self._build_field(item, location),
@@ -300,6 +306,7 @@ class _Maybe(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [item]:
+                item = require_instance_builder_or_literal(item)
                 field = self._build_field(item, location)
                 app_local_get_ex = StateGetEx(field=field, source_location=location)
                 result_typ = pytypes.GenericTupleType.parameterise(

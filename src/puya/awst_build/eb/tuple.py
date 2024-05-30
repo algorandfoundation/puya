@@ -88,7 +88,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         super().__init__(typ, expr)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the
         # result type, but also we can statically validate that value

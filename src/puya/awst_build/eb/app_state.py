@@ -87,7 +87,7 @@ def _init(
     location: SourceLocation,
     *,
     result_type: pytypes.StorageProxyType | None,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     type_or_value_arg_name = "type_or_initial_value"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_or_value_arg_name],

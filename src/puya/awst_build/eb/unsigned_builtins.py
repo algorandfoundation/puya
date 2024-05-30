@@ -178,7 +178,7 @@ class _IterableOnlyBuilder(InstanceBuilder):
         return self._iterable_only(location)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return self._iterable_only(location)
 
     @typing.override

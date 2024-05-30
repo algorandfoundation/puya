@@ -282,7 +282,7 @@ class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], 
         return self.rvalue()
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         if isinstance(index, Literal) and isinstance(index.value, int) and index.value < 0:
             index_expr: Expression = UInt64BinaryOperation(
                 left=expect_operand_type(

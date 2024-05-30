@@ -65,7 +65,7 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
         return self._proxied.augmented_assignment(op, rhs, location)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return self._proxied.index(index, location)
 
     @typing.override

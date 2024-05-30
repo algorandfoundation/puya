@@ -193,7 +193,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         )
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         raise CodeError(
             "string indexing in not supported due to lack of UTF8 support in AVM", location
         )

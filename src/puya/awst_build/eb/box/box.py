@@ -209,7 +209,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
                 return super().member_access(name, location)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
             return super().index(index, location)
         return index_box_bytes(self.expr, index, location)
@@ -242,7 +242,7 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
                 return super().member_access(name, location)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return index_box_bytes(self._typed, index, location)
 
     @typing.override

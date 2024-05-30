@@ -96,7 +96,7 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         super().__init__(typ, expr)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         index_expr_or_literal = index
         match index_expr_or_literal:
             case Literal(value=int(index_value)) as index_literal:

@@ -130,7 +130,7 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
         super().__init__(typ, expr)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return BoxValueExpressionBuilder(
             self._typ.content,
             _box_value_expr(self.expr, index, location, self._typ.content.wtype),

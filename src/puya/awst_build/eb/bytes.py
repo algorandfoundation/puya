@@ -162,7 +162,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return super().member_access(name, location)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         index_expr = expect_operand_type(index, pytypes.UInt64Type).rvalue()
         expr = IndexExpression(
             source_location=location,

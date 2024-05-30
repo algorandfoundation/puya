@@ -241,7 +241,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         raise CodeError("expression is not iterable", self.source_location)
 
     @abc.abstractmethod
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         """Handle self[index]"""
         raise CodeError("expression is not a collection", self.source_location)
 
@@ -357,7 +357,7 @@ class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
 
     @typing.final
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+    def index(self, index: InstanceBuilder | Literal, location: SourceLocation) -> InstanceBuilder:
         return super().index(index, location)
 
     @typing.final
