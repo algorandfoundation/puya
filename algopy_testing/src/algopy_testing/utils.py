@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from algopy_testing import arc4
 from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT8, MAX_UINT64, MAX_UINT512
 
 
@@ -21,6 +22,10 @@ def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
         case UInt64(value=int_value):
             pass
         case BigUInt(value=int_value):
+            pass
+        case arc4.UIntN(value=int_value):
+            pass
+        case arc4.BigUIntN(value=int_value):
             pass
         # TODO: add arc4 numerics
         case _:
@@ -76,5 +81,10 @@ def as_string(value: object) -> str:
             raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
 
 
-def int_to_bytes(x: int) -> bytes:
-    return x.to_bytes((x.bit_length() + 7) // 8, "big")
+def int_to_bytes(x: int, pad_to: int | None = None) -> bytes:
+    result = x.to_bytes((x.bit_length() + 7) // 8, "big")
+    result = (
+        b"\x00" * (pad_to - len(result)) if pad_to is not None and len(result) < pad_to else b""
+    ) + result
+
+    return result
