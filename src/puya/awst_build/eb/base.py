@@ -35,6 +35,7 @@ __all__ = [
     "BuilderBinaryOp",
     "NodeBuilder",
     "CallableBuilder",
+    "InstanceBuilder",
     "StorageProxyConstructorResult",
     "FunctionBuilder",
     "TypeBuilder",
@@ -127,26 +128,6 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
     @typing.final
     def member_access(self, name: str, location: SourceLocation) -> typing.Never:
         raise CodeError("function attribute access is not supported", location)
-
-
-class StorageProxyConstructorResult(NodeBuilder, abc.ABC):
-    @typing.override
-    @property
-    @abc.abstractmethod
-    def pytype(self) -> pytypes.StorageProxyType | pytypes.StorageMapProxyType: ...
-
-    @property
-    @abc.abstractmethod
-    def initial_value(self) -> Expression | None: ...
-
-    @abc.abstractmethod
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration: ...
 
 
 _TPyType_co = typing_extensions.TypeVar(
@@ -272,6 +253,23 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
     ) -> NodeBuilder:
         """Handle self[begin_index:end_index:stride]"""
         raise CodeError("expression is not a collection", self.source_location)
+
+
+class StorageProxyConstructorResult(
+    InstanceBuilder[pytypes.StorageProxyType | pytypes.StorageMapProxyType], abc.ABC
+):
+    @property
+    @abc.abstractmethod
+    def initial_value(self) -> Expression | None: ...
+
+    @abc.abstractmethod
+    def build_definition(
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
+    ) -> AppStorageDeclaration: ...
 
 
 class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):

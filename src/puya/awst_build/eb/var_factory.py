@@ -1,10 +1,10 @@
 from puya.awst.nodes import Expression
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import CallableBuilder, NodeBuilder
+from puya.awst_build.eb.base import CallableBuilder, InstanceBuilder
 from puya.parse import SourceLocation
 
 
-def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> NodeBuilder:
+def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> InstanceBuilder:
     from puya.awst_build.eb import type_registry
 
     return type_registry.builder_for_instance(pytyp, expr)

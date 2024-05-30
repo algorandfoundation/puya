@@ -24,7 +24,7 @@ from puya.awst_build.eb import (
     unsigned_builtins,
     void,
 )
-from puya.awst_build.eb.base import CallableBuilder, NodeBuilder
+from puya.awst_build.eb.base import CallableBuilder, InstanceBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
 from puya.errors import InternalError
 from puya.parse import SourceLocation
@@ -35,9 +35,7 @@ __all__ = [
 ]
 
 CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
-CallableBuilderFromPyTypeAndSourceFactory = Callable[
-    [pytypes.PyType, SourceLocation], CallableBuilder
-]
+
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
     constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
@@ -55,6 +53,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
         for name, mappings in intrinsic_data.FUNC_TO_AST_MAPPER.items()
     },
 }
+
 PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] = {
     pytypes.NoneType: void.VoidTypeExpressionBuilder,
     pytypes.BoolType: bool_.BoolClassExpressionBuilder,
@@ -122,6 +121,11 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
     },
 }
+
+CallableBuilderFromPyTypeAndSourceFactory = Callable[
+    [pytypes.PyType, SourceLocation], CallableBuilder
+]
+
 PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.PyType | None, CallableBuilderFromPyTypeAndSourceFactory
 ] = {
@@ -143,13 +147,13 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayClassExpressionBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayClassExpressionBuilder,
 }
+
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructClassExpressionBuilder,
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
 }
 
-ExpressionBuilderFromExpressionFactory = Callable[[Expression], NodeBuilder]
-PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] = {
+PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]] = {
     pytypes.ARC4BoolType: arc4.ARC4BoolExpressionBuilder,
     pytypes.ARC4StringType: arc4.StringExpressionBuilder,
     pytypes.ARC4DynamicBytesType: arc4.DynamicBytesExpressionBuilder,
@@ -188,11 +192,13 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] 
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
     },
 }
-ExpressionBuilderFromExpressionAndPyTypeFactory = Callable[
-    [Expression, pytypes.PyType], NodeBuilder
+
+InstanceBuilderFromExpressionAndPyTypeFactory = Callable[
+    [Expression, pytypes.PyType], InstanceBuilder
 ]
+
 PYTYPE_GENERIC_TO_BUILDER: dict[
-    pytypes.PyType | None, ExpressionBuilderFromExpressionAndPyTypeFactory
+    pytypes.PyType | None, InstanceBuilderFromExpressionAndPyTypeFactory
 ] = {
     pytypes.GenericTupleType: tuple_.TupleExpressionBuilder,
     pytypes.GenericBoxType: box.BoxProxyExpressionBuilder,
@@ -208,13 +214,14 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericGlobalStateType: app_state.AppStateExpressionBuilder,
     pytypes.GenericLocalStateType: app_account_state.AppAccountStateExpressionBuilder,
 }
-PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionAndPyTypeFactory] = {
+
+PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructExpressionBuilder,
     pytypes.StructBaseType: struct.StructExpressionBuilder,
 }
 
 
-def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> NodeBuilder:
+def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> InstanceBuilder:
     if eb := PYTYPE_TO_BUILDER.get(pytyp):
         return eb(expr)
     if eb_param_generic := PYTYPE_GENERIC_TO_BUILDER.get(pytyp.generic):
