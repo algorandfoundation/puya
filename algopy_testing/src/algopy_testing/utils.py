@@ -23,10 +23,10 @@ def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
             pass
         case BigUInt(value=int_value):
             pass
-        case arc4.UIntN(value=int_value):
-            pass
-        case arc4.BigUIntN(value=int_value):
-            pass
+        case arc4.UIntN():
+            int_value = value.native.value
+        case arc4.BigUIntN():
+            int_value = value.native.value
         # TODO: add arc4 numerics
         case _:
             raise TypeError(f"value must be a numeric type, not {type(value).__name__!r}")

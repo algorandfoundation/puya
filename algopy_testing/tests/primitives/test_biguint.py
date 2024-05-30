@@ -5,7 +5,8 @@ from collections.abc import Callable
 import algokit_utils
 import pytest
 from algopy_testing.constants import MAX_UINT64, MAX_UINT512, UINT512_BYTES_LENGTH
-from algopy_testing.primitives.biguint import BigUInt, UInt64
+from algopy_testing.primitives.biguint import BigUInt
+from algopy_testing.primitives.uint64 import UInt64
 
 from tests.common import AVMInvoker
 from tests.util import int_to_bytes

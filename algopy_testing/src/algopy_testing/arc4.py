@@ -3,8 +3,7 @@ from __future__ import annotations
 import types
 import typing
 
-import algopy
-
+import algopy_testing.primitives as algopy
 from algopy_testing.constants import BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
 from algopy_testing.utils import as_bytes, as_int, int_to_bytes
 
@@ -96,8 +95,7 @@ class _UIntN(_ABIEncoded, typing.Protocol):
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
-        result = cls()
-        result.__init__(int.from_bytes(value))
+        result = cls(int.from_bytes(value))
         return result
 
     @classmethod
@@ -110,8 +108,8 @@ class _UIntN(_ABIEncoded, typing.Protocol):
 
 
 # https://stackoverflow.com/a/75395800
-class _UIntNMeta(type(_UIntN), typing.Generic[_TBitSize]):
-    __concrete__: typing.ClassVar[dict] = {}
+class _UIntNMeta(type(_UIntN), typing.Generic[_TBitSize]):  # type: ignore  # noqa: PGH003
+    __concrete__: dict[type[_TBitSize], type] = {}  # noqa: RUF012
 
     def __getitem__(cls, key_t: type[_TBitSize]) -> type:
         cache = cls.__concrete__
@@ -152,40 +150,22 @@ class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
         """Return the UInt64 representation of the value after ARC4 decoding"""
         return algopy.UInt64(int.from_bytes(self.__value))
 
-    def __eq__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.native == as_int(other, max=None)
 
-    def __ne__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __ne__(self, other: object) -> bool:
         return self.native != as_int(other, max=None)
 
-    def __le__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __le__(self, other: object) -> bool:
         return self.native <= as_int(other, max=None)
 
-    def __lt__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __lt__(self, other: object) -> bool:
         return self.native < as_int(other, max=None)
 
-    def __ge__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __ge__(self, other: object) -> bool:
         return self.native > as_int(other, max=None)
 
-    def __gt__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __gt__(self, other: object) -> bool:
         return self.native >= as_int(other, max=None)
 
     def __bool__(self) -> bool:
@@ -221,40 +201,22 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
         """Return the UInt64 representation of the value after ARC4 decoding"""
         return algopy.BigUInt.from_bytes(self.__value)
 
-    def __eq__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.native == as_int(other, max=None)
 
-    def __ne__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __ne__(self, other: object) -> bool:
         return self.native != as_int(other, max=None)
 
-    def __le__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __le__(self, other: object) -> bool:
         return self.native <= as_int(other, max=None)
 
-    def __lt__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __lt__(self, other: object) -> bool:
         return self.native < as_int(other, max=None)
 
-    def __ge__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __ge__(self, other: object) -> bool:
         return self.native > as_int(other, max=None)
 
-    def __gt__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool:
+    def __gt__(self, other: object) -> bool:
         return self.native >= as_int(other, max=None)
 
     def __bool__(self) -> bool:
