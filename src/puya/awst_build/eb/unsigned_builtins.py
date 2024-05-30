@@ -10,13 +10,15 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     Literal,
+    Lvalue,
     Range,
     Reversed,
+    Statement,
     UInt64Constant,
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
-    IntermediateExpressionBuilder,
+    BuilderUnaryOp,
     Iteration,
     NodeBuilder,
     TypeBuilder,
@@ -71,22 +73,7 @@ class UnsignedRangeBuilder(TypeBuilder):
             stop=range_stop,
             step=range_step,
         )
-        return UnsignedRange(sequence)
-
-
-class UnsignedRange(IntermediateExpressionBuilder):
-    def __init__(self, sequence: Range):
-        super().__init__(location=sequence.source_location)
-        self.sequence = sequence
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
-    @typing.override
-    def iterate(self) -> Iteration:
-        return self.sequence
+        return _IterableOnlyBuilder(sequence)
 
 
 class UnsignedEnumerateBuilder(TypeBuilder):
@@ -113,25 +100,8 @@ class UnsignedEnumerateBuilder(TypeBuilder):
                 location,
             ) from ex
         sequence = require_expression_builder(arg).iterate()
-        return UnsignedEnumerate(sequence, location)
-
-
-class UnsignedEnumerate(IntermediateExpressionBuilder):
-    def __init__(self, sequence: Expression | Range, location: SourceLocation):
-        super().__init__(location)
-        self._sequence = sequence
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
-
-    @typing.override
-    def iterate(self) -> Iteration:
-        return Enumeration(
-            expr=self._sequence,
-            source_location=self.source_location,
-        )
+        enumeration = Enumeration(expr=sequence, source_location=location)
+        return _IterableOnlyBuilder(enumeration)
 
 
 class ReversedFunctionExpressionBuilder(TypeBuilder):
@@ -157,22 +127,61 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
                 location,
             ) from ex
         sequence = require_expression_builder(arg).iterate()
-        return ReversedExpressionBuilder(sequence, location)
+        reversed_ = Reversed(expr=sequence, source_location=location)
+        return _IterableOnlyBuilder(reversed_)
 
 
-class ReversedExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, sequence: Expression | Range, location: SourceLocation):
-        super().__init__(location)
-        self._sequence = sequence
-
-    @typing.override
-    @property
-    def pytype(self) -> None:  # TODO: ??
-        return None
+class _IterableOnlyBuilder(NodeBuilder):
+    def __init__(self, expr: Iteration):
+        super().__init__(expr.source_location)
+        self._expr = expr
 
     @typing.override
     def iterate(self) -> Iteration:
-        return Reversed(
-            expr=self._sequence,
-            source_location=self.source_location,
-        )
+        return self._expr
+
+    @typing.override
+    @property
+    def pytype(self) -> None:
+        return None
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def rvalue(self) -> Expression:
+        return self._iterable_only(self.source_location)
+
+    @typing.override
+    def lvalue(self) -> Lvalue:
+        return self._iterable_only(self.source_location)
+
+    @typing.override
+    def delete(self, location: SourceLocation) -> Statement:
+        return self._iterable_only(location)
+
+    @typing.override
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        return self._iterable_only(location)
+
+    def _iterable_only(self, location: SourceLocation) -> typing.Never:
+        raise CodeError("expression is only usable as the source of a for-loop", location)

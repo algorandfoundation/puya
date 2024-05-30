@@ -14,7 +14,12 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb.base import BuilderUnaryOp, NodeBuilder, StorageProxyConstructorResult
+from puya.awst_build.eb.base import (
+    BuilderUnaryOp,
+    Iteration,
+    NodeBuilder,
+    StorageProxyConstructorResult,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -84,6 +89,24 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
     @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
+
+    @typing.override
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        return self._assign_first(location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        return self._assign_first(location)
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        return self._assign_first(self.source_location)
 
     def _assign_first(self, location: SourceLocation) -> typing.Never:
         raise CodeError(

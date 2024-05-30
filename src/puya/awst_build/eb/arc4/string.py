@@ -5,6 +5,7 @@ import typing
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Decode,
     ARC4Encode,
     ArrayConcat,
     ArrayExtend,
@@ -17,14 +18,19 @@ from puya.awst.nodes import (
     StringConstant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._utils import get_bytes_expr
+from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
-    ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, NodeBuilder
+from puya.awst_build.eb.base import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
+    NodeBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -90,10 +96,11 @@ def _expect_string_or_bytes(expr: NodeBuilder | Literal, location: SourceLocatio
             typing.assert_never(expr)
 
 
-class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
+class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
-        super().__init__(pytypes.ARC4StringType, expr, native_pytype=pytypes.StringType)
+        super().__init__(pytypes.ARC4StringType, expr)
 
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
@@ -110,6 +117,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
             case _:
                 return super().augmented_assignment(op, rhs, location)  # TODO: bad error message
 
+    @typing.override
     def binary_op(
         self,
         other: NodeBuilder | Literal,
@@ -136,6 +144,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
             case _:
                 return super().binary_op(other, op, location, reverse=reverse)
 
+    @typing.override
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:
@@ -157,7 +166,23 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
             )
         )
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return arc4_bool_bytes(
             self.expr, false_bytes=b"\x00\x00", location=location, negate=negate
         )
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        match name:
+            case "native":
+                result_expr: Expression = ARC4Decode(
+                    value=self.expr,
+                    wtype=pytypes.StringType.wtype,
+                    source_location=location,
+                )
+                return NativeStringExpressionBuilder(result_expr)
+            case "bytes":
+                return get_bytes_expr_builder(self.expr)
+            case _:
+                return super().member_access(name, location)

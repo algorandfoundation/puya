@@ -27,8 +27,8 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
-    InstanceExpressionBuilder,
     NodeBuilder,
+    NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -70,7 +70,7 @@ class UInt64ClassExpressionBuilder(TypeBuilder):
         return UInt64ExpressionBuilder(const)
 
 
-class UInt64ExpressionBuilder(InstanceExpressionBuilder):
+class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.UInt64Type, expr)
 

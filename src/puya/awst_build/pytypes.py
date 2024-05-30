@@ -403,6 +403,7 @@ ARC4BoolType: typing.Final[PyType] = _SimpleType(
 class ARC4UIntNType(PyType):
     bits: int
     wtype: wtypes.WType
+    native_type: PyType
 
 
 def _require_int_literal(
@@ -424,7 +425,9 @@ def _require_int_literal(
     )
 
 
-def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Parameterise:
+def _make_arc4_unsigned_int_parameterise(
+    *, native_type: PyType, max_bits: int | None = None
+) -> _Parameterise:
     def parameterise(
         self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> ARC4UIntNType:
@@ -443,6 +446,7 @@ def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Par
             generic=self,
             name=name,
             bits=bits,
+            native_type=native_type,
             wtype=wtypes.ARC4UIntN(bits, source_location),
         )
 
@@ -451,11 +455,11 @@ def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Par
 
 GenericARC4UIntNType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_UINTN,
-    parameterise=_make_arc4_unsigned_int_parameterise(max_bits=64),
+    parameterise=_make_arc4_unsigned_int_parameterise(native_type=UInt64Type, max_bits=64),
 )
 GenericARC4BigUIntNType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_BIG_UINTN,
-    parameterise=_make_arc4_unsigned_int_parameterise(),
+    parameterise=_make_arc4_unsigned_int_parameterise(native_type=BigUIntType),
 )
 
 
@@ -478,6 +482,7 @@ ARC4ByteType: typing.Final = _register_builtin(
         bits=8,
         bases=[ARC4UIntN_Aliases[8]],
         mro=[ARC4UIntN_Aliases[8]],
+        native_type=UInt64Type,
     )
 )
 

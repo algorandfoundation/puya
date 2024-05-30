@@ -4,13 +4,16 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import ARC4Encode, BoolConstant, Expression, Literal
+from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression, Literal
 from puya.awst_build import pytypes
+from puya.awst_build.eb._utils import get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
-    ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
+    arc4_compare_bytes,
 )
+from puya.awst_build.eb.base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
@@ -19,7 +22,10 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build.eb.base import NodeBuilder
+    from puya.awst_build.eb.base import (
+        BuilderComparisonOp,
+        NodeBuilder,
+    )
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -54,9 +60,31 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
         )
 
 
-class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
+class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
-        super().__init__(pytypes.ARC4BoolType, expr, native_pytype=pytypes.BoolType)
+        super().__init__(pytypes.ARC4BoolType, expr)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        match name:
+            case "native":
+                result_expr: Expression = ARC4Decode(
+                    value=self.expr,
+                    wtype=pytypes.BoolType.wtype,
+                    source_location=location,
+                )
+                return BoolExpressionBuilder(result_expr)
+            case "bytes":
+                return get_bytes_expr_builder(self.expr)
+            case _:
+                return super().member_access(name, location)
+
+    @typing.override
+    def compare(
+        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> NodeBuilder:
+        return arc4_compare_bytes(self, op, other, location)

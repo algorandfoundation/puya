@@ -8,7 +8,6 @@ import typing_extensions
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    ARC4Decode,
     BytesComparisonExpression,
     BytesConstant,
     BytesEncoding,
@@ -22,7 +21,7 @@ from puya.awst.nodes import (
     TupleExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     FunctionBuilder,
@@ -56,14 +55,6 @@ class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TPyType_co],
                 return ARC4FromLogBuilder(location, self.produces())
             case _:
                 return super().member_access(name, location)
-
-
-def get_integer_literal_value(eb_or_literal: NodeBuilder | Literal, purpose: str) -> int:
-    match eb_or_literal:
-        case Literal(value=int(lit_value)):
-            return lit_value
-        case _:
-            raise CodeError(f"{purpose} must be compile time constant")
 
 
 class ARC4FromLogBuilder(FunctionBuilder):
@@ -141,39 +132,6 @@ class CopyBuilder(FunctionBuilder):
                 )
                 return builder_for_instance(self._typ, expr_result)
         raise CodeError("Invalid/Unexpected arguments", location)
-
-
-class ARC4EncodedExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
-    def __init__(self, pytype: _TPyType_co, expr: Expression, native_pytype: pytypes.PyType):
-        super().__init__(pytype, expr)
-        self._native_pytype = native_pytype
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
-        match name:
-            case "native":
-                result_expr: Expression = ARC4Decode(
-                    value=self.expr,
-                    wtype=self._native_pytype.wtype,
-                    source_location=location,
-                )
-                return builder_for_instance(self._native_pytype, result_expr)
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
-            case _:
-                return super().member_access(name, location)
-
-    @typing.override
-    def compare(
-        self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> NodeBuilder:
-        return arc4_compare_bytes(self, op, other, location)
-
-    @typing.override
-    @abc.abstractmethod
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
-        # TODO: lift this up to InstanceExpressionBuilder
-        raise NotImplementedError
 
 
 def arc4_compare_bytes(

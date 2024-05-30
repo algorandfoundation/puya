@@ -86,6 +86,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, expr)
 
+    @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the
@@ -112,6 +113,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         )
         return builder_for_instance(item_typ, item_expr)
 
+    @typing.override
     def slice_index(
         self,
         begin_index: NodeBuilder | Literal | None,
@@ -158,9 +160,11 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                 )
         return expr, idx
 
+    @typing.override
     def iterate(self) -> Iteration:
         return self.rvalue()
 
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         if isinstance(item, Literal):
             raise CodeError(
@@ -170,9 +174,11 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
+    @typing.override
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:

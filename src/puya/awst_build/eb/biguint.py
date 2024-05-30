@@ -25,8 +25,8 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
-    InstanceExpressionBuilder,
     NodeBuilder,
+    NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
@@ -71,7 +71,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         return BigUIntExpressionBuilder(value)
 
 
-class BigUIntExpressionBuilder(InstanceExpressionBuilder):
+class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BigUIntType, expr)
 

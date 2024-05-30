@@ -20,8 +20,8 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     GenericTypeBuilder,
-    InstanceExpressionBuilder,
     NodeBuilder,
+    NotIterableInstanceExpressionBuilder,
     StorageProxyConstructorResult,
     TypeBuilder,
 )
@@ -112,7 +112,7 @@ def _init(
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
 
 
-class BoxProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyType]):
+class BoxProxyExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType
@@ -128,6 +128,7 @@ class BoxProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyTy
             source_location=location,
         )
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "value":
@@ -143,6 +144,7 @@ class BoxProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyTy
 
         return super().member_access(name, location)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         box_exists = StateExists(
             field=self._box_key_expr(location),
@@ -191,9 +193,11 @@ class _BoxProxyExpressionBuilderFromConstructor(
 class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
     expr: BoxValueExpression  # TODO: remove "lies"
 
+    @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "length":
@@ -203,11 +207,13 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
             case _:
                 return super().member_access(name, location)
 
+    @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         if self.pytype != pytypes.BytesType:
             return super().index(index, location)
         return index_box_bytes(self.expr, index, location)
 
+    @typing.override
     def slice_index(
         self,
         begin_index: NodeBuilder | Literal | None,
@@ -226,6 +232,7 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
         self._typed = expr
         super().__init__(pytypes.BytesType, BytesRaw(expr=expr, source_location=location))
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "length":
@@ -233,9 +240,11 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
             case _:
                 return super().member_access(name, location)
 
+    @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return index_box_bytes(self._typed, index, location)
 
+    @typing.override
     def slice_index(
         self,
         begin_index: NodeBuilder | Literal | None,

@@ -34,12 +34,14 @@ __all__ = [
     "BuilderUnaryOp",
     "BuilderBinaryOp",
     "NodeBuilder",
+    "CallableBuilder",
     "StorageProxyConstructorResult",
     "FunctionBuilder",
     "IntermediateExpressionBuilder",
     "TypeBuilder",
     "GenericTypeBuilder",
     "InstanceExpressionBuilder",
+    "NotIterableInstanceExpressionBuilder",
 ]
 
 Iteration: typing.TypeAlias = Expression | Range
@@ -160,14 +162,22 @@ class NodeBuilder(abc.ABC):
             f"{self._type_description} does not support augmented assignment", location
         )
 
-    # collection/iterable methods
     @abc.abstractmethod
-    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder: ...
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        """Handle item in self"""
+        raise CodeError("expression is not iterable", self.source_location)
 
+    @abc.abstractmethod
+    def iterate(self) -> Iteration:
+        """Produce target of ForInLoop"""
+        raise CodeError("expression is not iterable", self.source_location)
+
+    @abc.abstractmethod
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         """Handle self[index]"""
-        raise CodeError(f"{self._type_description} does not support indexing", location)
+        raise CodeError("expression is not a collection", self.source_location)
 
+    @abc.abstractmethod
     def slice_index(
         self,
         begin_index: NodeBuilder | Literal | None,
@@ -176,13 +186,7 @@ class NodeBuilder(abc.ABC):
         location: SourceLocation,
     ) -> NodeBuilder:
         """Handle self[begin_index:end_index:stride]"""
-        raise CodeError(f"{self._type_description} does not support slicing", location)
-
-    def iterate(self) -> Iteration:
-        """Produce target of ForInLoop"""
-        raise CodeError(
-            f"{self._type_description} does not support iteration", self.source_location
-        )
+        raise CodeError("expression is not a collection", self.source_location)
 
 
 class CallableBuilder(NodeBuilder, abc.ABC):
@@ -227,9 +231,31 @@ class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
+    @typing.final
     @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
-        return self._not_a_value(location)
+        return super().contains(item, location)
+
+    @typing.final
+    @typing.override
+    def iterate(self) -> Iteration:
+        return super().iterate()
+
+    @typing.final
+    @typing.override
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        return super().index(index, location)
+
+    @typing.final
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        return super().slice_index(begin_index, end_index, stride, location)
 
     def _not_a_value(self, location: SourceLocation) -> typing.Never:
         raise CodeError(f"{self._type_description} is not a value", location)
@@ -298,7 +324,7 @@ class GenericTypeBuilder(IntermediateExpressionBuilder, CallableBuilder, abc.ABC
         )
 
 
-class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
+class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)
@@ -335,17 +361,8 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
         raise CodeError(f"{self.pytype} is not valid as del target", location)
 
     @typing.override
-    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"{self.pytype} does not support indexing", location)
-
-    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         raise CodeError(f"Unrecognised member of {self.pytype}: {name}", location)
-
-    @typing.override
-    def iterate(self) -> Iteration:
-        """Produce target of ForInLoop"""
-        raise CodeError(f"{self.pytype} does not support iteration", self.source_location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
@@ -356,9 +373,33 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         raise CodeError(f"{self.pytype} does not support unary {op.value!r} operator", location)
 
+
+class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co]):
+    @typing.final
     @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"{self.pytype} does not support in/not in checks", location)
+        return super().contains(item, location)
+
+    @typing.final
+    @typing.override
+    def iterate(self) -> Iteration:
+        return super().iterate()
+
+    @typing.final
+    @typing.override
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        return super().index(index, location)
+
+    @typing.final
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        return super().slice_index(begin_index, end_index, stride, location)
 
 
 def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:

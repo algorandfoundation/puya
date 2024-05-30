@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Sequence
 
@@ -22,6 +23,7 @@ from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
     InstanceExpressionBuilder,
+    Iteration,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeBuilder,
@@ -152,6 +154,20 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
         )
         return BoolExpressionBuilder(box_exists)
 
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise CodeError("slicing of BoxMap is not supported", location)
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        raise CodeError("iteration of BoxMap is not supported", self.source_location)
+
 
 class _BoxMapProxyExpressionBuilderFromConstructor(
     BoxMapProxyExpressionBuilder, StorageProxyConstructorResult
@@ -188,7 +204,7 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
         )
 
 
-class _MethodBase(FunctionBuilder):
+class _MethodBase(FunctionBuilder, abc.ABC):
     def __init__(
         self,
         location: SourceLocation,

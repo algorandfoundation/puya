@@ -1,3 +1,5 @@
+import typing
+
 from puya.awst.nodes import Expression, Literal, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
@@ -20,23 +22,29 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
     def _proxied(self) -> NodeBuilder:
         return builder_for_instance(self.pytype, self.expr)
 
+    @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return self._proxied.delete(location)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return self._proxied.bool_eval(location, negate=negate)
 
+    @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         return self._proxied.unary_op(op, location)
 
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._proxied.contains(item, location)
 
+    @typing.override
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:
         return self._proxied.compare(other, op, location)
 
+    @typing.override
     def binary_op(
         self,
         other: NodeBuilder | Literal,
@@ -47,14 +55,17 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
     ) -> NodeBuilder:
         return self._proxied.binary_op(other, op, location, reverse=reverse)
 
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
         return self._proxied.augmented_assignment(op, rhs, location)
 
+    @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._proxied.index(index, location)
 
+    @typing.override
     def slice_index(
         self,
         begin_index: NodeBuilder | Literal | None,
@@ -64,8 +75,10 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
     ) -> NodeBuilder:
         return self._proxied.slice_index(begin_index, end_index, stride, location)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         return self._proxied.member_access(name, location)
 
+    @typing.override
     def iterate(self) -> Iteration:
         return self._proxied.iterate()

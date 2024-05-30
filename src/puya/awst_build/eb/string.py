@@ -31,6 +31,7 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     FunctionBuilder,
     InstanceExpressionBuilder,
+    Iteration,
     NodeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -80,6 +81,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.StringType, expr)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "bytes":
@@ -93,6 +95,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
             case _:
                 return super().member_access(name, location)
 
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:
@@ -110,6 +113,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
                     location,
                 )
 
+    @typing.override
     def binary_op(
         self,
         other: NodeBuilder | Literal,
@@ -135,6 +139,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
             case _:
                 return NotImplemented
 
+    @typing.override
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:
@@ -151,12 +156,14 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp)
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         bytes_expr = get_bytes_expr(self.expr)
         len_expr = intrinsic_factory.bytes_len(bytes_expr, location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         item_expr = get_bytes_expr(expect_operand_type(item, pytypes.StringType).rvalue())
         this_expr = get_bytes_expr(self.expr)
@@ -170,6 +177,31 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
             source_location=location,
         )
         return BoolExpressionBuilder(is_substring_expr)
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        raise CodeError(
+            "string iteration in not supported due to lack of UTF8 support in AVM",
+            self.source_location,
+        )
+
+    @typing.override
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        raise CodeError(
+            "string indexing in not supported due to lack of UTF8 support in AVM", location
+        )
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise CodeError(
+            "string slicing in not supported due to lack of UTF8 support in AVM", location
+        )
 
 
 class _StringStartsOrEndsWith(FunctionBuilder):

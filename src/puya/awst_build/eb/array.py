@@ -5,7 +5,14 @@ import mypy.nodes
 import mypy.types
 
 from puya.awst import wtypes
-from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray, TupleExpression
+from puya.awst.nodes import (
+    ArrayExtend,
+    Contains,
+    Expression,
+    Literal,
+    NewArray,
+    TupleExpression,
+)
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
@@ -88,19 +95,36 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)
 
+    @typing.override
     def iterate(self) -> Iteration:
         return self.rvalue()
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "append":
                 return _Append(self.expr)
         return super().member_access(name, location)
 
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         item_expr = expect_operand_type(item, self.pytype.items).rvalue()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
         return BoolExpressionBuilder(contains_expr)
+
+    @typing.override
+    def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        raise NotImplementedError
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise NotImplementedError
 
 
 class _Append(FunctionBuilder):

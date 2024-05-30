@@ -5,6 +5,7 @@ import typing
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Decode,
     ARC4Encode,
     Expression,
     IntegerConstant,
@@ -14,13 +15,18 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb._utils import get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
-    ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.eb.base import BuilderComparisonOp, NodeBuilder
+from puya.awst_build.eb.base import (
+    BuilderComparisonOp,
+    NodeBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
@@ -71,15 +77,25 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
         return UIntNExpressionBuilder(expr, typ)
 
 
-class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder[pytypes.ARC4UIntNType]):
+class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UIntNType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UIntNType)
-        if typ == pytypes.ARC4ByteType or typ.generic == pytypes.GenericARC4UIntNType:
-            native_pytype = pytypes.UInt64Type
-        else:
-            assert typ.generic == pytypes.GenericARC4BigUIntNType
-            native_pytype = pytypes.BigUIntType
-        super().__init__(typ, expr, native_pytype=native_pytype)
+        super().__init__(typ, expr)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
+        match name:
+            case "native":
+                result_expr = ARC4Decode(
+                    value=self.expr,
+                    wtype=self.pytype.native_type.wtype,
+                    source_location=location,
+                )
+                return builder_for_instance(self.pytype.native_type, result_expr)
+            case "bytes":
+                return get_bytes_expr_builder(self.expr)
+            case _:
+                return super().member_access(name, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:

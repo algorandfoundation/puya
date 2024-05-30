@@ -312,6 +312,22 @@ class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], 
     ) -> NodeBuilder:
         return arc4_compare_bytes(self, op, other, location)
 
+    @typing.override
+    @typing.final
+    def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
+        raise CodeError("item containment with ARC4 arrays is currently unsupported", location)
+
+    @typing.override
+    @typing.final
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise CodeError("slicing ARC4 arrays is currently unsupported", location)
+
 
 class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):

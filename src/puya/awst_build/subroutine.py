@@ -989,7 +989,7 @@ class FunctionASTConverter(
 
         base_expr = expr.base.accept(self)
         if isinstance(base_expr, Literal):
-            raise CodeError(
+            raise CodeError(  # TODO: yeet me
                 "Python literals cannot be indexed or sliced", base_expr.source_location
             )
 

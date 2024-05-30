@@ -152,6 +152,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BytesType, expr)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "length":
@@ -159,6 +160,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
                 return UInt64ExpressionBuilder(len_call)
         return super().member_access(name, location)
 
+    @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         index_expr = expect_operand_type(index, pytypes.UInt64Type).rvalue()
         expr = IndexExpression(
@@ -169,6 +171,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         )
         return BytesExpressionBuilder(expr)
 
+    @typing.override
     def slice_index(
         self,
         begin_index: NodeBuilder | Literal | None,
@@ -188,14 +191,17 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         )
         return BytesExpressionBuilder(slice_expr)
 
+    @typing.override
     def iterate(self) -> Iteration:
         return self.rvalue()
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         len_expr = intrinsic_factory.bytes_len(self.expr, location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
+    @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         if op == BuilderUnaryOp.bit_invert:
             return BytesExpressionBuilder(
@@ -207,6 +213,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
             )
         return super().unary_op(op, location)
 
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         item_expr = expect_operand_type(item, pytypes.BytesType).rvalue()
         is_substring_expr = SubroutineCallExpression(
@@ -217,6 +224,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         )
         return BoolExpressionBuilder(is_substring_expr)
 
+    @typing.override
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> NodeBuilder:
@@ -231,6 +239,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp_expr)
 
+    @typing.override
     def binary_op(
         self,
         other: NodeBuilder | Literal,
@@ -251,6 +260,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         )
         return BytesExpressionBuilder(bin_op_expr)
 
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: NodeBuilder | Literal, location: SourceLocation
     ) -> Statement:

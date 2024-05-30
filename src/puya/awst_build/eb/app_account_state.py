@@ -29,6 +29,7 @@ from puya.awst_build.eb.base import (
     FunctionBuilder,
     GenericTypeBuilder,
     InstanceExpressionBuilder,
+    Iteration,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeBuilder,
@@ -125,6 +126,20 @@ def _init(
 
 
 class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyType]):
+    @typing.override
+    def iterate(self) -> Iteration:
+        raise CodeError("cannot iterate account states", self.source_location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: NodeBuilder | Literal | None,
+        end_index: NodeBuilder | Literal | None,
+        stride: NodeBuilder | Literal | None,
+        location: SourceLocation,
+    ) -> NodeBuilder:
+        raise CodeError("cannot slice account states", self.source_location)
+
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType
@@ -162,16 +177,19 @@ class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.Storage
             source_location=location,
         )
 
+    @typing.override
     def index(self, index: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         expr = self._build_field(index, location)
         return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
 
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         exists_expr = StateExists(
             field=self._build_field(item, location), source_location=location
         )
         return BoolExpressionBuilder(exists_expr)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder | Literal:
         match name:
             case "get":

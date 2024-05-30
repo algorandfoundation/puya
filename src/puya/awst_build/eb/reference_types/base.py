@@ -18,8 +18,8 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
-    InstanceExpressionBuilder,
     NodeBuilder,
+    NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
@@ -32,7 +32,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class ReferenceValueExpressionBuilder(InstanceExpressionBuilder):
+class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(
         self,
         expr: Expression,
