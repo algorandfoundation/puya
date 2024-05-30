@@ -9,7 +9,7 @@ from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    GenericClassExpressionBuilder,
+    GenericTypeBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -22,7 +22,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

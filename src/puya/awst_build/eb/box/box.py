@@ -19,7 +19,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
-    GenericClassExpressionBuilder,
+    GenericTypeBuilder,
     InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
@@ -54,7 +54,7 @@ class BoxClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageProxyT
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
-class BoxClassGenericExpressionBuilder(GenericClassExpressionBuilder):
+class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

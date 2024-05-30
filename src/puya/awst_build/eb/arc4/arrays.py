@@ -38,7 +38,7 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     FunctionBuilder,
-    GenericClassExpressionBuilder,
+    GenericTypeBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -62,7 +62,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -130,7 +130,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         )
 
 
-class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

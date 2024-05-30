@@ -39,7 +39,7 @@ __all__ = [
     "FunctionBuilder",
     "IntermediateExpressionBuilder",
     "TypeClassExpressionBuilder",
-    "GenericClassExpressionBuilder",
+    "GenericTypeBuilder",
     "InstanceExpressionBuilder",
 ]
 
@@ -299,7 +299,7 @@ class TypeClassExpressionBuilder(
     ) -> NodeBuilder: ...
 
 
-class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
+class GenericTypeBuilder(IntermediateExpressionBuilder, abc.ABC):
     @typing.override
     @property
     def pytype(self) -> None:  # TODO: ??

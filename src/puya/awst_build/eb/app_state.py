@@ -26,7 +26,7 @@ from puya.awst_build.eb._storage import (
 )
 from puya.awst_build.eb.base import (
     FunctionBuilder,
-    GenericClassExpressionBuilder,
+    GenericTypeBuilder,
     InstanceExpressionBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
@@ -66,7 +66,7 @@ class AppStateClassExpressionBuilder(TypeClassExpressionBuilder[pytypes.StorageP
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
-class AppStateGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+class AppStateGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

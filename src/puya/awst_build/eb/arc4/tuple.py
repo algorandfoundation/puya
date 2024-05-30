@@ -8,7 +8,7 @@ from puya.awst.nodes import ARC4Encode, Expression, Literal, TupleItemExpression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
-from puya.awst_build.eb.base import GenericClassExpressionBuilder, NodeBuilder
+from puya.awst_build.eb.base import GenericTypeBuilder, NodeBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.errors import CodeError
 
@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4TupleGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

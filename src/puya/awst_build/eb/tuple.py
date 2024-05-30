@@ -21,7 +21,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
-    GenericClassExpressionBuilder,
+    GenericTypeBuilder,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -37,7 +37,7 @@ from puya.utils import clamp, positive_index
 logger = log.get_logger(__name__)
 
 
-class GenericTupleTypeExpressionBuilder(GenericClassExpressionBuilder):
+class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
