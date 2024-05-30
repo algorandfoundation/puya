@@ -33,7 +33,7 @@ class EmitBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [
-                NodeBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
+                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
             ] if pytypes.ARC4StructBaseType in struct_type.mro:
                 event_name = struct_type.name.split(".")[-1]
                 event_arg = event_arg_eb.rvalue()

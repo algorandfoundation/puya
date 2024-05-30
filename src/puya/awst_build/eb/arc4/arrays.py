@@ -50,7 +50,10 @@ from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_expression_builder
+from puya.awst_build.utils import (
+    expect_operand_type,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -76,7 +79,8 @@ class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
+            require_instance_builder(a, literal_msg="array arguments must be non literals")
+            for a in args
         ]
         element_type = arg_typs[0]
 
@@ -113,7 +117,8 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         location: SourceLocation,
     ) -> InstanceBuilder:
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
+            require_instance_builder(a, literal_msg="array arguments must be non literals")
+            for a in args
         ]
         typ = self.produces()
         wtype = typ.wtype
@@ -144,7 +149,8 @@ class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
+            require_instance_builder(a, literal_msg="array arguments must be non literals")
+            for a in args
         ]
         element_type = arg_typs[0]
         array_size = len(non_literal_args)
@@ -184,7 +190,8 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         location: SourceLocation,
     ) -> InstanceBuilder:
         non_literal_args = [
-            require_expression_builder(a, msg="Array arguments must be non literals") for a in args
+            require_instance_builder(a, literal_msg="array arguments must be non literals")
+            for a in args
         ]
         typ = self.produces()
         if typ.size != len(non_literal_args):
@@ -223,7 +230,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
             case []:
                 const_op = intrinsic_factory.zero_address(location, as_type=wtype)
                 return AddressExpressionBuilder(const_op)
-            case [NodeBuilder(pytype=pytypes.AccountType) as eb]:
+            case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
                 address_bytes: Expression = get_bytes_expr(eb.rvalue())
             case [Literal(value=str(addr_value))]:
                 if not wtypes.valid_address(addr_value):
@@ -233,7 +240,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
                         location,
                     )
                 address_bytes = AddressConstant(value=addr_value, source_location=location)
-            case [NodeBuilder(pytype=pytypes.BytesType) as eb]:
+            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 value = eb.rvalue()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
@@ -519,7 +526,7 @@ def match_array_concat_arg(
     msg: str,
 ) -> Expression:
     match args:
-        case (NodeBuilder() as eb,):
+        case (InstanceBuilder() as eb,):
             expr = eb.rvalue()
             match expr:
                 case Expression(wtype=wtypes.ARC4Array() as array_wtype) as array_ex:
