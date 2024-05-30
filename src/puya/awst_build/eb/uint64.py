@@ -26,6 +26,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
+    BuilderUnaryOp,
     InstanceExpressionBuilder,
     NodeBuilder,
     TypeBuilder,
@@ -85,19 +86,22 @@ class UInt64ExpressionBuilder(InstanceExpressionBuilder):
             expr = as_bool
         return BoolExpressionBuilder(expr)
 
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
-        # unary + is allowed, but for the current types it has no real impact
-        # so just expand the existing expression to include the unary operator
-        return UInt64ExpressionBuilder(attrs.evolve(self.expr, source_location=location))
-
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
-        return UInt64ExpressionBuilder(
-            UInt64UnaryOperation(
-                expr=self.expr,
-                op=UInt64UnaryOperator.bit_invert,
-                source_location=location,
-            )
-        )
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        match op:
+            case BuilderUnaryOp.positive:
+                # unary + is allowed, but for the current types it has no real impact
+                # so just expand the existing expression to include the unary operator
+                return UInt64ExpressionBuilder(attrs.evolve(self.expr, source_location=location))
+            case BuilderUnaryOp.bit_invert:
+                return UInt64ExpressionBuilder(
+                    UInt64UnaryOperation(
+                        expr=self.expr,
+                        op=UInt64UnaryOperator.bit_invert,
+                        source_location=location,
+                    )
+                )
+            case _:
+                return super().unary_op(op, location)
 
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation

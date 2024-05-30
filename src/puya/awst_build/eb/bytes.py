@@ -31,6 +31,7 @@ from puya.awst_build.constants import CLS_BYTES_ALIAS
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
+    BuilderUnaryOp,
     FunctionBuilder,
     InstanceExpressionBuilder,
     Iteration,
@@ -195,14 +196,16 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
-        return BytesExpressionBuilder(
-            BytesUnaryOperation(
-                expr=self.expr,
-                op=BytesUnaryOperator.bit_invert,
-                source_location=location,
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        if op == BuilderUnaryOp.bit_invert:
+            return BytesExpressionBuilder(
+                BytesUnaryOperation(
+                    expr=self.expr,
+                    op=BytesUnaryOperator.bit_invert,
+                    source_location=location,
+                )
             )
-        )
+        return super().unary_op(op, location)
 
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         item_expr = expect_operand_type(item, pytypes.BytesType).rvalue()

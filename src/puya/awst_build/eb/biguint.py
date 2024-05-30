@@ -24,6 +24,7 @@ from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
+    BuilderUnaryOp,
     InstanceExpressionBuilder,
     NodeBuilder,
 )
@@ -94,10 +95,12 @@ class BigUIntExpressionBuilder(InstanceExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp_expr)
 
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
-        # unary + is allowed, but for the current types it has no real impact
-        # so just expand the existing expression to include the unary operator
-        return BigUIntExpressionBuilder(attrs.evolve(self.expr, source_location=location))
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        if op == BuilderUnaryOp.positive:
+            # unary + is allowed, but for the current types it has no real impact
+            # so just expand the existing expression to include the unary operator
+            return BigUIntExpressionBuilder(attrs.evolve(self.expr, source_location=location))
+        return super().unary_op(op, location)
 
     def compare(
         self, other: NodeBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation

@@ -31,6 +31,7 @@ if typing.TYPE_CHECKING:
 __all__ = [
     "Iteration",
     "BuilderComparisonOp",
+    "BuilderUnaryOp",
     "BuilderBinaryOp",
     "NodeBuilder",
     "StorageProxyConstructorResult",
@@ -52,6 +53,13 @@ class BuilderComparisonOp(enum.StrEnum):
     lte = "<="
     gt = ">"
     gte = ">="
+
+
+@enum.unique
+class BuilderUnaryOp(enum.StrEnum):
+    positive = "+"
+    negative = "-"
+    bit_invert = "~"
 
 
 @enum.unique
@@ -93,13 +101,7 @@ class NodeBuilder(abc.ABC):
         """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
 
     @abc.abstractmethod
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder: ...
-
-    @abc.abstractmethod
-    def unary_minus(self, location: SourceLocation) -> NodeBuilder: ...
-
-    @abc.abstractmethod
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder: ...
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder: ...
 
     @abc.abstractmethod
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder: ...
@@ -196,33 +198,33 @@ class NodeBuilder(abc.ABC):
 class IntermediateExpressionBuilder(NodeBuilder, abc.ABC):
     """Never valid as an assignment source OR target"""
 
+    @typing.override
     def rvalue(self) -> Expression:
         raise CodeError(
             f"{self._type_description} is not valid as an rvalue", self.source_location
         )
 
+    @typing.override
     def lvalue(self) -> Lvalue:
         raise CodeError(
             f"{self._type_description} is not valid as an lvalue", self.source_location
         )
 
+    @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         raise CodeError(
             f"{self._type_description} is not valid as del target", self.source_location
         )
 
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return self._not_a_value(location)
 
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
+    @typing.override
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
-    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
-        return self._not_a_value(location)
-
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
-        return self._not_a_value(location)
-
+    @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._not_a_value(location)
 
@@ -379,16 +381,8 @@ class InstanceExpressionBuilder(NodeBuilder, typing.Generic[_TPyType_co]):
         raise CodeError(f"{self.pytype} does not support boolean evaluation", location)
 
     @typing.override
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"{self.pytype} does not support unary plus operator", location)
-
-    @typing.override
-    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"{self.pytype} does not support unary minus operator", location)
-
-    @typing.override
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"{self.pytype} does not support bitwise inversion", location)
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        raise CodeError(f"{self.pytype} does not support unary {op.value!r} operator", location)
 
     @typing.override
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:

@@ -8,6 +8,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
+    BuilderUnaryOp,
     InstanceExpressionBuilder,
     Iteration,
     NodeBuilder,
@@ -30,14 +31,8 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> NodeBuilder:
         return self._proxied.bool_eval(location, negate=negate)
 
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
-        return self._proxied.unary_plus(location)
-
-    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
-        return self._proxied.unary_minus(location)
-
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
-        return self._proxied.bitwise_invert(location)
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
+        return self._proxied.unary_op(op, location)
 
     def contains(self, item: NodeBuilder | Literal, location: SourceLocation) -> NodeBuilder:
         return self._proxied.contains(item, location)

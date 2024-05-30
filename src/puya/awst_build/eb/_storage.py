@@ -14,7 +14,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb.base import NodeBuilder, StorageProxyConstructorResult
+from puya.awst_build.eb.base import BuilderUnaryOp, NodeBuilder, StorageProxyConstructorResult
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -78,15 +78,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(location)
 
     @typing.override
-    def unary_plus(self, location: SourceLocation) -> NodeBuilder:
-        return self._assign_first(location)
-
-    @typing.override
-    def unary_minus(self, location: SourceLocation) -> NodeBuilder:
-        return self._assign_first(location)
-
-    @typing.override
-    def bitwise_invert(self, location: SourceLocation) -> NodeBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override

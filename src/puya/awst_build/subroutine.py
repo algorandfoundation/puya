@@ -56,6 +56,7 @@ from puya.awst_build.eb.arc4 import (
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
+    BuilderUnaryOp,
     NodeBuilder,
     StorageProxyConstructorResult,
 )
@@ -848,12 +849,9 @@ class FunctionASTConverter(
         match node.op:
             case "not":
                 return builder_or_literal.bool_eval(expr_loc, negate=True)
-            case "+":
-                return builder_or_literal.unary_plus(expr_loc)
-            case "-":
-                return builder_or_literal.unary_minus(expr_loc)
-            case "~":
-                return builder_or_literal.bitwise_invert(expr_loc)
+            case op_str if op_str in BuilderUnaryOp:
+                builder_op = BuilderUnaryOp(op_str)
+                return builder_or_literal.unary_op(builder_op, expr_loc)
             case _:
                 # guard against future python unary operators
                 raise InternalError(f"Unable to interpret unary operator '{node.op}'", expr_loc)
