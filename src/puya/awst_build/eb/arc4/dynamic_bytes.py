@@ -54,7 +54,7 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
                 bytes_expr = BytesConstant(
                     value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location
                 )
-            case [NodeBuilder(pytype=pytypes.BytesType) as eb]:
+            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 bytes_expr = eb.rvalue()
             case _:
                 non_literal_args = tuple(_coerce_to_byte(a) for a in args)
@@ -69,9 +69,9 @@ def _coerce_to_byte(arg: NodeBuilder | Literal) -> Expression:
     match arg:
         case Literal(value=int()) as literal:
             return construct_from_literal(literal, pytypes.ARC4ByteType).rvalue()
-        case NodeBuilder(pytype=pytypes.ARC4ByteType) as eb:
+        case InstanceBuilder(pytype=pytypes.ARC4ByteType) as eb:
             return eb.rvalue()
-        case NodeBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
+        case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
             return ReinterpretCast(
                 expr=arg.rvalue(),
                 wtype=wtypes.arc4_byte_type,

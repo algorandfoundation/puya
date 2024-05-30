@@ -28,7 +28,11 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import construct_from_literal, expect_operand_type
+from puya.awst_build.utils import (
+    construct_from_literal,
+    expect_operand_type,
+    require_instance_builder_or_literal,
+)
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -44,7 +48,7 @@ _parameter_mapping: typing.Final = {
 }
 
 
-def get_field_expr(arg_name: str, arg: NodeBuilder | Literal) -> tuple[TxnField, Expression]:
+def get_field_expr(arg_name: str, arg: InstanceBuilder | Literal) -> tuple[TxnField, Expression]:
     try:
         field, field_pytype = _parameter_mapping[arg_name]
     except KeyError as ex:
@@ -53,14 +57,14 @@ def get_field_expr(arg_name: str, arg: NodeBuilder | Literal) -> tuple[TxnField,
         return remapped_field
     elif field.is_array:
         match arg:
-            case NodeBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+            case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
                 field.valid_type(t.wtype)
                 for t in tuple_item_types  # TODO: revisit this re serialize
             ):
                 expr = arg.rvalue()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    elif isinstance(arg, NodeBuilder):
+    elif isinstance(arg, InstanceBuilder):
         arg_typ = arg.pytype
         if not (arg_typ and field.valid_type(arg_typ.wtype)):
             raise CodeError("bad argument type", arg.source_location)
@@ -77,7 +81,7 @@ def get_field_expr(arg_name: str, arg: NodeBuilder | Literal) -> tuple[TxnField,
 
 
 def _maybe_transform_program_field_expr(
-    field: TxnField, eb: NodeBuilder | Literal
+    field: TxnField, eb: InstanceBuilder | Literal
 ) -> tuple[TxnField, Expression] | None:
     match field.immediate:
         case "ApprovalProgram":
@@ -92,7 +96,7 @@ def _maybe_transform_program_field_expr(
         )
 
     match eb:
-        case NodeBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
+        case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
             t == pytypes.BytesType for t in tuple_item_types  # TODO: revisit this re serialize
         ):
             expr = eb.rvalue()
@@ -130,7 +134,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelate
                     f"Positional arguments are not supported for {self.produces()}",
                     location,
                 )
-            field, expression = get_field_expr(arg_name, arg)
+            field, expression = get_field_expr(arg_name, require_instance_builder_or_literal(arg))
             transaction_fields[field] = expression
         typ = self.produces()
         wtype = typ.wtype
@@ -252,7 +256,7 @@ class _Set(FunctionBuilder):
         transaction_fields = dict[TxnField, Expression]()
         for arg_name, arg in zip(arg_names, args, strict=True):
             assert arg_name is not None
-            field, expression = get_field_expr(arg_name, arg)
+            field, expression = get_field_expr(arg_name, require_instance_builder_or_literal(arg))
             transaction_fields[field] = expression
         return VoidExpressionBuilder(
             UpdateInnerTransaction(

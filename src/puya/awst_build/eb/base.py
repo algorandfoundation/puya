@@ -248,11 +248,11 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
     @abc.abstractmethod
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         """Handle self[begin_index:end_index:stride]"""
         raise CodeError("expression is not a collection", self.source_location)
 
@@ -364,11 +364,11 @@ class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
     @typing.override
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return super().slice_index(begin_index, end_index, stride, location)
 
 

@@ -201,11 +201,11 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
     @typing.override
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError(
             "string slicing in not supported due to lack of UTF8 support in AVM", location
         )

@@ -71,11 +71,11 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
     @typing.override
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return self._proxied.slice_index(begin_index, end_index, stride, location)
 
     @typing.override

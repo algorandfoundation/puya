@@ -403,7 +403,7 @@ class FunctionASTConverter(
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> Statement:
         stmt_loc = self._location(stmt)
         builder = require_instance_builder(stmt.lvalue.accept(self))
-        rhs = stmt.rvalue.accept(self)
+        rhs = require_instance_builder_or_literal(stmt.rvalue.accept(self))
         try:
             op = BuilderBinaryOp(stmt.op)
         except ValueError as ex:
@@ -993,14 +993,21 @@ class FunctionASTConverter(
             # or some such everywhere
             case mypy.nodes.SliceExpr(begin_index=begin, end_index=end, stride=stride):
                 return base_expr.slice_index(
-                    # my kingdom for a ?. operator...
-                    begin_index=begin.accept(self) if begin else None,
-                    end_index=end.accept(self) if end else None,
-                    stride=stride.accept(self) if stride else None,
+                    begin_index=(
+                        require_instance_builder_or_literal(begin.accept(self)) if begin else None
+                    ),
+                    end_index=(
+                        require_instance_builder_or_literal(end.accept(self)) if end else None
+                    ),
+                    stride=(
+                        require_instance_builder_or_literal(stride.accept(self))
+                        if stride
+                        else None
+                    ),
                     location=expr_location,
                 )
 
-        index_expr_or_literal = expr.index.accept(self)
+        index_expr_or_literal = require_instance_builder_or_literal(expr.index.accept(self))
         return base_expr.index(index=index_expr_or_literal, location=expr_location)
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:

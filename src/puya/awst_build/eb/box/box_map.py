@@ -36,7 +36,11 @@ from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import builder_for_instance
-from puya.awst_build.utils import expect_operand_type, get_arg_mapping, require_expression_builder
+from puya.awst_build.utils import (
+    expect_operand_type,
+    get_arg_mapping,
+    require_instance_builder,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -80,7 +84,7 @@ def _init(
     location: SourceLocation,
     *,
     result_type: pytypes.StorageMapProxyType | None,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     key_type_arg_name = "key_type"
     value_type_arg_name = "value_type"
     arg_mapping = get_arg_mapping(
@@ -161,11 +165,11 @@ class BoxMapProxyExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageMapP
     @typing.override
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         raise CodeError("slicing of BoxMap is not supported", location)
 
     @typing.override
@@ -305,7 +309,7 @@ def _box_value_expr(
     location: SourceLocation,
     content_type: wtypes.WType,
 ) -> BoxValueExpression:
-    key_data = require_expression_builder(key).rvalue()
+    key_data = require_instance_builder(key).rvalue()  # TODO: allow literals??
     if key_data.wtype != wtypes.bytes_wtype:
         key_data = BytesRaw(expr=key_data, source_location=location)
     full_key = intrinsic_factory.concat(key_prefix, key_data, location)

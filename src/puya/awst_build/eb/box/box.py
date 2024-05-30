@@ -75,7 +75,7 @@ def _init(
     location: SourceLocation,
     *,
     result_type: pytypes.StorageProxyType | None,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     type_arg_name = "type_"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_arg_name],
@@ -217,11 +217,11 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
     @typing.override
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
             return super().slice_index(begin_index, end_index, stride, location)
 
@@ -248,9 +248,9 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
     @typing.override
     def slice_index(
         self,
-        begin_index: NodeBuilder | Literal | None,
-        end_index: NodeBuilder | Literal | None,
-        stride: NodeBuilder | Literal | None,
+        begin_index: InstanceBuilder | Literal | None,
+        end_index: InstanceBuilder | Literal | None,
+        stride: InstanceBuilder | Literal | None,
         location: SourceLocation,
-    ) -> NodeBuilder:
+    ) -> InstanceBuilder:
         return slice_box_bytes(self._typed, begin_index, end_index, stride, location)

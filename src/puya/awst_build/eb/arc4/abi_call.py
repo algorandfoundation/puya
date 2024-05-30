@@ -47,7 +47,11 @@ from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.utils import get_decorators_by_fullname, resolve_method_from_type_info
+from puya.awst_build.utils import (
+    get_decorators_by_fullname,
+    require_instance_builder_or_literal,
+    resolve_method_from_type_info,
+)
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -186,7 +190,7 @@ def _abi_call(
     location: SourceLocation,
     *,
     abi_return_type: pytypes.PyType | None,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     abi_call_expr = _extract_abi_call_args(args, arg_typs, arg_kinds, arg_names, location)
     method = abi_call_expr.method
 
@@ -282,7 +286,7 @@ def _create_abi_call_expr(
     declared_result_pytype: pytypes.PyType | None,
     transaction_kwargs: dict[str, NodeBuilder | Literal],
     location: SourceLocation,
-) -> NodeBuilder:
+) -> InstanceBuilder:
     if signature.return_type is None:
         raise InternalError("Expected ARC4Signature.return_type to be defined", location)
     abi_arg_exprs: list[Expression] = [
@@ -354,7 +358,9 @@ def _create_abi_call_expr(
             value = transaction_kwargs.pop(field_python_name)
         except KeyError:
             continue
-        field, field_expr = get_field_expr(field_python_name, value)
+        field, field_expr = get_field_expr(
+            field_python_name, require_instance_builder_or_literal(value)
+        )
         fields[field] = field_expr
 
     if transaction_kwargs:
