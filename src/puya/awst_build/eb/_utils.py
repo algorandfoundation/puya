@@ -4,9 +4,8 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import BoolConstant, Expression, ReinterpretCast
+from puya.awst.nodes import Expression, ReinterpretCast
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import expect_operand_type
@@ -20,11 +19,12 @@ logger = log.get_logger(__name__)
 def bool_eval_to_constant(
     *, value: bool, location: SourceLocation, negate: bool = False
 ) -> InstanceBuilder:
+    from puya.awst_build.eb._literals import LiteralBuilderImpl
+
     if negate:
         value = not value
     logger.warning(f"expression is always {value}", location=location)
-    const = BoolConstant(value=value, source_location=location)
-    return BoolExpressionBuilder(const)
+    return LiteralBuilderImpl(value=value, source_location=location)
 
 
 def uint64_to_biguint(arg_in: NodeBuilder, location: SourceLocation) -> Expression:

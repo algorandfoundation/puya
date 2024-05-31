@@ -1057,12 +1057,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         rhs: InstanceBuilder,
     ) -> Expression:
         cmp_loc = lhs.source_location + rhs.source_location
-        if isinstance(lhs, LiteralBuilder) and isinstance(rhs, LiteralBuilder):
-            return BoolConstant(
-                value=bool(fold_binary_expr(cmp_loc, operator, lhs.value, rhs.value)),
-                source_location=cmp_loc,
-            )
-
         match operator:
             case "not in":
                 is_in_expr = self._build_compare("in", lhs=lhs, rhs=rhs)
