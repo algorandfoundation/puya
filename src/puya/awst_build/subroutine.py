@@ -1051,16 +1051,13 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         return BoolExpressionBuilder(result)
 
     def _build_compare(
-        self,
-        operator: str,
-        lhs: InstanceBuilder,
-        rhs: InstanceBuilder,
+        self, operator: str, lhs: InstanceBuilder, rhs: InstanceBuilder
     ) -> Expression:
         cmp_loc = lhs.source_location + rhs.source_location
         match operator:
             case "not in":
                 is_in_expr = self._build_compare("in", lhs=lhs, rhs=rhs)
-                return Not(is_in_expr.source_location, is_in_expr)
+                return Not(expr=is_in_expr, source_location=is_in_expr.source_location)
             case "in":
                 contains_builder = rhs.contains(lhs, cmp_loc)
                 return contains_builder.rvalue()

@@ -1,9 +1,149 @@
-// Op      // Stack (out)    Source code Source line
+// Op                                                     //                                            Op Description                                                Stack (out)                                                                 X stack                     Source code                             Source line
 
 #pragma version 10
 
 // test_cases.literals.folding.LiteralFolding.approval_program() -> uint64:
 main_block@0:
-    int 1  // 1              True        literals/folding.py:8
-    return //                return True literals/folding.py:8
+    callsub unary_str                                     //                                                                                                                                                                                                                  unary_str()                             literals/folding.py:79
+    callsub compare_str                                   //                                                                                                                                                                                                                  compare_str()                           literals/folding.py:80
+    callsub unary_bytes                                   //                                                                                                                                                                                                                  unary_bytes()                           literals/folding.py:81
+    callsub unary_int                                     //                                                                                                                                                                                                                  unary_int()                             literals/folding.py:82
+    callsub compare_int                                   //                                                                                                                                                                                                                  compare_int()                           literals/folding.py:83
+    callsub unary_bool                                    //                                                                                                                                                                                                                  unary_bool()                            literals/folding.py:84
+    int 1                                                 //                                                                                                          1                                                                                                       True                                    literals/folding.py:85
+    return                                                //                                                                                                                                                                                                                  return True                             literals/folding.py:85
+
+
+// test_cases.literals.folding.unary_str() -> void:
+unary_str:
+    proto 0 0                                             //                                                                                                                                                                                                                  @subroutine\ndef unary_str() -> None:   literals/folding.py:5-6
+
+unary_str_block@0:
+    retsub                                                //
+
+
+// test_cases.literals.folding.compare_str() -> void:
+compare_str:
+    proto 0 0                                             //                                                                                                                                                                                                                  @subroutine\ndef compare_str() -> None: literals/folding.py:11-12
+
+compare_str_block@0:
+    byte "a"                                              //                                                                                                          "a"                                                                                                     "a"                                     literals/folding.py:26
+    byte "b"                                              //                                                                                                          "a","b"                                                                                                 String("b")                             literals/folding.py:23
+    callsub is_substring                                  //                                                                                                          {is_substring}                                                                                          "a" not in b                            literals/folding.py:26
+    //                                                    virtual: store tmp%8#0 to l-stack (no copy)   tmp%8#0                                                                                                                                   "a" not in b                literals/folding.py:26
+    //                                                    virtual: load tmp%8#0 from l-stack (no copy)  tmp%8#0                                                                                                                                   "a" not in b                literals/folding.py:26
+    !                                                     //                                                                                                          {!}                                                                                                     "a" not in b                            literals/folding.py:26
+    //                                                    virtual: store tmp%9#0 to l-stack (no copy)   tmp%9#0                                                                                                                                   "a" not in b                literals/folding.py:26
+    //                                                    virtual: load tmp%9#0 from l-stack (no copy)  tmp%9#0                                                                                                                                   assert "a" not in b         literals/folding.py:26
+    assert                                                //                                                                                                                                                                                                                  assert "a" not in b                     literals/folding.py:26
+    byte "a"                                              //                                                                                                          "a"                                                                                                     "a"                                     literals/folding.py:27
+    byte "b"                                              //                                                                                                          "a","b"                                                                                                 String("b")                             literals/folding.py:23
+    callsub is_substring                                  //                                                                                                          {is_substring}                                                                                          "a" in b)                               literals/folding.py:27
+    //                                                    virtual: store tmp%10#0 to l-stack (no copy)  tmp%10#0                                                                                                                                  "a" in b)                   literals/folding.py:27
+    //                                                    virtual: load tmp%10#0 from l-stack (no copy) tmp%10#0                                                                                                                                  not ("a" in b)              literals/folding.py:27
+    !                                                     //                                                                                                          {!}                                                                                                     not ("a" in b)                          literals/folding.py:27
+    //                                                    virtual: store tmp%11#0 to l-stack (no copy)  tmp%11#0                                                                                                                                  not ("a" in b)              literals/folding.py:27
+    //                                                    virtual: load tmp%11#0 from l-stack (no copy) tmp%11#0                                                                                                                                  assert not ("a" in b)       literals/folding.py:27
+    assert                                                //                                                                                                                                                                                                                  assert not ("a" in b)                   literals/folding.py:27
+    byte "a"                                              //                                                                                                          "a"                                                                                                     "a"                                     literals/folding.py:28
+    byte "abc"                                            //                                                                                                          "a","abc"                                                                                               String("abc")                           literals/folding.py:28
+    callsub is_substring                                  //                                                                                                          {is_substring}                                                                                          "a" in String("abc")                    literals/folding.py:28
+    //                                                    virtual: store tmp%12#0 to l-stack (no copy)  tmp%12#0                                                                                                                                  "a" in String("abc")        literals/folding.py:28
+    //                                                    virtual: load tmp%12#0 from l-stack (no copy) tmp%12#0                                                                                                                                  assert "a" in String("abc") literals/folding.py:28
+    assert                                                //                                                                                                                                                                                                                  assert "a" in String("abc")             literals/folding.py:28
+    retsub                                                //
+
+
+// algopy_lib_bytes.is_substring(item: bytes, sequence: bytes) -> uint64:
+is_substring:
+    proto 2 1                                             //                                                                                                          (𝕡) item#0,sequence#0 |                                                                                                                         <algopy>/algopy_lib_bytes.py:4-5
+    byte ""                                               //                                            allocate 1 to stack                                           (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0 |
+
+is_substring_block@0:
+    int 0                                                 //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0 | 0                                                                                                         <algopy>/algopy_lib_bytes.py:10
+    //                                                    virtual: store start#0 to f-stack             (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |                                                                                                                         <algopy>/algopy_lib_bytes.py:10
+    // Implicit fall through to is_substring_while_top@1  //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |
+
+is_substring_while_top@1:
+    frame_dig -2                                          //                                            load item#0 from parameters                                   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | item#0                                                                                            <algopy>/algopy_lib_bytes.py:11
+    len                                                   //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | {len}                                                                                             <algopy>/algopy_lib_bytes.py:11
+    //                                                    virtual: store tmp%0#0 to l-stack (no copy)   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%0#0                                                                                                                 <algopy>/algopy_lib_bytes.py:11
+    frame_dig 1                                           //                                            load start#0 from f-stack                                     (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%0#0,start#0                                                                                   <algopy>/algopy_lib_bytes.py:11
+    swap                                                  //                                            load tmp%0#0 from l-stack (no copy)                           (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | start#0,tmp%0#0                                                                                   <algopy>/algopy_lib_bytes.py:11
+    +                                                     //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | {+}                                                                                               <algopy>/algopy_lib_bytes.py:11
+    dup                                                   //                                            store tmp%1#0 to l-stack (copy)                               (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%1#0,tmp%1#0                                                                                   <algopy>/algopy_lib_bytes.py:11
+    frame_bury 0                                          //                                            store tmp%1#0 to f-stack                                      (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%1#0                                                                                           <algopy>/algopy_lib_bytes.py:11
+    frame_dig -1                                          //                                            load sequence#0 from parameters                               (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%1#0,sequence#0                                                                                <algopy>/algopy_lib_bytes.py:11
+    len                                                   //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%1#0,{len}                                                                                     <algopy>/algopy_lib_bytes.py:11
+    //                                                    virtual: store tmp%2#0 to l-stack (no copy)   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%1#0,tmp%2#0                                                                                                         <algopy>/algopy_lib_bytes.py:11
+    //                                                    virtual: load tmp%1#0 from l-stack (no copy)  (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%2#0,tmp%1#0                                                                                                         <algopy>/algopy_lib_bytes.py:11
+    //                                                    virtual: load tmp%2#0 from l-stack (no copy)  (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%1#0,tmp%2#0                                                                                                         <algopy>/algopy_lib_bytes.py:11
+    <=                                                    //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | {<=}                                                                                              <algopy>/algopy_lib_bytes.py:11
+    //                                                    virtual: store tmp%3#0 to l-stack (no copy)   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%3#0                                                                                                                 <algopy>/algopy_lib_bytes.py:11
+    //                                                    virtual: load tmp%3#0 from l-stack (no copy)  (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%3#0                                                                                                                 <algopy>/algopy_lib_bytes.py:11
+    bz is_substring_after_while@5                         //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |                                                                                                   <algopy>/algopy_lib_bytes.py:11
+    // Implicit fall through to is_substring_while_body@2 //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |                                                                                                   <algopy>/algopy_lib_bytes.py:11
+
+is_substring_while_body@2:
+    frame_dig -1                                          //                                            load sequence#0 from parameters                               (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | sequence#0                                                                                        <algopy>/algopy_lib_bytes.py:12
+    frame_dig 1                                           //                                            load start#0 from f-stack                                     (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | sequence#0,start#0                                                                                <algopy>/algopy_lib_bytes.py:12
+    frame_dig 0                                           //                                            load tmp%1#0 from f-stack                                     (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | sequence#0,start#0,tmp%1#0                                                                        <algopy>/algopy_lib_bytes.py:12
+    substring3                                            //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | {substring3}                                                                                      <algopy>/algopy_lib_bytes.py:12
+    //                                                    virtual: store tmp%6#0 to l-stack (no copy)   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%6#0                                                                                                                 <algopy>/algopy_lib_bytes.py:12
+    frame_dig -2                                          //                                            load item#0 from parameters                                   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%6#0,item#0                                                                                    <algopy>/algopy_lib_bytes.py:12
+    swap                                                  //                                            load tmp%6#0 from l-stack (no copy)                           (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | item#0,tmp%6#0                                                                                    <algopy>/algopy_lib_bytes.py:12
+    ==                                                    //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | {==}                                                                                              <algopy>/algopy_lib_bytes.py:12
+    //                                                    virtual: store tmp%7#0 to l-stack (no copy)   (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%7#0                                                                                                                 <algopy>/algopy_lib_bytes.py:12
+    //                                                    virtual: load tmp%7#0 from l-stack (no copy)  (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | tmp%7#0                                                                                                                 <algopy>/algopy_lib_bytes.py:12
+    bz is_substring_after_if_else@4                       //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |                                                                                                   <algopy>/algopy_lib_bytes.py:12
+    // Implicit fall through to is_substring_if_body@3    //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |                                                                                                   <algopy>/algopy_lib_bytes.py:12
+
+is_substring_if_body@3:
+    int 1                                                 //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | 1                                                                                                 <algopy>/algopy_lib_bytes.py:13
+    frame_bury 0
+    retsub                                                //                                                                                                          1                                                                                                                                               <algopy>/algopy_lib_bytes.py:13
+
+is_substring_after_if_else@4:
+    frame_dig 1                                           //                                            load start#0 from f-stack                                     (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | start#0                                                                                           <algopy>/algopy_lib_bytes.py:14
+    int 1                                                 //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | start#0,1                                                                                         <algopy>/algopy_lib_bytes.py:14
+    +                                                     //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | {+}                                                                                               <algopy>/algopy_lib_bytes.py:14
+    frame_bury 1                                          //                                            store start#0 to f-stack                                      (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |                                                                                                   <algopy>/algopy_lib_bytes.py:14
+    b is_substring_while_top@1                            //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 |
+
+is_substring_after_while@5:
+    int 0                                                 //                                                                                                          (𝕡) item#0,sequence#0 | (𝕗) tmp%1#0,start#0 | 0                                                                                                 <algopy>/algopy_lib_bytes.py:15
+    frame_bury 0
+    retsub                                                //                                                                                                          0                                                                                                                                               <algopy>/algopy_lib_bytes.py:15
+
+
+// test_cases.literals.folding.unary_bytes() -> void:
+unary_bytes:
+    proto 0 0                                             //                                                                                                                                                                                                                  @subroutine\ndef unary_bytes() -> None: literals/folding.py:33-34
+
+unary_bytes_block@0:
+    retsub                                                //
+
+
+// test_cases.literals.folding.unary_int() -> void:
+unary_int:
+    proto 0 0                                             //                                                                                                                                                                                                                  @subroutine\ndef unary_int() -> None:   literals/folding.py:39-40
+
+unary_int_block@0:
+    retsub                                                //
+
+
+// test_cases.literals.folding.compare_int() -> void:
+compare_int:
+    proto 0 0                                             //                                                                                                                                                                                                                  @subroutine\ndef compare_int() -> None: literals/folding.py:48-49
+
+compare_int_block@0:
+    retsub                                                //
+
+
+// test_cases.literals.folding.unary_bool() -> void:
+unary_bool:
+    proto 0 0                                             //                                                                                                                                                                                                                  @subroutine\ndef unary_bool() -> None:  literals/folding.py:67-68
+
+unary_bool_block@0:
+    retsub                                                //
 

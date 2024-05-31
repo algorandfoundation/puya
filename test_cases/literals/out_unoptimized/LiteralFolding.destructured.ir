@@ -1,10 +1,108 @@
 contract test_cases.literals.folding.LiteralFolding:
     program approval:
         subroutine test_cases.literals.folding.LiteralFolding.approval_program() -> bool:
-            block@0: // L7
+            block@0: // L78
+                test_cases.literals.folding.unary_str()
+                test_cases.literals.folding.compare_str()
+                test_cases.literals.folding.unary_bytes()
+                test_cases.literals.folding.unary_int()
+                test_cases.literals.folding.compare_int()
+                test_cases.literals.folding.unary_bool()
                 return 1u
+        
+        subroutine test_cases.literals.folding.unary_str() -> void:
+            block@0: // L5
+                return 
+        
+        subroutine test_cases.literals.folding.compare_str() -> void:
+            block@0: // L11
+                let tmp%0#0: bool = (! 0u)
+                (assert tmp%0#0)
+                let tmp%1#0: bool = (! 0u)
+                (assert tmp%1#0)
+                let tmp%2#0: bool = (! 0u)
+                (assert tmp%2#0)
+                let tmp%3#0: bool = (! 0u)
+                (assert tmp%3#0)
+                let tmp%4#0: bool = (! 0u)
+                (assert tmp%4#0)
+                let tmp%5#0: bool = (== "b" "a")
+                let tmp%6#0: bool = (! tmp%5#0)
+                (assert tmp%6#0)
+                let tmp%7#0: bool = (!= "b" "a")
+                (assert tmp%7#0)
+                let tmp%8#0: bool = algopy_lib_bytes.is_substring("a", "b")
+                let tmp%9#0: bool = (! tmp%8#0)
+                (assert tmp%9#0)
+                let tmp%10#0: bool = algopy_lib_bytes.is_substring("a", "b")
+                let tmp%11#0: bool = (! tmp%10#0)
+                (assert tmp%11#0)
+                let tmp%12#0: bool = algopy_lib_bytes.is_substring("a", "abc")
+                (assert tmp%12#0)
+                return 
+        
+        subroutine algopy_lib_bytes.is_substring(item: bytes, sequence: bytes) -> bool:
+            block@0: // L4
+                let start#0: uint64 = 0u
+                goto block@1
+            block@1: // while_top_L11
+                let tmp%0#0: uint64 = (len item#0)
+                let tmp%1#0: uint64 = (+ start#0 tmp%0#0)
+                let tmp%2#0: uint64 = (len sequence#0)
+                let tmp%3#0: bool = (<= tmp%1#0 tmp%2#0)
+                goto tmp%3#0 ? block@2 : block@5
+            block@2: // while_body_L11
+                let tmp%4#0: uint64 = (len item#0)
+                let tmp%5#0: uint64 = (+ start#0 tmp%4#0)
+                let tmp%6#0: bytes = (substring3 sequence#0 start#0 tmp%5#0)
+                let tmp%7#0: bool = (== item#0 tmp%6#0)
+                goto tmp%7#0 ? block@3 : block@4
+            block@3: // if_body_L12
+                return 1u
+            block@4: // after_if_else_L12
+                let start#0: uint64 = (+ start#0 1u)
+                goto block@1
+            block@5: // after_while_L11
+                return 0u
+        
+        subroutine test_cases.literals.folding.unary_bytes() -> void:
+            block@0: // L33
+                return 
+        
+        subroutine test_cases.literals.folding.unary_int() -> void:
+            block@0: // L39
+                return 
+        
+        subroutine test_cases.literals.folding.compare_int() -> void:
+            block@0: // L48
+                let tmp%0#0: bool = (! 0u)
+                (assert tmp%0#0)
+                let tmp%1#0: bool = (! 0u)
+                (assert tmp%1#0)
+                let tmp%2#0: bool = (! 0u)
+                (assert tmp%2#0)
+                let tmp%3#0: bool = (== 1u 0u)
+                let tmp%4#0: bool = (! tmp%3#0)
+                (assert tmp%4#0)
+                let tmp%5#0: bool = (!= 1u 0u)
+                (assert tmp%5#0)
+                let tmp%6#0: bool = (> 1u 0u)
+                (assert tmp%6#0)
+                let tmp%7#0: bool = (>= 1u 0u)
+                (assert tmp%7#0)
+                let tmp%8#0: bool = (< 1u 0u)
+                let tmp%9#0: bool = (! tmp%8#0)
+                (assert tmp%9#0)
+                let tmp%10#0: bool = (<= 1u 0u)
+                let tmp%11#0: bool = (! tmp%10#0)
+                (assert tmp%11#0)
+                return 
+        
+        subroutine test_cases.literals.folding.unary_bool() -> void:
+            block@0: // L67
+                return 
     
     program clear-state:
         subroutine test_cases.literals.folding.LiteralFolding.clear_state_program() -> bool:
-            block@0: // L10
+            block@0: // L87
                 return 1u
