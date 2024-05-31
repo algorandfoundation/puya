@@ -3,7 +3,6 @@ import typing
 from puya import log
 from puya.awst.nodes import BoolConstant, ConstantValue, Expression, Lvalue, Statement
 from puya.awst_build import pytypes
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -26,14 +25,14 @@ class LiteralBuilderImpl(LiteralBuilder):
         super().__init__(source_location)
         self._value = value
         match value:
+            case bool():
+                typ = pytypes.BoolType
             case int():
                 typ = pytypes.IntLiteralType
             case str():
                 typ = pytypes.StrLiteralType
             case bytes():
                 typ = pytypes.BytesLiteralType
-            case bool():
-                typ = pytypes.BoolType
             case _:
                 typing.assert_never(value)
         self._pytype = typ
@@ -50,7 +49,9 @@ class LiteralBuilderImpl(LiteralBuilder):
     @typing.override
     def rvalue(self) -> Expression:
         # TODO: can we somehow trap this to only be as final act of assignment?
-        raise CodeError("A Python literal is not valid at this location")
+        if isinstance(self.value, bool):
+            return BoolConstant(value=self.value, source_location=self.source_location)
+        raise CodeError("A Python literal is not valid at this location", self.source_location)
 
     @typing.override
     def lvalue(self) -> Lvalue:
@@ -162,5 +163,4 @@ class LiteralBuilderImpl(LiteralBuilder):
             value = not value
         if warn:
             logger.warning(f"expression is always {value}", location=location)
-        const = BoolConstant(value=value, source_location=location)
-        return BoolExpressionBuilder(const)
+        return LiteralBuilderImpl(value=value, source_location=location)

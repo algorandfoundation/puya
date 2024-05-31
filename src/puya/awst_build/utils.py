@@ -1,6 +1,8 @@
+import contextlib
 import operator
 import re
 import typing
+import warnings
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
 import mypy.build
@@ -84,6 +86,17 @@ UNARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any], typing.Any]]] = {
 }
 
 
+@contextlib.contextmanager
+def _log_warnings(location: SourceLocation) -> Iterator[None]:
+    folding_warnings = []
+    try:
+        with warnings.catch_warnings(record=True, action="always") as folding_warnings:
+            yield
+    finally:
+        for warning in folding_warnings:
+            logger.warning(warning.message, location=location)
+
+
 def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> ConstantValue:
     if not (func := UNARY_OPS.get(op)):
         raise InternalError(f"Unhandled unary operator: {op}", location)
@@ -93,7 +106,8 @@ def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> C
             location=location,
         )
     try:
-        result = func(expr)
+        with _log_warnings(location):
+            result = func(expr)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
@@ -141,7 +155,8 @@ def fold_binary_expr(
     if not (func := BINARY_OPS.get(op)):
         raise InternalError(f"Unhandled binary operator: {op}", location)
     try:
-        result = func(lhs, rhs)
+        with _log_warnings(location):
+            result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
