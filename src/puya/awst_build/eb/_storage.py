@@ -5,7 +5,6 @@ import typing
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
-    BytesRaw,
     ContractReference,
     Expression,
     Lvalue,
@@ -13,6 +12,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._utils import cast_to_bytes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -171,7 +171,7 @@ def extract_key_override(
         case InstanceBuilder(pytype=pytypes.BytesType) as eb:
             key_override = eb.rvalue()
         case InstanceBuilder(pytype=pytypes.StringType) as eb:
-            key_override = BytesRaw(expr=eb.rvalue(), source_location=location)
+            key_override = cast_to_bytes(eb, location)
         case _:
             raise CodeError(
                 f"invalid type for key{'_prefix' if is_prefix else ''}  argument",

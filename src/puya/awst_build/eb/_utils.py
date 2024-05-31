@@ -41,18 +41,6 @@ def uint64_to_biguint(arg_in: NodeBuilder, location: SourceLocation) -> Expressi
     )
 
 
-def get_bytes_expr(expr: Expression) -> ReinterpretCast:
-    return ReinterpretCast(
-        expr=expr, wtype=wtypes.bytes_wtype, source_location=expr.source_location
-    )
-
-
-def get_bytes_expr_builder(expr: Expression) -> InstanceBuilder:
-    from puya.awst_build.eb.bytes import BytesExpressionBuilder
-
-    return BytesExpressionBuilder(get_bytes_expr(expr))
-
-
 def compare_bytes(
     *,
     lhs: InstanceBuilder,
@@ -96,3 +84,13 @@ def _compare_expr_bytes_unchecked(
         source_location=location,
     )
     return BoolExpressionBuilder(cmp_expr)
+
+
+def cast_to_bytes(
+    expr: InstanceBuilder, location: SourceLocation | None = None
+) -> ReinterpretCast:
+    return ReinterpretCast(
+        expr=expr.rvalue(),
+        wtype=wtypes.bytes_wtype,
+        source_location=location or expr.source_location,
+    )

@@ -8,7 +8,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     BytesConstant,
-    BytesRaw,
     ContractReference,
     Expression,
     StateExists,
@@ -26,8 +25,8 @@ from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilde
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.box._common import BoxValueExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked
-from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
@@ -310,9 +309,7 @@ def _box_value_expr(
     location: SourceLocation,
     content_type: wtypes.WType,
 ) -> BoxValueExpression:
-    key_data = require_instance_builder(key).rvalue()  # TODO: allow literals??
-    if key_data.wtype != wtypes.bytes_wtype:
-        key_data = BytesRaw(expr=key_data, source_location=location)
+    key_data = require_instance_builder(key).serialize_bytes(location)
     full_key = intrinsic_factory.concat(key_prefix, key_data, location)
     return BoxValueExpression(
         key=full_key,

@@ -6,8 +6,6 @@ from puya.parse import SourceLocation
 
 def bytes_len(expr: Expression, loc: SourceLocation | None = None) -> IntrinsicCall:
     loc = loc or expr.source_location
-    if expr.wtype != wtypes.bytes_wtype:
-        raise InternalError("Expression for bytes_len must have wtype of bytes", loc)
     return IntrinsicCall(
         op_code="len",
         stack_args=[expr],

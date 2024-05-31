@@ -28,7 +28,7 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedClassExpressionBuilder,
     BytesBackedInstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import compare_bytes, get_bytes_expr
+from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -151,20 +151,18 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        bytes_expr = get_bytes_expr(self.expr)
-        len_expr = intrinsic_factory.bytes_len(bytes_expr, location)
+        len_expr = intrinsic_factory.bytes_len(self.expr, location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item_expr = get_bytes_expr(expect_operand_type(item, pytypes.StringType).rvalue())
-        this_expr = get_bytes_expr(self.expr)
+        item = expect_operand_type(item, pytypes.StringType)
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[
-                CallArg(value=item_expr, name="item"),
-                CallArg(value=this_expr, name="sequence"),
+                CallArg(value=cast_to_bytes(item), name="item"),
+                CallArg(value=cast_to_bytes(self), name="sequence"),
             ],
             wtype=wtypes.bool_wtype,
             source_location=location,

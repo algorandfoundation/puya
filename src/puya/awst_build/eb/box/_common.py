@@ -4,12 +4,22 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst.nodes import BoxValueExpression, StateGet, StateGetEx
+from puya.awst.nodes import (
+    BoxValueExpression,
+    BytesRaw,
+    StateDelete,
+    StateGet,
+    StateGetEx,
+    Statement,
+)
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
+from puya.awst_build.eb.box._util import box_length_checked, index_box_bytes, slice_box_bytes
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -62,3 +72,71 @@ class BoxMaybeExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
             ),
             pytypes.GenericTupleType.parameterise([self.content_type, pytypes.BoolType], location),
         )
+
+
+class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
+    expr: BoxValueExpression
+
+    def __init__(self, typ: pytypes.PyType, expr: BoxValueExpression):
+        super().__init__(typ, expr)
+
+    @typing.override
+    def delete(self, location: SourceLocation) -> Statement:
+        return StateDelete(field=self.expr, source_location=location)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        match name:
+            case "length":
+                return UInt64ExpressionBuilder(box_length_checked(self.expr, location))
+            case "bytes":
+                return _ValueBytes(self.expr, location)
+            case _:
+                return super().member_access(name, location)
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        if self.pytype != pytypes.BytesType:
+            return super().index(index, location)
+        return index_box_bytes(self.expr, index, location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        if self.pytype != pytypes.BytesType:
+            return super().slice_index(begin_index, end_index, stride, location)
+
+        return slice_box_bytes(self.expr, begin_index, end_index, stride, location)
+
+
+class _ValueBytes(ValueProxyExpressionBuilder):
+    def __init__(self, expr: BoxValueExpression, location: SourceLocation) -> None:
+        self._typed = expr
+        super().__init__(pytypes.BytesType, BytesRaw(expr=expr, source_location=location))
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        match name:
+            case "length":
+                return UInt64ExpressionBuilder(box_length_checked(self._typed, location))
+            case _:
+                return super().member_access(name, location)
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        return index_box_bytes(self._typed, index, location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        return slice_box_bytes(self._typed, begin_index, end_index, stride, location)
