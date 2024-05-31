@@ -37,7 +37,6 @@ from puya.awst_build.eb._utils import (
     bool_eval_to_constant,
     compare_bytes,
     compare_expr_bytes,
-    get_bytes_expr,
     get_bytes_expr_builder,
 )
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
@@ -221,8 +220,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
         wtype = self.produces().wtype
         match args:
             case []:
-                const_op = intrinsic_factory.zero_address(location, as_type=wtype)
-                return AddressExpressionBuilder(const_op)
+                result: Expression = intrinsic_factory.zero_address(location, as_type=wtype)
             case [LiteralBuilder(value=str(addr_value))]:
                 if not wtypes.valid_address(addr_value):
                     raise CodeError(
@@ -230,11 +228,13 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
                         f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
                         location,
                     )
-                address_bytes: Expression = AddressConstant(
-                    value=addr_value, source_location=location
+                result = AddressConstant(
+                    value=addr_value,
+                    wtype=wtype,
+                    source_location=location,
                 )
             case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
-                address_bytes = get_bytes_expr(eb.rvalue())
+                result = _address_from_native(eb)
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 value = eb.rvalue()
                 address_bytes_temp = SingleEvaluation(value)
@@ -244,8 +244,12 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
                     lhs=UInt64Constant(value=32, source_location=location),
                     rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
                 )
-                address_bytes = CheckedMaybe.from_tuple_items(
-                    expr=address_bytes_temp,
+                result = CheckedMaybe.from_tuple_items(
+                    expr=ReinterpretCast(
+                        expr=address_bytes_temp,
+                        wtype=wtype,
+                        source_location=address_bytes_temp.source_location,
+                    ),
                     check=is_correct_length,
                     source_location=location,
                     comment="Address length is 32 bytes",
@@ -256,9 +260,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
                     f" {wtypes.account_wtype} or {wtypes.bytes_wtype}, or a string literal",
                     location=location,
                 )
-        return AddressExpressionBuilder(
-            ReinterpretCast(expr=address_bytes, wtype=wtype, source_location=location)
-        )
+        return AddressExpressionBuilder(result)
 
 
 class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], ABC):
@@ -573,28 +575,37 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
     ) -> InstanceBuilder:
         match other:
             case LiteralBuilder(value=str(str_value), source_location=literal_loc):
-                rhs: Expression = AddressConstant(value=str_value, source_location=literal_loc)
+                rhs: Expression = AddressConstant(
+                    value=str_value, wtype=self.pytype.wtype, source_location=literal_loc
+                )
             case InstanceBuilder(pytype=pytypes.AccountType):
-                rhs = other.rvalue()
+                rhs = _address_from_native(other)
             case InstanceBuilder(pytype=pytypes.ARC4AddressType):
-                rhs = _address_native(other)
+                rhs = other.rvalue()
             case _:
                 return NotImplemented
-        return compare_expr_bytes(
-            lhs=_address_native(self), op=op, rhs=rhs, source_location=location
-        )
+        return compare_expr_bytes(lhs=self.rvalue(), op=op, rhs=rhs, source_location=location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
-                return AccountExpressionBuilder(_address_native(self))
+                return AccountExpressionBuilder(_address_to_native(self))
             case _:
                 return super().member_access(name, location)
 
 
-def _address_native(builder: InstanceBuilder) -> Expression:
+def _address_to_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype == pytypes.ARC4AddressType
     return ReinterpretCast(
         expr=builder.rvalue(), wtype=wtypes.account_wtype, source_location=builder.source_location
+    )
+
+
+def _address_from_native(builder: InstanceBuilder) -> Expression:
+    assert builder.pytype == pytypes.AccountType
+    return ReinterpretCast(
+        expr=builder.rvalue(),
+        wtype=wtypes.arc4_address_type,
+        source_location=builder.source_location,
     )

@@ -158,7 +158,7 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
                 lhs = self.rvalue()
                 rhs = eb.rvalue()
             case InstanceBuilder(pytype=pytypes.StringType) as eb:
-                lhs = _string_native(self, location)
+                lhs = _string_to_native(self, location)
                 rhs = eb.rvalue()
             case _:
                 return NotImplemented
@@ -173,14 +173,14 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
-                return NativeStringExpressionBuilder(_string_native(self, location))
+                return NativeStringExpressionBuilder(_string_to_native(self, location))
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:
                 return super().member_access(name, location)
 
 
-def _string_native(builder: InstanceBuilder, location: SourceLocation) -> Expression:
+def _string_to_native(builder: InstanceBuilder, location: SourceLocation) -> Expression:
     assert builder.pytype == pytypes.ARC4StringType
     return ARC4Decode(
         value=builder.rvalue(),

@@ -2,12 +2,12 @@ contract Arc4RefTypesContract
 {
   approval_program(): bool
   {
-    sender_address: arc4.address = reinterpret_cast<arc4.address>(reinterpret_cast<bytes>(txn<Sender>()))
-    assert(reinterpret_cast<account>(sender_address) == txn<Sender>())
-    checked_address: arc4.address = reinterpret_cast<arc4.address>(checked_maybe((SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>())), 32u == len(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>()))))))
+    sender_address: arc4.address = reinterpret_cast<arc4.address>(txn<Sender>())
+    assert(sender_address == reinterpret_cast<arc4.address>(txn<Sender>()))
+    checked_address: arc4.address = checked_maybe((reinterpret_cast<arc4.address>(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>()))), 32u == len(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>())))))
     unchecked_address: arc4.address = reinterpret_cast<arc4.address>(reinterpret_cast<bytes>(txn<Sender>()))
-    assert(reinterpret_cast<account>(sender_address) == reinterpret_cast<account>(checked_address) and reinterpret_cast<account>(checked_address) == reinterpret_cast<account>(unchecked_address))
-    assert(reinterpret_cast<account>(global<ZeroAddress>()) == Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"))
+    assert(sender_address == checked_address and checked_address == unchecked_address)
+    assert(global<ZeroAddress>() == Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"))
     return true
   }
   
