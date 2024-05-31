@@ -65,7 +65,10 @@ class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
         assert isinstance(wtype, wtypes.WArray)
         self._wtype = wtype
         super().__init__(typ, location)
-
+    @typing.override
+    @typing.final
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError(f"cannot serialize {self.pytype}", location)
     @typing.override
     def call(
         self,

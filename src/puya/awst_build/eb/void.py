@@ -37,5 +37,10 @@ class VoidExpressionBuilder(NotIterableInstanceExpressionBuilder):
         super().__init__(pytypes.NoneType, expr)
 
     @typing.override
+    @typing.final
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError("None is not usable as a value", location)
+
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=False, location=location, negate=negate)

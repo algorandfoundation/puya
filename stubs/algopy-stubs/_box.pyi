@@ -23,6 +23,10 @@ class Box(typing.Generic[_TValue]):
         """
 
     @property
+    def key(self) -> Bytes:
+        """Provides access to the raw storage key"""
+
+    @property
     def value(self) -> _TValue:
         """Retrieve the contents of the box. Fails if the box has not been created."""
 
@@ -65,6 +69,10 @@ class BoxRef:
     def __init__(self, /, *, key: bytes | str | Bytes | String = ...) -> None: ...
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""
+
+    @property
+    def key(self) -> Bytes:
+        """Provides access to the raw storage key"""
 
     def create(self, *, size: UInt64 | int) -> bool:
         """
@@ -162,6 +170,10 @@ class BoxMap(typing.Generic[_TKey, _TValue]):
         *,
         key_prefix: bytes | str | Bytes | String = ...,
     ) -> None: ...
+    @property
+    def key_prefix(self) -> Bytes:
+        """Provides access to the raw storage key-prefix"""
+
     def __getitem__(self, key: _TKey) -> _TValue:
         """
         Retrieve the contents of a keyed box. Fails if the box for the key has not been created.

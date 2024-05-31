@@ -58,6 +58,10 @@ class LiteralBuilderImpl(LiteralBuilder):
         raise CodeError("cannot assign to literal")
 
     @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError("cannot serialize literal", location)
+
+    @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         raise CodeError("cannot delete literal", location)
 

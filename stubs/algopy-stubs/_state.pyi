@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Account, UInt64
+from algopy import Account, Bytes, UInt64
 
 _TState = typing.TypeVar("_TState")
 
@@ -21,6 +21,10 @@ class LocalState(typing.Generic[_TState]):
         self.names = LocalState(algopy.Bytes)
         ```
         """
+
+    @property
+    def key(self) -> Bytes:
+        """Provides access to the raw storage key"""
 
     def __getitem__(self, account: Account | UInt64 | int) -> _TState:
         """Data can be accessed by an `Account` reference or foreign account index
@@ -106,6 +110,10 @@ class GlobalState(typing.Generic[_TState]):
         description: str = "",
     ) -> None:
         """Declare the global state key and initialize its value"""
+
+    @property
+    def key(self) -> Bytes:
+        """Provides access to the raw storage key"""
 
     @property
     def value(self) -> _TState:

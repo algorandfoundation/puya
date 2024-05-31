@@ -12,7 +12,7 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
 )
-from puya.awst_build import pytypes
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
@@ -60,11 +60,17 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BoolType, expr)
 
+    @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return intrinsic_factory.itob(self.expr, location)
+
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         if not negate:
             return self
         return BoolExpressionBuilder(Not(location, self.expr))
 
+    @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:

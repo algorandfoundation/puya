@@ -13,7 +13,7 @@ from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
     from puya.awst.nodes import Expression, TxnField
@@ -25,6 +25,11 @@ _PYTHON_MEMBER_FIELD_MAP = {
 
 
 class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
+    @typing.override
+    @typing.final
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError(f"cannot serialize {self.pytype}", location)
+
     @abc.abstractmethod
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression: ...
 

@@ -15,7 +15,7 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     ReinterpretCast,
 )
-from puya.awst_build import pytypes
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
@@ -91,6 +91,10 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             field_op_code=field_op_code,
             field_bool_comment=field_bool_comment,
         )
+
+    @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return intrinsic_factory.itob(self.expr, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

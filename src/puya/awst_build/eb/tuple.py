@@ -90,6 +90,10 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         super().__init__(typ, expr)
 
     @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        raise CodeError(f"cannot serialize {self.pytype}", location)
+
+    @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the

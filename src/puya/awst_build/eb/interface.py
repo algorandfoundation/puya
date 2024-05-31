@@ -159,6 +159,10 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """Handle self[begin_index:end_index:stride]"""
         raise CodeError("expression is not a collection", self.source_location)
 
+    @abc.abstractmethod  # TODO: deserialize on TypeBuilder
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        """Handle serialisation to bytes for storage purposes"""
+
 
 class LiteralBuilder(InstanceBuilder, abc.ABC):
     @property

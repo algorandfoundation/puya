@@ -155,6 +155,10 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         super().__init__(pytypes.BytesType, expr)
 
     @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return self.expr
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":

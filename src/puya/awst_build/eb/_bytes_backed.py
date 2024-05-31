@@ -72,8 +72,10 @@ class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "bytes":
-            return BytesExpressionBuilder(
-                ReinterpretCast(source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr)
-            )
+            return BytesExpressionBuilder(self.serialize_bytes(location))
         else:
             return super().member_access(name, location)
+
+    @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return ReinterpretCast(source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr)

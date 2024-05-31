@@ -21,7 +21,7 @@ from puya.awst.nodes import (
     UInt64UnaryOperation,
     UInt64UnaryOperator,
 )
-from puya.awst_build import pytypes
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
@@ -77,6 +77,11 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.UInt64Type, expr)
 
+    @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return intrinsic_factory.itob(self.expr, location)
+
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         as_bool = ReinterpretCast(
             expr=self.expr,
@@ -89,6 +94,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             expr = as_bool
         return BoolExpressionBuilder(expr)
 
+    @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
         match op:
             case BuilderUnaryOp.positive:
@@ -106,6 +112,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             case _:
                 return super().unary_op(op, location)
 
+    @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
@@ -122,6 +129,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         )
         return BoolExpressionBuilder(cmp_expr)
 
+    @typing.override
     def binary_op(
         self,
         other: InstanceBuilder,
@@ -145,6 +153,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         )
         return UInt64ExpressionBuilder(bin_op_expr)
 
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:

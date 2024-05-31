@@ -125,6 +125,10 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         )
 
     @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return ReinterpretCast(source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr)
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "is_opted_in":
             return _IsOptedIn(self.expr, location)
