@@ -29,7 +29,7 @@ from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     construct_from_literal,
     expect_operand_type,
-    require_instance_builder_or_literal,
+    require_instance_builder,
 )
 from puya.errors import CodeError, InternalError
 
@@ -130,7 +130,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelate
                     f"Positional arguments are not supported for {self.produces()}",
                     location,
                 )
-            field, expression = get_field_expr(arg_name, require_instance_builder_or_literal(arg))
+            field, expression = get_field_expr(arg_name, require_instance_builder(arg))
             transaction_fields[field] = expression
         typ = self.produces()
         wtype = typ.wtype
@@ -252,7 +252,7 @@ class _Set(FunctionBuilder):
         transaction_fields = dict[TxnField, Expression]()
         for arg_name, arg in zip(arg_names, args, strict=True):
             assert arg_name is not None
-            field, expression = get_field_expr(arg_name, require_instance_builder_or_literal(arg))
+            field, expression = get_field_expr(arg_name, require_instance_builder(arg))
             transaction_fields[field] = expression
         return VoidExpressionBuilder(
             UpdateInnerTransaction(

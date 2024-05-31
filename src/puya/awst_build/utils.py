@@ -174,21 +174,6 @@ def require_instance_builder(
     *,
     non_instance_msg: str = "expression is not a value",
 ) -> InstanceBuilder:
-
-    match builder_or_literal:
-        case InstanceBuilder() as builder:
-            return builder
-        case NodeBuilder(source_location=non_value_location):
-            raise CodeError(non_instance_msg, non_value_location)
-        case _:
-            typing.assert_never(builder_or_literal)
-
-
-def require_instance_builder_or_literal(
-    builder_or_literal: NodeBuilder,
-    *,
-    non_instance_msg: str = "expression is not a value",
-) -> InstanceBuilder:
     match builder_or_literal:
         case InstanceBuilder() as builder:
             return builder

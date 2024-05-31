@@ -47,7 +47,7 @@ from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
-    require_instance_builder_or_literal,
+    require_instance_builder,
     resolve_method_from_type_info,
 )
 from puya.errors import CodeError, InternalError
@@ -356,9 +356,7 @@ def _create_abi_call_expr(
             value = transaction_kwargs.pop(field_python_name)
         except KeyError:
             continue
-        field, field_expr = get_field_expr(
-            field_python_name, require_instance_builder_or_literal(value)
-        )
+        field, field_expr = get_field_expr(field_python_name, require_instance_builder(value))
         fields[field] = field_expr
 
     if transaction_kwargs:

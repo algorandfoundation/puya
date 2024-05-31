@@ -84,7 +84,6 @@ from puya.awst_build.utils import (
     iterate_user_bases,
     qualified_class_name,
     require_instance_builder,
-    require_instance_builder_or_literal,
     resolve_method_from_type_info,
 )
 from puya.errors import CodeError, InternalError
@@ -403,7 +402,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> Statement:
         stmt_loc = self._location(stmt)
         builder = require_instance_builder(stmt.lvalue.accept(self))
-        rhs = require_instance_builder_or_literal(stmt.rvalue.accept(self))
+        rhs = require_instance_builder(stmt.rvalue.accept(self))
         try:
             op = BuilderBinaryOp(stmt.op)
         except ValueError as ex:
@@ -544,7 +543,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     constants.CLS_STRING,
                     constants.CLS_ACCOUNT,
                 ):
-                    case_value_builder_or_literal = require_instance_builder_or_literal(
+                    case_value_builder_or_literal = require_instance_builder(
                         inner_literal_expr.accept(self)
                     )
                     case_value = expect_operand_type(
@@ -845,8 +844,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
     def visit_op_expr(self, node: mypy.nodes.OpExpr) -> NodeBuilder:
         node_loc = self._location(node)
-        lhs = require_instance_builder_or_literal(node.left.accept(self))
-        rhs = require_instance_builder_or_literal(node.right.accept(self))
+        lhs = require_instance_builder(node.left.accept(self))
+        rhs = require_instance_builder(node.right.accept(self))
 
         # constant fold if both literals
         if isinstance(lhs, LiteralBuilder) and isinstance(rhs, LiteralBuilder):
@@ -972,7 +971,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             case _:
                 typing.assert_never(expr.analyzed)
 
-        base_expr = require_instance_builder_or_literal(expr.base.accept(self))
+        base_expr = require_instance_builder(expr.base.accept(self))
         if isinstance(base_expr, LiteralBuilder):
             raise CodeError(  # TODO: yeet me
                 "Python literals cannot be indexed or sliced", base_expr.source_location
@@ -983,21 +982,13 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             # or some such everywhere
             case mypy.nodes.SliceExpr(begin_index=begin, end_index=end, stride=stride):
                 return base_expr.slice_index(
-                    begin_index=(
-                        require_instance_builder_or_literal(begin.accept(self)) if begin else None
-                    ),
-                    end_index=(
-                        require_instance_builder_or_literal(end.accept(self)) if end else None
-                    ),
-                    stride=(
-                        require_instance_builder_or_literal(stride.accept(self))
-                        if stride
-                        else None
-                    ),
+                    begin_index=(require_instance_builder(begin.accept(self)) if begin else None),
+                    end_index=(require_instance_builder(end.accept(self)) if end else None),
+                    stride=(require_instance_builder(stride.accept(self)) if stride else None),
                     location=expr_location,
                 )
 
-        index_expr_or_literal = require_instance_builder_or_literal(expr.index.accept(self))
+        index_expr_or_literal = require_instance_builder(expr.index.accept(self))
         return base_expr.index(index=index_expr_or_literal, location=expr_location)
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
@@ -1037,7 +1028,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         #       type signatures that should be possible, and we can always know it's value at
         #       compile time, but it would always result in a constant ...
 
-        operands = [require_instance_builder_or_literal(o.accept(self)) for o in expr.operands]
+        operands = [require_instance_builder(o.accept(self)) for o in expr.operands]
         operands[1:-1] = [
             temporary_assignment_if_required(operand) for operand in list(operands)[1:-1]
         ]

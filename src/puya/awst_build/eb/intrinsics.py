@@ -18,7 +18,7 @@ from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMappin
 from puya.awst_build.utils import (
     construct_from_literal,
     get_arg_mapping,
-    require_instance_builder_or_literal,
+    require_instance_builder,
 )
 from puya.errors import CodeError
 
@@ -129,7 +129,7 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         primary_mapping = self._mappings[0]  # TODO: remove this assumption
         func_arg_names = (*primary_mapping.literal_arg_names, *primary_mapping.stack_inputs.keys())
 
-        args_ = [require_instance_builder_or_literal(a) for a in args]
+        args_ = [require_instance_builder(a) for a in args]
 
         arg_mapping = get_arg_mapping(
             func_arg_names, args=zip(arg_names, args_, strict=False), location=location

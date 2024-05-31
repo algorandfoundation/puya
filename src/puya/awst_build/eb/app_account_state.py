@@ -45,7 +45,7 @@ from puya.awst_build.utils import (
     convert_literal_to_builder,
     expect_operand_type,
     get_arg_mapping,
-    require_instance_builder_or_literal,
+    require_instance_builder,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -275,7 +275,7 @@ class _Get(FunctionBuilder):
             default_arg, item = args
         else:
             item, default_arg = args
-        item = require_instance_builder_or_literal(item)
+        item = require_instance_builder(item)
         default_expr = expect_operand_type(default_arg, self._content_typ).rvalue()
         expr = StateGet(
             field=self._build_field(item, location),
@@ -305,7 +305,7 @@ class _Maybe(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [item]:
-                item = require_instance_builder_or_literal(item)
+                item = require_instance_builder(item)
                 field = self._build_field(item, location)
                 app_local_get_ex = StateGetEx(field=field, source_location=location)
                 result_typ = pytypes.GenericTupleType.parameterise(

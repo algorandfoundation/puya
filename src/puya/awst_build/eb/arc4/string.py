@@ -34,7 +34,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
-from puya.awst_build.utils import require_instance_builder_or_literal
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -76,7 +76,7 @@ def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression
 
 
 def _expect_string_or_bytes(expr: NodeBuilder, location: SourceLocation) -> Expression:
-    expr = require_instance_builder_or_literal(expr)
+    expr = require_instance_builder(expr)
     match expr:
         case LiteralBuilder(value=str(string_literal)):
             return _arc4_encode_str_literal(string_literal, location)
