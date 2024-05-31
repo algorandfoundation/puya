@@ -56,7 +56,7 @@ class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
                         f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
                         location,
                     )
-                group_index = UInt64Constant(value=int_value, source_location=loc)
+                group_index: Expression = UInt64Constant(value=int_value, source_location=loc)
             case [NodeBuilder() as eb]:
                 group_index = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
             case _:

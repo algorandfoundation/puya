@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import mypy.nodes
 
 from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
-from puya.awst.nodes import MethodConstant
+from puya.awst.nodes import Expression, MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
@@ -44,7 +44,7 @@ class EmitBuilder(FunctionBuilder):
                         location,
                     )
                 event_name = signature.method_name
-                event_arg = arc4_tuple_from_items(
+                event_arg: Expression = arc4_tuple_from_items(
                     arc4_args,
                     location,
                 )

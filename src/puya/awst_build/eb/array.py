@@ -42,10 +42,7 @@ class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         if not args:
             raise CodeError("empy arrays require a type annotation to be instantiated", location)
-        non_literal_args = [
-            require_instance_builder(a, literal_msg="array arguments must be non literals")
-            for a in args
-        ]
+        non_literal_args = [require_instance_builder(a) for a in args]
         expected_type = arg_typs[0]
         for a in non_literal_args:
             expect_operand_type(a, expected_type)
@@ -78,10 +75,7 @@ class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        non_literal_args = [
-            require_instance_builder(a, literal_msg="array arguments must be non literals")
-            for a in args
-        ]
+        non_literal_args = [require_instance_builder(a) for a in args]
         array_type = self.produces()
         for a in non_literal_args:
             expect_operand_type(a, array_type.items)

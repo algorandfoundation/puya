@@ -32,7 +32,7 @@ from puya.awst_build.eb.interface import (
     LiteralBuilder,
     NodeBuilder,
 )
-from puya.awst_build.utils import require_expression_builder, require_instance_builder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -195,15 +195,14 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
             case _:
                 raise CodeError(f"The {op} operator on the tuple type is not supported", location)
 
-        other_eb = require_expression_builder(other)
-        if not isinstance(other_eb, TupleExpressionBuilder):
+        if not isinstance(other, TupleExpressionBuilder):
             return NotImplemented
-        if self.pytype.items != other_eb.pytype.items:
+        if self.pytype.items != other.pytype.items:
             return bool_eval_to_constant(value=result_if_types_differ, location=location)
 
         def compare_at_index(idx: int) -> Expression:
             left = self._index(idx, location)
-            right = other_eb._index(idx, location)  # noqa: SLF001
+            right = other._index(idx, location)  # noqa: SLF001
             return left.compare(right, op=op, location=location).rvalue()
 
         result = compare_at_index(0)

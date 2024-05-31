@@ -19,6 +19,7 @@ from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
+
 class LiteralBuilderImpl(LiteralBuilder):
 
     def __init__(self, value: ConstantValue, source_location: SourceLocation):

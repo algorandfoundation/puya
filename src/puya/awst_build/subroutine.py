@@ -80,11 +80,9 @@ from puya.awst_build.utils import (
     expect_operand_type,
     extract_bytes_literal_from_mypy,
     fold_binary_expr,
-    fold_unary_expr,
     get_unaliased_fullname,
     iterate_user_bases,
     qualified_class_name,
-    require_expression_builder,
     require_instance_builder,
     require_instance_builder_or_literal,
     resolve_method_from_type_info,
@@ -782,8 +780,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 )
 
         base = expr.expr.accept(self)
-        base_builder = require_expression_builder(base)
-        return base_builder.member_access(name=expr.name, location=expr_loc)
+        return base.member_access(name=expr.name, location=expr_loc)
 
     def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder:
         if call.analyzed is not None:
@@ -836,9 +833,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> NodeBuilder:
         expr_loc = self._location(node)
         builder_or_literal = node.expr.accept(self)
-        if isinstance(builder_or_literal, LiteralBuilder):
-            folded_result = fold_unary_expr(expr_loc, node.op, builder_or_literal.value)
-            return LiteralBuilderImpl(value=folded_result, source_location=expr_loc)
         match node.op:
             case "not":
                 return builder_or_literal.bool_eval(expr_loc, negate=True)
@@ -1083,8 +1077,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 is_in_expr = self._build_compare("in", lhs=lhs, rhs=rhs)
                 return Not(is_in_expr.source_location, is_in_expr)
             case "in":
-                container_builder = require_expression_builder(rhs)
-                contains_builder = container_builder.contains(lhs, cmp_loc)
+                contains_builder = rhs.contains(lhs, cmp_loc)
                 return contains_builder.rvalue()
 
         result: InstanceBuilder = NotImplemented
@@ -1112,11 +1105,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         from puya.awst_build.eb.tuple import TupleExpressionBuilder
 
         items = [
-            require_instance_builder(
-                mypy_item.accept(self),
-                literal_msg="Python literals (other than True/False)"
-                " are not valid as tuple elements",
-            ).rvalue()
+            require_instance_builder(mypy_item.accept(self)).rvalue()
             for mypy_item in mypy_expr.items
         ]
         # TODO: grab item types from EB items?

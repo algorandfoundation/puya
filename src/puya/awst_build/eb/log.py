@@ -88,9 +88,7 @@ class LogBuilder(FunctionBuilder):
                         arg.source_location,
                     )
                 case InstanceBuilder(pytype=pytypes.UInt64Type):
-                    bytes_expr = intrinsic_factory.itob(
-                        arg.rvalue(), arg.source_location
-                    )
+                    bytes_expr = intrinsic_factory.itob(arg.rvalue(), arg.source_location)
                 case InstanceBuilder() as eb:
                     bytes_expr = eb.rvalue()
                 case _:

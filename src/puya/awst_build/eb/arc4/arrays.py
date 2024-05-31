@@ -80,10 +80,7 @@ class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
-        non_literal_args = [
-            require_instance_builder(a, literal_msg="array arguments must be non literals")
-            for a in args
-        ]
+        non_literal_args = [require_instance_builder(a) for a in args]
         element_type = arg_typs[0]
 
         for a in non_literal_args:
@@ -118,10 +115,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        non_literal_args = [
-            require_instance_builder(a, literal_msg="array arguments must be non literals")
-            for a in args
-        ]
+        non_literal_args = [require_instance_builder(a) for a in args]
         typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
@@ -150,10 +144,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
-        non_literal_args = [
-            require_instance_builder(a, literal_msg="array arguments must be non literals")
-            for a in args
-        ]
+        non_literal_args = [require_instance_builder(a) for a in args]
         element_type = arg_typs[0]
         array_size = len(non_literal_args)
         typ = pytypes.GenericARC4StaticArrayType.parameterise(
@@ -191,10 +182,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        non_literal_args = [
-            require_instance_builder(a, literal_msg="array arguments must be non literals")
-            for a in args
-        ]
+        non_literal_args = [require_instance_builder(a) for a in args]
         typ = self.produces()
         if typ.size != len(non_literal_args):
             raise CodeError(f"{typ} should be initialized with {typ.size} values", location)
@@ -239,9 +227,11 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
                         f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
                         location,
                     )
-                address_bytes = AddressConstant(value=addr_value, source_location=location)
+                address_bytes: Expression = AddressConstant(
+                    value=addr_value, source_location=location
+                )
             case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
-                address_bytes: Expression = get_bytes_expr(eb.rvalue())
+                address_bytes = get_bytes_expr(eb.rvalue())
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 value = eb.rvalue()
                 address_bytes_temp = SingleEvaluation(value)

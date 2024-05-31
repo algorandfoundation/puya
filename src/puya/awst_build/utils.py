@@ -28,9 +28,6 @@ from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBu
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from puya.awst_build.eb.bool import BoolExpressionBuilder
-
 logger = log.get_logger(__name__)
 
 
@@ -157,41 +154,13 @@ def fold_binary_expr(
 _TBuilder = typing.TypeVar("_TBuilder", bound=NodeBuilder)
 
 
-def require_expression_builder(
-    builder_or_literal: _TBuilder,
-    *,
-    msg: str = "A Python literal is not valid at this location",
-) -> "_TBuilder | BoolExpressionBuilder":
-    from puya.awst_build.eb.bool import BoolExpressionBuilder
-
-    match builder_or_literal:
-        case LiteralBuilder(value=bool(value), source_location=literal_location):
-            return BoolExpressionBuilder(
-                BoolConstant(value=value, source_location=literal_location)
-            )
-        case LiteralBuilder(source_location=literal_location):
-            raise CodeError(msg, literal_location)
-        case NodeBuilder() as builder:
-            return builder
-        case _:
-            typing.assert_never(builder_or_literal)
-
-
 def require_instance_builder(
     builder_or_literal: NodeBuilder,
     *,
-    literal_msg: str = "A Python literal is not valid at this location",
     non_instance_msg: str = "expression is not a value",
 ) -> InstanceBuilder:
-    from puya.awst_build.eb.bool import BoolExpressionBuilder
 
     match builder_or_literal:
-        case LiteralBuilder(value=bool(value), source_location=literal_location):
-            return BoolExpressionBuilder(
-                BoolConstant(value=value, source_location=literal_location)
-            )
-        case LiteralBuilder(source_location=literal_location):
-            raise CodeError(literal_msg, literal_location)
         case InstanceBuilder() as builder:
             return builder
         case NodeBuilder(source_location=non_value_location):
@@ -206,8 +175,6 @@ def require_instance_builder_or_literal(
     non_instance_msg: str = "expression is not a value",
 ) -> InstanceBuilder:
     match builder_or_literal:
-        case LiteralBuilder() as literal:
-            return literal
         case InstanceBuilder() as builder:
             return builder
         case NodeBuilder(source_location=non_value_location):
@@ -399,20 +366,6 @@ def resolve_method_from_type_info(
             raise CodeError(f"unsupported reference to non-function member {name!r}", location)
 
 
-def construct_from_builder_or_literal(
-    literal_or_builder: InstanceBuilder,
-    target_type: pytypes.PyType,
-    loc: SourceLocation | None = None,
-) -> InstanceBuilder:
-    loc = loc or literal_or_builder.source_location
-    if (
-        isinstance(literal_or_builder, InstanceBuilder)
-        and literal_or_builder.pytype == target_type
-    ):
-        return literal_or_builder
-    return _construct_instance(target_type, literal_or_builder, loc)
-
-
 def construct_from_literal(
     literal: LiteralBuilder, target_type: pytypes.PyType, loc: SourceLocation | None = None
 ) -> InstanceBuilder:
@@ -421,32 +374,13 @@ def construct_from_literal(
 
 
 def _construct_instance(
-    target_type: pytypes.PyType, arg: NodeBuilder, location: SourceLocation
+    target_type: pytypes.PyType, arg: InstanceBuilder, location: SourceLocation
 ) -> InstanceBuilder:
     builder = builder_for_type(target_type, location)
-    if isinstance(arg, NodeBuilder):
-        arg_type = arg.pytype
-    else:
-        arg_type = _get_literal_type(arg)
     return builder.call(
         args=[arg],
-        arg_typs=[arg_type],
+        arg_typs=[arg.pytype],
         arg_kinds=[mypy.nodes.ARG_POS],
         arg_names=[None],
         location=location,
     )
-
-
-def _get_literal_type(literal: LiteralBuilder) -> pytypes.PyType:
-    match literal.value:
-        case int():
-            arg_type = pytypes.IntLiteralType
-        case str():
-            arg_type = pytypes.StrLiteralType
-        case bytes():
-            arg_type = pytypes.BytesLiteralType
-        case bool():
-            arg_type = pytypes.BoolType
-        case _:
-            typing.assert_never(literal.value)
-    return arg_type
