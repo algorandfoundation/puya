@@ -49,10 +49,13 @@ class DynamicArrayContract(ARC4Contract):
         struct1 = DynamicStruct(get_string1(), get_string2())
         struct2 = DynamicStruct(get_string3(), get_string1())
         array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        array.append(struct1.copy())
         log(array)
         log(array[0])
         log(array[1])
+        log(array[2])
 
+        assert array.pop() == struct1
         assert array.pop() == struct2
         assert array.pop() == struct1
 
@@ -60,7 +63,9 @@ class DynamicArrayContract(ARC4Contract):
     def test_mixed_single_dynamic_elements(self) -> None:
         struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
         struct2 = MixedSingleStruct(get_uint2(), get_string2(), get_uint1())
-        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        array = arc4.DynamicArray[MixedSingleStruct]()
+        array.append(struct1.copy())
+        array.append(struct2.copy())
         log(array)
         log(array[0])
         log(array[1])

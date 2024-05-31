@@ -1095,7 +1095,10 @@ def _get_tic_tac_toe_game_status(
     return board, winner
 
 
-def test_dynamic_arrays(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+@pytest.fixture(scope="module")
+def dynamic_app_client(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> algokit_utils.ApplicationClient:
     app_client = algokit_utils.ApplicationClient(
         algod_client,
         algokit_utils.ApplicationSpecification.from_json(
@@ -1104,20 +1107,18 @@ def test_dynamic_arrays(algod_client: AlgodClient, account: algokit_utils.Accoun
         signer=account,
     )
     app_client.create()
+    return app_client
 
-    string1 = "a"
-    string2 = "bee"
-    string3 = "Hello World"
-    uint1 = 3
-    uint2 = 2**42
 
-    # static
+def test_dynamic_arrays_static_element(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
     static_struct_t = abi.ABIType.from_string("(uint64,byte[2])")
     static_arr_t = abi.ArrayDynamicType(static_struct_t)
-    static_struct0 = (uint1, bytes((4, 5)))
-    static_struct1 = (uint2, bytes((42, 255)))
+    static_struct0 = (3, bytes((4, 5)))
+    static_struct1 = (2**42, bytes((42, 255)))
 
-    static_result = app_client.call("test_static_elements")
+    static_result = dynamic_app_client.call("test_static_elements")
     (static_arr_bytes, static_0_bytes, static_1_bytes) = decode_logs(
         static_result.tx_info["logs"], "bbb"
     )
@@ -1126,28 +1127,37 @@ def test_dynamic_arrays(algod_client: AlgodClient, account: algokit_utils.Accoun
     assert static_0_bytes == static_struct_t.encode(static_struct0)
     assert static_1_bytes == static_struct_t.encode(static_struct1)
 
-    # dynamic
+
+def test_dynamic_arrays_dynamic_element(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
     dynamic_struct_t = abi.ABIType.from_string("(string,string)")
     dynamic_arr_t = abi.ABIType.from_string("(string,string)[]")
-    dynamic_struct0 = (string1, string2)
-    dynamic_struct1 = (string3, string1)
+    dynamic_struct0 = ("a", "bee")
+    dynamic_struct1 = ("Hello World", "a")
 
-    dynamic_result = app_client.call("test_dynamic_elements")
-    (dynamic_arr_bytes, dynamic_0_bytes, dynamic_1_bytes) = decode_logs(
-        dynamic_result.tx_info["logs"], "bbb"
+    dynamic_result = dynamic_app_client.call("test_dynamic_elements")
+    (dynamic_arr_bytes, dynamic_0_bytes, dynamic_1_bytes, dynamic_2_bytes) = decode_logs(
+        dynamic_result.tx_info["logs"], "bbbb"
     )
 
-    assert dynamic_arr_bytes == dynamic_arr_t.encode([dynamic_struct0, dynamic_struct1])
+    assert dynamic_arr_bytes == dynamic_arr_t.encode(
+        [dynamic_struct0, dynamic_struct1, dynamic_0_bytes]
+    )
     assert dynamic_0_bytes == dynamic_struct_t.encode(dynamic_struct0)
     assert dynamic_1_bytes == dynamic_struct_t.encode(dynamic_struct1)
+    assert dynamic_2_bytes == dynamic_struct_t.encode(dynamic_struct0)
 
-    # mixed single dynamic
+
+def test_dynamic_arrays_mixed_single_dynamic(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
     mixed1_struct_t = abi.ABIType.from_string("(uint64,string,uint64)")
     mixed1_arr_t = abi.ArrayDynamicType(mixed1_struct_t)
-    mixed1_struct0 = (uint1, string1, uint2)
-    mixed1_struct1 = (uint2, string2, uint1)
+    mixed1_struct0 = (3, "a", 2**42)
+    mixed1_struct1 = (2**42, "bee", 3)
 
-    mixed_single_result = app_client.call("test_mixed_single_dynamic_elements")
+    mixed_single_result = dynamic_app_client.call("test_mixed_single_dynamic_elements")
     (mixed1_arr_bytes, mixed1_0_bytes, mixed1_1_bytes) = decode_logs(
         mixed_single_result.tx_info["logs"], "bbb"
     )
@@ -1156,13 +1166,16 @@ def test_dynamic_arrays(algod_client: AlgodClient, account: algokit_utils.Accoun
     assert mixed1_0_bytes == mixed1_struct_t.encode(mixed1_struct0)
     assert mixed1_1_bytes == mixed1_struct_t.encode(mixed1_struct1)
 
-    # mixed multiple dynamic
+
+def test_dynamic_arrays_mixed_multiple_dynamic(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
     mixed2_struct_t = abi.ABIType.from_string("(uint64,string,uint64,string,uint64)")
     mixed2_arr_t = abi.ArrayDynamicType(mixed2_struct_t)
-    mixed2_struct0 = (uint1, string1, uint2, string2, uint1)
-    mixed2_struct1 = (uint2, string3, uint1, string1, uint2)
+    mixed2_struct0 = (3, "a", 2**42, "bee", 3)
+    mixed2_struct1 = (2**42, "Hello World", 3, "a", 2**42)
 
-    mixed_multiple_result = app_client.call("test_mixed_multiple_dynamic_elements")
+    mixed_multiple_result = dynamic_app_client.call("test_mixed_multiple_dynamic_elements")
     (mixed2_arr_bytes, mixed2_0_bytes, mixed2_1_bytes) = decode_logs(
         mixed_multiple_result.tx_info["logs"], "bbb"
     )
