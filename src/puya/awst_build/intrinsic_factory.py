@@ -16,11 +16,16 @@ def bytes_len(expr: Expression, loc: SourceLocation | None = None) -> IntrinsicC
     )
 
 
-def concat(a: Expression, b: Expression, loc: SourceLocation | None = None) -> IntrinsicCall:
+def concat(
+    a: Expression,
+    b: Expression,
+    loc: SourceLocation | None = None,
+    result_type: wtypes.WType = wtypes.bytes_wtype,
+) -> IntrinsicCall:
     return IntrinsicCall(
         op_code="concat",
         stack_args=[a, b],
-        wtype=wtypes.bytes_wtype,
+        wtype=result_type,
         source_location=loc or (a.source_location + b.source_location),
     )
 

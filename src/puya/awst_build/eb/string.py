@@ -13,7 +13,6 @@ from puya.awst.nodes import (
     ConditionalExpression,
     Expression,
     FreeSubroutineTarget,
-    ReinterpretCast,
     SingleEvaluation,
     Statement,
     StringConstant,
@@ -275,21 +274,19 @@ class _StringJoin(FunctionBuilder):
                 tuple_arg = SingleEvaluation(eb.rvalue())
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        sep = get_bytes_expr_builder(SingleEvaluation(self._base))
+        sep = StringExpressionBuilder(SingleEvaluation(self._base))
         joined_value: Expression | None = None
         for idx, _ in enumerate(items):
             item_expr = TupleItemExpression(tuple_arg, index=idx, source_location=location)
-            bytes_expr = get_bytes_expr(item_expr)
             if joined_value is None:
-                joined_value = bytes_expr
+                joined_value = item_expr
             else:
                 joined_value = intrinsic_factory.concat(
                     intrinsic_factory.concat(joined_value, sep.rvalue(), location),
-                    bytes_expr,
+                    item_expr,
                     location,
+                    result_type=wtypes.string_wtype,
                 )
         if joined_value is None:
             joined_value = StringConstant(value="", source_location=location)
-        return StringExpressionBuilder(
-            ReinterpretCast(expr=joined_value, wtype=wtypes.string_wtype, source_location=location)
-        )
+        return StringExpressionBuilder(joined_value)
