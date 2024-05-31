@@ -11,9 +11,7 @@ from puya.awst.nodes import (
     ArrayConcat,
     ArrayExtend,
     ArrayPop,
-    BytesComparisonExpression,
     CheckedMaybe,
-    EqualityComparison,
     Expression,
     ExpressionStatement,
     IndexExpression,
@@ -35,10 +33,15 @@ from puya.awst_build.eb._base import (
     GenericTypeBuilder,
     InstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb._utils import (
+    bool_eval_to_constant,
+    compare_bytes,
+    compare_expr_bytes,
+    get_bytes_expr,
+    get_bytes_expr_builder,
+)
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
-from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes, arc4_compare_bytes
-from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -310,7 +313,7 @@ class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], 
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return arc4_compare_bytes(self, op, other, location)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
     @typing.override
     @typing.final
@@ -416,7 +419,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
-            expr=self.expr,
+            self,
             false_bytes=b"\x00\x00",
             location=location,
             negate=negate,
@@ -557,14 +560,12 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        cmp_with_zero_expr = BytesComparisonExpression(
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-            rhs=intrinsic_factory.zero_address(location, as_type=wtypes.bytes_wtype),
+        return compare_expr_bytes(
+            lhs=self.rvalue(),
+            op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
+            rhs=intrinsic_factory.zero_address(location, as_type=self.pytype.wtype),
             source_location=location,
         )
-
-        return BoolExpressionBuilder(cmp_with_zero_expr)
 
     @typing.override
     def compare(
@@ -572,27 +573,28 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
     ) -> InstanceBuilder:
         match other:
             case LiteralBuilder(value=str(str_value), source_location=literal_loc):
-                rhs = get_bytes_expr(AddressConstant(value=str_value, source_location=literal_loc))
-            case NodeBuilder(pytype=pytypes.AccountType):
-                rhs = get_bytes_expr(other.rvalue())
+                rhs: Expression = AddressConstant(value=str_value, source_location=literal_loc)
+            case InstanceBuilder(pytype=pytypes.AccountType):
+                rhs = other.rvalue()
+            case InstanceBuilder(pytype=pytypes.ARC4AddressType):
+                rhs = _address_native(other)
             case _:
-                return super().compare(other, op=op, location=location)
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison(op.value),
-            rhs=rhs,
+                return NotImplemented
+        return compare_expr_bytes(
+            lhs=_address_native(self), op=op, rhs=rhs, source_location=location
         )
-        return BoolExpressionBuilder(cmp_expr)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
-                return AccountExpressionBuilder(
-                    ReinterpretCast(
-                        expr=self.expr, wtype=wtypes.account_wtype, source_location=location
-                    )
-                )
+                return AccountExpressionBuilder(_address_native(self))
             case _:
                 return super().member_access(name, location)
+
+
+def _address_native(builder: InstanceBuilder) -> Expression:
+    assert builder.pytype == pytypes.ARC4AddressType
+    return ReinterpretCast(
+        expr=builder.rvalue(), wtype=wtypes.account_wtype, source_location=builder.source_location
+    )

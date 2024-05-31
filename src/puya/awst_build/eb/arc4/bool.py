@@ -7,11 +7,10 @@ from puya.awst import wtypes
 from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import get_bytes_expr_builder
+from puya.awst_build.eb._utils import compare_bytes, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_bool_bytes,
-    arc4_compare_bytes,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
@@ -63,7 +62,7 @@ class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)
+        return arc4_bool_bytes(self, false_bytes=b"\x00", location=location, negate=negate)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
@@ -84,4 +83,4 @@ class ARC4BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return arc4_compare_bytes(self, op, other, location)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)

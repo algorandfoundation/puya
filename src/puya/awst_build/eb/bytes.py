@@ -11,13 +11,11 @@ from puya.awst.nodes import (
     BytesAugmentedAssignment,
     BytesBinaryOperation,
     BytesBinaryOperator,
-    BytesComparisonExpression,
     BytesConstant,
     BytesEncoding,
     BytesUnaryOperation,
     BytesUnaryOperator,
     CallArg,
-    EqualityComparison,
     Expression,
     FreeSubroutineTarget,
     IndexExpression,
@@ -32,6 +30,7 @@ from puya.awst_build.eb._base import (
     InstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._utils import compare_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -232,15 +231,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
-        if other.pytype != self.pytype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison(op.value),
-            rhs=other.rvalue(),
-        )
-        return BoolExpressionBuilder(cmp_expr)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
     @typing.override
     def binary_op(

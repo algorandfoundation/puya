@@ -5,8 +5,8 @@ contract Arc4BoolTypeContract
     this::test_stuff(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
     static_boolean_array: arc4.static_array<arc4.bool, 12> = new arc4.static_array<arc4.bool, 12>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
     assert(reinterpret_cast<bytes>(static_boolean_array) == hex<"FFF0">)
-    assert(reinterpret_cast<bytes>(static_boolean_array[0u]) == reinterpret_cast<bytes>(arc4_encode(true, arc4.bool)), comment="Single boolean can be unpacked")
-    assert(reinterpret_cast<bytes>(static_boolean_array[12u - 1u]) == reinterpret_cast<bytes>(arc4_encode(true, arc4.bool)), comment="Single boolean can be unpacked")
+    assert(static_boolean_array[0u] == arc4_encode(true, arc4.bool), comment="Single boolean can be unpacked")
+    assert(static_boolean_array[12u - 1u] == arc4_encode(true, arc4.bool), comment="Single boolean can be unpacked")
     dynamic_boolean_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))
     assert(reinterpret_cast<bytes>(dynamic_boolean_array) == hex<"0003A0">)
     return true
@@ -21,7 +21,7 @@ contract Arc4BoolTypeContract
   {
     assert(arc4_decode(true, bool))
     assert(!(arc4_decode(false, bool)))
-    assert(reinterpret_cast<bytes>(true) == reinterpret_cast<bytes>(arc4_encode(arc4_decode(true, bool), arc4.bool)))
-    assert(reinterpret_cast<bytes>(false) == reinterpret_cast<bytes>(arc4_encode(arc4_decode(false, bool), arc4.bool)))
+    assert(true == arc4_encode(arc4_decode(true, bool), arc4.bool))
+    assert(false == arc4_encode(arc4_decode(false, bool), arc4.bool))
   }
 }

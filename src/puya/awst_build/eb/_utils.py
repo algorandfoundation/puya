@@ -4,10 +4,14 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, ReinterpretCast
+from puya.awst.nodes import (
+    BytesComparisonExpression,
+    EqualityComparison,
+    Expression,
+    ReinterpretCast,
+)
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import expect_operand_type
 
 if typing.TYPE_CHECKING:
@@ -44,4 +48,51 @@ def get_bytes_expr(expr: Expression) -> ReinterpretCast:
 
 
 def get_bytes_expr_builder(expr: Expression) -> InstanceBuilder:
+    from puya.awst_build.eb.bytes import BytesExpressionBuilder
+
     return BytesExpressionBuilder(get_bytes_expr(expr))
+
+
+def compare_bytes(
+    *,
+    lhs: InstanceBuilder,
+    op: BuilderComparisonOp,
+    rhs: InstanceBuilder,
+    source_location: SourceLocation,
+) -> InstanceBuilder:
+    if rhs.pytype != lhs.pytype:
+        return NotImplemented
+    return _compare_expr_bytes_unchecked(lhs.rvalue(), op, rhs.rvalue(), source_location)
+
+
+def compare_expr_bytes(
+    *,
+    lhs: Expression,
+    op: BuilderComparisonOp,
+    rhs: Expression,
+    source_location: SourceLocation,
+) -> InstanceBuilder:
+    if rhs.wtype != lhs.wtype:
+        return NotImplemented
+    return _compare_expr_bytes_unchecked(lhs, op, rhs, source_location)
+
+
+def _compare_expr_bytes_unchecked(
+    lhs: Expression,
+    op: BuilderComparisonOp,
+    rhs: Expression,
+    location: SourceLocation,
+) -> InstanceBuilder:
+    from puya.awst_build.eb.bool import BoolExpressionBuilder
+
+    try:
+        eq_op = EqualityComparison(op.value)
+    except ValueError:
+        return NotImplemented
+    cmp_expr = BytesComparisonExpression(
+        lhs=lhs,
+        operator=eq_op,
+        rhs=rhs,
+        source_location=location,
+    )
+    return BoolExpressionBuilder(cmp_expr)

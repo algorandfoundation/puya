@@ -1237,7 +1237,10 @@ class NumericComparisonExpression(Expression):
 
 
 bytes_comparable = expression_has_wtype(
-    wtypes.bytes_wtype, wtypes.account_wtype, wtypes.string_wtype
+    wtypes.bytes_wtype,
+    wtypes.account_wtype,
+    wtypes.string_wtype,
+    wtypes.ARC4Type,
 )
 
 

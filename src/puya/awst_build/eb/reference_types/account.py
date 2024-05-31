@@ -7,9 +7,7 @@ from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
-    BytesComparisonExpression,
     CheckedMaybe,
-    EqualityComparison,
     Expression,
     IntrinsicCall,
     NumericComparison,
@@ -23,6 +21,7 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     FunctionBuilder,
 )
+from puya.awst_build.eb._utils import compare_bytes, compare_expr_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -133,32 +132,19 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        cmp_with_zero_expr = BytesComparisonExpression(
+        return compare_expr_bytes(
             source_location=location,
             lhs=self.expr,
-            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
+            op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
             rhs=intrinsic_factory.zero_address(location),
         )
-
-        return BoolExpressionBuilder(cmp_with_zero_expr)
 
     @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
-        if not (
-            other.pytype == self.pytype  # can only compare with other Accounts?
-            and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
-        ):
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison(op.value),
-            rhs=other.rvalue(),
-        )
-        return BoolExpressionBuilder(cmp_expr)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
 
 class _IsOptedIn(FunctionBuilder):

@@ -34,19 +34,19 @@ contract Arc4MutationContract
     d_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Test', arc4.string))
     nested_in_array: arc4.dynamic_array<arc4.dynamic_array<arc4.string>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.string>>(d_array.copy())
     nested_in_struct: arc4.struct<d_array:arc4.dynamic_array<arc4.string>> = new arc4.struct<d_array:arc4.dynamic_array<arc4.string>>(d_array=nested_in_array[0u].copy())
-    assert(reinterpret_cast<bytes>(d_array) == reinterpret_cast<bytes>(nested_in_struct.d_array))
+    assert(d_array == nested_in_struct.d_array)
   }
   
   subroutine array_concat(): void
   {
     uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
     array_concat_tuple: arc4.dynamic_array<arc4.uint8> = uint8_array + (3arc4u8, 4arc4u8)
-    assert(reinterpret_cast<bytes>(array_concat_tuple) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8)))
+    assert(array_concat_tuple == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8))
     array_concat_tuple.extend((5arc4u8))
-    assert(reinterpret_cast<bytes>(array_concat_tuple) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8)))
+    assert(array_concat_tuple == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8))
     hello_world: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Hello', arc4.string), arc4_encode('World', arc4.string))
     hello_world_concat: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Hello', arc4.string)) + new arc4.dynamic_array<arc4.string>(arc4_encode('World', arc4.string))
-    assert(reinterpret_cast<bytes>(hello_world) == reinterpret_cast<bytes>(hello_world_concat))
+    assert(hello_world == hello_world_concat)
   }
   
   subroutine array_of_array_dynamic(): void
@@ -94,24 +94,24 @@ contract Arc4MutationContract
     test_struct: arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string> = new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(true, arc4.bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', arc4.string), s_val_2=arc4_encode('Days', arc4.string))
     test_struct.b_val: arc4.bool = arc4_encode(false, arc4.bool)
     test_struct.u_val: arc4.uint8 = 12arc4u8
-    assert(reinterpret_cast<bytes>(test_struct) == reinterpret_cast<bytes>(new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Happy', arc4.string), s_val_2=arc4_encode('Days', arc4.string))))
+    assert(test_struct == new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Happy', arc4.string), s_val_2=arc4_encode('Days', arc4.string)))
     test_struct.s_val_1: arc4.string = arc4_encode('Hmmmm', arc4.string)
     test_struct.s_val_2: arc4.string = arc4_encode('Oh well', arc4.string)
-    assert(reinterpret_cast<bytes>(test_struct) == reinterpret_cast<bytes>(new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Hmmmm', arc4.string), s_val_2=arc4_encode('Oh well', arc4.string))))
+    assert(test_struct == new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Hmmmm', arc4.string), s_val_2=arc4_encode('Oh well', arc4.string)))
   }
   
   subroutine dynamic_array_fixed_size(): void
   {
     dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
     dynamic_uint8_array.extend((50arc4u8))
-    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8)))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8))
     dynamic_uint8_array.extend(dynamic_uint8_array)
-    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8)))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8))
     dynamic_uint8_array.extend((4arc4u8, 90arc4u8))
-    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8)))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8))
     popped: arc4.uint8 = dynamic_uint8_array.pop()
     assert(reinterpret_cast<biguint>(popped) == reinterpret_cast<biguint>(90arc4u8))
-    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8)))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8))
   }
   
   subroutine dynamic_array_bool(): void
@@ -120,14 +120,14 @@ contract Arc4MutationContract
     assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"000280">)
     dynamic_bool_array.extend((arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
     assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"0004A0">)
-    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))))
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
     dynamic_bool_array.extend(dynamic_bool_array)
-    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))))
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
     dynamic_bool_array.extend((arc4_encode(true, arc4.bool)))
-    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))))
-    assert(reinterpret_cast<bytes>(dynamic_bool_array.pop()) == reinterpret_cast<bytes>(arc4_encode(true, arc4.bool)))
-    assert(reinterpret_cast<bytes>(dynamic_bool_array.pop()) == reinterpret_cast<bytes>(arc4_encode(false, arc4.bool)))
-    assert(reinterpret_cast<bytes>(dynamic_bool_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))))
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
+    assert(dynamic_bool_array.pop() == arc4_encode(true, arc4.bool))
+    assert(dynamic_bool_array.pop() == arc4_encode(false, arc4.bool))
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
   }
   
   subroutine dynamic_array_string(): void
@@ -141,13 +141,13 @@ contract Arc4MutationContract
     dynamic_string_array.extend((foo, bar))
     assert(reinterpret_cast<bytes>(dynamic_string_array) == hex<"00040008000F0016001B000548656C6C6F0005576F726C640003466F6F0003426172">)
     dynamic_string_array.extend(dynamic_string_array)
-    assert(reinterpret_cast<bytes>(dynamic_string_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.string>(hello, world, foo, bar, hello, world, foo, bar)))
+    assert(dynamic_string_array == new arc4.dynamic_array<arc4.string>(hello, world, foo, bar, hello, world, foo, bar))
     dynamic_string_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(hello, world, foo, bar, hello, world, foo, bar)
     dynamic_string_array[3u]: arc4.string = hello
     dynamic_string_array[5u]: arc4.string = hello
-    assert(reinterpret_cast<bytes>(dynamic_string_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.string>(hello, world, foo, hello, hello, hello, foo, bar)))
-    assert(reinterpret_cast<bytes>(dynamic_string_array.pop()) == reinterpret_cast<bytes>(bar))
-    assert(reinterpret_cast<bytes>(dynamic_string_array.pop()) == reinterpret_cast<bytes>(foo))
-    assert(reinterpret_cast<bytes>(dynamic_string_array) == reinterpret_cast<bytes>(new arc4.dynamic_array<arc4.string>(hello, world, foo, hello, hello, hello)))
+    assert(dynamic_string_array == new arc4.dynamic_array<arc4.string>(hello, world, foo, hello, hello, hello, foo, bar))
+    assert(dynamic_string_array.pop() == bar)
+    assert(dynamic_string_array.pop() == foo)
+    assert(dynamic_string_array == new arc4.dynamic_array<arc4.string>(hello, world, foo, hello, hello, hello))
   }
 }

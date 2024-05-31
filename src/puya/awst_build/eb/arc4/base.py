@@ -8,12 +8,10 @@ import typing_extensions
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BytesComparisonExpression,
     BytesConstant,
     BytesEncoding,
     CheckedMaybe,
     Copy,
-    EqualityComparison,
     Expression,
     ReinterpretCast,
     SingleEvaluation,
@@ -22,16 +20,13 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     FunctionBuilder,
-    InstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import get_bytes_expr
-from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb._utils import compare_expr_bytes
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
-    LiteralBuilder,
     NodeBuilder,
 )
 from puya.errors import CodeError
@@ -72,19 +67,19 @@ class ARC4FromLogBuilder(FunctionBuilder):
         tmp_value = SingleEvaluation(value)
         arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location)
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
-        arc4_prefix_is_valid = BytesComparisonExpression(
+        arc4_prefix_is_valid = compare_expr_bytes(
             lhs=arc4_prefix,
             rhs=BytesConstant(
                 value=b"\x15\x1f\x7c\x75",
                 source_location=location,
                 encoding=BytesEncoding.base16,
             ),
-            operator=EqualityComparison.eq,
+            op=BuilderComparisonOp.eq,
             source_location=location,
         )
         checked_arc4_value = CheckedMaybe(
             expr=TupleExpression(
-                items=(arc4_value, arc4_prefix_is_valid),
+                items=(arc4_value, arc4_prefix_is_valid.rvalue()),
                 wtype=wtypes.WTuple((arc4_value.wtype, wtypes.bool_wtype), location),
                 source_location=location,
             ),
@@ -137,39 +132,21 @@ class CopyBuilder(FunctionBuilder):
         raise CodeError("Invalid/Unexpected arguments", location)
 
 
-def arc4_compare_bytes(
-    lhs: InstanceExpressionBuilder,
-    op: BuilderComparisonOp,
-    rhs: InstanceBuilder,
-    location: SourceLocation,
-) -> InstanceBuilder:
-    if isinstance(rhs, LiteralBuilder):
-        raise CodeError(
-            f"Cannot compare arc4 encoded value of {lhs.pytype} to a literal value", location
-        )
-    if rhs.pytype != lhs.pytype:
-        return NotImplemented
-    cmp_expr = BytesComparisonExpression(
-        source_location=location,
-        lhs=get_bytes_expr(lhs.expr),
-        operator=EqualityComparison(op.value),
-        rhs=get_bytes_expr(rhs.rvalue()),
-    )
-    return BoolExpressionBuilder(cmp_expr)
-
-
 def arc4_bool_bytes(
-    expr: Expression, false_bytes: bytes, location: SourceLocation, *, negate: bool
+    builder: InstanceBuilder, false_bytes: bytes, location: SourceLocation, *, negate: bool
 ) -> InstanceBuilder:
-    return BoolExpressionBuilder(
-        BytesComparisonExpression(
-            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-            lhs=get_bytes_expr(expr),
-            rhs=BytesConstant(
-                value=false_bytes,
-                encoding=BytesEncoding.base16,
-                source_location=location,
-            ),
+    false_value = ReinterpretCast(
+        expr=BytesConstant(
+            value=false_bytes,
+            encoding=BytesEncoding.base16,
             source_location=location,
-        )
+        ),
+        wtype=builder.pytype.wtype,
+        source_location=location,
+    )
+    return compare_expr_bytes(
+        op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
+        lhs=builder.rvalue(),
+        rhs=false_value,
+        source_location=location,
     )

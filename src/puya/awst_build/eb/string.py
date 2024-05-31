@@ -9,10 +9,8 @@ from puya.awst.nodes import (
     BytesAugmentedAssignment,
     BytesBinaryOperation,
     BytesBinaryOperator,
-    BytesComparisonExpression,
     CallArg,
     ConditionalExpression,
-    EqualityComparison,
     Expression,
     FreeSubroutineTarget,
     ReinterpretCast,
@@ -28,7 +26,7 @@ from puya.awst_build.eb._base import (
     FunctionBuilder,
     InstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb._utils import compare_bytes, get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
@@ -151,17 +149,7 @@ class StringExpressionBuilder(InstanceExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
-        if other.pytype == self.pytype:
-            pass
-        else:
-            return NotImplemented
-        cmp = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison(op.value),
-            rhs=other.rvalue(),
-        )
-        return BoolExpressionBuilder(cmp)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

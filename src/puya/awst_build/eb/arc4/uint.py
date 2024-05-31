@@ -103,7 +103,7 @@ class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UI
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
-            self.expr,
+            self,
             false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,

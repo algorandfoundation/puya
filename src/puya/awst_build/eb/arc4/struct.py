@@ -9,8 +9,8 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
-from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
+from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, get_bytes_expr_builder
+from puya.awst_build.eb.arc4.base import CopyBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
@@ -99,7 +99,7 @@ class ARC4StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.S
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return arc4_compare_bytes(self, op, other, location)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)

@@ -9,8 +9,6 @@ from puya.awst.nodes import (
     ARC4Encode,
     ArrayConcat,
     ArrayExtend,
-    BytesComparisonExpression,
-    EqualityComparison,
     Expression,
     ExpressionStatement,
     Statement,
@@ -20,12 +18,11 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb._utils import compare_expr_bytes, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -35,7 +32,7 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
 from puya.awst_build.utils import require_instance_builder
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -153,43 +150,40 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other_expr: Expression
         match other:
             case LiteralBuilder(value=str(string_literal), source_location=literal_location):
-                other_expr = _arc4_encode_str_literal(string_literal, literal_location)
+                lhs = self.rvalue()
+                rhs = _arc4_encode_str_literal(string_literal, literal_location)
             case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
-                other_expr = eb.rvalue()
-            case InstanceBuilder(pytype=pytypes.StringType):
-                raise InternalError("need to implement this")  # TODO
+                lhs = self.rvalue()
+                rhs = eb.rvalue()
+            case InstanceBuilder(pytype=pytypes.StringType) as eb:
+                lhs = _string_native(self, location)
+                rhs = eb.rvalue()
             case _:
                 return NotImplemented
 
-        return BoolExpressionBuilder(
-            BytesComparisonExpression(
-                source_location=location,
-                lhs=get_bytes_expr(self.expr),
-                operator=EqualityComparison(op.value),
-                rhs=get_bytes_expr(other_expr),
-            )
-        )
+        return compare_expr_bytes(lhs=lhs, op=op, rhs=rhs, source_location=location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(
-            self.expr, false_bytes=b"\x00\x00", location=location, negate=negate
-        )
+        return arc4_bool_bytes(self, false_bytes=b"\x00\x00", location=location, negate=negate)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
-                result_expr: Expression = ARC4Decode(
-                    value=self.expr,
-                    wtype=pytypes.StringType.wtype,
-                    source_location=location,
-                )
-                return NativeStringExpressionBuilder(result_expr)
+                return NativeStringExpressionBuilder(_string_native(self, location))
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:
                 return super().member_access(name, location)
+
+
+def _string_native(builder: InstanceBuilder, location: SourceLocation) -> Expression:
+    assert builder.pytype == pytypes.ARC4StringType
+    return ARC4Decode(
+        value=builder.rvalue(),
+        wtype=pytypes.StringType.wtype,
+        source_location=location,
+    )

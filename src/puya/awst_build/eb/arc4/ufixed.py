@@ -7,9 +7,7 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BytesComparisonExpression,
     DecimalConstant,
-    EqualityComparison,
     Expression,
 )
 from puya.awst_build import pytypes
@@ -17,11 +15,10 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb._utils import (
-    get_bytes_expr,
+    compare_bytes,
     get_bytes_expr_builder,
 )
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
-from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -100,7 +97,7 @@ class UFixedNxMExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.AR
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return arc4_bool_bytes(
-            self.expr,
+            self,
             false_bytes=b"\x00" * (self.pytype.bits // 8),
             location=location,
             negate=negate,
@@ -120,14 +117,4 @@ class UFixedNxMExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.AR
     ) -> InstanceBuilder:
         if isinstance(other, LiteralBuilder):
             other = construct_from_literal(other, self.pytype)
-        if other.pytype != self.pytype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            # TODO: here (and everywhere else) raise a CodeError instead of fatal if op isn't
-            #       in the supported enum
-            operator=EqualityComparison(op.value),
-            lhs=get_bytes_expr(self.expr),
-            rhs=get_bytes_expr(other.rvalue()),
-            source_location=location,
-        )
-        return BoolExpressionBuilder(cmp_expr)
+        return compare_bytes(op=op, lhs=self, rhs=other, source_location=location)
