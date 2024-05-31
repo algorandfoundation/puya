@@ -5,6 +5,7 @@ from collections.abc import Sequence
 import mypy.nodes
 import typing_extensions
 
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
@@ -12,7 +13,8 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
+from puya.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder, TypeBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.errors import CodeError
@@ -64,3 +66,14 @@ class _FromBytes(FunctionBuilder):
             source_location=location, wtype=self.result_type.wtype, expr=arg
         )
         return builder_for_instance(self.result_type, result_expr)
+
+
+class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        if name == "bytes":
+            return BytesExpressionBuilder(
+                ReinterpretCast(source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr)
+            )
+        else:
+            return super().member_access(name, location)

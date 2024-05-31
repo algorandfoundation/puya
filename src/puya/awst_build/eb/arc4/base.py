@@ -21,8 +21,8 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     FunctionBuilder,
 )
+from puya.awst_build.eb._bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb._utils import compare_expr_bytes
-from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,

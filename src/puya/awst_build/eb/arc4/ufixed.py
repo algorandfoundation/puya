@@ -14,9 +14,9 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import (
     compare_bytes,
-    get_bytes_expr_builder,
 )
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
@@ -85,7 +85,10 @@ class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
         return UFixedNxMExpressionBuilder(result, typ)
 
 
-class UFixedNxMExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType]):
+class UFixedNxMExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType],
+    BytesBackedInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType],
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UFixedNxMType)
         assert typ.generic in (
@@ -102,14 +105,6 @@ class UFixedNxMExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.AR
             location=location,
             negate=negate,
         )
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        match name:
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
-            case _:
-                return super().member_access(name, location)
 
     @typing.override
     def compare(

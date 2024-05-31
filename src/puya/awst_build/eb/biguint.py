@@ -6,7 +6,6 @@ import attrs
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BigUIntAugmentedAssignment,
     BigUIntBinaryOperation,
@@ -15,17 +14,18 @@ from puya.awst.nodes import (
     Expression,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
     Statement,
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
+from puya.awst_build.eb._bytes_backed import (
+    BytesBackedClassExpressionBuilder,
+    BytesBackedInstanceExpressionBuilder,
+)
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -74,19 +74,11 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         return BigUIntExpressionBuilder(value)
 
 
-class BigUIntExpressionBuilder(NotIterableInstanceExpressionBuilder):
+class BigUIntExpressionBuilder(
+    NotIterableInstanceExpressionBuilder, BytesBackedInstanceExpressionBuilder
+):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.BigUIntType, expr)
-
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        match name:
-            case "bytes":
-                return BytesExpressionBuilder(
-                    ReinterpretCast(
-                        source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr
-                    )
-                )
-        return super().member_access(name, location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         cmp_expr = NumericComparisonExpression(

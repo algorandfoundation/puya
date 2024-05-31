@@ -17,7 +17,7 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import get_bytes_expr_builder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_bool_bytes,
@@ -80,7 +80,10 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
         return UIntNExpressionBuilder(expr, typ)
 
 
-class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UIntNType]):
+class UIntNExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.ARC4UIntNType],
+    BytesBackedInstanceExpressionBuilder[pytypes.ARC4UIntNType],
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UIntNType)
         super().__init__(typ, expr)
@@ -95,8 +98,6 @@ class UIntNExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.ARC4UI
                     source_location=location,
                 )
                 return builder_for_instance(self.pytype.native_type, result_expr)
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
             case _:
                 return super().member_access(name, location)
 

@@ -18,7 +18,8 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import compare_expr_bytes, get_bytes_expr_builder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import compare_expr_bytes
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     arc4_bool_bytes,
@@ -98,7 +99,9 @@ def _expect_string_or_bytes(expr: NodeBuilder, location: SourceLocation) -> Expr
             typing.assert_never(expr)
 
 
-class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
+class StringExpressionBuilder(
+    NotIterableInstanceExpressionBuilder, BytesBackedInstanceExpressionBuilder
+):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.ARC4StringType, expr)
 
@@ -174,8 +177,6 @@ class StringExpressionBuilder(NotIterableInstanceExpressionBuilder):
         match name:
             case "native":
                 return NativeStringExpressionBuilder(_string_to_native(self, location))
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
             case _:
                 return super().member_access(name, location)
 

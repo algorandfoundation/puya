@@ -8,9 +8,9 @@ from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpress
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
     GenericTypeBuilder,
-    InstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, get_bytes_expr_builder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
 )
@@ -91,7 +91,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
         raise CodeError("Invalid/unhandled arguments", location)
 
 
-class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
+class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType]):
 
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
@@ -133,8 +133,6 @@ class ARC4TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                     source_location=location,
                 )
                 return TupleExpressionBuilder(result_expr, native_pytype)
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
             case _:
                 return super().member_access(name, location)
 

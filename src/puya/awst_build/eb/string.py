@@ -23,11 +23,13 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     FunctionBuilder,
-    InstanceExpressionBuilder,
 )
-from puya.awst_build.eb._utils import compare_bytes, get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb._bytes_backed import (
+    BytesBackedClassExpressionBuilder,
+    BytesBackedInstanceExpressionBuilder,
+)
+from puya.awst_build.eb._utils import compare_bytes, get_bytes_expr
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -80,15 +82,13 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         return StringExpressionBuilder(str_const)
 
 
-class StringExpressionBuilder(InstanceExpressionBuilder):
+class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.StringType, expr)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
             case "startswith":
                 return _StringStartsOrEndsWith(self.expr, location, at_start=True)
             case "endswith":

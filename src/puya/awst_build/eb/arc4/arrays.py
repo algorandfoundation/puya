@@ -31,17 +31,18 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
-    InstanceExpressionBuilder,
+)
+from puya.awst_build.eb._bytes_backed import (
+    BytesBackedClassExpressionBuilder,
+    BytesBackedInstanceExpressionBuilder,
 )
 from puya.awst_build.eb._utils import (
     bool_eval_to_constant,
     compare_bytes,
     compare_expr_bytes,
-    get_bytes_expr_builder,
 )
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes
-from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -263,7 +264,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
         return AddressExpressionBuilder(result)
 
 
-class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], ABC):
+class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.ArrayType], ABC):
     def __init__(self, expr: Expression, typ: pytypes.ArrayType):
         self.pytyp = typ
         super().__init__(typ, expr)
@@ -304,8 +305,6 @@ class _ARC4ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
             case "copy":
                 return CopyBuilder(self.expr, location, self.pytyp)
             case _:
