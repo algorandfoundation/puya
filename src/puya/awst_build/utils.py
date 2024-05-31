@@ -186,9 +186,9 @@ def require_instance_builder(
 def expect_operand_type(
     literal_or_eb: NodeBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
-    if isinstance(literal_or_eb, LiteralBuilder):
-        return construct_from_literal(literal_or_eb, target_type)
     if literal_or_eb.pytype != target_type:
+        if isinstance(literal_or_eb, LiteralBuilder):
+            return construct_from_literal(literal_or_eb, target_type)
         raise CodeError(
             f"Expected type {target_type}, got type {literal_or_eb.pytype}",
             literal_or_eb.source_location,

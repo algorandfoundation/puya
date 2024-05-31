@@ -79,7 +79,6 @@ from puya.awst_build.utils import (
     bool_eval,
     expect_operand_type,
     extract_bytes_literal_from_mypy,
-    fold_binary_expr,
     get_unaliased_fullname,
     iterate_user_bases,
     qualified_class_name,
@@ -847,15 +846,18 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         lhs = require_instance_builder(node.left.accept(self))
         rhs = require_instance_builder(node.right.accept(self))
 
-        # constant fold if both literals
-        if isinstance(lhs, LiteralBuilder) and isinstance(rhs, LiteralBuilder):
-            folded_result = fold_binary_expr(
-                location=node_loc, op=node.op, lhs=lhs.value, rhs=rhs.value
-            )
-            return LiteralBuilderImpl(value=folded_result, source_location=node_loc)
-
         # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
         if node.op in ("and", "or"):
+            if isinstance(lhs, LiteralBuilder) and isinstance(rhs, LiteralBuilder):
+                match node.op:
+                    case "and":
+                        return LiteralBuilderImpl(
+                            value=lhs.value and rhs.value, source_location=node_loc
+                        )
+                    case "or":
+                        return LiteralBuilderImpl(
+                            value=lhs.value or rhs.value, source_location=node_loc
+                        )
             bool_op = BinaryBooleanOperator(node.op)
             try:
                 result_pytype = self.context.mypy_expr_node_type(node)

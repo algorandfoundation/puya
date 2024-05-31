@@ -107,7 +107,6 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
 
 
 class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
-
     def __init__(self, pytype: _TPyType_co, expr: Expression):
         super().__init__(expr.source_location)
         if expr.wtype != pytype.wtype:

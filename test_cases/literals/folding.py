@@ -1,4 +1,4 @@
-# ruff: noqa: SIM208, F403, F405, SIM201
+# ruff: noqa
 from algopy import *
 
 
@@ -28,6 +28,16 @@ def compare_str() -> None:
     assert "a" in String("abc")
     # TODO: expected error for "a" < b
     # TODO: expected error for String("a") in "abc"
+
+
+@subroutine
+def binary_op_str() -> None:
+    assert "a" and "b"
+    assert "a" or "b"
+    assert "" or "b"
+    assert not ("a" and "")
+    assert not ("" or "")
+    assert ("a" + "") == "a"
 
 
 @subroutine
@@ -78,6 +88,7 @@ class LiteralFolding(Contract):
     def approval_program(self) -> bool:
         unary_str()
         compare_str()
+        binary_op_str()
         unary_bytes()
         unary_int()
         compare_int()
