@@ -24,6 +24,7 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._storage import (
     StorageProxyDefinitionBuilder,
     extract_description,
@@ -139,7 +140,11 @@ def _init(
     )
 
 
-class AppStateExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType]):
+class AppStateExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType],
+    BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType],
+    bytes_member="key",
+):
 
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)

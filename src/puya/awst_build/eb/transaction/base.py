@@ -28,7 +28,7 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
     @typing.override
     @typing.final
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        raise CodeError(f"cannot serialize {self.pytype}", location)
+        raise CodeError("cannot serialize transaction type", location)
 
     @abc.abstractmethod
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression: ...

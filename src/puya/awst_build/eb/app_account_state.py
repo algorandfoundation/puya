@@ -22,9 +22,9 @@ from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
-    InstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._storage import (
     StorageProxyDefinitionBuilder,
     extract_description,
@@ -133,7 +133,9 @@ def _init(
     )
 
 
-class AppAccountStateExpressionBuilder(InstanceExpressionBuilder[pytypes.StorageProxyType]):
+class AppAccountStateExpressionBuilder(
+    BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType], bytes_member="key"
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType

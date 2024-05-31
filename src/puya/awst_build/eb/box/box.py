@@ -21,6 +21,7 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -114,7 +115,11 @@ def _init(
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
 
 
-class BoxProxyExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType]):
+class BoxProxyExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType],
+    BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType],
+    bytes_member="key",
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType
@@ -193,7 +198,10 @@ class _BoxProxyExpressionBuilderFromConstructor(
 
 
 class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: BoxValueExpression  # TODO: remove "lies"
+    expr: BoxValueExpression
+
+    def __init__(self, typ: pytypes.PyType, expr: BoxValueExpression):
+        super().__init__(typ, expr)
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:

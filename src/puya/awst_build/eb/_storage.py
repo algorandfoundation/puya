@@ -70,6 +70,10 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         )
 
     @typing.override
+    def serialize_bytes(self, location: SourceLocation) -> Expression:
+        return self._assign_first(location)
+
+    @typing.override
     def rvalue(self) -> Expression:
         return self._assign_first(self.source_location)
 

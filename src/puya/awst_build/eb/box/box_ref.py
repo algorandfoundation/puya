@@ -20,6 +20,7 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
@@ -70,7 +71,11 @@ class BoxRefClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
         return _BoxRefProxyExpressionBuilderFromConstructor(expr=key_override)
 
 
-class BoxRefProxyExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType]):
+class BoxRefProxyExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType],
+    BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType],
+    bytes_member="key",
+):
     def __init__(self, expr: Expression, member_name: str | None = None):
         super().__init__(pytypes.BoxRefType, expr)
         self._member_name = member_name

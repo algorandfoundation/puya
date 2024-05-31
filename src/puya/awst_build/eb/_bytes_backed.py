@@ -69,9 +69,15 @@ class _FromBytes(FunctionBuilder):
 
 
 class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):
+    _bytes_member: typing.ClassVar[str]
+
+    def __init_subclass__(cls, *, bytes_member: str = "bytes", **kwargs: object):
+        super().__init_subclass__(**kwargs)
+        cls._bytes_member = bytes_member
+
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        if name == "bytes":
+        if name == self._bytes_member:
             return BytesExpressionBuilder(self.serialize_bytes(location))
         else:
             return super().member_access(name, location)
