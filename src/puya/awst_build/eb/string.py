@@ -27,7 +27,6 @@ from puya.awst_build.eb._base import (
 )
 from puya.awst_build.eb._utils import compare_bytes, get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -215,13 +214,17 @@ class _StringStartsOrEndsWith(FunctionBuilder):
     ) -> InstanceBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
-        arg = get_bytes_expr_builder(
+        arg = StringExpressionBuilder(
             SingleEvaluation(expect_operand_type(args[0], pytypes.StringType).rvalue())
         )
-        this = get_bytes_expr_builder(SingleEvaluation(self._base))
+        this = StringExpressionBuilder(SingleEvaluation(self._base))
 
-        this_length = require_instance_builder(this.member_access("length", location))
-        arg_length = require_instance_builder(arg.member_access("length", location))
+        this_length = require_instance_builder(
+            this.member_access("bytes", location).member_access("length", location)
+        )
+        arg_length = require_instance_builder(
+            arg.member_access("bytes", location).member_access("length", location)
+        )
 
         arg_length_gt_this_length = arg_length.compare(
             this_length, op=BuilderComparisonOp.gt, location=location
@@ -232,6 +235,7 @@ class _StringStartsOrEndsWith(FunctionBuilder):
                 this.rvalue(),
                 start=UInt64Constant(source_location=location, value=0),
                 length=arg_length.rvalue(),
+                result_type=wtypes.string_wtype,
             )
         else:
             extracted = intrinsic_factory.extract3(
@@ -240,8 +244,9 @@ class _StringStartsOrEndsWith(FunctionBuilder):
                     arg_length, BuilderBinaryOp.sub, location, reverse=False
                 ).rvalue(),
                 length=arg_length.rvalue(),
+                result_type=wtypes.string_wtype,
             )
-        this_substr = BytesExpressionBuilder(extracted)
+        this_substr = StringExpressionBuilder(extracted)
 
         cond = ConditionalExpression(
             condition=arg_length_gt_this_length.rvalue(),
