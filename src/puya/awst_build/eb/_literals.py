@@ -1,7 +1,15 @@
 import typing
 
 from puya import log
-from puya.awst.nodes import BoolConstant, ConstantValue, Expression, Lvalue, Statement
+from puya.awst.nodes import (
+    BoolConstant,
+    BytesConstant,
+    BytesEncoding,
+    ConstantValue,
+    Expression,
+    Lvalue,
+    Statement,
+)
 from puya.awst_build import pytypes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -59,7 +67,16 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        raise CodeError("cannot serialize literal", location)
+        match self.value:
+            case str(str_value):
+                return BytesConstant(
+                    value=str_value.encode(), encoding=BytesEncoding.utf8, source_location=location
+                )
+            case bytes(bytes_value):
+                return BytesConstant(
+                    value=bytes_value, encoding=BytesEncoding.unknown, source_location=location
+                )
+        raise CodeError(f"cannot serialize literal of type {self.pytype}", location)
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
