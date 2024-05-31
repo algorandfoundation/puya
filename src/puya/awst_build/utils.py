@@ -370,17 +370,11 @@ def construct_from_literal(
     literal: LiteralBuilder, target_type: pytypes.PyType, loc: SourceLocation | None = None
 ) -> InstanceBuilder:
     loc = loc or literal.source_location
-    return _construct_instance(target_type, literal, loc)
-
-
-def _construct_instance(
-    target_type: pytypes.PyType, arg: InstanceBuilder, location: SourceLocation
-) -> InstanceBuilder:
-    builder = builder_for_type(target_type, location)
+    builder = builder_for_type(target_type, loc)
     return builder.call(
-        args=[arg],
-        arg_typs=[arg.pytype],
+        args=[literal],
+        arg_typs=[literal.pytype],
         arg_kinds=[mypy.nodes.ARG_POS],
         arg_names=[None],
-        location=location,
+        location=loc,
     )
