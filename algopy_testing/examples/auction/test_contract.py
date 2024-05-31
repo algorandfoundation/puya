@@ -21,10 +21,10 @@ def test_opt_into_asset(context: AlgopyTestContext[Any]) -> None:
     application_address = context.any_account()
     asset = context.any_asset()
 
-    context.set_global_fields(
+    context.patch_global_fields(
         creator_address=account, current_application_address=application_address
     )
-    context.set_txn_fields(sender=account)
+    context.patch_txn_fields(sender=account)
 
     contract = AuctionContract()
 
@@ -58,12 +58,12 @@ def test_start_auction(
     )
     contract = AuctionContract()
     contract.asa_amount = auction_price
-    context.set_global_fields(
+    context.patch_global_fields(
         creator_address=account,
         current_application_address=app_account,
         latest_timestamp=latest_timestamp,
     )
-    context.set_txn_fields(sender=account)
+    context.patch_txn_fields(sender=account)
 
     # Act
     contract.start_auction(
@@ -84,10 +84,10 @@ def test_bid(context: AlgopyTestContext[Any]) -> None:
     auction_end = context.any_uint64(1000, 2000)
     previous_bid = context.any_uint64(1, 100)
     pay_amount = context.any_uint64(100, 200)
-    context.set_global_fields(
+    context.patch_global_fields(
         creator_address=account, latest_timestamp=context.any_uint64(1000, 1000)
     )
-    context.set_txn_fields(sender=account)
+    context.patch_txn_fields(sender=account)
 
     contract = AuctionContract()
     contract.auction_end = auction_end
@@ -108,7 +108,7 @@ def test_claim_bids(
 ) -> None:
     # Arrange
     account = context.any_account()
-    context.set_txn_fields(sender=account)
+    context.patch_txn_fields(sender=account)
     contract = AuctionContract()
     claimable_amount = context.any_uint64(100, 300)
     contract.claimable_amount[account] = claimable_amount
@@ -134,7 +134,7 @@ def test_claim_asset(context: AlgopyTestContext[Any]) -> None:
     # Arrange
     account = context.any_account()
     latest_timestamp = context.any_uint64(1000, 2000)
-    context.set_global_fields(latest_timestamp=latest_timestamp)
+    context.patch_global_fields(latest_timestamp=latest_timestamp)
     contract = AuctionContract()
     auction_end = context.any_uint64(1, 100)
     contract.auction_end = auction_end
@@ -162,7 +162,7 @@ def test_delete_application(
 ) -> None:
     # Arrange
     account = context.any_account()
-    context.set_global_fields(creator_address=account)
+    context.patch_global_fields(creator_address=account)
 
     # Act
     contract = AuctionContract()

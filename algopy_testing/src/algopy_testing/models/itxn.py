@@ -84,12 +84,12 @@ class _ITxn:
         if not context.itxn_fields:
             raise ValueError(
                 "`algopy.ITxn` fields are not set in the test context! "
-                "Use `context.set_itxn_fields()` to set the fields in your test setup."
+                "Use `context.patch_itxn_fields()` to set the fields in your test setup."
             )
         if name not in context.itxn_fields:
             raise AttributeError(
                 f"'Txn' object has no value set for attribute named '{name}'. "
-                f"Use `context.set_itxn_fields({name}=your_value)` to set the value "
+                f"Use `context.patch_itxn_fields({name}=your_value)` to set the value "
                 "in your test setup."
             )
 

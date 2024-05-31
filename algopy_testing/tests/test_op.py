@@ -179,7 +179,7 @@ def test_ed25519verify(
 ) -> None:
     assert crypto_ops_client.approval
     with algopy_testing_context() as ctx:
-        ctx.set_txn_fields(approval_program=Bytes(crypto_ops_client.approval.raw_binary))
+        ctx.patch_txn_fields(approval_program=Bytes(crypto_ops_client.approval.raw_binary))
 
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"

@@ -35,13 +35,13 @@ class Asset:
     def balance(self, _account: Account) -> UInt64:
         raise NotImplementedError(
             "The 'balance' method is being executed in a python testing context. "
-            "Please mock this method in according to your python testing framework of choice."
+            "Please mock this method using your python testing framework of choice."
         )
 
     def frozen(self, _account: Account) -> bool:
         raise NotImplementedError(
             "The 'frozen' method is being executed in a python testing context. "
-            "Please mock this method in according to your python testing framework of choice."
+            "Please mock this method using your python testing framework of choice."
         )
 
     def __eq__(self, other: object) -> bool:

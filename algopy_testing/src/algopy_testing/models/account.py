@@ -65,7 +65,7 @@ class Account:
     def is_opted_in(self, asset_or_app: Asset | Application, /) -> bool:
         raise NotImplementedError(
             "The 'is_opted_in' method is being executed in a python testing context. "
-            "Please mock this method in according to your python testing framework of choice."
+            "Please mock this method using your python testing framework of choice."
         )
 
     @classmethod
