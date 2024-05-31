@@ -102,6 +102,12 @@ class _Txn:
                 f"Use `context.patch_txn_fields({name}=your_value)` to set the value "
                 "in your test setup."
             )
+        if not context.txn_fields[name]:
+            raise TypeError(
+                f"The value for '{name}' in the test context is None. "
+                f"Make sure to patch the global field '{name}' using your `AlgopyTestContext` "
+                "instance."
+            )
 
         return context.txn_fields[name]
 

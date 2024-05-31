@@ -49,6 +49,8 @@ class Account:
         return self._public_key
 
     def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Account | str):
+            raise TypeError("Invalid value for Account")
         if isinstance(other, Account):
             return self._public_key == other._public_key
         return self._public_key == as_string(other)
