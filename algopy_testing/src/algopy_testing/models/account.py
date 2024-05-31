@@ -82,4 +82,4 @@ class Account:
 
     @property
     def bytes(self) -> Bytes:
-        return Bytes(self._public_key.encode("utf-8"))
+        return Bytes(algosdk.encoding.decode_address(self._public_key)[:32])

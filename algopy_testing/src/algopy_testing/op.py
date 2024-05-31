@@ -19,6 +19,7 @@ from ecdsa import (  # type: ignore  # noqa: PGH003
 from algopy_testing.constants import BITS_IN_BYTE, MAX_BYTES_SIZE, MAX_UINT64
 from algopy_testing.enums import ECDSA, Base64, VrfVerify
 from algopy_testing.models.global_state import Global
+from algopy_testing.models.itxn import ITxn
 from algopy_testing.models.txn import Txn
 from algopy_testing.primitives.biguint import BigUInt
 from algopy_testing.primitives.bytes import Bytes
@@ -72,7 +73,10 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
         ) from e
 
     # TODO: Decide on whether to pick clear or approval depending on OnComplete state
-    program_bytes = ctx.txn_fields.approval_program
+    if not ctx.txn_fields:
+        raise RuntimeError("`txn_fields` must be set in the context")
+
+    program_bytes = ctx.txn_fields.get("approval_program", None)
     if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 
@@ -628,4 +632,5 @@ __all__ = [
     "extract_uint32",
     "extract_uint64",
     "getbit",
+    "ITxn",
 ]

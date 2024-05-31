@@ -3,7 +3,7 @@ from collections.abc import Callable
 from typing import ParamSpec, TypeVar
 
 from algopy_testing.enums import OnCompleteAction, TransactionType
-from algopy_testing.models import Account, Application, Asset, Global, Itxn, Txn
+from algopy_testing.models import Account, Application, Asset, Global, ITxn, Txn
 from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 
 
@@ -95,7 +95,7 @@ __all__ = [
     "LocalState",
     "Txn",
     "subroutine",
-    "Itxn",
+    "ITxn",
     "OnCompleteAction",
     "TransactionType",
 ]

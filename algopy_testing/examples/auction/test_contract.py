@@ -1,143 +1,182 @@
 from collections.abc import Generator
 from typing import Any
-from unittest.mock import MagicMock
 
+import algopy
 import pytest
-from algopy import UInt64, gtxn
-from algopy_testing import TestContext, blockchain_context
+from algopy_testing import AlgopyTestContext, algopy_testing_context
 
 from .contract import AuctionContract
 
 
 @pytest.fixture()
-def context() -> Generator[TestContext[Any], None, None]:
-    with blockchain_context(AuctionContract) as ctx:
+def context() -> Generator[AlgopyTestContext[Any], None, None]:
+    with algopy_testing_context(AuctionContract) as ctx:
         yield ctx
         ctx.reset()
 
 
-def test_opt_into_asset(context: TestContext[Any]) -> None:
+def test_opt_into_asset(context: AlgopyTestContext[Any]) -> None:
     # Arrange
-    dummy_account = context.any_account()
+    account = context.any_account()
+    application_address = context.any_account()
+    asset = context.any_asset()
+
     context.set_global_fields(
-        {
-            "creator_address": dummy_account,
-            "current_application_address": dummy_account,
-        }
+        creator_address=account, current_application_address=application_address
     )
-    dummy_asset = context.any_asset()
+    context.set_txn_fields(sender=account)
+
+    contract = AuctionContract()
 
     # Act
-    contract = AuctionContract()
-    contract.opt_into_asset(dummy_asset)
+    contract.opt_into_asset(asset)
 
     # Assert
-    assert dummy_asset.id
-    assert contract.asa.id == dummy_asset.id
+    assert asset.id
+    assert contract.asa.id == asset.id
     assert len(context.inner_transactions) == 1
-
-
-def test_start_auction(context: TestContext[Any], mocker: MagicMock) -> None:
-    # Arrange
-    dummy_account = context.any_account()
-    dummy_app_account = context.any_account()
-    context.set_global_fields(
-        {
-            "creator_address": dummy_account,
-            "current_application_address": dummy_app_account,
-            "latest_timestamp": context.any_uint64(1000, 1000),
-        }
+    assert isinstance(context.inner_transactions[0], algopy.itxn.AssetTransfer)
+    assert context.inner_transactions[0] == algopy.itxn.AssetTransfer(
+        asset_receiver=application_address,
+        xfer_asset=asset,
     )
-    context.set_txn_fields({"sender": dummy_account})
-    axfer = mocker.Mock(spec=gtxn.AssetTransferTransaction)
-    axfer.asset_receiver = dummy_app_account
-    axfer.asset_amount = 1000
+
+
+def test_start_auction(
+    context: AlgopyTestContext[Any],
+) -> None:
+    # Arrange
+    account = context.any_account()
+    app_account = context.any_account()
+    latest_timestamp = context.any_uint64(1, 1000)
+    auction_price = context.any_uint64(1, 100)
+    auction_duration = context.any_uint64(1000, 3600)
+    axfer_txn = context.any_axfer_txn(
+        group_index=0,
+        asset_receiver=app_account,
+        asset_amount=auction_price,
+    )
+    contract = AuctionContract()
+    contract.asa_amount = auction_price
+    context.set_global_fields(
+        creator_address=account,
+        current_application_address=app_account,
+        latest_timestamp=latest_timestamp,
+    )
+    context.set_txn_fields(sender=account)
 
     # Act
-    contract = AuctionContract()
     contract.start_auction(
-        UInt64(context.any_uint64(100, 100).value),
-        UInt64(context.any_uint64(3600, 3600).value),
-        axfer,
+        auction_price,
+        auction_duration,
+        axfer_txn,
     )
 
     # Assert
-    assert context.global_fields.latest_timestamp
-    assert contract.auction_end == context.global_fields.latest_timestamp + 3600
-    assert contract.previous_bid == 100
-    assert contract.asa_amount == 1000
+    assert contract.auction_end == latest_timestamp + auction_duration
+    assert contract.previous_bid == auction_price
+    assert contract.asa_amount == auction_price
 
 
-def test_bid(context: TestContext[Any], mocker: MagicMock) -> None:
+def test_bid(context: AlgopyTestContext[Any]) -> None:
     # Arrange
-    dummy_account = context.any_account()
+    account = context.any_account()
+    auction_end = context.any_uint64(1000, 2000)
+    previous_bid = context.any_uint64(1, 100)
+    pay_amount = context.any_uint64(100, 200)
     context.set_global_fields(
-        {"creator_address": dummy_account, "latest_timestamp": context.any_uint64(1000, 1000)}
+        creator_address=account, latest_timestamp=context.any_uint64(1000, 1000)
     )
+    context.set_txn_fields(sender=account)
+
     contract = AuctionContract()
-    contract.auction_end = UInt64(context.any_uint64(2000, 2000).value)
-    contract.previous_bid = UInt64(context.any_uint64(100, 100).value)
-    pay = mocker.Mock(spec=gtxn.PaymentTransaction)
-    pay.sender = dummy_account
-    random_amount = context.any_uint64(200, 200)
-    pay.amount = UInt64(random_amount.value)
+    contract.auction_end = auction_end
+    contract.previous_bid = previous_bid
+    pay = context.any_pay_txn(sender=account, amount=pay_amount)
 
     # Act
     contract.bid(pay)
 
     # Assert
-    assert contract.previous_bid == 200
-    assert contract.previous_bidder == dummy_account
+    assert contract.previous_bid == pay_amount
+    assert contract.previous_bidder == account
+    assert contract.claimable_amount[account] == pay_amount
 
 
 def test_claim_bids(
-    context: TestContext[Any],
+    context: AlgopyTestContext[Any],
 ) -> None:
     # Arrange
-    dummy_account = context.any_account()
-    context.set_txn_fields({"sender": dummy_account})
+    account = context.any_account()
+    context.set_txn_fields(sender=account)
     contract = AuctionContract()
-    contract.claimable_amount[dummy_account] = UInt64(context.any_uint64(300, 300).value)
-    contract.previous_bidder = dummy_account
-    contract.previous_bid = UInt64(context.any_uint64(100, 100).value)
+    claimable_amount = context.any_uint64(100, 300)
+    contract.claimable_amount[account] = claimable_amount
+    contract.previous_bidder = account
+    previous_bid = context.any_uint64(1, 100)
+    contract.previous_bid = previous_bid
 
     # Act
     contract.claim_bids()
 
     # Assert
-    assert len(context.inner_transactions) > 1
-    assert contract.claimable_amount[dummy_account] == 100
+    expected_payment = claimable_amount - previous_bid
+    assert len(context.inner_transactions) == 1
+    assert isinstance(context.inner_transactions[0], algopy.itxn.Payment)
+    assert context.inner_transactions[0] == algopy.itxn.Payment(
+        amount=expected_payment,
+        receiver=account,
+    )
+    assert contract.claimable_amount[account] == claimable_amount - expected_payment
 
 
-def test_claim_asset(context: TestContext[Any]) -> None:
+def test_claim_asset(context: AlgopyTestContext[Any]) -> None:
     # Arrange
-    dummy_account = context.any_account()
-    context.set_global_fields({"latest_timestamp": context.any_uint64(2000, 2000)})
+    account = context.any_account()
+    latest_timestamp = context.any_uint64(1000, 2000)
+    context.set_global_fields(latest_timestamp=latest_timestamp)
     contract = AuctionContract()
-    contract.auction_end = context.any_uint64(1000, 1000)
-    contract.previous_bidder = dummy_account
-    contract.asa_amount = context.any_uint64(1000, 1000)
+    auction_end = context.any_uint64(1, 100)
+    contract.auction_end = auction_end
+    contract.previous_bidder = account
+    asa_amount = context.any_uint64(1000, 1000)
+    contract.asa_amount = asa_amount
     asset = context.any_asset()
 
     # Act
     contract.claim_asset(asset)
 
     # Assert
-    assert len(context.inner_transactions) > 1
+    assert len(context.inner_transactions) == 1
+    assert isinstance(context.inner_transactions[0], algopy.itxn.AssetTransfer)
+    assert context.inner_transactions[0] == algopy.itxn.AssetTransfer(
+        xfer_asset=asset,
+        asset_close_to=account,
+        asset_receiver=account,
+        asset_amount=asa_amount,
+    )
 
 
-def test_delete_application(context: TestContext[Any], mocker: MagicMock) -> None:
+def test_delete_application(
+    context: AlgopyTestContext[Any],
+) -> None:
     # Arrange
-    dummy_account = context.any_account()
-    context.set_global_fields({"creator_address": dummy_account})
-    mock_itxn_payment = mocker.patch("algopy.itxn.Payment")
+    account = context.any_account()
+    context.set_global_fields(creator_address=account)
 
     # Act
     contract = AuctionContract()
     contract.delete_application()
 
     # Assert
-    mock_itxn_payment.assert_called_once_with(
-        receiver=dummy_account,
-        close_remainder_to=dummy_account,
+    assert len(context.inner_transactions) == 1
+    assert isinstance(context.inner_transactions[0], algopy.itxn.Payment)
+    assert context.inner_transactions[0] == algopy.itxn.Payment(
+        receiver=account,
+        close_remainder_to=account,
     )
+
+
+def test_clear_state_program() -> None:
+    contract = AuctionContract()
+    assert contract.clear_state_program()

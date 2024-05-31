@@ -6,67 +6,56 @@ from typing import TYPE_CHECKING, TypedDict, TypeVar
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from algopy_testing.models.account import Account
-    from algopy_testing.models.application import Application
-    from algopy_testing.primitives.bytes import Bytes
-    from algopy_testing.primitives.uint64 import UInt64
+    import algopy
 
 T = TypeVar("T")
 
 
-class GlobalFieldsKwargs(TypedDict, total=False):
-    min_txn_fee: UInt64
-    min_balance: UInt64
-    max_txn_life: UInt64
-    zero_address: Account
-    group_size: UInt64
-    logic_sig_version: UInt64
-    round: UInt64
-    latest_timestamp: UInt64
-    current_application_id: UInt64
-    creator_address: Account
-    current_application_address: Account
-    group_id: Bytes
-    caller_application_id: Application
-    caller_application_address: Account
-    asset_create_min_balance: UInt64
-    asset_opt_in_min_balance: UInt64
-    genesis_hash: Bytes
+class GlobalFields(TypedDict, total=False):
+    min_txn_fee: algopy.UInt64
+    min_balance: algopy.UInt64
+    max_txn_life: algopy.UInt64
+    zero_address: algopy.Account
+    group_size: algopy.UInt64
+    logic_sig_version: algopy.UInt64
+    round: algopy.UInt64
+    latest_timestamp: algopy.UInt64
+    current_application_id: algopy.UInt64
+    creator_address: algopy.Account
+    current_application_address: algopy.Account
+    group_id: algopy.Bytes
+    caller_application_id: algopy.Application
+    caller_application_address: algopy.Account
+    asset_create_min_balance: algopy.UInt64
+    asset_opt_in_min_balance: algopy.UInt64
+    genesis_hash: algopy.Bytes
+    opcode_budget: Callable[[], int]
 
 
 @dataclass
-class GlobalFields:
-    min_txn_fee: UInt64 | None = None
-    min_balance: UInt64 | None = None
-    max_txn_life: UInt64 | None = None
-    zero_address: Account | None = None
-    group_size: UInt64 | None = None
-    logic_sig_version: UInt64 | None = None
-    round: UInt64 | None = None
-    latest_timestamp: UInt64 | None = None
-    current_application_id: UInt64 | None = None
-    creator_address: Account | None = None
-    current_application_address: Account | None = None
-    group_id: Bytes | None = None
-    caller_application_id: Application | None = None
-    caller_application_address: Account | None = None
-    asset_create_min_balance: UInt64 | None = None
-    asset_opt_in_min_balance: UInt64 | None = None
-    genesis_hash: Bytes | None = None
-    opcode_budget: Callable[[], int] | None = None
-
-
 class _Global:
     def __getattr__(self, name: str) -> object:
         from algopy_testing.context import get_test_context
 
-        if name in GlobalFields.__annotations__:
-            context = get_test_context()
-            if not context or not context.global_fields:
-                raise ValueError("Global state is not set")
-            return getattr(context.global_fields, name)
+        context = get_test_context()
+        if not context:
+            raise ValueError(
+                "Test context is not initialized! Use `with algopy_testing_context()` to access "
+                "the context manager."
+            )
+        if not context.global_fields:
+            raise ValueError(
+                "`algopy.Global` fields are not set in the test context! "
+                "Use `context.set_global_fields()` to set the fields in your test setup."
+            )
+        if name not in context.global_fields:
+            raise AttributeError(
+                f"'algopy.Global' object has no value set for attribute named '{name}'. "
+                f"Use `context.set_global_fields({name}=your_value)` to set the value "
+                "in your test setup."
+            )
 
-        raise AttributeError(f"'Global' object has no attribute '{name}'")
+        return context.global_fields[name]
 
 
 Global = _Global()
