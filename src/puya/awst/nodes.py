@@ -1684,19 +1684,6 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class BytesRaw(Expression):  # TODO: rename to BytesSerialize? OR replace with EB method
-    """Get the raw bytes of a scalar expression.
-    Will use `itob` in case it's uint64 backed.
-    """
-
-    expr: Expression
-    wtype: wtypes.WType = attrs.field(default=wtypes.bytes_wtype, init=False)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_bytes_raw(self)
-
-
-@attrs.frozen
 class ConstantDeclaration(ModuleStatement):
     value: ConstantValue
 

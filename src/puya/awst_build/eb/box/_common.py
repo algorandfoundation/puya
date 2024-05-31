@@ -6,7 +6,6 @@ import mypy.nodes
 
 from puya.awst.nodes import (
     BoxValueExpression,
-    BytesRaw,
     StateDelete,
     StateGet,
     StateGetEx,
@@ -14,6 +13,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._utils import cast_to_bytes
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.box._util import box_length_checked, index_box_bytes, slice_box_bytes
 from puya.awst_build.eb.factories import builder_for_instance
@@ -117,7 +117,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
 class _ValueBytes(ValueProxyExpressionBuilder):
     def __init__(self, expr: BoxValueExpression, location: SourceLocation) -> None:
         self._typed = expr
-        super().__init__(pytypes.BytesType, BytesRaw(expr=expr, source_location=location))
+        super().__init__(pytypes.BytesType, cast_to_bytes(expr, location))
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

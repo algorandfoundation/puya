@@ -87,10 +87,10 @@ def _compare_expr_bytes_unchecked(
 
 
 def cast_to_bytes(
-    expr: InstanceBuilder, location: SourceLocation | None = None
+    expr: InstanceBuilder | Expression, location: SourceLocation | None = None
 ) -> ReinterpretCast:
     return ReinterpretCast(
-        expr=expr.rvalue(),
+        expr=expr.rvalue() if isinstance(expr, InstanceBuilder) else expr,
         wtype=wtypes.bytes_wtype,
         source_location=location or expr.source_location,
     )

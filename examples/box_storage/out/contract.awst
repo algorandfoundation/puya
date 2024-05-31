@@ -72,27 +72,27 @@ contract BoxContract
     key_0: uint64 = 0u
     key_1: uint64 = 1u
     value: string = 'Hmmmmm'
-    Box[concat('', BytesRaw(key_0))]: string = value
-    assert(checked_maybe(box_len(concat('', BytesRaw(key_0)))) == len(reinterpret_cast<bytes>(value)))
-    assert(checked_maybe(box_len(concat('', BytesRaw(key_0)))) == len(reinterpret_cast<bytes>(value)))
-    assert(STATE_GET(Box[concat('', BytesRaw(key_1))], default='default') == 'default')
-    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', BytesRaw(key_1))])
+    Box[concat('', itob(key_0))]: string = value
+    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
+    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
+    assert(STATE_GET(Box[concat('', itob(key_1))], default='default') == 'default')
+    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', itob(key_1))])
     assert(!(exists))
-    assert(STATE_EXISTS(Box[concat('', BytesRaw(key_0))]))
+    assert(STATE_EXISTS(Box[concat('', itob(key_0))]))
   }
   
   abimethod box_map_set(key: uint64, value: string): void
   {
-    Box[concat('', BytesRaw(key))]: string = value
+    Box[concat('', itob(key))]: string = value
   }
   
   abimethod box_map_get(key: uint64): string
   {
-    return Box[concat('', BytesRaw(key))]
+    return Box[concat('', itob(key))]
   }
   
   abimethod box_map_exists(key: uint64): bool
   {
-    return STATE_EXISTS(Box[concat('', BytesRaw(key))])
+    return STATE_EXISTS(Box[concat('', itob(key))])
   }
 }

@@ -117,7 +117,7 @@ contract VotingRoundApp
       assert(answer_option_index < options_count, comment="Answer option index invalid")
       this::increment_vote_in_box(cumulative_offset + answer_option_index)
       cumulative_offset += options_count
-      Box[concat('', BytesRaw(txn<Sender>()))]: arc4.dynamic_array<arc4.uint8> = answer_ids.copy()
+      Box[concat('', reinterpret_cast<bytes>(txn<Sender>()))]: arc4.dynamic_array<arc4.uint8> = answer_ids.copy()
       this.voter_count += 1u
     }
   }
@@ -129,7 +129,7 @@ contract VotingRoundApp
   
   subroutine already_voted(): bool
   {
-    return STATE_EXISTS(Box[concat('', BytesRaw(txn<Sender>()))])
+    return STATE_EXISTS(Box[concat('', reinterpret_cast<bytes>(txn<Sender>()))])
   }
   
   subroutine store_option_counts(option_counts: arc4.dynamic_array<arc4.uint8>): void
