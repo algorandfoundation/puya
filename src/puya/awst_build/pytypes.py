@@ -377,10 +377,6 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_APPLICATION,
     wtype=wtypes.application_wtype,
 )
-BytesBackedType: typing.Final[PyType] = _SimpleType(
-    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
-    wtype=wtypes.bytes_wtype,
-)
 
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_ON_COMPLETE_ACTION)
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_TRANSACTION_TYPE)
@@ -839,6 +835,12 @@ class _CompileTimeType(PyType):
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
+
+
+BytesBackedType: typing.Final[PyType] = _CompileTimeType(
+    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
+    wtype_error="{self} is not usable as a runtime type",
+)
 
 
 @attrs.frozen(kw_only=True)
