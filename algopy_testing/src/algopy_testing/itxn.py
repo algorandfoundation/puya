@@ -5,6 +5,8 @@ from algopy_testing.context import get_test_context
 from algopy_testing.enums import OnCompleteAction, TransactionType
 from algopy_testing.models.account import Account
 from algopy_testing.models.application import Application
+
+# from algopy_testing.models.asset import Asset
 from algopy_testing.models.asset import Asset
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.primitives.string import String

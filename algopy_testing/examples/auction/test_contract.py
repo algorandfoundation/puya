@@ -11,13 +11,12 @@ from .contract import AuctionContract
 
 @pytest.fixture()
 def context() -> Generator[TestContext[Any], None, None]:
-    with blockchain_context() as ctx:
+    with blockchain_context(AuctionContract) as ctx:
         yield ctx
+        ctx.reset()
 
 
-def test_opt_into_asset(
-    context: TestContext[Any],
-) -> None:
+def test_opt_into_asset(context: TestContext[Any]) -> None:
     # Arrange
     dummy_account = context.any_account()
     context.set_global_fields(
@@ -33,6 +32,7 @@ def test_opt_into_asset(
     contract.opt_into_asset(dummy_asset)
 
     # Assert
+    assert dummy_asset.id
     assert contract.asa.id == dummy_asset.id
     assert len(context.inner_transactions) == 1
 
@@ -97,7 +97,7 @@ def test_claim_bids(
     dummy_account = context.any_account()
     context.set_txn_fields({"sender": dummy_account})
     contract = AuctionContract()
-    contract.claimable_amount[dummy_account.address] = UInt64(context.any_uint64(300, 300).value)
+    contract.claimable_amount[dummy_account] = UInt64(context.any_uint64(300, 300).value)
     contract.previous_bidder = dummy_account
     contract.previous_bid = UInt64(context.any_uint64(100, 100).value)
 
@@ -106,7 +106,7 @@ def test_claim_bids(
 
     # Assert
     assert len(context.inner_transactions) > 1
-    assert contract.claimable_amount[dummy_account.address] == 100
+    assert contract.claimable_amount[dummy_account] == 100
 
 
 def test_claim_asset(context: TestContext[Any]) -> None:

@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, TypedDict, TypeVar
 
 if TYPE_CHECKING:
     from algopy_testing.models.account import Account
     from algopy_testing.models.application import Application
     from algopy_testing.models.asset import Asset
+
+    # from algopy_testing.models.asset import Asset
     from algopy_testing.primitives.bytes import Bytes
     from algopy_testing.primitives.uint64 import UInt64
 
 T = TypeVar("T")
-
-from typing import TypedDict
 
 
 class TxnFieldsDict(TypedDict, total=False):
@@ -164,9 +164,9 @@ class _Txn:
 
         if name in TxnFields.__annotations__:
             context = get_test_context()
-            if not context or not context.transaction_state:
+            if not context or not context.txn_fields:
                 raise ValueError("Txn state is not set")
-            return getattr(context.transaction_state, name)
+            return getattr(context.txn_fields, name)
         raise AttributeError(f"'Txn' object has no attribute '{name}'")
 
 

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-@dataclass()
+@dataclass
 class Asset:
     id: UInt64 | None = None
     total: UInt64 | None = None
@@ -27,18 +27,18 @@ class Asset:
     clawback: Account | None = None
     creator: Account | None = None
 
-    def __init__(self, asset_id: UInt64 | int = 0, /):
+    def __init__(self, asset_id: UInt64 | int = 0):
         from algopy_testing.primitives.uint64 import UInt64
 
         self.id = asset_id if isinstance(asset_id, UInt64) else UInt64(asset_id)
 
-    def balance(self, _account: Account, /) -> UInt64:
+    def balance(self, _account: Account) -> UInt64:
         raise NotImplementedError(
             "The 'balance' method is being executed in a python testing context. "
             "Please mock this method in according to your python testing framework of choice."
         )
 
-    def frozen(self, _account: Account, /) -> bool:
+    def frozen(self, _account: Account) -> bool:
         raise NotImplementedError(
             "The 'frozen' method is being executed in a python testing context. "
             "Please mock this method in according to your python testing framework of choice."
@@ -52,7 +52,6 @@ class Asset:
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
-    # truthiness
     def __bool__(self) -> bool:
         return self.id != 0
 

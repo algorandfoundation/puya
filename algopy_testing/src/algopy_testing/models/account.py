@@ -9,6 +9,7 @@ from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.utils import as_string
 
 if TYPE_CHECKING:
+    # from algopy_testing.models.asset import Asset
     from algopy_testing.models.application import Application
     from algopy_testing.models.asset import Asset
     from algopy_testing.primitives.uint64 import UInt64

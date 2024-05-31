@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
 if TYPE_CHECKING:
+    # from algopy_testing.models.asset import Asset
     from algopy_testing.models.account import Account
     from algopy_testing.models.application import Application
     from algopy_testing.models.asset import Asset

@@ -72,7 +72,7 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
         ) from e
 
     # TODO: Decide on whether to pick clear or approval depending on OnComplete state
-    program_bytes = ctx.transaction_state.approval_program
+    program_bytes = ctx.txn_fields.approval_program
     if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 

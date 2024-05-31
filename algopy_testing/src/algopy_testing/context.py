@@ -8,10 +8,8 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar
 import algosdk
 
 from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64
-from algopy_testing.itxn import BaseInnerTransaction
 from algopy_testing.models.account import Account
 from algopy_testing.models.application import Application
-from algopy_testing.models.asset import Asset
 from algopy_testing.models.global_state import GlobalFields, GlobalFieldsKwargs
 from algopy_testing.models.itxn import ITxnFields
 from algopy_testing.models.txn import TxnFields, TxnFieldsDict
@@ -21,13 +19,19 @@ from algopy_testing.primitives.uint64 import UInt64
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from algopy_testing.itxn import BaseInnerTransaction
+    from algopy_testing.models.asset import Asset
+
 
 T = TypeVar("T")
 U = TypeVar("U")
 
 
 class TestContext(Generic[T]):
-    def __init__(self) -> None:
+    def __init__(self, contract_cls: type[T] | None = None) -> None:
+        self._contract_cls = (
+            contract_cls  # TODO: not utilized yet, just storing the reference for now
+        )
         self.accounts: dict[str, Account] = {}
         self.applications: dict[int, Application] = {}
         self.assets: dict[int, Asset] = {}
@@ -81,6 +85,8 @@ class TestContext(Generic[T]):
         self,
         asset: object,
     ) -> None:
+        from algopy_testing.models.asset import Asset
+
         if not isinstance(asset, Asset):
             raise TypeError("asset must be an instance of Asset")
 
@@ -110,6 +116,11 @@ class TestContext(Generic[T]):
         return self.applications[app_id]
 
     def add_inner_transaction(self, itxn: BaseInnerTransaction) -> None:
+        from algopy_testing.itxn import BaseInnerTransaction
+
+        if not isinstance(itxn, BaseInnerTransaction):
+            raise TypeError("Invalid base itxn type")
+
         self.inner_transactions.append(itxn)
 
     def any_account(self) -> Account:
@@ -119,7 +130,9 @@ class TestContext(Generic[T]):
         return new_account
 
     def any_asset(self) -> Asset:
-        new_asset = Asset(self._next_asset_id())
+        from algopy_testing.models.asset import Asset
+
+        new_asset = Asset(self._next_asset_id().value)
         self.add_asset(new_asset)
         return new_asset
 
@@ -140,6 +153,40 @@ class TestContext(Generic[T]):
     def any_bytes(self, length: int = MAX_BYTES_SIZE) -> Bytes:
         return Bytes(random.randbytes(length))  # noqa: S311
 
+    def clear_inner_transactions(self) -> None:
+        self.inner_transactions = []
+
+    def clear_accounts(self) -> None:
+        self.accounts = {}
+
+    def clear_applications(self) -> None:
+        self.applications = {}
+
+    def clear_assets(self) -> None:
+        self.assets = {}
+
+    def clear_logs(self) -> None:
+        self.logs = []
+
+    def clear(self) -> None:
+        self.clear_accounts()
+        self.clear_applications()
+        self.clear_assets()
+        self.clear_inner_transactions()
+        self.clear_logs()
+
+    def reset(self) -> None:
+        self.accounts = {}
+        self.applications = {}
+        self.assets = {}
+        self.inner_transactions = []
+        self.global_fields = GlobalFields()
+        self.txn_fields = TxnFields()
+        self.itxn_fields = ITxnFields()
+        self.logs = []
+        self._asset_id_count = UInt64(1)
+        self._app_id_count = UInt64(1)
+
 
 _var: ContextVar[TestContext[Any]] = ContextVar("_var")
 
@@ -149,8 +196,10 @@ def get_test_context() -> TestContext[Any]:
 
 
 @contextmanager
-def blockchain_context() -> Generator[TestContext[Any], None, None]:
-    token = _var.set(TestContext[Any]())
+def blockchain_context(
+    contract_cls: type[Any] | None = None,
+) -> Generator[TestContext[Any], None, None]:
+    token = _var.set(TestContext[Any](contract_cls))
     try:
         yield _var.get()
     finally:

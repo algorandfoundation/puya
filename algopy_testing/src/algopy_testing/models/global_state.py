@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from algopy_testing.models.account import Account
     from algopy_testing.models.application import Application
     from algopy_testing.primitives.bytes import Bytes
