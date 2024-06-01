@@ -28,6 +28,8 @@ class LocalState:
         self._state: dict[object, object] = {}
 
     def __setitem__(self, key: object, value: object) -> None:
+        from algopy import Account, Application, Asset
+
         if isinstance(key, Account):
             key = str(key)
         elif isinstance(key, Application | Asset):
@@ -35,6 +37,8 @@ class LocalState:
         self._state[key] = value
 
     def __getitem__(self, key: object) -> object:
+        from algopy import Account, Application, Asset
+
         if isinstance(key, Account):
             key = str(key)
         elif isinstance(key, Application | Asset):
@@ -42,6 +46,8 @@ class LocalState:
         return self._state[key]
 
     def __delitem__(self, key: object) -> None:
+        from algopy import Account, Application, Asset
+
         if isinstance(key, Account):
             key = str(key)
         elif isinstance(key, Application | Asset):
@@ -49,6 +55,8 @@ class LocalState:
         del self._state[key]
 
     def __contains__(self, key: object) -> bool:
+        from algopy import Account, Application, Asset
+
         if isinstance(key, Account):
             key = str(key)
         elif isinstance(key, Application | Asset):
@@ -56,6 +64,8 @@ class LocalState:
         return key in self._state
 
     def get(self, key: object, default: object = None) -> object:
+        from algopy import Account, Application, Asset
+
         if isinstance(key, Account):
             key = str(key)
         elif isinstance(key, Application | Asset):
@@ -63,6 +73,8 @@ class LocalState:
         return self._state.get(key, default)
 
     def maybe(self, key: object) -> tuple[object, bool]:
+        from algopy import Account, Application, Asset
+
         if isinstance(key, Account):
             key = str(key)
         elif isinstance(key, Application | Asset):
