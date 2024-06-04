@@ -10,6 +10,7 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
@@ -427,7 +428,7 @@ class BytesConstant(Expression):
 
     @value.validator
     def _validate_value(self, _attribute: object, value: str) -> None:
-        if not wtypes.valid_address(value):
+        if not wtypes.is_valid_bytes_literal(value):
             raise CodeError("invalid address", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1009,8 +1010,32 @@ class IntersectionSliceExpression(Expression):
         return visitor.visit_intersection_slice_expression(self)
 
 
+@attrs.frozen(repr=False)
+class _WTypeIsPersistable:
+    def __call__(
+        self,
+        inst: Node,
+        attr: attrs.Attribute,  # type: ignore[type-arg]  # noqa: ARG002
+        value: WType,
+    ) -> None:
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not isinstance(inst, Node):
+            raise InternalError(f"{self!r} used on type {type(inst).__name__}, expected Node")
+        value.storage_type(inst.source_location)
+
+    def __repr__(self) -> str:
+        return "<wtype_is_persistable validator>"
+
+
+def wtype_is_persistable() -> _WTypeIsPersistable:
+    return _WTypeIsPersistable()
+
+
 @attrs.frozen
 class AppStateExpression(Expression):
+    wtype: wtypes.WType = attrs.field(validator=wtype_is_persistable())
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
 
@@ -1020,10 +1045,11 @@ class AppStateExpression(Expression):
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
+    wtype: wtypes.WType = attrs.field(validator=wtype_is_persistable())
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
     account: Expression = attrs.field(
-        validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
+        validator=expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1032,6 +1058,7 @@ class AppAccountStateExpression(Expression):
 
 @attrs.frozen
 class BoxValueExpression(Expression):
+    wtype: wtypes.WType = attrs.field(validator=wtype_is_persistable())
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
 
@@ -1142,10 +1169,6 @@ class AssignmentStatement(Statement):
             )
         if self.value.wtype == wtypes.void_wtype:
             raise CodeError("void type cannot be assigned", self.source_location)
-        if not self.value.wtype.persistable and isinstance(self.target, StorageExpression):  # type: ignore[misc,arg-type]
-            raise CodeError(
-                "expression has type which is not persistable", self.value.source_location
-            )
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_assignment_statement(self)
@@ -1178,8 +1201,6 @@ class AssignmentExpression(Expression):
             )
         if value.wtype == wtypes.void_wtype:
             raise CodeError("void type cannot be assigned", source_location)
-        if not value.wtype.persistable and isinstance(target, StorageExpression):  # type: ignore[misc,arg-type]
-            raise CodeError("expression has type which is not persistable", value.source_location)
         self.__attrs_init__(
             source_location=source_location,
             target=target,
@@ -1760,6 +1781,11 @@ class AppStorageDefinition(Node):
     key: BytesConstant
     """for maps, this is the prefix"""
     description: str | None
+    storage_avm_type: t.Literal[AVMType.uint64, AVMType.bytes] = attrs.field(init=False)
+
+    @storage_avm_type.default
+    def _storage_avm_type(self) -> t.Literal[AVMType.uint64, AVMType.bytes]:
+        return self.storage_wtype.storage_type(self.source_location)
 
 
 @attrs.frozen

@@ -11,7 +11,6 @@ from puya.ir import models as ops
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import wtype_to_ir_type
 from puya.parse import SourceLocation
 
 
@@ -31,7 +30,7 @@ def _box_get(
             source_location=source_location,
         ),
     )
-    if wtype_to_ir_type(box).avm_type == AVMType.uint64:
+    if box.wtype.storage_type(source_location) == AVMType.uint64:
         (box_value,) = assign_intrinsic_op(
             op=AVMOp.btoi,
             target="box_value_uint64",
@@ -89,7 +88,7 @@ def handle_box_assign(
             assignment_location,
         )
     (new_box_value,) = source
-    if box.wtype == wtypes.uint64_wtype:
+    if box.wtype.storage_type(assignment_location) == AVMType.uint64:
         (new_box_value,) = assign(
             context=context,
             source=ops.Intrinsic(
@@ -100,7 +99,9 @@ def handle_box_assign(
             source_location=assignment_location,
             temp_description="new_box_value",
         )
-    if not _is_fixed_byte_size(box.wtype):
+    elif not (
+        isinstance(box.wtype, wtypes.ARC4Type) and get_arc4_fixed_bit_size(box.wtype) is not None
+    ):
         assign(
             context=context,
             source=ops.Intrinsic(
@@ -119,11 +120,3 @@ def handle_box_assign(
         )
     )
     return source
-
-
-def _is_fixed_byte_size(wtype: wtypes.WType) -> bool:
-    if wtype == wtypes.uint64_wtype:
-        return True
-    if isinstance(wtype, wtypes.ARC4Type):
-        return get_arc4_fixed_bit_size(wtype) is not None
-    return False

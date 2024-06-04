@@ -32,7 +32,7 @@ from puya.ir.models import (
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
-from puya.ir.types_ import wtype_to_avm_type, wtype_to_ir_type, wtype_to_ir_types
+from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.ir.validation.main import validate_module_artifact
 from puya.models import (
@@ -410,7 +410,7 @@ def fold_state_and_special_methods(
                         name=state.member_name,
                         source_location=state.source_location,
                         key=state.key.value,  # TODO: pass encoding?
-                        storage_type=wtype_to_avm_type(state.storage_wtype),
+                        storage_type=state.storage_avm_type,
                         description=state.description,
                     )
                     result.global_state[translated.name] = translated
@@ -423,7 +423,7 @@ def fold_state_and_special_methods(
                         name=state.member_name,
                         source_location=state.source_location,
                         key=state.key.value,  # TODO: pass encoding?
-                        storage_type=wtype_to_avm_type(state.storage_wtype),
+                        storage_type=state.storage_avm_type,
                         description=state.description,
                     )
                     result.local_state[translated.name] = translated

@@ -54,9 +54,17 @@ class WType:
     def __str__(self) -> str:
         return self.name
 
-    @property
-    def persistable(self) -> bool:
-        return self.scalar_type is not None and not self.ephemeral
+    def storage_type(
+        self, location: SourceLocation | None = None
+    ) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
+        if self.ephemeral:
+            raise CodeError(
+                "ephemeral types (such as transaction related types) are not suitable for storage",
+                location,
+            )
+        if self.scalar_type is None:
+            raise CodeError("type is not suitable for storage", location)
+        return self.scalar_type
 
 
 def is_valid_bool_literal(value: object) -> typing.TypeGuard[bool]:
