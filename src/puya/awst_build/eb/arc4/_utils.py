@@ -163,12 +163,10 @@ def _parse_method_signature(
     signature: str, location: SourceLocation
 ) -> tuple[str, list[pytypes.PyType] | None, pytypes.PyType | None]:
     name, maybe_args, maybe_returns = _split_signature(signature, location)
-    args: list[pytypes.PyType] | None = None
-    returns: pytypes.PyType | None = None
-    if maybe_args:
-        args = [
-            arc4_util.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)
-        ]
-    if maybe_returns:
-        returns = arc4_util.arc4_to_pytype(maybe_returns, location)
+    args = (
+        [arc4_util.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)]
+        if maybe_args
+        else None
+    )
+    returns = arc4_util.arc4_to_pytype(maybe_returns, location) if maybe_returns else None
     return name, args, returns

@@ -41,10 +41,7 @@ class EmitBuilder(FunctionBuilder):
                         location,
                     )
                 event_name = signature.method_name
-                event_arg: Expression = arc4_tuple_from_items(
-                    arc4_args,
-                    location,
-                )
+                event_arg: Expression = arc4_tuple_from_items(arc4_args, location)
             case [
                 InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
             ] if pytypes.ARC4StructBaseType in struct_type.mro:
