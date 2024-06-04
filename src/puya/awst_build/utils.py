@@ -188,18 +188,16 @@ def require_instance_builder(
             typing.assert_never(builder_or_literal)
 
 
-def expect_operand_type(
-    literal_or_eb: NodeBuilder, target_type: pytypes.PyType
-) -> InstanceBuilder:
-    if literal_or_eb.pytype != target_type:
-        if isinstance(literal_or_eb, LiteralBuilder):
-            return construct_from_literal(literal_or_eb, target_type)
+def expect_operand_type(builder: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+    builder = require_instance_builder(builder)
+    if builder.pytype != target_type:
+        if isinstance(builder, LiteralBuilder):
+            return construct_from_literal(builder, target_type)
         raise CodeError(
-            f"Expected type {target_type}, got type {literal_or_eb.pytype}",
-            literal_or_eb.source_location,
+            f"Expected type {target_type}, got type {builder.pytype}",
+            builder.source_location,
         )
-    assert isinstance(literal_or_eb, InstanceBuilder)  # TODO: hmmm
-    return literal_or_eb
+    return builder
 
 
 def convert_literal_to_builder(

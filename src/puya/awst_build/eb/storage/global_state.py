@@ -267,10 +267,11 @@ class _Get(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if len(args) != 1:
-            raise CodeError(f"Expected 1 argument, got {len(args)}", location)
-        (default_arg,) = args
-        default_expr = expect_operand_type(default_arg, self.content_type).resolve()
+        match args:
+            case [InstanceBuilder(pytype=self.content_type) as eb]:
+                default_expr = eb.resolve()
+            case _:
+                raise CodeError("invalid/unexpected args", location)
         expr = StateGet(field=self.field, default=default_expr, source_location=location)
         return builder_for_instance(self.content_type, expr)
 

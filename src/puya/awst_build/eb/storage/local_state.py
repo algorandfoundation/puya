@@ -278,7 +278,11 @@ class _Get(FunctionBuilder):
         else:
             item, default_arg = args
         item = require_instance_builder(item)
-        default_expr = expect_operand_type(default_arg, self._content_typ).resolve()
+        match default_arg:
+            case InstanceBuilder(pytype=self._content_typ) as eb:
+                default_expr = eb.resolve()
+            case _:
+                raise CodeError("default argument should have same type as state value", location)
         expr = StateGet(
             field=self._build_field(item, location),
             default=default_expr,

@@ -287,7 +287,7 @@ class _Maybe(_MethodBase):
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
         item_key = args_map.pop("key")
         if args_map:
-            raise CodeError("Invalid/unexpected args", location)
+            raise CodeError("invalid/unexpected args", location)
 
         result_typ = pytypes.GenericTupleType.parameterise(
             [self.box_type.content, pytypes.BoolType], location
