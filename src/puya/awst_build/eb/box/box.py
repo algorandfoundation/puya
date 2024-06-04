@@ -40,7 +40,6 @@ class BoxClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType
-        self._typ = typ
         super().__init__(typ, location)
 
     @typing.override
@@ -52,7 +51,7 @@ class BoxClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _init(args, arg_typs, arg_names, location, result_type=self._typ)
+        return _init(args, arg_typs, arg_names, location, result_type=self.produces())
 
 
 class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
@@ -121,14 +120,13 @@ class BoxProxyExpressionBuilder(
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType
-        self._typ = typ
         self._member_name = member_name
         super().__init__(typ, expr)
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
         return BoxValueExpression(
             key=self.resolve(),
-            wtype=self._typ.content.wtype,
+            wtype=self.pytype.content.wtype,
             member_name=self._member_name,
             source_location=location,
         )
@@ -137,14 +135,14 @@ class BoxProxyExpressionBuilder(
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "value":
-                return BoxValueExpressionBuilder(self._typ.content, self._box_key_expr(location))
+                return BoxValueExpressionBuilder(self.pytype.content, self._box_key_expr(location))
             case "get":
                 return BoxGetExpressionBuilder(
-                    self._box_key_expr(location), content_type=self._typ.content
+                    self._box_key_expr(location), content_type=self.pytype.content
                 )
             case "maybe":
                 return BoxMaybeExpressionBuilder(
-                    self._box_key_expr(location), content_type=self._typ.content
+                    self._box_key_expr(location), content_type=self.pytype.content
                 )
 
         return super().member_access(name, location)

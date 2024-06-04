@@ -49,7 +49,6 @@ class BoxMapClassExpressionBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType
-        self._typ = typ
         super().__init__(typ, location)
 
     @typing.override
@@ -61,7 +60,7 @@ class BoxMapClassExpressionBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _init(args, arg_typs, arg_names, location, result_type=self._typ)
+        return _init(args, arg_typs, arg_names, location, result_type=self.produces())
 
 
 class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
@@ -131,33 +130,32 @@ class BoxMapProxyExpressionBuilder(
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageMapProxyType)
         assert typ.generic == pytypes.GenericBoxMapType
-        self._typ = typ
         self._member_name = member_name
         super().__init__(typ, expr)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return BoxValueExpressionBuilder(
-            self._typ.content,
-            _box_value_expr(self.resolve(), index, location, self._typ.content.wtype),
+            self.pytype.content,
+            _box_value_expr(self.resolve(), index, location, self.pytype.content.wtype),
         )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                return _Length(location, self.resolve(), self._typ)
+                return _Length(location, self.resolve(), self.pytype)
             case "maybe":
-                return _Maybe(location, self.resolve(), self._typ)
+                return _Maybe(location, self.resolve(), self.pytype)
             case "get":
-                return _Get(location, self.resolve(), self._typ)
+                return _Get(location, self.resolve(), self.pytype)
             case _:
                 return super().member_access(name, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         box_exists = StateExists(
-            field=_box_value_expr(self.resolve(), item, location, self._typ.content.wtype),
+            field=_box_value_expr(self.resolve(), item, location, self.pytype.content.wtype),
             source_location=location,
         )
         return BoolExpressionBuilder(box_exists)
