@@ -1,3 +1,5 @@
+import typing
+
 from algopy import ARC4Contract, BigUInt, Bytes, arc4
 
 
@@ -171,3 +173,39 @@ class Arc4PrimitiveOpsContract(ARC4Contract):
     @arc4.abimethod()
     def verify_biguintn_from_log(self, a: Bytes) -> arc4.UInt256:
         return arc4.UInt256.from_log(a)
+
+    @arc4.abimethod()
+    def verify_ufixednxm_bytes(
+        self, a: arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]]
+    ) -> Bytes:
+        return a.bytes
+
+    @arc4.abimethod()
+    def verify_bigufixednxm_bytes(
+        self, a: arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]
+    ) -> Bytes:
+        return a.bytes
+
+    @arc4.abimethod()
+    def verify_ufixednxm_from_bytes(
+        self, a: Bytes
+    ) -> arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]]:
+        return arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]].from_bytes(a)
+
+    @arc4.abimethod()
+    def verify_bigufixednxm_from_bytes(
+        self, a: Bytes
+    ) -> arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]:
+        return arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]].from_bytes(a)
+
+    @arc4.abimethod()
+    def verify_ufixednxm_from_log(
+        self, a: Bytes
+    ) -> arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]]:
+        return arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]].from_log(a)
+
+    @arc4.abimethod()
+    def verify_bigufixednxm_from_log(
+        self, a: Bytes
+    ) -> arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]:
+        return arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]].from_log(a)
