@@ -106,7 +106,7 @@ class BoxRef:
         @return:
         """
 
-    def replace(self, start_index: UInt64 | int, value: Bytes) -> None:
+    def replace(self, start_index: UInt64 | int, value: Bytes | bytes) -> None:
         """
         Write `value` to the box starting at `start_index`. Fails if the box does not exist,
         or if `start_index + len(value) > len(box)`
@@ -114,7 +114,9 @@ class BoxRef:
         @param value: The bytes to be written
         """
 
-    def splice(self, start_index: UInt64 | int, length: UInt64 | int, value: Bytes) -> None:
+    def splice(
+        self, start_index: UInt64 | int, length: UInt64 | int, value: Bytes | bytes
+    ) -> None:
         """
         set box to contain its previous bytes up to index `start_index`, followed by `bytes`,
         followed by the original bytes of the box that began at index `start_index + length`
@@ -128,14 +130,14 @@ class BoxRef:
         @param value: The `value` to be inserted.
         """
 
-    def get(self, *, default: Bytes) -> Bytes:
+    def get(self, *, default: Bytes | bytes) -> Bytes:
         """
         Retrieve the contents of the box, or return the default value if the box has not been
         created.
         @param default: The default value to return if the box has not been created
         """
 
-    def put(self, value: Bytes) -> None:
+    def put(self, value: Bytes | bytes) -> None:
         """
         Replaces the contents of box with value. Fails if box exists and len(box) != len(value).
         Creates box if it does not exist
