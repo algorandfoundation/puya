@@ -45,7 +45,7 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
             case []:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
             case [val]:
-                native_bool = expect_operand_type(val, pytypes.BoolType).rvalue()
+                native_bool = expect_operand_type(val, pytypes.BoolType).resolve()
             case _:
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
@@ -72,7 +72,7 @@ class ARC4BoolExpressionBuilder(
         match name:
             case "native":
                 result_expr: Expression = ARC4Decode(
-                    value=self.expr,
+                    value=self.resolve(),
                     wtype=pytypes.BoolType.wtype,
                     source_location=location,
                 )

@@ -84,9 +84,9 @@ def _expect_string_or_bytes(expr: NodeBuilder, location: SourceLocation) -> Expr
                 invalid_literal_location,
             )
         case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
-            return eb.rvalue()
+            return eb.resolve()
         case InstanceBuilder(pytype=pytypes.StringType) as eb:
-            bytes_expr = eb.rvalue()
+            bytes_expr = eb.resolve()
             return ARC4Encode(
                 value=bytes_expr, wtype=wtypes.arc4_string_wtype, source_location=location
             )
@@ -113,7 +113,7 @@ class StringExpressionBuilder(
             case BuilderBinaryOp.add:
                 return ExpressionStatement(
                     expr=ArrayExtend(
-                        base=self.expr,
+                        base=self.resolve(),
                         other=_expect_string_or_bytes(rhs, rhs.source_location),
                         source_location=location,
                         wtype=wtypes.arc4_string_wtype,
@@ -133,7 +133,7 @@ class StringExpressionBuilder(
     ) -> InstanceBuilder:
         match op:
             case BuilderBinaryOp.add:
-                lhs = self.expr
+                lhs = self.resolve()
                 rhs = _expect_string_or_bytes(other, other.source_location)
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
@@ -155,14 +155,14 @@ class StringExpressionBuilder(
     ) -> InstanceBuilder:
         match other:
             case LiteralBuilder(value=str(string_literal), source_location=literal_location):
-                lhs = self.rvalue()
+                lhs = self.resolve()
                 rhs = _arc4_encode_str_literal(string_literal, literal_location)
             case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
-                lhs = self.rvalue()
-                rhs = eb.rvalue()
+                lhs = self.resolve()
+                rhs = eb.resolve()
             case InstanceBuilder(pytype=pytypes.StringType) as eb:
                 lhs = _string_to_native(self, location)
-                rhs = eb.rvalue()
+                rhs = eb.resolve()
             case _:
                 return NotImplemented
 
@@ -184,7 +184,7 @@ class StringExpressionBuilder(
 def _string_to_native(builder: InstanceBuilder, location: SourceLocation) -> Expression:
     assert builder.pytype == pytypes.ARC4StringType
     return ARC4Decode(
-        value=builder.rvalue(),
+        value=builder.resolve(),
         wtype=pytypes.StringType.wtype,
         source_location=location,
     )

@@ -198,7 +198,7 @@ def _map_call(
             for allowed_type in allowed_pytypes:
                 allowed_wtype = allowed_type.wtype  # TODO yeet me
                 if allowed_wtype.is_valid_literal(literal_value):
-                    literal_expr = construct_from_literal(arg_in, allowed_type).rvalue()
+                    literal_expr = construct_from_literal(arg_in, allowed_type).resolve()
                     stack_args.append(literal_expr)
                     break
             else:
@@ -213,7 +213,7 @@ def _map_call(
                     f' for argument "{arg_name}" when calling {callee}',
                     location=arg_in.source_location,
                 )
-            stack_args.append(arg_in.rvalue())
+            stack_args.append(arg_in.resolve())
 
     for arg_node in args.values():
         logger.error("Unexpected argument", location=arg_node.source_location)

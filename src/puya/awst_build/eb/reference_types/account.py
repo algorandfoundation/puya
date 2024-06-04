@@ -70,7 +70,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                     )
                 value = AddressConstant(value=addr_value, source_location=location)
             case [NodeBuilder() as eb]:
-                value = expect_operand_type(eb, pytypes.BytesType).rvalue()
+                value = expect_operand_type(eb, pytypes.BytesType).resolve()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
@@ -126,19 +126,21 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return ReinterpretCast(source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr)
+        return ReinterpretCast(
+            source_location=location, wtype=wtypes.bytes_wtype, expr=self.resolve()
+        )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "is_opted_in":
-            return _IsOptedIn(self.expr, location)
+            return _IsOptedIn(self.resolve(), location)
         return super().member_access(name, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return compare_expr_bytes(
             source_location=location,
-            lhs=self.expr,
+            lhs=self.resolve(),
             op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
             rhs=intrinsic_factory.zero_address(location),
         )
@@ -172,7 +174,7 @@ class _IsOptedIn(FunctionBuilder):
                         base=IntrinsicCall(
                             op_code="asset_holding_get",
                             immediates=["AssetBalance"],
-                            stack_args=[self.expr, asset.rvalue()],
+                            stack_args=[self.expr, asset.resolve()],
                             wtype=wtypes.WTuple(
                                 (wtypes.uint64_wtype, wtypes.bool_wtype), location
                             ),
@@ -186,7 +188,7 @@ class _IsOptedIn(FunctionBuilder):
                 return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",
-                        stack_args=[self.expr, app.rvalue()],
+                        stack_args=[self.expr, app.resolve()],
                         source_location=location,
                         wtype=wtypes.bool_wtype,
                     )

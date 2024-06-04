@@ -71,7 +71,7 @@ class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
                     pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)
                 ) as eb
             ]:
-                expr = ARC4Encode(value=eb.rvalue(), wtype=wtype, source_location=location)
+                expr = ARC4Encode(value=eb.resolve(), wtype=wtype, source_location=location)
             case _:
                 raise CodeError(
                     "Invalid/unhandled arguments",
@@ -93,7 +93,7 @@ class UIntNExpressionBuilder(
         match name:
             case "native":
                 result_expr = ARC4Decode(
-                    value=self.expr,
+                    value=self.resolve(),
                     wtype=self.pytype.native_type.wtype,
                     source_location=location,
                 )
@@ -118,14 +118,14 @@ class UIntNExpressionBuilder(
             other = construct_from_literal(other, self.pytype)
         match other.pytype:
             case pytypes.BigUIntType:
-                other_expr = other.rvalue()
+                other_expr = other.resolve()
             case pytypes.UInt64Type | pytypes.BoolType:
                 other_expr = intrinsic_factory.itob_as(
-                    other.rvalue(), wtypes.biguint_wtype, location
+                    other.resolve(), wtypes.biguint_wtype, location
                 )
             case pytypes.ARC4UIntNType():
                 other_expr = ReinterpretCast(
-                    expr=other.rvalue(),
+                    expr=other.resolve(),
                     wtype=wtypes.biguint_wtype,
                     source_location=other.source_location,
                 )
@@ -134,7 +134,7 @@ class UIntNExpressionBuilder(
         cmp_expr = NumericComparisonExpression(
             operator=NumericComparison(op.value),
             lhs=ReinterpretCast(
-                expr=self.expr,
+                expr=self.resolve(),
                 wtype=wtypes.biguint_wtype,
                 source_location=self.source_location,
             ),

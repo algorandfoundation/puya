@@ -129,19 +129,15 @@ class InstanceExpressionBuilder(
     def pytype(self) -> _TPyType_co:
         return self._pytype
 
-    @property
-    def expr(self) -> _TExpression_co:
-        return self.__expr
-
     @typing.override
     @typing.final
-    def lvalue(self) -> Lvalue:
-        resolved = self.rvalue()
+    def resolve_lvalue(self) -> Lvalue:
+        resolved = self.resolve()
         return _validate_lvalue(self._pytype, resolved)
 
     @typing.override
-    def rvalue(self) -> _TExpression_co:
-        return self.expr
+    def resolve(self) -> _TExpression_co:
+        return self.__expr
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:

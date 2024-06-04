@@ -52,7 +52,7 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         typ = pytypes.GenericTupleType.parameterise(arg_typs, location)
         tuple_expr = TupleExpression.from_items(
-            [require_instance_builder(a).rvalue() for a in args], location
+            [require_instance_builder(a).resolve() for a in args], location
         )
         return TupleExpressionBuilder(tuple_expr, typ)
 
@@ -77,7 +77,7 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     ) -> InstanceBuilder:
 
         tuple_expr = TupleExpression(
-            items=[require_instance_builder(a).rvalue() for a in args],
+            items=[require_instance_builder(a).resolve() for a in args],
             wtype=self._wtype,
             source_location=location,
         )
@@ -114,7 +114,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         except IndexError as ex:
             raise CodeError("Tuple index out of bounds", location) from ex
         item_expr = TupleItemExpression(
-            base=self.expr,
+            base=self.resolve(),
             index=index_value,
             source_location=location,
         )
@@ -142,7 +142,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return TupleExpressionBuilder(
             SliceExpression(
                 source_location=location,
-                base=self.expr,
+                base=self.resolve(),
                 begin_index=start_expr,
                 end_index=end_expr,
                 wtype=updated_wtype,
@@ -169,7 +169,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def iterate(self) -> Iteration:
-        return self.rvalue()
+        return self.resolve()
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -177,8 +177,8 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
             raise CodeError(
                 "Cannot use in/not in check with a Python literal against a tuple", location
             )
-        item_expr = item.rvalue()
-        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
+        item_expr = item.resolve()
+        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.resolve())
         return BoolExpressionBuilder(contains_expr)
 
     @typing.override
@@ -207,7 +207,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         def compare_at_index(idx: int) -> Expression:
             left = self._index(idx, location)
             right = other._index(idx, location)  # noqa: SLF001
-            return left.compare(right, op=op, location=location).rvalue()
+            return left.compare(right, op=op, location=location).resolve()
 
         result = compare_at_index(0)
         for i in range(1, len(self.pytype.items)):

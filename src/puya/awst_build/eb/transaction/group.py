@@ -58,7 +58,7 @@ class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRela
                     )
                 group_index: Expression = UInt64Constant(value=int_value, source_location=loc)
             case [NodeBuilder() as eb]:
-                group_index = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
+                group_index = expect_operand_type(eb, pytypes.UInt64Type).resolve()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         txn = (
@@ -82,13 +82,13 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
             wtype=field.wtype,
             op_code="gtxns",
             immediates=[field.immediate],
-            stack_args=[self.expr],
+            stack_args=[self.resolve()],
         )
 
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
     ) -> NodeBuilder:
-        return _ArrayItem(self.expr, field, typ, location)
+        return _ArrayItem(self.resolve(), field, typ, location)
 
 
 class _ArrayItem(FunctionBuilder):
@@ -116,7 +116,7 @@ class _ArrayItem(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (arg,) = args
-        index_expr = expect_operand_type(arg, pytypes.UInt64Type).rvalue()
+        index_expr = expect_operand_type(arg, pytypes.UInt64Type).resolve()
         expr = IntrinsicCall(
             op_code="gtxnsas",
             immediates=[self.field.immediate],

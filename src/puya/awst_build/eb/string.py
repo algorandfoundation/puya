@@ -90,11 +90,11 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "startswith":
-                return _StringStartsOrEndsWith(self.expr, location, at_start=True)
+                return _StringStartsOrEndsWith(self.resolve(), location, at_start=True)
             case "endswith":
-                return _StringStartsOrEndsWith(self.expr, location, at_start=False)
+                return _StringStartsOrEndsWith(self.resolve(), location, at_start=False)
             case "join":
-                return _StringJoin(self.expr, location)
+                return _StringJoin(self.resolve(), location)
             case _:
                 return super().member_access(name, location)
 
@@ -105,9 +105,9 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         match op:
             case BuilderBinaryOp.add:
                 return BytesAugmentedAssignment(
-                    target=self.lvalue(),
+                    target=self.resolve_lvalue(),
                     op=BytesBinaryOperator.add,
-                    value=expect_operand_type(rhs, self.pytype).rvalue(),
+                    value=expect_operand_type(rhs, self.pytype).resolve(),
                     source_location=location,
                 )
             case _:
@@ -127,8 +127,8 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     ) -> InstanceBuilder:
         match op:
             case BuilderBinaryOp.add:
-                lhs = self.expr
-                rhs = expect_operand_type(other, self.pytype).rvalue()
+                lhs = self.resolve()
+                rhs = expect_operand_type(other, self.pytype).resolve()
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
                 return StringExpressionBuilder(
@@ -151,7 +151,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        len_expr = intrinsic_factory.bytes_len(self.expr, location)
+        len_expr = intrinsic_factory.bytes_len(self.resolve(), location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
@@ -213,7 +213,7 @@ class _StringStartsOrEndsWith(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         arg = StringExpressionBuilder(
-            SingleEvaluation(expect_operand_type(args[0], pytypes.StringType).rvalue())
+            SingleEvaluation(expect_operand_type(args[0], pytypes.StringType).resolve())
         )
         this = StringExpressionBuilder(SingleEvaluation(self._base))
 
@@ -230,26 +230,26 @@ class _StringStartsOrEndsWith(FunctionBuilder):
 
         if self._at_start:
             extracted = intrinsic_factory.extract3(
-                this.rvalue(),
+                this.resolve(),
                 start=UInt64Constant(source_location=location, value=0),
-                length=arg_length.rvalue(),
+                length=arg_length.resolve(),
                 result_type=wtypes.string_wtype,
             )
         else:
             extracted = intrinsic_factory.extract3(
-                this.rvalue(),
+                this.resolve(),
                 start=this_length.binary_op(
                     arg_length, BuilderBinaryOp.sub, location, reverse=False
-                ).rvalue(),
-                length=arg_length.rvalue(),
+                ).resolve(),
+                length=arg_length.resolve(),
                 result_type=wtypes.string_wtype,
             )
         this_substr = StringExpressionBuilder(extracted)
 
         cond = ConditionalExpression(
-            condition=arg_length_gt_this_length.rvalue(),
+            condition=arg_length_gt_this_length.resolve(),
             true_expr=BoolConstant(location, value=False),
-            false_expr=this_substr.compare(arg, BuilderComparisonOp.eq, location).rvalue(),
+            false_expr=this_substr.compare(arg, BuilderComparisonOp.eq, location).resolve(),
             wtype=wtypes.bool_wtype,
             source_location=location,
         )
@@ -274,7 +274,7 @@ class _StringJoin(FunctionBuilder):
             case [InstanceBuilder(pytype=pytypes.TupleType(items=items)) as eb] if all(
                 tt == pytypes.StringType for tt in items
             ):
-                tuple_arg = SingleEvaluation(eb.rvalue())
+                tuple_arg = SingleEvaluation(eb.resolve())
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         sep = StringExpressionBuilder(SingleEvaluation(self._base))
@@ -285,7 +285,7 @@ class _StringJoin(FunctionBuilder):
                 joined_value = item_expr
             else:
                 joined_value = intrinsic_factory.concat(
-                    intrinsic_factory.concat(joined_value, sep.rvalue(), location),
+                    intrinsic_factory.concat(joined_value, sep.resolve(), location),
                     item_expr,
                     location,
                     result_type=wtypes.string_wtype,

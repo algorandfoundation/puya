@@ -56,7 +56,9 @@ class UnsignedRangeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type).rvalue() for in_arg in args]
+        uint64_args = [
+            expect_operand_type(in_arg, pytypes.UInt64Type).resolve() for in_arg in args
+        ]
         match uint64_args:
             case [range_start, range_stop, range_step]:
                 if isinstance(range_step, IntegerConstant) and range_step.value == 0:
@@ -161,11 +163,11 @@ class _IterableOnlyBuilder(InstanceBuilder):
         return self._iterable_only(location)
 
     @typing.override
-    def rvalue(self) -> Expression:
+    def resolve(self) -> Expression:
         return self._iterable_only(self.source_location)
 
     @typing.override
-    def lvalue(self) -> Lvalue:
+    def resolve_lvalue(self) -> Lvalue:
         return self._iterable_only(self.source_location)
 
     @typing.override

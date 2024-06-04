@@ -45,7 +45,7 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_type(default_arg, self.content_type).rvalue()
+        default_expr = expect_operand_type(default_arg, self.content_type).resolve()
         return builder_for_instance(
             self.content_type,
             StateGet(field=self.box, default=default_expr, source_location=location),
@@ -74,23 +74,18 @@ class BoxMaybeExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
         )
 
 
-class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: BoxValueExpression
-
-    def __init__(self, typ: pytypes.PyType, expr: BoxValueExpression):
-        super().__init__(typ, expr)
-
+class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxValueExpression]):
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        return StateDelete(field=self.expr, source_location=location)
+        return StateDelete(field=self.resolve(), source_location=location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                return UInt64ExpressionBuilder(box_length_checked(self.expr, location))
+                return UInt64ExpressionBuilder(box_length_checked(self.resolve(), location))
             case "bytes":
-                return _ValueBytes(self.expr, location)
+                return _ValueBytes(self.resolve(), location)
             case _:
                 return super().member_access(name, location)
 
@@ -98,7 +93,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
             return super().index(index, location)
-        return index_box_bytes(self.expr, index, location)
+        return index_box_bytes(self.resolve(), index, location)
 
     @typing.override
     def slice_index(
@@ -111,7 +106,7 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
         if self.pytype != pytypes.BytesType:
             return super().slice_index(begin_index, end_index, stride, location)
 
-        return slice_box_bytes(self.expr, begin_index, end_index, stride, location)
+        return slice_box_bytes(self.resolve(), begin_index, end_index, stride, location)
 
 
 class _ValueBytes(ValueProxyExpressionBuilder):

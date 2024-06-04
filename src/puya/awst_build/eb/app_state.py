@@ -110,7 +110,7 @@ def _init(
         case pytypes.TypeType(typ=content):
             initial_value = None
         case pytypes.PyType() as content:
-            initial_value = expect_operand_type(first_arg, content).rvalue()
+            initial_value = expect_operand_type(first_arg, content).resolve()
         case _:
             raise CodeError(
                 "First argument must be a type reference or an initial value", location
@@ -176,7 +176,7 @@ class AppStateExpressionBuilder(
 
     def _build_field(self, location: SourceLocation) -> AppStateExpression:
         return AppStateExpression(
-            key=self.expr,
+            key=self.resolve(),
             wtype=self.pytype.content.wtype,
             member_name=self._member_name,
             source_location=location,
@@ -210,7 +210,7 @@ class _AppStateExpressionBuilderFromConstructor(
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        key_override = self.expr
+        key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
             raise CodeError(
                 f"assigning {typ} to a member variable requires a constant value for key",
@@ -270,7 +270,7 @@ class _Get(FunctionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_type(default_arg, self.content_type).rvalue()
+        default_expr = expect_operand_type(default_arg, self.content_type).resolve()
         expr = StateGet(field=self.field, default=default_expr, source_location=location)
         return builder_for_instance(self.content_type, expr)
 
@@ -278,4 +278,4 @@ class _Get(FunctionBuilder):
 class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppStateExpression]):
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        return StateDelete(field=self.expr, source_location=location)
+        return StateDelete(field=self.resolve(), source_location=location)

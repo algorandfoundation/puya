@@ -31,9 +31,9 @@ def expect_arc4_operand_pytype(
 ) -> awst_nodes.Expression:
     target_wtype = target_type.wtype
     if isinstance(literal_or_builder, LiteralBuilder):
-        return construct_from_literal(literal_or_builder, target_type).rvalue()
+        return construct_from_literal(literal_or_builder, target_type).resolve()
 
-    expr = require_instance_builder(literal_or_builder).rvalue()
+    expr = require_instance_builder(literal_or_builder).resolve()
     if wtypes.has_arc4_equivalent_type(expr.wtype):
         new_wtype = wtypes.avm_to_arc4_equivalent_type(expr.wtype)
         expr = arc4_encode(expr, new_wtype, literal_or_builder.source_location)

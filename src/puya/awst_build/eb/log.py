@@ -55,12 +55,12 @@ class LogBuilder(FunctionBuilder):
                     )
                 case InstanceBuilder(pytype=pytypes.StringType) as eb:
                     sep = ReinterpretCast(
-                        expr=eb.rvalue(),
+                        expr=eb.resolve(),
                         wtype=wtypes.bytes_wtype,
                         source_location=eb.source_location,
                     )
                 case _:
-                    sep = expect_operand_type(sep_arg, pytypes.BytesType).rvalue()
+                    sep = expect_operand_type(sep_arg, pytypes.BytesType).resolve()
 
         log_value: Expression | None = None
         for arg in args_:
@@ -88,9 +88,9 @@ class LogBuilder(FunctionBuilder):
                         arg.source_location,
                     )
                 case InstanceBuilder(pytype=pytypes.UInt64Type):
-                    bytes_expr = intrinsic_factory.itob(arg.rvalue(), arg.source_location)
+                    bytes_expr = intrinsic_factory.itob(arg.resolve(), arg.source_location)
                 case InstanceBuilder() as eb:
-                    bytes_expr = eb.rvalue()
+                    bytes_expr = eb.resolve()
                 case _:
                     raise CodeError("Unexpected argument", arg.source_location)
             if log_value is None:

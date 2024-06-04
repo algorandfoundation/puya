@@ -59,20 +59,20 @@ def get_field_expr(arg_name: str, arg: InstanceBuilder) -> tuple[TxnField, Expre
                 field.valid_type(t.wtype)
                 for t in tuple_item_types  # TODO: revisit this re serialize
             ):
-                expr = arg.rvalue()
+                expr = arg.resolve()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
     elif isinstance(arg, LiteralBuilder):
         # TODO: REMOVE HACK
         if wtypes.string_wtype in field.additional_input_wtypes and isinstance(arg.value, str):
-            field_expr = construct_from_literal(arg, pytypes.StringType).rvalue()
+            field_expr = construct_from_literal(arg, pytypes.StringType).resolve()
         else:
-            field_expr = construct_from_literal(arg, field_pytype).rvalue()
+            field_expr = construct_from_literal(arg, field_pytype).resolve()
     else:
         arg_typ = arg.pytype
         if not (arg_typ and field.valid_type(arg_typ.wtype)):
             raise CodeError("bad argument type", arg.source_location)
-        field_expr = arg.rvalue()
+        field_expr = arg.resolve()
     return field, field_expr
 
 
@@ -95,9 +95,9 @@ def _maybe_transform_program_field_expr(
         case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
             t == pytypes.BytesType for t in tuple_item_types  # TODO: revisit this re serialize
         ):
-            expr = eb.rvalue()
+            expr = eb.resolve()
         case _:
-            expr = expect_operand_type(eb, pytypes.BytesType).rvalue()
+            expr = expect_operand_type(eb, pytypes.BytesType).resolve()
     return field, expr
 
 
@@ -159,11 +159,11 @@ class InnerTxnParamsExpressionBuilder(
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "submit":
-            return _Submit(self.expr, self.pytype.transaction_type, location)
+            return _Submit(self.resolve(), self.pytype.transaction_type, location)
         elif name == "set":
-            return _Set(self.expr, location)
+            return _Set(self.resolve(), location)
         elif name == "copy":
-            return _Copy(self.expr, self.pytype, location)
+            return _Copy(self.resolve(), self.pytype, location)
         return super().member_access(name, location)
 
     @typing.override

@@ -79,7 +79,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         )
         checked_arc4_value = CheckedMaybe(
             expr=TupleExpression(
-                items=(arc4_value, arc4_prefix_is_valid.rvalue()),
+                items=(arc4_value, arc4_prefix_is_valid.resolve()),
                 wtype=wtypes.WTuple((arc4_value.wtype, wtypes.bool_wtype), location),
                 source_location=location,
             ),
@@ -102,7 +102,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [InstanceBuilder() as eb]:
-                result_expr = self.abi_expr_from_log(self.typ, eb.rvalue(), location)
+                result_expr = self.abi_expr_from_log(self.typ, eb.resolve(), location)
                 return builder_for_instance(self.typ, result_expr)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -146,7 +146,7 @@ def arc4_bool_bytes(
     )
     return compare_expr_bytes(
         op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
-        lhs=builder.rvalue(),
+        lhs=builder.resolve(),
         rhs=false_value,
         source_location=location,
     )

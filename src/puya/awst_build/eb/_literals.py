@@ -55,15 +55,15 @@ class LiteralBuilderImpl(LiteralBuilder):
         return self._pytype
 
     @typing.override
-    def rvalue(self) -> Expression:
+    def resolve(self) -> Expression:
         # TODO: can we somehow trap this to only be as final act of assignment?
         if isinstance(self.value, bool):
             return BoolConstant(value=self.value, source_location=self.source_location)
         raise CodeError("A Python literal is not valid at this location", self.source_location)
 
     @typing.override
-    def lvalue(self) -> Lvalue:
-        raise CodeError("cannot assign to literal")
+    def resolve_lvalue(self) -> Lvalue:
+        raise CodeError("cannot assign to literal", self.source_location)
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:

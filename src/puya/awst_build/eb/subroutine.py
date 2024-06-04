@@ -52,7 +52,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
                 raise CodeError(
                     "argument unpacking at call site not currently supported", arg.source_location
                 )
-            call_args.append(CallArg(name=arg_name, value=require_instance_builder(arg).rvalue()))
+            call_args.append(CallArg(name=arg_name, value=require_instance_builder(arg).resolve()))
 
         func_type = self.func_type
         # bit of a kludge, but it works for us for now

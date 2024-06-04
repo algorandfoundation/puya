@@ -54,7 +54,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
         call_args = [
             CallArg(
                 name=required_budget_arg_name,
-                value=expect_operand_type(required_budget, pytypes.UInt64Type).rvalue(),
+                value=expect_operand_type(required_budget, pytypes.UInt64Type).resolve(),
             )
         ]
 

@@ -54,7 +54,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == self.native_access_member:
             native_cast = ReinterpretCast(
-                expr=self.expr, wtype=self.native_type.wtype, source_location=location
+                expr=self.resolve(), wtype=self.native_type.wtype, source_location=location
             )
             return builder_for_instance(self.native_type, native_cast)
         if name in self.field_mapping:
@@ -64,7 +64,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
                 wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
                 op_code=self.field_op_code,
                 immediates=[immediate],
-                stack_args=[self.expr],
+                stack_args=[self.resolve()],
             )
             checked_maybe = CheckedMaybe(acct_params_get, comment=self.field_bool_comment)
             return builder_for_instance(typ, checked_maybe)
@@ -94,14 +94,14 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return intrinsic_factory.itob(self.expr, location)
+        return intrinsic_factory.itob(self.resolve(), location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         as_bool = ReinterpretCast(
-            expr=self.expr,
+            expr=self.resolve(),
             wtype=wtypes.bool_wtype,
-            source_location=self.expr.source_location,
+            source_location=self.resolve().source_location,
         )
         if negate:
             expr: Expression = Not(location, as_bool)
@@ -121,8 +121,8 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
-            lhs=self.expr,
+            lhs=self.resolve(),
             operator=NumericComparison(op.value),
-            rhs=other.rvalue(),
+            rhs=other.resolve(),
         )
         return BoolExpressionBuilder(cmp_expr)

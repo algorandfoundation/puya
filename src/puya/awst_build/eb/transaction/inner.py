@@ -55,7 +55,7 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
 
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
         return InnerTransactionField(
-            itxn=self.expr,
+            itxn=self.resolve(),
             field=field,
             source_location=location,
             wtype=field.wtype,
@@ -64,7 +64,7 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def get_array_member(
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
     ) -> NodeBuilder:
-        return _ArrayItem(self.expr, field, typ, location)
+        return _ArrayItem(self.resolve(), field, typ, location)
 
 
 class _ArrayItem(FunctionBuilder):
@@ -91,7 +91,7 @@ class _ArrayItem(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [NodeBuilder() as eb]:
-                index_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
+                index_expr = expect_operand_type(eb, pytypes.UInt64Type).resolve()
                 expr = InnerTransactionField(
                     itxn=self.transaction,
                     field=self.field,
@@ -108,7 +108,7 @@ def _get_transaction_type_from_arg(
     literal_or_expr: NodeBuilder,
 ) -> TransactionType | None:
     if isinstance(literal_or_expr, InstanceBuilder):
-        wtype = literal_or_expr.rvalue().wtype
+        wtype = literal_or_expr.resolve().wtype
         if isinstance(wtype, wtypes.WInnerTransactionFields):
             return wtype.transaction_type
     raise CodeError("Expected an InnerTxnParams argument", literal_or_expr.source_location)
@@ -137,7 +137,7 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
                         expect_operand_type(
                             a,
                             pytypes.InnerTransactionFieldsetTypes[transaction_types[a]],
-                        ).rvalue()
+                        ).resolve()
                         for a in args
                     ),
                     source_location=location,

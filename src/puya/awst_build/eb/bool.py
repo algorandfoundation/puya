@@ -62,13 +62,13 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return intrinsic_factory.itob(self.expr, location)
+        return intrinsic_factory.itob(self.resolve(), location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         if not negate:
             return self
-        return BoolExpressionBuilder(Not(location, self.expr))
+        return BoolExpressionBuilder(Not(location, self.resolve()))
 
     @typing.override
     def compare(
@@ -81,8 +81,8 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
-            lhs=self.expr,
+            lhs=self.resolve(),
             operator=NumericComparison(op.value),
-            rhs=other.rvalue(),
+            rhs=other.resolve(),
         )
         return BoolExpressionBuilder(cmp_expr)

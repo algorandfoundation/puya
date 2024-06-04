@@ -273,7 +273,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 " check for a stray comma at the end of the statement",
                 stmt_loc,
             )
-        expr = require_instance_builder(stmt.expr.accept(self)).rvalue()
+        expr = require_instance_builder(stmt.expr.accept(self)).resolve()
         if expr.wtype is not wtypes.void_wtype:
             if (
                 # special case to ignore ignoring the result of typing.reveal_type
@@ -343,7 +343,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
         return [
             AssignmentStatement(
-                value=rvalue.rvalue(),
+                value=rvalue.resolve(),
                 target=self.resolve_lvalue(lvalue),
                 source_location=stmt_loc,
             )
@@ -393,7 +393,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
         builder_or_literal = lvalue.accept(self)
         builder = require_instance_builder(builder_or_literal)
-        return builder.lvalue()
+        return builder.resolve_lvalue()
 
     def empty_statement(self, _tmt: mypy.nodes.Statement) -> None:
         return None
@@ -436,7 +436,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             builder_or_literal = mypy_expr.accept(self)
         loc = self._location(mypy_expr)
         condition = bool_eval(builder_or_literal, loc)
-        return condition.rvalue()
+        return condition.resolve()
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop:
         if stmt.else_body is not None:
@@ -507,20 +507,20 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 f"invalid return type of {returning_builder.pytype}, expected {self._return_type}",
                 loc,
             )
-        return ReturnStatement(source_location=loc, value=returning_builder.rvalue())
+        return ReturnStatement(source_location=loc, value=returning_builder.resolve())
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
         subject_eb = require_instance_builder(stmt.subject.accept(self))
         subject_typ = subject_eb.pytype
-        subject = temporary_assignment_if_required(subject_eb).rvalue()
+        subject = temporary_assignment_if_required(subject_eb).resolve()
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
             match pattern, guard:
                 case mypy.patterns.ValuePattern(expr=case_expr), None:
                     case_value_builder_or_literal = case_expr.accept(self)
-                    case_value = require_instance_builder(case_value_builder_or_literal).rvalue()
+                    case_value = require_instance_builder(case_value_builder_or_literal).resolve()
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.SingletonPattern(value=bool() as bool_literal), None:
@@ -547,7 +547,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     )
                     case_value = expect_operand_type(
                         case_value_builder_or_literal, subject_typ
-                    ).rvalue()
+                    ).resolve()
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.AsPattern(name=None, pattern=None), None:
@@ -931,19 +931,19 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
         if target_pytyp == pytypes.BoolType:
             expr_result: Expression = BooleanBinaryOperation(
-                source_location=location, left=lhs.rvalue(), op=op, right=rhs.rvalue()
+                source_location=location, left=lhs.resolve(), op=op, right=rhs.resolve()
             )
         else:
             lhs = temporary_assignment_if_required(lhs)
             # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
             # TODO: this is a bit convoluted in terms of NodeBuilder <-> Expression
-            condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).rvalue()
+            condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).resolve()
             expr_result = ConditionalExpression(
                 source_location=location,
                 condition=condition,
-                true_expr=lhs.rvalue(),
-                false_expr=rhs.rvalue(),
+                true_expr=lhs.resolve(),
+                false_expr=rhs.resolve(),
                 wtype=target_pytyp.wtype,
             )
         return builder_for_instance(target_pytyp, expr_result)
@@ -1005,8 +1005,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
         cond_expr = ConditionalExpression(
             condition=condition,
-            true_expr=true_b.rvalue(),
-            false_expr=false_b.rvalue(),
+            true_expr=true_b.resolve(),
+            false_expr=false_b.resolve(),
             wtype=expr_pytype.wtype,
             source_location=expr_loc,
         )
@@ -1062,7 +1062,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 return Not(expr=is_in_expr, source_location=is_in_expr.source_location)
             case "in":
                 contains_builder = rhs.contains(lhs, cmp_loc)
-                return contains_builder.rvalue()
+                return contains_builder.resolve()
 
         result: InstanceBuilder = NotImplemented
         if isinstance(lhs, NodeBuilder):
@@ -1073,7 +1073,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             result = rhs.compare(other=lhs, op=op, location=cmp_loc)
         if result is NotImplemented:
             raise CodeError(f"Unsupported comparison {operator!r} between types", cmp_loc)
-        return result.rvalue()
+        return result.resolve()
 
     def visit_int_expr(self, expr: mypy.nodes.IntExpr) -> LiteralBuilder:
         return LiteralBuilderImpl(value=expr.value, source_location=self._location(expr))
@@ -1089,7 +1089,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         from puya.awst_build.eb.tuple import TupleExpressionBuilder
 
         items = [
-            require_instance_builder(mypy_item.accept(self)).rvalue()
+            require_instance_builder(mypy_item.accept(self)).resolve()
             for mypy_item in mypy_expr.items
         ]
         # TODO: grab item types from EB items?
@@ -1117,7 +1117,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # TODO: test if self. assignment?
         with self._leave_bool_context():
             source = require_instance_builder(expr.value.accept(self))
-        value = source.rvalue()
+        value = source.resolve()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
         # TODO: take PyType from source NodeBuilder
@@ -1192,7 +1192,7 @@ def temporary_assignment_if_required(operand: InstanceBuilder) -> InstanceBuilde
     if isinstance(operand, LiteralBuilder):
         return operand
 
-    expr = operand.rvalue()
+    expr = operand.resolve()
     # TODO: optimise the below checks so we don't create unnecessary temporaries,
     #       ie when Expression has no side effects
     if not isinstance(expr, VarExpression | CompileTimeConstantExpression):

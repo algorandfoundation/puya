@@ -51,7 +51,7 @@ class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=eb.rvalue(), wtype=wtype, source_location=location), typ
+                    ARC4Encode(value=eb.resolve(), wtype=wtype, source_location=location), typ
                 )
         raise CodeError("Invalid/unhandled arguments", location)
 
@@ -84,7 +84,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleTy
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=eb.rvalue(), wtype=wtype, source_location=location),
+                    ARC4Encode(value=eb.resolve(), wtype=wtype, source_location=location),
                     self.produces(),
                 )
 
@@ -112,7 +112,7 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
         return builder_for_instance(
             item_typ,
             TupleItemExpression(
-                base=self.expr,
+                base=self.resolve(),
                 index=index_value,
                 source_location=location,
             ),
@@ -128,7 +128,7 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
             case "native":
                 native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
                 result_expr: Expression = ARC4Decode(
-                    value=self.expr,
+                    value=self.resolve(),
                     wtype=native_pytype.wtype,
                     source_location=location,
                 )

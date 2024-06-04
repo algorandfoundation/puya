@@ -94,7 +94,7 @@ class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
             NewArray(
-                values=tuple(a.rvalue() for a in non_literal_args),
+                values=tuple(a.resolve() for a in non_literal_args),
                 wtype=wtype,
                 source_location=location,
             ),
@@ -127,7 +127,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
 
         return DynamicArrayExpressionBuilder(
             NewArray(
-                values=tuple(a.rvalue() for a in non_literal_args),
+                values=tuple(a.resolve() for a in non_literal_args),
                 wtype=wtype,
                 source_location=location,
             ),
@@ -162,7 +162,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         return StaticArrayExpressionBuilder(
             NewArray(
                 source_location=location,
-                values=tuple(a.rvalue() for a in non_literal_args),
+                values=tuple(a.resolve() for a in non_literal_args),
                 wtype=wtype,
             ),
             typ,
@@ -197,7 +197,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
 
         return StaticArrayExpressionBuilder(
             NewArray(
-                values=tuple(a.rvalue() for a in non_literal_args),
+                values=tuple(a.resolve() for a in non_literal_args),
                 wtype=wtype,
                 source_location=location,
             ),
@@ -237,7 +237,7 @@ class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.Ar
             case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
                 result = _address_from_native(eb)
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                value = eb.rvalue()
+                value = eb.resolve()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
@@ -277,7 +277,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
                 " construct a for-loop over the indexes via urange(<array>.length) instead",
                 location=self.source_location,
             )
-        return self.rvalue()
+        return self.resolve()
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -285,7 +285,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
             index_expr: Expression = UInt64BinaryOperation(
                 left=expect_operand_type(
                     self.member_access("length", index.source_location), pytypes.UInt64Type
-                ).rvalue(),
+                ).resolve(),
                 op=UInt64BinaryOperator.sub,
                 right=UInt64Constant(
                     value=abs(index.value), source_location=index.source_location
@@ -293,9 +293,9 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
                 source_location=index.source_location,
             )
         else:
-            index_expr = expect_operand_type(index, pytypes.UInt64Type).rvalue()
+            index_expr = expect_operand_type(index, pytypes.UInt64Type).resolve()
         result_expr = IndexExpression(
-            base=self.expr,
+            base=self.resolve(),
             index=index_expr,
             wtype=self.pytype.items.wtype,
             source_location=location,
@@ -306,7 +306,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "copy":
-                return CopyBuilder(self.expr, location, self.pytyp)
+                return CopyBuilder(self.resolve(), location, self.pytyp)
             case _:
                 return super().member_access(name, location)
 
@@ -345,17 +345,20 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                 return UInt64ExpressionBuilder(
                     IntrinsicCall(
                         op_code="extract_uint16",
-                        stack_args=[self.expr, UInt64Constant(value=0, source_location=location)],
+                        stack_args=[
+                            self.resolve(),
+                            UInt64Constant(value=0, source_location=location),
+                        ],
                         source_location=location,
                         wtype=wtypes.uint64_wtype,
                     )
                 )
             case "append":
-                return _Append(self.expr, self.pytyp, location)
+                return _Append(self.resolve(), self.pytyp, location)
             case "extend":
-                return _Extend(self.expr, self.pytyp, location)
+                return _Extend(self.resolve(), self.pytyp, location)
             case "pop":
-                return _Pop(self.expr, self.pytyp, location)
+                return _Pop(self.resolve(), self.pytyp, location)
             case _:
                 return super().member_access(name, location)
 
@@ -367,7 +370,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             case BuilderBinaryOp.add:
                 return ExpressionStatement(
                     expr=ArrayExtend(
-                        base=self.expr,
+                        base=self.resolve(),
                         other=match_array_concat_arg(
                             (rhs,),
                             self.pytype.items.wtype,
@@ -393,7 +396,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     ) -> InstanceBuilder:
         match op:
             case BuilderBinaryOp.add:
-                lhs = self.expr
+                lhs = self.resolve()
                 rhs = match_array_concat_arg(
                     (other,),
                     self.pytype.items.wtype,
@@ -521,7 +524,7 @@ def match_array_concat_arg(
 ) -> Expression:
     match args:
         case (InstanceBuilder() as eb,):
-            expr = eb.rvalue()
+            expr = eb.resolve()
             match expr:
                 case Expression(wtype=wtypes.ARC4Array() as array_wtype) as array_ex:
                     if array_wtype.element_type == element_type:
@@ -562,7 +565,7 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return compare_expr_bytes(
-            lhs=self.rvalue(),
+            lhs=self.resolve(),
             op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
             rhs=intrinsic_factory.zero_address(location, as_type=self.pytype.wtype),
             source_location=location,
@@ -580,10 +583,10 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
             case InstanceBuilder(pytype=pytypes.AccountType):
                 rhs = _address_from_native(other)
             case InstanceBuilder(pytype=pytypes.ARC4AddressType):
-                rhs = other.rvalue()
+                rhs = other.resolve()
             case _:
                 return NotImplemented
-        return compare_expr_bytes(lhs=self.rvalue(), op=op, rhs=rhs, source_location=location)
+        return compare_expr_bytes(lhs=self.resolve(), op=op, rhs=rhs, source_location=location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
@@ -597,14 +600,14 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
 def _address_to_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype == pytypes.ARC4AddressType
     return ReinterpretCast(
-        expr=builder.rvalue(), wtype=wtypes.account_wtype, source_location=builder.source_location
+        expr=builder.resolve(), wtype=wtypes.account_wtype, source_location=builder.source_location
     )
 
 
 def _address_from_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype == pytypes.AccountType
     return ReinterpretCast(
-        expr=builder.rvalue(),
+        expr=builder.resolve(),
         wtype=wtypes.arc4_address_type,
         source_location=builder.source_location,
     )

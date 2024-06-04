@@ -32,7 +32,7 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder[_TPyType_co, _TExpre
 
     @property
     def _proxied(self) -> InstanceBuilder:
-        return builder_for_instance(self.pytype, self.expr)
+        return builder_for_instance(self.pytype, self.resolve())
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:

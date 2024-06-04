@@ -45,7 +45,7 @@ class StructExpressionBuilder(NotIterableInstanceExpressionBuilder[pytypes.Struc
             field_type = self.pytype.fields[name]
         except KeyError as ex:
             raise CodeError(f"Invalid struct field: {name}", location) from ex
-        field_expr = FieldExpression(location, field_type.wtype, self.expr, name)
+        field_expr = FieldExpression(location, field_type.wtype, self.resolve(), name)
         return builder_for_instance(field_type, field_expr)
 
     @typing.override

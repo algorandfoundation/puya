@@ -79,14 +79,14 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return intrinsic_factory.itob(self.expr, location)
+        return intrinsic_factory.itob(self.resolve(), location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         as_bool = ReinterpretCast(
-            expr=self.expr,
+            expr=self.resolve(),
             wtype=wtypes.bool_wtype,
-            source_location=self.expr.source_location,
+            source_location=self.resolve().source_location,
         )
         if negate:
             expr: Expression = Not(location, as_bool)
@@ -100,11 +100,13 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             case BuilderUnaryOp.positive:
                 # unary + is allowed, but for the current types it has no real impact
                 # so just expand the existing expression to include the unary operator
-                return UInt64ExpressionBuilder(attrs.evolve(self.expr, source_location=location))
+                return UInt64ExpressionBuilder(
+                    attrs.evolve(self.resolve(), source_location=location)
+                )
             case BuilderUnaryOp.bit_invert:
                 return UInt64ExpressionBuilder(
                     UInt64UnaryOperation(
-                        expr=self.expr,
+                        expr=self.resolve(),
                         op=UInt64UnaryOperator.bit_invert,
                         source_location=location,
                     )
@@ -123,9 +125,9 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
-            lhs=self.expr,
+            lhs=self.resolve(),
             operator=NumericComparison(op.value),
-            rhs=other.rvalue(),
+            rhs=other.resolve(),
         )
         return BoolExpressionBuilder(cmp_expr)
 
@@ -143,8 +145,8 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             pass
         else:
             return NotImplemented
-        lhs = self.expr
-        rhs = other.rvalue()
+        lhs = self.resolve()
+        rhs = other.resolve()
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         uint64_op = _translate_uint64_math_operator(op, location)
@@ -164,10 +166,10 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             raise CodeError(
                 f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
             )
-        target = self.lvalue()
+        target = self.resolve_lvalue()
         uint64_op = _translate_uint64_math_operator(op, location)
         return UInt64AugmentedAssignment(
-            target=target, op=uint64_op, value=rhs.rvalue(), source_location=location
+            target=target, op=uint64_op, value=rhs.resolve(), source_location=location
         )
 
 

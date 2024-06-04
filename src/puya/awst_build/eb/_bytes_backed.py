@@ -59,7 +59,7 @@ class _FromBytes(FunctionBuilder):
                     value=bytes_val, encoding=BytesEncoding.unknown, source_location=literal_loc
                 )
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                arg = eb.rvalue()
+                arg = eb.resolve()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         result_expr = ReinterpretCast(
@@ -84,4 +84,6 @@ class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return ReinterpretCast(source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr)
+        return ReinterpretCast(
+            source_location=location, wtype=wtypes.bytes_wtype, expr=self.resolve()
+        )

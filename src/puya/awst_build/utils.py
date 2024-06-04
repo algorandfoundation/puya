@@ -291,7 +291,7 @@ def eval_slice_component(
 
     if not isinstance(val, LiteralBuilder):
         # no negatives to deal with here, easy
-        index_expr = expect_operand_type(val, pytypes.UInt64Type).rvalue()
+        index_expr = expect_operand_type(val, pytypes.UInt64Type).resolve()
         temp_index = SingleEvaluation(index_expr)
         return intrinsic_factory.select(
             false=len_expr,

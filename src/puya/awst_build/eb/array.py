@@ -50,7 +50,7 @@ class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         wtype = array_type.wtype
         assert isinstance(wtype, wtypes.WArray)
         array_expr = NewArray(
-            values=tuple(a.rvalue() for a in non_literal_args),
+            values=tuple(a.resolve() for a in non_literal_args),
             wtype=wtype,
             source_location=location,
         )
@@ -80,7 +80,7 @@ class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
         for a in non_literal_args:
             expect_operand_type(a, array_type.items)
         array_expr = NewArray(
-            values=tuple(a.rvalue() for a in non_literal_args),
+            values=tuple(a.resolve() for a in non_literal_args),
             wtype=self._wtype,
             source_location=location,
         )
@@ -99,19 +99,19 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
 
     @typing.override
     def iterate(self) -> Iteration:
-        return self.rvalue()
+        return self.resolve()
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "append":
-                return _Append(self.expr)
+                return _Append(self.resolve())
         return super().member_access(name, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item_expr = expect_operand_type(item, self.pytype.items).rvalue()
-        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
+        item_expr = expect_operand_type(item, self.pytype.items).resolve()
+        contains_expr = Contains(source_location=location, item=item_expr, sequence=self.resolve())
         return BoolExpressionBuilder(contains_expr)
 
     @typing.override
@@ -150,7 +150,7 @@ class _Append(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [elem]:
-                elem_expr = require_instance_builder(elem).rvalue()
+                elem_expr = require_instance_builder(elem).resolve()
 
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)

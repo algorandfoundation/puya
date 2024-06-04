@@ -82,7 +82,7 @@ class BoxRefProxyExpressionBuilder(
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
         return BoxValueExpression(
-            key=self.expr,
+            key=self.resolve(),
             source_location=location,
             wtype=wtypes.bytes_wtype,
             member_name=self._member_name,
@@ -102,11 +102,11 @@ class BoxRefProxyExpressionBuilder(
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "create":
-                return _Create(location, box_proxy=self.expr)
+                return _Create(location, box_proxy=self.resolve())
             case "delete":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.expr,
+                    box_proxy=self.resolve(),
                     op_code="box_del",
                     arg_types=(),
                     args=(),
@@ -115,7 +115,7 @@ class BoxRefProxyExpressionBuilder(
             case "extract":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.expr,
+                    box_proxy=self.resolve(),
                     op_code="box_extract",
                     arg_types=(pytypes.UInt64Type, pytypes.UInt64Type),
                     args=("start_index", "length"),
@@ -126,7 +126,7 @@ class BoxRefProxyExpressionBuilder(
             case "replace":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.expr,
+                    box_proxy=self.resolve(),
                     op_code="box_replace",
                     arg_types=(pytypes.UInt64Type, pytypes.BytesType),
                     args=("start_index", "value"),
@@ -135,7 +135,7 @@ class BoxRefProxyExpressionBuilder(
             case "splice":
                 return _IntrinsicMethod(
                     location,
-                    box_proxy=self.expr,
+                    box_proxy=self.resolve(),
                     op_code="box_splice",
                     arg_types=(pytypes.UInt64Type, pytypes.UInt64Type, pytypes.BytesType),
                     args=("start_index", "length", "value"),
@@ -147,7 +147,7 @@ class BoxRefProxyExpressionBuilder(
                     self._box_key_expr(location), content_type=pytypes.BytesType
                 )
             case "put":
-                return _Put(location, box_proxy=self.expr)
+                return _Put(location, box_proxy=self.resolve())
             case "maybe":
                 return BoxMaybeExpressionBuilder(
                     self._box_key_expr(location), content_type=pytypes.BytesType
@@ -176,7 +176,7 @@ class _BoxRefProxyExpressionBuilderFromConstructor(
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        key_override = self.expr
+        key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
             raise CodeError(
                 f"assigning {typ} to a member variable requires a constant value for key",
@@ -222,7 +222,7 @@ class _IntrinsicMethod(FunctionBuilder):
         args_map = get_arg_mapping(self.args, zip(arg_names, args, strict=True), location)
         try:
             stack_args = [
-                expect_operand_type(args_map.pop(arg_name), arg_type).rvalue()
+                expect_operand_type(args_map.pop(arg_name), arg_type).resolve()
                 for arg_name, arg_type in zip(self.args, self.arg_types, strict=True)
             ]
         except KeyError as er:
@@ -256,7 +256,7 @@ class _Create(FunctionBuilder):
             (arg,) = args
         except ValueError:
             raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        size = expect_operand_type(arg, pytypes.UInt64Type).rvalue()
+        size = expect_operand_type(arg, pytypes.UInt64Type).resolve()
         return BoolExpressionBuilder(
             IntrinsicCall(
                 op_code="box_create",
@@ -285,7 +285,7 @@ class _Put(FunctionBuilder):
             (arg,) = args
         except ValueError:
             raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        data = expect_operand_type(arg, pytypes.BytesType).rvalue()
+        data = expect_operand_type(arg, pytypes.BytesType).resolve()
 
         return VoidExpressionBuilder(
             IntrinsicCall(

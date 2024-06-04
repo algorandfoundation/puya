@@ -52,7 +52,7 @@ class AssetClassExpressionBuilder(TypeBuilder):
             case [LiteralBuilder(value=int(int_value))]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=location)
             case [NodeBuilder() as eb]:
-                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type).rvalue()
+                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type).resolve()
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
@@ -86,7 +86,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [NodeBuilder() as eb]:
-                account_expr = expect_operand_type(eb, pytypes.AccountType).rvalue()
+                account_expr = expect_operand_type(eb, pytypes.AccountType).resolve()
                 immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
                 asset_params_get = IntrinsicCall(
                     source_location=location,
@@ -133,5 +133,5 @@ class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name in ASSET_HOLDING_FIELD_MAPPING:
-            return AssetHoldingExpressionBuilder(self.expr, name, location)
+            return AssetHoldingExpressionBuilder(self.resolve(), name, location)
         return super().member_access(name, location)

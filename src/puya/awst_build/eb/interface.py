@@ -95,11 +95,11 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
     def pytype(self) -> _TPyType_co: ...
 
     @abc.abstractmethod
-    def rvalue(self) -> Expression:
+    def resolve(self) -> Expression:
         """Produce an expression for use as an intermediary"""
 
     @abc.abstractmethod
-    def lvalue(self) -> Lvalue:
+    def resolve_lvalue(self) -> Lvalue:
         """Produce an expression for the target of an assignment"""
 
     @abc.abstractmethod

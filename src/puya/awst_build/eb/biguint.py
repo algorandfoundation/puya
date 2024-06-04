@@ -82,7 +82,7 @@ class BigUIntExpressionBuilder(
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         cmp_expr = NumericComparisonExpression(
-            lhs=self.expr,
+            lhs=self.resolve(),
             operator=NumericComparison.eq if negate else NumericComparison.ne,
             # TODO: does this source location make sense?
             rhs=BigUIntConstant(value=0, source_location=location),
@@ -94,7 +94,7 @@ class BigUIntExpressionBuilder(
         if op == BuilderUnaryOp.positive:
             # unary + is allowed, but for the current types it has no real impact
             # so just expand the existing expression to include the unary operator
-            return BigUIntExpressionBuilder(attrs.evolve(self.expr, source_location=location))
+            return BigUIntExpressionBuilder(attrs.evolve(self.resolve(), source_location=location))
         return super().unary_op(op, location)
 
     def compare(
@@ -102,14 +102,14 @@ class BigUIntExpressionBuilder(
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
-            other_expr = other.rvalue()
+            other_expr = other.resolve()
         elif other.pytype == pytypes.UInt64Type:
             other_expr = uint64_to_biguint(other, location)
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
-            lhs=self.expr,
+            lhs=self.resolve(),
             operator=NumericComparison(op.value),
             rhs=other_expr,
         )
@@ -125,12 +125,12 @@ class BigUIntExpressionBuilder(
     ) -> InstanceBuilder:
         other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
-            other_expr = other.rvalue()
+            other_expr = other.resolve()
         elif other.pytype == pytypes.UInt64Type:
             other_expr = uint64_to_biguint(other, location)
         else:
             return NotImplemented
-        lhs = self.expr
+        lhs = self.resolve()
         rhs = other_expr
         if reverse:
             (lhs, rhs) = (rhs, lhs)
@@ -145,14 +145,14 @@ class BigUIntExpressionBuilder(
     ) -> Statement:
         rhs = convert_literal_to_builder(rhs, self.pytype)
         if rhs.pytype == self.pytype:
-            value = rhs.rvalue()
+            value = rhs.resolve()
         elif rhs.pytype == pytypes.UInt64Type:
             value = uint64_to_biguint(rhs, location)
         else:
             raise CodeError(
                 f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
             )
-        target = self.lvalue()
+        target = self.resolve_lvalue()
         biguint_op = _translate_biguint_math_operator(op, location)
         return BigUIntAugmentedAssignment(
             source_location=location,

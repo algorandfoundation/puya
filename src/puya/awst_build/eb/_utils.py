@@ -32,7 +32,7 @@ def bool_eval_to_constant(
 
 
 def uint64_to_biguint(arg_in: NodeBuilder, location: SourceLocation) -> Expression:
-    arg = expect_operand_type(arg_in, pytypes.UInt64Type).rvalue()
+    arg = expect_operand_type(arg_in, pytypes.UInt64Type).resolve()
 
     return intrinsic_factory.itob_as(
         arg,
@@ -50,7 +50,7 @@ def compare_bytes(
 ) -> InstanceBuilder:
     if rhs.pytype != lhs.pytype:
         return NotImplemented
-    return _compare_expr_bytes_unchecked(lhs.rvalue(), op, rhs.rvalue(), source_location)
+    return _compare_expr_bytes_unchecked(lhs.resolve(), op, rhs.resolve(), source_location)
 
 
 def compare_expr_bytes(
@@ -90,7 +90,7 @@ def cast_to_bytes(
     expr: InstanceBuilder | Expression, location: SourceLocation | None = None
 ) -> ReinterpretCast:
     return ReinterpretCast(
-        expr=expr.rvalue() if isinstance(expr, InstanceBuilder) else expr,
+        expr=expr.resolve() if isinstance(expr, InstanceBuilder) else expr,
         wtype=wtypes.bytes_wtype,
         source_location=location or expr.source_location,
     )

@@ -24,7 +24,7 @@ def index_box_bytes(
 
     if isinstance(index, InstanceBuilder):
         # no negatives
-        begin_index_expr = index.rvalue()
+        begin_index_expr = index.resolve()
     elif not isinstance(index.value, int):
         raise CodeError("Invalid literal index type", index.source_location)
     elif index.value >= 0:
@@ -34,7 +34,7 @@ def index_box_bytes(
         box_length_builder = UInt64ExpressionBuilder(box_length)
         begin_index_expr = box_length_builder.binary_op(
             index, BuilderBinaryOp.sub, location, reverse=False
-        ).rvalue()
+        ).resolve()
     return BytesExpressionBuilder(
         IntrinsicCall(
             op_code="box_extract",
@@ -69,7 +69,7 @@ def slice_box_bytes(
         .binary_op(
             UInt64ExpressionBuilder(begin_index_expr), BuilderBinaryOp.sub, location, reverse=False
         )
-        .rvalue()
+        .resolve()
     )
 
     return BytesExpressionBuilder(

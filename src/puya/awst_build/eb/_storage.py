@@ -74,11 +74,11 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(location)
 
     @typing.override
-    def rvalue(self) -> Expression:
+    def resolve(self) -> Expression:
         return self._assign_first(self.source_location)
 
     @typing.override
-    def lvalue(self) -> Lvalue:
+    def resolve_lvalue(self) -> Lvalue:
         raise CodeError(f"{self._typ} is not valid as an assignment target", self.source_location)
 
     @typing.override
@@ -169,7 +169,7 @@ def extract_key_override(
                 source_location=key_lit_loc,
             )
         case InstanceBuilder(pytype=pytypes.BytesType) as eb:
-            key_override = eb.rvalue()
+            key_override = eb.resolve()
         case InstanceBuilder(pytype=pytypes.StringType) as eb:
             key_override = cast_to_bytes(eb, location)
         case _:

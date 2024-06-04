@@ -52,7 +52,7 @@ class EmitBuilder(FunctionBuilder):
                 InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
             ] if pytypes.ARC4StructBaseType in struct_type.mro:
                 event_name = struct_type.name.split(".")[-1]
-                event_arg = event_arg_eb.rvalue()
+                event_arg = event_arg_eb.resolve()
             case _:
                 raise CodeError("Unexpected arguments", location)
         event_sig = f"{event_name}{wtype_to_arc4(event_arg.wtype)}"

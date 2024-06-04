@@ -147,7 +147,7 @@ class AppAccountStateExpressionBuilder(
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
-        index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).rvalue()
+        index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).resolve()
         match index_expr:
             case IntegerConstant(value=account_offset):
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
@@ -166,7 +166,7 @@ class AppAccountStateExpressionBuilder(
                     index.source_location,
                 )
         return AppAccountStateExpression(
-            key=self.expr,
+            key=self.resolve(),
             member_name=self._member_name,
             account=index_expr,
             wtype=self.pytype.content.wtype,
@@ -235,7 +235,7 @@ class _AppAccountStateExpressionBuilderFromConstructor(
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        key_override = self.expr
+        key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
             raise CodeError(
                 f"assigning {typ} to a member variable requires a constant value for key",
@@ -278,7 +278,7 @@ class _Get(FunctionBuilder):
         else:
             item, default_arg = args
         item = require_instance_builder(item)
-        default_expr = expect_operand_type(default_arg, self._content_typ).rvalue()
+        default_expr = expect_operand_type(default_arg, self._content_typ).resolve()
         expr = StateGet(
             field=self._build_field(item, location),
             default=default_expr,
@@ -320,4 +320,4 @@ class _Maybe(FunctionBuilder):
 
 class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppAccountStateExpression]):
     def delete(self, location: SourceLocation) -> Statement:
-        return StateDelete(field=self.expr, source_location=location)
+        return StateDelete(field=self.resolve(), source_location=location)

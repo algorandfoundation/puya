@@ -65,7 +65,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
                 raise CodeError(f"Missing required argument {field_name}", location)
-            field_expr = require_instance_builder(field_value).rvalue()
+            field_expr = require_instance_builder(field_value).resolve()
             if field_expr.wtype != field_type:
                 raise CodeError("Invalid type for field", field_expr.source_location)
             values[field_name] = field_expr
@@ -89,14 +89,14 @@ class ARC4StructExpressionBuilder(
         match name:
             case field_name if self.pytype and (field := self.pytype.fields.get(field_name)):
                 result_expr = FieldExpression(
-                    base=self.expr,
+                    base=self.resolve(),
                     name=field_name,
                     wtype=field.wtype,
                     source_location=location,
                 )
                 return builder_for_instance(field, result_expr)
             case "copy":
-                return CopyBuilder(self.expr, location, self.pytype)
+                return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
                 return super().member_access(name, location)
 

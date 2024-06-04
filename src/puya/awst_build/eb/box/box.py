@@ -127,7 +127,7 @@ class BoxProxyExpressionBuilder(
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
         return BoxValueExpression(
-            key=self.expr,
+            key=self.resolve(),
             wtype=self._typ.content.wtype,
             member_name=self._member_name,
             source_location=location,
@@ -179,7 +179,7 @@ class _BoxProxyExpressionBuilderFromConstructor(
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        key_override = self.expr
+        key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
             raise CodeError(
                 f"assigning {typ} to a member variable requires a constant value for key",

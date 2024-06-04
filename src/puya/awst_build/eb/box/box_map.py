@@ -139,25 +139,25 @@ class BoxMapProxyExpressionBuilder(
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return BoxValueExpressionBuilder(
             self._typ.content,
-            _box_value_expr(self.expr, index, location, self._typ.content.wtype),
+            _box_value_expr(self.resolve(), index, location, self._typ.content.wtype),
         )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                return _Length(location, self.expr, self._typ)
+                return _Length(location, self.resolve(), self._typ)
             case "maybe":
-                return _Maybe(location, self.expr, self._typ)
+                return _Maybe(location, self.resolve(), self._typ)
             case "get":
-                return _Get(location, self.expr, self._typ)
+                return _Get(location, self.resolve(), self._typ)
             case _:
                 return super().member_access(name, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         box_exists = StateExists(
-            field=_box_value_expr(self.expr, item, location, self._typ.content.wtype),
+            field=_box_value_expr(self.resolve(), item, location, self._typ.content.wtype),
             source_location=location,
         )
         return BoolExpressionBuilder(box_exists)
@@ -200,7 +200,7 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        key_override = self.expr
+        key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
             raise CodeError(
                 f"assigning {typ} to a member variable requires a constant value for key_prefix",
@@ -266,7 +266,7 @@ class _Get(_MethodBase):
         item_key = args_map.pop("key")
         default_value = expect_operand_type(
             args_map.pop("default"), self.box_type.content
-        ).rvalue()
+        ).resolve()
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
         key = _box_value_expr(self.box_map_expr, item_key, location, self.box_type.content.wtype)

@@ -156,22 +156,22 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return self.expr
+        return self.resolve()
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                len_call = intrinsic_factory.bytes_len(expr=self.expr, loc=location)
+                len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
                 return UInt64ExpressionBuilder(len_call)
         return super().member_access(name, location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        index_expr = expect_operand_type(index, pytypes.UInt64Type).rvalue()
+        index_expr = expect_operand_type(index, pytypes.UInt64Type).resolve()
         expr = IndexExpression(
             source_location=location,
-            base=self.expr,
+            base=self.resolve(),
             index=index_expr,
             wtype=self.pytype.wtype,
         )
@@ -189,7 +189,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
             raise CodeError("Stride is not supported", location=stride.source_location)
 
         slice_expr: Expression = IntersectionSliceExpression(
-            base=self.expr,
+            base=self.resolve(),
             begin_index=_eval_slice_component(begin_index),
             end_index=_eval_slice_component(end_index),
             wtype=self.pytype.wtype,
@@ -199,11 +199,11 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def iterate(self) -> Iteration:
-        return self.rvalue()
+        return self.resolve()
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        len_expr = intrinsic_factory.bytes_len(self.expr, location)
+        len_expr = intrinsic_factory.bytes_len(self.resolve(), location)
         len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
@@ -212,7 +212,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         if op == BuilderUnaryOp.bit_invert:
             return BytesExpressionBuilder(
                 BytesUnaryOperation(
-                    expr=self.expr,
+                    expr=self.resolve(),
                     op=BytesUnaryOperator.bit_invert,
                     source_location=location,
                 )
@@ -221,10 +221,10 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item_expr = expect_operand_type(item, pytypes.BytesType).rvalue()
+        item_expr = expect_operand_type(item, pytypes.BytesType).resolve()
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
-            args=[CallArg(value=item_expr, name=None), CallArg(value=self.expr, name=None)],
+            args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
             wtype=wtypes.bool_wtype,
             source_location=location,
         )
@@ -249,8 +249,8 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         other = convert_literal_to_builder(other, self.pytype)
         # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
-        lhs = self.expr
-        rhs = other.rvalue()
+        lhs = self.resolve()
+        rhs = other.resolve()
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         bin_op_expr = BytesBinaryOperation(
@@ -265,11 +265,11 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         rhs = convert_literal_to_builder(rhs, self.pytype)
         # TODO: missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
-        target = self.lvalue()
+        target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
             target=target,
             op=bytes_op,
-            value=rhs.rvalue(),
+            value=rhs.resolve(),
             source_location=location,
         )
 
@@ -289,4 +289,4 @@ def _eval_slice_component(val: NodeBuilder | None) -> Expression | None | int:
             return None
         case LiteralBuilder(value=int(int_value)):
             return int_value
-    return expect_operand_type(val, pytypes.UInt64Type).rvalue()
+    return expect_operand_type(val, pytypes.UInt64Type).resolve()

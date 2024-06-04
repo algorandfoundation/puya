@@ -54,7 +54,7 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
                     value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location
                 )
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                bytes_expr = eb.rvalue()
+                bytes_expr = eb.resolve()
             case _:
                 non_literal_args = tuple(_coerce_to_byte(a) for a in args)
                 return DynamicBytesExpressionBuilder(
@@ -67,12 +67,12 @@ class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
 def _coerce_to_byte(arg: NodeBuilder) -> Expression:
     match arg:
         case LiteralBuilder(value=int()) as literal:
-            return construct_from_literal(literal, pytypes.ARC4ByteType).rvalue()
+            return construct_from_literal(literal, pytypes.ARC4ByteType).resolve()
         case InstanceBuilder(pytype=pytypes.ARC4ByteType) as eb:
-            return eb.rvalue()
+            return eb.resolve()
         case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
             return ReinterpretCast(
-                expr=arg.rvalue(),
+                expr=arg.resolve(),
                 wtype=wtypes.arc4_byte_type,
                 source_location=arg.source_location,
             )
@@ -87,6 +87,8 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
-                return BytesExpressionBuilder(arc4_decode(self.expr, wtypes.bytes_wtype, location))
+                return BytesExpressionBuilder(
+                    arc4_decode(self.resolve(), wtypes.bytes_wtype, location)
+                )
             case _:
                 return super().member_access(name, location)
