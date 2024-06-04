@@ -8,6 +8,9 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar, Unpack
 import algosdk
 
 from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64
+from algopy_testing.models.account import AccountData, AccountFields
+from algopy_testing.models.application import ApplicationFields
+from algopy_testing.models.asset import AssetFields
 from algopy_testing.models.global_state import GlobalFields
 from algopy_testing.models.itxn import ITxnFields
 from algopy_testing.models.txn import TxnFields
@@ -30,9 +33,9 @@ class AlgopyTestContext(Generic[T]):
         self._contract_cls = (
             contract_cls  # TODO: not utilized yet, just storing the reference for now
         )
-        self.accounts: dict[str, algopy.Account] = {}
-        self.applications: dict[int, algopy.Application] = {}
-        self.assets: dict[int, algopy.Asset] = {}
+        self.account_data: dict[str, AccountData] = {}
+        self.application_data: dict[int, ApplicationFields] = {}
+        self.asset_data: dict[int, AssetFields] = {}
         self.inner_transactions: list[BaseInnerTransaction] = []
         self.global_fields: dict[str, Any] = {}
         self.txn_fields: dict[str, Any] = {}
@@ -104,26 +107,7 @@ class AlgopyTestContext(Generic[T]):
                     f"`algopy.ITxn` has no attribute '{key}' to set in the test context!"
                 )
 
-    def add_account(self, account: algopy.Account) -> None:
-        """
-        Add an account to the test context.
-
-        Args:
-            account (algopy.Account): The account to be added.
-
-        Raises:
-            TypeError: If the provided object is not an instance of `Account`.
-            ValueError: If the account lacks a valid address.
-        """
-        from algopy import Account
-
-        if not isinstance(account, Account):
-            raise TypeError("account must be an instance of Account")
-        if not account.bytes:
-            raise ValueError("Account address is required")
-        self.accounts[str(account)] = account
-
-    def get_account(self, address: str) -> algopy.Account:
+    def get_account_data(self, address: str) -> AccountData:
         """
         Retrieve an account from the test context by address.
 
@@ -133,9 +117,10 @@ class AlgopyTestContext(Generic[T]):
         Returns:
             algopy.Account: The account associated with the provided address.
         """
-        return self.accounts[address]
 
-    def update_account(self, address: str, account: algopy.Account) -> None:
+        return self.account_data[address]
+
+    def update_account(self, address: str, **account_fields: Unpack[AccountFields]) -> None:
         """
         Update an existing account in the test context.
 
@@ -146,35 +131,14 @@ class AlgopyTestContext(Generic[T]):
         Raises:
             TypeError: If the provided object is not an instance of `Account`.
         """
-        from algopy import Account
 
-        if not isinstance(account, Account):
-            raise TypeError("account must be an instance of Account")
+        if address not in self.account_data:
+            raise ValueError("Account not found")
 
-        self.accounts[address] = account
+        for key, value in account_fields.items():
+            setattr(self.account_data[address].data, key, value)
 
-    def add_asset(self, asset: algopy.Asset) -> None:
-        """
-        Add an asset to the test context.
-
-        Args:
-            asset (algopy.Asset): The asset to be added.
-
-        Raises:
-            TypeError: If the provided object is not an instance of `Asset`.
-            ValueError: If the asset lacks a valid ID.
-        """
-        from algopy import Asset
-
-        if not isinstance(asset, Asset):
-            raise TypeError("asset must be an instance of Asset")
-
-        if not asset.id:
-            raise ValueError("Asset ID is required")
-
-        self.assets[int(asset.id)] = asset
-
-    def get_asset(self, asset_id: int) -> algopy.Asset:
+    def get_asset_data(self, asset_id: int) -> AssetFields:
         """
         Retrieve an asset from the test context by ID.
 
@@ -184,9 +148,12 @@ class AlgopyTestContext(Generic[T]):
         Returns:
             algopy.Asset: The asset associated with the provided ID.
         """
-        return self.assets[asset_id]
+        if asset_id not in self.asset_data:
+            raise ValueError("Asset not found in testing context!")
 
-    def update_asset(self, asset_id: int, asset: algopy.Asset) -> None:
+        return self.asset_data[asset_id]
+
+    def update_asset(self, asset_id: int, **asset_fields: Unpack[AssetFields]) -> None:
         """
         Update an existing asset in the test context.
 
@@ -194,27 +161,11 @@ class AlgopyTestContext(Generic[T]):
             asset_id (int): The ID of the asset to update.
             asset (algopy.Asset): The new asset data.
         """
-        self.assets[asset_id] = asset
+        if asset_id not in self.asset_data:
+            raise ValueError("Asset not found in testing context!")
 
-    def add_application(self, app: algopy.Application) -> None:
-        """
-        Add an application to the test context.
-
-        Args:
-            app (algopy.Application): The application to be added.
-
-        Raises:
-            TypeError: If the provided object is not an instance of `Application`.
-            ValueError: If the application lacks a valid ID.
-        """
-        from algopy import Application
-
-        if not isinstance(app, Application):
-            raise TypeError("app must be an instance of Application")
-        if not app.id:
-            raise ValueError("Application ID is required")
-
-        self.applications[int(app.id)] = app
+        for key, value in asset_fields.items():
+            setattr(self.asset_data[asset_id], key, value)
 
     def get_application(self, app_id: int) -> algopy.Application:
         """
@@ -226,7 +177,12 @@ class AlgopyTestContext(Generic[T]):
         Returns:
             algopy.Application: The application associated with the provided ID.
         """
-        return self.applications[app_id]
+        from algopy import Application
+
+        if app_id not in self.application_data:
+            raise ValueError("Application not found in testing context!")
+
+        return Application(app_id)
 
     def add_inner_transaction(self, itxn: BaseInnerTransaction) -> None:
         """
@@ -245,7 +201,13 @@ class AlgopyTestContext(Generic[T]):
 
         self.inner_transactions.append(itxn)
 
-    def any_account(self) -> algopy.Account:
+    def any_account(
+        self,
+        address: str | None = None,
+        opted_asset_balances: dict[algopy.UInt64, algopy.UInt64] | None = None,
+        opted_apps: dict[algopy.UInt64, algopy.Application] | None = None,
+        **account_fields: Unpack[AccountFields],
+    ) -> algopy.Account:
         """
         Generate and add a new account with a random address to the test context.
 
@@ -254,12 +216,34 @@ class AlgopyTestContext(Generic[T]):
         """
         from algopy import Account
 
-        new_account_address = algosdk.account.generate_account()[1]
+        if address and not algosdk.encoding.is_valid_address(address):
+            raise ValueError("Invalid Algorand address supplied!")
+
+        if address in self.account_data:
+            raise ValueError(
+                "Account with such address already exists in testing context! "
+                "Use `context.get_account_data(address)` to retrieve the existing account."
+            )
+
+        for key in account_fields:
+            if key not in AccountFields.__annotations__:
+                raise AttributeError(f"Invalid field '{key}' for Account")
+
+        new_account_address = address or algosdk.account.generate_account()[1]
         new_account = Account(new_account_address)
-        self.add_account(new_account)
+        new_account_fields = AccountFields(**account_fields)
+        new_account_data = AccountData(
+            data=new_account_fields,
+            opted_asset_balances=opted_asset_balances or {},
+            opted_apps=opted_apps or {},
+        )
+
+        self.account_data[new_account_address] = new_account_data
         return new_account
 
-    def any_asset(self) -> algopy.Asset:
+    def any_asset(
+        self, asset_id: int | None = None, **asset_fields: Unpack[AssetFields]
+    ) -> algopy.Asset:
         """
         Generate and add a new asset with a unique ID to the test context.
 
@@ -268,11 +252,16 @@ class AlgopyTestContext(Generic[T]):
         """
         from algopy import Asset
 
-        new_asset = Asset(self._next_asset_id())
-        self.add_asset(new_asset)
+        if asset_id and asset_id in self.asset_data:
+            raise ValueError("Asset with such ID already exists in testing context!")
+
+        new_asset = Asset(asset_id or self._next_asset_id())
+        self.asset_data[int(new_asset.id)] = AssetFields(**asset_fields)
         return new_asset
 
-    def any_application(self) -> algopy.Application:
+    def any_application(
+        self, **application_fields: Unpack[ApplicationFields]
+    ) -> algopy.Application:
         """
         Generate and add a new application with a unique ID to the test context.
 
@@ -282,7 +271,7 @@ class AlgopyTestContext(Generic[T]):
         from algopy import Application
 
         new_app = Application(self._next_app_id())
-        self.add_application(new_app)
+        self.application_data[int(new_app.id)] = ApplicationFields(**application_fields)
         return new_app
 
     def set_transaction_group(self, gtxn: list[algopy.gtxn.TransactionBase]) -> None:
@@ -384,37 +373,37 @@ class AlgopyTestContext(Generic[T]):
         """
         Clear all inner transactions from the test context.
         """
-        self.inner_transactions = []
+        self.inner_transactions.clear()
 
     def clear_transaction_group(self) -> None:
         """
         Clear the transaction group from the test context.
         """
-        self.gtxns = []
+        self.gtxns.clear()
 
     def clear_accounts(self) -> None:
         """
         Clear all accounts from the test context.
         """
-        self.accounts = {}
+        self.account_data.clear()
 
     def clear_applications(self) -> None:
         """
         Clear all applications from the test context.
         """
-        self.applications = {}
+        self.application_data.clear()
 
     def clear_assets(self) -> None:
         """
         Clear all assets from the test context.
         """
-        self.assets = {}
+        self.asset_data.clear()
 
     def clear_logs(self) -> None:
         """
         Clear all logs from the test context.
         """
-        self.logs = []
+        self.logs.clear()
 
     def clear(self) -> None:
         """
@@ -432,9 +421,9 @@ class AlgopyTestContext(Generic[T]):
         """
         Reset the test context to its initial state, clearing all data and resetting ID counters.
         """
-        self.accounts = {}
-        self.applications = {}
-        self.assets = {}
+        self.account_data = {}
+        self.application_data = {}
+        self.asset_data = {}
         self.inner_transactions = []
         self.gtxns = []
         self.global_fields = {}
