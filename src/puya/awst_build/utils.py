@@ -200,6 +200,18 @@ def expect_operand_type(builder: NodeBuilder, target_type: pytypes.PyType) -> In
     return builder
 
 
+def require_instance_builder_of_type(
+    builder: NodeBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
+    builder = require_instance_builder(builder)
+    if builder.pytype != target_type:
+        raise CodeError(
+            f"Expected type {target_type}, got type {builder.pytype}",
+            builder.source_location,
+        )
+    return builder
+
+
 def convert_literal_to_builder(
     literal_or_expr: _TBuilder, target_type: pytypes.PyType
 ) -> _TBuilder | InstanceBuilder:

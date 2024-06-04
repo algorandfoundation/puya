@@ -41,7 +41,6 @@ from puya.awst_build.eb._utils import (
     compare_bytes,
     compare_expr_bytes,
 )
-from puya.awst_build.eb.arc4._utils import expect_arc4_operand_pytype
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -58,6 +57,7 @@ from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
     require_instance_builder,
+    require_instance_builder_of_type,
 )
 from puya.errors import CodeError
 
@@ -439,8 +439,7 @@ class _Append(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-
-        args_expr = [expect_arc4_operand_pytype(a, self.typ.items) for a in args]
+        args_expr = [require_instance_builder_of_type(a, self.typ.items).resolve() for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
         return VoidExpressionBuilder(
             ArrayExtend(
