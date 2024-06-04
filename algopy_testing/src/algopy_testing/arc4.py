@@ -129,10 +129,10 @@ class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
 
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
         self.__bit_size = as_int(typing.get_args(self._t)[0], max=UINT64_SIZE)
-        self.__max_int = 2**self.__bit_size - 1
-        value = as_int(value, max=self.__max_int)
-
         self.__max_bytes_len = self.__bit_size // BITS_IN_BYTE
+        self.__max_int = 2**self.__bit_size - 1
+
+        value = as_int(value, max=self.__max_int)
         bytes_value = int_to_bytes(value, self.__max_bytes_len)
         self.__value = as_bytes(bytes_value, max_size=self.__max_bytes_len)
 
@@ -141,10 +141,11 @@ class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls(int.from_bytes(value))
-        if len(value) > result.__max_bytes_len:  # noqa: SLF001
-            raise ValueError(
-                f"expected at most {result.__max_bytes_len} bytes, got: {len(value)}"  # noqa: SLF001
-            )
+
+        max_length = result.__max_bytes_len  # noqa: SLF001
+
+        if len(value) > max_length:
+            raise ValueError(f"expected at most {max_length} bytes, got: {len(value)}")
         return result
 
     @property
@@ -193,9 +194,9 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
         self.__bit_size = as_int(typing.get_args(self._t)[0], max=UINT512_SIZE)
         self.__max_int = 2**self.__bit_size - 1
-        value = as_int(value, max=self.__max_int)
-
         self.__max_bytes_len = self.__bit_size // BITS_IN_BYTE
+
+        value = as_int(value, max=self.__max_int)
         bytes_value = int_to_bytes(value, self.__max_bytes_len)
         self.__value = as_bytes(bytes_value, max_size=self.__max_bytes_len)
 
@@ -204,10 +205,10 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls(int.from_bytes(value))
-        if len(value) > result.__max_bytes_len:  # noqa: SLF001
-            raise ValueError(
-                f"expected at most {result.__max_bytes_len} bytes, got: {len(value)}"  # noqa: SLF001
-            )
+
+        max_length = result.__max_bytes_len  # noqa: SLF001
+        if len(value) > max_length:
+            raise ValueError(f"expected at most {max_length} bytes, got: {len(value)}")
         return result
 
     @property
