@@ -6,7 +6,6 @@ import typing
 import typing_extensions
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
@@ -15,7 +14,6 @@ from puya.awst.nodes import (
     Expression,
     ReinterpretCast,
     SingleEvaluation,
-    TupleExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
@@ -65,7 +63,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         cls, typ: pytypes.PyType, value: Expression, location: SourceLocation
     ) -> Expression:
         tmp_value = SingleEvaluation(value)
-        arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location)
+        arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location, result_type=typ.wtype)
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
         arc4_prefix_is_valid = compare_expr_bytes(
             lhs=arc4_prefix,
@@ -77,18 +75,11 @@ class ARC4FromLogBuilder(FunctionBuilder):
             op=BuilderComparisonOp.eq,
             source_location=location,
         )
-        checked_arc4_value = CheckedMaybe(
-            expr=TupleExpression(
-                items=(arc4_value, arc4_prefix_is_valid.resolve()),
-                wtype=wtypes.WTuple((arc4_value.wtype, wtypes.bool_wtype), location),
-                source_location=location,
-            ),
-            comment="ARC4 prefix is valid",
-        )
-        return ReinterpretCast(
-            expr=checked_arc4_value,
-            wtype=typ.wtype,
+        return CheckedMaybe.from_tuple_items(
+            expr=arc4_value,
+            check=arc4_prefix_is_valid.resolve(),
             source_location=location,
+            comment="ARC4 prefix is valid",
         )
 
     @typing.override

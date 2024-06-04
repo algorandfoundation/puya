@@ -78,14 +78,15 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
                     lhs=UInt64Constant(value=32, source_location=location),
                     rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
                 )
-                address_bytes = CheckedMaybe.from_tuple_items(
-                    expr=address_bytes_temp,
+                value = CheckedMaybe.from_tuple_items(
+                    expr=ReinterpretCast(
+                        expr=address_bytes_temp,
+                        wtype=wtypes.account_wtype,
+                        source_location=location,
+                    ),
                     check=is_correct_length,
                     source_location=location,
                     comment="Address length is 32 bytes",
-                )
-                value = ReinterpretCast(
-                    expr=address_bytes, wtype=wtypes.account_wtype, source_location=location
                 )
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)

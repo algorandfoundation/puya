@@ -19,7 +19,7 @@ contract Greeter
   abimethod log_greetings(name: arc4.string): void
   {
     hello_call: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=this.hello_app, ApplicationArgs=(Method("hello(string)string"), name)))
-    greeting: arc4.string = reinterpret_cast<arc4.string>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0, source=hello_call.LastLog)) == hex<"151F7C75">)))
+    greeting: arc4.string = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0, source=hello_call.LastLog)) == hex<"151F7C75">))
     log(concat(concat('HelloWorld returned: ', ''), arc4_decode(greeting, string)))
   }
 }
