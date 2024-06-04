@@ -17,7 +17,9 @@ def context() -> Generator[AlgopyTestContext[Any], None, None]:
 
 def test_opt_into_asset(context: AlgopyTestContext[Any]) -> None:
     # Arrange
-    account = context.any_account()
+    account = context.any_account(
+        auth_address=context.any_account(), balance=context.any_uint64(1, 1000)
+    )
     application_address = context.any_account()
     asset = context.any_asset()
 

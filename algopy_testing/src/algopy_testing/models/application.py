@@ -42,7 +42,7 @@ class Application:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if self.id not in context.application_data:
+        if int(self.id) not in context.application_data:
             raise ValueError(
                 "`algopy.Application` is not present in the test context! "
                 "Use `context.add_application()` or `context.any_application()` to add the "

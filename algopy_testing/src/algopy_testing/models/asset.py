@@ -51,9 +51,12 @@ class Asset:
                 "your test setup."
             )
 
-        account_data = context.get_account_data(str(account))
+        account_data = context.account_data.get(str(account), None)
 
-        if self.id not in account_data.opted_asset_balances:
+        if not account_data:
+            raise ValueError("Account not found in testing context!")
+
+        if int(self.id) not in account_data.opted_asset_balances:
             raise ValueError(
                 "The asset is not opted into the account! "
                 "Use `account.opt_in()` to opt the asset into the account."
@@ -76,7 +79,8 @@ class Asset:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if self.id not in context.asset_data:
+
+        if int(self.id) not in context.asset_data:
             raise ValueError(
                 "`algopy.Asset` is not present in the test context! "
                 "Use `context.add_asset()` or `context.any_asset()` to add the asset to "

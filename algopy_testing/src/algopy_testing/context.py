@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
     from algopy_testing.itxn import BaseInnerTransaction
 
-
 T = TypeVar("T")
 U = TypeVar("U")
 
@@ -107,7 +106,7 @@ class AlgopyTestContext(Generic[T]):
                     f"`algopy.ITxn` has no attribute '{key}' to set in the test context!"
                 )
 
-    def get_account_data(self, address: str) -> AccountData:
+    def get_account(self, address: str) -> algopy.Account:
         """
         Retrieve an account from the test context by address.
 
@@ -117,8 +116,12 @@ class AlgopyTestContext(Generic[T]):
         Returns:
             algopy.Account: The account associated with the provided address.
         """
+        from algopy import Account
 
-        return self.account_data[address]
+        if address not in self.account_data:
+            raise ValueError("Account not found in testing context!")
+
+        return Account(address)
 
     def update_account(self, address: str, **account_fields: Unpack[AccountFields]) -> None:
         """
@@ -135,10 +138,31 @@ class AlgopyTestContext(Generic[T]):
         if address not in self.account_data:
             raise ValueError("Account not found")
 
-        for key, value in account_fields.items():
-            setattr(self.account_data[address].data, key, value)
+        self.account_data[address].fields.update(account_fields)
 
-    def get_asset_data(self, asset_id: int) -> AssetFields:
+    def get_opted_asset_balance(
+        self, account: algopy.Account, asset_id: algopy.UInt64
+    ) -> algopy.UInt64 | None:
+        """
+        Retrieve the opted asset balance for a given account and asset ID.
+
+        Args:
+            account (algopy.Account): The account to retrieve the opted asset balance for.
+            asset_id (algopy.UInt64): The ID of the asset to retrieve the opted asset balance for.
+
+        Returns:
+            algopy.UInt64 | None: The opted asset balance for the given account and asset ID,
+            or None if the asset is not opted into the account.
+        """
+
+        response = self.account_data.get(
+            str(account),
+            AccountData(fields=AccountFields(), opted_asset_balances={}, opted_apps={}),
+        ).opted_asset_balances.get(asset_id, None)
+
+        return response
+
+    def get_asset(self, asset_id: algopy.UInt64 | int) -> algopy.Asset:
         """
         Retrieve an asset from the test context by ID.
 
@@ -148,10 +172,14 @@ class AlgopyTestContext(Generic[T]):
         Returns:
             algopy.Asset: The asset associated with the provided ID.
         """
+        from algopy import Asset, UInt64
+
+        asset_id = int(asset_id) if isinstance(asset_id, UInt64) else asset_id
+
         if asset_id not in self.asset_data:
             raise ValueError("Asset not found in testing context!")
 
-        return self.asset_data[asset_id]
+        return Asset(asset_id)
 
     def update_asset(self, asset_id: int, **asset_fields: Unpack[AssetFields]) -> None:
         """
@@ -164,10 +192,9 @@ class AlgopyTestContext(Generic[T]):
         if asset_id not in self.asset_data:
             raise ValueError("Asset not found in testing context!")
 
-        for key, value in asset_fields.items():
-            setattr(self.asset_data[asset_id], key, value)
+        self.asset_data[asset_id].update(asset_fields)
 
-    def get_application(self, app_id: int) -> algopy.Application:
+    def get_application(self, app_id: algopy.UInt64 | int) -> algopy.Application:
         """
         Retrieve an application from the test context by ID.
 
@@ -177,12 +204,29 @@ class AlgopyTestContext(Generic[T]):
         Returns:
             algopy.Application: The application associated with the provided ID.
         """
-        from algopy import Application
+        from algopy import Application, UInt64
+
+        app_id = int(app_id) if isinstance(app_id, UInt64) else app_id
 
         if app_id not in self.application_data:
             raise ValueError("Application not found in testing context!")
 
         return Application(app_id)
+
+    def update_application(
+        self, app_id: int, **application_fields: Unpack[ApplicationFields]
+    ) -> None:
+        """
+        Update an existing application in the test context.
+
+        Args:
+            app_id (int): The ID of the application to update.
+            application (algopy.Application): The new application data.
+        """
+        if app_id not in self.application_data:
+            raise ValueError("Application not found in testing context!")
+
+        self.application_data[app_id].update(application_fields)
 
     def add_inner_transaction(self, itxn: BaseInnerTransaction) -> None:
         """
@@ -222,7 +266,7 @@ class AlgopyTestContext(Generic[T]):
         if address in self.account_data:
             raise ValueError(
                 "Account with such address already exists in testing context! "
-                "Use `context.get_account_data(address)` to retrieve the existing account."
+                "Use `context.get_account(address)` to retrieve the existing account."
             )
 
         for key in account_fields:
@@ -233,7 +277,7 @@ class AlgopyTestContext(Generic[T]):
         new_account = Account(new_account_address)
         new_account_fields = AccountFields(**account_fields)
         new_account_data = AccountData(
-            data=new_account_fields,
+            fields=new_account_fields,
             opted_asset_balances=opted_asset_balances or {},
             opted_apps=opted_apps or {},
         )

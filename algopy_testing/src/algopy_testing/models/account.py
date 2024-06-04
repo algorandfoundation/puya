@@ -106,7 +106,7 @@ class Account:
                 "to your test setup."
             )
 
-        return_value = context.account_data[self._public_key].data.get(name)
+        return_value = context.account_data[self._public_key].fields.get(name)
         if return_value is None:
             raise TypeError(
                 f"The value for '{name}' in the test context is None. "
@@ -154,4 +154,4 @@ class AccountData:
 
     opted_asset_balances: dict[algopy.UInt64, algopy.UInt64]
     opted_apps: dict[algopy.UInt64, algopy.Application]
-    data: AccountFields
+    fields: AccountFields

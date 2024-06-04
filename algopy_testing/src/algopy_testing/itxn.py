@@ -1,6 +1,8 @@
 import typing
 from dataclasses import dataclass
 
+import algopy
+
 from algopy_testing.context import get_test_context
 from algopy_testing.enums import OnCompleteAction, TransactionType
 from algopy_testing.models.account import Account
@@ -20,6 +22,7 @@ class BaseInnerTransaction:
 
         if not context:
             raise RuntimeError("No test context found")
+
         context.add_inner_transaction(self)
 
         return self
@@ -61,51 +64,51 @@ class InnerTransaction(BaseInnerTransaction):
     asset_receiver: Account | str | None = None
     asset_close_to: Account | str | None = None
     freeze_asset: Asset | UInt64 | int | None = None
-    freeze_account: Account | str | None = None
+    freeze_account: algopy.Account | str | None = None
     frozen: bool | None = None
-    app_id: Application | UInt64 | int | None = None
-    approval_program: Bytes | bytes | tuple[Bytes, ...] | None = None
-    clear_state_program: Bytes | bytes | tuple[Bytes, ...] | None = None
-    on_completion: OnCompleteAction | UInt64 | int | None = None
-    global_num_uint: UInt64 | int | None = None
-    global_num_bytes: UInt64 | int | None = None
-    local_num_uint: UInt64 | int | None = None
-    local_num_bytes: UInt64 | int | None = None
-    extra_program_pages: UInt64 | int | None = None
-    app_args: tuple[Bytes, ...] | None = None
-    accounts: tuple[Account, ...] | None = None
-    assets: tuple[Asset, ...] | None = None
-    apps: tuple[Application, ...] | None = None
-    sender: Account | str | None = None
-    fee: UInt64 | int = 0
-    note: String | Bytes | str | bytes | None = None
-    rekey_to: Account | str | None = None
+    app_id: algopy.Application | algopy.UInt64 | int | None = None
+    approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] | None = None
+    clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] | None = None
+    on_completion: OnCompleteAction | algopy.UInt64 | int | None = None
+    global_num_uint: algopy.UInt64 | int | None = None
+    global_num_bytes: algopy.UInt64 | int | None = None
+    local_num_uint: algopy.UInt64 | int | None = None
+    local_num_bytes: algopy.UInt64 | int | None = None
+    extra_program_pages: algopy.UInt64 | int | None = None
+    app_args: tuple[algopy.Bytes, ...] | None = None
+    accounts: tuple[algopy.Account, ...] | None = None
+    assets: tuple[algopy.Asset, ...] | None = None
+    apps: tuple[algopy.Application, ...] | None = None
+    sender: algopy.Account | None = None
+    fee: algopy.UInt64 | int = 0
+    note: algopy.String | algopy.Bytes | str | bytes | None = None
+    rekey_to: algopy.Account | str | None = None
 
 
 @dataclass
 class Payment(BaseInnerTransaction):
-    receiver: Account | None = None
-    amount: UInt64 | None = None
-    close_remainder_to: Account | None = None
-    sender: Account | None = None
-    fee: UInt64 | None = None
-    note: String | None = None
-    rekey_to: Account | None = None
+    receiver: algopy.Account | None = None
+    amount: algopy.UInt64 | None = None
+    close_remainder_to: algopy.Account | None = None
+    sender: algopy.Account | None = None
+    fee: algopy.UInt64 | None = None
+    note: algopy.String | None = None
+    rekey_to: algopy.Account | None = None
 
 
 @dataclass
 class KeyRegistration(BaseInnerTransaction):
-    vote_key: Bytes | None = None
-    selection_key: Bytes | None = None
-    vote_first: UInt64 | None = None
-    vote_last: UInt64 | None = None
-    vote_key_dilution: UInt64 | None = None
-    non_participation: UInt64 | None = None
-    state_proof_key: Bytes | None = None
-    sender: Account | None = None
-    fee: UInt64 | None = None
-    note: String | None = None
-    rekey_to: Account | None = None
+    vote_key: algopy.Bytes | None = None
+    selection_key: algopy.Bytes | None = None
+    vote_first: algopy.UInt64 | None = None
+    vote_last: algopy.UInt64 | None = None
+    vote_key_dilution: algopy.UInt64 | None = None
+    non_participation: algopy.UInt64 | None = None
+    state_proof_key: algopy.Bytes | None = None
+    sender: algopy.Account | None = None
+    fee: algopy.UInt64 | None = None
+    note: algopy.String | None = None
+    rekey_to: algopy.Account | None = None
 
 
 @dataclass
@@ -171,3 +174,15 @@ class ApplicationCall(BaseInnerTransaction):
     fee: UInt64 | None = None
     note: String | None = None
     rekey_to: Account | None = None
+
+
+__all__ = [
+    "BaseInnerTransaction",
+    "InnerTransaction",
+    "Payment",
+    "KeyRegistration",
+    "AssetConfig",
+    "AssetTransfer",
+    "AssetFreeze",
+    "ApplicationCall",
+]

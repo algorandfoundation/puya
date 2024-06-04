@@ -44,3 +44,40 @@ class PaymentTransaction(TransactionBase):
     receiver: algopy.Account | None = field(default=None)
     amount: algopy.UInt64 | None = field(default=None)
     close_remainder_to: algopy.Account | None = field(default=None)
+
+
+@dataclass
+class ApplicationCallTransaction(TransactionBase):
+    pass
+
+
+@dataclass
+class KeyRegistrationTransaction(TransactionBase):
+    pass
+
+
+@dataclass
+class AssetConfigTransaction(TransactionBase):
+    pass
+
+
+@dataclass
+class AssetFreezeTransaction(TransactionBase):
+    pass
+
+
+@dataclass
+class Transaction(TransactionBase):
+    pass
+
+
+__all__ = [
+    "TransactionBase",
+    "AssetTransferTransaction",
+    "PaymentTransaction",
+    "ApplicationCallTransaction",
+    "KeyRegistrationTransaction",
+    "AssetConfigTransaction",
+    "AssetFreezeTransaction",
+    "Transaction",
+]

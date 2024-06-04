@@ -31,3 +31,9 @@ class VrfVerify(Enum):
 class Base64(Enum):
     URLEncoding = 0
     StdEncoding = 1
+
+
+__all__ = [
+    "OnCompleteAction",
+    "TransactionType",
+]
