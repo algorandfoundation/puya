@@ -76,8 +76,8 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType], L
                         location,
                     )
                 group_index: Expression = UInt64Constant(value=int_value, source_location=location)
-            case [NodeBuilder() as eb]:
-                group_index = expect_operand_type(eb, pytypes.UInt64Type).resolve()
+            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
+                group_index = eb.resolve()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
         txn = (

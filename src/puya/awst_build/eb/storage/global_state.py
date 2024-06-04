@@ -39,7 +39,9 @@ from puya.awst_build.eb.storage._storage import (
     extract_key_override,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, get_arg_mapping
+from puya.awst_build.utils import (
+    get_arg_mapping,
+)
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -103,11 +105,11 @@ def _init(
     if arg_mapping:
         raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
 
-    match first_arg.pytype:
-        case pytypes.TypeType(typ=content):
+    match first_arg:
+        case NodeBuilder(pytype=pytypes.TypeType(typ=content)):
             initial_value = None
-        case pytypes.PyType() as content:
-            initial_value = expect_operand_type(first_arg, content).resolve()
+        case InstanceBuilder(pytype=content) as iv_builder:
+            initial_value = iv_builder.resolve()
         case _:
             raise CodeError(
                 "First argument must be a type reference or an initial value", location

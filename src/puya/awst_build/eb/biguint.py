@@ -6,6 +6,7 @@ import attrs
 import mypy.nodes
 
 from puya import log
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BigUIntAugmentedAssignment,
     BigUIntBinaryOperation,
@@ -16,7 +17,7 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     Statement,
 )
-from puya.awst_build import pytypes
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
@@ -24,7 +25,6 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -81,7 +81,7 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
             case [LiteralBuilder(value=int(int_value))]:
                 value = BigUIntConstant(value=int_value, source_location=location)
             case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
-                value = uint64_to_biguint(eb, location)
+                value = _uint64_to_biguint(eb, location)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
@@ -119,7 +119,7 @@ class BigUIntExpressionBuilder(
         if other.pytype == self.pytype:
             other_expr = other.resolve()
         elif other.pytype == pytypes.UInt64Type:
-            other_expr = uint64_to_biguint(other, location)
+            other_expr = _uint64_to_biguint(other, location)
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
@@ -142,7 +142,7 @@ class BigUIntExpressionBuilder(
         if other.pytype == self.pytype:
             other_expr = other.resolve()
         elif other.pytype == pytypes.UInt64Type:
-            other_expr = uint64_to_biguint(other, location)
+            other_expr = _uint64_to_biguint(other, location)
         else:
             return NotImplemented
         lhs = self.resolve()
@@ -162,7 +162,7 @@ class BigUIntExpressionBuilder(
         if rhs.pytype == self.pytype:
             value = rhs.resolve()
         elif rhs.pytype == pytypes.UInt64Type:
-            value = uint64_to_biguint(rhs, location)
+            value = _uint64_to_biguint(rhs, location)
         else:
             raise CodeError(
                 f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
@@ -194,3 +194,7 @@ def _translate_biguint_math_operator(
         return BigUIntBinaryOperator(operator.value)
     except ValueError as ex:
         raise CodeError(f"Unsupported BigUInt math operator {operator.value!r}", loc) from ex
+
+
+def _uint64_to_biguint(arg_in: InstanceBuilder, location: SourceLocation) -> Expression:
+    return intrinsic_factory.itob_as(arg_in.resolve(), wtypes.biguint_wtype, location)

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     Expression,
     InnerTransactionField,
@@ -18,7 +17,7 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.utils import expect_operand_type, require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -102,14 +101,13 @@ class _ArrayItem(FunctionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
-def _get_transaction_type_from_arg(
-    literal_or_expr: NodeBuilder,
-) -> TransactionType | None:
-    if isinstance(literal_or_expr, InstanceBuilder):
-        wtype = literal_or_expr.resolve().wtype
-        if isinstance(wtype, wtypes.WInnerTransactionFields):
-            return wtype.transaction_type
-    raise CodeError("Expected an InnerTxnParams argument", literal_or_expr.source_location)
+def _get_transaction_type_from_arg(builder: InstanceBuilder) -> TransactionType | None:
+    if (
+        isinstance(builder.pytype, pytypes.TransactionRelatedType)
+        and builder.pytype in pytypes.InnerTransactionFieldsetTypes.values()
+    ):
+        return builder.pytype.transaction_type
+    raise CodeError("Expected an InnerTxnParams argument", builder.source_location)
 
 
 class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
@@ -122,22 +120,18 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         if len(args) > 1:
-            transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
-            result_typ = pytypes.GenericTupleType.parameterise(
-                [pytypes.InnerTransactionResultTypes[transaction_types[a]] for a in args],
-                location,
-            )
+            arg_exprs = []
+            result_types = []
+            for arg in args:
+                arg_inst = require_instance_builder(arg)
+                arg_exprs.append(arg_inst.resolve())
+                arg_txn_type = _get_transaction_type_from_arg(arg_inst)
+                arg_result_type = pytypes.InnerTransactionResultTypes[arg_txn_type]
+                result_types.append(arg_result_type)
+            result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
             return TupleExpressionBuilder(
                 SubmitInnerTransaction(
-                    wtype=result_typ.wtype,
-                    itxns=tuple(
-                        expect_operand_type(
-                            a,
-                            pytypes.InnerTransactionFieldsetTypes[transaction_types[a]],
-                        ).resolve()
-                        for a in args
-                    ),
-                    source_location=location,
+                    itxns=tuple(arg_exprs), wtype=result_typ.wtype, source_location=location
                 ),
                 result_typ,
             )

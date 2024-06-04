@@ -10,9 +10,7 @@ from puya.awst.nodes import (
     Expression,
     ReinterpretCast,
 )
-from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder
 
 if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
@@ -29,16 +27,6 @@ def bool_eval_to_constant(
         value = not value
     logger.warning(f"expression is always {value}", location=location)
     return LiteralBuilderImpl(value=value, source_location=location)
-
-
-def uint64_to_biguint(arg_in: NodeBuilder, location: SourceLocation) -> Expression:
-    arg = expect_operand_type(arg_in, pytypes.UInt64Type).resolve()
-
-    return intrinsic_factory.itob_as(
-        arg,
-        wtypes.biguint_wtype,
-        location,
-    )
 
 
 def compare_bytes(
