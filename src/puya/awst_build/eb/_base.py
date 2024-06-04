@@ -34,8 +34,12 @@ __all__ = [
     "InstanceExpressionBuilder",
     "NotIterableInstanceExpressionBuilder",
 ]
+
 _TPyType_co = typing_extensions.TypeVar(
     "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
+)
+_TExpression_co = typing_extensions.TypeVar(
+    "_TExpression_co", bound=Expression, default=Expression, covariant=True
 )
 
 
@@ -106,8 +110,10 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
-class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
-    def __init__(self, pytype: _TPyType_co, expr: Expression):
+class InstanceExpressionBuilder(
+    InstanceBuilder[_TPyType_co], typing.Generic[_TPyType_co, _TExpression_co], abc.ABC
+):
+    def __init__(self, pytype: _TPyType_co, expr: _TExpression_co):
         super().__init__(expr.source_location)
         if expr.wtype != pytype.wtype:
             raise InternalError(
@@ -124,7 +130,7 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
         return self._pytype
 
     @property
-    def expr(self) -> Expression:
+    def expr(self) -> _TExpression_co:
         return self.__expr
 
     @typing.override
@@ -134,7 +140,7 @@ class InstanceExpressionBuilder(InstanceBuilder[_TPyType_co], abc.ABC):
         return _validate_lvalue(self._pytype, resolved)
 
     @typing.override
-    def rvalue(self) -> Expression:
+    def rvalue(self) -> _TExpression_co:
         return self.expr
 
     @typing.override

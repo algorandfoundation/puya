@@ -176,7 +176,7 @@ class AppAccountStateExpressionBuilder(
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         expr = self._build_field(index, location)
-        return AppAccountStateForAccountExpressionBuilder(self.pytype.content, expr)
+        return _Value(self.pytype.content, expr)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -318,8 +318,6 @@ class _Maybe(FunctionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
-class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: AppAccountStateExpression  # TODO: remove "lies"
-
+class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppAccountStateExpression]):
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)

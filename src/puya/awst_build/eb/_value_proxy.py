@@ -1,5 +1,7 @@
 import typing
 
+import typing_extensions
+
 from puya.awst.nodes import Expression, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import (
@@ -16,9 +18,16 @@ from puya.awst_build.eb.interface import (
 )
 from puya.parse import SourceLocation
 
+_TPyType_co = typing_extensions.TypeVar(
+    "_TPyType_co", bound=pytypes.PyType, default=pytypes.PyType, covariant=True
+)
+_TExpression_co = typing_extensions.TypeVar(
+    "_TExpression_co", bound=Expression, default=Expression, covariant=True
+)
 
-class ValueProxyExpressionBuilder(InstanceExpressionBuilder):
-    def __init__(self, typ: pytypes.PyType, expr: Expression):
+
+class ValueProxyExpressionBuilder(InstanceExpressionBuilder[_TPyType_co, _TExpression_co]):
+    def __init__(self, typ: _TPyType_co, expr: _TExpression_co):
         super().__init__(typ, expr)
 
     @property

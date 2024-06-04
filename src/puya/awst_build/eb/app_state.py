@@ -166,7 +166,7 @@ class AppStateExpressionBuilder(
         field = self._build_field(location)
         match name:
             case "value":
-                return AppStateValueExpressionBuilder(self.pytype.content, field)
+                return _Value(self.pytype.content, field)
             case "get":
                 return _Get(field, self.pytype.content, location=self.source_location)
             case "maybe":
@@ -275,9 +275,7 @@ class _Get(FunctionBuilder):
         return builder_for_instance(self.content_type, expr)
 
 
-class AppStateValueExpressionBuilder(ValueProxyExpressionBuilder):
-    expr: AppStateExpression  # TODO: remove "lies"
-
+class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppStateExpression]):
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.expr, source_location=location)
