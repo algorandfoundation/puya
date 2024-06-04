@@ -33,13 +33,14 @@ from puya.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
     import mypy.types
 
@@ -48,9 +49,24 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class UInt64TypeBuilder(TypeBuilder):
+class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
+
+    @typing.override
+    @property
+    def handled_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.IntLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case int(int_value):
+                expr = UInt64Constant(value=int_value, source_location=location)
+                return UInt64ExpressionBuilder(expr)
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(

@@ -14,7 +14,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
 Iteration: typing.TypeAlias = Expression | Range
 
@@ -168,6 +168,17 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
     @property
     @abc.abstractmethod
     def value(self) -> ConstantValue: ...
+
+
+class LiteralConverter(NodeBuilder, abc.ABC):
+    @property
+    @abc.abstractmethod
+    def handled_types(self) -> Collection[pytypes.PyType]: ...
+
+    @abc.abstractmethod
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder: ...
 
 
 class StorageProxyConstructorResult(

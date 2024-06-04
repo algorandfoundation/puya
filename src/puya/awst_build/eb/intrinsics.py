@@ -6,20 +6,18 @@ from puya import log
 from puya.awst.nodes import Expression, IntrinsicCall, MethodConstant
 from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
-from puya.awst_build.utils import (
-    construct_from_literal,
-    get_arg_mapping,
-    require_instance_builder,
+from puya.awst_build.eb.factories import builder_for_instance, builder_for_type
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
 )
+from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
+from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -196,11 +194,12 @@ def _map_call(
         elif isinstance(arg_in, LiteralBuilder):
             literal_value = arg_in.value
             for allowed_type in allowed_pytypes:
-                try:
-                    converted = construct_from_literal(arg_in, allowed_type)
-                except CodeError:  # TODO: do this without exceptions
-                    pass
-                else:
+                type_builder = builder_for_type(allowed_type, arg_in.source_location)
+                if (
+                    isinstance(type_builder, LiteralConverter)
+                    and arg_in.pytype in type_builder.handled_types
+                ):
+                    converted = type_builder.convert_literal(arg_in, arg_in.source_location)
                     stack_args.append(converted.resolve())
                     break
             else:

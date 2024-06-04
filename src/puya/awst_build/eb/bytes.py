@@ -39,6 +39,7 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -49,7 +50,7 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
     import mypy.types
 
@@ -58,9 +59,26 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BytesTypeBuilder(TypeBuilder):
+class BytesTypeBuilder(TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BytesType, location)
+
+    @typing.override
+    @property
+    def handled_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.BytesLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case bytes(literal_value):
+                expr = BytesConstant(
+                    value=literal_value, encoding=BytesEncoding.unknown, source_location=location
+                )
+                return BytesExpressionBuilder(expr)
+        raise CodeError(f"can't covert literal {literal.value} to {self.produces()}", location)
 
     @typing.override
     def call(

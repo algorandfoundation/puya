@@ -17,12 +17,18 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
 
     import mypy.types
 
@@ -31,9 +37,24 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BoolTypeBuilder(TypeBuilder):
+class BoolTypeBuilder(TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BoolType, location)
+
+    @typing.override
+    @property
+    def handled_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.BoolType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case bool(literal_value):
+                expr = BoolConstant(value=literal_value, source_location=location)
+                return BoolExpressionBuilder(expr)
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(

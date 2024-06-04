@@ -26,7 +26,12 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.factories import builder_for_type
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -371,7 +376,9 @@ def construct_from_literal(
 ) -> InstanceBuilder:
     loc = loc or literal.source_location
     builder = builder_for_type(target_type, loc)
-    return builder.call(
+    if isinstance(builder, LiteralConverter):
+        return builder.convert_literal(literal, loc)
+    return builder.call(  # TODO: remove fallback
         args=[literal],
         arg_typs=[literal.pytype],
         arg_kinds=[mypy.nodes.ARG_POS],
