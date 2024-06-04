@@ -310,22 +310,6 @@ class ReturnStatement(Statement):
         return visitor.visit_return_statement(self)
 
 
-def _validate_literal(value: object, wtype: WType, source_location: SourceLocation) -> None:
-    if not wtype.is_valid_literal(value):
-        raise CodeError(f"Invalid {wtype} value: {value!r}", source_location)
-
-
-def literal_validator(wtype: WType) -> t.Callable[[Node, object, t.Any], None]:
-    def validate(node: Node, _attribute: object, value: object) -> None:
-        if not isinstance(node, Node):
-            raise InternalError(
-                f"literal_validator used on type {type(node).__name__}, expected Node"
-            )
-        _validate_literal(value, wtype, node.source_location)
-
-    return validate
-
-
 @attrs.frozen(kw_only=True)
 class IntegerConstant(Expression):
     wtype: WType = attrs.field(
@@ -376,8 +360,20 @@ class DecimalConstant(Expression):
     value: decimal.Decimal = attrs.field()
 
     @value.validator
-    def check(self, _attribute: object, value: int) -> None:
-        _validate_literal(value, self.wtype, self.source_location)
+    def _validate_value(self, _attribute: object, value: decimal.Decimal) -> None:
+        sign, digits, exponent = value.as_tuple()
+        type_bits = self.wtype.n
+        type_precision = self.wtype.m
+        if sign != 0:  # is negative
+            raise CodeError("invalid decimal constant (value is negative)", self.source_location)
+        if not isinstance(exponent, int):  # is infinite
+            raise CodeError("invalid decimal constant (value is infinite)", self.source_location)
+        # note: input is expected to be quantized correctly already
+        if -exponent != type_precision:  # wrong precision
+            raise CodeError("invalid decimal constant (wrong precision)", self.source_location)
+        adjusted_int = int("".join(map(str, digits)))
+        if adjusted_int.bit_length() > type_bits:
+            raise CodeError("invalid decimal constant (too many bits)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_decimal_constant(self)
@@ -425,13 +421,13 @@ class BytesEncoding(enum.StrEnum):
 @attrs.frozen
 class BytesConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
-    value: bytes = attrs.field(validator=[literal_validator(wtypes.bytes_wtype)])
+    value: bytes = attrs.field()
     encoding: BytesEncoding = attrs.field()
 
     @value.validator
     def _validate_value(self, _attribute: object, value: str) -> None:
         if not wtypes.is_valid_bytes_literal(value):
-            raise CodeError("invalid address", self.source_location)
+            raise CodeError("invalid bytes constant", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
@@ -440,7 +436,12 @@ class BytesConstant(Expression):
 @attrs.frozen
 class StringConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.string_wtype, init=False)
-    value: str = attrs.field(validator=[literal_validator(wtypes.string_wtype)])
+    value: str = attrs.field()
+
+    @value.validator
+    def _validate_value(self, _attribute: object, value: str) -> None:
+        if not wtypes.is_valid_utf8_literal(value):
+            raise CodeError("invalid string constant", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)
