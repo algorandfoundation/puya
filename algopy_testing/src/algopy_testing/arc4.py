@@ -97,8 +97,8 @@ class _UIntN(_ABIEncoded, typing.Protocol):
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[slice(0, 4)] == _RETURN_PREFIX:
-            return cls.from_bytes(log[slice(4, len(log))])
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
 
@@ -122,41 +122,42 @@ class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     Max Size: 64 bits"""
 
     _t: type[_TBitSize]
-    __bit_size: int
-    __max_bytes_len: int
-    __max_int: int
-    __value: bytes  # underlying 'bytes' value representing the UIntN
+    _bit_size: int
+    _max_bytes_len: int
+    _max_int: int
+    _value: bytes  # underlying 'bytes' value representing the UIntN
 
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
-        self.__bit_size = as_int(typing.get_args(self._t)[0], max=UINT64_SIZE)
-        self.__max_bytes_len = self.__bit_size // BITS_IN_BYTE
-        self.__max_int = 2**self.__bit_size - 1
+        self._bit_size = as_int(typing.get_args(self._t)[0], max=UINT64_SIZE)
+        self._max_bytes_len = self._bit_size // BITS_IN_BYTE
+        self._max_int = 2**self._bit_size - 1
 
-        value = as_int(value, max=self.__max_int)
-        bytes_value = int_to_bytes(value, self.__max_bytes_len)
-        self.__value = as_bytes(bytes_value, max_size=self.__max_bytes_len)
+        value = as_int(value, max=self._max_int)
+        bytes_value = int_to_bytes(value, self._max_bytes_len)
+        self._value = as_bytes(bytes_value, max_size=self._max_bytes_len)
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
-        result = cls(int.from_bytes(value))
+        result = cls()
 
-        max_length = result.__max_bytes_len  # noqa: SLF001
-
+        max_length = result._max_bytes_len  # noqa: SLF001
         if len(value) > max_length:
             raise ValueError(f"expected at most {max_length} bytes, got: {len(value)}")
+
+        result._value = value  # noqa: SLF001
         return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self.__value)
+        return algopy.Bytes(self._value)
 
     @property
     def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        return algopy.UInt64(int.from_bytes(self.__value))
+        return algopy.UInt64(int.from_bytes(self._value))
 
     def __eq__(self, other: object) -> bool:
         return as_int64(self.native) == as_int(other, max=None)
@@ -186,40 +187,42 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     Max size: 512 bits"""
 
     _t: type[_TBitSize]
-    __bit_size: int
-    __max_bytes_len: int
-    __max_int: int
-    __value: bytes  # underlying 'bytes' value representing the BigUIntN
+    _bit_size: int
+    _max_bytes_len: int
+    _max_int: int
+    _value: bytes  # underlying 'bytes' value representing the BigUIntN
 
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
-        self.__bit_size = as_int(typing.get_args(self._t)[0], max=UINT512_SIZE)
-        self.__max_int = 2**self.__bit_size - 1
-        self.__max_bytes_len = self.__bit_size // BITS_IN_BYTE
+        self._bit_size = as_int(typing.get_args(self._t)[0], max=UINT512_SIZE)
+        self._max_int = 2**self._bit_size - 1
+        self._max_bytes_len = self._bit_size // BITS_IN_BYTE
 
-        value = as_int(value, max=self.__max_int)
-        bytes_value = int_to_bytes(value, self.__max_bytes_len)
-        self.__value = as_bytes(bytes_value, max_size=self.__max_bytes_len)
+        value = as_int(value, max=self._max_int)
+        bytes_value = int_to_bytes(value, self._max_bytes_len)
+        self._value = as_bytes(bytes_value, max_size=self._max_bytes_len)
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
-        result = cls(int.from_bytes(value))
+        result = cls()
 
-        max_length = result.__max_bytes_len  # noqa: SLF001
+        max_length = result._max_bytes_len  # noqa: SLF001
         if len(value) > max_length:
             raise ValueError(f"expected at most {max_length} bytes, got: {len(value)}")
+
+        result._value = value  # noqa: SLF001
         return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self.__value)
+        return algopy.Bytes(self._value)
 
     @property
     def native(self) -> algopy.BigUInt:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        return algopy.BigUInt.from_bytes(self.__value)
+        return algopy.BigUInt.from_bytes(self._value)
 
     def __eq__(self, other: object) -> bool:
         return as_int512(self.native) == as_int(other, max=None)
