@@ -27,60 +27,33 @@ class LocalState:
         self.description = description
         self._state: dict[object, object] = {}
 
-    def __setitem__(self, key: object, value: object) -> None:
-        from algopy import Account, Application, Asset
+    def _validate_local_state_key(self, key: Account | UInt64 | int) -> None:
+        if not isinstance(key, Account | UInt64 | int):
+            raise TypeError(f"Invalid key type {type(key)} for LocalState")
 
-        if isinstance(key, Account):
-            key = str(key)
-        elif isinstance(key, Application | Asset):
-            key = key.id.value if key.id else None
+    def __setitem__(self, key: Account | UInt64 | int, value: object) -> None:
+        self._validate_local_state_key(key)
         self._state[key] = value
 
-    def __getitem__(self, key: object) -> object:
-        from algopy import Account, Application, Asset
-
-        if isinstance(key, Account):
-            key = str(key)
-        elif isinstance(key, Application | Asset):
-            key = key.id.value if key.id else None
+    def __getitem__(self, key: Account | UInt64 | int) -> object:
+        self._validate_local_state_key(key)
         return self._state[key]
 
-    def __delitem__(self, key: object) -> None:
-        from algopy import Account, Application, Asset
-
-        if isinstance(key, Account):
-            key = str(key)
-        elif isinstance(key, Application | Asset):
-            key = key.id.value if key.id else None
+    def __delitem__(self, key: Account | UInt64 | int) -> None:
+        self._validate_local_state_key(key)
         del self._state[key]
 
-    def __contains__(self, key: object) -> bool:
-        from algopy import Account, Application, Asset
-
-        if isinstance(key, Account):
-            key = str(key)
-        elif isinstance(key, Application | Asset):
-            key = key.id.value if key.id else None
+    def __contains__(self, key: Account | UInt64 | int) -> bool:
+        self._validate_local_state_key(key)
         return key in self._state
 
-    def get(self, key: object, default: object = None) -> object:
-        from algopy import Account, Application, Asset
-
-        if isinstance(key, Account):
-            key = str(key)
-        elif isinstance(key, Application | Asset):
-            key = key.id.value if key.id else None
+    def get(self, key: Account | UInt64 | int, default: object = None) -> object:
+        self._validate_local_state_key(key)
         return self._state.get(key, default)
 
-    def maybe(self, key: object) -> tuple[object, bool]:
-        from algopy import Account, Application, Asset
-
-        if isinstance(key, Account):
-            key = str(key)
-        elif isinstance(key, Application | Asset):
-            key = key.id.value if key.id else None
-        value = self._state.get(key)
-        return value, key in self._state
+    def maybe(self, key: Account | UInt64 | int) -> tuple[object, bool]:
+        self._validate_local_state_key(key)
+        return self._state.get(key), key in self._state
 
 
 _P = ParamSpec("_P")
