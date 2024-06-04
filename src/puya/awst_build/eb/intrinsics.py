@@ -197,11 +197,11 @@ def _map_call(
             literal_value = arg_in.value
             for allowed_type in allowed_pytypes:
                 try:
-                    literal_expr = construct_from_literal(arg_in, allowed_type).resolve()
+                    converted = construct_from_literal(arg_in, allowed_type)
                 except CodeError:  # TODO: do this without exceptions
                     pass
                 else:
-                    stack_args.append(literal_expr)
+                    stack_args.append(converted.resolve())
                     break
             else:
                 logger.error(
