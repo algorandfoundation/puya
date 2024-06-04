@@ -663,9 +663,3 @@ def arc4_to_avm_equivalent_wtype(arc4_wtype: WType, source_location: SourceLocat
         return bool_wtype
 
     raise InternalError(f"Invalid arc4_wtype: {arc4_wtype}")
-
-
-def is_uint64_on_stack(wtype: WType) -> bool:
-    if wtype in (bool_wtype, uint64_wtype, asset_wtype, application_wtype):
-        return True
-    return False
