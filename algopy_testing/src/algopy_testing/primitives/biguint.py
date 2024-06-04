@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 
-from algopy_testing.constants import UNIT64_BYTES_LENGTH
+from algopy_testing.constants import UINT64_BYTES_LENGTH
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.primitives.uint64 import UInt64
 from algopy_testing.utils import as_bytes, as_int, as_int512, int_to_bytes
@@ -21,7 +21,7 @@ class BigUInt:
 
     def __init__(self, value: UInt64 | int = 0) -> None:
         self.__value = (
-            _int_to_bytes(value.value, UNIT64_BYTES_LENGTH)
+            _int_to_bytes(value.value, UINT64_BYTES_LENGTH)
             if isinstance(value, UInt64)
             else _int_to_bytes(value)
         )
