@@ -425,6 +425,11 @@ class BytesConstant(Expression):
     value: bytes = attrs.field(validator=[literal_validator(wtypes.bytes_wtype)])
     encoding: BytesEncoding = attrs.field()
 
+    @value.validator
+    def _validate_value(self, _attribute: object, value: str) -> None:
+        if not wtypes.valid_address(value):
+            raise CodeError("invalid address", self.source_location)
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
 
@@ -462,12 +467,12 @@ class AddressConstant(Expression):
         default=wtypes.account_wtype,
         validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_type),
     )
-    value: str = attrs.field(validator=[literal_validator(wtypes.account_wtype)])
+    value: str = attrs.field()
 
     @value.validator
-    def check(self, _attribute: object, value: str) -> None:
+    def _validate_value(self, _attribute: object, value: str) -> None:
         if not wtypes.valid_address(value):
-            raise CodeError(f"Invalid address: {value}", self.source_location)
+            raise CodeError("invalid address", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)

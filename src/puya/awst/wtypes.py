@@ -7,6 +7,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import algo_constants
+from puya.avm_type import AVMType
 from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -41,13 +42,21 @@ _uint64_bounds = ValueBounds(max_value=2**64 - 1)  # TODO: constant
 @attrs.frozen(kw_only=True)
 class WType:
     name: str
+    avm_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
+    "the (unbound) AVM stack type, if any"
     bounds: SizeBounds | ValueBounds | None
-    persistable: bool  # can/should this value be used in local/global state or boxes?
+    ephemeral: bool = False
+    """ephemeral types are not suitable for naive storage / persistence,
+     even if their underlying type is a simple stack value"""
     immutable: bool
     is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def persistable(self) -> bool:
+        return self.avm_type is not None and not self.ephemeral
 
 
 def is_valid_bool_literal(value: object) -> typing.TypeGuard[bool]:
@@ -93,14 +102,14 @@ def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
 
 void_wtype: typing.Final = WType(
     name="void",
-    persistable=False,
+    avm_type=None,
     immutable=True,
     bounds=None,
 )
 
 bool_wtype: typing.Final = WType(
     name="bool",
-    persistable=True,
+    avm_type=AVMType.uint64,
     bounds=ValueBounds(max_value=1),
     immutable=True,
     is_valid_literal=is_valid_bool_literal,
@@ -108,7 +117,7 @@ bool_wtype: typing.Final = WType(
 
 uint64_wtype: typing.Final = WType(
     name="uint64",
-    persistable=True,
+    avm_type=AVMType.uint64,
     bounds=_uint64_bounds,
     immutable=True,
     is_valid_literal=is_valid_uint64_literal,
@@ -116,7 +125,7 @@ uint64_wtype: typing.Final = WType(
 
 biguint_wtype: typing.Final = WType(
     name="biguint",
-    persistable=True,
+    avm_type=AVMType.bytes,
     bounds=ValueBounds(max_value=2**algo_constants.MAX_BIGUINT_BITS - 1),
     immutable=True,
     is_valid_literal=is_valid_biguint_literal,
@@ -124,22 +133,22 @@ biguint_wtype: typing.Final = WType(
 
 bytes_wtype: typing.Final = WType(
     name="bytes",
-    persistable=True,
+    avm_type=AVMType.bytes,
     bounds=_bytes_bounds,
     immutable=True,
     is_valid_literal=is_valid_bytes_literal,
 )
 string_wtype: typing.Final = WType(
     name="string",
-    persistable=True,
+    avm_type=AVMType.bytes,
     bounds=_bytes_bounds,
     immutable=True,
     is_valid_literal=is_valid_utf8_literal,
 )
 asset_wtype: typing.Final = WType(
     name="asset",
+    avm_type=AVMType.uint64,
     bounds=_uint64_bounds,
-    persistable=True,
     immutable=True,
     is_valid_literal=is_valid_uint64_literal,
 )
@@ -157,7 +166,7 @@ asset_wtype: typing.Final = WType(
 
 account_wtype: typing.Final = WType(
     name="account",
-    persistable=True,
+    avm_type=AVMType.bytes,
     bounds=SizeBounds(min_size=32, max_size=32),
     immutable=True,
     is_valid_literal=is_valid_account_literal,
@@ -165,7 +174,7 @@ account_wtype: typing.Final = WType(
 
 application_wtype: typing.Final = WType(
     name="application",
-    persistable=True,
+    avm_type=AVMType.uint64,
     bounds=_uint64_bounds,
     immutable=True,
     is_valid_literal=is_valid_uint64_literal,
@@ -175,9 +184,10 @@ application_wtype: typing.Final = WType(
 @attrs.frozen
 class _TransactionRelatedWType(WType):
     transaction_type: constants.TransactionType | None
-    persistable: bool = attrs.field(default=False, init=False)
+    ephemeral: bool = attrs.field(default=True, init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    bounds: None = attrs.field(default=None, init=False)
+    bounds: None = attrs.field(default=None, init=False)  # TODO: group txn?
+    avm_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
 
 
 @typing.final
@@ -219,7 +229,7 @@ class WInnerTransaction(_TransactionRelatedWType):
 @attrs.frozen(init=False)
 class WStructType(WType):
     fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
-    persistable: bool = attrs.field(default=False, init=False)
+    avm_type: None = attrs.field(default=None, init=False)
 
     def __init__(
         self,
@@ -245,7 +255,7 @@ class WStructType(WType):
 @attrs.frozen(init=False)
 class WArray(WType):
     element_type: WType
-    persistable: bool = attrs.field(default=False, init=False)
+    avm_type: None = attrs.field(default=None, init=False)
 
     def __init__(self, element_type: WType, source_location: SourceLocation | None):
         if element_type == void_wtype:
@@ -258,7 +268,7 @@ class WArray(WType):
 @attrs.frozen(init=False)
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
-    persistable: bool = attrs.field(default=False, init=False)
+    avm_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
 
     def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
@@ -274,7 +284,7 @@ class WTuple(WType):
 @attrs.frozen
 class ARC4Type(WType):
     alias: str | None = None
-    persistable: bool = attrs.field(default=True, init=False)
+    avm_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
 
 
 @typing.final
