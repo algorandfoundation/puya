@@ -28,19 +28,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    GenericTypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import (
-    bool_eval_to_constant,
-    compare_bytes,
-    compare_expr_bytes,
-)
+from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, compare_expr_bytes
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -86,7 +79,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         element_type = non_literal_args[0].pytype
 
         for a in non_literal_args:
-            expect_operand_type(a, element_type)
+            require_instance_builder_of_type(a, element_type)
 
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
         wtype = typ.wtype
@@ -116,20 +109,13 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        non_literal_args = [require_instance_builder(a) for a in args]
         typ = self.produces()
+        values = tuple(require_instance_builder_of_type(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
-        for a in non_literal_args:
-            expect_operand_type(a, typ.items)
 
         return DynamicArrayExpressionBuilder(
-            NewArray(
-                values=tuple(a.resolve() for a in non_literal_args),
-                wtype=wtype,
-                source_location=location,
-            ),
-            self._pytype,
+            NewArray(values=values, wtype=wtype, source_location=location), self._pytype
         )
 
 
@@ -153,7 +139,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
         for a in non_literal_args:
-            expect_operand_type(a, element_type)
+            require_instance_builder_of_type(a, element_type)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return StaticArrayExpressionBuilder(
@@ -181,23 +167,15 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        non_literal_args = [require_instance_builder(a) for a in args]
         typ = self.produces()
-        if typ.size != len(non_literal_args):
+        values = tuple(require_instance_builder_of_type(a, typ.items).resolve() for a in args)
+        if typ.size != len(values):
             raise CodeError(f"{typ} should be initialized with {typ.size} values", location)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
 
-        for a in non_literal_args:
-            expect_operand_type(a, typ.items)
-
         return StaticArrayExpressionBuilder(
-            NewArray(
-                values=tuple(a.resolve() for a in non_literal_args),
-                wtype=wtype,
-                source_location=location,
-            ),
-            self.produces(),
+            NewArray(values=values, wtype=wtype, source_location=location), self.produces()
         )
 
 
@@ -278,8 +256,8 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         if isinstance(index, LiteralBuilder) and isinstance(index.value, int) and index.value < 0:
             index_expr: Expression = UInt64BinaryOperation(
-                left=expect_operand_type(
-                    self.member_access("length", index.source_location), pytypes.UInt64Type
+                left=require_instance_builder(
+                    self.member_access("length", index.source_location)
                 ).resolve(),
                 op=UInt64BinaryOperator.sub,
                 right=UInt64Constant(
