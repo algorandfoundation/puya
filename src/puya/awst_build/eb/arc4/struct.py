@@ -47,7 +47,6 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

@@ -99,7 +99,6 @@ class ARC4ClientTypeBuilder(TypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -129,7 +128,6 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -144,12 +142,11 @@ class ABICallGenericTypeBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _abi_call(args, arg_typs, arg_kinds, arg_names, location, abi_return_type=None)
+        return _abi_call(args, arg_kinds, arg_names, location, abi_return_type=None)
 
 
 class ABICallTypeBuilder(FunctionBuilder):
@@ -162,13 +159,12 @@ class ABICallTypeBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
         return _abi_call(
-            args, arg_typs, arg_kinds, arg_names, location, abi_return_type=self.abi_return_type
+            args, arg_kinds, arg_names, location, abi_return_type=self.abi_return_type
         )
 
 
@@ -182,20 +178,19 @@ class _ABICallExpr:
 
 def _abi_call(
     args: Sequence[NodeBuilder],
-    arg_typs: Sequence[pytypes.PyType],
     arg_kinds: list[mypy.nodes.ArgKind],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
     abi_return_type: pytypes.PyType | None,
 ) -> InstanceBuilder:
-    abi_call_expr = _extract_abi_call_args(args, arg_typs, arg_kinds, arg_names, location)
+    abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
     method = abi_call_expr.method
 
     match method:
         case LiteralBuilder(value=str(method_str)):
             arc4_args, signature = get_arc4_args_and_signature(
-                method_str, abi_call_expr.abi_arg_typs, abi_call_expr.abi_args, location
+                method_str, abi_call_expr.abi_args, location
             )
             if abi_return_type is not None:
                 # this will be validated against signature below, by comparing
@@ -422,7 +417,6 @@ def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
 
 def _extract_abi_call_args(
     args: Sequence[NodeBuilder],
-    arg_typs: Sequence[pytypes.PyType],
     arg_kinds: list[mypy.nodes.ArgKind],
     arg_names: list[str | None],
     location: SourceLocation,
@@ -440,7 +434,7 @@ def _extract_abi_call_args(
             method = arg
         elif arg_kind == mypy.nodes.ArgKind.ARG_POS:
             abi_args.append(arg)
-            abi_arg_typs.append(arg_typs[i])
+            abi_arg_typs.append(require_instance_builder(arg).pytype)
         elif arg_kind == mypy.nodes.ArgKind.ARG_NAMED:
             if arg_name is None:
                 raise InternalError(f"Expected named argument at pos {i}", location)

@@ -27,16 +27,13 @@ class EmitBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
             case [LiteralBuilder(value=str(event_str)), *event_args]:
-                arc4_args, signature = get_arc4_args_and_signature(
-                    event_str, arg_typs[1:], event_args, location
-                )
+                arc4_args, signature = get_arc4_args_and_signature(event_str, event_args, location)
                 if signature.return_type is not None:
                     after_args = pytype_to_arc4(signature.return_type)
                     raise CodeError(

@@ -49,7 +49,6 @@ class BoxRefTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -214,7 +213,6 @@ class _IntrinsicMethod(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -247,7 +245,6 @@ class _Create(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -276,7 +273,6 @@ class _Put(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

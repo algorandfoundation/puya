@@ -52,16 +52,13 @@ class AssetTypeBuilder(TypeBuilder, LiteralConverter):
     ) -> InstanceBuilder:
         match literal.value:
             case int():
-                return self.call(  # TODO: fixme
-                    [literal], [literal.pytype], [mypy.nodes.ARG_POS], [None], location
-                )
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
         raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -99,7 +96,6 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

@@ -61,13 +61,15 @@ class ARC4Signature:
 
 def get_arc4_args_and_signature(
     method_sig: str,
-    arg_typs: Sequence[pytypes.PyType],
     native_args: Sequence[NodeBuilder],
     loc: SourceLocation,
 ) -> tuple[Sequence[Expression], ARC4Signature]:
     method_name, maybe_args, maybe_return_type = _parse_method_signature(method_sig, loc)
     arg_types = (
-        list(map(_implicit_literal_to_arc4_conversion, arg_typs))
+        [
+            _implicit_literal_to_arc4_conversion(require_instance_builder(na).pytype)
+            for na in native_args
+        ]
         if maybe_args is None
         else maybe_args
     )

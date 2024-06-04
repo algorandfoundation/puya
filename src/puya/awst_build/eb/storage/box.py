@@ -46,12 +46,11 @@ class BoxTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _init(args, arg_typs, arg_names, location, result_type=self.produces())
+        return _init(args, arg_names, location, result_type=self.produces())
 
 
 class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
@@ -59,17 +58,15 @@ class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _init(args, arg_typs, arg_names, location, result_type=None)
+        return _init(args, arg_names, location, result_type=None)
 
 
 def _init(
     args: Sequence[NodeBuilder],
-    arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
@@ -78,20 +75,19 @@ def _init(
     type_arg_name = "type_"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[type_arg_name],
-        args=zip(arg_names, zip(args, arg_typs, strict=True), strict=True),
+        args=zip(arg_names, args, strict=True),
         location=location,
     )
     try:
-        _, type_arg_typ = arg_mapping.pop(type_arg_name)
+        type_arg = arg_mapping.pop(type_arg_name)
     except KeyError as ex:
         raise CodeError("Required positional argument missing", location) from ex
 
-    key_arg, _ = arg_mapping.pop("key", (None, None))
-    descr_arg, _ = arg_mapping.pop("description", (None, None))
+    key_arg = arg_mapping.pop("key", None)
     if arg_mapping:
         raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
 
-    match type_arg_typ:
+    match type_arg.pytype:
         case pytypes.TypeType(typ=content):
             pass
         case _:

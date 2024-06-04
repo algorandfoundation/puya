@@ -35,7 +35,6 @@ class ArrayGenericTypeBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -43,7 +42,7 @@ class ArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empy arrays require a type annotation to be instantiated", location)
         non_literal_args = [require_instance_builder(a) for a in args]
-        expected_type = arg_typs[0]
+        expected_type = non_literal_args[0].pytype
         for a in non_literal_args:
             expect_operand_type(a, expected_type)
         array_type = pytypes.GenericArrayType.parameterise([expected_type], location)
@@ -70,7 +69,6 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -143,7 +141,6 @@ class _Append(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

@@ -45,15 +45,13 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        typ = pytypes.GenericTupleType.parameterise(arg_typs, location)
-        tuple_expr = TupleExpression.from_items(
-            [require_instance_builder(a).resolve() for a in args], location
-        )
+        inst_args = [require_instance_builder(a) for a in args]
+        typ = pytypes.GenericTupleType.parameterise([ia.pytype for ia in inst_args], location)
+        tuple_expr = TupleExpression.from_items([ia.resolve() for ia in inst_args], location)
         return TupleExpressionBuilder(tuple_expr, typ)
 
 
@@ -70,7 +68,6 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

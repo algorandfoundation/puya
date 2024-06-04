@@ -76,7 +76,6 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -84,7 +83,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [require_instance_builder(a) for a in args]
-        element_type = arg_typs[0]
+        element_type = non_literal_args[0].pytype
 
         for a in non_literal_args:
             expect_operand_type(a, element_type)
@@ -113,7 +112,6 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -140,7 +138,6 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -148,7 +145,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("Empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [require_instance_builder(a) for a in args]
-        element_type = arg_typs[0]
+        element_type = non_literal_args[0].pytype
         array_size = len(non_literal_args)
         typ = pytypes.GenericARC4StaticArrayType.parameterise(
             [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],
@@ -180,7 +177,6 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -213,7 +209,6 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -440,7 +435,6 @@ class _Append(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -468,7 +462,6 @@ class _Pop(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -493,7 +486,6 @@ class _Extend(FunctionBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

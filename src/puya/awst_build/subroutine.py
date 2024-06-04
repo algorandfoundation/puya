@@ -792,10 +792,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             args_context = contextlib.nullcontext
         with args_context():
             args = [arg.accept(self) for arg in call.args]
-            arg_types = [self.context.mypy_expr_node_type(arg) for arg in call.args]
         return callee.call(
             args=args,
-            arg_typs=arg_types,
             arg_kinds=call.arg_kinds,
             arg_names=call.arg_names,
             location=self._location(call),

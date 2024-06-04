@@ -378,7 +378,6 @@ def construct_from_literal(
         return builder.convert_literal(literal, loc)
     return builder.call(  # TODO: remove fallback
         args=[literal],
-        arg_typs=[literal.pytype],
         arg_kinds=[mypy.nodes.ARG_POS],
         arg_names=[None],
         location=loc,

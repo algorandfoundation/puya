@@ -54,12 +54,11 @@ class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _init(args, arg_typs, arg_names, location, result_type=self.produces())
+        return _init(args, arg_names, location, result_type=self.produces())
 
 
 class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
@@ -67,17 +66,15 @@ class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _init(args, arg_typs, arg_names, location, result_type=None)
+        return _init(args, arg_names, location, result_type=None)
 
 
 def _init(
     args: Sequence[NodeBuilder],
-    arg_typs: Sequence[pytypes.PyType],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
@@ -87,20 +84,20 @@ def _init(
     value_type_arg_name = "value_type"
     arg_mapping = get_arg_mapping(
         positional_arg_names=[key_type_arg_name, value_type_arg_name],
-        args=zip(arg_names, zip(args, arg_typs, strict=True), strict=True),
+        args=zip(arg_names, args, strict=True),
         location=location,
     )
     try:
-        _, key_type_arg_typ = arg_mapping.pop(key_type_arg_name)
-        _, value_type_arg_typ = arg_mapping.pop(value_type_arg_name)
+        key_type_arg = arg_mapping.pop(key_type_arg_name)
+        value_type_arg = arg_mapping.pop(value_type_arg_name)
     except KeyError as ex:
         raise CodeError("Required positional argument missing", location) from ex
 
-    key_prefix_arg, _ = arg_mapping.pop("key_prefix", (None, None))
+    key_prefix_arg = arg_mapping.pop("key_prefix", None)
     if arg_mapping:
         raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
 
-    match key_type_arg_typ, value_type_arg_typ:
+    match key_type_arg.pytype, value_type_arg.pytype:
         case pytypes.TypeType(typ=key), pytypes.TypeType(typ=content):
             pass
         case _:
@@ -230,7 +227,6 @@ class _Length(_MethodBase):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -254,7 +250,6 @@ class _Get(_MethodBase):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -279,7 +274,6 @@ class _Maybe(_MethodBase):
     def call(
         self,
         args: Sequence[NodeBuilder],
-        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
