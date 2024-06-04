@@ -30,7 +30,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
+class ArrayGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -57,7 +57,7 @@ class ArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         return ArrayExpressionBuilder(array_expr, array_type)
 
 
-class ArrayClassExpressionBuilder(TypeBuilder[pytypes.ArrayType]):
+class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericArrayType

@@ -21,8 +21,8 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb._bytes_backed import (
-    BytesBackedClassExpressionBuilder,
     BytesBackedInstanceExpressionBuilder,
+    BytesBackedTypeBuilder,
 )
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -47,7 +47,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
+class BigUIntTypeBuilder(BytesBackedTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BigUIntType, location)
 

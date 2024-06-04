@@ -21,7 +21,7 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     FunctionBuilder,
 )
-from puya.awst_build.eb._bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import compare_expr_bytes
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -46,7 +46,7 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TPyType_co], abc.ABC):
+class ARC4TypeBuilder(BytesBackedTypeBuilder[_TPyType_co], abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "from_log":

@@ -19,7 +19,7 @@ from puya.awst_build.eb._base import (
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb.arc4.base import (
-    ARC4ClassExpressionBuilder,
+    ARC4TypeBuilder,
     arc4_bool_bytes,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -41,14 +41,14 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 __all__ = [
-    "UIntNClassExpressionBuilder",
+    "UIntNTypeBuilder",
     "UIntNExpressionBuilder",
 ]
 
 logger = log.get_logger(__name__)
 
 
-class UIntNClassExpressionBuilder(ARC4ClassExpressionBuilder):
+class UIntNTypeBuilder(ARC4TypeBuilder):
     @typing.override
     def call(
         self,

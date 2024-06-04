@@ -25,11 +25,6 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._storage import (
-    StorageProxyDefinitionBuilder,
-    extract_description,
-    extract_key_override,
-)
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -37,6 +32,11 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
+)
+from puya.awst_build.eb.storage._storage import (
+    StorageProxyDefinitionBuilder,
+    extract_description,
+    extract_key_override,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import expect_operand_type, get_arg_mapping
@@ -50,7 +50,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class AppStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
+class GlobalStateTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericGlobalStateType
@@ -69,7 +69,7 @@ class AppStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
-class AppStateGenericClassExpressionBuilder(GenericTypeBuilder):
+class GlobalStateGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -132,7 +132,7 @@ def _init(
         return StorageProxyDefinitionBuilder(
             result_type, location=location, description=description, initial_value=initial_value
         )
-    return _AppStateExpressionBuilderFromConstructor(
+    return _GlobalStateExpressionBuilderFromConstructor(
         key_override=key_override,
         typ=result_type,
         description=description,
@@ -140,7 +140,7 @@ def _init(
     )
 
 
-class AppStateExpressionBuilder(
+class GlobalStateExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.StorageProxyType],
     BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType],
     bytes_member="key",
@@ -183,8 +183,8 @@ class AppStateExpressionBuilder(
         )
 
 
-class _AppStateExpressionBuilderFromConstructor(
-    AppStateExpressionBuilder, StorageProxyConstructorResult
+class _GlobalStateExpressionBuilderFromConstructor(
+    GlobalStateExpressionBuilder, StorageProxyConstructorResult
 ):
     def __init__(
         self,

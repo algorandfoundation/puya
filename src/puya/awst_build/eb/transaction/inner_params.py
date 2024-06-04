@@ -101,7 +101,7 @@ def _maybe_transform_program_field_expr(
     return field, expr
 
 
-class InnerTxnParamsClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
     @typing.override
     def call(
         self,

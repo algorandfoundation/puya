@@ -49,10 +49,10 @@ from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb.arc4 import (
-    ARC4BoolClassExpressionBuilder,
-    ARC4ClientClassExpressionBuilder,
+    ARC4BoolTypeBuilder,
+    ARC4ClientTypeBuilder,
 )
-from puya.awst_build.eb.bool import BoolClassExpressionBuilder
+from puya.awst_build.eb.bool import BoolTypeBuilder
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -625,9 +625,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         self.context, py_typ, typ.defn.info, expr_loc
                     )
                 if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
-                    return ARC4ClientClassExpressionBuilder(
-                        self.context, py_typ, expr_loc, typ.defn.info
-                    )
+                    return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
                 if self.contract_method_info is None:
                     raise InternalError(
@@ -788,7 +786,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if not isinstance(callee, CallableBuilder):
             raise CodeError("not a callable expression", self._location(call.callee))
 
-        if isinstance(callee, BoolClassExpressionBuilder | ARC4BoolClassExpressionBuilder):
+        if isinstance(callee, BoolTypeBuilder | ARC4BoolTypeBuilder):
             args_context: typing.Any = self._enter_bool_context
         else:
             args_context = contextlib.nullcontext

@@ -12,7 +12,7 @@ from puya.awst_build.eb._base import (
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
 from puya.awst_build.eb.arc4.base import (
-    ARC4ClassExpressionBuilder,
+    ARC4TypeBuilder,
 )
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -35,7 +35,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
+class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -56,7 +56,7 @@ class ARC4TupleGenericClassExpressionBuilder(GenericTypeBuilder):
         raise CodeError("Invalid/unhandled arguments", location)
 
 
-class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[pytypes.TupleType]):
+class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericARC4TupleType

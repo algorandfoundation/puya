@@ -83,7 +83,7 @@ _APP_TRANSACTION_FIELDS = {
 }
 
 
-class ARC4ClientClassExpressionBuilder(TypeBuilder):
+class ARC4ClientTypeBuilder(TypeBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
@@ -139,7 +139,7 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
         )
 
 
-class ABICallGenericClassExpressionBuilder(FunctionBuilder):
+class ABICallGenericTypeBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -152,7 +152,7 @@ class ABICallGenericClassExpressionBuilder(FunctionBuilder):
         return _abi_call(args, arg_typs, arg_kinds, arg_names, location, abi_return_type=None)
 
 
-class ABICallClassExpressionBuilder(FunctionBuilder):
+class ABICallTypeBuilder(FunctionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.PseudoGenericFunctionType)
         self.abi_return_type = typ.return_type

@@ -17,15 +17,15 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
-from puya.awst_build.eb.app_state import AppStateExpressionBuilder
-from puya.awst_build.eb.box import (
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.storage import (
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
     BoxRefProxyExpressionBuilder,
+    GlobalStateExpressionBuilder,
+    LocalStateExpressionBuilder,
 )
-from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
     SubroutineInvokerExpressionBuilder,
@@ -118,11 +118,11 @@ def _builder_for_storage_access(
 ) -> NodeBuilder:
     match storage_decl.typ:
         case pytypes.PyType(generic=pytypes.GenericLocalStateType):
-            return AppAccountStateExpressionBuilder(
+            return LocalStateExpressionBuilder(
                 storage_decl.key, storage_decl.typ, storage_decl.member_name
             )
         case pytypes.PyType(generic=pytypes.GenericGlobalStateType):
-            return AppStateExpressionBuilder(
+            return GlobalStateExpressionBuilder(
                 storage_decl.key, storage_decl.typ, storage_decl.member_name
             )
         case pytypes.BoxRefType:

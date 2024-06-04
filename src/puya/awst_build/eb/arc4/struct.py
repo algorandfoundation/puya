@@ -10,8 +10,8 @@ from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb._bytes_backed import (
-    BytesBackedClassExpressionBuilder,
     BytesBackedInstanceExpressionBuilder,
+    BytesBackedTypeBuilder,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
 from puya.awst_build.eb.arc4.base import CopyBuilder
@@ -34,7 +34,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.StructType]):
+class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
         # assert pytypes.ARC4StructBaseType in typ.mro TODO?

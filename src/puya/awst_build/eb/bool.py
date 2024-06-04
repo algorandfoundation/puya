@@ -31,7 +31,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BoolClassExpressionBuilder(TypeBuilder):
+class BoolTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BoolType, location)
 

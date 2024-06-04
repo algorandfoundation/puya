@@ -13,7 +13,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_decode
-from puya.awst_build.eb._bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
@@ -28,7 +28,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class DynamicBytesClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.ArrayType]):
+class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4DynamicBytesType, location)
 

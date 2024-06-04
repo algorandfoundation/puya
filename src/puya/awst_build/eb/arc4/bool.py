@@ -10,7 +10,7 @@ from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import compare_bytes
 from puya.awst_build.eb.arc4.base import (
-    ARC4ClassExpressionBuilder,
+    ARC4TypeBuilder,
     arc4_bool_bytes,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -28,7 +28,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
+class ARC4BoolTypeBuilder(ARC4TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4BoolType, location)
 

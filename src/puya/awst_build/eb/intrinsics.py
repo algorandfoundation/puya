@@ -56,7 +56,7 @@ class Arc4SignatureBuilder(FunctionBuilder):
         )
 
 
-class IntrinsicEnumClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
+class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
     @typing.override
     def call(
         self,
@@ -77,7 +77,7 @@ class IntrinsicEnumClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicEnumType]
         return LiteralBuilderImpl(value=value, source_location=location)
 
 
-class IntrinsicNamespaceClassExpressionBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
+class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
     @typing.override
     def call(
         self,

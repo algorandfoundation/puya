@@ -25,11 +25,6 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._storage import (
-    StorageProxyDefinitionBuilder,
-    extract_description,
-    extract_key_override,
-)
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -39,6 +34,11 @@ from puya.awst_build.eb.interface import (
     Iteration,
     NodeBuilder,
     StorageProxyConstructorResult,
+)
+from puya.awst_build.eb.storage._storage import (
+    StorageProxyDefinitionBuilder,
+    extract_description,
+    extract_key_override,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import (
@@ -51,7 +51,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class AppAccountStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
+class LocalStateTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType
@@ -70,7 +70,7 @@ class AppAccountStateClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType
         return _init(args, arg_typs, arg_names, location, result_type=self._typ)
 
 
-class AppAccountStateGenericClassExpressionBuilder(GenericTypeBuilder):
+class LocalStateGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -128,12 +128,12 @@ def _init(
         return StorageProxyDefinitionBuilder(
             result_type, location=location, description=description
         )
-    return _AppAccountStateExpressionBuilderFromConstructor(
+    return _LocalStateExpressionBuilderFromConstructor(
         key_override=key_override, typ=result_type, description=description
     )
 
 
-class AppAccountStateExpressionBuilder(
+class LocalStateExpressionBuilder(
     BytesBackedInstanceExpressionBuilder[pytypes.StorageProxyType], bytes_member="key"
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
@@ -213,8 +213,8 @@ class AppAccountStateExpressionBuilder(
         return bool_eval_to_constant(value=True, location=location, negate=negate)
 
 
-class _AppAccountStateExpressionBuilderFromConstructor(
-    AppAccountStateExpressionBuilder, StorageProxyConstructorResult
+class _LocalStateExpressionBuilderFromConstructor(
+    LocalStateExpressionBuilder, StorageProxyConstructorResult
 ):
     def __init__(
         self, key_override: Expression, typ: pytypes.StorageProxyType, description: str | None

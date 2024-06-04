@@ -4,17 +4,15 @@ from collections.abc import Callable
 from puya.awst.nodes import Expression
 from puya.awst_build import constants, intrinsic_data, pytypes
 from puya.awst_build.eb import (
-    app_account_state,
-    app_state,
     arc4,
     array,
     biguint,
     bool as bool_,
-    box,
     bytes as bytes_,
     ensure_budget,
     intrinsics,
     log,
+    storage,
     string,
     struct,
     template_variables,
@@ -42,7 +40,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     constants.LOG: log.LogBuilder,
     constants.EMIT: arc4.EmitBuilder,
     constants.SUBMIT_TXNS: transaction.SubmitInnerTransactionExpressionBuilder,
-    constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericClassExpressionBuilder,
+    constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericTypeBuilder,
     constants.CLS_TEMPLATE_VAR_METHOD: (
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
@@ -56,7 +54,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
 
 PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] = {
     pytypes.NoneType: void.VoidTypeExpressionBuilder,
-    pytypes.BoolType: bool_.BoolClassExpressionBuilder,
+    pytypes.BoolType: bool_.BoolTypeBuilder,
     pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
     pytypes.reversedGenericType: functools.partial(
         unsigned_builtins.ReversedFunctionExpressionBuilder, None
@@ -66,43 +64,39 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
         unsigned_builtins.UnsignedEnumerateBuilder, None
     ),
     pytypes.OpUpFeeSourceType: ensure_budget.OpUpFeeSourceClassBuilder,
-    pytypes.GenericBoxType: box.BoxClassGenericExpressionBuilder,
-    pytypes.BoxRefType: box.BoxRefClassExpressionBuilder,
-    pytypes.GenericBoxMapType: box.BoxMapClassGenericExpressionBuilder,
-    pytypes.GenericLocalStateType: app_account_state.AppAccountStateGenericClassExpressionBuilder,
-    pytypes.GenericGlobalStateType: app_state.AppStateGenericClassExpressionBuilder,
-    pytypes.ARC4AddressType: arc4.AddressClassExpressionBuilder,
-    pytypes.ARC4BoolType: arc4.ARC4BoolClassExpressionBuilder,
-    pytypes.ARC4ByteType: functools.partial(
-        arc4.UIntNClassExpressionBuilder, pytypes.ARC4ByteType
-    ),
-    pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayGenericClassExpressionBuilder,
-    pytypes.GenericARC4StaticArrayType: arc4.StaticArrayGenericClassExpressionBuilder,
-    pytypes.ARC4StringType: arc4.StringClassExpressionBuilder,
-    pytypes.GenericARC4TupleType: arc4.ARC4TupleGenericClassExpressionBuilder,
-    pytypes.ARC4DynamicBytesType: arc4.DynamicBytesClassExpressionBuilder,
-    pytypes.AccountType: account.AccountClassExpressionBuilder,
-    pytypes.GenericArrayType: array.ArrayGenericClassExpressionBuilder,
-    pytypes.AssetType: asset.AssetClassExpressionBuilder,
-    pytypes.ApplicationType: application.ApplicationClassExpressionBuilder,
-    pytypes.BigUIntType: biguint.BigUIntClassExpressionBuilder,
-    pytypes.BytesType: bytes_.BytesClassExpressionBuilder,
-    pytypes.StringType: string.StringClassExpressionBuilder,
-    pytypes.UInt64Type: uint64.UInt64ClassExpressionBuilder,
+    pytypes.GenericBoxType: storage.BoxClassGenericExpressionBuilder,
+    pytypes.BoxRefType: storage.BoxRefTypeBuilder,
+    pytypes.GenericBoxMapType: storage.BoxMapClassGenericExpressionBuilder,
+    pytypes.GenericLocalStateType: storage.LocalStateGenericTypeBuilder,
+    pytypes.GenericGlobalStateType: storage.GlobalStateGenericTypeBuilder,
+    pytypes.ARC4AddressType: arc4.AddressTypeBuilder,
+    pytypes.ARC4BoolType: arc4.ARC4BoolTypeBuilder,
+    pytypes.ARC4ByteType: functools.partial(arc4.UIntNTypeBuilder, pytypes.ARC4ByteType),
+    pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayGenericTypeBuilder,
+    pytypes.GenericARC4StaticArrayType: arc4.StaticArrayGenericTypeBuilder,
+    pytypes.ARC4StringType: arc4.StringTypeBuilder,
+    pytypes.GenericARC4TupleType: arc4.ARC4TupleGenericTypeBuilder,
+    pytypes.ARC4DynamicBytesType: arc4.DynamicBytesTypeBuilder,
+    pytypes.AccountType: account.AccountTypeBuilder,
+    pytypes.GenericArrayType: array.ArrayGenericTypeBuilder,
+    pytypes.AssetType: asset.AssetTypeBuilder,
+    pytypes.ApplicationType: application.ApplicationTypeBuilder,
+    pytypes.BigUIntType: biguint.BigUIntTypeBuilder,
+    pytypes.BytesType: bytes_.BytesTypeBuilder,
+    pytypes.StringType: string.StringTypeBuilder,
+    pytypes.UInt64Type: uint64.UInt64TypeBuilder,
     **{
-        op_enum_typ: functools.partial(intrinsics.IntrinsicEnumClassExpressionBuilder, op_enum_typ)
+        op_enum_typ: functools.partial(intrinsics.IntrinsicEnumTypeBuilder, op_enum_typ)
         for op_enum_typ in pytypes.OpEnumTypes
     },
     **{
         op_namespace_typ: functools.partial(
-            intrinsics.IntrinsicNamespaceClassExpressionBuilder, op_namespace_typ
+            intrinsics.IntrinsicNamespaceTypeBuilder, op_namespace_typ
         )
         for op_namespace_typ in pytypes.OpNamespaceTypes
     },
     **{
-        gtxn_pytyp: functools.partial(
-            transaction.GroupTransactionClassExpressionBuilder, gtxn_pytyp
-        )
+        gtxn_pytyp: functools.partial(transaction.GroupTransactionTypeBuilder, gtxn_pytyp)
         for gtxn_pytyp in (
             pytypes.GroupTransactionBaseType,
             *pytypes.GroupTransactionTypes.values(),
@@ -110,13 +104,13 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     },
     **{
         itxn_fieldset_pytyp: functools.partial(
-            transaction.InnerTxnParamsClassExpressionBuilder, itxn_fieldset_pytyp
+            transaction.InnerTxnParamsTypeBuilder, itxn_fieldset_pytyp
         )
         for itxn_fieldset_pytyp in pytypes.InnerTransactionFieldsetTypes.values()
     },
     **{
         itxn_result_pytyp: functools.partial(
-            transaction.InnerTransactionClassExpressionBuilder, itxn_result_pytyp
+            transaction.InnerTransactionTypeBuilder, itxn_result_pytyp
         )
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
     },
@@ -132,24 +126,24 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.uenumerateGenericType: unsigned_builtins.UnsignedEnumerateBuilder,
     pytypes.reversedGenericType: unsigned_builtins.ReversedFunctionExpressionBuilder,
     pytypes.GenericTemplateVarType: template_variables.TemplateVariableExpressionBuilder,
-    pytypes.GenericABICallWithReturnType: arc4.ABICallClassExpressionBuilder,
-    pytypes.GenericLocalStateType: app_account_state.AppAccountStateClassExpressionBuilder,
-    pytypes.GenericGlobalStateType: app_state.AppStateClassExpressionBuilder,
-    pytypes.GenericBoxType: box.BoxClassExpressionBuilder,
-    pytypes.GenericBoxMapType: box.BoxMapClassExpressionBuilder,
-    pytypes.GenericARC4TupleType: arc4.ARC4TupleClassExpressionBuilder,
+    pytypes.GenericABICallWithReturnType: arc4.ABICallTypeBuilder,
+    pytypes.GenericLocalStateType: storage.LocalStateTypeBuilder,
+    pytypes.GenericGlobalStateType: storage.GlobalStateTypeBuilder,
+    pytypes.GenericBoxType: storage.BoxTypeBuilder,
+    pytypes.GenericBoxMapType: storage.BoxMapTypeBuilder,
+    pytypes.GenericARC4TupleType: arc4.ARC4TupleTypeBuilder,
     pytypes.GenericTupleType: tuple_.TupleTypeExpressionBuilder,
-    pytypes.GenericArrayType: array.ArrayClassExpressionBuilder,
-    pytypes.GenericARC4UFixedNxMType: arc4.UFixedNxMClassExpressionBuilder,
-    pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMClassExpressionBuilder,
-    pytypes.GenericARC4UIntNType: arc4.UIntNClassExpressionBuilder,
-    pytypes.GenericARC4BigUIntNType: arc4.UIntNClassExpressionBuilder,
-    pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayClassExpressionBuilder,
-    pytypes.GenericARC4StaticArrayType: arc4.StaticArrayClassExpressionBuilder,
+    pytypes.GenericArrayType: array.ArrayTypeBuilder,
+    pytypes.GenericARC4UFixedNxMType: arc4.UFixedNxMTypeBuilder,
+    pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMTypeBuilder,
+    pytypes.GenericARC4UIntNType: arc4.UIntNTypeBuilder,
+    pytypes.GenericARC4BigUIntNType: arc4.UIntNTypeBuilder,
+    pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayTypeBuilder,
+    pytypes.GenericARC4StaticArrayType: arc4.StaticArrayTypeBuilder,
 }
 
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
-    pytypes.ARC4StructBaseType: arc4.ARC4StructClassExpressionBuilder,
+    pytypes.ARC4StructBaseType: arc4.ARC4StructTypeBuilder,
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
 }
 
@@ -168,7 +162,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
     pytypes.NoneType: void.VoidExpressionBuilder,
-    pytypes.BoxRefType: box.BoxRefProxyExpressionBuilder,
+    pytypes.BoxRefType: storage.BoxRefProxyExpressionBuilder,
     # bound
     **{
         gtxn_pytyp: functools.partial(
@@ -201,8 +195,8 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.PyType | None, InstanceBuilderFromExpressionAndPyTypeFactory
 ] = {
     pytypes.GenericTupleType: tuple_.TupleExpressionBuilder,
-    pytypes.GenericBoxType: box.BoxProxyExpressionBuilder,
-    pytypes.GenericBoxMapType: box.BoxMapProxyExpressionBuilder,
+    pytypes.GenericBoxType: storage.BoxProxyExpressionBuilder,
+    pytypes.GenericBoxMapType: storage.BoxMapProxyExpressionBuilder,
     pytypes.GenericArrayType: array.ArrayExpressionBuilder,
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayExpressionBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayExpressionBuilder,
@@ -211,8 +205,8 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMExpressionBuilder,
     pytypes.GenericARC4UIntNType: arc4.UIntNExpressionBuilder,
     pytypes.GenericARC4BigUIntNType: arc4.UIntNExpressionBuilder,
-    pytypes.GenericGlobalStateType: app_state.AppStateExpressionBuilder,
-    pytypes.GenericLocalStateType: app_account_state.AppAccountStateExpressionBuilder,
+    pytypes.GenericGlobalStateType: storage.GlobalStateExpressionBuilder,
+    pytypes.GenericLocalStateType: storage.LocalStateExpressionBuilder,
 }
 
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {

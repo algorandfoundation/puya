@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ApplicationClassExpressionBuilder(TypeBuilder):
+class ApplicationTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ApplicationType, location)
 

@@ -48,7 +48,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class UInt64ClassExpressionBuilder(TypeBuilder):
+class UInt64TypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
 

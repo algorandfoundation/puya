@@ -19,24 +19,24 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.box._common import (
-    BoxGetExpressionBuilder,
-    BoxMaybeExpressionBuilder,
-    BoxValueExpressionBuilder,
-)
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
 )
+from puya.awst_build.eb.storage._common import (
+    BoxGetExpressionBuilder,
+    BoxMaybeExpressionBuilder,
+    BoxValueExpressionBuilder,
+)
+from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class BoxClassExpressionBuilder(TypeBuilder[pytypes.StorageProxyType]):
+class BoxTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericBoxType

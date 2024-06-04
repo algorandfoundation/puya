@@ -33,8 +33,8 @@ from puya.awst_build.eb._base import (
     GenericTypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import (
-    BytesBackedClassExpressionBuilder,
     BytesBackedInstanceExpressionBuilder,
+    BytesBackedTypeBuilder,
 )
 from puya.awst_build.eb._utils import (
     bool_eval_to_constant,
@@ -71,7 +71,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
+class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -102,7 +102,7 @@ class DynamicArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         )
 
 
-class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.ArrayType]):
+class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4DynamicArrayType
@@ -135,7 +135,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytyp
         )
 
 
-class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
+class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -169,7 +169,7 @@ class StaticArrayGenericClassExpressionBuilder(GenericTypeBuilder):
         )
 
 
-class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.ArrayType]):
+class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4StaticArrayType
@@ -205,7 +205,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytype
         )
 
 
-class AddressClassExpressionBuilder(BytesBackedClassExpressionBuilder[pytypes.ArrayType]):
+class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4AddressType, location)
 

@@ -18,7 +18,7 @@ from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilde
 from puya.awst_build.eb._utils import (
     compare_bytes,
 )
-from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, arc4_bool_bytes
+from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -34,12 +34,12 @@ if typing.TYPE_CHECKING:
 
 
 __all__ = [
-    "UFixedNxMClassExpressionBuilder",
+    "UFixedNxMTypeBuilder",
     "UFixedNxMExpressionBuilder",
 ]
 
 
-class UFixedNxMClassExpressionBuilder(ARC4ClassExpressionBuilder):
+class UFixedNxMTypeBuilder(ARC4TypeBuilder):
     @typing.override
     def call(
         self,

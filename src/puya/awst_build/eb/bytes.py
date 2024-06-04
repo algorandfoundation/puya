@@ -58,7 +58,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class BytesClassExpressionBuilder(TypeBuilder):
+class BytesTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BytesType, location)
 

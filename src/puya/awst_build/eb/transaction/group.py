@@ -31,7 +31,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class GroupTransactionClassExpressionBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
     @typing.override
     def call(
         self,

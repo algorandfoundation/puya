@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class AssetClassExpressionBuilder(TypeBuilder):
+class AssetTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AssetType, location)
 
