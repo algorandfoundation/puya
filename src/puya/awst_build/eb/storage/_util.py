@@ -21,7 +21,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.utils import require_instance_builder_of_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -129,7 +129,7 @@ def _eval_slice_component(
 
     if not isinstance(val, LiteralBuilder):
         # no negatives to deal with here, easy
-        index_expr = expect_operand_type(val, pytypes.UInt64Type).resolve()
+        index_expr = require_instance_builder_of_type(val, pytypes.UInt64Type).resolve()
         temp_index = SingleEvaluation(index_expr)
         return intrinsic_factory.select(
             false=len_expr,
