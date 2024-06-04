@@ -37,7 +37,6 @@ from puya.awst_build.eb.storage._util import box_length_checked
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
-    expect_operand_type,
     get_arg_mapping,
     require_instance_builder,
 )
@@ -260,15 +259,18 @@ class _Get(_MethodBase):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        args_map = get_arg_mapping(("key", "default"), zip(arg_names, args, strict=True), location)
-        item_key = args_map.pop("key")
-        default_value = expect_operand_type(
-            args_map.pop("default"), self.box_type.content
-        ).resolve()
-        if args_map:
-            raise CodeError("Invalid/unexpected args", location)
-        key = _box_value_expr(self.box_map_expr, item_key, location, self.box_type.content.wtype)
-        result_expr = StateGet(default=default_value, field=key, source_location=location)
+        args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
+        match args_map:
+            case {
+                "key": InstanceBuilder(pytype=self.box_type.key) as key_arg,
+                "default": InstanceBuilder(pytype=self.box_type.content) as default_arg,
+                **extras,
+            } if not extras:
+                pass
+            case _:
+                raise CodeError("invalid/unexpected args", location)
+        key = _box_value_expr(self.box_map_expr, key_arg, location, self.box_type.content.wtype)
+        result_expr = StateGet(default=default_arg.resolve(), field=key, source_location=location)
         return builder_for_instance(self.box_type.content, result_expr)
 
 

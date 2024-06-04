@@ -16,7 +16,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:

@@ -20,7 +20,7 @@ from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.storage._util import box_length_checked, index_box_bytes, slice_box_bytes
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -45,7 +45,10 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_type(default_arg, self.content_type).resolve()
+        default_arg_inst = require_instance_builder(default_arg)
+        if default_arg_inst.pytype != self.content_type:
+            raise CodeError("default argument should have same type as box value", location)
+        default_expr = default_arg_inst.resolve()
         return builder_for_instance(
             self.content_type,
             StateGet(field=self.box, default=default_expr, source_location=location),

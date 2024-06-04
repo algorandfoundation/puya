@@ -34,7 +34,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types._base import ReferenceValueExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type
+from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:

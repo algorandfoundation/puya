@@ -14,7 +14,7 @@ from puya.awst_build.eb.arc4.base import (
     arc4_bool_bytes,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
+from puya.awst_build.eb.interface import InstanceBuilder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+    from puya.awst_build.eb.interface import BuilderComparisonOp, NodeBuilder
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -44,8 +44,8 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         match args:
             case []:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
-            case [val]:
-                native_bool = expect_operand_type(val, pytypes.BoolType).resolve()
+            case [InstanceBuilder(pytype=pytypes.BoolType) as eb]:
+                native_bool = eb.resolve()
             case _:
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
