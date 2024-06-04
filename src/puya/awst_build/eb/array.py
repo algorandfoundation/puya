@@ -23,8 +23,8 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
-    expect_operand_type,
     require_instance_builder,
+    require_instance_builder_of_type,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -44,7 +44,7 @@ class ArrayGenericTypeBuilder(GenericTypeBuilder):
         non_literal_args = [require_instance_builder(a) for a in args]
         expected_type = non_literal_args[0].pytype
         for a in non_literal_args:
-            expect_operand_type(a, expected_type)
+            require_instance_builder_of_type(a, expected_type)
         array_type = pytypes.GenericArrayType.parameterise([expected_type], location)
         wtype = array_type.wtype
         assert isinstance(wtype, wtypes.WArray)
@@ -73,15 +73,11 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        non_literal_args = [require_instance_builder(a) for a in args]
         array_type = self.produces()
-        for a in non_literal_args:
-            expect_operand_type(a, array_type.items)
-        array_expr = NewArray(
-            values=tuple(a.resolve() for a in non_literal_args),
-            wtype=self._wtype,
-            source_location=location,
+        values = tuple(
+            require_instance_builder_of_type(a, array_type.items).resolve() for a in args
         )
+        array_expr = NewArray(values=values, wtype=self._wtype, source_location=location)
         return ArrayExpressionBuilder(array_expr, array_type)
 
 
@@ -108,7 +104,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item_expr = expect_operand_type(item, self.pytype.items).resolve()
+        item_expr = require_instance_builder_of_type(item, self.pytype.items).resolve()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.resolve())
         return BoolExpressionBuilder(contains_expr)
 

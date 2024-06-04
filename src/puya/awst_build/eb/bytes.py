@@ -46,6 +46,7 @@ from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
     convert_literal_to_builder,
     expect_operand_type,
+    require_instance_builder_of_type,
 )
 from puya.errors import CodeError, InternalError
 
@@ -305,4 +306,4 @@ def _eval_slice_component(val: NodeBuilder | None) -> Expression | None | int:
             return None
         case LiteralBuilder(value=int(int_value)):
             return int_value
-    return expect_operand_type(val, pytypes.UInt64Type).resolve()
+    return require_instance_builder_of_type(val, pytypes.UInt64Type).resolve()

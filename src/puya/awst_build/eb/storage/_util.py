@@ -4,14 +4,24 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
+    NumericComparison,
+    NumericComparisonExpression,
     SingleEvaluation,
     TupleItemExpression,
+    UInt64BinaryOperation,
+    UInt64BinaryOperator,
     UInt64Constant,
 )
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder
+from puya.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+)
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import eval_slice_component
+from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -60,10 +70,10 @@ def slice_box_bytes(
         raise CodeError("Stride is not supported when slicing boxes", location)
     len_expr = SingleEvaluation(box_length_unchecked(box, location))
 
-    begin_index_expr = eval_slice_component(len_expr, begin_index, location) or UInt64Constant(
+    begin_index_expr = _eval_slice_component(len_expr, begin_index, location) or UInt64Constant(
         value=0, source_location=location
     )
-    end_index_expr = eval_slice_component(len_expr, end_index, location) or len_expr
+    end_index_expr = _eval_slice_component(len_expr, end_index, location) or len_expr
     length_expr = (
         UInt64ExpressionBuilder(end_index_expr)
         .binary_op(
@@ -108,4 +118,54 @@ def _box_len(box_key: Expression, location: SourceLocation) -> IntrinsicCall:
         wtype=wtypes.WTuple([wtypes.uint64_wtype, wtypes.bool_wtype], source_location=location),
         stack_args=[box_key],
         source_location=location,
+    )
+
+
+def _eval_slice_component(
+    len_expr: Expression, val: NodeBuilder | None, location: SourceLocation
+) -> Expression | None:
+    if val is None:
+        return None
+
+    if not isinstance(val, LiteralBuilder):
+        # no negatives to deal with here, easy
+        index_expr = expect_operand_type(val, pytypes.UInt64Type).resolve()
+        temp_index = SingleEvaluation(index_expr)
+        return intrinsic_factory.select(
+            false=len_expr,
+            true=temp_index,
+            condition=NumericComparisonExpression(
+                lhs=temp_index,
+                operator=NumericComparison.lt,
+                rhs=len_expr,
+                source_location=location,
+            ),
+            loc=location,
+        )
+
+    int_lit = val.value
+    if not isinstance(int_lit, int):
+        raise CodeError(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
+    # take the min of abs(int_lit) and len(self.expr)
+    abs_lit_expr = UInt64Constant(value=abs(int_lit), source_location=val.source_location)
+    trunc_value_expr = intrinsic_factory.select(
+        false=len_expr,
+        true=abs_lit_expr,
+        condition=NumericComparisonExpression(
+            lhs=abs_lit_expr,
+            operator=NumericComparison.lt,
+            rhs=len_expr,
+            source_location=location,
+        ),
+        loc=location,
+    )
+    return (
+        trunc_value_expr
+        if int_lit >= 0
+        else UInt64BinaryOperation(
+            left=len_expr,
+            op=UInt64BinaryOperator.sub,
+            right=trunc_value_expr,
+            source_location=location,
+        )
     )

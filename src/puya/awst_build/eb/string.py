@@ -172,7 +172,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item = expect_operand_type(item, pytypes.StringType)
+        item = expect_operand_type(item, self.pytype)
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[
