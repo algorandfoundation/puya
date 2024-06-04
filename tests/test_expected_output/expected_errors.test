@@ -313,12 +313,13 @@ class Base2(ARC4Contract):
 from algopy import *
 
 class Con(Contract):
-    x: None ## E: None is not supported as a value, only a return type
+    x: None ## E: None is not supported as a value, only a return type \
+            ## E: type is not suitable for storage
 
     def approval_program(self) -> bool:
-        self.x = log(b"")  # type: ignore[func-returns-value] ## E: None indicates an empty return and cannot be assigned
+        self.x = log(b"")  # type: ignore[func-returns-value] ## E: type is not suitable for storage
         return True
 
     def clear_state_program(self) -> bool:
-        assert self.x ## W: expression is always False
+        assert self.x ## E: type is not suitable for storage
         return True

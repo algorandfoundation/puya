@@ -39,6 +39,8 @@ class Node:
         typ = attrs.resolve_types(type(self))
         for field in attrs.fields(typ):
             field_value = getattr(self, field.name)
+            if not field.init:
+                continue
             if not isinstance(field.type, types.GenericAlias):
                 field_type = field.type
                 if not isinstance(field_value, field_type):
