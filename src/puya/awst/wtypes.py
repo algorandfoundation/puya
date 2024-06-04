@@ -1,4 +1,5 @@
 import base64
+import decimal
 import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import cached_property
@@ -12,13 +13,6 @@ from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import sha512_256_hash
-
-
-def _all_literals_invalid(_value: object) -> bool:
-    return False
-
-
-LiteralValidator: typing.TypeAlias = Callable[[object], bool]
 
 
 @attrs.frozen(kw_only=True)
@@ -49,7 +43,6 @@ class WType:
     """ephemeral types are not suitable for naive storage / persistence,
      even if their underlying type is a simple stack value"""
     immutable: bool
-    is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
         return self.name
@@ -120,7 +113,6 @@ bool_wtype: typing.Final = WType(
     scalar_type=AVMType.uint64,
     bounds=ValueBounds(max_value=1),
     immutable=True,
-    is_valid_literal=is_valid_bool_literal,
 )
 
 uint64_wtype: typing.Final = WType(
@@ -128,7 +120,6 @@ uint64_wtype: typing.Final = WType(
     scalar_type=AVMType.uint64,
     bounds=_uint64_bounds,
     immutable=True,
-    is_valid_literal=is_valid_uint64_literal,
 )
 
 biguint_wtype: typing.Final = WType(
@@ -136,7 +127,6 @@ biguint_wtype: typing.Final = WType(
     scalar_type=AVMType.bytes,
     bounds=ValueBounds(max_value=2**algo_constants.MAX_BIGUINT_BITS - 1),
     immutable=True,
-    is_valid_literal=is_valid_biguint_literal,
 )
 
 bytes_wtype: typing.Final = WType(
@@ -144,21 +134,18 @@ bytes_wtype: typing.Final = WType(
     scalar_type=AVMType.bytes,
     bounds=_bytes_bounds,
     immutable=True,
-    is_valid_literal=is_valid_bytes_literal,
 )
 string_wtype: typing.Final = WType(
     name="string",
     scalar_type=AVMType.bytes,
     bounds=_bytes_bounds,
     immutable=True,
-    is_valid_literal=is_valid_utf8_literal,
 )
 asset_wtype: typing.Final = WType(
     name="asset",
     scalar_type=AVMType.uint64,
     bounds=_uint64_bounds,
     immutable=True,
-    is_valid_literal=is_valid_uint64_literal,
 )
 # TODO: take the below approach and use everywhere
 # state_key: typing.Final = WType(
@@ -177,7 +164,6 @@ account_wtype: typing.Final = WType(
     scalar_type=AVMType.bytes,
     bounds=SizeBounds(min_size=32, max_size=32),
     immutable=True,
-    is_valid_literal=is_valid_account_literal,
 )
 
 application_wtype: typing.Final = WType(
@@ -185,7 +171,6 @@ application_wtype: typing.Final = WType(
     scalar_type=AVMType.uint64,
     bounds=_uint64_bounds,
     immutable=True,
-    is_valid_literal=is_valid_uint64_literal,
 )
 
 
@@ -300,11 +285,6 @@ class ARC4Type(WType):
 class ARC4UIntN(ARC4Type):
     n: int
     immutable: bool = attrs.field(default=True, init=False)
-    is_valid_literal: LiteralValidator = attrs.field(init=False, eq=False)
-
-    @is_valid_literal.default
-    def _literal_validator(self) -> LiteralValidator:
-        return _uint_literal_validator(max_bits=self.n)
 
     def __init__(
         self,
@@ -370,12 +350,13 @@ class ARC4UFixedNxM(ARC4Type):
             n=bits,
             m=precision,
             bounds=ValueBounds(max_value=2**bits - 1),
-            is_valid_literal=_make_ufixed_literal_validator(precision=precision, bits=bits),
         )
 
 
-def _make_ufixed_literal_validator(*, bits: int, precision: int) -> LiteralValidator:
-    def validator(value: object) -> bool:
+def _make_ufixed_literal_validator(
+    *, bits: int, precision: int
+) -> Callable[[object], typing.TypeGuard[decimal.Decimal]]:
+    def validator(value: object) -> typing.TypeGuard[decimal.Decimal]:
         import decimal
 
         if not isinstance(value, decimal.Decimal):
@@ -410,18 +391,15 @@ class ARC4DynamicArray(ARC4Array):
         *,
         name: str | None = None,
         alias: str | None = None,
-        is_valid_literal: LiteralValidator | None = None,
     ):
         if not isinstance(element_type, ARC4Type):
             raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
         name = name or f"arc4.dynamic_array<{element_type.name}>"
-        is_valid_literal = is_valid_literal or typing.cast(LiteralValidator, attrs.NOTHING)
         self.__attrs_init__(
             name=name,
             element_type=element_type,
             alias=alias,
             bounds=None,
-            is_valid_literal=is_valid_literal,
         )
 
 
@@ -516,14 +494,12 @@ arc4_string_wtype: typing.Final = ARC4Type(
     alias="string",
     immutable=True,
     bounds=SizeBounds(max_size=algo_constants.MAX_BYTES_LENGTH - 2),
-    is_valid_literal=is_valid_utf8_literal,
 )
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
     alias="bool",
     immutable=True,
     bounds=ValueBounds(max_value=1),
-    is_valid_literal=is_valid_bool_literal,
 )
 arc4_byte_type: typing.Final = ARC4UIntN(  # TODO: REMOVE ME
     n=8,
@@ -534,7 +510,6 @@ arc4_byte_type: typing.Final = ARC4UIntN(  # TODO: REMOVE ME
 arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(  # TODO: REMOVE ME
     name="arc4.dynamic_bytes",
     element_type=arc4_byte_type,
-    is_valid_literal=is_valid_bytes_literal,
     source_location=None,
 )
 arc4_address_type: typing.Final = ARC4StaticArray(
@@ -553,7 +528,7 @@ def valid_base32(s: str) -> bool:
         value = base64.b32decode(s)
     except ValueError:
         return False
-    return bytes_wtype.is_valid_literal(value)
+    return is_valid_bytes_literal(value)
     # regex from PyTEAL, appears to be RFC-4648
     # ^(?:[A-Z2-7]{8})*(?:([A-Z2-7]{2}([=]{6})?)|([A-Z2-7]{4}([=]{4})?)|([A-Z2-7]{5}([=]{3})?)|([A-Z2-7]{7}([=]{1})?))?  # noqa: E501
 
@@ -563,7 +538,7 @@ def valid_base16(s: str) -> bool:
         value = base64.b16decode(s)
     except ValueError:
         return False
-    return bytes_wtype.is_valid_literal(value)
+    return is_valid_bytes_literal(value)
 
 
 def valid_base64(s: str) -> bool:
@@ -572,7 +547,7 @@ def valid_base64(s: str) -> bool:
         value = base64.b64decode(s, validate=True)
     except ValueError:
         return False
-    return bytes_wtype.is_valid_literal(value)
+    return is_valid_bytes_literal(value)
     # regex from PyTEAL, appears to be RFC-4648
     # ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
 

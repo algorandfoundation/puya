@@ -196,9 +196,11 @@ def _map_call(
         elif isinstance(arg_in, LiteralBuilder):
             literal_value = arg_in.value
             for allowed_type in allowed_pytypes:
-                allowed_wtype = allowed_type.wtype  # TODO yeet me
-                if allowed_wtype.is_valid_literal(literal_value):
+                try:
                     literal_expr = construct_from_literal(arg_in, allowed_type).resolve()
+                except CodeError:  # TODO: do this without exceptions
+                    pass
+                else:
                     stack_args.append(literal_expr)
                     break
             else:

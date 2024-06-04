@@ -63,7 +63,9 @@ class ARC4FromLogBuilder(FunctionBuilder):
         cls, typ: pytypes.PyType, value: Expression, location: SourceLocation
     ) -> Expression:
         tmp_value = SingleEvaluation(value)
-        arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location, result_type=typ.wtype)
+        arc4_value = intrinsic_factory.extract(
+            tmp_value, start=4, loc=location, result_type=typ.wtype
+        )
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
         arc4_prefix_is_valid = compare_expr_bytes(
             lhs=arc4_prefix,
