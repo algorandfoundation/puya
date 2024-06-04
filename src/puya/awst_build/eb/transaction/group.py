@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import algo_constants
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -18,20 +20,40 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
 
-class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType], LiteralConverter):
+
+    @typing.override
+    @property
+    def handled_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.IntLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case int():
+                return self.call(  # TODO: fixme
+                    [literal], [literal.pytype], [mypy.nodes.ARG_POS], [None], location
+                )
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+
     @typing.override
     def call(
         self,
@@ -45,7 +67,7 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
-            case [LiteralBuilder(value=int(int_value), source_location=loc)]:
+            case [LiteralBuilder(value=int(int_value))]:
                 if int_value < 0:
                     raise CodeError(
                         "Transaction group index should be between non-negative", location
@@ -56,7 +78,7 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
                         f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
                         location,
                     )
-                group_index: Expression = UInt64Constant(value=int_value, source_location=loc)
+                group_index: Expression = UInt64Constant(value=int_value, source_location=location)
             case [NodeBuilder() as eb]:
                 group_index = expect_operand_type(eb, pytypes.UInt64Type).resolve()
             case _:

@@ -2,19 +2,25 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, ReinterpretCast, UInt64Constant
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import TypeBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
+from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
@@ -22,9 +28,25 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ApplicationTypeBuilder(TypeBuilder):
+class ApplicationTypeBuilder(TypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ApplicationType, location)
+
+    @typing.override
+    @property
+    def handled_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.IntLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case int():
+                return self.call(  # TODO: fixme
+                    [literal], [literal.pytype], [mypy.nodes.ARG_POS], [None], location
+                )
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(

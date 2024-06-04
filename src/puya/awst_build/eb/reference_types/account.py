@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
@@ -28,16 +30,15 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
+from puya.awst_build.eb.reference_types._base import ReferenceValueExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_builder, expect_operand_type
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
@@ -45,9 +46,25 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class AccountTypeBuilder(BytesBackedTypeBuilder):
+class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AccountType, location)
+
+    @typing.override
+    @property
+    def handled_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.StrLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case str():
+                return self.call(  # TODO: fixme
+                    [literal], [literal.pytype], [mypy.nodes.ARG_POS], [None], location
+                )
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(
