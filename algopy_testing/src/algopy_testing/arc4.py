@@ -59,51 +59,8 @@ class _ABIEncoded(typing.Protocol):
         ...
 
 
-class _UIntN(_ABIEncoded, typing.Protocol):
-    def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None: ...
-
-    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
-    # TODO: mypy suggests due to Liskov below should be other: object
-    #       need to consider ramifications here, ignoring it for now
-    def __eq__(  # type: ignore[override]
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool: ...
-    def __ne__(  # type: ignore[override]
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool: ...
-    def __le__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool: ...
-    def __lt__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool: ...
-    def __ge__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool: ...
-    def __gt__(
-        self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
-    ) -> bool: ...
-    def __bool__(self) -> bool:
-        """Returns `True` if not equal to zero"""
-        ...
-
-    @classmethod
-    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
-        """Load an ABI type from application logs,
-        checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
-            return cls.from_bytes(log[4:])
-        raise ValueError("ABI return prefix not found")
-
-
 # https://stackoverflow.com/a/75395800
-class _UIntNMeta(type(_UIntN), typing.Generic[_TBitSize]):  # type: ignore  # noqa: PGH003
+class _UIntNMeta(type(_ABIEncoded), typing.Generic[_TBitSize]):  # type: ignore  # noqa: PGH003
     __concrete__: dict[type[_TBitSize], type] = {}  # noqa: RUF012
 
     def __getitem__(cls, key_t: type[_TBitSize]) -> type:
@@ -116,25 +73,65 @@ class _UIntNMeta(type(_UIntN), typing.Generic[_TBitSize]):  # type: ignore  # no
         return c
 
 
-class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
-    """An ARC4 UInt consisting of the number of bits specified.
-
-    Max Size: 64 bits"""
-
+class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     _t: type[_TBitSize]
     _bit_size: int
+    _max_bits_len: int
     _max_bytes_len: int
     _max_int: int
     _value: bytes  # underlying 'bytes' value representing the UIntN
 
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
-        self._bit_size = as_int(typing.get_args(self._t)[0], max=UINT64_SIZE)
-        self._max_bytes_len = self._bit_size // BITS_IN_BYTE
+        self._bit_size = as_int(typing.get_args(self._t)[0], max=self._max_bits_len)
         self._max_int = 2**self._bit_size - 1
+        self._max_bytes_len = self._bit_size // BITS_IN_BYTE
 
         value = as_int(value, max=self._max_int)
         bytes_value = int_to_bytes(value, self._max_bytes_len)
         self._value = as_bytes(bytes_value, max_size=self._max_bytes_len)
+
+    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
+    # TODO: mypy suggests due to Liskov below should be other: object
+    #       need to consider ramifications here, ignoring it for now
+    def __eq__(  # type: ignore[override]
+        self,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
+    ) -> bool:
+        raise NotImplementedError
+
+    def __ne__(  # type: ignore[override]
+        self,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
+    ) -> bool:
+        raise NotImplementedError
+
+    def __le__(
+        self,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
+    ) -> bool:
+        raise NotImplementedError
+
+    def __lt__(
+        self,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
+    ) -> bool:
+        raise NotImplementedError
+
+    def __ge__(
+        self,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
+    ) -> bool:
+        raise NotImplementedError
+
+    def __gt__(
+        self,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
+    ) -> bool:
+        raise NotImplementedError
+
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to zero"""
+        raise NotImplementedError
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
@@ -153,6 +150,22 @@ class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
         return algopy.Bytes(self._value)
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
+
+
+class UIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
+    """An ARC4 UInt consisting of the number of bits specified.
+
+    Max Size: 64 bits"""
+
+    _max_bits_len = UINT64_SIZE
 
     @property
     def native(self) -> algopy.UInt64:
@@ -181,43 +194,12 @@ class UIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
         return bool(self.native)
 
 
-class BigUIntN(_UIntN, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
+class BigUIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     """An ARC4 UInt consisting of the number of bits specified.
 
     Max size: 512 bits"""
 
-    _t: type[_TBitSize]
-    _bit_size: int
-    _max_bytes_len: int
-    _max_int: int
-    _value: bytes  # underlying 'bytes' value representing the BigUIntN
-
-    def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
-        self._bit_size = as_int(typing.get_args(self._t)[0], max=UINT512_SIZE)
-        self._max_int = 2**self._bit_size - 1
-        self._max_bytes_len = self._bit_size // BITS_IN_BYTE
-
-        value = as_int(value, max=self._max_int)
-        bytes_value = int_to_bytes(value, self._max_bytes_len)
-        self._value = as_bytes(bytes_value, max_size=self._max_bytes_len)
-
-    @classmethod
-    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
-        """Construct an instance from the underlying bytes (no validation)"""
-        value = as_bytes(value)
-        result = cls()
-
-        max_length = result._max_bytes_len  # noqa: SLF001
-        if len(value) > max_length:
-            raise ValueError(f"expected at most {max_length} bytes, got: {len(value)}")
-
-        result._value = value  # noqa: SLF001
-        return result
-
-    @property
-    def bytes(self) -> algopy.Bytes:
-        """Get the underlying Bytes"""
-        return algopy.Bytes(self._value)
+    _max_bits_len = UINT512_SIZE
 
     @property
     def native(self) -> algopy.BigUInt:
