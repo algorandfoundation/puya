@@ -22,7 +22,7 @@ from puya.awst_build.eb._base import (
     FunctionBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import compare_bytes, compare_expr_bytes
+from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes, compare_expr_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -125,10 +125,8 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         )
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return ReinterpretCast(
-            source_location=location, wtype=wtypes.bytes_wtype, expr=self.resolve()
-        )
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return cast_to_bytes(self.resolve(), location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

@@ -90,7 +90,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         super().__init__(typ, expr)
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override

@@ -27,7 +27,7 @@ _PYTHON_MEMBER_FIELD_MAP = {
 class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
     @typing.override
     @typing.final
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         raise CodeError("cannot serialize transaction type", location)
 
     @abc.abstractmethod

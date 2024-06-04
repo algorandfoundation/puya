@@ -12,7 +12,6 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb._utils import cast_to_bytes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -70,7 +69,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         )
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         return self._assign_first(location)
 
     @typing.override
@@ -171,7 +170,7 @@ def extract_key_override(
         case InstanceBuilder(pytype=pytypes.BytesType) as eb:
             key_override = eb.resolve()
         case InstanceBuilder(pytype=pytypes.StringType) as eb:
-            key_override = cast_to_bytes(eb, location)
+            key_override = eb.to_bytes(location)
         case _:
             raise CodeError(
                 f"invalid type for key{'_prefix' if is_prefix else ''}  argument",

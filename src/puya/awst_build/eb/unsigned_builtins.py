@@ -155,7 +155,7 @@ class _IterableOnlyBuilder(InstanceBuilder):
         raise NotImplementedError("TODO")  # TODO
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         return self._iterable_only(location)
 
     @typing.override

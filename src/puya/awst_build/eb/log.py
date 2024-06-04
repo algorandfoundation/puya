@@ -4,12 +4,10 @@ import typing
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     Expression,
-    ReinterpretCast,
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
@@ -54,11 +52,7 @@ class LogBuilder(FunctionBuilder):
                         source_location=sep_arg.source_location,
                     )
                 case InstanceBuilder(pytype=pytypes.StringType) as eb:
-                    sep = ReinterpretCast(
-                        expr=eb.resolve(),
-                        wtype=wtypes.bytes_wtype,
-                        source_location=eb.source_location,
-                    )
+                    sep = eb.to_bytes(sep_arg.source_location)
                 case _:
                     sep = expect_operand_type(sep_arg, pytypes.BytesType).resolve()
 

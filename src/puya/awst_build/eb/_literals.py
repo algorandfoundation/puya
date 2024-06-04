@@ -66,7 +66,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         raise CodeError("cannot assign to literal", self.source_location)
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         match self.value:
             case str(str_value):
                 return BytesConstant(

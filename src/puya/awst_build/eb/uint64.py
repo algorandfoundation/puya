@@ -78,7 +78,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         super().__init__(pytypes.UInt64Type, expr)
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         return intrinsic_factory.itob(self.resolve(), location)
 
     @typing.override

@@ -317,12 +317,7 @@ def arc4_decode(
         case wtypes.ARC4DynamicArray(
             element_type=wtypes.ARC4UIntN(n=8)
         ) if target_wtype == wtypes.bytes_wtype:
-            return intrinsic_factory.extract(
-                awst_nodes.ReinterpretCast(
-                    expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
-                ),
-                start=2,
-            )
+            return intrinsic_factory.extract(bytes_arg, start=2)
         case wtypes.ARC4Tuple(types=tuple_types):
             decode_expression = awst_nodes.ARC4Decode(
                 source_location=location,

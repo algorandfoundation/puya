@@ -94,7 +94,7 @@ class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
 
     @typing.override
     @typing.final
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override

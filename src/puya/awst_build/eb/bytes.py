@@ -155,7 +155,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         super().__init__(pytypes.BytesType, expr)
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         return self.resolve()
 
     @typing.override

@@ -86,11 +86,7 @@ def _compare_expr_bytes_unchecked(
     return BoolExpressionBuilder(cmp_expr)
 
 
-def cast_to_bytes(
-    expr: InstanceBuilder | Expression, location: SourceLocation | None = None
-) -> ReinterpretCast:
+def cast_to_bytes(expr: Expression, location: SourceLocation | None = None) -> ReinterpretCast:
     return ReinterpretCast(
-        expr=expr.resolve() if isinstance(expr, InstanceBuilder) else expr,
-        wtype=wtypes.bytes_wtype,
-        source_location=location or expr.source_location,
+        expr=expr, wtype=wtypes.bytes_wtype, source_location=location or expr.source_location
     )

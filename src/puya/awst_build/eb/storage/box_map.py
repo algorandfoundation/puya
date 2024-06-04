@@ -307,7 +307,7 @@ def _box_value_expr(
     location: SourceLocation,
     content_type: wtypes.WType,
 ) -> BoxValueExpression:
-    key_data = require_instance_builder(key).serialize_bytes(location)
+    key_data = require_instance_builder(key).to_bytes(location)
     full_key = intrinsic_factory.concat(key_prefix, key_data, location)
     return BoxValueExpression(
         key=full_key,

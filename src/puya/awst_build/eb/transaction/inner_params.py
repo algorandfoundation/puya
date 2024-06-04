@@ -153,7 +153,7 @@ class InnerTxnParamsExpressionBuilder(
         super().__init__(typ, expr)
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
+    def to_bytes(self, location: SourceLocation) -> Expression:
         raise CodeError("cannot serialize inner transaction fieldset", location)
 
     @typing.override

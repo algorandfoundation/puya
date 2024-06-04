@@ -35,8 +35,8 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder[_TPyType_co, _TExpre
         return builder_for_instance(self.pytype, self.resolve())
 
     @typing.override
-    def serialize_bytes(self, location: SourceLocation) -> Expression:
-        return self._proxied.serialize_bytes(location)
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return self._proxied.to_bytes(location)
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:

@@ -28,7 +28,7 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes
+from puya.awst_build.eb._utils import compare_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -161,8 +161,8 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[
-                CallArg(value=cast_to_bytes(item), name="item"),
-                CallArg(value=cast_to_bytes(self), name="sequence"),
+                CallArg(value=item.to_bytes(item.source_location), name="item"),
+                CallArg(value=self.to_bytes(self.source_location), name="sequence"),
             ],
             wtype=wtypes.bool_wtype,
             source_location=location,
