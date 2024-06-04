@@ -62,8 +62,8 @@ class ApplicationTypeBuilder(TypeBuilder, LiteralConverter):
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
             case [LiteralBuilder(value=int(int_value), source_location=loc)]:
                 uint64_expr = UInt64Constant(value=int_value, source_location=loc)
-            case [NodeBuilder() as eb]:
-                uint64_expr = expect_operand_type(eb, pytypes.UInt64Type).resolve()
+            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
+                uint64_expr = eb.resolve()
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with

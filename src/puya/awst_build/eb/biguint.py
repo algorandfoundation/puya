@@ -81,7 +81,7 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
                 value: Expression = BigUIntConstant(value=0, source_location=location)
             case [LiteralBuilder(value=int(int_value))]:
                 value = BigUIntConstant(value=int_value, source_location=location)
-            case [NodeBuilder() as eb]:
+            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
                 value = uint64_to_biguint(eb, location)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)

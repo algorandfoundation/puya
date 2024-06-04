@@ -86,8 +86,8 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
                         location,
                     )
                 value = AddressConstant(value=addr_value, source_location=location)
-            case [NodeBuilder() as eb]:
-                value = expect_operand_type(eb, pytypes.BytesType).resolve()
+            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
+                value = eb.resolve()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
