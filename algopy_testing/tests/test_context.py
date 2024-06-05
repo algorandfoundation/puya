@@ -87,7 +87,7 @@ def test_inner_transaction_management() -> None:
 
 def test_last_itxn_access() -> None:
     with algopy_testing_context() as context:
-        from algopy_testing.op import ITxn
+        from algopy.op import ITxn
 
         dummy_account = context.any_account()
         itxn = algopy_testing.itxn.Payment(sender=dummy_account)
