@@ -77,11 +77,21 @@ test_static_elements:
     callsub get_uint2
     uncover 2
     concat
-    byte 0x0002
-    dig 2
-    concat
+    swap
+    dup
     dig 1
     concat
+    byte 0x0002
+    swap
+    concat
+    dup
+    int 0
+    extract_uint16
+    int 1
+    >
+    assert // Index access is out of bounds
+    dig 2
+    replace2 12
     dup
     log
     dup
@@ -94,7 +104,7 @@ test_static_elements:
     int 10
     callsub dynamic_array_pop_fixed_size
     swap
-    uncover 2
+    uncover 3
     ==
     assert
     int 10
@@ -182,19 +192,38 @@ test_dynamic_elements:
     concat
     swap
     concat
-    dig 1
+    swap
+    dup
     len
     int 4
     +
     itob
     extract 6 2
-    byte 0x00020004
+    byte 0x0004
     swap
-    concat
-    dig 2
     concat
     dig 1
     concat
+    dig 1
+    concat
+    byte 0x0002
+    swap
+    concat
+    byte 0x0002
+    dig 2
+    concat
+    swap
+    dup
+    int 0
+    extract_uint16
+    swap
+    extract 2 0
+    int 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    dig 2
+    int 1
+    callsub dynamic_array_replace_dynamic_element
     dup
     log
     dup
@@ -224,11 +253,26 @@ test_dynamic_elements:
     uncover 2
     substring3
     log
-    uncover 2
+    dig 2
     int 2
     - // on error: Index access is out of bounds
-    dig 3
+    dig 4
     int 4
+    extract_uint16
+    dig 3
+    dig 1
+    uncover 3
+    select
+    dig 5
+    uncover 3
+    uncover 2
+    substring3
+    log
+    uncover 2
+    int 3
+    - // on error: Index access is out of bounds
+    dig 3
+    int 6
     extract_uint16
     uncover 3
     swap
@@ -236,15 +280,26 @@ test_dynamic_elements:
     select
     substring3
     log
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_dynamic_element
+    swap
+    dig 2
+    ==
+    assert
+    dup
+    log
+    callsub dynamic_array_pop_dynamic_element
+    swap
+    uncover 3
+    ==
+    assert
+    dup
+    log
+    callsub dynamic_array_pop_dynamic_element
     swap
     uncover 2
     ==
     assert
-    callsub dynamic_array_pop_variable_size
-    pop
-    ==
-    assert
+    log
     retsub
 
 
@@ -294,20 +349,25 @@ test_mixed_single_dynamic_elements:
     concat
     swap
     concat
-    swap
-    dup
-    len
-    int 4
-    +
-    itob
-    extract 6 2
-    byte 0x00020004
-    swap
-    concat
+    byte 0x0002
     dig 1
     concat
+    int 0
+    byte 0x
+    int 1
+    dig 3
+    callsub dynamic_array_concat_dynamic_element
+    dup
+    int 0
+    extract_uint16
+    swap
+    extract 2 0
+    int 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
     dig 2
-    concat
+    int 0
+    callsub dynamic_array_replace_dynamic_element
     dup
     log
     dup
@@ -349,12 +409,12 @@ test_mixed_single_dynamic_elements:
     select
     substring3
     log
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_dynamic_element
     swap
-    uncover 3
+    uncover 2
     ==
     assert
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_dynamic_element
     pop
     ==
     assert
@@ -426,13 +486,19 @@ test_mixed_multiple_dynamic_elements:
     +
     itob
     extract 6 2
-    byte 0x00020004
+    byte 0x0004
     swap
     concat
     dig 2
     concat
-    dig 1
+    dig 2
     concat
+    byte 0x0002
+    swap
+    concat
+    dig 1
+    int 1
+    callsub dynamic_array_replace_dynamic_element
     dup
     log
     dup
@@ -474,19 +540,19 @@ test_mixed_multiple_dynamic_elements:
     select
     substring3
     log
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_dynamic_element
     swap
     uncover 2
     ==
     assert
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_dynamic_element
     pop
     ==
     assert
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// algopy_lib_arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
 dynamic_array_pop_fixed_size:
     proto 2 2
     frame_dig -2
@@ -513,8 +579,8 @@ dynamic_array_pop_fixed_size:
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_variable_size(source: bytes) -> bytes, bytes:
-dynamic_array_pop_variable_size:
+// algopy_lib_arc4.dynamic_array_pop_dynamic_element(array: bytes) -> bytes, bytes:
+dynamic_array_pop_dynamic_element:
     proto 1 2
     frame_dig -1
     int 0
@@ -524,101 +590,253 @@ dynamic_array_pop_variable_size:
     dup
     int 2
     *
+    dup
     frame_dig -1
     extract 2 0
     dup
-    dig 2
+    cover 2
+    dup
+    uncover 2
     extract_uint16
-    swap
+    dup
+    uncover 2
     dup
     len
     swap
-    dup
-    dig 3
-    uncover 3
-    substring3
-    cover 3
-    dup
-    int 0
-    dig 4
-    substring3
     cover 2
-    uncover 3
+    substring3
+    byte ""
+    int 0
+
+dynamic_array_pop_dynamic_element_for_header@1:
+    frame_dig 6
+    frame_dig 1
+    <
+    bz dynamic_array_pop_dynamic_element_after_for@5
+    frame_dig 2
+    frame_dig 6
+    dup
+    cover 2
+    extract_uint16
+    int 2
+    -
+    itob
+    extract 6 2
+    frame_dig 5
+    swap
+    concat
+    frame_bury 5
     int 2
     +
+    frame_bury 6
+    b dynamic_array_pop_dynamic_element_for_header@1
+
+dynamic_array_pop_dynamic_element_after_for@5:
+    frame_dig 0
+    itob
+    extract 6 2
+    frame_dig 5
+    concat
+    frame_dig 1
+    int 2
+    +
+    frame_dig 2
+    swap
+    frame_dig 3
+    substring3
+    concat
+    frame_dig 4
+    frame_bury 0
+    frame_bury 1
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+dynamic_array_concat_dynamic_element:
+    proto 4 1
+    byte ""
+    dup
+    frame_dig -2
+    int 2
+    *
+    frame_dig -4
+    int 2
+    *
+    int 0
+
+dynamic_array_concat_dynamic_element_for_header@1:
+    frame_dig 4
+    frame_dig 3
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@5
+    frame_dig -3
+    frame_dig 4
+    dup
+    cover 2
+    extract_uint16
+    frame_dig 2
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    swap
+    concat
+    frame_bury 1
+    int 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@1
+
+dynamic_array_concat_dynamic_element_after_for@5:
+    frame_dig -3
+    len
+    frame_bury 0
+    int 0
+    frame_bury 4
+
+dynamic_array_concat_dynamic_element_for_header@6:
+    frame_dig 4
+    frame_dig 2
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@10
+    frame_dig -1
+    frame_dig 4
+    dup
+    cover 2
+    extract_uint16
+    frame_dig 0
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    swap
+    concat
+    frame_bury 1
+    int 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@6
+
+dynamic_array_concat_dynamic_element_after_for@10:
+    frame_dig -4
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    concat
+    frame_dig -3
+    frame_dig 3
+    frame_dig 0
+    substring3
+    concat
+    frame_dig -1
+    len
+    frame_dig -1
+    frame_dig 2
     uncover 2
     substring3
     concat
-    dig 2
-    itob
-    extract 6 0
-    swap
+    frame_bury 0
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
+dynamic_array_replace_dynamic_element:
+    proto 3 1
+    frame_dig -3
+    substring 0 2
+    dup
+    btoi
+    frame_dig -3
+    extract 2 0
+    frame_dig -2
+    frame_dig -1
     uncover 3
-    int 0
-    callsub recalculate_array_offsets_static
+    callsub static_array_replace_dynamic_element
     concat
     retsub
 
 
-// algopy_lib_arc4.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
-recalculate_array_offsets_static:
-    proto 3 1
-    byte ""
-    dup
-    frame_dig -1
-    int 2
-    *
-    frame_dig -1
-    bnz recalculate_array_offsets_static_else_body@2
+// algopy_lib_arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+static_array_replace_dynamic_element:
+    proto 4 1
     frame_dig -2
     int 2
     *
-    frame_bury 1
-    b recalculate_array_offsets_static_after_if_else@3
-
-recalculate_array_offsets_static_else_body@2:
-    frame_dig -3
-    frame_dig 2
+    frame_dig -4
+    swap
     extract_uint16
-    frame_bury 1
-
-recalculate_array_offsets_static_after_if_else@3:
-    frame_dig -1
-    frame_bury 0
-
-recalculate_array_offsets_static_for_header@4:
-    frame_dig 0
     frame_dig -2
-    <
-    bz recalculate_array_offsets_static_after_for@8
-    frame_dig 1
-    dup
-    itob
-    extract 6 0
-    frame_dig -3
-    frame_dig 2
-    dup
-    cover 4
-    uncover 2
-    replace3
-    dup
-    frame_bury -3
-    dig 1
-    extract_uint16
-    int 2
-    +
-    +
-    frame_bury 1
-    int 2
-    +
-    frame_bury 2
-    frame_dig 0
     int 1
     +
-    frame_bury 0
-    b recalculate_array_offsets_static_for_header@4
-
-recalculate_array_offsets_static_after_for@8:
+    int 2
+    *
+    frame_dig -4
+    dig 1
+    extract_uint16
+    frame_dig -4
+    len
+    frame_dig -1
+    frame_dig -2
+    -
+    int 1
+    -
+    dig 1
+    uncover 3
+    uncover 2
+    select
+    dup
+    dig 4
+    -
+    cover 4
     frame_dig -3
+    len
+    cover 4
+    frame_dig -4
+    int 0
+    uncover 5
+    substring3
+    frame_dig -3
+    concat
+    frame_dig -4
+    uncover 2
+    uncover 3
+    substring3
+    concat
+    swap
+    frame_dig -1
+    int 2
+    *
+    swap
+
+static_array_replace_dynamic_element_for_header@1:
+    frame_dig 4
+    frame_dig 3
+    <
+    bz static_array_replace_dynamic_element_after_for@5
+    frame_dig 2
+    dup
+    frame_dig 4
+    dup
+    cover 3
+    extract_uint16
+    frame_dig 1
+    +
+    frame_dig 0
+    -
+    itob
+    extract 6 2
+    dig 2
+    swap
+    replace3
+    frame_bury 2
+    int 2
+    +
+    frame_bury 4
+    b static_array_replace_dynamic_element_for_header@1
+
+static_array_replace_dynamic_element_after_for@5:
+    frame_dig 2
     frame_bury 0
     retsub

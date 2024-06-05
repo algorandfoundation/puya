@@ -13,6 +13,9 @@ class DynamicStruct(arc4.Struct):
     b: arc4.String
 
 
+# HH BBBBBB
+
+
 class MixedSingleStruct(arc4.Struct):
     a: arc4.UInt64
     b: arc4.String
@@ -36,7 +39,8 @@ class DynamicArrayContract(ARC4Contract):
 
         struct1 = StaticStruct(get_uint1(), byte_array1)
         struct2 = StaticStruct(get_uint2(), byte_array2)
-        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        array = arc4.DynamicArray(struct1.copy(), struct1.copy())
+        array[1] = struct2.copy()
         log(array)
         log(array[0])
         log(array[1])
@@ -48,24 +52,29 @@ class DynamicArrayContract(ARC4Contract):
     def test_dynamic_elements(self) -> None:
         struct1 = DynamicStruct(get_string1(), get_string2())
         struct2 = DynamicStruct(get_string3(), get_string1())
-        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        array = arc4.DynamicArray(struct1.copy(), struct1.copy())
         array.append(struct1.copy())
+        array[1] = struct2.copy()  # replace
         log(array)
         log(array[0])
         log(array[1])
         log(array[2])
 
         assert array.pop() == struct1
+        log(array)
         assert array.pop() == struct2
+        log(array)
         assert array.pop() == struct1
+        log(array)
 
     @arc4.abimethod()
     def test_mixed_single_dynamic_elements(self) -> None:
         struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
         struct2 = MixedSingleStruct(get_uint2(), get_string2(), get_uint1())
         array = arc4.DynamicArray[MixedSingleStruct]()
-        array.append(struct1.copy())
         array.append(struct2.copy())
+        array.append(struct2.copy())
+        array[0] = struct1.copy()  # replace
         log(array)
         log(array[0])
         log(array[1])
@@ -81,7 +90,8 @@ class DynamicArrayContract(ARC4Contract):
         struct2 = MixedMultipleStruct(
             get_uint2(), get_string3(), get_uint1(), get_string1(), get_uint2()
         )
-        array = arc4.DynamicArray(struct1.copy(), struct2.copy())
+        array = arc4.DynamicArray(struct1.copy(), struct1.copy())
+        array[1] = struct2.copy()
         log(array)
         log(array[0])
         log(array[1])

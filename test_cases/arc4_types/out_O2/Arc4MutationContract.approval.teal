@@ -84,7 +84,7 @@ dynamic_array_string:
     byte 0x00020004000b000548656c6c6f0005576f726c64
     byte "\x00\x03Foo\x00\x03Bar"
     int 2
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     dup
     byte "\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar"
     ==
@@ -106,27 +106,27 @@ dynamic_array_string:
     cover 3
     substring3
     uncover 2
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     ==
     assert
     byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     byte "\x00\x05Hello"
     int 3
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     byte "\x00\x05Hello"
     int 5
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     dup
     byte 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
     ==
     assert
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_byte_length_head
     swap
     byte "\x00\x03Bar"
     ==
     assert
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_byte_length_head
     swap
     byte "\x00\x03Foo"
     ==
@@ -143,14 +143,14 @@ array_of_array_dynamic:
     byte 0x0000
     byte 0x00010a
     int 1
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     dup
     byte 0x0001000200010a
     ==
     assert
     byte 0x000110
     int 1
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     dup
     byte 0x00020004000700010a000110
     ==
@@ -183,7 +183,7 @@ array_of_array_dynamic:
     swap
     concat
     int 0
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     dup
     byte 0x00020004000800020aff000110
     ==
@@ -215,7 +215,7 @@ array_of_array_dynamic:
     byte 0x00
     replace2 3
     int 0
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     byte 0x00020004000800020a00000110
     ==
     assert
@@ -320,14 +320,14 @@ array_concat:
     byte 0x00010002000548656c6c6f
     byte 0x0005576f726c64
     int 1
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     byte 0x00020004000b000548656c6c6f0005576f726c64
     ==
     assert
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_bit(source: bytes) -> bytes, bytes:
+// algopy_lib_arc4.dynamic_array_pop_bit(array: bytes) -> bytes, bytes:
 dynamic_array_pop_bit:
     proto 1 2
     frame_dig -1
@@ -366,7 +366,7 @@ dynamic_array_pop_bit:
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// algopy_lib_arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
 dynamic_array_pop_fixed_size:
     proto 2 2
     frame_dig -2
@@ -393,8 +393,8 @@ dynamic_array_pop_fixed_size:
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_variable_size(source: bytes) -> bytes, bytes:
-dynamic_array_pop_variable_size:
+// algopy_lib_arc4.dynamic_array_pop_byte_length_head(array: bytes) -> bytes, bytes:
+dynamic_array_pop_byte_length_head:
     proto 1 2
     frame_dig -1
     int 0
@@ -431,16 +431,16 @@ dynamic_array_pop_variable_size:
     concat
     dig 2
     itob
-    extract 6 0
+    extract 6 2
     swap
     uncover 3
     int 0
-    callsub recalculate_array_offsets_static
+    callsub recalculate_head_for_elements_with_byte_length_head
     concat
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_concat_bits(source: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
+// algopy_lib_arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
 dynamic_array_concat_bits:
     proto 4 1
     byte ""
@@ -538,8 +538,52 @@ dynamic_array_concat_bits_after_for@10:
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64) -> bytes:
-dynamic_array_replace_variable_size:
+// algopy_lib_arc4.dynamic_array_concat_byte_length_head(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+dynamic_array_concat_byte_length_head:
+    proto 3 1
+    frame_dig -3
+    int 0
+    extract_uint16
+    dup
+    frame_dig -1
+    +
+    swap
+    int 2
+    *
+    int 2
+    +
+    swap
+    dup
+    itob
+    extract 6 2
+    swap
+    frame_dig -3
+    int 2
+    dig 4
+    substring3
+    frame_dig -1
+    int 2
+    *
+    bzero
+    concat
+    frame_dig -3
+    len
+    frame_dig -3
+    uncover 5
+    uncover 2
+    substring3
+    concat
+    frame_dig -2
+    concat
+    swap
+    int 0
+    callsub recalculate_head_for_elements_with_byte_length_head
+    concat
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
+dynamic_array_replace_byte_length_head:
     proto 3 1
     frame_dig -3
     substring 0 2
@@ -550,13 +594,13 @@ dynamic_array_replace_variable_size:
     frame_dig -2
     frame_dig -1
     uncover 3
-    callsub static_array_replace_variable_size
+    callsub static_array_replace_byte_length_head
     concat
     retsub
 
 
-// algopy_lib_arc4.static_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-static_array_replace_variable_size:
+// algopy_lib_arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+static_array_replace_byte_length_head:
     proto 4 1
     frame_dig -2
     frame_dig -1
@@ -591,89 +635,38 @@ static_array_replace_variable_size:
     concat
     frame_dig -1
     frame_dig -2
-    callsub recalculate_array_offsets_static
+    callsub recalculate_head_for_elements_with_byte_length_head
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_concat_variable_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
-dynamic_array_concat_variable_size:
+// algopy_lib_arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
+recalculate_head_for_elements_with_byte_length_head:
     proto 3 1
+    frame_dig -2
+    int 2
+    *
+    dup
+    frame_dig -1
+    int 2
+    *
     frame_dig -3
-    int 0
+    dig 1
     extract_uint16
-    dup
-    frame_dig -1
-    +
-    swap
-    int 2
-    *
-    int 2
-    +
-    swap
-    dup
-    itob
-    extract 6 0
-    swap
-    frame_dig -3
-    int 2
-    dig 4
-    substring3
-    frame_dig -1
-    int 2
-    *
-    bzero
-    concat
-    frame_dig -3
-    len
-    frame_dig -3
-    uncover 5
     uncover 2
-    substring3
-    concat
-    frame_dig -2
-    concat
     swap
-    int 0
-    callsub recalculate_array_offsets_static
-    concat
-    retsub
-
-
-// algopy_lib_arc4.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
-recalculate_array_offsets_static:
-    proto 3 1
-    byte ""
-    dup
     frame_dig -1
-    int 2
-    *
-    frame_dig -1
-    bnz recalculate_array_offsets_static_else_body@2
-    frame_dig -2
-    int 2
-    *
-    frame_bury 1
-    b recalculate_array_offsets_static_after_if_else@3
+    select
+    swap
 
-recalculate_array_offsets_static_else_body@2:
-    frame_dig -3
+recalculate_head_for_elements_with_byte_length_head_for_header@1:
     frame_dig 2
-    extract_uint16
-    frame_bury 1
-
-recalculate_array_offsets_static_after_if_else@3:
-    frame_dig -1
-    frame_bury 0
-
-recalculate_array_offsets_static_for_header@4:
     frame_dig 0
-    frame_dig -2
     <
-    bz recalculate_array_offsets_static_after_for@8
+    bz recalculate_head_for_elements_with_byte_length_head_after_for@5
     frame_dig 1
     dup
     itob
-    extract 6 0
+    extract 6 2
     frame_dig -3
     frame_dig 2
     dup
@@ -691,13 +684,9 @@ recalculate_array_offsets_static_for_header@4:
     int 2
     +
     frame_bury 2
-    frame_dig 0
-    int 1
-    +
-    frame_bury 0
-    b recalculate_array_offsets_static_for_header@4
+    b recalculate_head_for_elements_with_byte_length_head_for_header@1
 
-recalculate_array_offsets_static_after_for@8:
+recalculate_head_for_elements_with_byte_length_head_after_for@5:
     frame_dig -3
     frame_bury 0
     retsub

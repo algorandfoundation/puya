@@ -227,7 +227,10 @@ def _try_fold_intrinsic(
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
-                binary_array[index] = "1" if value else "0"
+                try:
+                    binary_array[index] = "1" if value else "0"
+                except IndexError:
+                    return None  # would fail at runtime
                 binary_string = "".join(binary_array)
                 adjusted_const_value = int(binary_string, 2).to_bytes(
                     len(byte_const.value), byteorder="big"

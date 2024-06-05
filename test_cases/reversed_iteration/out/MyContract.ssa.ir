@@ -33,6 +33,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let range_item%0#3: uint64 = (- range_item%0#2 1u)
                 goto block@3
             block@6: // after_for_L8
+                let array_data%0#0: bytes = (concat 0x 0x)
                 let array_length%0#0: uint64 = 0u
                 let item_index_internal%0#0: uint64 = 0u
                 let reverse_index_internal%0#0: uint64 = array_length%0#0
@@ -44,7 +45,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 goto continue_looping%2#0 ? block@8 : block@10
             block@8: // for_body_L11
                 let reverse_index_internal%0#2: uint64 = (- reverse_index_internal%0#1 1u)
-                let array_head_and_tail%0#0: bytes = 0x
+                let array_head_and_tail%0#0: bytes = array_data%0#0
                 let item_offset%0#0: uint64 = (* reverse_index_internal%0#2 1u)
                 let x#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 (log x#0)
@@ -53,12 +54,12 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
                 goto block@7
             block@10: // after_for_L11
-                let array_data%0#0: bytes = 0x
-                let array_data%0#1: bytes = (concat array_data%0#0 0x00)
-                let array_data%0#2: bytes = (concat array_data%0#1 0x00)
-                let array_data%0#3: bytes = (concat array_data%0#2 0x00)
-                let array_data%0#4: bytes = (concat array_data%0#3 0x00)
-                let test_array#0: bytes = array_data%0#4
+                let result%0#0: bytes = (concat 0x 0x00)
+                let result%1#0: bytes = (concat result%0#0 0x00)
+                let result%2#0: bytes = (concat result%1#0 0x00)
+                let result%3#0: bytes = (concat result%2#0 0x00)
+                let array_data%1#0: bytes = (concat 0x result%3#0)
+                let test_array#0: bytes = array_data%1#0
                 (assert 1u) // Step cannot be zero
                 let should_loop%1#0: bool = (< 0u 4u)
                 goto should_loop%1#0 ? block@11 : block@16
@@ -151,27 +152,26 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let test_array#7: bytes = φ(test_array#3 <- block@16, test_array#6 <- block@18, test_array#5 <- block@20)
                 let tmp%3#0: bool = (== test_array#7 0x03020504)
                 (assert tmp%3#0)
-                let array_data%1#0: bytes = 0x
-                let next_offset%0#0: uint64 = 6u
-                let value_as_bytes%0#0: bytes = (itob next_offset%0#0)
-                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
-                let array_data%1#1: bytes = (concat array_data%1#0 value_as_uint16%0#0)
-                let element_length%0#0: uint64 = (len "\x00\x01a")
-                let next_offset%0#1: uint64 = (+ next_offset%0#0 element_length%0#0)
-                let value_as_bytes%1#0: bytes = (itob next_offset%0#1)
-                let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
-                let array_data%1#2: bytes = (concat array_data%1#1 value_as_uint16%1#0)
-                let element_length%1#0: uint64 = (len "\x00\x01b")
-                let next_offset%0#2: uint64 = (+ next_offset%0#1 element_length%1#0)
-                let value_as_bytes%2#0: bytes = (itob next_offset%0#2)
-                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
-                let array_data%1#3: bytes = (concat array_data%1#2 value_as_uint16%2#0)
-                let element_length%2#0: uint64 = (len "\x00\x01c")
-                let next_offset%0#3: uint64 = (+ next_offset%0#2 element_length%2#0)
-                let array_data%1#4: bytes = (concat array_data%1#3 "\x00\x01a")
-                let array_data%1#5: bytes = (concat array_data%1#4 "\x00\x01b")
-                let array_data%1#6: bytes = (concat array_data%1#5 "\x00\x01c")
-                let some_strings#0: bytes = array_data%1#6
+                let as_bytes%0#0: bytes = (itob 6u)
+                let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let result%4#0: bytes = (concat 0x next_item_head%0#0)
+                let next_item_len%0#0: uint64 = (len "\x00\x01a")
+                let tail_offset%0#0: uint64 = (+ 6u next_item_len%0#0)
+                let as_bytes%1#0: bytes = (itob tail_offset%0#0)
+                let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let result%5#0: bytes = (concat result%4#0 next_item_head%1#0)
+                let next_item_len%1#0: uint64 = (len "\x00\x01b")
+                let tail_offset%1#0: uint64 = (+ tail_offset%0#0 next_item_len%1#0)
+                let as_bytes%2#0: bytes = (itob tail_offset%1#0)
+                let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let result%6#0: bytes = (concat result%5#0 next_item_head%2#0)
+                let next_item_len%2#0: uint64 = (len "\x00\x01c")
+                let tail_offset%2#0: uint64 = (+ tail_offset%1#0 next_item_len%2#0)
+                let result%7#0: bytes = (concat result%6#0 "\x00\x01a")
+                let result%8#0: bytes = (concat result%7#0 "\x00\x01b")
+                let result%9#0: bytes = (concat result%8#0 "\x00\x01c")
+                let array_data%2#0: bytes = (concat 0x result%9#0)
+                let some_strings#0: bytes = array_data%2#0
                 let some_string_reversed#0: bytes = "\x00\x00"
                 let array_length%3#0: uint64 = 3u
                 let item_index_internal%1#0: uint64 = 0u

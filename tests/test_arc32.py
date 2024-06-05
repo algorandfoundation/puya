@@ -1137,16 +1137,25 @@ def test_dynamic_arrays_dynamic_element(
     dynamic_struct1 = ("Hello World", "a")
 
     dynamic_result = dynamic_app_client.call("test_dynamic_elements")
-    (dynamic_arr_bytes, dynamic_0_bytes, dynamic_1_bytes, dynamic_2_bytes) = decode_logs(
-        dynamic_result.tx_info["logs"], "bbbb"
-    )
+    (
+        dynamic_arr_bytes,
+        dynamic_0_bytes,
+        dynamic_1_bytes,
+        dynamic_2_bytes,
+        dynamic_arr_bytes_01,
+        dynamic_arr_bytes_0,
+        empty_arr,
+    ) = decode_logs(dynamic_result.tx_info["logs"], "b" * 7)
 
     assert dynamic_arr_bytes == dynamic_arr_t.encode(
-        [dynamic_struct0, dynamic_struct1, dynamic_0_bytes]
+        [dynamic_struct0, dynamic_struct1, dynamic_struct0]
     )
     assert dynamic_0_bytes == dynamic_struct_t.encode(dynamic_struct0)
     assert dynamic_1_bytes == dynamic_struct_t.encode(dynamic_struct1)
     assert dynamic_2_bytes == dynamic_struct_t.encode(dynamic_struct0)
+    assert dynamic_arr_bytes_01 == dynamic_arr_t.encode([dynamic_struct0, dynamic_struct1])
+    assert dynamic_arr_bytes_0 == dynamic_arr_t.encode([dynamic_struct0])
+    assert empty_arr == dynamic_arr_t.encode([])
 
 
 def test_dynamic_arrays_mixed_single_dynamic(

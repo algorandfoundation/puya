@@ -904,8 +904,8 @@ class FunctionIRBuilder(
     def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> TExpression:
         return arc4.concat_values(
             self.context,
-            left=expr.left,
-            right=expr.right,
+            left_expr=expr.left,
+            right_expr=expr.right,
             source_location=expr.source_location,
         )
 
@@ -915,8 +915,8 @@ class FunctionIRBuilder(
             target=expr.base,
             value=arc4.concat_values(
                 self.context,
-                left=expr.base,
-                right=expr.other,
+                left_expr=expr.base,
+                right_expr=expr.other,
                 source_location=expr.source_location,
             ),
             source_location=expr.source_location,
