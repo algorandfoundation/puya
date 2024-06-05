@@ -223,6 +223,10 @@ class BigUIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
         return bool(self.native)
 
 
+class Byte(UIntN[typing.Literal[8]]):
+    """An ARC4 alias for a UInt8"""
+
+
 UInt8: typing.TypeAlias = UIntN[typing.Literal[8]]
 """An ARC4 UInt8"""
 
