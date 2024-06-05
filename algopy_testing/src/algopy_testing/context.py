@@ -40,16 +40,8 @@ class AlgopyTestContext:
         self.itxn_fields: ITxnFields = {}
         self.gtxns: list[algopy.gtxn.TransactionBase] = []
         self.logs: list[str] = []
-        self._asset_id_count: int = 1
-        self._app_id_count: int = 1
-
-    def _next_asset_id(self) -> int:
-        self._asset_id_count += 1
-        return self._asset_id_count
-
-    def _next_app_id(self) -> int:
-        self._app_id_count += 1
-        return self._app_id_count
+        self._asset_id = iter(range(1001, 2**64))
+        self._app_id = iter(range(1001, 2**64))
 
     def patch_global_fields(self, **global_fields: Unpack[GlobalFields]) -> None:
         """
@@ -300,7 +292,7 @@ class AlgopyTestContext:
         if asset_id and asset_id in self.asset_data:
             raise ValueError("Asset with such ID already exists in testing context!")
 
-        new_asset = Asset(asset_id or self._next_asset_id())
+        new_asset = Asset(asset_id or next(self._asset_id))
         self.asset_data[int(new_asset.id)] = AssetFields(**asset_fields)
         return new_asset
 
@@ -475,8 +467,8 @@ class AlgopyTestContext:
         self.txn_fields = {}
         self.itxn_fields = {}
         self.logs = []
-        self._asset_id_count = 1
-        self._app_id_count = 1
+        self._asset_id = iter(range(1001, 2**64))
+        self._app_id = iter(range(1001, 2**64))
 
 
 _var: ContextVar[AlgopyTestContext] = ContextVar("_var")
