@@ -1,5 +1,6 @@
 import ast
 import inspect
+import sys
 from collections.abc import Iterable
 from pathlib import Path
 from typing import NamedTuple
@@ -124,11 +125,21 @@ def collect_coverage(stubs: dict[str, ASTNodeDefinition]) -> list[CoverageResult
             print("stop")
 
         coverage = _get_impl_coverage(full_name, stub)
+        if coverage:
+            try:
+                impl_path = coverage.path.relative_to(IMPL)
+            except ValueError:
+                # if not in stub path, assume it is a built-in type
+                # probably from a generic that has had type vars specified
+                impl_path = coverage.path.relative_to(Path(sys.base_prefix).resolve())
+            impl_file = str(impl_path)
+        else:
+            impl_file = ""
         result.append(
             CoverageResult(
                 full_name=full_name,
                 stub_file=str(stub.path.relative_to(STUBS)),
-                impl_file=str(coverage.path.relative_to(IMPL)) if coverage else "",
+                impl_file=impl_file,
                 coverage=coverage.coverage if coverage else 0,
                 missing=", ".join(coverage.missing if coverage else []),
             )
@@ -190,6 +201,7 @@ def _get_impl_coverage(symbol: str, stub: ASTNodeDefinition) -> ImplCoverage | N
     except Exception as e:
         print(e)
         return None
+
     return _compare_stub_impl(stub.node, impl, impl_path)
 
 
