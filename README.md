@@ -8,7 +8,15 @@ Algorand Python is compiled for execution on the AVM by PuyaPy, an optimising co
 
 ## Quick start
 
-The easiest way to use Algorand Python is to instantiate a template with AlgoKit via `algokit init -t python`. This will give you a full development environment with intellisense, linting, automatic formatting, breakpoint debugging, deployment and CI/CD.
+### Recommended method
+
+The easiest way to use Algorand Python is to instantiate a template with AlgoKit via:
+
+```algokit init -t python```
+
+This will give you a full development environment with intellisense, linting, automatic formatting, breakpoint debugging, deployment and CI/CD.
+
+### Manual Alternative
 
 Alternatively, if you want to start from scratch you can do the following:
 
