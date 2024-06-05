@@ -1,7 +1,6 @@
 import typing
 from pathlib import Path
 
-import algokit_utils
 import algopy
 import algosdk
 import coincurve
@@ -9,14 +8,11 @@ import ecdsa  # type: ignore  # noqa: PGH003
 import ecdsa.util  # type: ignore  # noqa: PGH003
 import nacl.signing
 import pytest
-from algokit_utils import ApplicationClient, get_localnet_default_account
-from algokit_utils.config import config
 from algopy_testing import op
 from algopy_testing.context import algopy_testing_context
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.primitives.uint64 import UInt64
 from algosdk.v2client.algod import AlgodClient
-from algosdk.v2client.indexer import IndexerClient
 from Cryptodome.Hash import keccak
 from ecdsa import SECP256k1, SigningKey, curves
 from pytest_mock import MockerFixture
@@ -50,34 +46,9 @@ def _generate_ecdsa_test_data(curve: curves.Curve) -> dict[str, typing.Any]:
     }
 
 
-@pytest.fixture(scope="session")
-def crypto_ops_client(
-    algod_client: AlgodClient, indexer_client: IndexerClient
-) -> ApplicationClient:
-    config.configure(
-        debug=True,
-    )
-
-    client = ApplicationClient(
-        algod_client,
-        APP_SPEC,
-        creator=get_localnet_default_account(algod_client),
-        indexer_client=indexer_client,
-    )
-
-    client.deploy(
-        on_schema_break=algokit_utils.OnSchemaBreak.AppendApp,
-        on_update=algokit_utils.OnUpdate.AppendApp,
-    )
-
-    return client
-
-
 @pytest.fixture(scope="module")
-def get_crypto_ops_avm_result(
-    crypto_ops_client: ApplicationClient,
-) -> AVMInvoker:
-    return create_avm_invoker(crypto_ops_client)
+def get_crypto_ops_avm_result(algod_client: AlgodClient) -> AVMInvoker:
+    return create_avm_invoker(APP_SPEC, algod_client)
 
 
 @pytest.mark.parametrize(
@@ -175,12 +146,12 @@ def test_ed25519verify_bare(
 
 def test_ed25519verify(
     algod_client: AlgodClient,
-    crypto_ops_client: ApplicationClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
-    assert crypto_ops_client.approval
+    approval = get_crypto_ops_avm_result.client.approval
+    assert approval
     with algopy_testing_context() as ctx:
-        ctx.patch_txn_fields(approval_program=algopy.Bytes(crypto_ops_client.approval.raw_binary))
+        ctx.patch_txn_fields(approval_program=algopy.Bytes(approval.raw_binary))
 
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"
@@ -190,9 +161,7 @@ def test_ed25519verify(
         # Generate key pair and sign the message
         private_key, public_key = algosdk.account.generate_account()
         public_key = algosdk.encoding.decode_address(public_key)
-        signature = algosdk.logic.teal_sign_from_program(
-            private_key, message, crypto_ops_client.approval.raw_binary
-        )
+        signature = algosdk.logic.teal_sign_from_program(private_key, message, approval.raw_binary)
 
         # Verify the signature using AVM and local op
         avm_result = get_crypto_ops_avm_result(
