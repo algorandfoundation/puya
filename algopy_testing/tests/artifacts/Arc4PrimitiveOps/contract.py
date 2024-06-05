@@ -157,6 +157,14 @@ class Arc4PrimitiveOpsContract(ARC4Contract):
         return arc4.UInt256(a_biguint)
 
     @arc4.abimethod()
+    def verify_uintn_from_bytes(self, a: Bytes) -> arc4.UInt32:
+        return arc4.UInt32.from_bytes(a)
+
+    @arc4.abimethod()
+    def verify_biguintn_from_bytes(self, a: Bytes) -> arc4.UInt256:
+        return arc4.UInt256.from_bytes(a)
+
+    @arc4.abimethod()
     def verify_uintn_from_log(self, a: Bytes) -> arc4.UInt32:
         return arc4.UInt32.from_log(a)
 

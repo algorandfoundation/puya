@@ -135,54 +135,45 @@ def test_biguintn_overflow(get_avm_result: AVMInvoker, value: int, expected: int
         assert avm_result == result
 
 
+# where input bytes is not exactly 4 bytes, AVM returns None and
+# the stub implementation returns the expected value.
+# e.g. int_to_bytes(255, 2)
+# for the above test case, where input value is only 2 bytes,
+# AVM returns None and the stub implementation returns 255.
 @pytest.mark.parametrize(
     "value",
     [
-        int_to_bytes(0, 8),
-        int_to_bytes(0, 2),
+        int_to_bytes(0, 4),
         int_to_bytes(255, 4),
-        int_to_bytes(255, 8),
         int_to_bytes(2**16, 4),
         int_to_bytes(2**32 - 1, 4),
-        int_to_bytes(2**32 - 1, 8),
         int_to_bytes(2**32 - 1),
     ],
 )
 def test_uintn_from_bytes(get_avm_result: AVMInvoker, value: bytes) -> None:
-    if len(value) > 4:
-        with pytest.raises(algokit_utils.LogicError, match="assert failed"):
-            get_avm_result("verify_uintn_init", a=value)
-        with pytest.raises(ValueError, match="expected at most 4 bytes"):
-            arc4.UInt32.from_bytes(value)
-    else:
-        avm_result = get_avm_result("verify_uintn_init", a=value)
-        result = arc4.UInt32.from_bytes(value)
-        assert avm_result == result
+    avm_result = get_avm_result("verify_uintn_from_bytes", a=value)
+    result = arc4.UInt32.from_bytes(value)
+    assert avm_result == result
 
 
+# where input bytes is not exactly 32 bytes, AVM returns None and
+# the stub implementation returns the expected value.
+# e.g. int_to_bytes(255, 4)
+# for the above test case, where input value is only 4 bytes,
+# AVM returns None and the stub implementation returns 255
 @pytest.mark.parametrize(
     "value",
     [
         int_to_bytes(0, 32),
-        int_to_bytes(0, 2),
         int_to_bytes(255, 32),
-        int_to_bytes(255, 64),
-        int_to_bytes(2**16, 4),
         int_to_bytes(2**256 - 1, 32),
-        int_to_bytes(2**256 - 1, 64),
         int_to_bytes(2**256 - 1),
     ],
 )
 def test_biguintn_from_bytes(get_avm_result: AVMInvoker, value: bytes) -> None:
-    if len(value) > 32:
-        with pytest.raises(algokit_utils.LogicError, match="assert failed"):
-            get_avm_result("verify_biguintn_init", a=value)
-        with pytest.raises(ValueError, match="expected at most 32 bytes"):
-            arc4.UInt256.from_bytes(value)
-    else:
-        avm_result = get_avm_result("verify_biguintn_init", a=value)
-        result = arc4.UInt256.from_bytes(value)
-        assert avm_result == result
+    avm_result = get_avm_result("verify_biguintn_from_bytes", a=value)
+    result = arc4.UInt256.from_bytes(value)
+    assert avm_result == result
 
 
 # where input bytes is not exactly 4 bytes, AVM returns None and

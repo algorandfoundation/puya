@@ -4,7 +4,7 @@ tests.artifacts.Arc4PrimitiveOps.contract.Arc4PrimitiveOpsContract.approval_prog
     // tests/artifacts/Arc4PrimitiveOps/contract.py:4
     // class Arc4PrimitiveOpsContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@32
+    bz main_bare_routing@34
     method "verify_uintn_uintn_eq(byte[],byte[])bool"
     method "verify_biguintn_uintn_eq(byte[],byte[])bool"
     method "verify_uintn_biguintn_eq(byte[],byte[])bool"
@@ -31,10 +31,12 @@ tests.artifacts.Arc4PrimitiveOps.contract.Arc4PrimitiveOpsContract.approval_prog
     method "verify_biguintn_biguintn_ge(byte[],byte[])bool"
     method "verify_uintn_init(byte[])uint32"
     method "verify_biguintn_init(byte[])uint256"
+    method "verify_uintn_from_bytes(byte[])uint32"
+    method "verify_biguintn_from_bytes(byte[])uint256"
     method "verify_uintn_from_log(byte[])uint32"
     method "verify_biguintn_from_log(byte[])uint256"
     txna ApplicationArgs 0
-    match main_verify_uintn_uintn_eq_route@2 main_verify_biguintn_uintn_eq_route@3 main_verify_uintn_biguintn_eq_route@4 main_verify_biguintn_biguintn_eq_route@5 main_verify_uintn_uintn_ne_route@6 main_verify_biguintn_uintn_ne_route@7 main_verify_uintn_biguintn_ne_route@8 main_verify_biguintn_biguintn_ne_route@9 main_verify_uintn_uintn_lt_route@10 main_verify_biguintn_uintn_lt_route@11 main_verify_uintn_biguintn_lt_route@12 main_verify_biguintn_biguintn_lt_route@13 main_verify_uintn_uintn_le_route@14 main_verify_biguintn_uintn_le_route@15 main_verify_uintn_biguintn_le_route@16 main_verify_biguintn_biguintn_le_route@17 main_verify_uintn_uintn_gt_route@18 main_verify_biguintn_uintn_gt_route@19 main_verify_uintn_biguintn_gt_route@20 main_verify_biguintn_biguintn_gt_route@21 main_verify_uintn_uintn_ge_route@22 main_verify_biguintn_uintn_ge_route@23 main_verify_uintn_biguintn_ge_route@24 main_verify_biguintn_biguintn_ge_route@25 main_verify_uintn_init_route@26 main_verify_biguintn_init_route@27 main_verify_uintn_from_log_route@28 main_verify_biguintn_from_log_route@29
+    match main_verify_uintn_uintn_eq_route@2 main_verify_biguintn_uintn_eq_route@3 main_verify_uintn_biguintn_eq_route@4 main_verify_biguintn_biguintn_eq_route@5 main_verify_uintn_uintn_ne_route@6 main_verify_biguintn_uintn_ne_route@7 main_verify_uintn_biguintn_ne_route@8 main_verify_biguintn_biguintn_ne_route@9 main_verify_uintn_uintn_lt_route@10 main_verify_biguintn_uintn_lt_route@11 main_verify_uintn_biguintn_lt_route@12 main_verify_biguintn_biguintn_lt_route@13 main_verify_uintn_uintn_le_route@14 main_verify_biguintn_uintn_le_route@15 main_verify_uintn_biguintn_le_route@16 main_verify_biguintn_biguintn_le_route@17 main_verify_uintn_uintn_gt_route@18 main_verify_biguintn_uintn_gt_route@19 main_verify_uintn_biguintn_gt_route@20 main_verify_biguintn_biguintn_gt_route@21 main_verify_uintn_uintn_ge_route@22 main_verify_biguintn_uintn_ge_route@23 main_verify_uintn_biguintn_ge_route@24 main_verify_biguintn_biguintn_ge_route@25 main_verify_uintn_init_route@26 main_verify_biguintn_init_route@27 main_verify_uintn_from_bytes_route@28 main_verify_biguintn_from_bytes_route@29 main_verify_uintn_from_log_route@30 main_verify_biguintn_from_log_route@31
     err // reject transaction
 
 main_verify_uintn_uintn_eq_route@2:
@@ -753,7 +755,7 @@ main_verify_biguintn_init_route@27:
     int 1
     return
 
-main_verify_uintn_from_log_route@28:
+main_verify_uintn_from_bytes_route@28:
     // tests/artifacts/Arc4PrimitiveOps/contract.py:159
     // @arc4.abimethod()
     txn OnCompletion
@@ -766,6 +768,50 @@ main_verify_uintn_from_log_route@28:
     txna ApplicationArgs 1
     extract 2 0
     // tests/artifacts/Arc4PrimitiveOps/contract.py:159
+    // @arc4.abimethod()
+    callsub verify_uintn_from_bytes
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_biguintn_from_bytes_route@29:
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:163
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:4
+    // class Arc4PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:163
+    // @arc4.abimethod()
+    callsub verify_biguintn_from_bytes
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_uintn_from_log_route@30:
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:167
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:4
+    // class Arc4PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:167
     // @arc4.abimethod()
     callsub verify_uintn_from_log
     byte 0x151f7c75
@@ -775,8 +821,8 @@ main_verify_uintn_from_log_route@28:
     int 1
     return
 
-main_verify_biguintn_from_log_route@29:
-    // tests/artifacts/Arc4PrimitiveOps/contract.py:163
+main_verify_biguintn_from_log_route@31:
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:171
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -787,7 +833,7 @@ main_verify_biguintn_from_log_route@29:
     // class Arc4PrimitiveOpsContract(ARC4Contract):
     txna ApplicationArgs 1
     extract 2 0
-    // tests/artifacts/Arc4PrimitiveOps/contract.py:163
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:171
     // @arc4.abimethod()
     callsub verify_biguintn_from_log
     byte 0x151f7c75
@@ -797,7 +843,7 @@ main_verify_biguintn_from_log_route@29:
     int 1
     return
 
-main_bare_routing@32:
+main_bare_routing@34:
     // tests/artifacts/Arc4PrimitiveOps/contract.py:4
     // class Arc4PrimitiveOpsContract(ARC4Contract):
     txn OnCompletion
@@ -1570,13 +1616,37 @@ verify_biguintn_init:
     retsub
 
 
+// tests.artifacts.Arc4PrimitiveOps.contract.Arc4PrimitiveOpsContract.verify_uintn_from_bytes(a: bytes) -> bytes:
+verify_uintn_from_bytes:
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:159-160
+    // @arc4.abimethod()
+    // def verify_uintn_from_bytes(self, a: Bytes) -> arc4.UInt32:
+    proto 1 1
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:161
+    // return arc4.UInt32.from_bytes(a)
+    frame_dig -1
+    retsub
+
+
+// tests.artifacts.Arc4PrimitiveOps.contract.Arc4PrimitiveOpsContract.verify_biguintn_from_bytes(a: bytes) -> bytes:
+verify_biguintn_from_bytes:
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:163-164
+    // @arc4.abimethod()
+    // def verify_biguintn_from_bytes(self, a: Bytes) -> arc4.UInt256:
+    proto 1 1
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:165
+    // return arc4.UInt256.from_bytes(a)
+    frame_dig -1
+    retsub
+
+
 // tests.artifacts.Arc4PrimitiveOps.contract.Arc4PrimitiveOpsContract.verify_uintn_from_log(a: bytes) -> bytes:
 verify_uintn_from_log:
-    // tests/artifacts/Arc4PrimitiveOps/contract.py:159-160
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:167-168
     // @arc4.abimethod()
     // def verify_uintn_from_log(self, a: Bytes) -> arc4.UInt32:
     proto 1 1
-    // tests/artifacts/Arc4PrimitiveOps/contract.py:161
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:169
     // return arc4.UInt32.from_log(a)
     frame_dig -1
     extract 4 0
@@ -1590,11 +1660,11 @@ verify_uintn_from_log:
 
 // tests.artifacts.Arc4PrimitiveOps.contract.Arc4PrimitiveOpsContract.verify_biguintn_from_log(a: bytes) -> bytes:
 verify_biguintn_from_log:
-    // tests/artifacts/Arc4PrimitiveOps/contract.py:163-164
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:171-172
     // @arc4.abimethod()
     // def verify_biguintn_from_log(self, a: Bytes) -> arc4.UInt256:
     proto 1 1
-    // tests/artifacts/Arc4PrimitiveOps/contract.py:165
+    // tests/artifacts/Arc4PrimitiveOps/contract.py:173
     // return arc4.UInt256.from_log(a)
     frame_dig -1
     extract 4 0

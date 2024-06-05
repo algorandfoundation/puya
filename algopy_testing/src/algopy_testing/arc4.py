@@ -138,11 +138,6 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-
-        max_length = result._max_bytes_len  # noqa: SLF001
-        if len(value) > max_length:
-            raise ValueError(f"expected at most {max_length} bytes, got: {len(value)}")
-
         result._value = value  # noqa: SLF001
         return result
 
