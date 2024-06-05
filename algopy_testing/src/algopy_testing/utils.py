@@ -77,6 +77,8 @@ def as_string(value: object) -> str:
     match value:
         case str(string_value) | String(value=string_value):
             return string_value
+        case arc4.String():
+            return value.native.value
         case _:
             raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
 

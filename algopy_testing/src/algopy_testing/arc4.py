@@ -14,6 +14,8 @@ if typing.TYPE_CHECKING:
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
+_ABI_LENGTH_SIZE = 2
+
 
 def abimethod(
     fn: Callable[_P, _R],
@@ -22,10 +24,6 @@ def abimethod(
 
 
 class ARC4Contract:
-    pass
-
-
-class String:
     pass
 
 
@@ -49,6 +47,57 @@ class _ABIEncoded(typing.Protocol):
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
         ...
+
+
+class String(_ABIEncoded):
+    """An ARC4 sequence of bytes containing a UTF8 string"""
+
+    _value: str
+
+    def __init__(self, value: algopy.String | str = "", /) -> None:
+        self._value = as_string(value)
+
+    @property
+    def native(self) -> algopy.String:
+        """Return the String representation of the UTF8 string after ARC4 decoding"""
+        return algopy.String(self._value)
+
+    def __add__(self, other: String | str) -> String:
+        return String(self._value + as_string(other))
+
+    def __radd__(self, other: String | str) -> String:
+        return String(as_string(other) + self._value)
+
+    def __eq__(self, other: String | str) -> bool:
+        return self._value == as_string(other)
+
+    def __bool__(self) -> bool:
+        """Returns `True` if length is not zero"""
+        return bool(self._value)
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes (no validation)"""
+        value = as_bytes(value)
+        # first two bytes are the length of the string
+        b = value[_ABI_LENGTH_SIZE:]
+        return cls(b.decode("utf-8"))
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying Bytes"""
+        b = self._value.encode("utf-8")
+        size = int_to_bytes(len(b), pad_to=_ABI_LENGTH_SIZE)
+        # first two bytes are the length of the string
+        return algopy.Bytes(size) + algopy.Bytes(b)
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
 
 
 # https://stackoverflow.com/a/75395800
@@ -356,3 +405,17 @@ UInt256: typing.TypeAlias = BigUIntN[typing.Literal[256]]
 
 UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 """An ARC4 UInt512"""
+
+
+class Bool(_ABIEncoded):
+    """An ARC4 encoded bool"""
+
+    _value: bool
+
+    def __init__(self, value: bool = False, /) -> None:  # noqa: FBT001, FBT002
+        self._value = value
+
+    @property
+    def native(self) -> bool:
+        """Return the bool representation of the value after ARC4 decoding"""
+        return self._value

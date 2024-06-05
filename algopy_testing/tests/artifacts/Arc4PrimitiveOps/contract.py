@@ -1,6 +1,6 @@
 import typing
 
-from algopy import ARC4Contract, BigUInt, Bytes, arc4
+from algopy import ARC4Contract, BigUInt, Bytes, String, arc4
 
 
 class Arc4PrimitiveOpsContract(ARC4Contract):
@@ -209,3 +209,30 @@ class Arc4PrimitiveOpsContract(ARC4Contract):
         self, a: Bytes
     ) -> arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]:
         return arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]].from_log(a)
+
+    @arc4.abimethod
+    def verify_string_init(self, a: String) -> arc4.String:
+        result = arc4.String(String("Hello, ") + a)
+        return result
+
+    @arc4.abimethod
+    def verify_string_add(self, a: arc4.String, b: arc4.String) -> arc4.String:
+        result = a + b
+        return result
+
+    @arc4.abimethod()
+    def verify_string_eq(self, a: arc4.String, b: arc4.String) -> bool:
+        return a == b
+
+    @arc4.abimethod()
+    def verify_string_bytes(self, a: String) -> Bytes:
+        result = arc4.String(a)
+        return result.bytes
+
+    @arc4.abimethod()
+    def verify_string_from_bytes(self, a: Bytes) -> arc4.String:
+        return arc4.String.from_bytes(a)
+
+    @arc4.abimethod()
+    def verify_string_from_log(self, a: Bytes) -> arc4.String:
+        return arc4.String.from_log(a)
