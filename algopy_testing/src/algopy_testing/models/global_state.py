@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
@@ -34,7 +35,7 @@ class GlobalFields(TypedDict, total=False):
 
 @dataclass
 class _Global:
-    def __getattr__(self, name: str) -> object:
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
         from algopy_testing.context import get_test_context
 
         context = get_test_context()

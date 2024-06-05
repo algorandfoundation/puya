@@ -33,7 +33,7 @@ def _generate_ecdsa_test_data(curve: curves.Curve) -> dict[str, typing.Any]:
     message_hash = keccak.new(data=data, digest_bits=256).digest()
 
     signature = sk.sign_digest(message_hash, sigencode=ecdsa.util.sigencode_string)
-    r, s = ecdsa.util.sigdecode_string(signature, sk.curve.order)  # type: ignore  # noqa: PGH003
+    r, s = ecdsa.util.sigdecode_string(signature, sk.curve.order)
     recovery_id = 0  # Recovery ID is typically 0 or 1
 
     return {
@@ -41,8 +41,8 @@ def _generate_ecdsa_test_data(curve: curves.Curve) -> dict[str, typing.Any]:
         "r": Bytes(r.to_bytes(32, byteorder="big")),
         "s": Bytes(s.to_bytes(32, byteorder="big")),
         "recovery_id": UInt64(recovery_id),
-        "pubkey_x": Bytes(vk.to_string()[:32]),  # type: ignore # noqa: PGH003
-        "pubkey_y": Bytes(vk.to_string()[32:]),  # type: ignore # noqa: PGH003
+        "pubkey_x": Bytes(vk.to_string()[:32]),
+        "pubkey_y": Bytes(vk.to_string()[32:]),
     }
 
 

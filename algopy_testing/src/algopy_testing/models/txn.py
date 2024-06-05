@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
 if TYPE_CHECKING:
@@ -82,7 +83,7 @@ class TxnFields(TypedDict, total=False):
 
 
 class _Txn:
-    def __getattr__(self, name: str) -> object:
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
         from algopy_testing.context import get_test_context
 
         context = get_test_context()

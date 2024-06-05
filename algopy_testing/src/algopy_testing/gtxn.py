@@ -71,7 +71,7 @@ class AssetTransferTransaction(TransactionBase):
         """Updates inner transaction parameter values"""
         self.__dict__.update(kwargs)
 
-    def __getattr__(self, name: str) -> object:
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
         type_hints = get_type_hints(AssetTransferFields)
 
         if name in type_hints:
@@ -96,7 +96,7 @@ class PaymentTransaction(TransactionBase):
         """Updates inner transaction parameter values"""
         self.__dict__.update(kwargs)
 
-    def __getattr__(self, name: str) -> object:
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
         type_hints = get_type_hints(PaymentFields)
 
         if name in type_hints:
