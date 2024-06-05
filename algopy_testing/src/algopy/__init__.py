@@ -13,10 +13,7 @@ _R = TypeVar("_R")
 
 
 def subroutine(sub: Callable[_P, _R]) -> Callable[_P, _R]:
-    def wrapped(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-        return sub(*args, **kwargs)
-
-    return wrapped
+    return sub
 
 
 __all__ = [
