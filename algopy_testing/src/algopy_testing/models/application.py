@@ -51,7 +51,7 @@ class Application:
 
         return_value = context.application_data[int(self.id)].get(name)
         if return_value is None:
-            raise TypeError(
+            raise AttributeError(
                 f"The value for '{name}' in the test context is None. "
                 f"Make sure to patch the global field '{name}' using your `AlgopyTestContext` "
                 "instance."
@@ -63,9 +63,6 @@ class Application:
         if isinstance(other, Application):
             return self.id == other.id
         return self.id == as_string(other)
-
-    def __ne__(self, other: object) -> bool:
-        return not self.__eq__(other)
 
     def __bool__(self) -> bool:
         return self.id != 0

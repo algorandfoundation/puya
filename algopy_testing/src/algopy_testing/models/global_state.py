@@ -43,25 +43,14 @@ class _Global:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if not context.global_fields:
-            raise ValueError(
-                "`algopy.Global` fields are not set in the test context! "
-                "Use `context.patch_global_fields()` to set the fields in your test setup."
-            )
         if name not in context.global_fields:
             raise AttributeError(
                 f"'algopy.Global' object has no value set for attribute named '{name}'. "
                 f"Use `context.patch_global_fields({name}=your_value)` to set the value "
                 "in your test setup."
             )
-        if not context.global_fields[name]:
-            raise TypeError(
-                f"The value for '{name}' in the test context is None. "
-                f"Make sure to patch the global field '{name}' using your `AlgopyTestContext` "
-                "instance."
-            )
 
-        return context.global_fields[name]
+        return context.global_fields[name]  # type: ignore[literal-required]
 
 
 Global = _Global()

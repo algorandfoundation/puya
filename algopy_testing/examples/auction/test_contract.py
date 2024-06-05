@@ -1,5 +1,4 @@
 from collections.abc import Generator
-from typing import Any
 
 import algopy
 import pytest
@@ -9,13 +8,13 @@ from .contract import AuctionContract
 
 
 @pytest.fixture()
-def context() -> Generator[AlgopyTestContext[Any], None, None]:
+def context() -> Generator[AlgopyTestContext, None, None]:
     with algopy_testing_context(AuctionContract) as ctx:
         yield ctx
         ctx.reset()
 
 
-def test_opt_into_asset(context: AlgopyTestContext[Any]) -> None:
+def test_opt_into_asset(context: AlgopyTestContext) -> None:
     # Arrange
     account = context.any_account(
         auth_address=context.any_account(), balance=context.any_uint64(1, 1000)
@@ -45,7 +44,7 @@ def test_opt_into_asset(context: AlgopyTestContext[Any]) -> None:
 
 
 def test_start_auction(
-    context: AlgopyTestContext[Any],
+    context: AlgopyTestContext,
 ) -> None:
     # Arrange
     account = context.any_account()
@@ -80,7 +79,7 @@ def test_start_auction(
     assert contract.asa_amount == auction_price
 
 
-def test_bid(context: AlgopyTestContext[Any]) -> None:
+def test_bid(context: AlgopyTestContext) -> None:
     # Arrange
     account = context.any_account()
     auction_end = context.any_uint64(1000, 2000)
@@ -106,7 +105,7 @@ def test_bid(context: AlgopyTestContext[Any]) -> None:
 
 
 def test_claim_bids(
-    context: AlgopyTestContext[Any],
+    context: AlgopyTestContext,
 ) -> None:
     # Arrange
     account = context.any_account()
@@ -132,7 +131,7 @@ def test_claim_bids(
     assert contract.claimable_amount[account] == claimable_amount - expected_payment
 
 
-def test_claim_asset(context: AlgopyTestContext[Any]) -> None:
+def test_claim_asset(context: AlgopyTestContext) -> None:
     # Arrange
     account = context.any_account()
     latest_timestamp = context.any_uint64(1000, 2000)
@@ -160,7 +159,7 @@ def test_claim_asset(context: AlgopyTestContext[Any]) -> None:
 
 
 def test_delete_application(
-    context: AlgopyTestContext[Any],
+    context: AlgopyTestContext,
 ) -> None:
     # Arrange
     account = context.any_account()

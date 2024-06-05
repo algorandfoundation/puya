@@ -77,25 +77,14 @@ class _ITxn:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if not context.itxn_fields:
-            raise ValueError(
-                "`algopy.ITxn` fields are not set in the test context! "
-                "Use `context.patch_itxn_fields()` to set the fields in your test setup."
-            )
         if name not in context.itxn_fields:
             raise AttributeError(
                 f"'Txn' object has no value set for attribute named '{name}'. "
                 f"Use `context.patch_itxn_fields({name}=your_value)` to set the value "
                 "in your test setup."
             )
-        if not context.itxn_fields[name]:
-            raise TypeError(
-                f"The value for '{name}' in the test context is None. "
-                f"Make sure to patch the global field '{name}' using your `AlgopyTestContext` "
-                "instance."
-            )
 
-        return context.itxn_fields[name]
+        return context.itxn_fields[name]  # type: ignore[literal-required]
 
 
 ITxn = _ITxn()

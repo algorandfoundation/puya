@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, Unpack
+from typing import TYPE_CHECKING, Any, Unpack
 
 import algosdk
 
@@ -23,12 +23,11 @@ if TYPE_CHECKING:
 
     from algopy_testing.itxn import BaseInnerTransaction
 
-T = TypeVar("T")
-U = TypeVar("U")
 
-
-class AlgopyTestContext(Generic[T]):
-    def __init__(self, contract_cls: type[T] | None = None) -> None:
+class AlgopyTestContext:
+    def __init__(
+        self, contract_cls: type[algopy.Contract | algopy.ARC4Contract] | None = None
+    ) -> None:
         self._contract_cls = (
             contract_cls  # TODO: not utilized yet, just storing the reference for now
         )
@@ -36,9 +35,9 @@ class AlgopyTestContext(Generic[T]):
         self.application_data: dict[int, ApplicationFields] = {}
         self.asset_data: dict[int, AssetFields] = {}
         self.inner_transactions: list[BaseInnerTransaction] = []
-        self.global_fields: dict[str, Any] = {}
-        self.txn_fields: dict[str, Any] = {}
-        self.itxn_fields: dict[str, Any] = {}
+        self.global_fields: GlobalFields = {}
+        self.txn_fields: TxnFields = {}
+        self.itxn_fields: ITxnFields = {}
         self.gtxns: list[algopy.gtxn.TransactionBase] = []
         self.logs: list[str] = []
         self._asset_id_count: int = 1
@@ -62,13 +61,14 @@ class AlgopyTestContext(Generic[T]):
         Raises:
             AttributeError: If a key does not correspond to a valid global field.
         """
-        for key, value in global_fields.items():
-            if key in GlobalFields.__annotations__:
-                self.global_fields[key] = value
-            else:
-                raise AttributeError(
-                    f"`algopy.Global` has no attribute '{key}' to set in the test context!"
-                )
+        invalid_keys = global_fields.keys() - GlobalFields.__annotations__.keys()
+
+        if invalid_keys:
+            raise AttributeError(
+                f"Invalid field(s) found during patch for `Global`: {', '.join(invalid_keys)}"
+            )
+
+        self.global_fields.update(global_fields)
 
     def patch_txn_fields(self, **txn_fields: Unpack[TxnFields]) -> None:
         """
@@ -80,13 +80,13 @@ class AlgopyTestContext(Generic[T]):
         Raises:
             AttributeError: If a key does not correspond to a valid transaction field.
         """
-        for key, value in txn_fields.items():
-            if key in TxnFields.__annotations__:
-                self.txn_fields[key] = value
-            else:
-                raise AttributeError(
-                    f"`algopy.Txn` has no attribute '{key}' to set in the test context!"
-                )
+        invalid_keys = txn_fields.keys() - TxnFields.__annotations__.keys()
+        if invalid_keys:
+            raise AttributeError(
+                f"Invalid field(s) found during patch for `Txn`: {', '.join(invalid_keys)}"
+            )
+
+        self.txn_fields.update(txn_fields)
 
     def patch_itxn_fields(self, **itxn_fields: Unpack[ITxnFields]) -> None:
         """
@@ -98,13 +98,14 @@ class AlgopyTestContext(Generic[T]):
         Raises:
             AttributeError: If a key does not correspond to a valid inner transaction field.
         """
-        for key, value in itxn_fields.items():
-            if key in ITxnFields.__annotations__:
-                self.itxn_fields[key] = value
-            else:
-                raise AttributeError(
-                    f"`algopy.ITxn` has no attribute '{key}' to set in the test context!"
-                )
+        invalid_keys = itxn_fields.keys() - ITxnFields.__annotations__.keys()
+
+        if invalid_keys:
+            raise AttributeError(
+                f"Invalid field(s) found during patch for `ITxn`: {', '.join(invalid_keys)}"
+            )
+
+        self.itxn_fields.update(itxn_fields)
 
     def get_account(self, address: str) -> algopy.Account:
         """
@@ -478,18 +479,18 @@ class AlgopyTestContext(Generic[T]):
         self._app_id_count = 1
 
 
-_var: ContextVar[AlgopyTestContext[Any]] = ContextVar("_var")
+_var: ContextVar[AlgopyTestContext] = ContextVar("_var")
 
 
-def get_test_context() -> AlgopyTestContext[Any]:
+def get_test_context() -> AlgopyTestContext:
     return _var.get()
 
 
 @contextmanager
 def algopy_testing_context(
     contract_cls: type[Any] | None = None,
-) -> Generator[AlgopyTestContext[Any], None, None]:
-    token = _var.set(AlgopyTestContext[Any](contract_cls))
+) -> Generator[AlgopyTestContext, None, None]:
+    token = _var.set(AlgopyTestContext(contract_cls))
     try:
         yield _var.get()
     finally:

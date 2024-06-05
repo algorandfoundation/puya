@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, TypedDict, TypeVar
 import algosdk
 
 from algopy_testing.primitives.bytes import Bytes
-from algopy_testing.utils import as_string
+from algopy_testing.utils import as_bytes
 
 if TYPE_CHECKING:
     import algopy
@@ -32,15 +32,16 @@ class AccountFields(TypedDict, total=False):
 
 @dataclass()
 class Account:
-    _public_key: str
+    _public_key: bytes
 
     def __init__(self, value: str | Bytes = algosdk.constants.ZERO_ADDRESS, /):
         if not isinstance(value, (str | Bytes)):
             raise TypeError("Invalid value for Account")
-        if isinstance(value, Bytes):
-            public_key = algosdk.encoding.encode_address(value)
-        else:
-            public_key = value
+
+        public_key = (
+            algosdk.encoding.decode_address(value) if isinstance(value, str) else value.value
+        )
+
         self._public_key = public_key
 
     def is_opted_in(self, asset_or_app: algopy.Asset | algopy.Application, /) -> bool:
@@ -49,8 +50,8 @@ class Account:
         from algopy_testing import get_test_context
 
         context = get_test_context()
-        opted_apps = context.account_data[self._public_key].opted_apps
-        opted_asset_balances = context.account_data[self._public_key].opted_asset_balances
+        opted_apps = context.account_data[str(self)].opted_apps
+        opted_asset_balances = context.account_data[str(self)].opted_asset_balances
 
         if not context:
             raise ValueError(
@@ -70,25 +71,13 @@ class Account:
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes) -> Self:
-        from algopy import Bytes
-
-        if not isinstance(value, (Bytes | bytes)):
-            raise TypeError("Invalid value for Account")
-
-        value_len = value.length if isinstance(value, Bytes) else len(value)
-        if value_len != 32:
-            raise ValueError(
-                f"Invalid account value byte length: {value_len} bytes; must be 32 bytes long."
-            )
-        if isinstance(value, bytes):
-            decoded_value = algosdk.encoding.encode_address(value)
-        else:
-            decoded_value = str(value)
-        return cls(decoded_value)
+        # NOTE: AVM does not perform any validation beyond type.
+        validated_value = as_bytes(value)
+        return cls(Bytes(validated_value))
 
     @property
     def bytes(self) -> Bytes:
-        return Bytes(algosdk.encoding.decode_address(self._public_key)[:32])
+        return Bytes(self._public_key)
 
     def __getattr__(self, name: str) -> object:
         from algopy_testing.context import get_test_context
@@ -99,16 +88,17 @@ class Account:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if self._public_key not in context.account_data:
+
+        if str(self) not in context.account_data:
             raise ValueError(
                 "`algopy.Account` is not present in the test context! "
                 "Use `context.add_account()` or `context.any_account()` to add the account "
                 "to your test setup."
             )
 
-        return_value = context.account_data[self._public_key].fields.get(name)
+        return_value = context.account_data[str(self)].fields.get(name)
         if return_value is None:
-            raise TypeError(
+            raise AttributeError(
                 f"The value for '{name}' in the test context is None. "
                 f"Make sure to patch the global field '{name}' using your `AlgopyTestContext` "
                 "instance."
@@ -117,23 +107,22 @@ class Account:
         return return_value
 
     def __repr__(self) -> str:
-        return self._public_key
+        return str(algosdk.encoding.encode_address(self._public_key))
 
     def __str__(self) -> str:
-        return self._public_key
+        return str(algosdk.encoding.encode_address(self._public_key))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Account | str):
             raise TypeError("Invalid value for Account")
         if isinstance(other, Account):
             return self._public_key == other._public_key
-        return self._public_key == as_string(other)
-
-    def __ne__(self, other: object) -> bool:
-        return not self.__eq__(other)
+        return self._public_key == as_bytes(other)
 
     def __bool__(self) -> bool:
-        return self._public_key != algosdk.constants.ZERO_ADDRESS
+        return bool(self._public_key) and self._public_key != algosdk.encoding.decode_address(
+            algosdk.constants.ZERO_ADDRESS
+        )
 
     def __hash__(self) -> int:
         return hash(self._public_key)
