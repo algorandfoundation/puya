@@ -1,34 +1,54 @@
 import typing
+from pathlib import Path
 from random import randbytes
 
-from algokit_utils import ApplicationClient
+from algokit_utils import ApplicationClient, get_localnet_default_account
+from algosdk.v2client.algod import AlgodClient
 
 
-class AVMInvoker(typing.Protocol):
+class AVMInvoker:
     """Protocol used in global test fixtures to simplify invocation of AVM methods via an Algokit
     typed client."""
 
-    def __call__(self, method: str, **kwargs: typing.Any) -> object: ...
+    def __init__(self, client: ApplicationClient):
+        self.client = client
 
-
-def create_avm_invoker(client: ApplicationClient) -> AVMInvoker:
-    def invoke(method: str, **kwargs: typing.Any) -> object:
-        result = client.call(
+    def __call__(self, method: str, **kwargs: typing.Any) -> object:
+        response = self.client.call(
             method,
             transaction_parameters={
                 # random note avoids duplicate txn if tests are running concurrently
-                "note": randbytes(8),  # noqa: S311
+                "note": _random_note(),
                 "suggested_params": kwargs.pop("suggested_params", None),
             },
             **kwargs,
         )
-        if result.decode_error:
-            raise ValueError(result.decode_error)
-        result = result.return_value
+        if response.decode_error:
+            raise ValueError(response.decode_error)
+        result = response.return_value
         if isinstance(result, list) and all(
             isinstance(i, int) and i >= 0 and i <= 255 for i in result
         ):
-            result = bytes(result)
+            return bytes(result)
         return result
 
-    return invoke
+
+def _random_note() -> bytes:
+    return randbytes(8)  # noqa: S311
+
+
+def create_avm_invoker(app_spec: Path, algod_client: AlgodClient) -> AVMInvoker:
+    client = ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=get_localnet_default_account(algod_client),
+    )
+
+    client.create(
+        transaction_parameters={
+            # random note avoids duplicate txn if tests are running concurrently
+            "note": _random_note(),
+        }
+    )
+
+    return AVMInvoker(client)
