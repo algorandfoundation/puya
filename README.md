@@ -6,7 +6,7 @@ Algorand Python is compiled for execution on the AVM by PuyaPy, an optimising co
 
 [Documentation](https://algorandfoundation.github.io/puya/) | [Language guide](https://algorandfoundation.github.io/puya/language-guide.html)
 
-## Quick start
+## Installation
 
 ### Recommended method
 
@@ -15,6 +15,8 @@ The easiest way to use Algorand Python is to instantiate a template with AlgoKit
 ```algokit init -t python```
 
 This will give you a full development environment with intellisense, linting, automatic formatting, breakpoint debugging, deployment and CI/CD.
+
+A sample smart contract will be placed under `PROJECT_NAME/projects/PROJECT_NAME/smart_contracts/SMART_CONTRACT_NAME/contract.py` (replacing `PROJECT_NAME` and `SMART_CONTRACT_NAME` with the values you chose during the template wizard.)
 
 ### Manual Alternative
 
@@ -35,20 +37,23 @@ Alternatively, if you want to start from scratch you can do the following:
         def hello(self, name: arc4.String) -> arc4.String:
             return "Hello, " + name
     ```
-6. Compile the contract:
+
+## Usage
+
+1. Navigate to your contract and compile it:
     ```shell
     algokit compile py contract.py
     ```
-7. You should now have `HelloWorldContract.approval.teal` and `HelloWorldContract.clear.teal` on the file system!
-8. We generally recommend using ARC-32 and [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to have the most optimal deployment and consumption experience; to do this you need to ask PuyaPy to output an ARC-32 compatible app spec file:
+2. You should now have `HelloWorldContract.approval.teal` and `HelloWorldContract.clear.teal` on the file system!
+3. We generally recommend using ARC-32 and [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to have the most optimal deployment and consumption experience; to do this you need to ask PuyaPy to output an ARC-32 compatible app spec file:
     ```shell
     algokit compile py contract.py --output-arc32 --no-output-teal
     ```
-9. You should now have `HelloWorldContract.arc32.json`, which can be generated into a client e.g. using AlgoKit CLI:
+4. You should now have `HelloWorldContract.arc32.json`, which can be generated into a client e.g. using AlgoKit CLI:
     ```shell
     algokit generate client HelloWorldContract.arc32.json --output client.py
     ```
-10. From here you can dive into the [examples](https://github.com/algorandfoundation/puya/tree/main/examples) or look at the [documentation](https://algorandfoundation.github.io/puya/).
+5. From here you can dive into the [examples](https://github.com/algorandfoundation/puya/tree/main/examples) or look at the [documentation](https://algorandfoundation.github.io/puya/).
 
 ## Examples
 
