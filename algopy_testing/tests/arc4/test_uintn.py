@@ -11,6 +11,10 @@ from tests.common import AVMInvoker
 from tests.util import int_to_bytes
 
 
+def _invalid_bytes_length_error(length: int) -> str:
+    return f"value string must be in bytes and correspond to a uint{length}"
+
+
 @pytest.mark.parametrize(
     "value",
     [
@@ -135,11 +139,6 @@ def test_biguintn_overflow(get_avm_result: AVMInvoker, value: int, expected: int
         assert avm_result == result
 
 
-# where input bytes is not exactly 4 bytes, AVM returns None and
-# the stub implementation returns the expected value.
-# e.g. int_to_bytes(255, 2)
-# for the above test case, where input value is only 2 bytes,
-# AVM returns None and the stub implementation returns 255.
 @pytest.mark.parametrize(
     "value",
     [
@@ -156,11 +155,20 @@ def test_uintn_from_bytes(get_avm_result: AVMInvoker, value: bytes) -> None:
     assert avm_result == result
 
 
-# where input bytes is not exactly 32 bytes, AVM returns None and
-# the stub implementation returns the expected value.
-# e.g. int_to_bytes(255, 4)
-# for the above test case, where input value is only 4 bytes,
-# AVM returns None and the stub implementation returns 255
+@pytest.mark.parametrize(
+    "value",
+    [
+        int_to_bytes(0, 1),
+        int_to_bytes(0, 8),
+        int_to_bytes(255, 2),
+        int_to_bytes(2**32 - 1, 8),
+    ],
+)
+def test_uintn_from_bytes_invalid_length(get_avm_result: AVMInvoker, value: bytes) -> None:
+    with pytest.raises(ValueError, match=_invalid_bytes_length_error(32)):
+        get_avm_result("verify_uintn_from_bytes", a=value)
+
+
 @pytest.mark.parametrize(
     "value",
     [
@@ -176,63 +184,107 @@ def test_biguintn_from_bytes(get_avm_result: AVMInvoker, value: bytes) -> None:
     assert avm_result == result
 
 
-# where input bytes is not exactly 4 bytes, AVM returns None and
-# the stub implementation returns the expected value.
-# e.g. (int_to_bytes(255, 2), ARC4_RETURN_PREFIX, 255)
-# for the above test case, where input value is only 2 bytes,
-# AVM returns None and the stub implementation returns 255.
 @pytest.mark.parametrize(
-    ("value", "prefix", "expected"),
+    "value",
     [
-        (int_to_bytes(0, 4), ARC4_RETURN_PREFIX, 0),
-        (int_to_bytes(255, 4), ARC4_RETURN_PREFIX, 255),
-        (int_to_bytes(2**16, 4), ARC4_RETURN_PREFIX, 2**16),
-        (int_to_bytes(2**32 - 1, 4), ARC4_RETURN_PREFIX, 2**32 - 1),
-        (int_to_bytes(255, 4), b"", None),
-        (int_to_bytes(255, 4), b"\xff\x00\x01\x02", None),
+        int_to_bytes(0, 16),
+        int_to_bytes(0, 40),
+        int_to_bytes(2**128 - 1, 16),
+        int_to_bytes(2**256 - 1, 40),
     ],
 )
-def test_uintn_from_log(
-    get_avm_result: AVMInvoker, value: bytes, prefix: bytes, expected: int | None
-) -> None:
-    if expected is None:
-        with pytest.raises(algokit_utils.LogicError, match="assert failed"):
-            get_avm_result("verify_uintn_from_log", a=prefix + value)
-        with pytest.raises(ValueError, match="ABI return prefix not found"):
-            arc4.UInt32.from_log(Bytes(prefix + value))
-    else:
-        avm_result = get_avm_result("verify_uintn_from_log", a=prefix + value)
-        result = arc4.UInt32.from_log(Bytes(prefix + value))
-        assert avm_result == expected
-        assert avm_result == result
+def test_biguintn_from_bytes_invalid_length(get_avm_result: AVMInvoker, value: bytes) -> None:
+    with pytest.raises(ValueError, match=_invalid_bytes_length_error(256)):
+        get_avm_result("verify_biguintn_from_bytes", a=value)
 
 
-# where input bytes is not exactly 32 bytes, AVM returns None and
-# the stub implementation returns the expected value.
-# e.g. (int_to_bytes(255, 4), ARC4_RETURN_PREFIX, 255)
-# for the above test case, where input value is only 4 bytes,
-# AVM returns None and the stub implementation returns 255
 @pytest.mark.parametrize(
-    ("value", "prefix", "expected"),
+    ("value", "expected"),
     [
-        (int_to_bytes(0, 32), ARC4_RETURN_PREFIX, 0),
-        (int_to_bytes(255, 32), ARC4_RETURN_PREFIX, 255),
-        (int_to_bytes(2**16, 32), ARC4_RETURN_PREFIX, 2**16),
-        (int_to_bytes(2**256 - 1, 32), ARC4_RETURN_PREFIX, 2**256 - 1),
-        (int_to_bytes(255, 32), b"", None),
-        (int_to_bytes(255, 32), b"\xff\x00\x01\x02", None),
+        (int_to_bytes(0, 4), 0),
+        (int_to_bytes(255, 4), 255),
+        (int_to_bytes(2**16, 4), 2**16),
+        (int_to_bytes(2**32 - 1, 4), 2**32 - 1),
     ],
 )
-def test_biguintn_from_log(
-    get_avm_result: AVMInvoker, value: bytes, prefix: bytes, expected: int | None
+def test_uintn_from_log(get_avm_result: AVMInvoker, value: bytes, expected: int) -> None:
+    avm_result = get_avm_result("verify_uintn_from_log", a=ARC4_RETURN_PREFIX + value)
+    result = arc4.UInt32.from_log(Bytes(ARC4_RETURN_PREFIX + value))
+    assert avm_result == expected
+    assert avm_result == result
+
+
+@pytest.mark.parametrize(
+    ("value", "prefix"),
+    [
+        (int_to_bytes(255, 4), b""),
+        (int_to_bytes(255, 4), b"\xff\x00\x01\x02"),
+    ],
+)
+def test_uintn_from_log_invalid_prefix(
+    get_avm_result: AVMInvoker, value: bytes, prefix: bytes
 ) -> None:
-    if expected is None:
-        with pytest.raises(algokit_utils.LogicError, match="assert failed"):
-            get_avm_result("verify_biguintn_from_log", a=prefix + value)
-        with pytest.raises(ValueError, match="ABI return prefix not found"):
-            arc4.UInt256.from_log(Bytes(prefix + value))
-    else:
-        avm_result = get_avm_result("verify_biguintn_from_log", a=prefix + value)
-        result = arc4.UInt256.from_log(Bytes(prefix + value))
-        assert avm_result == expected
-        assert avm_result == result
+    with pytest.raises(algokit_utils.LogicError, match="assert failed"):
+        get_avm_result("verify_uintn_from_log", a=prefix + value)
+    with pytest.raises(ValueError, match="ABI return prefix not found"):
+        arc4.UInt32.from_log(Bytes(prefix + value))
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        int_to_bytes(0, 1),
+        int_to_bytes(0, 8),
+        int_to_bytes(255, 2),
+        int_to_bytes(2**32 - 1, 8),
+    ],
+)
+def test_uintn_from_log_invalid_length(get_avm_result: AVMInvoker, value: bytes) -> None:
+    with pytest.raises(ValueError, match=_invalid_bytes_length_error(32)):
+        get_avm_result("verify_uintn_from_log", a=ARC4_RETURN_PREFIX + value)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (int_to_bytes(0, 32), 0),
+        (int_to_bytes(255, 32), 255),
+        (int_to_bytes(2**16, 32), 2**16),
+        (int_to_bytes(2**256 - 1, 32), 2**256 - 1),
+    ],
+)
+def test_biguintn_from_log(get_avm_result: AVMInvoker, value: bytes, expected: int) -> None:
+    avm_result = get_avm_result("verify_biguintn_from_log", a=ARC4_RETURN_PREFIX + value)
+    result = arc4.UInt256.from_log(Bytes(ARC4_RETURN_PREFIX + value))
+    assert avm_result == expected
+    assert avm_result == result
+
+
+@pytest.mark.parametrize(
+    ("value", "prefix"),
+    [
+        (int_to_bytes(255, 32), b""),
+        (int_to_bytes(255, 32), b"\xff\x00\x01\x02"),
+    ],
+)
+def test_biguintn_from_log_invalid_prefix(
+    get_avm_result: AVMInvoker, value: bytes, prefix: bytes
+) -> None:
+    with pytest.raises(algokit_utils.LogicError, match="assert failed"):
+        get_avm_result("verify_biguintn_from_log", a=prefix + value)
+    with pytest.raises(ValueError, match="ABI return prefix not found"):
+        arc4.UInt256.from_log(Bytes(prefix + value))
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        int_to_bytes(0, 16),
+        int_to_bytes(0, 40),
+        int_to_bytes(2**128 - 1, 16),
+        int_to_bytes(2**256 - 1, 40),
+    ],
+)
+def test_biguintn_from_log_invalid_length(get_avm_result: AVMInvoker, value: bytes) -> None:
+    with pytest.raises(ValueError, match=_invalid_bytes_length_error(256)):
+        get_avm_result("verify_biguintn_from_log", a=ARC4_RETURN_PREFIX + value)

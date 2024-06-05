@@ -21,7 +21,10 @@ def create_avm_invoker(client: ApplicationClient) -> AVMInvoker:
                 "suggested_params": kwargs.pop("suggested_params", None),
             },
             **kwargs,
-        ).return_value
+        )
+        if result.decode_error:
+            raise ValueError(result.decode_error)
+        result = result.return_value
         if isinstance(result, list) and all(
             isinstance(i, int) and i >= 0 and i <= 255 for i in result
         ):
