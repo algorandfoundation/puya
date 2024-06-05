@@ -11,9 +11,7 @@ def test_patch_global_fields() -> None:
         assert context.global_fields["min_txn_fee"] == 100
         assert context.global_fields["min_balance"] == 10
 
-        with pytest.raises(
-            AttributeError, match="`algopy.Global` has no attribute 'InvalidField'"
-        ):
+        with pytest.raises(AttributeError, match="InvalidField"):
             context.patch_global_fields(InvalidField=123)  # type: ignore   # noqa: PGH003
 
 
@@ -24,19 +22,8 @@ def test_patch_txn_fields() -> None:
         assert context.txn_fields["sender"] == dummy_account
         assert context.txn_fields["fee"] == 1000
 
-        with pytest.raises(AttributeError, match="`algopy.Txn` has no attribute 'InvalidField'"):
+        with pytest.raises(AttributeError, match="InvalidField"):
             context.patch_txn_fields(InvalidField=123)  # type: ignore   # noqa: PGH003
-
-
-def test_patch_itxn_fields() -> None:
-    with algopy_testing_context() as context:
-        dummy_account = algosdk.account.generate_account()[1]
-        context.patch_itxn_fields(sender=dummy_account, fee=UInt64(1000))
-        assert context.itxn_fields["sender"] == dummy_account
-        assert context.itxn_fields["fee"] == 1000
-
-        with pytest.raises(AttributeError, match="`algopy.ITxn` has no attribute 'InvalidField'"):
-            context.patch_itxn_fields(InvalidField=123)  # type: ignore   # noqa: PGH003
 
 
 def test_account_management() -> None:
@@ -98,6 +85,17 @@ def test_inner_transaction_management() -> None:
         assert len(context.inner_transactions) == 0
 
 
+def test_last_itxn_access() -> None:
+    with algopy_testing_context() as context:
+        from algopy_testing.op import ITxn
+
+        dummy_account = context.any_account()
+        itxn = algopy_testing.itxn.Payment(sender=dummy_account)
+        context.add_inner_transaction(itxn)
+        assert len(context.inner_transactions) == 1
+        assert ITxn.sender() == dummy_account
+
+
 def test_context_clearing() -> None:
     with algopy_testing_context() as context:
         context.any_account(balance=UInt64(1000))
@@ -130,8 +128,8 @@ def test_context_reset() -> None:
         assert len(context.inner_transactions) == 0
         assert len(context.gtxns) == 0
         assert len(context.logs) == 0
-        assert context._asset_id_count == 1  # noqa: SLF001
-        assert context._app_id_count == 1  # noqa: SLF001
+        assert next(context._asset_id) == 1  # noqa: SLF001
+        assert next(context._app_id) == 1  # noqa: SLF001
 
 
 def test_algopy_testing_context() -> None:

@@ -12,7 +12,6 @@ from algopy_testing.models.account import AccountData, AccountFields
 from algopy_testing.models.application import ApplicationFields
 from algopy_testing.models.asset import AssetFields
 from algopy_testing.models.global_state import GlobalFields
-from algopy_testing.models.itxn import ITxnFields
 from algopy_testing.models.txn import TxnFields
 
 if TYPE_CHECKING:
@@ -37,7 +36,6 @@ class AlgopyTestContext:
         self.inner_transactions: list[BaseInnerTransaction] = []
         self.global_fields: GlobalFields = {}
         self.txn_fields: TxnFields = {}
-        self.itxn_fields: ITxnFields = {}
         self.gtxns: list[algopy.gtxn.TransactionBase] = []
         self.logs: list[str] = []
         self._asset_id = iter(range(1001, 2**64))
@@ -79,25 +77,6 @@ class AlgopyTestContext:
             )
 
         self.txn_fields.update(txn_fields)
-
-    def patch_itxn_fields(self, **itxn_fields: Unpack[ITxnFields]) -> None:
-        """
-        Patch 'algopy.ITxn' fields in the test context based on provided key-value pairs.
-
-        Args:
-            **itxn_fields: Key-value pairs corresponding to inner transaction fields.
-
-        Raises:
-            AttributeError: If a key does not correspond to a valid inner transaction field.
-        """
-        invalid_keys = itxn_fields.keys() - ITxnFields.__annotations__.keys()
-
-        if invalid_keys:
-            raise AttributeError(
-                f"Invalid field(s) found during patch for `ITxn`: {', '.join(invalid_keys)}"
-            )
-
-        self.itxn_fields.update(itxn_fields)
 
     def get_account(self, address: str) -> algopy.Account:
         """
@@ -307,7 +286,7 @@ class AlgopyTestContext:
         """
         from algopy import Application
 
-        new_app = Application(self._next_app_id())
+        new_app = Application(next(self._app_id))
         self.application_data[int(new_app.id)] = ApplicationFields(**application_fields)
         return new_app
 
@@ -465,10 +444,9 @@ class AlgopyTestContext:
         self.gtxns = []
         self.global_fields = {}
         self.txn_fields = {}
-        self.itxn_fields = {}
         self.logs = []
-        self._asset_id = iter(range(1001, 2**64))
-        self._app_id = iter(range(1001, 2**64))
+        self._asset_id = iter(range(1, 2**64))
+        self._app_id = iter(range(1, 2**64))
 
 
 _var: ContextVar[AlgopyTestContext] = ContextVar("_var")
