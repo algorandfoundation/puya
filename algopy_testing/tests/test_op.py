@@ -2,6 +2,7 @@ import typing
 from pathlib import Path
 
 import algokit_utils
+import algopy
 import algosdk
 import coincurve
 import ecdsa  # type: ignore  # noqa: PGH003
@@ -10,7 +11,7 @@ import nacl.signing
 import pytest
 from algokit_utils import ApplicationClient, get_localnet_default_account
 from algokit_utils.config import config
-from algopy import op
+from algopy_testing import op
 from algopy_testing.context import algopy_testing_context
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.primitives.uint64 import UInt64
@@ -36,7 +37,7 @@ def _generate_ecdsa_test_data(curve: curves.Curve) -> dict[str, typing.Any]:
     message_hash = keccak.new(data=data, digest_bits=256).digest()
 
     signature = sk.sign_digest(message_hash, sigencode=ecdsa.util.sigencode_string)
-    r, s = ecdsa.util.sigdecode_string(signature, sk.curve.order)
+    r, s = ecdsa.util.sigdecode_string(signature, sk.curve.order)  # type: ignore  # noqa: PGH003
     recovery_id = 0  # Recovery ID is typically 0 or 1
 
     return {
@@ -44,8 +45,8 @@ def _generate_ecdsa_test_data(curve: curves.Curve) -> dict[str, typing.Any]:
         "r": Bytes(r.to_bytes(32, byteorder="big")),
         "s": Bytes(s.to_bytes(32, byteorder="big")),
         "recovery_id": UInt64(recovery_id),
-        "pubkey_x": Bytes(vk.to_string()[:32]),
-        "pubkey_y": Bytes(vk.to_string()[32:]),
+        "pubkey_x": Bytes(vk.to_string()[:32]),  # type: ignore # noqa: PGH003
+        "pubkey_y": Bytes(vk.to_string()[32:]),  # type: ignore # noqa: PGH003
     }
 
 
@@ -179,7 +180,7 @@ def test_ed25519verify(
 ) -> None:
     assert crypto_ops_client.approval
     with algopy_testing_context() as ctx:
-        ctx.patch_txn_fields(approval_program=Bytes(crypto_ops_client.approval.raw_binary))
+        ctx.patch_txn_fields(approval_program=algopy.Bytes(crypto_ops_client.approval.raw_binary))
 
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"
@@ -344,7 +345,7 @@ def test_verify_vrf_verify(
         return op.vrf_verify(op.VrfVerify.VrfAlgorand, a, b, c)
 
     avm_result = run_real_vrf_verify()
-    mocker.patch("algopy.op.vrf_verify", return_value=(avm_result[0], True))
+    mocker.patch("algopy_testing.op.vrf_verify", return_value=(avm_result[0], True))
     mocked_result = run_mocked_vrf_verify()
 
     assert avm_result == mocked_result
