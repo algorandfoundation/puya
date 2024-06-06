@@ -138,7 +138,8 @@ class BoxMapProxyExpressionBuilder(
         return BoxValueExpression(
             key=full_key,
             wtype=content_wtype,
-            member_name=self._member_name,  # TODO: indicate that is is a map somehow
+            member_name=self._member_name,
+            is_map=True,
             source_location=location,
         )
 

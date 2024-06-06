@@ -2,6 +2,7 @@ import typing
 from collections.abc import Sequence
 
 import puya.awst.visitors
+import puya.ir.builder.storage
 from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -12,7 +13,7 @@ from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, box, flow_control, state
+from puya.ir.builder import arc4, flow_control, storage
 from puya.ir.builder._utils import (
     assert_value,
     assign,
@@ -530,24 +531,27 @@ class FunctionIRBuilder(
         return result
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
-        return state.visit_app_state_expression(self.context, expr)
+        return storage.visit_app_state_expression(self.context, expr)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> TExpression:
-        return state.visit_app_account_state_expression(self.context, expr)
+        return storage.visit_app_account_state_expression(self.context, expr)
+
+    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
+        return puya.ir.builder.storage.visit_box_value(self.context, expr)
 
     def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
-        return state.visit_state_get_ex(self.context, expr)
+        return storage.visit_state_get_ex(self.context, expr)
 
     def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
-        return state.visit_state_delete(self.context, statement)
+        return storage.visit_state_delete(self.context, statement)
 
     def visit_state_get(self, expr: awst_nodes.StateGet) -> TExpression:
-        return state.visit_state_get(self.context, expr)
+        return storage.visit_state_get(self.context, expr)
 
     def visit_state_exists(self, expr: awst_nodes.StateExists) -> TExpression:
-        return state.visit_state_exists(self.context, expr)
+        return storage.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         match expr.wtype:
@@ -946,7 +950,7 @@ class FunctionIRBuilder(
         return value_seq_or_provider
 
     def materialise_value_provider(
-        self, provider: ValueProvider, description: str
+        self, provider: ValueProvider, description: str | Sequence[str]
     ) -> Sequence[Value]:
         """
         Given a ValueProvider with arity of N, return a Value sequence of length N.
@@ -968,9 +972,6 @@ class FunctionIRBuilder(
             temp_description=description,
             source_location=provider.source_location,
         )
-
-    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
-        return box.visit_box_value(self.context, expr)
 
 
 def create_uint64_binary_op(

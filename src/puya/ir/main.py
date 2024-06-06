@@ -400,9 +400,15 @@ def fold_state_and_special_methods(
         if result.clear_program is None:
             result.clear_program = c.clear_program
         for state in c.app_state.values():
+            storage_type = wtypes.persistable_stack_type(
+                state.storage_wtype, state.source_location
+            )
+            key_type = None
+            if state.key_wtype is not None:
+                key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
             match state.kind:
                 case awst_nodes.AppStorageKind.app_global:
-                    if state.key_wtype is not None:
+                    if key_type is not None:
                         raise InternalError(
                             f"maps of {state.kind} are not supported yet", state.source_location
                         )
@@ -410,12 +416,12 @@ def fold_state_and_special_methods(
                         name=state.member_name,
                         source_location=state.source_location,
                         key=state.key.value,  # TODO: pass encoding?
-                        storage_type=state.storage_avm_type,
+                        storage_type=storage_type,
                         description=state.description,
                     )
                     result.global_state[translated.name] = translated
                 case awst_nodes.AppStorageKind.account_local:
-                    if state.key_wtype is not None:
+                    if key_type is not None:
                         raise InternalError(
                             f"maps of {state.kind} are not supported yet", state.source_location
                         )
@@ -423,7 +429,7 @@ def fold_state_and_special_methods(
                         name=state.member_name,
                         source_location=state.source_location,
                         key=state.key.value,  # TODO: pass encoding?
-                        storage_type=state.storage_avm_type,
+                        storage_type=storage_type,
                         description=state.description,
                     )
                     result.local_state[translated.name] = translated

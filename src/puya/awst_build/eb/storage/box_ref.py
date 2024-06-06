@@ -82,9 +82,10 @@ class BoxRefProxyExpressionBuilder(
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
         return BoxValueExpression(
             key=self.resolve(),
-            source_location=location,
             wtype=wtypes.bytes_wtype,
             member_name=self._member_name,
+            is_map=False,
+            source_location=location,
         )
 
     @typing.override

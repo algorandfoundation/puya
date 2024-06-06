@@ -124,6 +124,7 @@ class BoxProxyExpressionBuilder(
             key=self.resolve(),
             wtype=self.pytype.content.wtype,
             member_name=self._member_name,
+            is_map=False,
             source_location=location,
         )
 

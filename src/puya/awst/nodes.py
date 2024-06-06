@@ -11,7 +11,6 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import algo_constants
-from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
@@ -1020,32 +1019,8 @@ class IntersectionSliceExpression(Expression):
         return visitor.visit_intersection_slice_expression(self)
 
 
-@attrs.frozen(repr=False)
-class _WTypeIsPersistable:
-    def __call__(
-        self,
-        inst: Node,
-        attr: attrs.Attribute,  # type: ignore[type-arg]  # noqa: ARG002
-        value: WType,
-    ) -> None:
-        """
-        We use a callable class to be able to change the ``__repr__``.
-        """
-        if not isinstance(inst, Node):
-            raise InternalError(f"{self!r} used on type {type(inst).__name__}, expected Node")
-        value.storage_type(inst.source_location)
-
-    def __repr__(self) -> str:
-        return "<wtype_is_persistable validator>"
-
-
-def wtype_is_persistable() -> _WTypeIsPersistable:
-    return _WTypeIsPersistable()
-
-
 @attrs.frozen
 class AppStateExpression(Expression):
-    wtype: wtypes.WType = attrs.field(validator=wtype_is_persistable())
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
 
@@ -1055,7 +1030,6 @@ class AppStateExpression(Expression):
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
-    wtype: wtypes.WType = attrs.field(validator=wtype_is_persistable())
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
     account: Expression = attrs.field(
@@ -1068,9 +1042,11 @@ class AppAccountStateExpression(Expression):
 
 @attrs.frozen
 class BoxValueExpression(Expression):
-    wtype: wtypes.WType = attrs.field(validator=wtype_is_persistable())
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
+    is_map: bool
+    """is the key derived from some prefix and some other value?
+    informative only, used to construct better messages etc"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_value_expression(self)
@@ -1791,11 +1767,6 @@ class AppStorageDefinition(Node):
     key: BytesConstant
     """for maps, this is the prefix"""
     description: str | None
-    storage_avm_type: t.Literal[AVMType.uint64, AVMType.bytes] = attrs.field(init=False)
-
-    @storage_avm_type.default
-    def _storage_avm_type(self) -> t.Literal[AVMType.uint64, AVMType.bytes]:
-        return self.storage_wtype.storage_type(self.source_location)
 
 
 @attrs.frozen

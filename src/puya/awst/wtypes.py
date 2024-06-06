@@ -7,12 +7,14 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
-from puya import algo_constants
+from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import sha512_256_hash
+
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)
@@ -46,18 +48,6 @@ class WType:
 
     def __str__(self) -> str:
         return self.name
-
-    def storage_type(
-        self, location: SourceLocation
-    ) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
-        if self.ephemeral:
-            raise CodeError(
-                "ephemeral types (such as transaction related types) are not suitable for storage",
-                location,
-            )
-        if self.scalar_type is None:
-            raise CodeError("type is not suitable for storage", location)
-        return self.scalar_type
 
 
 void_wtype: typing.Final = WType(
@@ -478,6 +468,33 @@ arc4_address_type: typing.Final = ARC4StaticArray(
     alias="address",
     source_location=None,
 )
+
+
+def persistable_stack_type(
+    wtype: WType, location: SourceLocation
+) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
+    match _storage_type_or_error(wtype):
+        case str(error):
+            raise CodeError(error, location=location)
+        case result:
+            return result
+
+
+def validate_persistable(wtype: WType, location: SourceLocation) -> bool:
+    match _storage_type_or_error(wtype):
+        case str(error):
+            logger.error(error, location=location)
+            return False
+        case _:
+            return True
+
+
+def _storage_type_or_error(wtype: WType) -> str | typing.Literal[AVMType.uint64, AVMType.bytes]:
+    if wtype.ephemeral:
+        return "ephemeral types (such as transaction related types) are not suitable for storage"
+    if wtype.scalar_type is None:
+        return "type is not suitable for storage"
+    return wtype.scalar_type
 
 
 # TODO: move these validation functions somewhere else

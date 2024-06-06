@@ -104,7 +104,7 @@ def box_length_unchecked(box: BoxValueExpression, location: SourceLocation) -> E
 
 def box_length_checked(box: BoxValueExpression, location: SourceLocation) -> Expression:
     box_len_expr = _box_len(box.key, location)
-    if box.member_name:
+    if box.member_name and not box.is_map:
         comment = f"box {box.member_name} exists"
     else:
         comment = "box exists"
