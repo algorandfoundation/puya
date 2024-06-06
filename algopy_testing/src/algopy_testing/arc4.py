@@ -412,6 +412,9 @@ class Bool(_ABIEncoded):
 
     _value: bool
 
+    # True value is encoded as having a 1 on the most significant bit (0x80 = 128)
+    _true_int_value = 128
+
     def __init__(self, value: bool = False, /) -> None:  # noqa: FBT001, FBT002
         self._value = value
 
@@ -419,3 +422,23 @@ class Bool(_ABIEncoded):
     def native(self) -> bool:
         """Return the bool representation of the value after ARC4 decoding"""
         return self._value
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes (no validation)"""
+        value = as_bytes(value)
+        int_value = int.from_bytes(value)
+        return cls(int_value == cls._true_int_value)
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying Bytes"""
+        return algopy.Bytes(int_to_bytes(self._true_int_value if self._value else 0, 1))
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")

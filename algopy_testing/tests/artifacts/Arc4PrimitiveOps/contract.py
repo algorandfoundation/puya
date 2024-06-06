@@ -236,3 +236,15 @@ class Arc4PrimitiveOpsContract(ARC4Contract):
     @arc4.abimethod()
     def verify_string_from_log(self, a: Bytes) -> arc4.String:
         return arc4.String.from_log(a)
+
+    @arc4.abimethod()
+    def verify_bool_bytes(self, a: arc4.Bool) -> Bytes:
+        return a.bytes
+
+    @arc4.abimethod()
+    def verify_bool_from_bytes(self, a: Bytes) -> arc4.Bool:
+        return arc4.Bool.from_bytes(a)
+
+    @arc4.abimethod()
+    def verify_bool_from_log(self, a: Bytes) -> arc4.Bool:
+        return arc4.Bool.from_log(a)
