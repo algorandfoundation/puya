@@ -1,0 +1,222 @@
+#pragma version 10
+
+examples.struct_in_box.contract.ExampleContract.approval_program:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@7
+    txna ApplicationArgs 0
+    method "add_user((string,uint64,uint64))void"
+    method "attach_asset_to_user(uint64,asset)void"
+    method "get_user(uint64)(string,uint64,uint64)"
+    uncover 3
+    match main_add_user_route@2 main_attach_asset_to_user_route@3 main_get_user_route@4
+    b main_switch_case_default@5
+
+main_add_user_route@2:
+    // struct_in_box/contract.py:31
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txna ApplicationArgs 1
+    // struct_in_box/contract.py:31
+    // @arc4.abimethod()
+    callsub add_user
+    int 1
+    return
+
+main_attach_asset_to_user_route@3:
+    // struct_in_box/contract.py:36
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    // struct_in_box/contract.py:36
+    // @arc4.abimethod()
+    callsub attach_asset_to_user
+    int 1
+    return
+
+main_get_user_route@4:
+    // struct_in_box/contract.py:42
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txna ApplicationArgs 1
+    // struct_in_box/contract.py:42
+    // @arc4.abimethod()
+    callsub get_user
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_switch_case_default@5:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    err // reject transaction
+
+main_bare_routing@7:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@8
+    b main_reject_bare_on_completion@9
+
+main_create@8:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_reject_bare_on_completion@9:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    err // reject transaction
+
+
+// examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
+add_user:
+    // struct_in_box/contract.py:31-32
+    // @arc4.abimethod()
+    // def add_user(self, user: UserStruct) -> None:
+    proto 1 0
+    // struct_in_box/contract.py:33
+    // assert not self.box_exists(user.id), "User with id must not exist"
+    frame_dig -1
+    int 2
+    int 8
+    extract3
+    callsub box_exists
+    !
+    assert // User with id must not exist
+    // struct_in_box/contract.py:34
+    // self.write_to_box(user)
+    frame_dig -1
+    callsub write_to_box
+    pop
+    retsub
+
+
+// examples.struct_in_box.contract.ExampleContract.box_exists(user_id: bytes) -> uint64:
+box_exists:
+    // struct_in_box/contract.py:26-27
+    // @subroutine
+    // def box_exists(self, user_id: arc4.UInt64) -> bool:
+    proto 1 1
+    // struct_in_box/contract.py:28
+    // _data, exists = op.Box.get(user_id.bytes)
+    frame_dig -1
+    box_get
+    swap
+    pop
+    // struct_in_box/contract.py:29
+    // return exists
+    retsub
+
+
+// examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
+write_to_box:
+    // struct_in_box/contract.py:18-19
+    // @subroutine
+    // def write_to_box(self, user: UserStruct) -> None:
+    proto 1 1
+    // struct_in_box/contract.py:20
+    // box_key = user.id.bytes
+    frame_dig -1
+    int 2
+    int 8
+    extract3
+    // struct_in_box/contract.py:21-22
+    // # Delete existing data, so we don't have to worry about resizing the box
+    // op.Box.delete(box_key)
+    dup
+    box_del
+    pop
+    // struct_in_box/contract.py:24
+    // op.Box.put(box_key, user.bytes)
+    frame_dig -1
+    box_put
+    frame_dig -1
+    retsub
+
+
+// examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
+attach_asset_to_user:
+    // struct_in_box/contract.py:36-37
+    // @arc4.abimethod()
+    // def attach_asset_to_user(self, user_id: arc4.UInt64, asset: Asset) -> None:
+    proto 2 0
+    // struct_in_box/contract.py:38
+    // user = self.read_from_box(user_id)
+    frame_dig -2
+    callsub read_from_box
+    // struct_in_box/contract.py:39
+    // user.asset = arc4.UInt64(asset.id)
+    frame_dig -1
+    itob
+    replace2 10
+    // struct_in_box/contract.py:40
+    // self.write_to_box(user)
+    callsub write_to_box
+    pop
+    retsub
+
+
+// examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: bytes) -> bytes:
+read_from_box:
+    // struct_in_box/contract.py:12-13
+    // @subroutine
+    // def read_from_box(self, user_id: arc4.UInt64) -> UserStruct:
+    proto 1 1
+    // struct_in_box/contract.py:14
+    // box_data, exists = op.Box.get(user_id.bytes)
+    frame_dig -1
+    box_get
+    // struct_in_box/contract.py:15
+    // assert exists, "User with that id does not exist"
+    assert // User with that id does not exist
+    // struct_in_box/contract.py:16
+    // return UserStruct.from_bytes(box_data)
+    retsub
+
+
+// examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
+get_user:
+    // struct_in_box/contract.py:42-43
+    // @arc4.abimethod()
+    // def get_user(self, user_id: arc4.UInt64) -> UserStruct:
+    proto 1 1
+    // struct_in_box/contract.py:44
+    // return self.read_from_box(user_id)
+    frame_dig -1
+    callsub read_from_box
+    retsub

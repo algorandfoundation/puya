@@ -1204,3 +1204,82 @@ def test_nested_tuple(
     dynamic_app_client: algokit_utils.ApplicationClient,
 ) -> None:
     dynamic_app_client.call("test_nested_tuple_modification")
+
+
+def test_struct_in_box(
+    algod_client: AlgodClient, account: algokit_utils.Account, asset_a: int
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(EXAMPLES_DIR / "struct_in_box" / "contract.py")
+    )
+    client = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+    )
+
+    # Create the application
+    client.create()
+
+    # Fund the application (so it can have boxes)
+    algokit_utils.transfer(
+        algod_client,
+        algokit_utils.TransferParameters(
+            to_address=client.app_address, from_account=account, micro_algos=10_000_000
+        ),
+    )
+
+    user_1 = {"id": 1, "name": "Bob", "asset": 0}
+    user_2 = {"id": 2, "name": "Jane", "asset": 0}
+
+    client.call(
+        "add_user",
+        user=user_1,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (1).to_bytes(8)),
+            ]
+        ),
+    )
+
+    client.call(
+        "add_user",
+        user=user_2,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (2).to_bytes(8)),
+            ]
+        ),
+    )
+
+    client.call(
+        "attach_asset_to_user",
+        user_id=user_1["id"],
+        asset=asset_a,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (1).to_bytes(8)),
+            ]
+        ),
+    )
+
+    user_1_result = client.call(
+        "get_user",
+        user_id=1,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (1).to_bytes(8)),
+            ]
+        ),
+    )
+    assert user_1_result.return_value == ["Bob", 1, asset_a]
+    user_2_result = client.call(
+        "get_user",
+        user_id=2,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (2).to_bytes(8)),
+            ]
+        ),
+    )
+    assert user_2_result.return_value == ["Jane", 2, 0]
