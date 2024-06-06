@@ -10,9 +10,8 @@ if TYPE_CHECKING:
 from itertools import zip_longest
 
 from algopy_testing.constants import MAX_BYTES_SIZE
-
-from algopy.primitives.uint64 import UInt64
-from algopy.utils import as_bytes, as_int64
+from algopy_testing.primitives.uint64 import UInt64
+from algopy_testing.utils import as_bytes, as_int64
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution

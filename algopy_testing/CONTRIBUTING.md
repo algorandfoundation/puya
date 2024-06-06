@@ -15,9 +15,13 @@ Here are some common commands you will use with Hatch:
 -   **Run tests:** `hatch run tests`
 -   **Build project:** `hatch build`
 -   **Open shell:** `hatch shell`
--   **Reset environments:** `hatch env prune` (Useful for resyncing compiler/stub changes with the environment)
+-   **Reset environments:** `hatch env prune`
 
 # Development Scripts
 
 -   **Regenerate typed clients for example contracts:** `hatch run refresh_test_artifacts`
 -   **Coverage check of existing progress on implementing AlgoPy Stubs:** `hatch run check_stubs_cov`
+
+# Examples folder
+
+Examples folder uses a dedicated 'venv.examples' virtual environment managed by Hatch that simulates a user environment with both algorand-python and algorand-python-testing installed explicitly. This is useful for testing new features or bug fixes in the testing library.

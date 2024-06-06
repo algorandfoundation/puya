@@ -2,8 +2,8 @@ import base64
 
 import algokit_utils
 import pytest
-from algopy.primitives.bytes import Bytes
 from algopy_testing.constants import MAX_BYTES_SIZE
+from algopy_testing.primitives.bytes import Bytes
 
 from tests.common import AVMInvoker
 from tests.util import get_sha256_hash, int_to_bytes
