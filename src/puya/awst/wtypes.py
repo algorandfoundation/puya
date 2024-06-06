@@ -48,7 +48,7 @@ class WType:
         return self.name
 
     def storage_type(
-        self, location: SourceLocation | None = None
+        self, location: SourceLocation
     ) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
         if self.ephemeral:
             raise CodeError(

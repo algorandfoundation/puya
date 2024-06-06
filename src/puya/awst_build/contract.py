@@ -449,10 +449,7 @@ def _gather_global_direct_storages(
                 continue
 
             if pytyp is pytypes.NoneType:
-                context.error(
-                    "None is not supported as a value, only a return type",
-                    var_loc,
-                )
+                context.error("None is not supported as a value, only a return type", var_loc)
             yield AppStorageDeclaration(
                 member_name=name,
                 typ=pytyp,
