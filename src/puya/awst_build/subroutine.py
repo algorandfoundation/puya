@@ -36,6 +36,7 @@ from puya.awst.nodes import (
     ReturnStatement,
     SingleEvaluation,
     Statement,
+    SubmitInnerTransaction,
     Subroutine,
     SubroutineArgument,
     Switch,
@@ -44,7 +45,6 @@ from puya.awst.nodes import (
     VarExpression,
     WhileLoop,
 )
-from puya.awst.wtypes import WInnerTransaction
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
@@ -274,26 +274,27 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 " check for a stray comma at the end of the statement",
                 stmt_loc,
             )
-        expr = require_instance_builder(stmt.expr.accept(self)).resolve()
-        if expr.wtype is not wtypes.void_wtype:
-            if (
+        expr_builder = require_instance_builder(stmt.expr.accept(self))
+        if expr_builder.pytype != pytypes.NoneType:
+            if isinstance(stmt.expr, mypy.nodes.CallExpr) and isinstance(
+                stmt.expr.analyzed, mypy.nodes.RevealExpr
+            ):
                 # special case to ignore ignoring the result of typing.reveal_type
-                not (
-                    isinstance(stmt.expr, mypy.nodes.CallExpr)
-                    and isinstance(stmt.expr.analyzed, mypy.nodes.RevealExpr)
+                pass
+            elif expr_builder.pytype in pytypes.InnerTransactionResultTypes.values() or (
+                isinstance(expr_builder.pytype, pytypes.TupleType)
+                and any(
+                    (i in pytypes.InnerTransactionResultTypes.values())
+                    for i in expr_builder.pytype.items
                 )
+            ):
                 # special case to ignore inner transaction result types
                 # could maybe expand this check to consider whether an expression has known
                 # side-effects
-                and not isinstance(expr.wtype, WInnerTransaction)
-                and not wtypes.is_inner_transaction_tuple_type(expr.wtype)
-            ):
+                pass
+            else:
                 self.context.warning("expression result is ignored", stmt_loc)
-        else:
-            # TODO: should we do some checks here to warn if it's something
-            #       with zero side effects? Can we even determine that simply & reliably?
-            pass
-        return ExpressionStatement(expr=expr)
+        return ExpressionStatement(expr=expr_builder.resolve())
 
     def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> Sequence[Statement]:
         stmt_loc = self._location(stmt)
