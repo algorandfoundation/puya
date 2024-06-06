@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -28,15 +30,14 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
@@ -48,7 +49,21 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class UIntNTypeBuilder(ARC4TypeBuilder):
+class UIntNTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+    @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.IntLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case int():
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+
     @typing.override
     def call(
         self,

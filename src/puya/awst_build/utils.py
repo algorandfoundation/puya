@@ -331,9 +331,4 @@ def construct_from_literal(
     builder = builder_for_type(target_type, loc)
     if isinstance(builder, LiteralConverter):
         return builder.convert_literal(literal, loc)
-    return builder.call(  # TODO: remove fallback
-        args=[literal],
-        arg_kinds=[mypy.nodes.ARG_POS],
-        arg_names=[None],
-        location=loc,
-    )
+    raise CodeError(f"unable to convert literal to {target_type.name!r}", literal.source_location)

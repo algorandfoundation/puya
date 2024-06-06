@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+import mypy.nodes
+
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
@@ -16,21 +18,38 @@ from puya.awst_build.arc4_utils import arc4_decode
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    LiteralConverter,
+    NodeBuilder,
+)
 from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
+    from collections.abc import Collection, Sequence
 
     from puya.parse import SourceLocation
 
 
-class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConverter):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4DynamicBytesType, location)
+
+    @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.StrLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case bytes():
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(

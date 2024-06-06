@@ -23,6 +23,7 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.utils import construct_from_literal
@@ -30,8 +31,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
+    from collections.abc import Collection, Sequence
 
 __all__ = [
     "UFixedNxMTypeBuilder",
@@ -39,7 +39,21 @@ __all__ = [
 ]
 
 
-class UFixedNxMTypeBuilder(ARC4TypeBuilder):
+class UFixedNxMTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+    @typing.override
+    @property
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
+        return (pytypes.StrLiteralType,)
+
+    @typing.override
+    def convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder:
+        match literal.value:
+            case str():
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+
     @typing.override
     def call(
         self,
