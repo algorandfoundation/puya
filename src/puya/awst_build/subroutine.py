@@ -36,7 +36,6 @@ from puya.awst.nodes import (
     ReturnStatement,
     SingleEvaluation,
     Statement,
-    SubmitInnerTransaction,
     Subroutine,
     SubroutineArgument,
     Switch,
