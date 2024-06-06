@@ -168,6 +168,9 @@ def test_uintn_from_bytes_invalid_length(get_avm_result: AVMInvoker, value: byte
     with pytest.raises(ValueError, match=_invalid_bytes_length_error(32)):
         get_avm_result("verify_uintn_from_bytes", a=value)
 
+    result = arc4.UInt32.from_bytes(value)
+    assert result == int.from_bytes(value)
+
 
 @pytest.mark.parametrize(
     "value",
@@ -196,6 +199,9 @@ def test_biguintn_from_bytes(get_avm_result: AVMInvoker, value: bytes) -> None:
 def test_biguintn_from_bytes_invalid_length(get_avm_result: AVMInvoker, value: bytes) -> None:
     with pytest.raises(ValueError, match=_invalid_bytes_length_error(256)):
         get_avm_result("verify_biguintn_from_bytes", a=value)
+
+    result = arc4.UInt256.from_bytes(value)
+    assert result == int.from_bytes(value)
 
 
 @pytest.mark.parametrize(
@@ -243,6 +249,9 @@ def test_uintn_from_log_invalid_length(get_avm_result: AVMInvoker, value: bytes)
     with pytest.raises(ValueError, match=_invalid_bytes_length_error(32)):
         get_avm_result("verify_uintn_from_log", a=ARC4_RETURN_PREFIX + value)
 
+    result = arc4.UInt32.from_log(Bytes(ARC4_RETURN_PREFIX + value))
+    assert result == int.from_bytes(value)
+
 
 @pytest.mark.parametrize(
     ("value", "expected"),
@@ -288,3 +297,6 @@ def test_biguintn_from_log_invalid_prefix(
 def test_biguintn_from_log_invalid_length(get_avm_result: AVMInvoker, value: bytes) -> None:
     with pytest.raises(ValueError, match=_invalid_bytes_length_error(256)):
         get_avm_result("verify_biguintn_from_log", a=ARC4_RETURN_PREFIX + value)
+
+    result = arc4.UInt256.from_log(Bytes(ARC4_RETURN_PREFIX + value))
+    assert result == int.from_bytes(value)
