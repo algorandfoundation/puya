@@ -1,10 +1,9 @@
 import abc
 import typing
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     BytesConstant,
@@ -129,30 +128,42 @@ class BoxMapProxyExpressionBuilder(
         self._member_name = member_name
         super().__init__(typ, expr)
 
+    def _build_box_value(
+        self, key: InstanceBuilder, location: SourceLocation
+    ) -> BoxValueExpression:
+        key_data = require_instance_builder(key).to_bytes(location)
+        key_prefix = self.resolve()
+        content_wtype = self.pytype.content.wtype
+        full_key = intrinsic_factory.concat(key_prefix, key_data, location)
+        return BoxValueExpression(
+            key=full_key,
+            wtype=content_wtype,
+            member_name=self._member_name,  # TODO: indicate that is is a map somehow
+            source_location=location,
+        )
+
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return BoxValueExpressionBuilder(
-            self.pytype.content,
-            _box_value_expr(self.resolve(), index, location, self.pytype.content.wtype),
+            self.pytype.content, self._build_box_value(index, location)
         )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                return _Length(location, self.resolve(), self.pytype)
+                return _Length(location, self._build_box_value, self.pytype)
             case "maybe":
-                return _Maybe(location, self.resolve(), self.pytype)
+                return _Maybe(location, self._build_box_value, self.pytype)
             case "get":
-                return _Get(location, self.resolve(), self.pytype)
+                return _Get(location, self._build_box_value, self.pytype)
             case _:
                 return super().member_access(name, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         box_exists = StateExists(
-            field=_box_value_expr(self.resolve(), item, location, self.pytype.content.wtype),
-            source_location=location,
+            field=self._build_box_value(item, location), source_location=location
         )
         return BoolExpressionBuilder(box_exists)
 
@@ -210,15 +221,18 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
         )
 
 
+BoxValueBuilder = Callable[[InstanceBuilder, SourceLocation], BoxValueExpression]
+
+
 class _MethodBase(FunctionBuilder, abc.ABC):
     def __init__(
         self,
         location: SourceLocation,
-        box_map_expr: Expression,
+        box_value_builder: BoxValueBuilder,
         box_type: pytypes.StorageMapProxyType,
     ) -> None:
         super().__init__(location)
-        self.box_map_expr = box_map_expr
+        self.build_box_value = box_value_builder
         self.box_type = box_type
 
 
@@ -235,13 +249,9 @@ class _Length(_MethodBase):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
+        item_key_inst = require_instance_builder(item_key)
         return UInt64ExpressionBuilder(
-            box_length_checked(
-                _box_value_expr(
-                    self.box_map_expr, item_key, location, self.box_type.content.wtype
-                ),
-                location,
-            )
+            box_length_checked(self.build_box_value(item_key_inst, location), location)
         )
 
 
@@ -264,7 +274,7 @@ class _Get(_MethodBase):
                 pass
             case _:
                 raise CodeError("invalid/unexpected args", location)
-        key = _box_value_expr(self.box_map_expr, key_arg, location, self.box_type.content.wtype)
+        key = self.build_box_value(key_arg, location)
         result_expr = StateGet(default=default_arg.resolve(), field=key, source_location=location)
         return builder_for_instance(self.box_type.content, result_expr)
 
@@ -282,32 +292,9 @@ class _Maybe(_MethodBase):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("invalid/unexpected args", location)
-
+        item_key_inst = require_instance_builder(item_key)
         result_typ = pytypes.GenericTupleType.parameterise(
             [self.box_type.content, pytypes.BoolType], location
         )
-        return TupleExpressionBuilder(
-            StateGetEx(
-                field=_box_value_expr(
-                    self.box_map_expr, item_key, location, self.box_type.content.wtype
-                ),
-                source_location=location,
-            ),
-            result_typ,
-        )
-
-
-def _box_value_expr(
-    key_prefix: Expression,
-    key: NodeBuilder,
-    location: SourceLocation,
-    content_type: wtypes.WType,
-) -> BoxValueExpression:
-    key_data = require_instance_builder(key).to_bytes(location)
-    full_key = intrinsic_factory.concat(key_prefix, key_data, location)
-    return BoxValueExpression(
-        key=full_key,
-        wtype=content_type,
-        member_name=None,  # TODO: can/should we set this??
-        source_location=location,
-    )
+        key = self.build_box_value(item_key_inst, location)
+        return TupleExpressionBuilder(StateGetEx(field=key, source_location=location), result_typ)
