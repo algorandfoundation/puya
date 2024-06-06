@@ -10,6 +10,7 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya import algo_constants
 from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
@@ -425,9 +426,9 @@ class BytesConstant(Expression):
     encoding: BytesEncoding = attrs.field()
 
     @value.validator
-    def _validate_value(self, _attribute: object, value: str) -> None:
-        if not wtypes.is_valid_bytes_literal(value):
-            raise CodeError("invalid bytes constant", self.source_location)
+    def _validate_value(self, _attribute: object, value: bytes) -> None:
+        if len(value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError("bytes constant exceeds max length", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
@@ -440,8 +441,14 @@ class StringConstant(Expression):
 
     @value.validator
     def _validate_value(self, _attribute: object, value: str) -> None:
-        if not wtypes.is_valid_utf8_literal(value):
-            raise CodeError("invalid string constant", self.source_location)
+        try:
+            bytes_value = value.encode("utf8")
+        except UnicodeEncodeError as ex:
+            raise CodeError(
+                "invalid UTF-8 string (encoding error: {ex})", self.source_location
+            ) from ex
+        if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError("string constant exceeds max byte array length", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)

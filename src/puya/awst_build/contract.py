@@ -11,6 +11,7 @@ from puya.awst.nodes import (
     ContractMethod,
     ContractReference,
 )
+from puya.awst.wtypes import ARC4Type
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_method_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
@@ -234,7 +235,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                             )
                     if not (
                         ret_pytype == pytypes.NoneType
-                        or wtypes.is_arc4_encoded_type(ret_pytype.wtype)
+                        or isinstance(ret_pytype.wtype, ARC4Type)
                         or wtypes.has_arc4_equivalent_type(ret_pytype.wtype)
                     ):
                         self._error(

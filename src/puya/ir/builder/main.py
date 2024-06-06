@@ -9,6 +9,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
+from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, box, flow_control, state
@@ -791,11 +792,7 @@ class FunctionIRBuilder(
             match wtype:
                 case wtypes.void_wtype:
                     pass
-                case _ if (
-                    wtypes.is_inner_transaction_type(wtype)
-                    or wtypes.is_inner_transaction_field_type(wtype)
-                    or wtypes.is_inner_transaction_tuple_type(wtype)
-                ):
+                case _ if (isinstance(wtype, WInnerTransaction | WInnerTransactionFields)):
                     # inner transaction wtypes aren't true expressions
                     pass
                 case _:

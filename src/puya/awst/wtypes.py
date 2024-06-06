@@ -60,47 +60,6 @@ class WType:
         return self.scalar_type
 
 
-def is_valid_bool_literal(value: object) -> typing.TypeGuard[bool]:
-    return isinstance(value, bool)
-
-
-def _is_unsigned_int(value: object) -> typing.TypeGuard[int]:
-    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
-
-
-def _uint_literal_validator(*, max_bits: int) -> Callable[[object], typing.TypeGuard[int]]:
-    def validator(value: object) -> typing.TypeGuard[int]:
-        return _is_unsigned_int(value) and value.bit_length() <= max_bits
-
-    return validator
-
-
-is_valid_uint64_literal = _uint_literal_validator(max_bits=64)
-
-
-is_valid_biguint_literal = _uint_literal_validator(max_bits=algo_constants.MAX_BIGUINT_BITS)
-
-
-def _bytes_literal_validator(
-    *, min_size: int = 0, max_size: int = algo_constants.MAX_BYTES_LENGTH
-) -> Callable[[object], typing.TypeGuard[bytes]]:
-    def validator(value: object) -> typing.TypeGuard[bytes]:
-        return isinstance(value, bytes) and min_size <= len(value) <= max_size
-
-    return validator
-
-
-is_valid_bytes_literal = _bytes_literal_validator()
-
-
-def is_valid_account_literal(value: object) -> typing.TypeGuard[str]:
-    return isinstance(value, str) and valid_address(value)
-
-
-def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
-    return isinstance(value, str) and is_valid_bytes_literal(value.encode("utf8"))
-
-
 void_wtype: typing.Final = WType(
     name="void",
     scalar_type=None,
@@ -528,7 +487,7 @@ def valid_base32(s: str) -> bool:
         value = base64.b32decode(s)
     except ValueError:
         return False
-    return is_valid_bytes_literal(value)
+    return len(value) <= algo_constants.MAX_BYTES_LENGTH
     # regex from PyTEAL, appears to be RFC-4648
     # ^(?:[A-Z2-7]{8})*(?:([A-Z2-7]{2}([=]{6})?)|([A-Z2-7]{4}([=]{4})?)|([A-Z2-7]{5}([=]{3})?)|([A-Z2-7]{7}([=]{1})?))?  # noqa: E501
 
@@ -538,7 +497,7 @@ def valid_base16(s: str) -> bool:
         value = base64.b16decode(s)
     except ValueError:
         return False
-    return is_valid_bytes_literal(value)
+    return len(value) <= algo_constants.MAX_BYTES_LENGTH
 
 
 def valid_base64(s: str) -> bool:
@@ -547,7 +506,7 @@ def valid_base64(s: str) -> bool:
         value = base64.b64decode(s, validate=True)
     except ValueError:
         return False
-    return is_valid_bytes_literal(value)
+    return len(value) <= algo_constants.MAX_BYTES_LENGTH
     # regex from PyTEAL, appears to be RFC-4648
     # ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
 
@@ -575,32 +534,16 @@ def valid_address(address: str) -> bool:
     return check_sum == verified_check_sum
 
 
-def is_transaction_type(wtype: WType) -> typing.TypeGuard[WGroupTransaction]:
-    return isinstance(wtype, WGroupTransaction)
-
-
-def is_inner_transaction_type(wtype: WType) -> typing.TypeGuard[WInnerTransaction]:
-    return isinstance(wtype, WInnerTransaction)
-
-
 def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
-    return isinstance(wtype, WTuple) and any(is_inner_transaction_type(t) for t in wtype.types)
-
-
-def is_inner_transaction_field_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionFields]:
-    return isinstance(wtype, WInnerTransactionFields)
+    return isinstance(wtype, WTuple) and any(isinstance(t, WInnerTransaction) for t in wtype.types)
 
 
 def is_reference_type(wtype: WType) -> bool:
     return wtype in (asset_wtype, account_wtype, application_wtype)
 
 
-def is_arc4_encoded_type(wtype: WType | None) -> typing.TypeGuard[ARC4Type]:
-    return isinstance(wtype, ARC4Type)
-
-
 def is_arc4_argument_type(wtype: WType) -> bool:
-    return is_arc4_encoded_type(wtype) or is_reference_type(wtype) or (is_transaction_type(wtype))
+    return is_reference_type(wtype) or isinstance(wtype, ARC4Type | WGroupTransaction)
 
 
 def has_arc4_equivalent_type(wtype: WType) -> bool:
@@ -613,7 +556,7 @@ def has_arc4_equivalent_type(wtype: WType) -> bool:
     match wtype:
         case WTuple(types=types):
             return all(
-                (has_arc4_equivalent_type(t) or is_arc4_encoded_type(t))
+                (has_arc4_equivalent_type(t) or isinstance(t, ARC4Type))
                 and not isinstance(t, WTuple)
                 for t in types
             )
@@ -634,7 +577,7 @@ def avm_to_arc4_equivalent_type(wtype: WType) -> ARC4Type:
     if isinstance(wtype, WTuple):
         return ARC4Tuple(
             types=(
-                t if is_arc4_encoded_type(t) else avm_to_arc4_equivalent_type(t)
+                t if isinstance(t, ARC4Type) else avm_to_arc4_equivalent_type(t)
                 for t in wtype.types
             ),
             source_location=None,

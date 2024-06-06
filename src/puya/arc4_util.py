@@ -6,6 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Type
 from puya.awst_build import constants, pytypes
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig
@@ -93,7 +94,7 @@ _ARC4_PYTYPE_MAPPING = {
 def make_dynamic_array_wtype(
     element_type: wtypes.WType, location: SourceLocation | None
 ) -> wtypes.ARC4DynamicArray:
-    if not wtypes.is_arc4_encoded_type(element_type):
+    if not isinstance(element_type, ARC4Type):
         raise CodeError(f"Invalid element type for arc4.DynamicArray: {element_type}", location)
     return wtypes.ARC4DynamicArray(element_type, location)
 
@@ -101,7 +102,7 @@ def make_dynamic_array_wtype(
 def make_static_array_wtype(
     element_type: wtypes.WType, size: int, location: SourceLocation | None
 ) -> wtypes.ARC4StaticArray:
-    if not wtypes.is_arc4_encoded_type(element_type):
+    if not isinstance(element_type, ARC4Type):
         raise CodeError(f"Invalid element type for arc4.StaticArray: {element_type}", location)
     return wtypes.ARC4StaticArray(element_type, int(size), location)
 
@@ -111,7 +112,7 @@ def make_tuple_wtype(
 ) -> wtypes.ARC4Tuple:
     arc4_types = list[wtypes.ARC4Type]()
     for typ in types:
-        if wtypes.is_arc4_encoded_type(typ):
+        if isinstance(typ, ARC4Type):
             arc4_types.append(typ)
         else:
             raise CodeError(f"Invalid type for arc4.Tuple element: {typ}", location)

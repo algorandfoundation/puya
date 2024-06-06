@@ -44,6 +44,7 @@ from puya.awst.nodes import (
     VarExpression,
     WhileLoop,
 )
+from puya.awst.wtypes import WInnerTransaction
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
@@ -284,7 +285,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 # special case to ignore inner transaction result types
                 # could maybe expand this check to consider whether an expression has known
                 # side-effects
-                and not wtypes.is_inner_transaction_type(expr.wtype)
+                and not isinstance(expr.wtype, WInnerTransaction)
                 and not wtypes.is_inner_transaction_tuple_type(expr.wtype)
             ):
                 self.context.warning("expression result is ignored", stmt_loc)

@@ -6,6 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Type, WGroupTransaction
 from puya.awst_build import intrinsic_factory
 from puya.awst_build.arc4_utils import arc4_decode, arc4_encode
 from puya.awst_build.eb.transaction import check_transaction_type
@@ -391,9 +392,9 @@ def map_abi_args(
     args: Sequence[awst_nodes.SubroutineArgument], location: SourceLocation
 ) -> Iterable[awst_nodes.Expression]:
     abi_arg_index = 1  # 0th arg is for method selector
-    transaction_arg_offset = sum(1 for a in args if wtypes.is_transaction_type(a.wtype))
+    transaction_arg_offset = sum(1 for a in args if isinstance(a.wtype, WGroupTransaction))
 
-    non_transaction_args = [a for a in args if not wtypes.is_transaction_type(a.wtype)]
+    non_transaction_args = [a for a in args if not isinstance(a.wtype, WGroupTransaction)]
     last_arg: awst_nodes.Expression | None = None
     if len(non_transaction_args) > 15:
 
@@ -478,7 +479,7 @@ def route_abi_methods(
         match method.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
-            case _ if wtypes.is_arc4_encoded_type(method.return_type):
+            case _ if isinstance(method.return_type, ARC4Type):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _ if wtypes.has_arc4_equivalent_type(method.return_type):
                 call_and_maybe_log = log_arc4_compatible_result(abi_loc, method_result)

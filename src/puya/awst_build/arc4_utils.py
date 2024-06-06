@@ -13,6 +13,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import ARC4Type
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
@@ -279,7 +280,7 @@ def maybe_arc4_encode(
     item: awst_nodes.Expression, wtype: wtypes.WType, location: SourceLocation
 ) -> awst_nodes.Expression:
     """Encode as arc4 if wtype is not already an arc4 encoded type"""
-    if wtypes.is_arc4_encoded_type(wtype):
+    if isinstance(wtype, ARC4Type):
         return item
     return arc4_encode(
         item,
