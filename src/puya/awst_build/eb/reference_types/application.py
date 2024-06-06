@@ -16,7 +16,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
-from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Collection, Sequence
@@ -40,10 +39,7 @@ class ApplicationTypeBuilder(TypeBuilder, LiteralConverter):
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
-        match literal.value:
-            case int():
-                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
-        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
 
     @typing.override
     def call(

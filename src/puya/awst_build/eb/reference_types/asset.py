@@ -50,10 +50,7 @@ class AssetTypeBuilder(TypeBuilder, LiteralConverter):
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
-        match literal.value:
-            case int():
-                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
-        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
 
     @typing.override
     def call(
