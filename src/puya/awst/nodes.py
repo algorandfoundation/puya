@@ -1849,18 +1849,18 @@ class ContractFragment(ModuleStatement):
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
-    # note: important that symtable comes last so default factory has access to all other fields
-    symtable: Mapping[str, ContractMethod | AppStorageDefinition] = attrs.field(init=False)
+    # note: important that this comes last so default factory has access to all other fields
+    methods: Mapping[str, ContractMethod] = attrs.field(init=False)
 
-    @symtable.default
-    def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStorageDefinition]:
-        result: dict[str, ContractMethod | AppStorageDefinition] = {**self.app_state}
+    @methods.default
+    def _methods_factory(self) -> Mapping[str, ContractMethod]:
+        result: dict[str, ContractMethod] = {}
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
             self.subroutines,
         )
         for sub in all_subs:
-            if sub.name in result:
+            if sub.name in result or sub.name in self.app_state:
                 raise CodeError(
                     f"Duplicate symbol {sub.name} in contract {self.full_name}",
                     sub.source_location,

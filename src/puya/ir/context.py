@@ -114,7 +114,7 @@ class IRBuildContext(CompileContext):
         source_location: SourceLocation,
         *,
         start: awst_nodes.ContractReference | None = None,
-    ) -> awst_nodes.ContractMethod | awst_nodes.AppStorageDefinition:
+    ) -> awst_nodes.ContractMethod:
         current = self.contract
         if current is None:
             raise InternalError(
@@ -132,7 +132,7 @@ class IRBuildContext(CompileContext):
             *[self.resolve_contract_reference(cref) for cref in start_contract.bases],
         ):
             with contextlib.suppress(KeyError):
-                return contract.symtable[name]
+                return contract.methods[name]
         raise CodeError(
             f"Unresolvable attribute '{name}' of {start_contract.full_name}",
             source_location,
