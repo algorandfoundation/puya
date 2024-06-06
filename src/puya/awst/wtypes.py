@@ -534,10 +534,6 @@ def valid_address(address: str) -> bool:
     return check_sum == verified_check_sum
 
 
-def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
-    return isinstance(wtype, WTuple) and any(isinstance(t, WInnerTransaction) for t in wtype.types)
-
-
 def is_reference_type(wtype: WType) -> bool:
     return wtype in (asset_wtype, account_wtype, application_wtype)
 
