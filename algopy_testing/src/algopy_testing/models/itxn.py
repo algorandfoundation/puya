@@ -20,13 +20,12 @@ class _ITxn:
             )
         itxn = context.inner_transactions[-1]
 
-        if name not in itxn.__dict__:
-            raise AttributeError(
-                f"'Txn' object has no value set for attribute named '{name}'. "
-                f"Use `context.patch_itxn_fields({name}=your_value)` to set the value "
-                "in your test setup."
-            )
-        value = itxn.__dict__[name]
+        value = getattr(itxn, name)
+        if value is None:
+            # TODO: to match AVM behaviour ideally all inner transaction fields should
+            #       have defaults where possible
+            raise ValueError(f"'{name}' is not defined for {type(itxn).__name__} ")
+        # mimic the static functions on ITxn with a lambda
         return lambda: value
 
 

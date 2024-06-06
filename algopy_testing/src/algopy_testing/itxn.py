@@ -1,19 +1,31 @@
 from __future__ import annotations
 
 import typing
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypedDict, get_type_hints
+from copy import deepcopy
+from typing import TYPE_CHECKING, TypedDict
 
 from algopy_testing.context import get_test_context
 
 if TYPE_CHECKING:
+
     import algopy
 
     from algopy_testing.enums import OnCompleteAction
     from algopy_testing.primitives.uint64 import UInt64
 
 
-@dataclass
+__all__ = [
+    "BaseInnerTransaction",
+    "InnerTransaction",
+    "Payment",
+    "KeyRegistration",
+    "AssetConfig",
+    "AssetTransfer",
+    "AssetFreeze",
+    "ApplicationCall",
+]
+
+
 class BaseInnerTransaction:
     def submit(self) -> object:
         context = get_test_context()
@@ -22,11 +34,34 @@ class BaseInnerTransaction:
             raise RuntimeError("No test context found")
 
         context.add_inner_transaction(self)
-
+        # TODO: consider additional fields that are populated by AVM after submission such
+        #       as TxID
+        # TODO: add wrapper around result that converts co-variant types to invariant types
+        #       e.g. algopy.UInt64 | int -> algopy.UInt64
         return self
 
     def copy(self) -> typing.Self:
-        return self.__class__(**self.__dict__)
+        return deepcopy(self)
+
+    # ideally the type dict used for each field would be a type parameter of this class
+    # unfortunately type dicts aren't true types, so can't be used as such
+    def _get_fields(self) -> dict[str, typing.Any]:
+        fields = self.fields  # type: ignore[attr-defined]
+        return typing.cast(dict[str, typing.Any], fields)
+
+    def get_field(self, type_dict: object, name: str) -> object:
+        if name in type_dict.__annotations__:
+            return self._get_fields().get(name)
+
+        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, BaseInnerTransaction):
+            return bool(self._get_fields() == other._get_fields())
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self._get_fields())
 
 
 class InnerTransactionFields(TypedDict, total=False):
@@ -80,22 +115,16 @@ class InnerTransactionFields(TypedDict, total=False):
     rekey_to: algopy.Account | str
 
 
-@dataclass
 class InnerTransaction(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[InnerTransactionFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[InnerTransactionFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(InnerTransactionFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return self.get_field(InnerTransactionFields, name)
 
 
 class PaymentFields(TypedDict, total=False):
@@ -108,22 +137,16 @@ class PaymentFields(TypedDict, total=False):
     rekey_to: algopy.Account
 
 
-@dataclass
 class Payment(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[PaymentFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[PaymentFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(PaymentFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return self.get_field(PaymentFields, name)
 
 
 class KeyRegistrationFields(TypedDict, total=False):
@@ -140,22 +163,16 @@ class KeyRegistrationFields(TypedDict, total=False):
     rekey_to: algopy.Account
 
 
-@dataclass
 class KeyRegistration(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[KeyRegistrationFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[KeyRegistrationFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(KeyRegistrationFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return self.get_field(KeyRegistrationFields, name)
 
 
 class AssetConfigFields(TypedDict, total=False):
@@ -177,22 +194,16 @@ class AssetConfigFields(TypedDict, total=False):
     rekey_to: algopy.Account
 
 
-@dataclass
 class AssetConfig(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[AssetConfigFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[AssetConfigFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(AssetConfigFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return self.get_field(AssetConfigFields, name)
 
 
 class AssetTransferFields(TypedDict, total=False):
@@ -207,22 +218,16 @@ class AssetTransferFields(TypedDict, total=False):
     rekey_to: algopy.Account
 
 
-@dataclass
 class AssetTransfer(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[AssetTransferFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[AssetTransferFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(AssetTransferFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return self.get_field(AssetTransferFields, name)
 
 
 class AssetFreezeFields(TypedDict, total=False):
@@ -235,22 +240,16 @@ class AssetFreezeFields(TypedDict, total=False):
     rekey_to: algopy.Account
 
 
-@dataclass
 class AssetFreeze(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[AssetFreezeFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[AssetFreezeFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(AssetFreezeFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return self.get_field(AssetFreezeFields, name)
 
 
 class ApplicationCallFields(TypedDict, total=False):
@@ -273,31 +272,13 @@ class ApplicationCallFields(TypedDict, total=False):
     rekey_to: algopy.Account
 
 
-@dataclass
 class ApplicationCall(BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[ApplicationCallFields]):
-        self.__dict__.update(kwargs)
+        self.fields = kwargs
 
     def set(self, **kwargs: typing.Unpack[ApplicationCallFields]) -> None:
         """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
+        self.fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(InnerTransactionFields)
-
-        if name in type_hints:
-            return self.__dict__.get(name)
-
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
-
-
-__all__ = [
-    "BaseInnerTransaction",
-    "InnerTransaction",
-    "Payment",
-    "KeyRegistration",
-    "AssetConfig",
-    "AssetTransfer",
-    "AssetFreeze",
-    "ApplicationCall",
-]
+        return self.get_field(InnerTransactionFields, name)
