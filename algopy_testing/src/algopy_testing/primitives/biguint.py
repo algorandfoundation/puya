@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import functools
 
-from algopy_testing.constants import UNIT64_BYTES_LENGTH
+from algopy_testing.constants import UINT64_BYTES_LENGTH
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.primitives.uint64 import UInt64
-from algopy_testing.utils import as_bytes, as_int, as_int512
+from algopy_testing.utils import as_bytes, as_int, as_int512, int_to_bytes
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
@@ -21,7 +21,7 @@ class BigUInt:
 
     def __init__(self, value: UInt64 | int = 0) -> None:
         self.__value = (
-            _int_to_bytes(value.value, UNIT64_BYTES_LENGTH)
+            _int_to_bytes(value.value, UINT64_BYTES_LENGTH)
             if isinstance(value, UInt64)
             else _int_to_bytes(value)
         )
@@ -144,9 +144,4 @@ def _as_biguint(value: object) -> BigUInt:
 
 def _int_to_bytes(x: int, pad_to: int | None = None) -> bytes:
     x = as_int(x, max=None)
-    result = x.to_bytes((x.bit_length() + 7) // 8, "big")
-    result = (
-        b"\x00" * (pad_to - len(result)) if pad_to is not None and len(result) < pad_to else b""
-    ) + result
-
-    return result
+    return int_to_bytes(x, pad_to=pad_to)
