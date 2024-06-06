@@ -108,14 +108,6 @@ class IRBuildContext(CompileContext):
             )
         return func
 
-    def resolve_state(  # TODO: yeet me
-        self, field_name: str, source_location: SourceLocation
-    ) -> awst_nodes.AppStorageDefinition:
-        node = self._resolve_contract_attribute(field_name, source_location)
-        if not isinstance(node, awst_nodes.AppStorageDefinition):
-            raise CodeError(f"State reference {field_name} resolved to {node}", source_location)
-        return node
-
     def _resolve_contract_attribute(
         self,
         name: str,
