@@ -12,24 +12,24 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 INNER_TRANSACTION_ASSIGNMENT_EXPRESSION_ERROR = (
-    "Inner Transactions cannot be used in assignment expressions."
+    "inner transactions cannot be used in assignment expressions"
 )
 INNER_TRANSACTION_COPY_REQUIRED_ERROR = (
-    "Inner Transaction fields must be copied using .copy() when assigning to a new local."
+    "inner transaction fields must be copied using .copy() when assigning to a new local"
 )
 INNER_TRANSACTION_LOOP_MODIFICATION_ERROR = (
-    "Inner Transaction fields cannot be modified after submission while in a loop."
+    "inner transaction fields cannot be modified after submission while in a loop"
 )
 INNER_TRANSACTION_MAYBE_STALE_ERROR = (
-    "Inner Transaction array field can not be reliably accessed due to other inner transaction "
-    " submissions or subroutine calls. Move array field access closer to {stale_var!r} definition."
+    "inner transaction array field can not be reliably accessed due to other inner transaction "
+    " submissions or subroutine calls, move array field access closer to {stale_var!r} definition"
 )
 INNER_TRANSACTION_MAYBE_STALE_WARNING = (
-    "Inner Transaction {stale_var!r} potentially becomes stale here."
+    "inner transaction {stale_var!r} potentially becomes stale here"
 )
-INNER_TRANSACTION_SOURCE_ERROR = "Inner Transactions can not be used like this."
+INNER_TRANSACTION_SOURCE_ERROR = "inner transactions can not be used like this"
 INNER_TRANSACTION_SUBROUTINE_ERROR = (
-    "Inner Transactions cannot be used as a subroutine argument or return value."
+    "inner transactions cannot be used as a subroutine argument or return value"
 )
 
 
