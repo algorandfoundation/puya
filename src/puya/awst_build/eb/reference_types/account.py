@@ -52,7 +52,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
 
     @typing.override
     @property
-    def handled_types(self) -> Collection[pytypes.PyType]:
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
         return (pytypes.StrLiteralType,)
 
     @typing.override

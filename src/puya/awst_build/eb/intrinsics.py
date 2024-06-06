@@ -193,7 +193,7 @@ def _map_call(
                 type_builder = builder_for_type(allowed_type, arg_in.source_location)
                 if (
                     isinstance(type_builder, LiteralConverter)
-                    and arg_in.pytype in type_builder.handled_types
+                    and arg_in.pytype in type_builder.convertable_literal_types
                 ):
                     converted = type_builder.convert_literal(arg_in, arg_in.source_location)
                     stack_args.append(converted.resolve())

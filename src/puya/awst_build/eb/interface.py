@@ -172,7 +172,7 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
 class LiteralConverter(NodeBuilder, abc.ABC):
     @property
     @abc.abstractmethod
-    def handled_types(self) -> Collection[pytypes.PyType]: ...
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]: ...
 
     @abc.abstractmethod
     def convert_literal(

@@ -54,7 +54,7 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
 
     @typing.override
     @property
-    def handled_types(self) -> Collection[pytypes.PyType]:
+    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
         return (pytypes.IntLiteralType,)
 
     @typing.override
