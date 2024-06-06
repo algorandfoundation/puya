@@ -3,21 +3,13 @@ import typing
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
+    wtypes,
 )
-from puya.ir import (
-    intrinsic_factory,
-    models as ops,
-)
+from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import (
-    assert_value,
-    assign,
-    assign_intrinsic_op,
-    assign_targets,
-    mktemp,
-)
+from puya.ir.builder._utils import assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider
+from puya.ir.models import Intrinsic, Register, UInt64Constant, Value, ValueProvider
 from puya.ir.types_ import IRType, wtype_to_ir_type
 from puya.parse import SourceLocation
 
@@ -38,49 +30,33 @@ def visit_app_account_state_expression(
     )
 
 
+def visit_box_value(
+    context: IRFunctionBuildContext, expr: awst_nodes.BoxValueExpression
+) -> ValueProvider:
+    bytes_value = _checked_state_access(context, expr, assert_comment="TODO")
+    scalar_type = wtypes.persistable_stack_type(expr.wtype, expr.source_location)
+    if scalar_type == AVMType.bytes:
+        return bytes_value
+    elif scalar_type == AVMType.uint64:
+        return Intrinsic(
+            op=AVMOp.btoi,
+            args=[bytes_value],
+            source_location=expr.source_location,
+        )
+    else:
+        typing.assert_never(scalar_type)
+
+
 def visit_state_exists(
     context: IRFunctionBuildContext, expr: awst_nodes.StateExists
 ) -> ValueProvider:
-    match expr.field:
-        case awst_nodes.BoxValueExpression() as box_expr:
-            return _box_state_exists(context, box_expr, expr.source_location)
-    get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
+    get_ex = _build_state_get_ex(
+        context, expr.field, expr.source_location, for_existence_check=True
+    )
     _, exists = context.visitor.materialise_value_provider(
         get_ex, description=f"{expr.field.member_name}_exists"
     )
     return exists
-
-
-def visit_box_value(
-    context: IRFunctionBuildContext, expr: awst_nodes.BoxValueExpression
-) -> ops.ValueProvider:
-    source_location = expr.source_location
-    box_key = context.visitor.visit_and_materialise_single(expr.key)
-    (box_value, box_exists) = assign(
-        context=context,
-        temp_description=["box_value", "box_exists"],
-        source_location=source_location,
-        source=ops.Intrinsic(
-            op=AVMOp.box_get,
-            args=[box_key],
-            source_location=source_location,
-        ),
-    )
-    if expr.wtype.scalar_type == AVMType.uint64:
-        (box_value,) = assign_intrinsic_op(
-            op=AVMOp.btoi,
-            target="box_value_uint64",
-            source_location=source_location,
-            context=context,
-            args=[box_value],
-        )
-    assert_value(
-        context,
-        box_exists,
-        comment="Box must exist",
-        source_location=expr.source_location,
-    )
-    return box_value
 
 
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
@@ -131,9 +107,13 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
 
 def _checked_state_access(
     context: IRFunctionBuildContext,
-    expr: awst_nodes.AppAccountStateExpression | awst_nodes.AppStateExpression,
+    expr: (
+        awst_nodes.AppAccountStateExpression
+        | awst_nodes.AppStateExpression
+        | awst_nodes.BoxValueExpression
+    ),
     assert_comment: str,
-) -> ValueProvider:
+) -> Register:
     get = _build_state_get_ex(context, expr, expr.source_location)
     # note: we manually construct temporary targets here since AVMType can be any,
     #       but we "know" the type from the expression
@@ -173,9 +153,12 @@ def _build_state_get_ex(
         | awst_nodes.BoxValueExpression
     ),
     source_location: SourceLocation,
+    *,
+    for_existence_check: bool = False,
 ) -> Intrinsic:
     key = context.visitor.visit_and_materialise_single(expr.key)
     args: list[Value]
+    value_ir_type = wtype_to_ir_type(expr.wtype)
     if isinstance(expr, awst_nodes.AppStateExpression):
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
         args = [current_app_offset, key]
@@ -186,24 +169,13 @@ def _build_state_get_ex(
         account = context.visitor.visit_and_materialise_single(expr.account)
         args = [account, current_app_offset, key]
     else:
-        op = AVMOp.box_get
+        if not for_existence_check:
+            op = AVMOp.box_get
+        else:
+            value_ir_type = IRType.uint64
+            op = AVMOp.box_len
         args = [key]
-    value_ir_type = wtype_to_ir_type(expr.wtype)
+
     return Intrinsic(
         op=op, args=args, types=[value_ir_type, IRType.bool], source_location=source_location
     )
-
-
-def _box_state_exists(
-    context: IRFunctionBuildContext, field: awst_nodes.BoxValueExpression, location: SourceLocation
-) -> ops.ValueProvider:
-    box_key = context.visitor.visit_and_materialise_single(field.key)
-    if field.is_map:
-        pass
-    (box_len, box_exists) = assign(
-        context=context,
-        temp_description=["box_len", "box_exists"],
-        source=ops.Intrinsic(op=AVMOp.box_len, args=[box_key], source_location=location),
-        source_location=location,
-    )
-    return box_exists
