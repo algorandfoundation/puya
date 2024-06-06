@@ -442,7 +442,7 @@ def _gather_global_direct_storages(
                     f" contains Var node entry for {name} without type",
                     var_loc,
                 )
-            pytyp = context.type_to_pytype(sym.type, source_location=sym.node)
+            pytyp = context.type_to_pytype(sym.type, source_location=var_loc)
 
             if isinstance(pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType):
                 # these are handled on declaration, need to collect constructor arguments too
