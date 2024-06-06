@@ -52,44 +52,42 @@ class _ABIEncoded(typing.Protocol):
 class String(_ABIEncoded):
     """An ARC4 sequence of bytes containing a UTF8 string"""
 
-    _value: str
+    _value: bytes
 
     def __init__(self, value: algopy.String | str = "", /) -> None:
-        self._value = as_string(value)
+        value = as_string(value)
+        bytes_value = value.encode("utf-8")
+        self._value = len(bytes_value).to_bytes(_ABI_LENGTH_SIZE) + bytes_value
 
     @property
     def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
-        return algopy.String(self._value)
+        return algopy.String(self._value[_ABI_LENGTH_SIZE:].decode("utf-8"))
 
     def __add__(self, other: String | str) -> String:
-        return String(self._value + as_string(other))
+        return String(self.native + as_string(other))
 
     def __radd__(self, other: String | str) -> String:
-        return String(as_string(other) + self._value)
+        return String(as_string(other) + self.native)
 
     def __eq__(self, other: String | str) -> bool:
-        return self._value == as_string(other)
+        return self.native == as_string(other)
 
     def __bool__(self) -> bool:
         """Returns `True` if length is not zero"""
-        return bool(self._value)
+        return bool(self.native)
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
-        value = as_bytes(value)
-        # first two bytes are the length of the string
-        b = value[_ABI_LENGTH_SIZE:]
-        return cls(b.decode("utf-8"))
+        result = cls()
+        result._value = as_bytes(value)  # noqa: SLF001
+        return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        b = self._value.encode("utf-8")
-        size = int_to_bytes(len(b), pad_to=_ABI_LENGTH_SIZE)
-        # first two bytes are the length of the string
-        return algopy.Bytes(size) + algopy.Bytes(b)
+        return algopy.Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
@@ -410,30 +408,32 @@ UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 class Bool(_ABIEncoded):
     """An ARC4 encoded bool"""
 
-    _value: bool
+    _value: bytes
 
     # True value is encoded as having a 1 on the most significant bit (0x80 = 128)
     _true_int_value = 128
+    _false_int_value = 0
 
     def __init__(self, value: bool = False, /) -> None:  # noqa: FBT001, FBT002
-        self._value = value
+        self._value = int_to_bytes(self._true_int_value if value else self._false_int_value, 1)
 
     @property
     def native(self) -> bool:
         """Return the bool representation of the value after ARC4 decoding"""
-        return self._value
+        int_value = int.from_bytes(self._value)
+        return int_value == self._true_int_value
 
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
-        value = as_bytes(value)
-        int_value = int.from_bytes(value)
-        return cls(int_value == cls._true_int_value)
+        result = cls()
+        result._value = as_bytes(value)  # noqa: SLF001
+        return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(int_to_bytes(self._true_int_value if self._value else 0, 1))
+        return algopy.Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
