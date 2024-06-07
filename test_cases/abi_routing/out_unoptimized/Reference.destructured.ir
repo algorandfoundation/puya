@@ -237,22 +237,22 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%145#0: bytes = test_cases.abi_routing.contract.Reference.hello_with_algopy_string(tmp%144#0)
                 let length%0#0: uint64 = (len tmp%145#0)
                 let as_bytes%0#0: bytes = (itob length%0#0)
-                let value_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let tmp%146#0: bytes = (concat value_as_uint16%0#0 tmp%145#0)
-                let tmp%147#0: bytes = (concat 0x151f7c75 tmp%146#0)
-                (log tmp%147#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%145#0)
+                let tmp%146#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
+                (log tmp%146#0)
                 return 1u
             block@17: // switch_case_default_L22
                 goto block@18
             block@18: // switch_case_next_L22
                 fail // reject transaction
             block@19: // bare_routing_L22
-                let tmp%148#0: uint64 = (txn OnCompletion)
-                switch tmp%148#0 {0u => block@20, 1u => block@20, 2u => block@20, 4u => block@20, 5u => block@20, * => block@21}
+                let tmp%147#0: uint64 = (txn OnCompletion)
+                switch tmp%147#0 {0u => block@20, 1u => block@20, 2u => block@20, 4u => block@20, 5u => block@20, * => block@21}
             block@20: // bare_abi_config_L66
-                let tmp%149#0: bool = (txn ApplicationID)
-                let tmp%150#0: bool = (! tmp%149#0)
-                (assert tmp%150#0) // is creating
+                let tmp%148#0: bool = (txn ApplicationID)
+                let tmp%149#0: bool = (! tmp%148#0)
+                (assert tmp%149#0) // is creating
                 test_cases.abi_routing.contract.Reference.bare_abi_config()
                 return 1u
             block@21: // reject_bare_on_completion_L22

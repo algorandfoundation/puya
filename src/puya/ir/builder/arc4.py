@@ -21,7 +21,6 @@ from puya.ir.builder._utils import (
     assign_intrinsic_op,
     invoke_puya_lib_subroutine,
     mktemp,
-    reassign,
 )
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
@@ -110,7 +109,7 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
     match expr.wtype:
         case wtypes.arc4_bool_wtype:
             value = context.visitor.visit_and_materialise_single(expr.value)
-            return _encode_arc4_bool(value, expr.source_location)
+            return _encode_arc4_bool(context, value, expr.source_location)
         case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() as wt:
             value = context.visitor.visit_and_materialise_single(expr.value)
             num_bytes = wt.n // 8
@@ -120,21 +119,10 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             return _visit_arc4_tuple_encode(context, elements, item_types, expr.source_location)
         case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
             value = context.visitor.visit_and_materialise_single(expr.value)
-            (length,) = assign(
-                context,
-                temp_description="length",
-                source_location=expr.source_location,
-                source=Intrinsic(
-                    op=AVMOp.len_,
-                    args=[value],
-                    source_location=expr.source_location,
-                ),
-            )
-            return Intrinsic(
-                op=AVMOp.concat,
-                args=[_value_as_uint16(context, length), value],
-                source_location=expr.source_location,
-            )
+            factory = _OpFactory(context, expr.source_location)
+            length = factory.len(value, "length")
+            length_uint16 = factory.as_u16_bytes(length, "length_uint16")
+            return factory.concat(length_uint16, value, "encoded_value")
         case wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray():
             raise InternalError(
                 "NewArray should be used instead of ARC4Encode for arrays",
@@ -599,13 +587,12 @@ def pop_arc4_array(
     return popped
 
 
-def _encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
-    value = BytesConstant(
-        value=0x00.to_bytes(1, "big"),
-        source_location=source_location,
-        encoding=AVMBytesEncoding.base16,
-    )
-    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
+def _encode_arc4_bool(
+    context: IRFunctionBuildContext, bit: Value, source_location: SourceLocation
+) -> Value:
+    factory = _OpFactory(context, source_location)
+    value = factory.constant(0x00.to_bytes(1, "big"))
+    return factory.set_bit(value=value, index=0, bit=bit, temp_desc="encoded_bool")
 
 
 def _visit_arc4_tuple_decode(
@@ -744,31 +731,9 @@ def _visit_arc4_tuple_encode(
     expr_loc: SourceLocation,
 ) -> ValueProvider:
     header_size = determine_arc4_tuple_head_size(tuple_items, round_end_result=True)
-
-    (current_tail_offset,) = assign(
-        context,
-        temp_description="current_tail_offset",
-        source=UInt64Constant(value=header_size // 8, source_location=expr_loc),
-        source_location=expr_loc,
-    )
-
-    (encoded_tuple_buffer,) = assign(
-        context,
-        temp_description="encoded_tuple_buffer",
-        source_location=expr_loc,
-        source=BytesConstant(
-            value=b"", encoding=AVMBytesEncoding.base16, source_location=expr_loc
-        ),
-    )
-
-    def assign_buffer(source: ValueProvider) -> None:
-        nonlocal encoded_tuple_buffer
-        encoded_tuple_buffer = reassign(context, encoded_tuple_buffer, source, expr_loc)
-
-    def append_to_buffer(item: Value) -> None:
-        assign_buffer(
-            Intrinsic(op=AVMOp.concat, args=[encoded_tuple_buffer, item], source_location=expr_loc)
-        )
+    factory = _OpFactory(context, expr_loc)
+    current_tail_offset = factory.assign(factory.constant(header_size // 8), "current_tail_offset")
+    encoded_tuple_buffer = factory.assign(factory.constant(b""), "encoded_tuple_buffer")
 
     for index, (element, el_wtype) in enumerate(zip(elements, tuple_items, strict=True)):
         if el_wtype == wtypes.arc4_bool_wtype:
@@ -777,66 +742,40 @@ def _visit_arc4_tuple_encode(
                 tuple_items[0:index], round_end_result=False
             )
             if before_header % 8 == 0:
-                append_to_buffer(element)
-            else:
-                (is_true,) = assign(
-                    context,
-                    temp_description="is_true",
-                    source=Intrinsic(
-                        op=AVMOp.getbit,
-                        args=[element, UInt64Constant(value=0, source_location=None)],
-                        source_location=expr_loc,
-                    ),
-                    source_location=expr_loc,
+                encoded_tuple_buffer = factory.concat(
+                    encoded_tuple_buffer, element, "encoded_tuple_buffer"
                 )
-
-                assign_buffer(
-                    _set_bit(
-                        value=encoded_tuple_buffer,
-                        index=before_header,
-                        bit=is_true,
-                        source_location=expr_loc,
-                    )
+            else:
+                is_true = factory.get_bit(element, 0, "is_true")
+                encoded_tuple_buffer = factory.set_bit(
+                    value=encoded_tuple_buffer,
+                    index=before_header,
+                    bit=is_true,
+                    temp_desc="encoded_tuple_buffer",
                 )
         elif not is_arc4_dynamic_size(el_wtype):
             # Append value
-            append_to_buffer(element)
+            encoded_tuple_buffer = factory.concat(
+                encoded_tuple_buffer, element, "encoded_tuple_buffer"
+            )
         else:
             # Append pointer
-            offset_as_uint16b = _value_as_uint16(context, current_tail_offset)
-            append_to_buffer(offset_as_uint16b)
+            offset_as_uint16 = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
+            encoded_tuple_buffer = factory.concat(
+                encoded_tuple_buffer, offset_as_uint16, "encoded_tuple_buffer"
+            )
             # Update Pointer
-            (data_length,) = assign(
-                context,
-                temp_description="data_length",
-                source=Intrinsic(op=AVMOp.len_, args=[element], source_location=expr_loc),
-                source_location=expr_loc,
-            )
-            next_tail_offset = Intrinsic(
-                op=AVMOp.add,
-                args=[current_tail_offset, data_length],
-                source_location=expr_loc,
-            )
-            current_tail_offset = reassign(
-                context, current_tail_offset, next_tail_offset, expr_loc
+            data_length = factory.len(element, "data_length")
+            current_tail_offset = factory.add(
+                current_tail_offset, data_length, "current_tail_offset"
             )
 
     for element, el_wtype in zip(elements, tuple_items, strict=True):
         if is_arc4_dynamic_size(el_wtype):
-            append_to_buffer(element)
+            encoded_tuple_buffer = factory.concat(
+                encoded_tuple_buffer, element, "encoded_tuple_buffer"
+            )
     return encoded_tuple_buffer
-
-
-def _set_bit(
-    *, value: Value, index: int, bit: Value, source_location: SourceLocation | None
-) -> Intrinsic:
-    index_const = UInt64Constant(value=index, source_location=source_location)
-    return Intrinsic(
-        op=AVMOp.setbit,
-        args=[value, index_const, bit],
-        types=[value.ir_type],
-        source_location=source_location,
-    )
 
 
 def _arc4_replace_struct_item(
@@ -1141,7 +1080,7 @@ def _read_nth_bool_from_arc4_container(
         source=Intrinsic(op=AVMOp.getbit, args=[data, index], source_location=source_location),
         source_location=source_location,
     )
-    return _encode_arc4_bool(is_true, source_location)
+    return _encode_arc4_bool(context, is_true, source_location)
 
 
 def _read_static_item_from_arc4_container(
