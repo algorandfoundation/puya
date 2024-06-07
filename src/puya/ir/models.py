@@ -215,7 +215,7 @@ class UInt64Constant(Constant):
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
-        if ir_type.avm_type is not AVMType.uint64:
+        if ir_type.maybe_avm_type is not AVMType.uint64:
             raise InternalError(
                 f"Invalid type for UInt64Constant: {ir_type}", self.source_location
             )
@@ -233,7 +233,7 @@ class ITxnConstant(Constant):
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
         if ir_type not in (IRType.itxn_group_idx, IRType.itxn_field_set):
-            raise InternalError(f"Invalid type for ITxnConstant: {ir_type}", self.source_location)
+            raise InternalError(f"invalid type for ITxnConstant: {ir_type}", self.source_location)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_itxn_constant(self)
@@ -258,15 +258,20 @@ class TemplateVar(Value):
         return visitor.visit_template_var(self)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
-    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=IRType.bytes)
 
     encoding: AVMBytesEncoding
     value: bytes
     source_location: SourceLocation | None = attrs.field(eq=False)
+
+    @ir_type.validator
+    def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
+        if ir_type.maybe_avm_type is not AVMType.bytes:
+            raise InternalError(f"invalid type for BytesConstant: {ir_type}", self.source_location)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)

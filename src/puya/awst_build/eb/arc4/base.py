@@ -12,7 +12,6 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Copy,
     Expression,
-    ReinterpretCast,
     SingleEvaluation,
 )
 from puya.awst_build import intrinsic_factory, pytypes
@@ -126,12 +125,9 @@ class CopyBuilder(FunctionBuilder):
 def arc4_bool_bytes(
     builder: InstanceBuilder, false_bytes: bytes, location: SourceLocation, *, negate: bool
 ) -> InstanceBuilder:
-    false_value = ReinterpretCast(
-        expr=BytesConstant(
-            value=false_bytes,
-            encoding=BytesEncoding.base16,
-            source_location=location,
-        ),
+    false_value = BytesConstant(
+        value=false_bytes,
+        encoding=BytesEncoding.base16,
         wtype=builder.pytype.wtype,
         source_location=location,
     )

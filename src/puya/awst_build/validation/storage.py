@@ -69,3 +69,4 @@ class StorageTypesValidator(AWSTTraverser):
             and not set_add(self._seen_keys[kind], expr.key.value)
         ):
             return
+        wtypes.validate_persistable(expr.wtype, expr.source_location)

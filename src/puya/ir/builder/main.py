@@ -240,6 +240,7 @@ class FunctionIRBuilder(
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
+            ir_type=wtype_to_ir_type(expr),
             source_location=expr.source_location,
         )
 
