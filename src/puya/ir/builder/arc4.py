@@ -717,13 +717,6 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
     )
 
 
-def _value_as_uint16(
-    context: IRFunctionBuildContext, value: Value, source_location: SourceLocation | None = None
-) -> Value:
-    factory = _OpFactory(context, source_location)
-    return factory.as_u16_bytes(value, "value_as_uint16")
-
-
 def _visit_arc4_tuple_encode(
     context: IRFunctionBuildContext,
     elements: Sequence[Value],
@@ -789,13 +782,9 @@ def _arc4_replace_struct_item(
     if not isinstance(wtype, wtypes.ARC4Struct):
         raise InternalError("Unsupported indexed assignment target", source_location)
 
+    factory = _OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
-    (value,) = assign(
-        context,
-        source_location=source_location,
-        temp_description="assigned_value",
-        source=value,
-    )
+    value = factory.assign(value, "assigned_value")
     element_type = wtype.fields.get(field_name)
     if element_type is None:
         raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location)
@@ -807,184 +796,75 @@ def _arc4_replace_struct_item(
     )
     if element_type == wtypes.arc4_bool_wtype:
         # Use Set bit
-        (is_true,) = assign_intrinsic_op(
-            context,
-            target="is_true",
-            source_location=source_location,
-            op=AVMOp.getbit,
-            args=[value, 0],
+        is_true = factory.get_bit(value, 0, "is_true")
+        return factory.set_bit(
+            value=base,
+            index=header_up_to_item,
+            bit=is_true,
+            temp_desc="updated_data",
         )
-        (updated_data,) = assign_intrinsic_op(
-            context,
-            target="updated_data",
-            source_location=source_location,
-            op=AVMOp.setbit,
-            args=(base, header_up_to_item, is_true),
-            return_type=[base.ir_type],
-        )
-        return updated_data
     elif is_arc4_static_size(element_type):
-        (updated_data,) = assign_intrinsic_op(
-            context,
-            target="updated_data",
-            source_location=source_location,
-            op=AVMOp.replace2,
-            immediates=[header_up_to_item // 8],
-            args=[base, value],
+        return factory.replace(
+            base,
+            header_up_to_item // 8,
+            value,
+            "updated_data",
         )
-        return updated_data
     else:
         dynamic_indices = [index for index, t in enumerate(wtype.types) if is_arc4_dynamic_size(t)]
 
-        (item_offset,) = assign_intrinsic_op(
-            context,
-            target="item_offset",
-            source_location=source_location,
-            op=AVMOp.extract_uint16,
-            args=[
-                base,
-                header_up_to_item // 8,
-            ],
-        )
-        (data_up_to_item,) = assign_intrinsic_op(
-            context,
-            target="data_up_to_item",
-            source_location=source_location,
-            op=AVMOp.extract3,
-            args=[
-                base,
-                0,
-                item_offset,
-            ],
-        )
+        item_offset = factory.extract_uint16(base, header_up_to_item // 8, "item_offset")
+        data_up_to_item = factory.extract3(base, 0, item_offset, "data_up_to_item")
         proceeding_dynamic_indices = [i for i in dynamic_indices if i > index_int]
 
         if not proceeding_dynamic_indices:
             # This is the last dynamic type in the tuple
             # No need to update headers - just replace the data
-            (updated_data,) = assign_intrinsic_op(
-                context,
-                target="updated_data",
-                source_location=source_location,
-                op=AVMOp.concat,
-                args=[data_up_to_item, value],
-            )
-            return updated_data
+            return factory.concat(data_up_to_item, value, "updated_data")
         header_up_to_next_dynamic_item = determine_arc4_tuple_head_size(
             types=wtype.types[0 : proceeding_dynamic_indices[0]],
             round_end_result=True,
         )
 
-        (next_item_offset,) = assign_intrinsic_op(
-            context,
-            target="next_item_offset",
-            source_location=source_location,
-            op=AVMOp.extract_uint16,
-            args=[
-                base,
-                header_up_to_next_dynamic_item // 8,
-            ],
+        next_item_offset = factory.extract_uint16(
+            base,
+            header_up_to_next_dynamic_item // 8,
+            "next_item_offset",
         )
-        (total_data_length,) = assign_intrinsic_op(
-            context,
-            target="total_data_length",
-            source_location=source_location,
-            op=AVMOp.len_,
-            args=[
-                base,
-            ],
+        total_data_length = factory.len(base, "total_data_length")
+        data_beyond_item = factory.substring3(
+            base,
+            next_item_offset,
+            total_data_length,
+            "data_beyond_item",
         )
-        (data_beyond_item,) = assign_intrinsic_op(
-            context,
-            target="data_beyond_item",
-            source_location=source_location,
-            op=AVMOp.substring3,
-            args=[
-                base,
-                next_item_offset,
-                total_data_length,
-            ],
-        )
-        (updated_data,) = assign_intrinsic_op(
-            context,
-            target="updated_data",
-            source_location=source_location,
-            op=AVMOp.concat,
-            args=[
-                data_up_to_item,
-                value,
-            ],
-        )
-        (updated_data,) = assign_intrinsic_op(
-            context,
-            target=updated_data,
-            source_location=source_location,
-            op=AVMOp.concat,
-            args=[
-                updated_data,
-                data_beyond_item,
-            ],
-        )
+        updated_data = factory.concat(data_up_to_item, value, "updated_data")
+        updated_data = factory.concat(updated_data, data_beyond_item, "updated_data")
 
-        (new_value_length,) = assign_intrinsic_op(
-            context,
-            target="new_value_length",
-            source_location=source_location,
-            op=AVMOp.len_,
-            args=[value],
-        )
-        (tail_cursor,) = assign_intrinsic_op(
-            context,
-            target="tail_cursor",
-            source_location=source_location,
-            op=AVMOp.add,
-            args=[
-                item_offset,
-                new_value_length,
-            ],
-        )
+        new_value_length = factory.len(value, "new_value_length")
+        tail_offset = factory.add(item_offset, new_value_length, "tail_offset")
         for dynamic_index in proceeding_dynamic_indices:
             header_up_to_dynamic_item = determine_arc4_tuple_head_size(
                 types=wtype.types[0:dynamic_index],
                 round_end_result=True,
             )
 
-            updated_header_bytes = _value_as_uint16(context, tail_cursor, source_location)
+            updated_header_bytes = factory.as_u16_bytes(tail_offset, "updated_header_bytes")
 
-            (updated_data,) = assign_intrinsic_op(
-                context,
-                target=updated_data,
-                source_location=source_location,
-                op=AVMOp.replace2,
-                immediates=[header_up_to_dynamic_item // 8],
-                args=[
-                    updated_data,
-                    updated_header_bytes,
-                ],
+            updated_data = factory.replace(
+                updated_data, header_up_to_dynamic_item // 8, updated_header_bytes, "updated_data"
             )
             if dynamic_index == proceeding_dynamic_indices[-1]:
                 break
-            (dynamic_item_length,) = assign_intrinsic_op(
-                context,
-                target="dynamic_item_length",
-                source_location=source_location,
-                op=AVMOp.extract_uint16,
-                args=[updated_data, tail_cursor],
+
+            # TODO: check this works for dynamic structs
+            dynamic_item_length = factory.extract_uint16(
+                updated_data,
+                tail_offset,
+                "dynamic_item_length",
             )
-            (tail_cursor,) = assign_intrinsic_op(
-                context,
-                target=tail_cursor,
-                source_location=source_location,
-                op=AVMOp.add,
-                args=[tail_cursor, dynamic_item_length],
-            )
-            (tail_cursor,) = assign_intrinsic_op(
-                context,
-                target=tail_cursor,
-                source_location=source_location,
-                op=AVMOp.add,
-                args=[tail_cursor, 2],
-            )
+            tail_offset = factory.add(tail_offset, dynamic_item_length, "tail_offset")
+            tail_offset = factory.add(tail_offset, 2, "tail_offset")
         return updated_data
 
 
@@ -1720,16 +1600,48 @@ class _OpFactory:
 
     def substring3(
         self,
-        array_head_and_tail: Value | bytes,
-        start_of_tail: Value | int,
-        total_length: Value | int,
+        value: Value | bytes,
+        start: Value | int,
+        end_ex: Value | int,
         temp_desc: str,
     ) -> Register:
         (result,) = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.substring3,
-            args=[array_head_and_tail, start_of_tail, total_length],
+            args=[value, start, end_ex],
+            source_location=self.source_location,
+        )
+        return result
+
+    def replace(
+        self,
+        value: Value | bytes,
+        index: Value | int,
+        replacement: Value | bytes,
+        temp_desc: str,
+    ) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            source_location=self.source_location,
+            op=AVMOp.replace3,
+            args=[value, index, replacement],
+        )
+        return result
+
+    def extract3(
+        self,
+        value: Value | bytes,
+        index: Value | int,
+        length: Value | int,
+        temp_desc: str,
+    ) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.extract3,
+            args=[value, index, length],
             source_location=self.source_location,
         )
         return result
