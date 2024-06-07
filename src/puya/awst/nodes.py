@@ -1044,7 +1044,7 @@ class AppAccountStateExpression(Expression):
 class BoxValueExpression(Expression):
     key: Expression = attrs.field(validator=wtype_is_bytes)
     member_name: str | None
-    is_map: bool
+    from_map: bool
     """is the key derived from some prefix and some other value?
     informative only, used to construct better messages etc"""
 

@@ -84,7 +84,7 @@ class BoxRefProxyExpressionBuilder(
             key=self.resolve(),
             wtype=wtypes.bytes_wtype,
             member_name=self._member_name,
-            is_map=False,
+            from_map=False,
             source_location=location,
         )
 

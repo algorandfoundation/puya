@@ -83,7 +83,7 @@ class ToCodeVisitor(
 
     def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
         if expr.member_name is not None:
-            if not expr.is_map:
+            if not expr.from_map:
                 return f"this.{expr.member_name}"
             else:
                 return f"this.{expr.member_name}[{expr.key.accept(self)}]"

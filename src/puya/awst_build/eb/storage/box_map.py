@@ -139,7 +139,7 @@ class BoxMapProxyExpressionBuilder(
             key=full_key,
             wtype=content_wtype,
             member_name=self._member_name,
-            is_map=True,
+            from_map=True,
             source_location=location,
         )
 
