@@ -90,15 +90,15 @@ contract examples.local_state.local_state_contract.LocalStateContract:
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:
             block@0: // L52
-                let (local_value%0#0: bytes, local_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
+                let (local_maybe_value%0#0: bytes, local_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
                 (assert local_exists%0#0) // check local exists for account
-                return local_value%0#0
+                return local_maybe_value%0#0
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes) -> bytes:
             block@0: // L60
-                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (app_local_get_ex for_account#0 0u "local")
-                let result#0: bytes = tuple_assignment%0#0
-                let exists#0: bool = tuple_assignment%1#0
+                let (local_maybe_value%0#0: bytes, local_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
+                let result#0: bytes = local_maybe_value%0#0
+                let exists#0: bool = local_exists%0#0
                 (assert exists#0) // no data for account
                 return result#0
         
@@ -114,8 +114,8 @@ contract examples.local_state.local_state_contract.LocalStateContract:
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
             block@0: // L56
-                let (local_get_ex%0#0: bytes, local_get_ex%1#0: bool) = (app_local_get_ex for_account#0 0u "local")
-                let tmp%0#0: bytes = (select default#0 local_get_ex%0#0 local_get_ex%1#0)
+                let (local_maybe_value%0#0: bytes, local_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
+                let tmp%0#0: bytes = (select default#0 local_maybe_value%0#0 local_exists%0#0)
                 return tmp%0#0
     
     program clear-state:

@@ -42,9 +42,9 @@ contract test_cases.asset.contract.Reference:
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // Only creator can opt in to ASA
-                let (asa_value%0#0: uint64, asa_exists%0#0: bool) = (app_global_get_ex 0u "asa")
+                let (asa_maybe_value%0#0: uint64, asa_exists%0#0: bool) = (app_global_get_ex 0u "asa")
                 (assert asa_exists%0#0) // check asa exists
-                let reinterpret_bool%0#0: bool = asa_value%0#0
+                let reinterpret_bool%0#0: bool = asa_maybe_value%0#0
                 let tmp%3#0: bool = (! reinterpret_bool%0#0)
                 (assert tmp%3#0) // ASA already opted in
                 (app_global_put "asa" asset#0)
@@ -59,9 +59,9 @@ contract test_cases.asset.contract.Reference:
         
         subroutine test_cases.asset.contract.Reference.is_opted_asset(asset: uint64) -> void:
             block@0: // L52
-                let (asa_value%0#0: uint64, asa_exists%0#0: bool) = (app_global_get_ex 0u "asa")
+                let (asa_maybe_value%0#0: uint64, asa_exists%0#0: bool) = (app_global_get_ex 0u "asa")
                 (assert asa_exists%0#0) // check asa exists
-                let tmp%0#0: bool = (== asa_value%0#0 asset#0)
+                let tmp%0#0: bool = (== asa_maybe_value%0#0 asset#0)
                 (assert tmp%0#0) // asset self.asa == asset
                 let (value%0#0: uint64, check%0#0: bool) = ((asset_params_get AssetTotal) asset#0)
                 (assert check%0#0) // asset exists
