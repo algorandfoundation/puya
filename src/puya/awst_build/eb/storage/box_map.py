@@ -7,15 +7,12 @@ import mypy.nodes
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
-    BytesConstant,
-    ContractReference,
     Expression,
     StateExists,
     StateGet,
     StateGetEx,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
@@ -25,21 +22,13 @@ from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilde
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import (
-    InstanceBuilder,
-    Iteration,
-    NodeBuilder,
-    StorageProxyConstructorResult,
-)
+from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
 from puya.awst_build.eb.storage._common import BoxValueExpressionBuilder
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
-from puya.awst_build.eb.storage._util import box_length_checked
+from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import (
-    get_arg_mapping,
-    require_instance_builder,
-)
+from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -195,38 +184,10 @@ class BoxMapProxyExpressionBuilder(
 
 
 class _BoxMapProxyExpressionBuilderFromConstructor(
-    BoxMapProxyExpressionBuilder, StorageProxyConstructorResult
+    BoxMapProxyExpressionBuilder, BoxProxyConstructorResult
 ):
     def __init__(self, key_prefix_override: Expression, typ: pytypes.StorageMapProxyType):
         super().__init__(key_prefix_override, typ, member_name=None)
-
-    @typing.override
-    @property
-    def initial_value(self) -> Expression | None:
-        return None
-
-    @typing.override
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration:
-        key_override = self.resolve()
-        if not isinstance(key_override, BytesConstant):
-            raise CodeError(
-                f"assigning {typ} to a member variable requires a constant value for key_prefix",
-                location,
-            )
-        return AppStorageDeclaration(
-            description=None,
-            member_name=member_name,
-            key_override=key_override,
-            source_location=location,
-            typ=typ,
-            defined_in=defined_in,
-        )
 
 
 BoxValueBuilder = Callable[[InstanceBuilder, SourceLocation], BoxValueExpression]

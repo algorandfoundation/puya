@@ -1,7 +1,12 @@
+import abc
+import typing
+
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
+    BytesConstant,
     CheckedMaybe,
+    ContractReference,
     Expression,
     IntrinsicCall,
     NumericComparison,
@@ -13,12 +18,14 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     InstanceBuilder,
     LiteralBuilder,
     NodeBuilder,
+    StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import require_instance_builder_of_type
@@ -104,10 +111,12 @@ def box_length_unchecked(box: BoxValueExpression, location: SourceLocation) -> E
 
 def box_length_checked(box: BoxValueExpression, location: SourceLocation) -> Expression:
     box_len_expr = _box_len(box.key, location)
-    if box.member_name and not box.from_map:
+    if not box.member_name:
+        comment = "box exists"
+    elif not box.from_map:
         comment = f"box {box.member_name} exists"
     else:
-        comment = "box exists"
+        comment = f"entry for box map {box.member_name} exists"
     return CheckedMaybe(box_len_expr, comment=comment)
 
 
@@ -169,3 +178,33 @@ def _eval_slice_component(
             source_location=location,
         )
     )
+
+
+class BoxProxyConstructorResult(StorageProxyConstructorResult, abc.ABC):
+    @typing.override
+    @property
+    def initial_value(self) -> Expression | None:
+        return None
+
+    @typing.override
+    def build_definition(
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
+    ) -> AppStorageDeclaration:
+        key_override = self.resolve()
+        if not isinstance(key_override, BytesConstant):
+            raise CodeError(
+                f"assigning {typ} to a member variable requires a constant value for key",
+                location,
+            )
+        return AppStorageDeclaration(
+            description=None,
+            member_name=member_name,
+            key_override=key_override,
+            source_location=location,
+            typ=typ,
+            defined_in=defined_in,
+        )

@@ -29,14 +29,6 @@ class AppStorageDeclaration:
 
     @property
     def key(self) -> BytesConstant:
-        if self.key_override is not None:
-            bytes_const = self.key_override
-        else:
-            bytes_const = BytesConstant(
-                value=self.member_name.encode("utf8"),
-                encoding=BytesEncoding.utf8,
-                source_location=self.source_location,
-            )
         match self._inferred[0]:
             case AppStorageKind.app_global | AppStorageKind.account_local:
                 wtype = wtypes.state_key
@@ -44,7 +36,18 @@ class AppStorageDeclaration:
                 wtype = wtypes.box_key
             case invalid_kind:
                 typing.assert_never(invalid_kind)
-        return attrs.evolve(bytes_const, wtype=wtype)
+        if self.key_override is not None:
+            assert self.key_override.wtype == wtype
+            bytes_const = self.key_override
+        else:
+            bytes_const = BytesConstant(
+                value=self.member_name.encode("utf8"),
+                encoding=BytesEncoding.utf8,
+                source_location=self.source_location,
+                wtype=wtype,
+            )
+
+        return bytes_const
 
     @cached_property
     def definition(self) -> AppStorageDefinition:

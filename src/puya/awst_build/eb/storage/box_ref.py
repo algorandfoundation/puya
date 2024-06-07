@@ -6,15 +6,12 @@ import mypy.nodes
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
-    BytesConstant,
-    ContractReference,
     Expression,
     IntrinsicCall,
     Not,
     StateExists,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb._base import (
     FunctionBuilder,
     NotIterableInstanceExpressionBuilder,
@@ -23,20 +20,13 @@ from puya.awst_build.eb._base import (
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import (
-    InstanceBuilder,
-    NodeBuilder,
-    StorageProxyConstructorResult,
-)
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.storage._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
-from puya.awst_build.eb.storage._util import box_length_checked
+from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import (
-    expect_operand_type,
-    get_arg_mapping,
-)
+from puya.awst_build.utils import expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -161,35 +151,9 @@ class BoxRefProxyExpressionBuilder(
 
 
 class _BoxRefProxyExpressionBuilderFromConstructor(
-    BoxRefProxyExpressionBuilder, StorageProxyConstructorResult
+    BoxRefProxyExpressionBuilder, BoxProxyConstructorResult
 ):
-    @typing.override
-    @property
-    def initial_value(self) -> Expression | None:
-        return None
-
-    @typing.override
-    def build_definition(
-        self,
-        member_name: str,
-        defined_in: ContractReference,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ) -> AppStorageDeclaration:
-        key_override = self.resolve()
-        if not isinstance(key_override, BytesConstant):
-            raise CodeError(
-                f"assigning {typ} to a member variable requires a constant value for key",
-                location,
-            )
-        return AppStorageDeclaration(
-            description=None,
-            member_name=member_name,
-            key_override=key_override,
-            source_location=location,
-            typ=typ,
-            defined_in=defined_in,
-        )
+    pass
 
 
 class _IntrinsicMethod(FunctionBuilder):
