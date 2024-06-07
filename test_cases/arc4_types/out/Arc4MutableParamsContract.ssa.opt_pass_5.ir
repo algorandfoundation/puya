@@ -8,8 +8,8 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
         subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies() -> void:
             block@0: // L33
                 let current_tail_offset%0#1: uint64 = 13u
-                let value_as_bytes%3#0: bytes = (itob current_tail_offset%0#1)
-                let value_as_uint16%3#0: bytes = ((extract 6 2) value_as_bytes%3#0)
+                let as_bytes%3#0: bytes = (itob current_tail_offset%0#1)
+                let value_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
                 let encoded_tuple_buffer%0#4: bytes = (concat 0x80320006 value_as_uint16%3#0)
                 let encoded_tuple_buffer%0#5: bytes = (concat encoded_tuple_buffer%0#4 0x00054861707079)
                 let my_struct#0: bytes = (concat encoded_tuple_buffer%0#5 0x000444617973)
@@ -64,9 +64,9 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x000741415252474821)
                 let updated_data%0#1: bytes = (concat updated_data%0#0 data_beyond_item%0#0)
                 let tail_cursor%0#0: uint64 = (+ item_offset%0#0 9u)
-                let updated_header_bytes%0#0: bytes = (itob tail_cursor%0#0)
-                let updated_header_bytes%0#1: bytes = ((substring 6 8) updated_header_bytes%0#0)
-                let struct#1: bytes = ((replace2 4) updated_data%0#1 updated_header_bytes%0#1)
+                let as_bytes%1#0: bytes = (itob tail_cursor%0#0)
+                let value_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let struct#1: bytes = ((replace2 4) updated_data%0#1 value_as_uint16%1#0)
                 return 1u 0u array#1 struct#1
         
         subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> <bytes, bytes>:

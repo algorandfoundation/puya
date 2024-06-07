@@ -15,16 +15,16 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
         subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size() -> void:
             block@0: // L143
                 let len_%1#0: uint64 = 6u
-                let len_bytes%1#0: bytes = (itob len_%1#0)
-                let len_16_bit%1#0: bytes = ((extract 6 0) len_bytes%1#0)
+                let as_bytes%1#0: bytes = (itob len_%1#0)
+                let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
                 let dynamic_uint8_array#2: bytes = (concat len_16_bit%1#0 0x010232010232)
                 let tmp%1#0: bool = (== dynamic_uint8_array#2 0x0006010232010232)
                 (assert tmp%1#0)
                 let expr_value_trimmed%3#0: bytes = ((extract 2 0) dynamic_uint8_array#2)
                 let concatenated%2#0: bytes = (concat expr_value_trimmed%3#0 0x045a)
                 let len_%2#0: uint64 = (len concatenated%2#0)
-                let len_bytes%2#0: bytes = (itob len_%2#0)
-                let len_16_bit%2#0: bytes = ((extract 6 0) len_bytes%2#0)
+                let as_bytes%2#0: bytes = (itob len_%2#0)
+                let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%2#0)
                 let dynamic_uint8_array#3: bytes = (concat len_16_bit%2#0 concatenated%2#0)
                 let tmp%2#0: bool = (== dynamic_uint8_array#3 0x0008010232010232045a)
                 (assert tmp%2#0)
@@ -76,8 +76,8 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let next_item_head%8#0: bytes = 0x0036
                 let result%10#0: bytes = (concat result%9#0 next_item_head%8#0)
                 let tail_offset%8#0: uint64 = 59u
-                let as_bytes%9#0: bytes = (itob tail_offset%8#0)
-                let next_item_head%9#0: bytes = ((extract 6 2) as_bytes%9#0)
+                let as_bytes%13#0: bytes = (itob tail_offset%8#0)
+                let next_item_head%9#0: bytes = ((extract 6 2) as_bytes%13#0)
                 let result%11#0: bytes = (concat result%10#0 next_item_head%9#0)
                 let result%12#0: bytes = (concat result%11#0 0x000548656c6c6f)
                 let result%13#0: bytes = (concat result%12#0 0x0005576f726c64)
@@ -96,8 +96,8 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let next_item_head%24#0: bytes = 0x0038
                 let result%42#0: bytes = (concat result%41#0 next_item_head%24#0)
                 let tail_offset%24#0: uint64 = 61u
-                let as_bytes%25#0: bytes = (itob tail_offset%24#0)
-                let next_item_head%25#0: bytes = ((extract 6 2) as_bytes%25#0)
+                let as_bytes%29#0: bytes = (itob tail_offset%24#0)
+                let next_item_head%25#0: bytes = ((extract 6 2) as_bytes%29#0)
                 let result%43#0: bytes = (concat result%42#0 next_item_head%25#0)
                 let result%44#0: bytes = (concat result%43#0 0x000548656c6c6f)
                 let result%45#0: bytes = (concat result%44#0 0x0005576f726c64)
@@ -146,8 +146,8 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let expr_value_trimmed%0#0: bytes = ((extract 2 0) tmp%3#0)
                 let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 0xff)
                 let len_%0#0: uint64 = (len concatenated%0#0)
-                let len_bytes%0#0: bytes = (itob len_%0#0)
-                let len_16_bit%0#0: bytes = ((extract 6 0) len_bytes%0#0)
+                let as_bytes%0#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
                 let concat_result%2#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
                 let array_of_array#3: bytes = algopy_lib_arc4.dynamic_array_replace_byte_length_head(array_of_array#2, concat_result%2#0, 0u)
                 let tmp%4#0: bool = (== array_of_array#3 0x00020004000800020aff000110)
@@ -203,9 +203,9 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
                 let updated_data%2#0: bytes = (concat data_up_to_item%0#0 0x0005486d6d6d6d)
                 let updated_data%2#1: bytes = (concat updated_data%2#0 data_beyond_item%0#0)
                 let tail_cursor%0#0: uint64 = (+ item_offset%0#0 7u)
-                let updated_header_bytes%0#0: bytes = (itob tail_cursor%0#0)
-                let updated_header_bytes%0#1: bytes = ((substring 6 8) updated_header_bytes%0#0)
-                let test_struct#3: bytes = ((replace2 4) updated_data%2#1 updated_header_bytes%0#1)
+                let as_bytes%9#0: bytes = (itob tail_cursor%0#0)
+                let value_as_uint16%9#0: bytes = ((extract 6 2) as_bytes%9#0)
+                let test_struct#3: bytes = ((replace2 4) updated_data%2#1 value_as_uint16%9#0)
                 let item_offset%1#0: uint64 = (extract_uint16 test_struct#3 4u)
                 let data_up_to_item%1#0: bytes = (extract3 test_struct#3 0u item_offset%1#0)
                 let test_struct#4: bytes = (concat data_up_to_item%1#0 0x00074f682077656c6c)
@@ -216,8 +216,8 @@ contract test_cases.arc4_types.mutation.Arc4MutationContract:
         subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat() -> void:
             block@0: // L58
                 let len_%1#0: uint64 = 5u
-                let len_bytes%1#0: bytes = (itob len_%1#0)
-                let len_16_bit%1#0: bytes = ((extract 6 0) len_bytes%1#0)
+                let as_bytes%1#0: bytes = (itob len_%1#0)
+                let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
                 let array_concat_tuple#1: bytes = (concat len_16_bit%1#0 0x0102030405)
                 let tmp%1#0: bool = (== array_concat_tuple#1 0x00050102030405)
                 (assert tmp%1#0)

@@ -178,7 +178,7 @@ def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray
                 )
     else:
         array_head_and_tail = _arc4_items_as_arc4_tuple(
-            context, element_type, elements, factory.source_location
+            context, element_type, elements, expr.source_location
         )
 
     return factory.concat(len_prefix, array_head_and_tail, "array_data")
@@ -733,25 +733,8 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
 def _value_as_uint16(
     context: IRFunctionBuildContext, value: Value, source_location: SourceLocation | None = None
 ) -> Value:
-    source_location = source_location or value.source_location
-    (value_as_bytes,) = assign(
-        context,
-        source_location=source_location,
-        source=Intrinsic(op=AVMOp.itob, args=[value], source_location=source_location),
-        temp_description="value_as_bytes",
-    )
-    (value_as_uint16,) = assign(
-        context,
-        source_location=source_location,
-        source=Intrinsic(
-            op=AVMOp.extract,
-            args=[value_as_bytes],
-            immediates=[6, 2],
-            source_location=source_location,
-        ),
-        temp_description="value_as_uint16",
-    )
-    return value_as_uint16
+    factory = _OpFactory(context, source_location)
+    return factory.as_u16_bytes(value, "value_as_uint16")
 
 
 def _visit_arc4_tuple_encode(
@@ -1027,23 +1010,7 @@ def _arc4_replace_struct_item(
                 round_end_result=True,
             )
 
-            (updated_header_bytes,) = assign_intrinsic_op(
-                context,
-                target="updated_header_bytes",
-                source_location=source_location,
-                op=AVMOp.itob,
-                args=[
-                    tail_cursor,
-                ],
-            )
-            (updated_header_bytes,) = assign_intrinsic_op(
-                context,
-                target=updated_header_bytes,
-                source_location=source_location,
-                op=AVMOp.substring,
-                immediates=[6, 8],
-                args=[updated_header_bytes],
-            )
+            updated_header_bytes = _value_as_uint16(context, tail_cursor, source_location)
 
             (updated_data,) = assign_intrinsic_op(
                 context,
@@ -1497,41 +1464,20 @@ def _concat_dynamic_array_fixed_size(
     source_location: SourceLocation,
     byte_size: int,
 ) -> Value:
+    factory = _OpFactory(context, source_location)
+
     def array_data(expr: awst_nodes.Expression) -> Value:
         match expr.wtype:
             case wtypes.ARC4StaticArray():
                 return context.visitor.visit_and_materialise_single(expr)
             case wtypes.ARC4DynamicArray() | wtypes.arc4_string_wtype:
                 expr_value = context.visitor.visit_and_materialise_single(expr)
-                (expr_value_trimmed,) = assign_intrinsic_op(
-                    context,
-                    source_location=source_location,
-                    op=AVMOp.extract,
-                    immediates=[2, 0],
-                    args=[expr_value],
-                    target="expr_value_trimmed",
-                )
-                return expr_value_trimmed
+                return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple():
                 values = context.visitor.visit_and_materialise(expr)
-                (data,) = assign(
-                    context,
-                    temp_description="data",
-                    source_location=source_location,
-                    source=BytesConstant(
-                        value=b"",
-                        source_location=source_location,
-                        encoding=AVMBytesEncoding.base16,
-                    ),
-                )
+                data = factory.constant(b"")
                 for val in values:
-                    (data,) = assign_intrinsic_op(
-                        context,
-                        target=data,
-                        source_location=source_location,
-                        op=AVMOp.concat,
-                        args=[data, val],
-                    )
+                    data = factory.concat(data, val, "data")
                 return data
             case _:
                 raise InternalError(
@@ -1540,29 +1486,11 @@ def _concat_dynamic_array_fixed_size(
 
     left_data = array_data(left)
     right_data = array_data(right)
-    (concatenated,) = assign_intrinsic_op(
-        context,
-        source_location=source_location,
-        op=AVMOp.concat,
-        args=[left_data, right_data],
-        target="concatenated",
-    )
+    concatenated = factory.concat(left_data, right_data, "concatenated")
     if byte_size == 1:
-        (len_,) = assign_intrinsic_op(
-            context,
-            source_location=source_location,
-            op=AVMOp.len_,
-            args=[concatenated],
-            target="len_",
-        )
+        len_ = factory.len(concatenated, "len_")
     else:
-        (byte_len,) = assign_intrinsic_op(
-            context,
-            source_location=source_location,
-            op=AVMOp.len_,
-            args=[concatenated],
-            target="byte_len",
-        )
+        byte_len = factory.len(concatenated, "byte_len")
         (len_,) = assign_intrinsic_op(
             context,
             source_location=source_location,
@@ -1571,29 +1499,8 @@ def _concat_dynamic_array_fixed_size(
             target="len_",
         )
 
-    (len_bytes,) = assign_intrinsic_op(
-        context,
-        source_location=source_location,
-        op=AVMOp.itob,
-        args=[len_],
-        target="len_bytes",
-    )
-    (len_16_bit,) = assign_intrinsic_op(
-        context,
-        source_location=source_location,
-        op=AVMOp.extract,
-        args=[len_bytes],
-        immediates=[6, 0],
-        target="len_16_bit",
-    )
-    (concat_result,) = assign_intrinsic_op(
-        context,
-        source_location=source_location,
-        op=AVMOp.concat,
-        args=[len_16_bit, concatenated],
-        target="concat_result",
-    )
-    return concat_result
+    len_16_bit = factory.as_u16_bytes(len_, "len_16_bit")
+    return factory.concat(len_16_bit, concatenated, "concat_result")
 
 
 def _arc4_items_as_arc4_tuple(
@@ -1603,26 +1510,17 @@ def _arc4_items_as_arc4_tuple(
     source_location: SourceLocation,
 ) -> Value:
     factory = _OpFactory(context, source_location)
-    result: Value = BytesConstant(
-        value=b"", encoding=AVMBytesEncoding.base16, source_location=source_location
-    )
+    result = factory.constant(b"")
     if is_arc4_dynamic_size(item_wtype):
         tail_offset: Value = UInt64Constant(value=len(items) * 2, source_location=source_location)
         for item in items:
-            result = factory.concat(
-                result,
-                factory.as_u16_bytes(tail_offset, "next_item_head"),
-                "result",
-            )
+            next_item_head = factory.as_u16_bytes(tail_offset, "next_item_head")
+            result = factory.concat(result, next_item_head, "result")
             tail_offset = factory.add(
                 tail_offset, factory.len(item, "next_item_len"), "tail_offset"
             )
     for item in items:
-        result = factory.concat(
-            result,
-            item,
-            "result",
-        )
+        result = factory.concat(result, item, "result")
 
     return result
 
@@ -1716,46 +1614,20 @@ def _get_arc4_array_tail(
         # no header for static sized elements
         return array_head_and_tail
 
+    factory = _OpFactory(context, source_location)
     # special case to use extract with immediate length of 0 where possible
     # TODO: have an IR pseudo op, extract_to_end that handles this for non constant values?
     if isinstance(array_length, UInt64Constant) and array_length.value <= 127:
-        (data,) = assign_intrinsic_op(
-            context,
-            target="data",
-            op=AVMOp.extract,
-            immediates=[array_length.value * 2, 0],
-            args=[array_head_and_tail],
-            source_location=source_location,
-        )
-        return data
-    (start_of_tail,) = assign_intrinsic_op(
-        context,
-        target="start_of_tail",
-        op=AVMOp.mul,
-        args=[array_length, 2],
-        source_location=source_location,
-    )
-    (total_length,) = assign_intrinsic_op(
-        context,
-        target="total_length",
-        op=AVMOp.len_,
-        args=[array_head_and_tail],
-        source_location=source_location,
-    )
-    (data,) = assign_intrinsic_op(
-        context,
-        target="data",
-        op=AVMOp.substring3,
-        args=[array_head_and_tail, start_of_tail, total_length],
-        source_location=source_location,
-    )
-    return data
+        return factory.extract_to_end(array_length, array_length.value * 2, "data")
+    start_of_tail = factory.mul(array_length, 2, "start_of_tail")
+    total_length = factory.len(array_head_and_tail, "total_length")
+    return factory.substring3(array_head_and_tail, start_of_tail, total_length, "data")
 
 
 @attrs.frozen
 class _OpFactory:
     context: IRFunctionBuildContext
-    source_location: SourceLocation
+    source_location: SourceLocation | None
 
     def assign(self, value: ValueProvider, temp_desc: str) -> Register:
         (register,) = assign(
@@ -1903,6 +1775,22 @@ class _OpFactory:
             op=AVMOp.extract,
             immediates=[start, 0],
             args=[value],
+            source_location=self.source_location,
+        )
+        return result
+
+    def substring3(
+        self,
+        array_head_and_tail: Value | bytes,
+        start_of_tail: Value | int,
+        total_length: Value | int,
+        temp_desc: str,
+    ) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.substring3,
+            args=[array_head_and_tail, start_of_tail, total_length],
             source_location=self.source_location,
         )
         return result
