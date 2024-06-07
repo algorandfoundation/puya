@@ -9,7 +9,7 @@ import algosdk
 import algosdk.transaction
 
 from algopy_testing import arc4
-from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT8, MAX_UINT64, MAX_UINT512
+from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT8, MAX_UINT16, MAX_UINT64, MAX_UINT512
 
 if TYPE_CHECKING:
     import algopy
@@ -50,6 +50,10 @@ def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
 
 def as_int8(value: object) -> int:
     return as_int(value, max=MAX_UINT8)
+
+
+def as_int16(value: object) -> int:
+    return as_int(value, max=MAX_UINT16)
 
 
 def as_int64(value: object) -> int:

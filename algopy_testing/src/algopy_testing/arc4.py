@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+import copy
 import decimal
 import types
 import typing
+from collections.abc import Iterable, Reversible
 
 from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
 from algopy_testing.decorators.abimethod import abimethod
-from algopy_testing.utils import as_bytes, as_int, as_int64, as_int512, as_string, int_to_bytes
+from algopy_testing.utils import (
+    as_bytes,
+    as_int,
+    as_int16,
+    as_int64,
+    as_int512,
+    as_string,
+    int_to_bytes,
+)
 
 if typing.TYPE_CHECKING:
     import algopy
@@ -461,6 +471,345 @@ class Bool(_ABIEncoded):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
+
+_TArrayItem = typing.TypeVar("_TArrayItem")
+_TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
+
+
+class _StaticArrayMeta(type(_ABIEncoded), typing.Generic[_TArrayItem, _TArrayLength]):  # type: ignore  # noqa: PGH003
+    __concrete__: typing.ClassVar[dict[tuple[type, type], type]] = {}
+
+    def __getitem__(cls, key_t: tuple[type[_TArrayItem], type[_TArrayLength]]) -> type:
+        cache = cls.__concrete__
+        if c := cache.get(key_t, None):
+            return c
+
+        cache[key_t] = c = types.new_class(
+            f"{cls.__name__}[{','.join([k.__name__ for k in key_t])}]",
+            (cls,),
+            {},
+            lambda ns: ns.update(
+                _child_types=[_TypeInfo(key_t[0])]
+                * (typing.get_args(key_t[1])[0] if len(typing.get_args(key_t[1])) > 0 else 0),
+                _array_item_t=key_t[0],
+            ),
+        )
+        return c
+
+
+class _TypeInfo:
+    value: type
+    child_types: list[_TypeInfo] | None
+
+    def __init__(self, value: type, child_types: list[_TypeInfo] | None = None):
+        self.value = value
+        self.child_types = (
+            value._child_types  # noqa: SLF001
+            if issubclass(value, StaticArray) and hasattr(value, "_child_types")
+            else child_types
+        )
+
+
+class StaticArray(
+    _ABIEncoded,
+    typing.Generic[_TArrayItem, _TArrayLength],
+    Reversible[_TArrayItem],
+    metaclass=_StaticArrayMeta,
+):
+    """A fixed length ARC4 Array of the specified type and length"""
+
+    _array_item_t: type[_TArrayItem]
+    _child_types: list[_TypeInfo]
+
+    _value: bytes
+
+    def __init__(self, *items: _TArrayItem):
+        self._value = _encode(items)
+        if items:
+            self._array_item_t = type(items[0])
+            self._child_types = [self._get_type_info(item) for item in items]
+
+        # ensure these two variables are set as instance variables instead of class variables
+        # to avoid sharing state between instances created by copy operation
+        self._array_item_t = self._array_item_t
+        self._child_types = self._child_types or []
+
+    def _get_type_info(self, item: _TArrayItem) -> _TypeInfo:
+        return _TypeInfo(
+            self._array_item_t,
+            item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
+        )
+
+    def __iter__(self) -> typing.Iterator[_TArrayItem]:
+        # """Returns an iterator for the items in the array"""
+        return iter(self._list())
+
+    def __reversed__(self) -> typing.Iterator[_TArrayItem]:
+        # """Returns an iterator for the items in the array, in reverse order"""
+        return reversed(self._list())
+
+    @property
+    def length(self) -> algopy.UInt64:
+        # """Returns the current length of the array"""
+        return algopy.UInt64(len(self._list()))
+
+    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem:
+        if isinstance(index, slice):
+            return self._list()[index][0]
+        return self._list()[index]
+
+    def append(self, item: _TArrayItem, /) -> None:
+        """Append items to this array"""
+        if not issubclass(type(item), self._array_item_t):
+            expected_type = self._array_item_t.__name__
+            actual_type = type(item).__name__
+            raise TypeError(f"item must be of type {expected_type!r}, not {actual_type!r}")
+        x = self._list()
+        x.append(item)
+        self._child_types.append(self._get_type_info(item))
+        self._value = _encode(x)
+
+    def extend(self, other: Iterable[_TArrayItem], /) -> None:
+        """Extend this array with the contents of another array"""
+        if any(not issubclass(type(x), self._array_item_t) for x in other):
+            raise TypeError(f"items must be of type {self._array_item_t.__name__!r}")
+        x = self._list()
+        x.extend(other)
+        self._child_types.extend([self._get_type_info(x) for x in other])
+        self._value = _encode(x)
+
+    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem:
+        if not issubclass(type(value), self._array_item_t):
+            expected_type = self._array_item_t.__name__
+            actual_type = type(value).__name__
+            raise TypeError(f"item must be of type {expected_type!r}, not {actual_type!r}")
+        x = self._list()
+        x[index] = value
+        self._value = _encode(x)
+        return value
+
+    def copy(self) -> typing.Self:
+        # """Create a copy of this array"""
+        return copy.deepcopy(self)
+
+    def _list(self) -> list[_TArrayItem]:
+        return _decode(self._value, self._child_types)
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes (no validation)"""
+        value = as_bytes(value)
+        result = cls()
+        result._value = value  # noqa: SLF001
+        return result
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying Bytes"""
+        return algopy.Bytes(self._value)
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
+
+
+def _is_arc4_dynamic(value: object) -> bool:
+    if isinstance(value, StaticArray):
+        return any(_is_arc4_dynamic(v) for v in value)
+    return not isinstance(value, BigUFixedNxM | BigUIntN | UFixedNxM | UIntN | Bool)
+
+
+def _is_arc4_dynamic_type(value: _TypeInfo) -> bool:
+    if value.child_types:
+        return any(_is_arc4_dynamic_type(v) for v in value.child_types)
+    return not issubclass(value.value, BigUFixedNxM | BigUIntN | UFixedNxM | UIntN | Bool)
+
+
+def _find_bool(
+    values: StaticArray[typing.Any, typing.Any] | tuple[typing.Any, ...] | list[typing.Any],
+    index: int,
+    delta: int,
+) -> int:
+    """
+    Helper function to find consecutive booleans from current index in a tuple.
+    """
+    until = 0
+    values_length = len(values) if isinstance(values, tuple | list) else values.length.value
+    while True:
+        curr = index + delta * until
+        if isinstance(values[curr], Bool):
+            if curr != values_length - 1 and delta > 0 or curr > 0 and delta < 0:
+                until += 1
+            else:
+                break
+        else:
+            until -= 1
+            break
+    return until
+
+
+def _find_bool_types(values: typing.Sequence[_TypeInfo], index: int, delta: int) -> int:
+    """
+    Helper function to find consecutive booleans from current index in a tuple.
+    """
+    until = 0
+    values_length = len(values)
+    while True:
+        curr = index + delta * until
+        if issubclass(values[curr].value, Bool):
+            if curr != values_length - 1 and delta > 0 or curr > 0 and delta < 0:
+                until += 1
+            else:
+                break
+        else:
+            until -= 1
+            break
+    return until
+
+
+def _compress_multiple_bool(value_list: list[Bool]) -> int:
+    """
+    Compress consecutive boolean values into a byte for a Tuple/Array.
+    """
+    result = 0
+    if len(value_list) > 8:
+        raise ValueError("length of list should not be greater than 8")
+    for i, value in enumerate(value_list):
+        assert isinstance(value, Bool)
+        bool_val = value.native
+        if bool_val:
+            result |= 1 << (7 - i)
+    return result
+
+
+def _encode(
+    values: StaticArray[typing.Any, typing.Any] | tuple[typing.Any, ...] | list[typing.Any],
+) -> bytes:
+    heads = []
+    tails = []
+    is_dynamic_index = []
+    i = 0
+    values_length = len(values) if isinstance(values, tuple | list) else values.length.value
+    while i < values_length:
+        value = values[i]
+        is_dynamic_index.append(_is_arc4_dynamic(value))
+        if is_dynamic_index[-1]:
+            heads.append(b"\x00\x00")
+            tail_encoding = value.bytes.value if isinstance(value, String) else _encode(value)
+            tails.append(tail_encoding)
+        else:
+            if isinstance(value, Bool):
+                before = _find_bool(values, i, -1)
+                after = _find_bool(values, i, 1)
+
+                # Pack bytes to heads and tails
+                if before % 8 != 0:
+                    raise ValueError(
+                        "expected before index should have number of bool mod 8 equal 0"
+                    )
+                after = min(7, after)
+                consecutive_bool_list = typing.cast(list[Bool], values[i : i + after + 1])
+                compressed_int = _compress_multiple_bool(consecutive_bool_list)
+                heads.append(bytes([compressed_int]))
+                i += after
+            else:
+                heads.append(value.bytes.value)
+            tails.append(b"")
+        i += 1
+
+    # Adjust heads for dynamic types
+    head_length = 0
+    for head_element in heads:
+        # If the element is not a placeholder, append the length of the element
+        head_length += len(head_element)
+
+    # Correctly encode dynamic types and replace placeholder
+    tail_curr_length = 0
+    for i in range(len(heads)):
+        if is_dynamic_index[i]:
+            head_value = as_int16(head_length + tail_curr_length)
+            heads[i] = int_to_bytes(head_value, _ABI_LENGTH_SIZE)
+
+        tail_curr_length += len(tails[i])
+
+    # Concatenate bytes
+    return b"".join(heads) + b"".join(tails)
+
+
+def _decode(  # noqa: PLR0912, C901
+    value: bytes, child_types: typing.Sequence[_TypeInfo]
+) -> list[typing.Any]:
+    dynamic_segments: list[list[int]] = []  # Store the start and end of a dynamic element
+    value_partitions: list[bytes | None] = []
+    i = 0
+    array_index = 0
+
+    while i < len(child_types):
+        child_type = child_types[i]
+        if _is_arc4_dynamic_type(child_type):
+            # Decode the size of the dynamic element
+            dynamic_index = int.from_bytes(value[array_index : array_index + _ABI_LENGTH_SIZE])
+            if len(dynamic_segments) > 0:
+                dynamic_segments[-1][1] = dynamic_index
+
+            # Since we do not know where the current dynamic element ends,
+            # put a placeholder and update later
+            dynamic_segments.append([dynamic_index, -1])
+            value_partitions.append(None)
+            array_index += _ABI_LENGTH_SIZE
+        elif issubclass(child_type.value, Bool):
+            before = _find_bool_types(child_types, i, -1)
+            after = _find_bool_types(child_types, i, 1)
+
+            if before % 8 != 0:
+                raise ValueError("expected before index should have number of bool mod 8 equal 0")
+            after = min(7, after)
+            bits = int.from_bytes(value[array_index : array_index + 1])
+            # Parse bool values into multiple byte strings
+            for bool_i in range(after + 1):
+                mask = 128 >> bool_i
+                if mask & bits:
+                    value_partitions.append(b"\x80")
+                else:
+                    value_partitions.append(b"\x00")
+            i += after
+            array_index += 1
+        else:
+            curr_len = child_type.value()._max_bytes_len  # type: ignore[attr-defined] #noqa: SLF001
+            value_partitions.append(value[array_index : array_index + curr_len])
+            array_index += curr_len
+
+        if array_index >= len(value) and i != len(child_types) - 1:
+            raise ValueError(f"input string is not long enough to be decoded: {value!r}")
+
+        i += 1
+
+    if len(dynamic_segments) > 0:
+        dynamic_segments[len(dynamic_segments) - 1][1] = len(value)
+        array_index = len(value)
+    if array_index < len(value):
+        raise ValueError(f"input string was not fully consumed: {value!r}")
+
+    # Check dynamic element partitions
+    segment_index = 0
+    for i, child_type in enumerate(child_types):
+        if _is_arc4_dynamic_type(child_type):
+            segment_start, segment_end = dynamic_segments[segment_index]
+            value_partitions[i] = value[segment_start:segment_end]
+            segment_index += 1
+
+    # Decode individual tuple elements
+    values = []
+    for i, child_type in enumerate(child_types):
+        val = child_type.value.from_bytes(value_partitions[i])  # type: ignore[attr-defined]
+        val._array_item_t = child_type.value  # noqa: SLF001
+        val._child_types = child_type.child_types  # noqa: SLF001
+        values.append(val)
+    return values
 
 __all__ = [
     "Bool",
