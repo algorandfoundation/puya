@@ -96,20 +96,6 @@ asset_wtype: typing.Final = WType(
     bounds=_uint64_bounds,
     immutable=True,
 )
-state_key: typing.Final = WType(
-    name="state_key",
-    scalar_type=AVMType.bytes,
-    bounds=SizeBounds(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
-    immutable=True,
-)
-box_key: typing.Final = WType(
-    name="box_key",
-    scalar_type=AVMType.bytes,
-    bounds=SizeBounds(
-        min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
-    ),
-    immutable=True,
-)
 
 account_wtype: typing.Final = WType(
     name="account",
@@ -125,19 +111,38 @@ application_wtype: typing.Final = WType(
     immutable=True,
 )
 
+state_key: typing.Final = WType(
+    name="state_key",
+    scalar_type=AVMType.bytes,
+    bounds=SizeBounds(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
+    immutable=True,
+)
+box_key: typing.Final = WType(
+    name="box_key",
+    scalar_type=AVMType.bytes,
+    bounds=SizeBounds(
+        min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
+    ),
+    immutable=True,
+)
+
 
 @attrs.frozen
 class _TransactionRelatedWType(WType):
     transaction_type: constants.TransactionType | None
     ephemeral: bool = attrs.field(default=True, init=False)
     immutable: bool = attrs.field(default=True, init=False)
-    bounds: None = attrs.field(default=None, init=False)  # TODO: group txn?
-    scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
 
 
 @typing.final
 @attrs.frozen
 class WGroupTransaction(_TransactionRelatedWType):
+    bounds: ValueBounds = attrs.field(
+        default=ValueBounds(max_value=algo_constants.MAX_TRANSACTION_GROUP_SIZE - 1),
+        init=False,
+    )
+    scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
+
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WGroupTransaction":
         name = "group_transaction"
@@ -149,6 +154,9 @@ class WGroupTransaction(_TransactionRelatedWType):
 @typing.final
 @attrs.frozen
 class WInnerTransactionFields(_TransactionRelatedWType):
+    bounds: None = attrs.field(default=None, init=False)
+    scalar_type: None = attrs.field(default=None, init=False)
+
     @classmethod
     def from_type(
         cls, transaction_type: constants.TransactionType | None
@@ -162,6 +170,9 @@ class WInnerTransactionFields(_TransactionRelatedWType):
 @typing.final
 @attrs.frozen
 class WInnerTransaction(_TransactionRelatedWType):
+    bounds: None = attrs.field(default=None, init=False)
+    scalar_type: None = attrs.field(default=None, init=False)
+
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WInnerTransaction":
         name = "inner_transaction"

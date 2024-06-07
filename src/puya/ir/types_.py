@@ -78,6 +78,10 @@ def wtype_to_ir_type(
             return IRType.itxn_field_set
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
+        # case wtypes.state_key:
+        #     return IRType.state_key  # TODO
+        # case wtypes.box_key:
+        #     return IRType.box_key  # TODO
     match wtype.scalar_type:
         case AVMType.uint64:
             return IRType.uint64
