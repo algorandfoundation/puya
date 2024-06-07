@@ -95,33 +95,6 @@ def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) ->
             )
 
 
-def _visit_arc4_tuple_decode(
-    context: IRFunctionBuildContext,
-    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
-    value: Value,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    items = list[Value]()
-
-    for index in range(len(wtype.types)):
-        item_value = _read_nth_item_of_arc4_heterogeneous_container(
-            context,
-            array_head_and_tail=value,
-            tuple_type=wtype,
-            index=index,
-            source_location=source_location,
-        )
-        (item,) = assign(
-            context,
-            temp_description=f"item{index}",
-            source=item_value,
-            source_location=source_location,
-        )
-
-        items.append(item)
-    return ValueTuple(source_location=source_location, values=items)
-
-
 def encode_arc4_struct(
     context: IRFunctionBuildContext, expr: awst_nodes.NewStruct, wtype: wtypes.ARC4Struct
 ) -> ValueProvider:
@@ -185,6 +158,52 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             )
 
 
+def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray) -> ValueProvider:
+    if not isinstance(expr.wtype, wtypes.ARC4Array):
+        raise InternalError("Expected ARC4 Array expression", expr.source_location)
+    len_prefix = (
+        len(expr.values).to_bytes(2, "big")
+        if isinstance(expr.wtype, wtypes.ARC4DynamicArray)
+        else b""
+    )
+
+    factory = _OpFactory(context, expr.source_location)
+    elements = [context.visitor.visit_and_materialise_single(value) for value in expr.values]
+    element_type = expr.wtype.element_type
+
+    if element_type == wtypes.arc4_bool_wtype:
+        array_head_and_tail = factory.constant(b"")
+        for index, el in enumerate(elements):
+            if index % 8 == 0:
+                array_head_and_tail = factory.concat(
+                    array_head_and_tail, el, temp_desc="array_head_and_tail"
+                )
+            else:
+                is_true = factory.get_bit(el, 0, "is_true")
+
+                array_head_and_tail = factory.set_bit(
+                    value=array_head_and_tail,
+                    index=index,
+                    bit=is_true,
+                    temp_desc="array_head_and_tail",
+                )
+    else:
+        array_head_and_tail = _arc4_items_as_arc4_tuple(
+            context, element_type, elements, factory.source_location
+        )
+
+    return factory.concat(len_prefix, array_head_and_tail, "array_data")
+
+
+def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
+    value = BytesConstant(
+        value=0x00.to_bytes(1, "big"),
+        source_location=source_location,
+        encoding=AVMBytesEncoding.base16,
+    )
+    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
+
+
 def arc4_array_index(
     context: IRFunctionBuildContext,
     *,
@@ -241,6 +260,398 @@ def arc4_array_index(
             item_wtype=item_wtype,
             source_location=source_location,
         )
+
+
+def arc4_tuple_index(
+    context: IRFunctionBuildContext,
+    base: Value,
+    index: int,
+    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    return _read_nth_item_of_arc4_heterogeneous_container(
+        context,
+        array_head_and_tail=base,
+        index=index,
+        tuple_type=wtype,
+        source_location=source_location,
+    )
+
+
+def build_for_in_array(
+    context: IRFunctionBuildContext,
+    array_wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
+    array_expr: awst_nodes.Expression,
+    source_location: SourceLocation,
+) -> ArrayIterator:
+    array = context.visitor.visit_and_materialise_single(array_expr)
+    length_vp = _get_arc4_array_length(array_wtype, array, source_location)
+    (array_length,) = assign(
+        context,
+        length_vp,
+        temp_description="array_length",
+        source_location=source_location,
+    )
+    return ArrayIterator(
+        context=context,
+        array=array,
+        array_length=array_length,
+        array_wtype=array_wtype,
+        source_location=source_location,
+    )
+
+
+def handle_arc4_assign(
+    context: IRFunctionBuildContext,
+    target: awst_nodes.Expression,
+    value: ValueProvider,
+    source_location: SourceLocation,
+) -> Value:
+    match target:
+        case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
+            (register,) = assign(
+                context,
+                source=value,
+                names=[(var_name, var_loc)],
+                source_location=source_location,
+            )
+            return register
+        case awst_nodes.AppAccountStateExpression() | awst_nodes.AppStateExpression():
+            (result,) = handle_assignment(
+                context, target, value=value, assignment_location=source_location
+            )
+            return result
+
+        case awst_nodes.IndexExpression(
+            base=awst_nodes.Expression(
+                wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
+            ) as base_expr,
+            index=index_value,
+        ):
+            return handle_arc4_assign(
+                context,
+                target=base_expr,
+                value=_arc4_replace_array_item(
+                    context,
+                    base_expr=base_expr,
+                    index_value_expr=index_value,
+                    wtype=array_wtype,
+                    value=value,
+                    source_location=source_location,
+                ),
+                source_location=source_location,
+            )
+        case awst_nodes.FieldExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
+            name=field_name,
+        ):
+            return handle_arc4_assign(
+                context,
+                target=base_expr,
+                value=_arc4_replace_struct_item(
+                    context,
+                    base_expr=base_expr,
+                    field_name=field_name,
+                    wtype=struct_wtype,
+                    value=value,
+                    source_location=source_location,
+                ),
+                source_location=source_location,
+            )
+        case awst_nodes.TupleItemExpression(
+            base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
+            index=index_value,
+        ) if not items_types[index_value].immutable:
+            (result,) = assign(
+                context=context,
+                names=[(format_tuple_index(base_expr.name, index_value), source_location)],
+                source=value,
+                source_location=source_location,
+            )
+
+            return result
+        case _:
+            raise CodeError("Not a valid assignment target", source_location)
+
+
+def concat_values(
+    context: IRFunctionBuildContext,
+    left_expr: awst_nodes.Expression,
+    right_expr: awst_nodes.Expression,
+    source_location: SourceLocation,
+) -> Value:
+    factory = _OpFactory(context, source_location)
+    match (left_expr, right_expr):
+        case (
+            awst_nodes.Expression(wtype=wtypes.ARC4DynamicArray() as left_wtype),
+            awst_nodes.Expression(wtype=wtypes.ARC4Array() as right_wtype),
+        ) if left_wtype.element_type == right_wtype.element_type:
+            left_element_type = left_wtype.element_type
+            if left_element_type == wtypes.arc4_bool_wtype:
+                left = context.visitor.visit_and_materialise_single(left_expr)
+                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
+                    context, right_expr, source_location
+                )
+                (concat_result,) = assign(
+                    context,
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=invoke_puya_lib_subroutine(
+                        context,
+                        method_name="dynamic_array_concat_bits",
+                        source_location=source_location,
+                        module_name="algopy_lib_arc4",
+                        args=[
+                            left,
+                            r_data,
+                            r_length,
+                            UInt64Constant(value=1, source_location=source_location),
+                        ],
+                    ),
+                )
+                return concat_result
+            elif _is_byte_length_header(left_element_type):
+                left = context.visitor.visit_and_materialise_single(left_expr)
+                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
+                    context, right_expr, source_location
+                )
+                (concat_result,) = assign(
+                    context,
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=invoke_puya_lib_subroutine(
+                        context,
+                        method_name="dynamic_array_concat_byte_length_head",
+                        source_location=source_location,
+                        module_name="algopy_lib_arc4",
+                        args=[
+                            left,
+                            r_data,
+                            r_length,
+                        ],
+                    ),
+                )
+                return concat_result
+            elif is_arc4_dynamic_size(left_element_type):
+                left = context.visitor.visit_and_materialise_single(left_expr)
+                right = context.visitor.visit_and_materialise_single(right_expr)
+                l_count, l_head_and_tail, r_count, r_head_and_tail = factory.assign_multiple(
+                    l_count=_get_arc4_array_length(left_wtype, left, source_location),
+                    l_head_and_tail=_get_arc4_array_head_and_tail(
+                        left_wtype, left, source_location
+                    ),
+                    r_count=_get_arc4_array_length(right_wtype, right, source_location),
+                    r_head_and_tail=_get_arc4_array_head_and_tail(
+                        right_wtype, right, source_location
+                    ),
+                )
+                (concat_result,) = assign(
+                    context,
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=invoke_puya_lib_subroutine(
+                        context,
+                        method_name="dynamic_array_concat_dynamic_element",
+                        source_location=source_location,
+                        module_name="algopy_lib_arc4",
+                        args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
+                    ),
+                )
+                return concat_result
+            else:
+                element_size = get_arc4_fixed_bit_size(left_element_type)
+                return _concat_dynamic_array_fixed_size(
+                    context,
+                    left=left_expr,
+                    right=right_expr,
+                    source_location=source_location,
+                    byte_size=element_size // 8,
+                )
+        case (
+            awst_nodes.Expression(
+                wtype=wtypes.ARC4DynamicArray(element_type=left_element_type) as left_wtype
+            ),
+            awst_nodes.Expression(wtype=wtypes.WTuple(types=tuple_types)),
+        ) if all(t == left_element_type for t in tuple_types):
+            if left_element_type == wtypes.arc4_bool_wtype:
+                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
+                    context, right_expr, source_location
+                )
+                left = context.visitor.visit_and_materialise_single(left_expr)
+                (concat_result,) = assign(
+                    context,
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=invoke_puya_lib_subroutine(
+                        context,
+                        method_name="dynamic_array_concat_bits",
+                        module_name="algopy_lib_arc4",
+                        source_location=source_location,
+                        args=[
+                            left,
+                            r_data,
+                            r_length,
+                            UInt64Constant(value=0, source_location=source_location),
+                        ],
+                    ),
+                )
+                return concat_result
+            elif _is_byte_length_header(left_element_type):
+                left = context.visitor.visit_and_materialise_single(left_expr)
+                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
+                    context, right_expr, source_location
+                )
+                (concat_result,) = assign(
+                    context,
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=invoke_puya_lib_subroutine(
+                        context,
+                        method_name="dynamic_array_concat_byte_length_head",
+                        source_location=source_location,
+                        module_name="algopy_lib_arc4",
+                        args=[
+                            left,
+                            r_data,
+                            r_length,
+                        ],
+                    ),
+                )
+                return concat_result
+            elif is_arc4_dynamic_size(left_element_type):
+                left = context.visitor.visit_and_materialise_single(left_expr)
+                right_values = context.visitor.visit_and_materialise(right_expr)
+
+                l_count, l_head_and_tail, r_count, r_head_and_tail = factory.assign_multiple(
+                    l_count=_get_arc4_array_length(left_wtype, left, source_location),
+                    l_head_and_tail=_get_arc4_array_head_and_tail(
+                        left_wtype, left, source_location
+                    ),
+                    r_count=UInt64Constant(
+                        value=len(tuple_types), source_location=source_location
+                    ),
+                    r_head_and_tail=_arc4_items_as_arc4_tuple(
+                        context, left_element_type, right_values, source_location
+                    ),
+                )
+                return factory.assign(
+                    invoke_puya_lib_subroutine(
+                        context,
+                        method_name="dynamic_array_concat_dynamic_element",
+                        module_name="algopy_lib_arc4",
+                        args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
+                        source_location=source_location,
+                    ),
+                    "concat_result",
+                )
+            else:
+                element_size = get_arc4_fixed_bit_size(left_element_type)
+                return _concat_dynamic_array_fixed_size(
+                    context,
+                    left=left_expr,
+                    right=right_expr,
+                    source_location=source_location,
+                    byte_size=element_size // 8,
+                )
+        case (
+            awst_nodes.Expression(wtype=wtypes.arc4_string_wtype),
+            awst_nodes.Expression(wtype=wtypes.arc4_string_wtype),
+        ):
+            return _concat_dynamic_array_fixed_size(
+                context,
+                left=left_expr,
+                right=right_expr,
+                source_location=source_location,
+                byte_size=1,
+            )
+        case _:
+            raise CodeError(
+                f"Unexpected operand types or order for concatenation: "
+                f"{left_expr.wtype} and {right_expr.wtype}",
+                source_location,
+            )
+
+
+def pop_arc4_array(
+    context: IRFunctionBuildContext,
+    expr: awst_nodes.ArrayPop,
+    array_wtype: wtypes.ARC4DynamicArray,
+) -> ValueProvider:
+    source_location = expr.source_location
+    popped = mktemp(context, IRType.bytes, source_location, description="popped")
+    data = mktemp(context, IRType.bytes, source_location, description="data")
+    base = context.visitor.visit_and_materialise_single(expr.base)
+    if array_wtype.element_type == wtypes.arc4_bool_wtype:
+        method_name = "dynamic_array_pop_bit"
+        args: list[Value] = [base]
+    elif _is_byte_length_header(array_wtype.element_type):  # TODO: multi_byte_length prefix?
+        method_name = "dynamic_array_pop_byte_length_head"
+        args = [base]
+    elif is_arc4_dynamic_size(array_wtype.element_type):
+        method_name = "dynamic_array_pop_dynamic_element"
+        args = [base]
+    else:
+        fixed_size = get_arc4_fixed_bit_size(array_wtype.element_type)
+        method_name = "dynamic_array_pop_fixed_size"
+        args = [
+            base,
+            UInt64Constant(
+                value=fixed_size // 8,
+                source_location=source_location,
+            ),
+        ]
+
+    (popped, data) = assign(
+        context,
+        source_location=source_location,
+        names=[(popped.name, None), (data.name, None)],
+        source=invoke_puya_lib_subroutine(
+            context,
+            method_name=method_name,
+            args=args,
+            source_location=source_location,
+            module_name="algopy_lib_arc4",
+        ),
+    )
+
+    handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
+
+    return popped
+
+
+def _visit_arc4_tuple_decode(
+    context: IRFunctionBuildContext,
+    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    value: Value,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    items = list[Value]()
+
+    for index in range(len(wtype.types)):
+        item_value = _read_nth_item_of_arc4_heterogeneous_container(
+            context,
+            array_head_and_tail=value,
+            tuple_type=wtype,
+            index=index,
+            source_location=source_location,
+        )
+        (item,) = assign(
+            context,
+            temp_description=f"item{index}",
+            source=item_value,
+            source_location=source_location,
+        )
+
+        items.append(item)
+    return ValueTuple(source_location=source_location, values=items)
+
+
+def _is_byte_length_header(wtype: wtypes.ARC4Type) -> bool:
+    return (
+        isinstance(wtype, wtypes.ARC4DynamicArray)
+        and is_arc4_static_size(wtype.element_type)
+        and get_arc4_fixed_bit_size(wtype.element_type) == 8
+    ) or wtype == wtypes.arc4_string_wtype  # TODO: make arc4 string an arc4 dynamic array
 
 
 def _maybe_get_inner_element_size(item_wtype: wtypes.ARC4Type) -> int | None:
@@ -326,22 +737,6 @@ def _read_dynamic_item_using_end_offset_from_arc4_container(
     return Intrinsic(
         op=AVMOp.substring3,
         args=[array_head_and_tail, item_start_offset, item_end_offset],
-        source_location=source_location,
-    )
-
-
-def arc4_tuple_index(
-    context: IRFunctionBuildContext,
-    base: Value,
-    index: int,
-    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    return _read_nth_item_of_arc4_heterogeneous_container(
-        context,
-        array_head_and_tail=base,
-        index=index,
-        tuple_type=wtype,
         source_location=source_location,
     )
 
@@ -470,43 +865,6 @@ def _set_bit(
         types=[value.ir_type],
         source_location=source_location,
     )
-
-
-def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray) -> ValueProvider:
-    if not isinstance(expr.wtype, wtypes.ARC4Array):
-        raise InternalError("Expected ARC4 Array expression", expr.source_location)
-    len_prefix = (
-        len(expr.values).to_bytes(2, "big")
-        if isinstance(expr.wtype, wtypes.ARC4DynamicArray)
-        else b""
-    )
-
-    factory = _OpFactory(context, expr.source_location)
-    elements = [context.visitor.visit_and_materialise_single(value) for value in expr.values]
-    element_type = expr.wtype.element_type
-
-    if element_type == wtypes.arc4_bool_wtype:
-        array_head_and_tail = factory.constant(b"")
-        for index, el in enumerate(elements):
-            if index % 8 == 0:
-                array_head_and_tail = factory.concat(
-                    array_head_and_tail, el, temp_desc="array_head_and_tail"
-                )
-            else:
-                is_true = factory.get_bit(el, 0, "is_true")
-
-                array_head_and_tail = factory.set_bit(
-                    value=array_head_and_tail,
-                    index=index,
-                    bit=is_true,
-                    temp_desc="array_head_and_tail",
-                )
-    else:
-        array_head_and_tail = _arc4_items_as_arc4_tuple(
-            context, element_type, elements, factory.source_location
-        )
-
-    return factory.concat(len_prefix, array_head_and_tail, "array_data")
 
 
 def _arc4_replace_struct_item(
@@ -847,29 +1205,6 @@ def _read_static_item_from_arc4_container(
     )
 
 
-def build_for_in_array(
-    context: IRFunctionBuildContext,
-    array_wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
-    array_expr: awst_nodes.Expression,
-    source_location: SourceLocation,
-) -> ArrayIterator:
-    array = context.visitor.visit_and_materialise_single(array_expr)
-    length_vp = _get_arc4_array_length(array_wtype, array, source_location)
-    (array_length,) = assign(
-        context,
-        length_vp,
-        temp_description="array_length",
-        source_location=source_location,
-    )
-    return ArrayIterator(
-        context=context,
-        array=array,
-        array_length=array_length,
-        array_wtype=array_wtype,
-        source_location=source_location,
-    )
-
-
 def _get_arc4_array_tail_data_and_item_count(
     context: IRFunctionBuildContext, expr: awst_nodes.Expression, source_location: SourceLocation
 ) -> tuple[Value, Value]:
@@ -991,79 +1326,6 @@ def _itob_fixed(
     )
 
 
-def handle_arc4_assign(
-    context: IRFunctionBuildContext,
-    target: awst_nodes.Expression,
-    value: ValueProvider,
-    source_location: SourceLocation,
-) -> Value:
-    match target:
-        case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
-            (register,) = assign(
-                context,
-                source=value,
-                names=[(var_name, var_loc)],
-                source_location=source_location,
-            )
-            return register
-        case awst_nodes.AppAccountStateExpression() | awst_nodes.AppStateExpression():
-            (result,) = handle_assignment(
-                context, target, value=value, assignment_location=source_location
-            )
-            return result
-
-        case awst_nodes.IndexExpression(
-            base=awst_nodes.Expression(
-                wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
-            ) as base_expr,
-            index=index_value,
-        ):
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=_arc4_replace_array_item(
-                    context,
-                    base_expr=base_expr,
-                    index_value_expr=index_value,
-                    wtype=array_wtype,
-                    value=value,
-                    source_location=source_location,
-                ),
-                source_location=source_location,
-            )
-        case awst_nodes.FieldExpression(
-            base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
-            name=field_name,
-        ):
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=_arc4_replace_struct_item(
-                    context,
-                    base_expr=base_expr,
-                    field_name=field_name,
-                    wtype=struct_wtype,
-                    value=value,
-                    source_location=source_location,
-                ),
-                source_location=source_location,
-            )
-        case awst_nodes.TupleItemExpression(
-            base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
-            index=index_value,
-        ) if not items_types[index_value].immutable:
-            (result,) = assign(
-                context=context,
-                names=[(format_tuple_index(base_expr.name, index_value), source_location)],
-                source=value,
-                source_location=source_location,
-            )
-
-            return result
-        case _:
-            raise CodeError("Not a valid assignment target", source_location)
-
-
 def _arc4_replace_array_item(
     context: IRFunctionBuildContext,
     *,
@@ -1084,7 +1346,7 @@ def _arc4_replace_array_item(
 
     index = context.visitor.visit_and_materialise_single(index_value_expr)
 
-    if is_byte_length_header(wtype.element_type):
+    if _is_byte_length_header(wtype.element_type):
         if isinstance(wtype, wtypes.ARC4DynamicArray):
             (updated_value,) = assign(
                 context,
@@ -1345,204 +1607,6 @@ def _concat_dynamic_array_fixed_size(
     return concat_result
 
 
-def concat_values(
-    context: IRFunctionBuildContext,
-    left_expr: awst_nodes.Expression,
-    right_expr: awst_nodes.Expression,
-    source_location: SourceLocation,
-) -> Value:
-    factory = _OpFactory(context, source_location)
-    match (left_expr, right_expr):
-        case (
-            awst_nodes.Expression(wtype=wtypes.ARC4DynamicArray() as left_wtype),
-            awst_nodes.Expression(wtype=wtypes.ARC4Array() as right_wtype),
-        ) if left_wtype.element_type == right_wtype.element_type:
-            left_element_type = left_wtype.element_type
-            if left_element_type == wtypes.arc4_bool_wtype:
-                left = context.visitor.visit_and_materialise_single(left_expr)
-                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-                    context, right_expr, source_location
-                )
-                (concat_result,) = assign(
-                    context,
-                    temp_description="concat_result",
-                    source_location=source_location,
-                    source=invoke_puya_lib_subroutine(
-                        context,
-                        method_name="dynamic_array_concat_bits",
-                        source_location=source_location,
-                        module_name="algopy_lib_arc4",
-                        args=[
-                            left,
-                            r_data,
-                            r_length,
-                            UInt64Constant(value=1, source_location=source_location),
-                        ],
-                    ),
-                )
-                return concat_result
-            elif is_byte_length_header(left_element_type):
-                left = context.visitor.visit_and_materialise_single(left_expr)
-                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-                    context, right_expr, source_location
-                )
-                (concat_result,) = assign(
-                    context,
-                    temp_description="concat_result",
-                    source_location=source_location,
-                    source=invoke_puya_lib_subroutine(
-                        context,
-                        method_name="dynamic_array_concat_byte_length_head",
-                        source_location=source_location,
-                        module_name="algopy_lib_arc4",
-                        args=[
-                            left,
-                            r_data,
-                            r_length,
-                        ],
-                    ),
-                )
-                return concat_result
-            elif is_arc4_dynamic_size(left_element_type):
-                left = context.visitor.visit_and_materialise_single(left_expr)
-                right = context.visitor.visit_and_materialise_single(right_expr)
-                l_count, l_head_and_tail, r_count, r_head_and_tail = factory.assign_multiple(
-                    l_count=_get_arc4_array_length(left_wtype, left, source_location),
-                    l_head_and_tail=_get_arc4_array_head_and_tail(
-                        left_wtype, left, source_location
-                    ),
-                    r_count=_get_arc4_array_length(right_wtype, right, source_location),
-                    r_head_and_tail=_get_arc4_array_head_and_tail(
-                        right_wtype, right, source_location
-                    ),
-                )
-                (concat_result,) = assign(
-                    context,
-                    temp_description="concat_result",
-                    source_location=source_location,
-                    source=invoke_puya_lib_subroutine(
-                        context,
-                        method_name="dynamic_array_concat_dynamic_element",
-                        source_location=source_location,
-                        module_name="algopy_lib_arc4",
-                        args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
-                    ),
-                )
-                return concat_result
-            else:
-                element_size = get_arc4_fixed_bit_size(left_element_type)
-                return _concat_dynamic_array_fixed_size(
-                    context,
-                    left=left_expr,
-                    right=right_expr,
-                    source_location=source_location,
-                    byte_size=element_size // 8,
-                )
-        case (
-            awst_nodes.Expression(
-                wtype=wtypes.ARC4DynamicArray(element_type=left_element_type) as left_wtype
-            ),
-            awst_nodes.Expression(wtype=wtypes.WTuple(types=tuple_types)),
-        ) if all(t == left_element_type for t in tuple_types):
-            if left_element_type == wtypes.arc4_bool_wtype:
-                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-                    context, right_expr, source_location
-                )
-                left = context.visitor.visit_and_materialise_single(left_expr)
-                (concat_result,) = assign(
-                    context,
-                    temp_description="concat_result",
-                    source_location=source_location,
-                    source=invoke_puya_lib_subroutine(
-                        context,
-                        method_name="dynamic_array_concat_bits",
-                        module_name="algopy_lib_arc4",
-                        source_location=source_location,
-                        args=[
-                            left,
-                            r_data,
-                            r_length,
-                            UInt64Constant(value=0, source_location=source_location),
-                        ],
-                    ),
-                )
-                return concat_result
-            elif is_byte_length_header(left_element_type):
-                left = context.visitor.visit_and_materialise_single(left_expr)
-                (r_data, r_length) = _get_arc4_array_tail_data_and_item_count(
-                    context, right_expr, source_location
-                )
-                (concat_result,) = assign(
-                    context,
-                    temp_description="concat_result",
-                    source_location=source_location,
-                    source=invoke_puya_lib_subroutine(
-                        context,
-                        method_name="dynamic_array_concat_byte_length_head",
-                        source_location=source_location,
-                        module_name="algopy_lib_arc4",
-                        args=[
-                            left,
-                            r_data,
-                            r_length,
-                        ],
-                    ),
-                )
-                return concat_result
-            elif is_arc4_dynamic_size(left_element_type):
-                left = context.visitor.visit_and_materialise_single(left_expr)
-                right_values = context.visitor.visit_and_materialise(right_expr)
-
-                l_count, l_head_and_tail, r_count, r_head_and_tail = factory.assign_multiple(
-                    l_count=_get_arc4_array_length(left_wtype, left, source_location),
-                    l_head_and_tail=_get_arc4_array_head_and_tail(
-                        left_wtype, left, source_location
-                    ),
-                    r_count=UInt64Constant(
-                        value=len(tuple_types), source_location=source_location
-                    ),
-                    r_head_and_tail=_arc4_items_as_arc4_tuple(
-                        context, left_element_type, right_values, source_location
-                    ),
-                )
-                return factory.assign(
-                    invoke_puya_lib_subroutine(
-                        context,
-                        method_name="dynamic_array_concat_dynamic_element",
-                        module_name="algopy_lib_arc4",
-                        args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
-                        source_location=source_location,
-                    ),
-                    "concat_result",
-                )
-            else:
-                element_size = get_arc4_fixed_bit_size(left_element_type)
-                return _concat_dynamic_array_fixed_size(
-                    context,
-                    left=left_expr,
-                    right=right_expr,
-                    source_location=source_location,
-                    byte_size=element_size // 8,
-                )
-        case (
-            awst_nodes.Expression(wtype=wtypes.arc4_string_wtype),
-            awst_nodes.Expression(wtype=wtypes.arc4_string_wtype),
-        ):
-            return _concat_dynamic_array_fixed_size(
-                context,
-                left=left_expr,
-                right=right_expr,
-                source_location=source_location,
-                byte_size=1,
-            )
-        case _:
-            raise CodeError(
-                f"Unexpected operand types or order for concatenation: "
-                f"{left_expr.wtype} and {right_expr.wtype}",
-                source_location,
-            )
-
-
 def _arc4_items_as_arc4_tuple(
     context: IRFunctionBuildContext,
     item_wtype: wtypes.ARC4Type,
@@ -1572,70 +1636,6 @@ def _arc4_items_as_arc4_tuple(
         )
 
     return result
-
-
-def is_byte_length_header(wtype: wtypes.ARC4Type) -> bool:
-    return (
-        isinstance(wtype, wtypes.ARC4DynamicArray)
-        and is_arc4_static_size(wtype.element_type)
-        and get_arc4_fixed_bit_size(wtype.element_type) == 8
-    ) or wtype == wtypes.arc4_string_wtype  # TODO: make arc4 string an arc4 dynamic array
-
-
-def pop_arc4_array(
-    context: IRFunctionBuildContext,
-    expr: awst_nodes.ArrayPop,
-    array_wtype: wtypes.ARC4DynamicArray,
-) -> ValueProvider:
-    source_location = expr.source_location
-    popped = mktemp(context, IRType.bytes, source_location, description="popped")
-    data = mktemp(context, IRType.bytes, source_location, description="data")
-    base = context.visitor.visit_and_materialise_single(expr.base)
-    if array_wtype.element_type == wtypes.arc4_bool_wtype:
-        method_name = "dynamic_array_pop_bit"
-        args: list[Value] = [base]
-    elif is_byte_length_header(array_wtype.element_type):  # TODO: multi_byte_length prefix?
-        method_name = "dynamic_array_pop_byte_length_head"
-        args = [base]
-    elif is_arc4_dynamic_size(array_wtype.element_type):
-        method_name = "dynamic_array_pop_dynamic_element"
-        args = [base]
-    else:
-        fixed_size = get_arc4_fixed_bit_size(array_wtype.element_type)
-        method_name = "dynamic_array_pop_fixed_size"
-        args = [
-            base,
-            UInt64Constant(
-                value=fixed_size // 8,
-                source_location=source_location,
-            ),
-        ]
-
-    (popped, data) = assign(
-        context,
-        source_location=source_location,
-        names=[(popped.name, None), (data.name, None)],
-        source=invoke_puya_lib_subroutine(
-            context,
-            method_name=method_name,
-            args=args,
-            source_location=source_location,
-            module_name="algopy_lib_arc4",
-        ),
-    )
-
-    handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
-
-    return popped
-
-
-def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
-    value = BytesConstant(
-        value=0x00.to_bytes(1, "big"),
-        source_location=source_location,
-        encoding=AVMBytesEncoding.base16,
-    )
-    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
 
 
 def _assert_index_in_bounds(
