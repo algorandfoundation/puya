@@ -1179,10 +1179,10 @@ def test_dynamic_arrays_mixed_single_dynamic(
 def test_dynamic_arrays_mixed_multiple_dynamic(
     dynamic_app_client: algokit_utils.ApplicationClient,
 ) -> None:
-    mixed2_struct_t = abi.ABIType.from_string("(uint64,string,uint64,string,uint64)")
+    mixed2_struct_t = abi.ABIType.from_string("(uint64,string,uint64,uint16[],uint64)")
     mixed2_arr_t = abi.ArrayDynamicType(mixed2_struct_t)
-    mixed2_struct0 = (3, "a", 2**42, "bee", 3)
-    mixed2_struct1 = (2**42, "Hello World", 3, "a", 2**42)
+    mixed2_struct0 = (3, "a", 2**42, (2**16 - 1, 0, 42), 3)
+    mixed2_struct1 = (2**42, "bee", 3, (1, 2, 3, 4), 2**42)
 
     mixed_multiple_result = dynamic_app_client.call("test_mixed_multiple_dynamic_elements")
     (mixed2_arr_bytes, mixed2_0_bytes, mixed2_1_bytes) = decode_logs(
@@ -1192,3 +1192,9 @@ def test_dynamic_arrays_mixed_multiple_dynamic(
     assert mixed2_arr_bytes == mixed2_arr_t.encode([mixed2_struct0, mixed2_struct1])
     assert mixed2_0_bytes == mixed2_struct_t.encode(mixed2_struct0)
     assert mixed2_1_bytes == mixed2_struct_t.encode(mixed2_struct1)
+
+
+def test_nested_struct(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    dynamic_app_client.call("test_nested_struct_replacement")

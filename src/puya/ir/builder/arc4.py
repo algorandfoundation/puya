@@ -742,17 +742,18 @@ def _arc4_replace_struct_item(
 
         item_offset = factory.extract_uint16(base, header_up_to_item // 8, "item_offset")
         data_up_to_item = factory.extract3(base, 0, item_offset, "data_up_to_item")
-        proceeding_dynamic_indices = [i for i in dynamic_indices if i > index_int]
+        dynamic_indices_after_item = [i for i in dynamic_indices if i > index_int]
 
-        if not proceeding_dynamic_indices:
+        if not dynamic_indices_after_item:
             # This is the last dynamic type in the tuple
             # No need to update headers - just replace the data
             return factory.concat(data_up_to_item, value, "updated_data")
         header_up_to_next_dynamic_item = determine_arc4_tuple_head_size(
-            types=wtype.types[0 : proceeding_dynamic_indices[0]],
+            types=wtype.types[0 : dynamic_indices_after_item[0]],
             round_end_result=True,
         )
 
+        # update tail portion with new item
         next_item_offset = factory.extract_uint16(
             base,
             header_up_to_next_dynamic_item // 8,
@@ -768,30 +769,26 @@ def _arc4_replace_struct_item(
         updated_data = factory.concat(data_up_to_item, value, "updated_data")
         updated_data = factory.concat(updated_data, data_beyond_item, "updated_data")
 
+        # loop through head and update any offsets after modified item
+        item_length = factory.sub(next_item_offset, item_offset, "item_length")
         new_value_length = factory.len(value, "new_value_length")
-        tail_offset = factory.add(item_offset, new_value_length, "tail_offset")
-        for dynamic_index in proceeding_dynamic_indices:
+        for dynamic_index in dynamic_indices_after_item:
             header_up_to_dynamic_item = determine_arc4_tuple_head_size(
                 types=wtype.types[0:dynamic_index],
                 round_end_result=True,
             )
 
-            updated_header_bytes = factory.as_u16_bytes(tail_offset, "updated_header_bytes")
+            tail_offset = factory.extract_uint16(
+                updated_data, header_up_to_dynamic_item // 8, "tail_offset"
+            )
+            # have to add the new length and then subtract the original to avoid underflow
+            tail_offset = factory.add(tail_offset, new_value_length, "tail_offset")
+            tail_offset = factory.sub(tail_offset, item_length, "tail_offset")
+            tail_offset_bytes = factory.as_u16_bytes(tail_offset, "tail_offset_bytes")
 
             updated_data = factory.replace(
-                updated_data, header_up_to_dynamic_item // 8, updated_header_bytes, "updated_data"
+                updated_data, header_up_to_dynamic_item // 8, tail_offset_bytes, "updated_data"
             )
-            if dynamic_index == proceeding_dynamic_indices[-1]:
-                break
-
-            # TODO: check this works for dynamic structs
-            dynamic_item_length = factory.extract_uint16(
-                updated_data,
-                tail_offset,
-                "dynamic_item_length",
-            )
-            tail_offset = factory.add(tail_offset, dynamic_item_length, "tail_offset")
-            tail_offset = factory.add(tail_offset, 2, "tail_offset")
         return updated_data
 
 
@@ -1392,6 +1389,16 @@ class _OpFactory:
             self.context,
             target=temp_desc,
             op=AVMOp.add,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def sub(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+        (result,) = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.sub,
             args=[a, b],
             source_location=self.source_location,
         )

@@ -2,13 +2,14 @@
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main_bare_routing@9
     method "test_static_elements()void"
     method "test_dynamic_elements()void"
     method "test_mixed_single_dynamic_elements()void"
     method "test_mixed_multiple_dynamic_elements()void"
+    method "test_nested_struct_replacement()void"
     txna ApplicationArgs 0
-    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5
+    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5 main_test_nested_struct_replacement_route@6
     err // reject transaction
 
 main_test_static_elements_route@2:
@@ -51,7 +52,17 @@ main_test_mixed_multiple_dynamic_elements_route@5:
     int 1
     return
 
-main_bare_routing@8:
+main_test_nested_struct_replacement_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_nested_struct_replacement
+    int 1
+    return
+
+main_bare_routing@9:
     txn OnCompletion
     !
     assert // reject transaction
@@ -429,7 +440,7 @@ test_mixed_multiple_dynamic_elements:
     swap
     callsub get_uint2
     cover 2
-    callsub get_string2
+    callsub get_u16_arr1
     cover 3
     callsub get_uint1
     cover 3
@@ -453,11 +464,11 @@ test_mixed_multiple_dynamic_elements:
     swap
     concat
     callsub get_uint2
-    callsub get_string3
+    callsub get_string2
     swap
     callsub get_uint1
     cover 2
-    callsub get_string1
+    callsub get_u16_arr2
     cover 3
     callsub get_uint2
     cover 3
@@ -549,6 +560,217 @@ test_mixed_multiple_dynamic_elements:
     pop
     ==
     assert
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> bytes:
+get_u16_arr1:
+    proto 0 1
+    byte 0x0003ffff0000002a
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.get_u16_arr2() -> bytes:
+get_u16_arr2:
+    proto 0 1
+    byte 0x00040001000200030004
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
+test_nested_struct_replacement:
+    proto 0 0
+    callsub get_uint1
+    callsub get_byte1
+    callsub get_byte2
+    concat
+    concat
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_uint2
+    callsub get_byte2
+    callsub get_byte1
+    concat
+    concat
+    callsub get_uint1
+    callsub get_string1
+    swap
+    callsub get_uint2
+    cover 2
+    callsub get_u16_arr1
+    cover 3
+    callsub get_uint1
+    cover 3
+    byte 0x001c
+    concat
+    dig 1
+    len
+    int 28
+    +
+    swap
+    uncover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    uncover 4
+    byte 0x001a
+    concat
+    dig 4
+    len
+    int 26
+    dig 1
+    +
+    uncover 2
+    uncover 5
+    concat
+    swap
+    dup
+    itob
+    extract 6 2
+    dig 2
+    swap
+    concat
+    swap
+    dig 5
+    len
+    dup
+    cover 6
+    +
+    itob
+    extract 6 2
+    concat
+    dig 6
+    concat
+    dig 5
+    concat
+    dig 3
+    concat
+    cover 5
+    callsub get_string2
+    callsub get_string1
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    dup
+    len
+    int 26
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 3
+    swap
+    concat
+    swap
+    uncover 5
+    +
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    dup
+    int 10
+    extract_uint16
+    dig 1
+    int 0
+    dig 2
+    extract3
+    swap
+    dig 2
+    int 22
+    extract_uint16
+    swap
+    dig 3
+    len
+    swap
+    uncover 4
+    dig 3
+    uncover 3
+    substring3
+    uncover 3
+    uncover 6
+    concat
+    swap
+    concat
+    cover 2
+    -
+    swap
+    dup
+    int 22
+    extract_uint16
+    dig 3
+    +
+    dig 2
+    -
+    itob
+    extract 6 2
+    replace2 22
+    dup
+    int 24
+    extract_uint16
+    uncover 3
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 24
+    ==
+    assert // struct1 does not match struct2
     retsub
 
 

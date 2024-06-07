@@ -26,3 +26,8 @@ class DynamicArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
     def test_mixed_multiple_dynamic_elements(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_nested_struct_replacement(
+        self,
+    ) -> None: ...

@@ -13,9 +13,6 @@ class DynamicStruct(arc4.Struct):
     b: arc4.String
 
 
-# HH BBBBBB
-
-
 class MixedSingleStruct(arc4.Struct):
     a: arc4.UInt64
     b: arc4.String
@@ -26,8 +23,16 @@ class MixedMultipleStruct(arc4.Struct):
     a: arc4.UInt64
     b: arc4.String
     c: arc4.UInt64
-    d: arc4.String
+    d: arc4.DynamicArray[arc4.UInt16]
     e: arc4.UInt64
+
+
+class NestedDynamicStruct(arc4.Struct):
+    one: StaticStruct
+    two: DynamicStruct
+    three: StaticStruct
+    four: MixedMultipleStruct
+    five: DynamicStruct
 
 
 class DynamicArrayContract(ARC4Contract):
@@ -85,10 +90,10 @@ class DynamicArrayContract(ARC4Contract):
     @arc4.abimethod()
     def test_mixed_multiple_dynamic_elements(self) -> None:
         struct1 = MixedMultipleStruct(
-            get_uint1(), get_string1(), get_uint2(), get_string2(), get_uint1()
+            get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
         )
         struct2 = MixedMultipleStruct(
-            get_uint2(), get_string3(), get_uint1(), get_string1(), get_uint2()
+            get_uint2(), get_string2(), get_uint1(), get_u16_arr2(), get_uint2()
         )
         array = arc4.DynamicArray(struct1.copy(), struct1.copy())
         array[1] = struct2.copy()
@@ -98,6 +103,33 @@ class DynamicArrayContract(ARC4Contract):
 
         assert array.pop() == struct2
         assert array.pop() == struct1
+
+    @arc4.abimethod()
+    def test_nested_struct_replacement(self) -> None:
+        one = StaticStruct(get_uint1(), arc4.StaticArray(get_byte1(), get_byte2()))
+        two = DynamicStruct(get_string1(), get_string2())
+        three = StaticStruct(get_uint2(), arc4.StaticArray(get_byte2(), get_byte1()))
+        four = MixedMultipleStruct(
+            get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
+        )
+        five = DynamicStruct(get_string1(), get_string2())
+        struct1 = NestedDynamicStruct(
+            one=one,
+            two=two,
+            three=three,
+            four=four,
+            five=five,
+        )
+        struct2 = NestedDynamicStruct(
+            one=one,
+            two=DynamicStruct(get_string2(), get_string1()),  # this is the difference with struct1
+            three=three,
+            four=four,
+            five=five,
+        )
+
+        struct2.two = two.copy()  # now struct2 should match struct1
+        assert struct1.bytes == struct2.bytes, "struct1 does not match struct2"
 
 
 @subroutine
@@ -143,3 +175,13 @@ def get_byte3() -> arc4.Byte:
 @subroutine
 def get_byte4() -> arc4.Byte:
     return arc4.Byte(255)
+
+
+@subroutine
+def get_u16_arr1() -> arc4.DynamicArray[arc4.UInt16]:
+    return arc4.DynamicArray(arc4.UInt16(2**16 - 1), arc4.UInt16(0), arc4.UInt16(42))
+
+
+@subroutine
+def get_u16_arr2() -> arc4.DynamicArray[arc4.UInt16]:
+    return arc4.DynamicArray(arc4.UInt16(1), arc4.UInt16(2), arc4.UInt16(3), arc4.UInt16(4))
