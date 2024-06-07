@@ -7,9 +7,9 @@ from puya.awst import (
 )
 from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assert_value, assign_targets, mktemp
+from puya.ir.builder._utils import assert_value, assign, reassign, mktemp, assign_targets
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import Intrinsic, Register, UInt64Constant, Value, ValueProvider
+from puya.ir.models import Intrinsic, Register, UInt64Constant, Value, ValueProvider, ValueTuple
 from puya.ir.types_ import IRType, wtype_to_ir_type
 from puya.parse import SourceLocation
 
@@ -17,54 +17,57 @@ from puya.parse import SourceLocation
 def visit_app_state_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.AppStateExpression
 ) -> ValueProvider:
+    maybe_value, exists = _build_state_get_ex(context, expr, expr.source_location)
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-    return _checked_state_access(context, expr, assert_comment=f"check {expr.member_name} exists")
+    assert_value(
+        context,
+        value=exists,
+        comment=f"check {expr.member_name} exists",  # TODO: fixme
+        source_location=expr.source_location,
+    )
+    return maybe_value
 
 
 def visit_app_account_state_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.AppAccountStateExpression
 ) -> ValueProvider:
+    maybe_value, exists = _build_state_get_ex(context, expr, expr.source_location)
     # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-    return _checked_state_access(
-        context, expr, assert_comment=f"check {expr.member_name} exists for account"
+    assert_value(
+        context,
+        value=exists,
+        comment=f"check {expr.member_name} exists for account",  # TODO: fixme
+        source_location=expr.source_location,
     )
+    return maybe_value
 
 
 def visit_box_value(
     context: IRFunctionBuildContext, expr: awst_nodes.BoxValueExpression
 ) -> ValueProvider:
-    bytes_value = _checked_state_access(context, expr, assert_comment="TODO")
-    scalar_type = wtypes.persistable_stack_type(expr.wtype, expr.source_location)
-    if scalar_type == AVMType.bytes:
-        return bytes_value
-    elif scalar_type == AVMType.uint64:
-        return Intrinsic(
-            op=AVMOp.btoi,
-            args=[bytes_value],
-            source_location=expr.source_location,
-        )
-    else:
-        typing.assert_never(scalar_type)
+    maybe_value, exists = _build_state_get_ex(context, expr, expr.source_location)
+    # TODO: add specific (unsafe) optimisation flag to allow skipping this check
+    assert_value(
+        context,
+        value=exists,
+        comment=f"box {expr.member_name} must exist",  # TODO: fixme
+        source_location=expr.source_location,
+    )
+    return maybe_value
 
 
 def visit_state_exists(
     context: IRFunctionBuildContext, expr: awst_nodes.StateExists
 ) -> ValueProvider:
-    get_ex = _build_state_get_ex(
+    _, exists = _build_state_get_ex(
         context, expr.field, expr.source_location, for_existence_check=True
-    )
-    _, exists = context.visitor.materialise_value_provider(
-        get_ex, description=f"{expr.field.member_name}_exists"
     )
     return exists
 
 
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
     default = context.visitor.visit_and_materialise_single(expr.default)
-    get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
-    maybe_value, exists = context.visitor.materialise_value_provider(
-        get_ex, description=f"{expr.field.member_name}_get_ex"
-    )
+    maybe_value, exists = _build_state_get_ex(context, expr.field, expr.source_location)
     return intrinsic_factory.select(
         condition=exists,
         true=maybe_value,
@@ -77,7 +80,10 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
 def visit_state_get_ex(
     context: IRFunctionBuildContext, expr: awst_nodes.StateGetEx
 ) -> ValueProvider:
-    return _build_state_get_ex(context, expr.field, expr.source_location)
+    return ValueTuple(
+        values=list(_build_state_get_ex(context, expr.field, expr.source_location)),
+        source_location=expr.source_location,
+    )
 
 
 def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.StateDelete) -> None:
@@ -105,46 +111,6 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
     )
 
 
-def _checked_state_access(
-    context: IRFunctionBuildContext,
-    expr: (
-        awst_nodes.AppAccountStateExpression
-        | awst_nodes.AppStateExpression
-        | awst_nodes.BoxValueExpression
-    ),
-    assert_comment: str,
-) -> Register:
-    get = _build_state_get_ex(context, expr, expr.source_location)
-    # note: we manually construct temporary targets here since AVMType can be any,
-    #       but we "know" the type from the expression
-    value_ir_type = wtype_to_ir_type(expr.wtype)
-    value_tmp = mktemp(
-        context,
-        ir_type=value_ir_type,
-        description=f"{expr.member_name}_value",
-        source_location=expr.source_location,
-    )
-    did_exist_tmp = mktemp(
-        context,
-        ir_type=IRType.bool,
-        description=f"{expr.member_name}_exists",
-        source_location=expr.source_location,
-    )
-    assign_targets(
-        context,
-        source=get,
-        targets=[value_tmp, did_exist_tmp],
-        assignment_location=expr.source_location,
-    )
-    assert_value(
-        context,
-        value=did_exist_tmp,
-        comment=assert_comment,
-        source_location=expr.source_location,
-    )
-    return value_tmp
-
-
 def _build_state_get_ex(
     context: IRFunctionBuildContext,
     expr: (
@@ -155,10 +121,11 @@ def _build_state_get_ex(
     source_location: SourceLocation,
     *,
     for_existence_check: bool = False,
-) -> Intrinsic:
+) -> tuple[Register, Register]:
     key = context.visitor.visit_and_materialise_single(expr.key)
     args: list[Value]
-    value_ir_type = wtype_to_ir_type(expr.wtype)
+    true_value_ir_type = get_ex_value_ir_type = wtype_to_ir_type(expr.wtype)
+    convert_op: AVMOp | None = None
     if isinstance(expr, awst_nodes.AppStateExpression):
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
         args = [current_app_offset, key]
@@ -169,13 +136,43 @@ def _build_state_get_ex(
         account = context.visitor.visit_and_materialise_single(expr.account)
         args = [account, current_app_offset, key]
     else:
-        if not for_existence_check:
-            op = AVMOp.box_get
-        else:
-            value_ir_type = IRType.uint64
-            op = AVMOp.box_len
         args = [key]
-
-    return Intrinsic(
-        op=op, args=args, types=[value_ir_type, IRType.bool], source_location=source_location
+        if for_existence_check:
+            get_ex_value_ir_type = IRType.uint64
+            op = AVMOp.box_len
+        else:
+            op = AVMOp.box_get
+            match wtypes.persistable_stack_type(expr.wtype, source_location):
+                case AVMType.uint64:
+                    get_ex_value_ir_type = IRType.bytes
+                    convert_op = AVMOp.btoi
+                case AVMType.bytes:
+                    pass
+                case invalid:
+                    typing.assert_never(invalid)
+    get_ex = Intrinsic(
+        op=op,
+        args=args,
+        types=[get_ex_value_ir_type, IRType.bool],
+        source_location=source_location,
     )
+    (value_tmp, did_exist_tmp) = assign(
+        context,
+        get_ex,
+        temp_description=[f"{expr.member_name}_maybe_value", f"{expr.member_name}_exists"],
+        source_location=source_location,
+    )
+    if convert_op is None:
+        return value_tmp, did_exist_tmp
+    convert = Intrinsic(op=convert_op, args=[value_tmp], source_location=source_location)
+    value_tmp_converted = mktemp(
+        context,
+        ir_type=true_value_ir_type,
+        description=f"{expr.member_name}_maybe_value_converted",
+        source_location=expr.source_location,
+    )
+
+    assign_targets(
+        context, source=convert, targets=[value_tmp_converted], assignment_location=source_location
+    )
+    return value_tmp_converted, did_exist_tmp
