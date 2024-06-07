@@ -2,8 +2,12 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
     program approval:
         subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> bool:
             block@0: // L7
-                let tmp%6#0: bool = 1u
-                (assert tmp%6#0)
+                let len_%7#0: uint64 = 7u
+                let len_bytes%7#0: bytes = (itob len_%7#0)
+                let len_16_bit%7#0: bytes = ((extract 6 0) len_bytes%7#0)
+                let value#3: bytes = (concat len_16_bit%7#0 0x61626364656667)
+                let tmp%15#0: bool = (== 0x000761626364656667 value#3)
+                (assert tmp%15#0)
                 return 1u
     
     program clear-state:

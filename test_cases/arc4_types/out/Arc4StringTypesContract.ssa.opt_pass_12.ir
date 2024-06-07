@@ -2,25 +2,32 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
     program approval:
         subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> bool:
             block@0: // L7
-                let concatenated%5#0: bytes = 0x6162636465
+                let len_16_bit%1#0: bytes = 0x000c
+                let concat_result%1#0: bytes = (concat len_16_bit%1#0 0x48656c6c6f20576f726c6421)
+                let tmp%5#0: bool = (== 0x000c48656c6c6f20576f726c6421 concat_result%1#0)
+                (assert tmp%5#0)
+                let len_16_bit%4#0: bytes = 0x0004
+                let value#0: bytes = (concat len_16_bit%4#0 0x61626364)
+                let expr_value_trimmed%10#0: bytes = ((extract 2 0) value#0)
+                let concatenated%5#0: bytes = (concat expr_value_trimmed%10#0 0x65)
                 let len_%5#0: uint64 = (len concatenated%5#0)
                 let len_bytes%5#0: bytes = (itob len_%5#0)
                 let len_16_bit%5#0: bytes = ((extract 6 0) len_bytes%5#0)
                 let value#1: bytes = (concat len_16_bit%5#0 concatenated%5#0)
                 let expr_value_trimmed%12#0: bytes = ((extract 2 0) value#1)
-                let concatenated%6#0: bytes = (concat expr_value_trimmed%12#0 "f")
+                let concatenated%6#0: bytes = (concat expr_value_trimmed%12#0 0x66)
                 let len_%6#0: uint64 = (len concatenated%6#0)
                 let len_bytes%6#0: bytes = (itob len_%6#0)
                 let len_16_bit%6#0: bytes = ((extract 6 0) len_bytes%6#0)
                 let value#2: bytes = (concat len_16_bit%6#0 concatenated%6#0)
                 let expr_value_trimmed%14#0: bytes = ((extract 2 0) value#2)
-                let concatenated%7#0: bytes = (concat expr_value_trimmed%14#0 "g")
+                let concatenated%7#0: bytes = (concat expr_value_trimmed%14#0 0x67)
                 let len_%7#0: uint64 = (len concatenated%7#0)
                 let len_bytes%7#0: bytes = (itob len_%7#0)
                 let len_16_bit%7#0: bytes = ((extract 6 0) len_bytes%7#0)
                 let value#3: bytes = (concat len_16_bit%7#0 concatenated%7#0)
-                let tmp%6#0: bool = (== "\x00\x07abcdefg" value#3)
-                (assert tmp%6#0)
+                let tmp%15#0: bool = (== 0x000761626364656667 value#3)
+                (assert tmp%15#0)
                 return 1u
     
     program clear-state:

@@ -36,6 +36,24 @@ mutating_copies:
     int 0
     int 1
     setbit
+    // arc4_types/mutable_params.py:39
+    // s_val_1=String("Happy"),
+    byte "Happy"
+    len
+    itob
+    extract 6 2
+    byte "Happy"
+    concat
+    swap
+    // arc4_types/mutable_params.py:40
+    // s_val_2=String("Days"),
+    byte "Days"
+    len
+    itob
+    extract 6 2
+    byte "Days"
+    concat
+    cover 2
     // arc4_types/mutable_params.py:36-41
     // my_struct = TestStruct(
     //     b_val=Bool(True),
@@ -61,16 +79,7 @@ mutating_copies:
     itob
     extract 6 2
     concat
-    // arc4_types/mutable_params.py:39
-    // s_val_1=String("Happy"),
-    byte "\x00\x05Happy"
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    dig 1
     len
     int 6
     swap
@@ -78,27 +87,9 @@ mutating_copies:
     itob
     extract 6 2
     concat
-    // arc4_types/mutable_params.py:39
-    // s_val_1=String("Happy"),
-    byte "\x00\x05Happy"
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    swap
     concat
-    // arc4_types/mutable_params.py:40
-    // s_val_2=String("Days"),
-    byte "\x00\x04Days"
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    swap
     concat
     // arc4_types/mutable_params.py:43
     // my_array_copy = my_array.copy()
@@ -182,7 +173,12 @@ mutating_copies:
     // assert my_struct.s_val_1 == String(
     //     "AARRGH!"
     // ), "my_struct has been mutated by the subroutine"
-    byte "\x00\x07AARRGH!"
+    byte "AARRGH!"
+    len
+    itob
+    extract 6 2
+    byte "AARRGH!"
+    concat
     ==
     assert // my_struct has been mutated by the subroutine
     // arc4_types/mutable_params.py:62-63
@@ -227,7 +223,12 @@ mutating_copies:
     // assert my_struct_copy.s_val_1 == String(
     //     "Happy"
     // ), "my_struct_copy should not be mutated by the subroutine"
-    byte "\x00\x05Happy"
+    byte "Happy"
+    len
+    itob
+    extract 6 2
+    byte "Happy"
+    concat
     ==
     assert // my_struct_copy should not be mutated by the subroutine
     // arc4_types/mutable_params.py:73
@@ -295,6 +296,12 @@ other_routine:
     frame_bury -2
     // arc4_types/mutable_params.py:95
     // struct.s_val_1 = String("AARRGH!")
+    byte "AARRGH!"
+    len
+    itob
+    extract 6 2
+    byte "AARRGH!"
+    concat
     frame_dig -1
     int 2
     extract_uint16
@@ -312,14 +319,13 @@ other_routine:
     uncover 2
     substring3
     swap
-    byte "\x00\x07AARRGH!"
+    dig 3
     concat
     swap
     concat
-    byte "\x00\x07AARRGH!"
-    len
+    swap
     uncover 2
-    swap
+    len
     +
     itob
     substring 6 8

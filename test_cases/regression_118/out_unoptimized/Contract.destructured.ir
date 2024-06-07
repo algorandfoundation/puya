@@ -41,18 +41,26 @@ contract test_cases.regression_118.contract.Contract:
                 let tmp%1#0: bool = (!= tmp%0#0 2u)
                 goto tmp%1#0 ? block@1 : block@2
             block@1: // if_body_L11
-                let encoded_tuple_buffer%0#1: bytes = (concat 0x val1#0)
-                let value_as_bytes%0#0: bytes = (itob 3u)
+                let length%0#0: uint64 = (len "")
+                let value_as_bytes%0#0: bytes = (itob length%0#0)
                 let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
-                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 value_as_uint16%0#0)
-                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 "\x00\x00")
-                return encoded_tuple_buffer%0#1
-            block@2: // after_if_else_L11
-                let encoded_tuple_buffer%1#1: bytes = (concat 0x val1#0)
+                let tmp%2#0: bytes = (concat value_as_uint16%0#0 "")
+                let encoded_tuple_buffer%0#1: bytes = (concat 0x val1#0)
                 let value_as_bytes%1#0: bytes = (itob 3u)
                 let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
-                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 value_as_uint16%1#0)
-                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 "\x00\x00")
+                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 value_as_uint16%1#0)
+                let encoded_tuple_buffer%0#1: bytes = (concat encoded_tuple_buffer%0#1 tmp%2#0)
+                return encoded_tuple_buffer%0#1
+            block@2: // after_if_else_L11
+                let length%1#0: uint64 = (len "")
+                let value_as_bytes%2#0: bytes = (itob length%1#0)
+                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
+                let tmp%3#0: bytes = (concat value_as_uint16%2#0 "")
+                let encoded_tuple_buffer%1#1: bytes = (concat 0x val1#0)
+                let value_as_bytes%3#0: bytes = (itob 3u)
+                let value_as_uint16%3#0: bytes = ((extract 6 2) value_as_bytes%3#0)
+                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 value_as_uint16%3#0)
+                let encoded_tuple_buffer%1#1: bytes = (concat encoded_tuple_buffer%1#1 tmp%3#0)
                 return encoded_tuple_buffer%1#1
     
     program clear-state:

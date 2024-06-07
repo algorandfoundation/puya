@@ -109,16 +109,24 @@ contract test_cases.everything.contract.Everything:
                 let (name#0: bytes, exists#0: bool) = (app_local_get_ex 0u 0u "name")
                 goto exists#0 ? block@2 : block@1
             block@1: // if_body_L60
-                return "\x00\x0fHowdy stranger!"
+                let value_as_uint16%0#0: bytes = 0x000f
+                let tmp%0#0: bytes = (concat value_as_uint16%0#0 "Howdy stranger!")
+                return tmp%0#0
             block@2: // after_if_else_L60
+                let value_as_uint16%1#0: bytes = 0x0007
+                let tmp%1#0: bytes = (concat value_as_uint16%1#0 "Hello, ")
+                let expr_value_trimmed%0#0: bytes = ((extract 2 0) tmp%1#0)
                 let expr_value_trimmed%1#0: bytes = ((extract 2 0) name#0)
-                let concatenated%0#0: bytes = (concat "Hello, " expr_value_trimmed%1#0)
+                let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
                 let len_%0#0: uint64 = (len concatenated%0#0)
                 let len_bytes%0#0: bytes = (itob len_%0#0)
                 let len_16_bit%0#0: bytes = ((extract 6 0) len_bytes%0#0)
                 let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
                 let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
-                let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 "!")
+                let value_as_uint16%2#0: bytes = 0x0001
+                let tmp%2#0: bytes = (concat value_as_uint16%2#0 "!")
+                let expr_value_trimmed%3#0: bytes = ((extract 2 0) tmp%2#0)
+                let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
                 let len_%1#0: uint64 = (len concatenated%1#0)
                 let len_bytes%1#0: bytes = (itob len_%1#0)
                 let len_16_bit%1#0: bytes = ((extract 6 0) len_bytes%1#0)

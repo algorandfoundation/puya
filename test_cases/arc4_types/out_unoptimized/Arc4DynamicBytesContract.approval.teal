@@ -2,6 +2,7 @@
 
 test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
     int 0
+    dup
     byte ""
     dupn 3
     // arc4_types/dynamic_bytes.py:11
@@ -76,24 +77,27 @@ main_after_for@4:
     assert // Total should be of dynamic_bytes items
     // arc4_types/dynamic_bytes.py:21
     // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x00020304
+    byte 0x0304
+    len
+    itob
+    extract 6 2
+    byte 0x0304
+    concat
+    dup
+    bury 11
     // arc4_types/dynamic_bytes.py:22
     // assert dynamic_bytes2.native == b"\x03\x04"
+    dup
     extract 2 0
     byte "\x03\x04"
     ==
     assert
-    // arc4_types/dynamic_bytes.py:21
-    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x00020304
     // arc4_types/dynamic_bytes.py:23
     // assert dynamic_bytes2.bytes == b"\x00\x02\x03\x04"
+    dup
     byte "\x00\x02\x03\x04"
     ==
     assert
-    // arc4_types/dynamic_bytes.py:21
-    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x00020304
     // arc4_types/dynamic_bytes.py:25
     // for uint8_item in dynamic_bytes2:
     int 0
@@ -109,11 +113,7 @@ main_for_header@5:
     dig 8
     <
     bz main_after_for@8
-    // arc4_types/dynamic_bytes.py:21
-    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x00020304
-    // arc4_types/dynamic_bytes.py:25
-    // for uint8_item in dynamic_bytes2:
+    dig 9
     extract 2 0
     dig 6
     int 1
@@ -134,11 +134,9 @@ main_for_header@5:
     b main_for_header@5
 
 main_after_for@8:
-    // arc4_types/dynamic_bytes.py:21
-    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x00020304
     // arc4_types/dynamic_bytes.py:28
     // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
+    dig 9
     extract 2 0
     dup
     len
@@ -207,7 +205,12 @@ main_after_for@12:
     // dynamic_bytes3.extend(DynamicBytes(b"abc"))
     dig 8
     extract 2 0
-    byte 0x0003616263
+    byte 0x616263
+    len
+    itob
+    extract 6 2
+    byte 0x616263
+    concat
     extract 2 0
     concat
     dup

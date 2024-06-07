@@ -25,6 +25,8 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
             block@4: // after_for_L16
                 let tmp%4#0: bool = (== total#1 6u)
                 (assert tmp%4#0) // Total should be of dynamic_bytes items
+                let tmp%6#0: bool = 1u
+                (assert tmp%6#0)
                 let item_index_internal%1#0: uint64 = 0u
                 goto block@5
             block@5: // for_header_L25
@@ -39,12 +41,16 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
                 goto block@5
             block@8: // after_for_L25
-                let tmp%10#0: bytes = 0x0304
+                let length%1#0: uint64 = 2u
+                let value_as_bytes%1#0: bytes = (itob length%1#0)
+                let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
+                let dynamic_bytes3#0: bytes = (concat value_as_uint16%1#0 0x0304)
+                let tmp%10#0: bytes = ((extract 2 0) dynamic_bytes3#0)
                 let tmp%11#0: bool = (== tmp%10#0 "\x03\x04")
                 (assert tmp%11#0)
-                let tmp%12#0: bool = 1u
+                let tmp%12#0: bool = (== dynamic_bytes3#0 "\x00\x02\x03\x04")
                 (assert tmp%12#0)
-                let array_length%2#0: uint64 = 2u
+                let array_length%2#0: uint64 = (extract_uint16 dynamic_bytes3#0 0u)
                 let item_index_internal%2#0: uint64 = 0u
                 goto block@9
             block@9: // for_header_L32
@@ -66,11 +72,11 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let len_bytes%0#0: bytes = (itob len_%0#0)
                 let len_16_bit%0#0: bytes = ((extract 6 0) len_bytes%0#0)
                 let dynamic_bytes3#2: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-                let tmp%15#0: bool = (== dynamic_bytes3#2 "\x00\x05\x03\x04abc")
-                (assert tmp%15#0)
-                let tmp%16#0: bytes = ((extract 2 0) dynamic_bytes3#2)
-                let tmp%17#0: bool = (== tmp%16#0 "\x03\x04abc")
-                (assert tmp%17#0)
+                let tmp%16#0: bool = (== dynamic_bytes3#2 "\x00\x05\x03\x04abc")
+                (assert tmp%16#0)
+                let tmp%17#0: bytes = ((extract 2 0) dynamic_bytes3#2)
+                let tmp%18#0: bool = (== tmp%17#0 "\x03\x04abc")
+                (assert tmp%18#0)
                 return 1u
     
     program clear-state:

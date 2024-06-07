@@ -869,13 +869,16 @@ debug: Simplified (* index#0 1u) to index#0
 debug: Simplified (< 4u 8u) to 1u
 debug: Simplified (- 8u 4u) to 4u
 debug: Simplified (* index#1 1u) to index#1
+debug: Simplified (len "a") to 1u
+debug: Simplified (len "b") to 1u
+debug: Simplified (len "c") to 1u
 debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0006
 debug: Simplified (concat 0x next_item_head%0#0) to next_item_head%0#0
-debug: Simplified (len "/x00/x01a") to 3u
-debug: Simplified (len "/x00/x01b") to 3u
-debug: Simplified (len "/x00/x01c") to 3u
 debug: Simplified (concat 0x result%9#0) to result%9#0
+debug: Simplified (len "") to 0u
+debug: Simplified (concat value_as_uint16%3#0 "") to value_as_uint16%3#0
 debug: Simplified (* item_length%0#0 1u) to item_length%0#0
+debug: Simplified (len "cba") to 3u
 debug: Simplified (len "HELLO") to 5u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable stop%0#0
@@ -960,6 +963,8 @@ debug: Found equivalence set: iteration_count_minus_one%1#0, range_delta%1#0, st
 debug: Replacing {range_delta%1#0, start%1#0} with iteration_count_minus_one%1#0 made 1 modifications
 debug: Found equivalence set: result%9#0, some_strings#0
 debug: Replacing {result%9#0} with some_strings#0 made 1 modifications
+debug: Found equivalence set: value_as_uint16%3#0, some_string_reversed#0
+debug: Replacing {value_as_uint16%3#0} with some_string_reversed#0 made 1 modifications
 debug: Found equivalence set: index#0, write_offset%0#0
 debug: Replacing {write_offset%0#0} with index#0 made 1 modifications
 debug: Found equivalence set: item_length%0#0, item_length_in_bytes%0#0
@@ -974,7 +979,11 @@ debug: Simplified (% 4u 1u) to 0u
 debug: Simplified (/ 4u 1u) to 4u
 debug: Simplified (% 4u 1u) to 0u
 debug: Simplified (/ 4u 1u) to 4u
-debug: Simplified (+ 6u 3u) to 9u
+debug: Simplified ((extract 6 2) value_as_bytes%0#0) to 0x0001
+debug: Simplified ((extract 6 2) value_as_bytes%1#0) to 0x0001
+debug: Simplified ((extract 6 2) value_as_bytes%2#0) to 0x0001
+debug: Simplified ((extract 6 2) value_as_bytes%3#0) to 0x0000
+debug: Simplified ((extract 6 2) value_as_bytes%4#0) to 0x0003
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable should_loop%0#0
 debug: Removing unused variable range_length%0#0
@@ -986,11 +995,19 @@ debug: Removing unused variable range_length%1#0
 debug: Removing unused variable continue_looping%3#0
 debug: Removing unused variable should_loop%2#0
 debug: Removing unused variable range_length%2#0
+debug: Removing unused variable length%0#0
+debug: Removing unused variable value_as_bytes%0#0
+debug: Removing unused variable length%1#0
+debug: Removing unused variable value_as_bytes%1#0
+debug: Removing unused variable length%2#0
+debug: Removing unused variable value_as_bytes%2#0
 debug: Removing unused variable next_item_head%0#0
 debug: Removing unused variable result%4#0
-debug: Removing unused variable next_item_len%0#0
-debug: Removing unused variable next_item_len%1#0
 debug: Removing unused variable next_item_len%2#0
+debug: Removing unused variable length%3#0
+debug: Removing unused variable value_as_bytes%3#0
+debug: Removing unused variable length%4#0
+debug: Removing unused variable value_as_bytes%4#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: simplifying conditional branch with a constant into a goto
@@ -1038,16 +1055,20 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x0000 0x00) to 0x000000
 debug: Simplified (!= 0u 0u) to 0u
 debug: Simplified (!= 0u 0u) to 0u
-debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0009
-debug: Simplified (+ 9u 3u) to 12u
+debug: Simplified (concat 0x0001 "a") to 0x000161
+debug: Simplified (concat 0x0001 "b") to 0x000162
+debug: Simplified (concat 0x0001 "c") to 0x000163
+debug: Simplified (concat 0x0003 "cba") to 0x0003636261
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable result%1#0
 debug: Removing unused variable range_mod_step%1#0
 debug: Removing unused variable range_floor_div_step%1#0
 debug: Removing unused variable range_mod_step%2#0
 debug: Removing unused variable range_floor_div_step%2#0
-debug: Removing unused variable tail_offset%0#0
-debug: Removing unused variable as_bytes%1#0
+debug: Removing unused variable value_as_uint16%0#0
+debug: Removing unused variable value_as_uint16%1#0
+debug: Removing unused variable value_as_uint16%2#0
+debug: Removing unused variable value_as_uint16%4#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1075,15 +1096,16 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x000000 0x00) to 0x00000000
 debug: Simplified (+ 4u 0u) to 4u
 debug: Simplified (+ 4u 0u) to 4u
-debug: Simplified (concat 0x0006 0x0009) to 0x00060009
-debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x000c
+debug: Simplified (len 0x000161) to 3u
+debug: Simplified (len 0x000162) to 3u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable result%2#0
 debug: Removing unused variable range_mod_step_not_zero%1#0
 debug: Removing unused variable range_mod_step_not_zero%2#0
-debug: Removing unused variable next_item_head%1#0
-debug: Removing unused variable tail_offset%1#0
-debug: Removing unused variable as_bytes%2#0
+debug: Removing unused variable tmp%4#0
+debug: Removing unused variable tmp%5#0
+debug: Removing unused variable tmp%6#0
+debug: Removing unused variable tmp%7#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1110,12 +1132,12 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (- 4u 1u) to 3u
 debug: Simplified (- 4u 1u) to 3u
-debug: Simplified (concat 0x00060009 0x000c) to 0x00060009000c
+debug: Simplified (+ 6u 3u) to 9u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable iteration_count%1#0
 debug: Removing unused variable iteration_count%2#0
-debug: Removing unused variable result%5#0
-debug: Removing unused variable next_item_head%2#0
+debug: Removing unused variable next_item_len%0#0
+debug: Removing unused variable next_item_len%1#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1140,10 +1162,12 @@ debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x00060009000c "/x00/x01a") to 0x00060009000c000161
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0009
+debug: Simplified (+ 9u 3u) to 12u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable iteration_count_minus_one%2#0
-debug: Removing unused variable result%6#0
+debug: Removing unused variable tail_offset%0#0
+debug: Removing unused variable as_bytes%1#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1168,9 +1192,12 @@ debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x00060009000c000161 "/x00/x01b") to 0x00060009000c000161000162
+debug: Simplified (concat 0x0006 0x0009) to 0x00060009
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x000c
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable result%7#0
+debug: Removing unused variable next_item_head%1#0
+debug: Removing unused variable tail_offset%1#0
+debug: Removing unused variable as_bytes%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1195,9 +1222,10 @@ debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x00060009000c000161000162 "/x00/x01c") to 0x00060009000c000161000162000163
+debug: Simplified (concat 0x00060009 0x000c) to 0x00060009000c
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable result%8#0
+debug: Removing unused variable result%5#0
+debug: Removing unused variable next_item_head%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1222,8 +1250,9 @@ debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x00060009000c 0x000161) to 0x00060009000c000161
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable some_strings#0
+debug: Removing unused variable result%6#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1248,6 +1277,86 @@ debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x00060009000c000161 0x000162) to 0x00060009000c000161000162
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable result%7#0
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@20: // if_body_L23 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_10.ir
+debug: Begin optimization pass 11/100
+debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x00060009000c000161000162 0x000163) to 0x00060009000c000161000162000163
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable result%8#0
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@20: // if_body_L23 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_11.ir
+debug: Begin optimization pass 12/100
+debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable some_strings#0
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@20: // if_body_L23 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_12.ir
+debug: Begin optimization pass 13/100
+debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
@@ -1267,7 +1376,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 10, ending loop
+debug: No optimizations performed in pass 13, ending loop
 debug: Removing Phis from test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Removing Phis from test_cases.reversed_iteration.contract.MyContract.clear_state_program
 debug: Coalescing local variables in test_cases.reversed_iteration.contract.MyContract.approval_program using strategy RootOperandGrouping
@@ -1593,62 +1702,62 @@ debug: Inserted main_for_body@26.ops[17]: 'store item_offset%1#0 to l-stack (cop
 debug: Replaced main_for_body@26.ops[27]: 'load item_offset%1#0' with 'load item_offset%1#0 from l-stack (no copy)'
 debug: Inserted main_for_body@26.ops[46]: 'store concatenated%0#0 to l-stack (copy)'
 debug: Replaced main_for_body@26.ops[59]: 'load concatenated%0#0' with 'load concatenated%0#0 from l-stack (no copy)'
-debug: Inserted main_after_for@28.ops[3]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced main_after_for@28.ops[5]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
+debug: Inserted main_after_for@28.ops[3]: 'store tmp%8#0 to l-stack (copy)'
+debug: Replaced main_after_for@28.ops[5]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
 debug: Inserted main_after_for@28.ops[10]: 'store bytes_length%0#0 to l-stack (copy)'
 debug: Replaced main_after_for@28.ops[14]: 'load bytes_length%0#0' with 'load bytes_length%0#0 from l-stack (no copy)'
 debug: Inserted main_for_header@29.ops[3]: 'store continue_looping%7#0 to l-stack (copy)'
 debug: Replaced main_for_header@29.ops[5]: 'load continue_looping%7#0' with 'load continue_looping%7#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[11]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[13]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[33]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[35]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[11]: 'store tmp%9#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[13]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[33]: 'store tmp%10#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[35]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[3]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[6]: 'load index#0' with 'load index#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[16]: 'store length%0#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[19]: 'load length%0#0' with 'load length%0#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[16]: 'store length%5#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[19]: 'load length%5#0' with 'load length%5#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[26]: 'store bounded_offset%0#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[29]: 'load bounded_offset%0#0' with 'load bounded_offset%0#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[31]: 'store bounded_index%0#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[34]: 'load bounded_index%0#0' with 'load bounded_index%0#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[42]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[45]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[42]: 'store tmp%11#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[45]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[21]: 'store is_out_of_bounds%0#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[25]: 'load is_out_of_bounds%0#0' with 'load is_out_of_bounds%0#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[7]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[11]: 'load index#0' with 'load index#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[21]: 'store length%0#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[26]: 'load length%0#0' with 'load length%0#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[27]: 'store length%0#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[32]: 'load length%0#0' with 'load length%0#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[33]: 'store length%0#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[40]: 'load length%0#0' with 'load length%0#0 from l-stack (no copy)'
-debug: Inserted main_for_body@30.ops[16]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced main_for_body@30.ops[39]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[21]: 'store length%5#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[26]: 'load length%5#0' with 'load length%5#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[27]: 'store length%5#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[32]: 'load length%5#0' with 'load length%5#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[33]: 'store length%5#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[40]: 'load length%5#0' with 'load length%5#0 from l-stack (no copy)'
+debug: Inserted main_for_body@30.ops[16]: 'store tmp%9#0 to l-stack (copy)'
+debug: Replaced main_for_body@30.ops[39]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[10]: 'store bytes_item#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[47]: 'load bytes_item#0' with 'load bytes_item#0 from l-stack (no copy)'
 debug: Inserted main_for_body@30.ops[13]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@30.ops[60]: 'load index#0' with 'load index#0 from l-stack (no copy)'
-debug: Inserted main_after_for@32.ops[3]: 'store tmp%8#0 to l-stack (copy)'
-debug: Replaced main_after_for@32.ops[5]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
+debug: Inserted main_after_for@32.ops[3]: 'store tmp%12#0 to l-stack (copy)'
+debug: Replaced main_after_for@32.ops[5]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
 debug: Inserted main_after_for@32.ops[8]: 'store tuple_index%0#0 to l-stack (copy)'
 debug: Replaced main_after_for@32.ops[12]: 'load tuple_index%0#0' with 'load tuple_index%0#0 from l-stack (no copy)'
-debug: Inserted main_for_body@37.ops[3]: 'store tmp%9#0 to l-stack (copy)'
-debug: Replaced main_for_body@37.ops[5]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
-debug: Inserted main_for_body@37.ops[8]: 'store tmp%10#0 to l-stack (copy)'
-debug: Replaced main_for_body@37.ops[10]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
+debug: Inserted main_for_body@37.ops[3]: 'store tmp%13#0 to l-stack (copy)'
+debug: Replaced main_for_body@37.ops[5]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
+debug: Inserted main_for_body@37.ops[8]: 'store tmp%14#0 to l-stack (copy)'
+debug: Replaced main_for_body@37.ops[10]: 'load tmp%14#0' with 'load tmp%14#0 from l-stack (no copy)'
 debug: Inserted main_for_body@37.ops[13]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@37.ops[17]: 'load index#0' with 'load index#0 from l-stack (no copy)'
 debug: Inserted main_for_body@37.ops[1]: 'store index#0 to l-stack (copy)'
 debug: Replaced main_for_body@37.ops[13]: 'load index#0' with 'load index#0 from l-stack (no copy)'
-debug: Inserted main_for_body@44.ops[9]: 'store tmp%11#0 to l-stack (copy)'
-debug: Replaced main_for_body@44.ops[11]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
-debug: Inserted main_for_body@44.ops[16]: 'store tmp%12#0 to l-stack (copy)'
-debug: Replaced main_for_body@44.ops[18]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
-debug: Inserted main_for_body@44.ops[23]: 'store tmp%13#0 to l-stack (copy)'
-debug: Replaced main_for_body@44.ops[25]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
-debug: Inserted main_for_body@44.ops[28]: 'store tmp%14#0 to l-stack (copy)'
-debug: Replaced main_for_body@44.ops[30]: 'load tmp%14#0' with 'load tmp%14#0 from l-stack (no copy)'
+debug: Inserted main_for_body@44.ops[9]: 'store tmp%15#0 to l-stack (copy)'
+debug: Replaced main_for_body@44.ops[11]: 'load tmp%15#0' with 'load tmp%15#0 from l-stack (no copy)'
+debug: Inserted main_for_body@44.ops[16]: 'store tmp%16#0 to l-stack (copy)'
+debug: Replaced main_for_body@44.ops[18]: 'load tmp%16#0' with 'load tmp%16#0 from l-stack (no copy)'
+debug: Inserted main_for_body@44.ops[23]: 'store tmp%17#0 to l-stack (copy)'
+debug: Replaced main_for_body@44.ops[25]: 'load tmp%17#0' with 'load tmp%17#0 from l-stack (no copy)'
+debug: Inserted main_for_body@44.ops[28]: 'store tmp%18#0 to l-stack (copy)'
+debug: Replaced main_for_body@44.ops[30]: 'load tmp%18#0' with 'load tmp%18#0 from l-stack (no copy)'
 debug: Inserted main_for_body@44.ops[33]: 'store tuple_index%1#0 to l-stack (copy)'
 debug: Replaced main_for_body@44.ops[37]: 'load tuple_index%1#0' with 'load tuple_index%1#0 from l-stack (no copy)'
 debug: Inserted main_for_body@44.ops[15]: 'store index#0 to l-stack (copy)'

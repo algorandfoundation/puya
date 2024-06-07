@@ -110,7 +110,7 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
     match expr.wtype:
         case wtypes.arc4_bool_wtype:
             value = context.visitor.visit_and_materialise_single(expr.value)
-            return encode_arc4_bool(value, expr.source_location)
+            return _encode_arc4_bool(value, expr.source_location)
         case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() as wt:
             value = context.visitor.visit_and_materialise_single(expr.value)
             num_bytes = wt.n // 8
@@ -119,17 +119,6 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             elements = context.visitor.visit_and_materialise(expr.value)
             return _visit_arc4_tuple_encode(context, elements, item_types, expr.source_location)
         case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
-            if isinstance(expr.value, awst_nodes.BytesConstant):
-                ir_const = context.visitor.visit_expr(expr.value)
-                if not isinstance(ir_const, BytesConstant):
-                    raise InternalError("Expected BytesConstant", expr.value.source_location)
-                prefix = len(ir_const.value).to_bytes(2, "big")
-                value_prefixed = prefix + ir_const.value
-                return BytesConstant(
-                    source_location=expr.source_location,
-                    value=value_prefixed,
-                    encoding=ir_const.encoding,
-                )
             value = context.visitor.visit_and_materialise_single(expr.value)
             (length,) = assign(
                 context,
@@ -148,7 +137,7 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             )
         case wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray():
             raise InternalError(
-                "ARC4ArrayEncode should be used instead of ARC4Encode for arrays",
+                "NewArray should be used instead of ARC4Encode for arrays",
                 expr.source_location,
             )
         case _:
@@ -193,15 +182,6 @@ def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray
         )
 
     return factory.concat(len_prefix, array_head_and_tail, "array_data")
-
-
-def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
-    value = BytesConstant(
-        value=0x00.to_bytes(1, "big"),
-        source_location=source_location,
-        encoding=AVMBytesEncoding.base16,
-    )
-    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
 
 
 def arc4_array_index(
@@ -617,6 +597,15 @@ def pop_arc4_array(
     handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
 
     return popped
+
+
+def _encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
+    value = BytesConstant(
+        value=0x00.to_bytes(1, "big"),
+        source_location=source_location,
+        encoding=AVMBytesEncoding.base16,
+    )
+    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)
 
 
 def _visit_arc4_tuple_decode(
@@ -1185,7 +1174,7 @@ def _read_nth_bool_from_arc4_container(
         source=Intrinsic(op=AVMOp.getbit, args=[data, index], source_location=source_location),
         source_location=source_location,
     )
-    return encode_arc4_bool(is_true, source_location)
+    return _encode_arc4_bool(is_true, source_location)
 
 
 def _read_static_item_from_arc4_container(

@@ -253,14 +253,24 @@ say_hello:
     bnz say_hello_after_if_else@2
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    byte "\x00\x0fHowdy stranger!"
+    byte "Howdy stranger!"
+    len
+    itob
+    extract 6 2
+    byte "Howdy stranger!"
+    concat
     swap
     retsub
 
 say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    byte "\x00\x07Hello, "
+    byte "Hello, "
+    len
+    itob
+    extract 6 2
+    byte "Hello, "
+    concat
     extract 2 0
     frame_dig 0
     extract 2 0
@@ -272,7 +282,12 @@ say_hello_after_if_else@2:
     swap
     concat
     extract 2 0
-    byte "\x00\x01!"
+    byte "!"
+    len
+    itob
+    extract 6 2
+    byte "!"
+    concat
     extract 2 0
     concat
     dup

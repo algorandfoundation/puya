@@ -53,29 +53,41 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert
     // arc4_types/string.py:22
     // hello = arc4.String("Hello")
-    byte "\x00\x05Hello"
-    // arc4_types/string.py:26
-    // assert arc4.String("Hello World!") == (hello + space + world)
-    extract 2 0
+    byte "Hello"
+    len
+    itob
+    extract 6 2
+    byte "Hello"
+    concat
     // arc4_types/string.py:23
     // space = arc4.String(" ")
-    byte "\x00\x01 "
-    // arc4_types/string.py:26
-    // assert arc4.String("Hello World!") == (hello + space + world)
-    extract 2 0
-    concat
-    dup
+    byte " "
     len
     itob
-    extract 6 0
-    swap
+    extract 6 2
+    byte " "
     concat
-    extract 2 0
     // arc4_types/string.py:24
     // world = arc4.String("World!")
-    byte "\x00\x06World!"
+    byte "World!"
+    len
+    itob
+    extract 6 2
+    byte "World!"
+    concat
+    cover 2
     // arc4_types/string.py:26
     // assert arc4.String("Hello World!") == (hello + space + world)
+    byte "Hello World!"
+    len
+    itob
+    extract 6 2
+    byte "Hello World!"
+    concat
+    cover 3
+    swap
+    extract 2 0
+    swap
     extract 2 0
     concat
     dup
@@ -84,21 +96,31 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 0
     swap
     concat
-    byte "\x00\x0cHello World!"
+    extract 2 0
     swap
+    extract 2 0
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
     ==
     assert
     // arc4_types/string.py:28
     // thing = arc4.String("hi")
-    byte "\x00\x02hi"
+    byte "hi"
+    len
+    itob
+    extract 6 2
+    byte "hi"
+    concat
     // arc4_types/string.py:29
     // thing += thing
+    dup
     extract 2 0
-    // arc4_types/string.py:28
-    // thing = arc4.String("hi")
-    byte "\x00\x02hi"
-    // arc4_types/string.py:29
-    // thing += thing
+    swap
     extract 2 0
     concat
     dup
@@ -109,14 +131,29 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     concat
     // arc4_types/string.py:30
     // assert thing == arc4.String("hihi")
-    byte "\x00\x04hihi"
+    byte "hihi"
+    len
+    itob
+    extract 6 2
+    byte "hihi"
+    concat
     ==
     assert
     // arc4_types/string.py:32
     // value = arc4.String("a") + arc4.String("b") + "cd"
-    byte "\x00\x01a"
+    byte "a"
+    len
+    itob
+    extract 6 2
+    byte "a"
+    concat
     extract 2 0
-    byte "\x00\x01b"
+    byte "b"
+    len
+    itob
+    extract 6 2
+    byte "b"
+    concat
     extract 2 0
     concat
     dup
@@ -126,7 +163,12 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     swap
     concat
     extract 2 0
-    byte "\x00\x02cd"
+    byte "cd"
+    len
+    itob
+    extract 6 2
+    byte "cd"
+    concat
     extract 2 0
     concat
     dup
@@ -138,7 +180,12 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:33
     // value += "e"
     extract 2 0
-    byte "\x00\x01e"
+    byte "e"
+    len
+    itob
+    extract 6 2
+    byte "e"
+    concat
     extract 2 0
     concat
     dup
@@ -150,7 +197,12 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:34
     // value += arc4.String("f")
     extract 2 0
-    byte "\x00\x01f"
+    byte "f"
+    len
+    itob
+    extract 6 2
+    byte "f"
+    concat
     extract 2 0
     concat
     dup
@@ -162,7 +214,12 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:35
     // value += arc4.String("g")
     extract 2 0
-    byte "\x00\x01g"
+    byte "g"
+    len
+    itob
+    extract 6 2
+    byte "g"
+    concat
     extract 2 0
     concat
     dup
@@ -173,7 +230,12 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     concat
     // arc4_types/string.py:36
     // assert arc4.String("abcdefg") == value
-    byte "\x00\x07abcdefg"
+    byte "abcdefg"
+    len
+    itob
+    extract 6 2
+    byte "abcdefg"
+    concat
     swap
     ==
     assert

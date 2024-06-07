@@ -33,6 +33,8 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
                 goto block@5
             block@8: // after_for_L25
+                let tmp%11#0: bool = 1u
+                (assert tmp%11#0)
                 let item_index_internal%2#0: uint64 = 0u
                 goto block@9
             block@9: // for_header_L32
@@ -49,12 +51,16 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
             block@12: // after_for_L32
                 let tmp%14#0: bool = (== total#5 20u)
                 (assert tmp%14#0) // Total should now include sum of dynamic_bytes3 items
-                let dynamic_bytes3#2: bytes = 0x00050304616263
-                let tmp%15#0: bool = (== dynamic_bytes3#2 "\x00\x05\x03\x04abc")
-                (assert tmp%15#0)
-                let tmp%16#0: bytes = ((extract 2 0) dynamic_bytes3#2)
-                let tmp%17#0: bool = (== tmp%16#0 "\x03\x04abc")
-                (assert tmp%17#0)
+                let concatenated%0#0: bytes = 0x0304616263
+                let len_%0#0: uint64 = (len concatenated%0#0)
+                let len_bytes%0#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 0) len_bytes%0#0)
+                let dynamic_bytes3#2: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let tmp%16#0: bool = (== dynamic_bytes3#2 "\x00\x05\x03\x04abc")
+                (assert tmp%16#0)
+                let tmp%17#0: bytes = ((extract 2 0) dynamic_bytes3#2)
+                let tmp%18#0: bool = (== tmp%17#0 "\x03\x04abc")
+                (assert tmp%18#0)
                 return 1u
     
     program clear-state:

@@ -14,57 +14,83 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
                 (assert tmp%2#0) // Original bytes should match encoded if we strip the length header
                 let tmp%3#0: bool = (== some_bytes_as_bytes_again#0 "Hello World!")
                 (assert tmp%3#0)
-                let len_%0#0: uint64 = 6u
+                let hello#0: bytes = 0x000548656c6c6f
+                let space#0: bytes = 0x000120
+                let world#0: bytes = 0x0006576f726c6421
+                let tmp%4#0: bytes = 0x000c48656c6c6f20576f726c6421
+                let expr_value_trimmed%0#0: bytes = ((extract 2 0) hello#0)
+                let expr_value_trimmed%1#0: bytes = ((extract 2 0) space#0)
+                let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
+                let len_%0#0: uint64 = (len concatenated%0#0)
                 let len_bytes%0#0: bytes = (itob len_%0#0)
                 let len_16_bit%0#0: bytes = ((extract 6 0) len_bytes%0#0)
-                let concat_result%0#0: bytes = (concat len_16_bit%0#0 "Hello ")
+                let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
                 let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
-                let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 "World!")
+                let expr_value_trimmed%3#0: bytes = ((extract 2 0) world#0)
+                let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
                 let len_%1#0: uint64 = (len concatenated%1#0)
                 let len_bytes%1#0: bytes = (itob len_%1#0)
                 let len_16_bit%1#0: bytes = ((extract 6 0) len_bytes%1#0)
                 let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
-                let tmp%4#0: bool = (== "\x00\x0cHello World!" concat_result%1#0)
-                (assert tmp%4#0)
-                let len_%2#0: uint64 = 4u
+                let tmp%5#0: bool = (== tmp%4#0 concat_result%1#0)
+                (assert tmp%5#0)
+                let thing#0: bytes = 0x00026869
+                let expr_value_trimmed%4#0: bytes = ((extract 2 0) thing#0)
+                let concatenated%2#0: bytes = (concat expr_value_trimmed%4#0 expr_value_trimmed%4#0)
+                let len_%2#0: uint64 = (len concatenated%2#0)
                 let len_bytes%2#0: bytes = (itob len_%2#0)
                 let len_16_bit%2#0: bytes = ((extract 6 0) len_bytes%2#0)
-                let thing#1: bytes = (concat len_16_bit%2#0 "hihi")
-                let tmp%5#0: bool = (== thing#1 "\x00\x04hihi")
-                (assert tmp%5#0)
-                let len_%3#0: uint64 = 2u
+                let thing#1: bytes = (concat len_16_bit%2#0 concatenated%2#0)
+                let tmp%6#0: bytes = 0x000468696869
+                let tmp%7#0: bool = (== thing#1 tmp%6#0)
+                (assert tmp%7#0)
+                let tmp%8#0: bytes = 0x000161
+                let expr_value_trimmed%6#0: bytes = ((extract 2 0) tmp%8#0)
+                let tmp%9#0: bytes = 0x000162
+                let expr_value_trimmed%7#0: bytes = ((extract 2 0) tmp%9#0)
+                let concatenated%3#0: bytes = (concat expr_value_trimmed%6#0 expr_value_trimmed%7#0)
+                let len_%3#0: uint64 = (len concatenated%3#0)
                 let len_bytes%3#0: bytes = (itob len_%3#0)
                 let len_16_bit%3#0: bytes = ((extract 6 0) len_bytes%3#0)
-                let concat_result%3#0: bytes = (concat len_16_bit%3#0 "ab")
+                let concat_result%3#0: bytes = (concat len_16_bit%3#0 concatenated%3#0)
                 let expr_value_trimmed%8#0: bytes = ((extract 2 0) concat_result%3#0)
-                let concatenated%4#0: bytes = (concat expr_value_trimmed%8#0 "cd")
+                let tmp%10#0: bytes = 0x00026364
+                let expr_value_trimmed%9#0: bytes = ((extract 2 0) tmp%10#0)
+                let concatenated%4#0: bytes = (concat expr_value_trimmed%8#0 expr_value_trimmed%9#0)
                 let len_%4#0: uint64 = (len concatenated%4#0)
                 let len_bytes%4#0: bytes = (itob len_%4#0)
                 let len_16_bit%4#0: bytes = ((extract 6 0) len_bytes%4#0)
                 let value#0: bytes = (concat len_16_bit%4#0 concatenated%4#0)
                 let expr_value_trimmed%10#0: bytes = ((extract 2 0) value#0)
-                let concatenated%5#0: bytes = (concat expr_value_trimmed%10#0 "e")
+                let tmp%11#0: bytes = 0x000165
+                let expr_value_trimmed%11#0: bytes = ((extract 2 0) tmp%11#0)
+                let concatenated%5#0: bytes = (concat expr_value_trimmed%10#0 expr_value_trimmed%11#0)
                 let len_%5#0: uint64 = (len concatenated%5#0)
                 let len_bytes%5#0: bytes = (itob len_%5#0)
                 let len_16_bit%5#0: bytes = ((extract 6 0) len_bytes%5#0)
                 let value#1: bytes = (concat len_16_bit%5#0 concatenated%5#0)
                 let expr_value_trimmed%12#0: bytes = ((extract 2 0) value#1)
-                let concatenated%6#0: bytes = (concat expr_value_trimmed%12#0 "f")
+                let tmp%12#0: bytes = 0x000166
+                let expr_value_trimmed%13#0: bytes = ((extract 2 0) tmp%12#0)
+                let concatenated%6#0: bytes = (concat expr_value_trimmed%12#0 expr_value_trimmed%13#0)
                 let len_%6#0: uint64 = (len concatenated%6#0)
                 let len_bytes%6#0: bytes = (itob len_%6#0)
                 let len_16_bit%6#0: bytes = ((extract 6 0) len_bytes%6#0)
                 let value#2: bytes = (concat len_16_bit%6#0 concatenated%6#0)
                 let expr_value_trimmed%14#0: bytes = ((extract 2 0) value#2)
-                let concatenated%7#0: bytes = (concat expr_value_trimmed%14#0 "g")
+                let tmp%13#0: bytes = 0x000167
+                let expr_value_trimmed%15#0: bytes = ((extract 2 0) tmp%13#0)
+                let concatenated%7#0: bytes = (concat expr_value_trimmed%14#0 expr_value_trimmed%15#0)
                 let len_%7#0: uint64 = (len concatenated%7#0)
                 let len_bytes%7#0: bytes = (itob len_%7#0)
                 let len_16_bit%7#0: bytes = ((extract 6 0) len_bytes%7#0)
                 let value#3: bytes = (concat len_16_bit%7#0 concatenated%7#0)
-                let tmp%6#0: bool = (== "\x00\x07abcdefg" value#3)
-                (assert tmp%6#0)
-                let tmp%8#0: bytes = 0x
-                let tmp%9#0: bool = (== tmp%8#0 "")
-                (assert tmp%9#0)
+                let tmp%14#0: bytes = 0x000761626364656667
+                let tmp%15#0: bool = (== tmp%14#0 value#3)
+                (assert tmp%15#0)
+                let tmp%17#0: bytes = 0x
+                let tmp%18#0: bool = (== tmp%17#0 "")
+                (assert tmp%18#0)
                 return 1u
     
     program clear-state:
