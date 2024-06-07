@@ -118,7 +118,7 @@ def _init(
             location,
         )
 
-    key_override = extract_key_override(key_arg, location, is_prefix=False)
+    key_override = extract_key_override(key_arg, location, typ=wtypes.state_key, is_prefix=False)
     description = extract_description(descr_arg)
     if key_override is None:
         return StorageProxyDefinitionBuilder(

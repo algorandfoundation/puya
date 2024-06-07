@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     BytesConstant,
@@ -102,7 +103,7 @@ def _init(
             location,
         )
 
-    key_override = extract_key_override(key_arg, location, is_prefix=False)
+    key_override = extract_key_override(key_arg, location, typ=wtypes.box_key, is_prefix=False)
     if key_override is None:
         return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)

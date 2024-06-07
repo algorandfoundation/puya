@@ -678,22 +678,27 @@ ARC4AddressType: typing.Final = _register_builtin(
 )
 
 
-def _storage_parameterise(
-    self: _GenericType[StorageProxyType], args: _TypeArgs, source_location: SourceLocation | None
-) -> StorageProxyType:
-    try:
-        (arg,) = args
-    except ValueError:
-        raise CodeError(
-            f"Expected a single type parameter, got {len(args)} parameters", source_location
-        ) from None
-    name = f"{self.name}[{arg.name}]"
-    return StorageProxyType(
-        generic=self,
-        name=name,
-        content=arg,
-        wtype=wtypes.bytes_wtype,
-    )
+def _make_storage_parameterise(key_wtype: wtypes.WType) -> _Parameterise[StorageProxyType]:
+    def parameterise(
+        self: _GenericType[StorageProxyType],
+        args: _TypeArgs,
+        source_location: SourceLocation | None,
+    ) -> StorageProxyType:
+        try:
+            (arg,) = args
+        except ValueError:
+            raise CodeError(
+                f"Expected a single type parameter, got {len(args)} parameters", source_location
+            ) from None
+        name = f"{self.name}[{arg.name}]"
+        return StorageProxyType(
+            generic=self,
+            name=name,
+            content=arg,
+            wtype=key_wtype,
+        )
+
+    return parameterise
 
 
 def _parameterise_storage_map(
@@ -713,27 +718,27 @@ def _parameterise_storage_map(
         name=name,
         key=key,
         content=content,
-        wtype=wtypes.bytes_wtype,
+        wtype=wtypes.box_key,
     )
 
 
 GenericGlobalStateType: typing.Final = _GenericType(
     name=constants.CLS_GLOBAL_STATE,
-    parameterise=_storage_parameterise,
+    parameterise=_make_storage_parameterise(wtypes.state_key),
 )
 GenericLocalStateType: typing.Final = _GenericType(
     name=constants.CLS_LOCAL_STATE,
-    parameterise=_storage_parameterise,
+    parameterise=_make_storage_parameterise(wtypes.state_key),
 )
 GenericBoxType: typing.Final = _GenericType(
     name=constants.CLS_BOX_PROXY,
-    parameterise=_storage_parameterise,
+    parameterise=_make_storage_parameterise(wtypes.box_key),
 )
 BoxRefType: typing.Final = _register_builtin(
     StorageProxyType(
         name=constants.CLS_BOX_REF_PROXY,
         content=BytesType,
-        wtype=wtypes.bytes_wtype,
+        wtype=wtypes.box_key,
         generic=None,
     )
 )

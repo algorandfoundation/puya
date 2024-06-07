@@ -2,6 +2,7 @@ import decimal
 import enum
 import itertools
 import types
+import typing
 import typing as t
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
@@ -11,6 +12,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import algo_constants
+from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
@@ -418,9 +420,38 @@ class BytesEncoding(enum.StrEnum):
     utf8 = enum.auto()
 
 
-@attrs.frozen
+@attrs.frozen(repr=False)
+class _WTypeIsBackedBy:
+    backed_by: t.Literal[AVMType.uint64, AVMType.bytes]
+
+    def __call__(
+        self,
+        inst: Node,
+        attr: attrs.Attribute,  # type: ignore[type-arg]
+        value: WType,
+    ) -> None:
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not isinstance(inst, Node):
+            raise InternalError(f"{self!r} used on type {type(inst).__name__}, expected Node")
+        if value.scalar_type != self.backed_by:
+            raise InternalError(
+                f"{type(inst).__name__}.{attr.name}: set to {value},"
+                f" which is not backed by {value.scalar_type}, not {self.backed_by.name}"
+            )
+
+    def __repr__(self) -> str:
+        return f"<wtype_is_{self.backed_by.name}_backed validator>"
+
+
+wtype_is_bytes_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.bytes)
+wtype_is_uint64_backed: typing.Final = _WTypeIsBackedBy(backed_by=AVMType.uint64)
+
+
+@attrs.frozen(kw_only=True)
 class BytesConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
+    wtype: WType = attrs.field(default=wtypes.bytes_wtype, validator=wtype_is_bytes_backed)
     value: bytes = attrs.field()
     encoding: BytesEncoding = attrs.field()
 
@@ -1021,7 +1052,7 @@ class IntersectionSliceExpression(Expression):
 
 @attrs.frozen
 class AppStateExpression(Expression):
-    key: Expression = attrs.field(validator=wtype_is_bytes)
+    key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
     member_name: str | None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1030,7 +1061,7 @@ class AppStateExpression(Expression):
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
-    key: Expression = attrs.field(validator=wtype_is_bytes)
+    key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
     member_name: str | None
     account: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)
@@ -1042,7 +1073,7 @@ class AppAccountStateExpression(Expression):
 
 @attrs.frozen
 class BoxValueExpression(Expression):
-    key: Expression = attrs.field(validator=wtype_is_bytes)
+    key: Expression = attrs.field(validator=expression_has_wtype(wtypes.box_key))
     member_name: str | None
     from_map: bool
     """is the key derived from some prefix and some other value?

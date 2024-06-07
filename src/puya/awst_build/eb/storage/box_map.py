@@ -4,6 +4,7 @@ from collections.abc import Callable, Sequence
 
 import mypy.nodes
 
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     BytesConstant,
@@ -110,8 +111,12 @@ def _init(
             " it shouldn't be required",
             location,
         )
+    # the type of the key is not retained in the AWST, so to
+    wtypes.validate_persistable(key.wtype, location)
 
-    key_prefix_override = extract_key_override(key_prefix_arg, location, is_prefix=True)
+    key_prefix_override = extract_key_override(
+        key_prefix_arg, location, typ=wtypes.box_key, is_prefix=True
+    )
     if key_prefix_override is None:
         return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
     return _BoxMapProxyExpressionBuilderFromConstructor(
@@ -134,7 +139,9 @@ class BoxMapProxyExpressionBuilder(
         key_data = require_instance_builder(key).to_bytes(location)
         key_prefix = self.resolve()
         content_wtype = self.pytype.content.wtype
-        full_key = intrinsic_factory.concat(key_prefix, key_data, location)
+        full_key = intrinsic_factory.concat(
+            key_prefix, key_data, location, result_type=wtypes.box_key
+        )
         return BoxValueExpression(
             key=full_key,
             wtype=content_wtype,

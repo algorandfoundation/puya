@@ -112,7 +112,7 @@ def box_length_checked(box: BoxValueExpression, location: SourceLocation) -> Exp
 
 
 def _box_len(box_key: Expression, location: SourceLocation) -> IntrinsicCall:
-    assert box_key.wtype == wtypes.bytes_wtype
+    assert box_key.wtype == wtypes.box_key
     return IntrinsicCall(
         op_code="box_len",
         wtype=wtypes.WTuple([wtypes.uint64_wtype, wtypes.bool_wtype], source_location=location),

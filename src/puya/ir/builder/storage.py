@@ -7,7 +7,7 @@ from puya.awst import (
 )
 from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assert_value, assign, reassign, mktemp, assign_targets
+from puya.ir.builder._utils import assert_value, assign, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, Register, UInt64Constant, Value, ValueProvider, ValueTuple
 from puya.ir.types_ import IRType, wtype_to_ir_type

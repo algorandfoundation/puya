@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import typing
 
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     ContractReference,
     Expression,
     Lvalue,
+    ReinterpretCast,
     Statement,
 )
 from puya.awst_build import pytypes
@@ -151,7 +153,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
 
 def extract_key_override(
-    key_arg: NodeBuilder | None, location: SourceLocation, *, is_prefix: bool
+    key_arg: NodeBuilder | None, location: SourceLocation, *, typ: wtypes.WType, is_prefix: bool
 ) -> Expression | None:
     key_override: Expression | None
     match key_arg:
@@ -159,18 +161,24 @@ def extract_key_override(
             key_override = None
         case LiteralBuilder(value=bytes(bytes_value), source_location=key_lit_loc):
             key_override = BytesConstant(
-                value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
+                value=bytes_value,
+                encoding=BytesEncoding.unknown,
+                wtype=typ,
+                source_location=key_lit_loc,
             )
         case LiteralBuilder(value=str(str_value), source_location=key_lit_loc):
             key_override = BytesConstant(
                 value=str_value.encode("utf8"),
                 encoding=BytesEncoding.utf8,
+                wtype=typ,
                 source_location=key_lit_loc,
             )
         case InstanceBuilder(pytype=pytypes.BytesType) as eb:
-            key_override = eb.resolve()
+            key_override = ReinterpretCast(expr=eb.resolve(), wtype=typ, source_location=location)
         case InstanceBuilder(pytype=pytypes.StringType) as eb:
-            key_override = eb.to_bytes(location)
+            key_override = ReinterpretCast(
+                expr=eb.to_bytes(location), wtype=typ, source_location=location
+            )
         case _:
             raise CodeError(
                 f"invalid type for key{'_prefix' if is_prefix else ''}  argument",

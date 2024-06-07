@@ -1,7 +1,9 @@
+import typing
 from functools import cached_property
 
 import attrs
 
+from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStorageDefinition,
     AppStorageKind,
@@ -28,15 +30,37 @@ class AppStorageDeclaration:
     @property
     def key(self) -> BytesConstant:
         if self.key_override is not None:
-            return self.key_override
-        return BytesConstant(
-            value=self.member_name.encode("utf8"),
-            encoding=BytesEncoding.utf8,
-            source_location=self.source_location,
-        )
+            bytes_const = self.key_override
+        else:
+            bytes_const = BytesConstant(
+                value=self.member_name.encode("utf8"),
+                encoding=BytesEncoding.utf8,
+                source_location=self.source_location,
+            )
+        match self._inferred[0]:
+            case AppStorageKind.app_global | AppStorageKind.account_local:
+                wtype = wtypes.state_key
+            case AppStorageKind.box:
+                wtype = wtypes.box_key
+            case invalid_kind:
+                typing.assert_never(invalid_kind)
+        return attrs.evolve(bytes_const, wtype=wtype)
 
     @cached_property
     def definition(self) -> AppStorageDefinition:
+        kind, content, key_wtype = self._inferred
+        return AppStorageDefinition(
+            key=self.key,
+            description=self.description,
+            storage_wtype=content.wtype,
+            key_wtype=key_wtype,
+            source_location=self.source_location,
+            kind=kind,
+            member_name=self.member_name,
+        )
+
+    @cached_property
+    def _inferred(self) -> tuple[AppStorageKind, pytypes.PyType, wtypes.WType | None]:
         key_wtype = None
         match self.typ:
             case pytypes.StorageProxyType(generic=pytypes.GenericLocalStateType, content=content):
@@ -55,15 +79,7 @@ class AppStorageDeclaration:
                 key_wtype = key_typ.wtype
             case _ as content:
                 kind = AppStorageKind.app_global
-        return AppStorageDefinition(
-            key=self.key,
-            description=self.description,
-            storage_wtype=content.wtype,
-            key_wtype=key_wtype,
-            source_location=self.source_location,
-            kind=kind,
-            member_name=self.member_name,
-        )
+        return kind, content, key_wtype
 
 
 @attrs.define

@@ -96,17 +96,20 @@ asset_wtype: typing.Final = WType(
     bounds=_uint64_bounds,
     immutable=True,
 )
-# TODO: take the below approach and use everywhere
-# state_key: typing.Final = WType(
-#     name="state_key",
-#     is_valid_literal=_bytes_literal_validator(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
-# )
-# box_key: typing.Final = WType(
-#     name="box_key",
-#     is_valid_literal=_bytes_literal_validator(
-#         min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
-#     ),
-# )
+state_key: typing.Final = WType(
+    name="state_key",
+    scalar_type=AVMType.bytes,
+    bounds=SizeBounds(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
+    immutable=True,
+)
+box_key: typing.Final = WType(
+    name="box_key",
+    scalar_type=AVMType.bytes,
+    bounds=SizeBounds(
+        min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
+    ),
+    immutable=True,
+)
 
 account_wtype: typing.Final = WType(
     name="account",

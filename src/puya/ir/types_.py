@@ -70,28 +70,25 @@ def wtype_to_ir_type(
     match wtype:
         case wtypes.bool_wtype:
             return IRType.bool
-        case (
-            wtypes.uint64_wtype
-            | wtypes.asset_wtype
-            | wtypes.application_wtype
-            | wtypes.WGroupTransaction()
-        ):
-            return IRType.uint64
+        case wtypes.biguint_wtype:
+            return IRType.biguint
         case wtypes.WInnerTransaction():
             return IRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return IRType.itxn_field_set
-        case wtypes.biguint_wtype:
-            return IRType.biguint
-        case wtypes.bytes_wtype | wtypes.account_wtype | wtypes.string_wtype | wtypes.ARC4Type():
-            return IRType.bytes
         case wtypes.void_wtype:
-            raise InternalError("Can't translate void WType to IRType", source_location)
-        case _:
+            raise InternalError("can't translate void wtype to irtype", source_location)
+    match wtype.scalar_type:
+        case AVMType.uint64:
+            return IRType.uint64
+        case AVMType.bytes:
+            return IRType.bytes
+        case None:
             raise CodeError(
-                f"Unsupported nested/compound type encountered: {wtype}",
-                source_location,
+                f"unsupported nested/compound wtype encountered: {wtype}", source_location
             )
+        case _:
+            typing.assert_never(wtype.scalar_type)
 
 
 def wtype_to_ir_types(

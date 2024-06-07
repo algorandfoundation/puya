@@ -117,7 +117,7 @@ class InstanceExpressionBuilder(
         super().__init__(expr.source_location)
         if expr.wtype != pytype.wtype:
             raise InternalError(
-                f"invalid WType of {str(pytype)!r} expression for: {expr.wtype}",
+                f"invalid expression wtype {str(expr.wtype)!r} for Python type {str(pytype)!r}",
                 expr.source_location,
             )
         self._pytype = pytype
