@@ -36,37 +36,23 @@ class StorageTypesValidator(AWSTTraverser):
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> None:
         super().visit_app_state_expression(expr)
-        kind = AppStorageKind.app_global
-        if expr.member_name and not set_add(self._seen_member_names[kind], expr.member_name):
-            return
-        if isinstance(expr.key, awst_nodes.BytesConstant) and not set_add(
-            self._seen_keys[kind], expr.key.value
-        ):
-            return
-        wtypes.validate_persistable(expr.wtype, expr.source_location)
+        self._validate_usage(expr, AppStorageKind.app_global)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> None:
         super().visit_app_account_state_expression(expr)
-        kind = AppStorageKind.account_local
+        self._validate_usage(expr, AppStorageKind.account_local)
+
+    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
+        super().visit_box_value_expression(expr)
+        self._validate_usage(expr, AppStorageKind.box)
+
+    def _validate_usage(self, expr: awst_nodes.StorageExpression, kind: AppStorageKind) -> None:
         if expr.member_name and not set_add(self._seen_member_names[kind], expr.member_name):
             return
         if isinstance(expr.key, awst_nodes.BytesConstant) and not set_add(
             self._seen_keys[kind], expr.key.value
-        ):
-            return
-        wtypes.validate_persistable(expr.wtype, expr.source_location)
-
-    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
-        super().visit_box_value_expression(expr)
-        kind = AppStorageKind.box
-        if expr.member_name and not set_add(self._seen_member_names[kind], expr.member_name):
-            return
-        if (
-            not expr.from_map
-            and isinstance(expr.key, awst_nodes.BytesConstant)
-            and not set_add(self._seen_keys[kind], expr.key.value)
         ):
             return
         wtypes.validate_persistable(expr.wtype, expr.source_location)
