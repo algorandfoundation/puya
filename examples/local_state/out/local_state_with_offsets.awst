@@ -62,28 +62,28 @@ contract LocalStateContract
   
   subroutine get_guaranteed_data(for_account: uint64): bytes
   {
-    return LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=local_state/local_state_with_offsets.py:16:8-18, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'local', encoding=<BytesEncoding.utf8: 'utf8'>)>, for_account]
+    return LocalState['local', for_account]
   }
   
   subroutine get_data_with_default(for_account: uint64, default: bytes): bytes
   {
-    return STATE_GET(LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=local_state/local_state_with_offsets.py:16:8-18, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'local', encoding=<BytesEncoding.utf8: 'utf8'>)>, for_account], default=default)
+    return STATE_GET(LocalState['local', for_account], default=default)
   }
   
   subroutine get_data_or_assert(for_account: uint64): bytes
   {
-    (result, exists): tuple<bytes,bool> = STATE_GET_EX(LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=local_state/local_state_with_offsets.py:16:8-18, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'local', encoding=<BytesEncoding.utf8: 'utf8'>)>, for_account])
+    (result, exists): tuple<bytes,bool> = STATE_GET_EX(LocalState['local', for_account])
     assert(exists, comment="no data for account")
     return result
   }
   
   subroutine set_data(for_account: uint64, value: bytes): void
   {
-    LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=local_state/local_state_with_offsets.py:16:8-18, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'local', encoding=<BytesEncoding.utf8: 'utf8'>)>, for_account]: bytes = value
+    LocalState['local', for_account]: bytes = value
   }
   
   subroutine delete_data(for_account: uint64): void
   {
-    STATE_DELETE(LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=local_state/local_state_with_offsets.py:16:8-18, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'local', encoding=<BytesEncoding.utf8: 'utf8'>)>, for_account])
+    STATE_DELETE(LocalState['local', for_account])
   }
 }

@@ -54,18 +54,18 @@ contract Auction
     assert(gtxns<Amount>(pay) > GlobalState['previous_bid'], comment="Bid must be higher than previous bid")
     GlobalState['previous_bid']: uint64 = gtxns<Amount>(pay)
     GlobalState['previous_bidder']: account = gtxns<Sender>(pay)
-    LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=auction/contract.py:23:55-62, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'claim', encoding=<BytesEncoding.utf8: 'utf8'>)>, txn<Sender>()]: uint64 = gtxns<Amount>(pay)
+    LocalState['claim', txn<Sender>()]: uint64 = gtxns<Amount>(pay)
   }
   
   abimethod claim_bids(): void
   {
-    original_amount: uint64 = SINGLE_EVAL(id=0, source=LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=auction/contract.py:23:55-62, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'claim', encoding=<BytesEncoding.utf8: 'utf8'>)>, txn<Sender>()])
-    amount: uint64 = SINGLE_EVAL(id=0, source=LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=auction/contract.py:23:55-62, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'claim', encoding=<BytesEncoding.utf8: 'utf8'>)>, txn<Sender>()])
+    original_amount: uint64 = SINGLE_EVAL(id=0, source=LocalState['claim', txn<Sender>()])
+    amount: uint64 = SINGLE_EVAL(id=0, source=LocalState['claim', txn<Sender>()])
     if (txn<Sender>() == GlobalState['previous_bidder']) {
       amount -= GlobalState['previous_bid']
     }
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=amount, Receiver=txn<Sender>()))
-    LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=auction/contract.py:23:55-62, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'claim', encoding=<BytesEncoding.utf8: 'utf8'>)>, txn<Sender>()]: uint64 = original_amount - amount
+    LocalState['claim', txn<Sender>()]: uint64 = original_amount - amount
   }
   
   abimethod claim_asset(asset: asset): void

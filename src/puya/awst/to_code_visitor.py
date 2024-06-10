@@ -73,7 +73,7 @@ class ToCodeVisitor(
         return f"GlobalState[{expr.key.accept(self)}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        return f"LocalState[{expr.key.accept}, {expr.account.accept(self)}]"
+        return f"LocalState[{expr.key.accept(self)}, {expr.account.accept(self)}]"
 
     def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
         return f"Box[{expr.key.accept(self)}]"
