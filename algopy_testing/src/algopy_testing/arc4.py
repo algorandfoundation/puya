@@ -55,14 +55,17 @@ class String(_ABIEncoded):
     _value: bytes
 
     def __init__(self, value: algopy.String | str = "", /) -> None:
-        value = as_string(value)
-        bytes_value = value.encode("utf-8")
+        bytes_value = (
+            value.bytes.value
+            if isinstance(value, algopy.String)
+            else as_string(value).encode("utf-8")
+        )
         self._value = len(bytes_value).to_bytes(_ABI_LENGTH_SIZE) + bytes_value
 
     @property
     def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
-        return algopy.String(self._value[_ABI_LENGTH_SIZE:].decode("utf-8"))
+        return algopy.String.from_bytes(self._value[_ABI_LENGTH_SIZE:])
 
     def __add__(self, other: String | str) -> String:
         return String(self.native + as_string(other))
