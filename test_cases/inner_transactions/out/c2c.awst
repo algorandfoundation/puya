@@ -16,10 +16,10 @@ contract Greeter
     return reinterpret_cast<uint64>(GlobalState['hello_app'])
   }
   
-  abimethod log_greetings(name: arc4.string): void
+  abimethod log_greetings(name: arc4.dynamic_array<arc4.uint8>): void
   {
     hello_call: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=GlobalState['hello_app'], ApplicationArgs=(Method("hello(string)string"), name)))
-    greeting: arc4.string = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0, source=hello_call.LastLog)) == hex<"151F7C75">))
+    greeting: arc4.dynamic_array<arc4.uint8> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0, source=hello_call.LastLog)) == hex<"151F7C75">))
     log(concat(concat('HelloWorld returned: ', ''), arc4_decode(greeting, string)))
   }
 }

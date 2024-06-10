@@ -3,7 +3,7 @@ contract Reference
   globals {
     ['asa']: asset
     ['an_int']: uint64
-    ['some_bytes']: arc4.static_array<arc4.byte, 3>
+    ['some_bytes']: arc4.static_array<arc4.uint8, 3>
     ['creator']: account
     ['app']: application
   }
@@ -12,7 +12,7 @@ contract Reference
   {
     GlobalState['asa']: asset = reinterpret_cast<asset>(123u)
     GlobalState['an_int']: uint64 = 2u
-    GlobalState['some_bytes']: arc4.static_array<arc4.byte, 3> = new arc4.static_array<arc4.byte, 3>(7arc4u8, 8arc4u8, 9arc4u8)
+    GlobalState['some_bytes']: arc4.static_array<arc4.uint8, 3> = new arc4.static_array<arc4.uint8, 3>(7arc4u8, 8arc4u8, 9arc4u8)
     GlobalState['creator']: account = txn<Sender>()
     GlobalState['app']: application = reinterpret_cast<application>(123u)
     assert(reinterpret_cast<bool>(len(Method("get(uint64,byte[])byte[]"))), comment="has method selector")
@@ -67,7 +67,7 @@ contract Reference
     assert(asset_a == asset_b, comment="asset a == b")
   }
   
-  abimethod get_address(): arc4.address
+  abimethod get_address(): arc4.static_array<arc4.uint8, 32>
   {
     return global<ZeroAddress>()
   }
@@ -87,7 +87,7 @@ contract Reference
     return 3arc4u64
   }
   
-  abimethod method_with_default_args(asset_from_storage: asset, asset_from_function: asset, account_from_storage: account, account_from_function: account, application_from_storage: application, application_from_function: application, bytes_from_storage: arc4.static_array<arc4.byte, 3>, int_from_storage: arc4.uint64, int_from_function: arc4.uint64): void
+  abimethod method_with_default_args(asset_from_storage: asset, asset_from_function: asset, account_from_storage: account, account_from_function: account, application_from_storage: application, application_from_function: application, bytes_from_storage: arc4.static_array<arc4.uint8, 3>, int_from_storage: arc4.uint64, int_from_function: arc4.uint64): void
   {
     assert(asset_from_storage == reinterpret_cast<asset>(123u), comment="wrong asset from storage")
     assert(asset_from_function == reinterpret_cast<asset>(456u), comment="wrong asset from function")

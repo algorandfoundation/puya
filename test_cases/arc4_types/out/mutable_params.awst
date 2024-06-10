@@ -1,8 +1,8 @@
 struct TestStruct {
   b_val: arc4.bool
   u_val: arc4.uint8
-  s_val_1: arc4.string
-  s_val_2: arc4.string
+  s_val_1: arc4.dynamic_array<arc4.uint8>
+  s_val_2: arc4.dynamic_array<arc4.uint8>
 }
 
 struct StructWithArray {
@@ -25,9 +25,9 @@ contract Arc4MutableParamsContract
   subroutine mutating_copies(): void
   {
     my_array: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8)
-    my_struct: arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string> = new arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>(b_val=arc4_encode(true, arc4.bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', arc4.string), s_val_2=arc4_encode('Days', arc4.string))
+    my_struct: test_cases.arc4_types.mutable_params.TestStruct = new test_cases.arc4_types.mutable_params.TestStruct(b_val=arc4_encode(true, arc4.bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', arc4.dynamic_array<arc4.uint8>), s_val_2=arc4_encode('Days', arc4.dynamic_array<arc4.uint8>))
     my_array_copy: arc4.static_array<arc4.uint8, 4> = my_array.copy()
-    my_struct_copy: arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string> = my_struct.copy()
+    my_struct_copy: test_cases.arc4_types.mutable_params.TestStruct = my_struct.copy()
     my_array[2u]: arc4.uint8 = 5arc4u8
     assert(reinterpret_cast<biguint>(my_array_copy[2u]) == reinterpret_cast<biguint>(3arc4u8), comment="my_array_copy should be unchanged")
     assert(reinterpret_cast<biguint>(my_array[2u]) == reinterpret_cast<biguint>(5arc4u8), comment="my_array should be mutated")
@@ -35,23 +35,23 @@ contract Arc4MutableParamsContract
     assert(t)
     assert(!(f))
     assert(reinterpret_cast<biguint>(my_array[1u]) == reinterpret_cast<biguint>(5arc4u8), comment="my_array has been mutated by the subroutine")
-    assert(my_struct.s_val_1 == arc4_encode('AARRGH!', arc4.string), comment="my_struct has been mutated by the subroutine")
+    assert(my_struct.s_val_1 == arc4_encode('AARRGH!', arc4.dynamic_array<arc4.uint8>), comment="my_struct has been mutated by the subroutine")
     this::other_routine(my_array_copy.copy(), my_struct_copy.copy())
     assert(reinterpret_cast<biguint>(my_array_copy[1u]) == reinterpret_cast<biguint>(2arc4u8), comment="my_array_copy should not be mutated by the subroutine")
-    assert(my_struct_copy.s_val_1 == arc4_encode('Happy', arc4.string), comment="my_struct_copy should not be mutated by the subroutine")
+    assert(my_struct_copy.s_val_1 == arc4_encode('Happy', arc4.dynamic_array<arc4.uint8>), comment="my_struct_copy should not be mutated by the subroutine")
     my_array_copy_2: arc4.static_array<arc4.uint8, 4> = my_array_copy.copy()
     my_array_copy_2: arc4.static_array<arc4.uint8, 4> = this::other_routine_2(my_array_copy_2)
     assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(1arc4u8), comment="my_array_copy_2 should have original value")
     this::other_routine_2(my_array_copy_2)
     assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(10arc4u8), comment="my_array_copy_2 should have mutated value")
-    nested: arc4.struct<test_array:arc4.static_array<arc4.uint8, 4>> = new arc4.struct<test_array:arc4.static_array<arc4.uint8, 4>>(test_array=my_array.copy())
+    nested: test_cases.arc4_types.mutable_params.StructWithArray = new test_cases.arc4_types.mutable_params.StructWithArray(test_array=my_array.copy())
     this::other_routine_2(nested.test_array.copy())
   }
   
-  subroutine other_routine(array: arc4.static_array<arc4.uint8, 4>, struct: arc4.struct<b_val:arc4.bool,u_val:arc4.uint8,s_val_1:arc4.string,s_val_2:arc4.string>): tuple<bool,bool>
+  subroutine other_routine(array: arc4.static_array<arc4.uint8, 4>, struct: test_cases.arc4_types.mutable_params.TestStruct): tuple<bool,bool>
   {
     array[1u]: arc4.uint8 = 5arc4u8
-    struct.s_val_1: arc4.string = arc4_encode('AARRGH!', arc4.string)
+    struct.s_val_1: arc4.dynamic_array<arc4.uint8> = arc4_encode('AARRGH!', arc4.dynamic_array<arc4.uint8>)
     return (true, false)
   }
   

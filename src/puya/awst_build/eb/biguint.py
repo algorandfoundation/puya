@@ -62,7 +62,7 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
     ) -> InstanceBuilder:
         match literal.value:
             case int(int_value):
-                expr = BigUIntConstant(value=int_value, source_location=location)
+                expr = BigUIntConstant(value=int(int_value), source_location=location)
                 return BigUIntExpressionBuilder(expr)
         raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 

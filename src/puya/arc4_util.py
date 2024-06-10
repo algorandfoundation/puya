@@ -78,22 +78,6 @@ _ARC4_PYTYPE_MAPPING = {
 }
 
 
-def make_dynamic_array_wtype(
-    element_type: wtypes.WType, location: SourceLocation | None
-) -> wtypes.ARC4DynamicArray:
-    if not isinstance(element_type, ARC4Type):
-        raise CodeError(f"Invalid element type for arc4.DynamicArray: {element_type}", location)
-    return wtypes.ARC4DynamicArray(element_type, location)
-
-
-def make_static_array_wtype(
-    element_type: wtypes.WType, size: int, location: SourceLocation | None
-) -> wtypes.ARC4StaticArray:
-    if not isinstance(element_type, ARC4Type):
-        raise CodeError(f"Invalid element type for arc4.StaticArray: {element_type}", location)
-    return wtypes.ARC4StaticArray(element_type, int(size), location)
-
-
 def make_tuple_wtype(
     types: Iterable[wtypes.WType], location: SourceLocation | None
 ) -> wtypes.ARC4Tuple:
@@ -107,10 +91,8 @@ def make_tuple_wtype(
 
 
 def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.PyType:
-    try:
-        return _ARC4_PYTYPE_MAPPING[typ]
-    except KeyError:
-        pass
+    if known_typ := _ARC4_PYTYPE_MAPPING.get(typ):
+        return known_typ
     if uint := _UINT_REGEX.match(typ):
         n = int(uint.group("n"))
         n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
@@ -141,7 +123,7 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
             arc4_to_pytype(x, location) for x in split_tuple_types(tuple_match.group("types"))
         ]
         return pytypes.GenericARC4TupleType.parameterise(tuple_types, location)
-    raise CodeError(f"Unknown ARC4 type '{typ}'", location)
+    raise CodeError(f"unknown ARC4 type '{typ}'", location)
 
 
 def split_tuple_types(types: str) -> Iterable[str]:
@@ -169,6 +151,8 @@ def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> st
 
 def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
     match wtype:
+        case wtypes.ARC4Type(arc4_name=arc4_name):
+            return arc4_name
         case (
             wtypes.void_wtype
             | wtypes.asset_wtype
@@ -183,24 +167,13 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             return "uint512"
         case wtypes.bytes_wtype:
             return "byte[]"
-        case wtypes.ARC4Type(alias=alias) if alias is not None:
-            return alias
-        case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM():
-            return wtype.name.removeprefix("arc4.")
         case wtypes.WGroupTransaction(transaction_type=transaction_type):
             return transaction_type.name if transaction_type else "txn"
-        case wtypes.ARC4DynamicArray(element_type=inner_type):
-            return f"{wtype_to_arc4(inner_type, loc)}[]"
-        case wtypes.ARC4StaticArray(element_type=inner_type, array_size=size):
-            return f"{wtype_to_arc4(inner_type, loc)}[{size}]"
-        case (
-            wtypes.ARC4Tuple(types=types)
-            | wtypes.ARC4Struct(types=types)
-            | wtypes.WTuple(types=types)
-        ):
+        case wtypes.WTuple(types=types):
             item_types = ",".join([wtype_to_arc4(item) for item in types])
             return f"({item_types})"
-    raise InternalError(f"Unhandled ARC4 type: {wtype}", loc)
+        case _:
+            raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
 
 
 def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4MethodConfig) -> str:

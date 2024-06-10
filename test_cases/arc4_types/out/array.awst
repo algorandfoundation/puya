@@ -13,9 +13,9 @@ contract Arc4ArraysContract
       total += arc4_decode(uint16_item, uint64)
     }
     assert(total == 4u, comment="Total should now include sum of aliased_dynamic items")
-    dynamic_string_array: arc4.dynamic_array<arc4.string> = new arc4.dynamic_array<arc4.string>(arc4_encode('Hello', arc4.string), arc4_encode('World', arc4.string))
+    dynamic_string_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>), arc4_encode('World', arc4.dynamic_array<arc4.uint8>))
     assert(extract_uint16(dynamic_string_array, 0u) == 2u)
-    assert(dynamic_string_array[0u] == arc4_encode('Hello', arc4.string))
+    assert(dynamic_string_array[0u] == arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>))
     result: string = ''
     for (index, string_item) in enumerate(dynamic_string_array) {
       if (index == 0u) {
@@ -33,7 +33,7 @@ contract Arc4ArraysContract
     aliased_static: arc4.static_array<arc4.uint8, 1> = new arc4.static_array<arc4.uint8, 1>(101arc4u8)
     index: uint64 = 0u
     assert(arc4_decode(aliased_static[0u], uint64) + arc4_decode(aliased_static[index], uint64) == 202u)
-    static_string_array: arc4.static_array<arc4.string, 2> = new arc4.static_array<arc4.string, 2>(arc4_encode('Ping', arc4.string), arc4_encode('Pong', arc4.string))
+    static_string_array: arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2> = new arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>(arc4_encode('Ping', arc4.dynamic_array<arc4.uint8>), arc4_encode('Pong', arc4.dynamic_array<arc4.uint8>))
     result: string = ''
     for (index, string_item) in enumerate(static_string_array) {
       if (index == 0u) {
@@ -52,8 +52,8 @@ contract Arc4ArraysContract
     return true
   }
   
-  subroutine hash_as_array(commitment_args_concat: bytes): arc4.static_array<arc4.byte, 32>
+  subroutine hash_as_array(commitment_args_concat: bytes): arc4.static_array<arc4.uint8, 32>
   {
-    return reinterpret_cast<arc4.static_array<arc4.byte, 32>>(sha3_256(commitment_args_concat))
+    return reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(sha3_256(commitment_args_concat))
   }
 }

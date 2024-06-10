@@ -55,7 +55,7 @@ class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
     @typing.override
     @property
     def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.IntLiteralType,)
+        return pytypes.IntLiteralType, pytypes.BoolType
 
     @typing.override
     def convert_literal(
@@ -63,7 +63,7 @@ class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
     ) -> InstanceBuilder:
         match literal.value:
             case int(int_value):
-                expr = UInt64Constant(value=int_value, source_location=location)
+                expr = UInt64Constant(value=int(int_value), source_location=location)
                 return UInt64ExpressionBuilder(expr)
         raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 

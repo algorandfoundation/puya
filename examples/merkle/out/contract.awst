@@ -4,18 +4,18 @@ contract MerkleTree
     ['root']: bytes
   }
   
-  abimethod create(root: arc4.static_array<arc4.byte, 32>): void
+  abimethod create(root: arc4.static_array<arc4.uint8, 32>): void
   {
     GlobalState['root']: bytes = reinterpret_cast<bytes>(root)
   }
   
-  abimethod verify(proof: arc4.dynamic_array<arc4.static_array<arc4.byte, 32>>, leaf: arc4.static_array<arc4.byte, 32>): bool
+  abimethod verify(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>, leaf: arc4.static_array<arc4.uint8, 32>): bool
   {
     return GlobalState['root'] == examples.merkle.contract::compute_root_hash(proof, reinterpret_cast<bytes>(leaf))
   }
 }
 
-subroutine compute_root_hash(proof: arc4.dynamic_array<arc4.static_array<arc4.byte, 32>>, leaf: bytes): bytes
+subroutine compute_root_hash(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>, leaf: bytes): bytes
 {
   computed: bytes = leaf
   for idx in range(0u, extract_uint16(proof, 0u), 1u) {

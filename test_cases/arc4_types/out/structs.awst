@@ -11,25 +11,25 @@ struct Flags {
 }
 
 struct VectorFlags {
-  vector: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>
-  flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>
+  vector: test_cases.arc4_types.structs.Vector
+  flags: test_cases.arc4_types.structs.Flags
 }
 
 contract Arc4StructsTypeContract
 {
   approval_program(): bool
   {
-    coord_1: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9> = new arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
-    coord_2: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9> = new arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
-    coord_3: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9> = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
+    coord_1: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_2: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
     for val in (coord_3.x, coord_3.y) {
       log(reinterpret_cast<bytes>(val))
     }
-    flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool> = new arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>(a=arc4_encode(true, arc4.bool), b=arc4_encode(false, arc4.bool), c=arc4_encode(true, arc4.bool), d=arc4_encode(false, arc4.bool))
+    flags: test_cases.arc4_types.structs.Flags = new test_cases.arc4_types.structs.Flags(a=arc4_encode(true, arc4.bool), b=arc4_encode(false, arc4.bool), c=arc4_encode(true, arc4.bool), d=arc4_encode(false, arc4.bool))
     test_cases.arc4_types.structs::check(flags.copy())
     log(reinterpret_cast<bytes>(flags))
-    assert(reinterpret_cast<bytes>(reinterpret_cast<arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
-    test_cases.arc4_types.structs::nested_decode(new arc4.struct<vector:arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>,flags:arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>>(vector=coord_1.copy(), flags=flags.copy()))
+    assert(reinterpret_cast<bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
+    test_cases.arc4_types.structs::nested_decode(new test_cases.arc4_types.structs.VectorFlags(vector=coord_1.copy(), flags=flags.copy()))
     return true
   }
   
@@ -39,12 +39,12 @@ contract Arc4StructsTypeContract
   }
 }
 
-subroutine add(v1: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>, v2: arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>): arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>
+subroutine add(v1: test_cases.arc4_types.structs.Vector, v2: test_cases.arc4_types.structs.Vector): test_cases.arc4_types.structs.Vector
 {
-  return new arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>(x=test_cases.arc4_types.structs::add_decimal(v1.x, v2.x), y=test_cases.arc4_types.structs::add_decimal(v1.y, v2.y))
+  return new test_cases.arc4_types.structs.Vector(x=test_cases.arc4_types.structs::add_decimal(v1.x, v2.x), y=test_cases.arc4_types.structs::add_decimal(v1.y, v2.y))
 }
 
-subroutine check(flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>): void
+subroutine check(flags: test_cases.arc4_types.structs.Flags): void
 {
   assert(arc4_decode(flags.a, bool))
   assert(!(arc4_decode(flags.b, bool)))
@@ -52,7 +52,7 @@ subroutine check(flags: arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.b
   assert(!(arc4_decode(flags.d, bool)))
 }
 
-subroutine nested_decode(vector_flags: arc4.struct<vector:arc4.struct<x:arc4.ufixed64x9,y:arc4.ufixed64x9>,flags:arc4.struct<a:arc4.bool,b:arc4.bool,c:arc4.bool,d:arc4.bool>>): void
+subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): void
 {
   assert(reinterpret_cast<bytes>(vector_flags.vector.x) == itob(35382882839u))
   assert(arc4_decode(vector_flags.flags.c, bool))

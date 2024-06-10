@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     BytesEncoding,
     Expression,
     NewArray,
-    ReinterpretCast,
 )
 from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_decode
@@ -84,14 +83,14 @@ def _coerce_to_byte(arg: NodeBuilder) -> Expression:
     arg = require_instance_builder(arg)
     arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
     match arg:
-        case InstanceBuilder(pytype=pytypes.ARC4ByteType):
-            return arg.resolve()
         case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
-            return ReinterpretCast(
-                expr=arg.resolve(),
-                wtype=wtypes.arc4_byte_type,
-                source_location=arg.source_location,
-            )
+            return arg.resolve()
+        # case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
+        #     return ReinterpretCast(
+        #         expr=arg.resolve(),
+        #         wtype=wtypes.arc4_byte_alias,
+        #         source_location=arg.source_location,
+        #     )
         case _:
             raise CodeError("invalid argument type", arg.source_location)
 

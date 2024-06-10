@@ -228,23 +228,23 @@ def arc4_encode(
     base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type, location: SourceLocation
 ) -> awst_nodes.Expression:
     match base.wtype:
-        case wtypes.bytes_wtype:
-            base_temp = awst_nodes.SingleEvaluation(base)
-
-            length = awst_nodes.IntrinsicCall(
-                source_location=location,
-                op_code="substring",
-                immediates=[6, 8],
-                wtype=wtypes.bytes_wtype,
-                stack_args=[
-                    intrinsic_factory.itob(intrinsic_factory.bytes_len(base_temp, loc=location))
-                ],
-            )
-            return awst_nodes.ReinterpretCast(
-                source_location=location,
-                wtype=wtypes.arc4_dynamic_bytes,
-                expr=intrinsic_factory.concat(length, base_temp, location),
-            )
+        # case wtypes.bytes_wtype:
+        #     base_temp = awst_nodes.SingleEvaluation(base)
+        #
+        #     length = awst_nodes.IntrinsicCall(
+        #         source_location=location,
+        #         op_code="substring",
+        #         immediates=[6, 8],
+        #         wtype=wtypes.bytes_wtype,
+        #         stack_args=[
+        #             intrinsic_factory.itob(intrinsic_factory.bytes_len(base_temp, loc=location))
+        #         ],
+        #     )
+        #     return awst_nodes.ReinterpretCast(
+        #         source_location=location,
+        #         wtype=wtypes.arc4_dynamic_bytes,
+        #         expr=intrinsic_factory.concat(length, base_temp, location),
+        #     )
         case wtypes.WTuple(types=types):
             base_temp = awst_nodes.SingleEvaluation(base)
 
@@ -282,11 +282,7 @@ def maybe_arc4_encode(
     """Encode as arc4 if wtype is not already an arc4 encoded type"""
     if isinstance(wtype, ARC4Type):
         return item
-    return arc4_encode(
-        item,
-        wtypes.avm_to_arc4_equivalent_type(wtype),
-        location,
-    )
+    return arc4_encode(item, wtypes.avm_to_arc4_equivalent_type(wtype), location)
 
 
 def maybe_arc4_decode(
@@ -298,15 +294,7 @@ def maybe_arc4_decode(
 ) -> awst_nodes.Expression:
     if current_wtype == target_wtype:
         return item
-    assert target_wtype == wtypes.arc4_to_avm_equivalent_wtype(
-        current_wtype,
-        location,
-    ), "target type must be avm equivalent of current type"
-    return arc4_decode(
-        item,
-        target_wtype,
-        location,
-    )
+    return arc4_decode(item, target_wtype, location)
 
 
 def arc4_decode(

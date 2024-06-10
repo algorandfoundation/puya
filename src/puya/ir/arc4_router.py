@@ -402,7 +402,7 @@ def map_abi_args(
             if wtypes.has_arc4_equivalent_type(wtype):
                 return wtypes.avm_to_arc4_equivalent_type(wtype)
             elif wtypes.is_reference_type(wtype):
-                return wtypes.arc4_byte_type
+                return wtypes.arc4_byte_alias
             else:
                 return wtype
 

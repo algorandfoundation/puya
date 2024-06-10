@@ -16,14 +16,9 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb.arc4.base import (
-    ARC4TypeBuilder,
-    arc4_bool_bytes,
-)
+from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -48,17 +43,33 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class UIntNTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter):
+    def __init__(self, pytype: pytypes.PyType, location: SourceLocation):
+        assert isinstance(pytype, pytypes.ARC4UIntNType)
+        super().__init__(pytype, location)
+
     @typing.override
     @property
     def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.IntLiteralType,)
+        return pytypes.IntLiteralType, pytypes.BoolType
 
     @typing.override
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+        pytype = self.produces()
+        match literal.value:
+            case int(constant):
+                if constant < 0 or constant.bit_length() > pytype.bits:
+                    raise CodeError(f"Invalid  {pytype} value: {constant}", location)
+                typed_const = IntegerConstant(
+                    value=int(constant), source_location=location, wtype=pytype.wtype
+                )
+                return UIntNExpressionBuilder(typed_const, pytype)
+            case _:
+                raise CodeError(
+                    f"cannot construct {pytype} from literal {literal.value!r}", location
+                )
 
     @typing.override
     def call(
@@ -70,12 +81,11 @@ class UIntNTypeBuilder(ARC4TypeBuilder, LiteralConverter):
     ) -> InstanceBuilder:
         typ = self.produces()
         wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4UIntN)
         match args:
+            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as int_literal_builder]:
+                return int_literal_builder.resolve_literal(UIntNTypeBuilder(typ, location))
             case []:
                 expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
-            case [LiteralBuilder(value=int(int_value))]:
-                expr = IntegerConstant(value=int_value, wtype=wtype, source_location=location)
             case [
                 InstanceBuilder(
                     pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)

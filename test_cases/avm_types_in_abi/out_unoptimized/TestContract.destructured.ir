@@ -44,50 +44,49 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 let (awst_tmp%5#0: bool, awst_tmp%6#0: uint64, awst_tmp%7#0: bytes, awst_tmp%8#0: biguint, awst_tmp%9#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%11#0, tmp%13#0, tmp%15#0, tmp%16#0, tmp%17#0, awst_tmp%3#0, tmp%18#0)
                 let encoded_bool%1#0: bytes = (setbit 0x00 0u awst_tmp%5#0)
                 let val_as_bytes%0#0: bytes = (itob awst_tmp%6#0)
-                let awst_tmp%10#0: bytes = awst_tmp%7#0
-                let tmp%19#0: uint64 = (len awst_tmp%10#0)
-                let tmp%20#0: bytes = (itob tmp%19#0)
-                let tmp%21#0: bytes = ((substring 6 8) tmp%20#0)
-                let tmp%22#0: bytes = (concat tmp%21#0 awst_tmp%10#0)
+                let length%0#0: uint64 = (len awst_tmp%7#0)
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 awst_tmp%7#0)
                 let len_%0#0: uint64 = (len awst_tmp%8#0)
                 let no_overflow%0#0: bool = (<= len_%0#0 64u)
                 (assert no_overflow%0#0) // overflow
                 let b_zeros%0#0: bytes = (bzero 64u)
-                let tmp%23#0: bytes = (b| awst_tmp%8#0 b_zeros%0#0)
-                let length%0#0: uint64 = (len awst_tmp%9#0)
-                let as_bytes%0#0: bytes = (itob length%0#0)
-                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-                let encoded_value%0#0: bytes = (concat length_uint16%0#0 awst_tmp%9#0)
+                let tmp%19#0: bytes = (b| awst_tmp%8#0 b_zeros%0#0)
+                let length%1#0: uint64 = (len awst_tmp%9#0)
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 awst_tmp%9#0)
                 let encoded_tuple_buffer%1#0: bytes = (concat 0x encoded_bool%1#0)
                 let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 val_as_bytes%0#0)
-                let as_bytes%1#0: bytes = (itob 77u)
-                let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let as_bytes%2#0: bytes = (itob 77u)
+                let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%2#0)
                 let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 offset_as_uint16%0#0)
-                let data_length%0#0: uint64 = (len tmp%22#0)
+                let data_length%0#0: uint64 = (len encoded_value%0#0)
                 let current_tail_offset%1#0: uint64 = (+ 77u data_length%0#0)
-                let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 tmp%23#0)
-                let as_bytes%2#0: bytes = (itob current_tail_offset%1#0)
-                let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 tmp%19#0)
+                let as_bytes%3#0: bytes = (itob current_tail_offset%1#0)
+                let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
                 let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 offset_as_uint16%1#0)
-                let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 tmp%22#0)
-                let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 encoded_value%0#0)
-                let tmp%24#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%7#0)
-                (log tmp%24#0)
+                let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 encoded_value%0#0)
+                let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 encoded_value%1#0)
+                let tmp%20#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%7#0)
+                (log tmp%20#0)
                 return 1u
             block@2: // tuple_of_arc4_route_L19
-                let tmp%25#0: uint64 = (txn OnCompletion)
-                let tmp%26#0: bool = (== tmp%25#0 NoOp)
-                (assert tmp%26#0) // OnCompletion is NoOp
-                let tmp%27#0: bool = (txn ApplicationID)
-                (assert tmp%27#0) // is not creating
-                let tmp%28#0: bytes = (txna ApplicationArgs 1)
-                let item0%1#0: bytes = (extract3 tmp%28#0 0u 1u) // on error: Index access is out of bounds
-                let item1%1#0: bytes = (extract3 tmp%28#0 1u 32u) // on error: Index access is out of bounds
-                let (awst_tmp%11#0: bytes, awst_tmp%12#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
-                let encoded_tuple_buffer%9#0: bytes = (concat 0x awst_tmp%11#0)
-                let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 awst_tmp%12#0)
-                let tmp%29#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%10#0)
-                (log tmp%29#0)
+                let tmp%21#0: uint64 = (txn OnCompletion)
+                let tmp%22#0: bool = (== tmp%21#0 NoOp)
+                (assert tmp%22#0) // OnCompletion is NoOp
+                let tmp%23#0: bool = (txn ApplicationID)
+                (assert tmp%23#0) // is not creating
+                let tmp%24#0: bytes = (txna ApplicationArgs 1)
+                let item0%1#0: bytes = (extract3 tmp%24#0 0u 1u) // on error: Index access is out of bounds
+                let item1%1#0: bytes = (extract3 tmp%24#0 1u 32u) // on error: Index access is out of bounds
+                let (awst_tmp%10#0: bytes, awst_tmp%11#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
+                let encoded_tuple_buffer%9#0: bytes = (concat 0x awst_tmp%10#0)
+                let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 awst_tmp%11#0)
+                let tmp%25#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%10#0)
+                (log tmp%25#0)
                 return 1u
             block@3: // switch_case_default_L4
                 goto block@4

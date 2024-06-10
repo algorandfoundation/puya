@@ -93,9 +93,9 @@ contract VotingRoundApp
     GlobalState['nft_asset_id']: uint64 = reinterpret_cast<uint64>(submit_txn(create_inner_transaction(Fee=global<MinTxnFee>(), TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + GlobalState['vote_id'], ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=GlobalState['nft_image_url'], Note=note)).CreatedAssetID)
   }
   
-  abimethod get_preconditions(signature: bytes): arc4.struct<is_voting_open:arc4.uint64,is_allowed_to_vote:arc4.uint64,has_already_voted:arc4.uint64,current_time:arc4.uint64>
+  abimethod get_preconditions(signature: bytes): examples.voting.voting.VotingPreconditions
   {
-    return new arc4.struct<is_voting_open:arc4.uint64,is_allowed_to_vote:arc4.uint64,has_already_voted:arc4.uint64,current_time:arc4.uint64>(is_voting_open=arc4_encode(this::voting_open(), arc4.uint64), is_allowed_to_vote=arc4_encode(this::allowed_to_vote(signature), arc4.uint64), has_already_voted=arc4_encode(this::already_voted(), arc4.uint64), current_time=arc4_encode(global<LatestTimestamp>(), arc4.uint64))
+    return new examples.voting.voting.VotingPreconditions(is_voting_open=arc4_encode(this::voting_open(), arc4.uint64), is_allowed_to_vote=arc4_encode(this::allowed_to_vote(signature), arc4.uint64), has_already_voted=arc4_encode(this::already_voted(), arc4.uint64), current_time=arc4_encode(global<LatestTimestamp>(), arc4.uint64))
   }
   
   abimethod vote(fund_min_bal_req: group_transaction_pay, signature: bytes, answer_ids: arc4.dynamic_array<arc4.uint8>): void

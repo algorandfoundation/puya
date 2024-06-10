@@ -577,6 +577,6 @@ def _address_from_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype == pytypes.AccountType
     return ReinterpretCast(
         expr=builder.resolve(),
-        wtype=wtypes.arc4_address_type,
+        wtype=wtypes.arc4_address_wtype,
         source_location=builder.source_location,
     )

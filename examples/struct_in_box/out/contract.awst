@@ -1,19 +1,19 @@
 struct UserStruct {
-  name: arc4.string
+  name: arc4.dynamic_array<arc4.uint8>
   id: arc4.uint64
   asset: arc4.uint64
 }
 
 contract ExampleContract
 {
-  subroutine read_from_box(user_id: arc4.uint64): arc4.struct<name:arc4.string,id:arc4.uint64,asset:arc4.uint64>
+  subroutine read_from_box(user_id: arc4.uint64): examples.struct_in_box.contract.UserStruct
   {
     (box_data, exists): tuple<bytes,bool> = box_get(reinterpret_cast<bytes>(user_id))
     assert(exists, comment="User with that id does not exist")
-    return reinterpret_cast<arc4.struct<name:arc4.string,id:arc4.uint64,asset:arc4.uint64>>(box_data)
+    return reinterpret_cast<examples.struct_in_box.contract.UserStruct>(box_data)
   }
   
-  subroutine write_to_box(user: arc4.struct<name:arc4.string,id:arc4.uint64,asset:arc4.uint64>): void
+  subroutine write_to_box(user: examples.struct_in_box.contract.UserStruct): void
   {
     box_key: bytes = reinterpret_cast<bytes>(user.id)
     box_del(box_key)
@@ -26,7 +26,7 @@ contract ExampleContract
     return exists
   }
   
-  abimethod add_user(user: arc4.struct<name:arc4.string,id:arc4.uint64,asset:arc4.uint64>): void
+  abimethod add_user(user: examples.struct_in_box.contract.UserStruct): void
   {
     assert(!(this::box_exists(user.id)), comment="User with id must not exist")
     this::write_to_box(user)
@@ -34,12 +34,12 @@ contract ExampleContract
   
   abimethod attach_asset_to_user(user_id: arc4.uint64, asset: asset): void
   {
-    user: arc4.struct<name:arc4.string,id:arc4.uint64,asset:arc4.uint64> = this::read_from_box(user_id)
+    user: examples.struct_in_box.contract.UserStruct = this::read_from_box(user_id)
     user.asset: arc4.uint64 = arc4_encode(reinterpret_cast<uint64>(asset), arc4.uint64)
     this::write_to_box(user)
   }
   
-  abimethod get_user(user_id: arc4.uint64): arc4.struct<name:arc4.string,id:arc4.uint64,asset:arc4.uint64>
+  abimethod get_user(user_id: arc4.uint64): examples.struct_in_box.contract.UserStruct
   {
     return this::read_from_box(user_id)
   }

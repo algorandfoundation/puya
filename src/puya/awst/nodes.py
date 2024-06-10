@@ -480,7 +480,7 @@ class MethodConstant(Expression):
 class AddressConstant(Expression):
     wtype: WType = attrs.field(
         default=wtypes.account_wtype,
-        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_type),
+        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_wtype),
     )
     value: str = attrs.field()
 
@@ -496,17 +496,14 @@ class AddressConstant(Expression):
 @attrs.frozen
 class ARC4Encode(Expression):
     value: Expression
-    wtype: wtypes.ARC4Type = attrs.field(
-        validator=wtype_is_one_of(
-            wtypes.ARC4UIntN,
-            wtypes.ARC4UFixedNxM,
-            wtypes.ARC4Tuple,
-            wtypes.arc4_string_wtype,
-            wtypes.arc4_bool_wtype,
-            wtypes.arc4_dynamic_bytes,
-            wtypes.arc4_address_type,
-        )
-    )
+    wtype: wtypes.ARC4Type = attrs.field()
+
+    @wtype.validator
+    def _wtype_validator(self, _attribute: object, wtype: wtypes.ARC4Type) -> None:
+        if self.value.wtype not in wtype.encodeable_types:
+            raise InternalError(
+                f"cannot ARC4 encode {self.value.wtype} to {wtype}", self.source_location
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
@@ -562,7 +559,21 @@ class ArrayExtend(Expression):
 
 @attrs.frozen
 class ARC4Decode(Expression):
-    value: Expression
+    value: Expression = attrs.field()
+
+    @value.validator
+    def _value_wtype_validator(self, _attribute: object, value: Expression) -> None:
+        if not isinstance(value.wtype, wtypes.ARC4Type):
+            raise InternalError(
+                f"ARC4Decode should only be used with expressions of ARC4Type, got {value.wtype}",
+                self.source_location,
+            )
+        if self.wtype != value.wtype.decode_type:
+            raise InternalError(
+                f"ARC4Decode from {value.wtype} should have target type {value.wtype.decode_type},"
+                f" got {self.wtype}",
+                self.source_location,
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_decode(self)

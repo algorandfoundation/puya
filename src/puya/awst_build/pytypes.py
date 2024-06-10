@@ -301,16 +301,16 @@ class StructType(PyType):
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
         # TODO: this is a bit of a kludge
-        wtype_cls: Callable[
-            [Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
-        ]
+        wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct
         elif base is StructBaseType:
             wtype_cls = wtypes.WStructType
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
-        wtype = wtype_cls(field_wtypes, frozen, source_location)
+        wtype = wtype_cls(
+            field_wtypes, name=name, immutable=frozen, source_location=source_location
+        )
         self.__attrs_init__(
             bases=[base],
             mro=[base],
@@ -395,7 +395,7 @@ ARC4BoolType: typing.Final[PyType] = _SimpleType(
 @attrs.frozen
 class ARC4UIntNType(PyType):
     bits: int
-    wtype: wtypes.WType
+    wtype: wtypes.ARC4UIntN
     native_type: PyType
 
 
@@ -440,7 +440,9 @@ def _make_arc4_unsigned_int_parameterise(
             name=name,
             bits=bits,
             native_type=native_type,
-            wtype=wtypes.ARC4UIntN(bits, source_location),
+            wtype=wtypes.ARC4UIntN(
+                n=bits, decode_type=native_type.wtype, source_location=source_location
+            ),
         )
 
     return parameterise
@@ -471,7 +473,7 @@ ARC4ByteType: typing.Final = _register_builtin(
     ARC4UIntNType(
         generic=None,
         name=constants.CLS_ARC4_BYTE,
-        wtype=wtypes.arc4_byte_type,
+        wtype=wtypes.arc4_byte_alias,
         bits=8,
         bases=[ARC4UIntN_Aliases[8]],
         mro=[ARC4UIntN_Aliases[8]],
@@ -611,7 +613,11 @@ GenericARC4DynamicArrayType: typing.Final = _GenericType(
 ARC4DynamicBytesType: typing.Final = _register_builtin(
     ArrayType(
         name=constants.CLS_ARC4_DYNAMIC_BYTES,
-        wtype=wtypes.arc4_dynamic_bytes,
+        wtype=wtypes.ARC4DynamicArray(
+            element_type=ARC4ByteType.wtype,
+            native_type=wtypes.bytes_wtype,
+            source_location=None,
+        ),
         size=0,
         items=ARC4ByteType,
         bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
@@ -655,7 +661,7 @@ GenericARC4StaticArrayType: typing.Final = _GenericType(
 ARC4AddressType: typing.Final = _register_builtin(
     ArrayType(
         name=constants.CLS_ARC4_ADDRESS,
-        wtype=wtypes.arc4_address_type,
+        wtype=wtypes.arc4_address_wtype,
         size=32,
         generic=None,
         items=ARC4ByteType,

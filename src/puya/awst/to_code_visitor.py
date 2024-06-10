@@ -319,14 +319,15 @@ class ToCodeVisitor(
         if expr.teal_alias:
             return expr.teal_alias
         match expr.wtype:
-            case wtypes.uint64_wtype | wtypes.WGroupTransaction():
+            case wtypes.uint64_wtype:
                 suffix = "u"
             case wtypes.biguint_wtype:
                 suffix = "n"
-            case wtypes.ARC4UIntN(n=n):
-                if n <= 64:
+            case wtypes.ARC4UIntN(n=n, decode_type=decode_type):
+                if decode_type == wtypes.uint64_wtype:
                     suffix = f"arc4u{n}"
                 else:
+                    assert decode_type == wtypes.biguint_wtype
                     suffix = f"arc4n{n}"
             case _:
                 raise InternalError(
