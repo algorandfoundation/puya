@@ -156,20 +156,24 @@ test_static_elements:
     swap
     concat
     // arc4_dynamic_arrays/contract.py:45
-    // struct1 = StaticStruct(get_uint1(), byte_array1)
+    // struct1 = StaticStruct(get_uint1(), byte_array1.copy())
     callsub get_uint1
+    uncover 2
+    swap
     byte 0x
     swap
     concat
-    uncover 2
+    swap
     concat
     // arc4_dynamic_arrays/contract.py:46
-    // struct2 = StaticStruct(get_uint2(), byte_array2)
+    // struct2 = StaticStruct(get_uint2(), byte_array2.copy())
     callsub get_uint2
+    uncover 2
+    swap
     byte 0x
     swap
     concat
-    uncover 2
+    swap
     concat
     swap
     // arc4_dynamic_arrays/contract.py:47
@@ -1227,28 +1231,48 @@ test_nested_struct_replacement:
     concat
     swap
     concat
+    // arc4_dynamic_arrays/contract.py:117
+    // one=one.copy(),
+    dig 4
+    swap
+    // arc4_dynamic_arrays/contract.py:118
+    // two=two.copy(),
+    dig 4
+    cover 2
+    // arc4_dynamic_arrays/contract.py:119
+    // three=three.copy(),
+    dig 4
+    cover 3
+    // arc4_dynamic_arrays/contract.py:120
+    // four=four.copy(),
+    dig 4
+    cover 4
+    // arc4_dynamic_arrays/contract.py:121
+    // five=five.copy(),
+    dup
+    cover 4
     // arc4_dynamic_arrays/contract.py:116-122
     // struct1 = NestedDynamicStruct(
-    //     one=one,
-    //     two=two,
-    //     three=three,
-    //     four=four,
-    //     five=five,
+    //     one=one.copy(),
+    //     two=two.copy(),
+    //     three=three.copy(),
+    //     four=four.copy(),
+    //     five=five.copy(),
     // )
     byte 0x
-    dig 5
+    uncover 2
     concat
     int 26
     itob
     extract 6 2
     concat
-    dig 4
+    dig 2
     len
     int 26
     swap
     +
     swap
-    dig 4
+    uncover 4
     concat
     swap
     dup
@@ -1258,19 +1282,22 @@ test_nested_struct_replacement:
     swap
     concat
     swap
-    dig 3
+    dig 5
     len
     +
     itob
     extract 6 2
     concat
-    dig 4
+    uncover 2
     concat
-    dig 2
+    uncover 3
     concat
-    dig 1
+    uncover 2
     concat
     cover 5
+    // arc4_dynamic_arrays/contract.py:124
+    // one=one.copy(),
+    uncover 4
     // arc4_dynamic_arrays/contract.py:125
     // two=DynamicStruct(get_string2(), get_string1()),  # this is the difference with struct1
     callsub get_string2
@@ -1297,16 +1324,24 @@ test_nested_struct_replacement:
     concat
     swap
     concat
+    // arc4_dynamic_arrays/contract.py:126
+    // three=three.copy(),
+    uncover 4
+    swap
+    // arc4_dynamic_arrays/contract.py:127
+    // four=four.copy(),
+    uncover 4
+    cover 2
     // arc4_dynamic_arrays/contract.py:123-129
     // struct2 = NestedDynamicStruct(
-    //     one=one,
+    //     one=one.copy(),
     //     two=DynamicStruct(get_string2(), get_string1()),  # this is the difference with struct1
-    //     three=three,
-    //     four=four,
-    //     five=five,
+    //     three=three.copy(),
+    //     four=four.copy(),
+    //     five=five.copy(),
     // )
     byte 0x
-    uncover 6
+    uncover 4
     concat
     int 26
     itob
@@ -1318,7 +1353,7 @@ test_nested_struct_replacement:
     swap
     +
     swap
-    uncover 5
+    uncover 3
     concat
     swap
     dup
@@ -1328,7 +1363,7 @@ test_nested_struct_replacement:
     swap
     concat
     swap
-    dig 4
+    dig 3
     len
     +
     itob
@@ -1336,7 +1371,7 @@ test_nested_struct_replacement:
     concat
     swap
     concat
-    uncover 2
+    swap
     concat
     swap
     concat

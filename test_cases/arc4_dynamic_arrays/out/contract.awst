@@ -36,8 +36,8 @@ contract DynamicArrayContract
   {
     byte_array1: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](test_cases.arc4_dynamic_arrays.contract::get_byte1(), test_cases.arc4_dynamic_arrays.contract::get_byte2())
     byte_array2: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]] = new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](test_cases.arc4_dynamic_arrays.contract::get_byte3(), test_cases.arc4_dynamic_arrays.contract::get_byte4())
-    struct1: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint1(), b=byte_array1)
-    struct2: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint2(), b=byte_array2)
+    struct1: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint1(), b=byte_array1.copy())
+    struct2: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint2(), b=byte_array2.copy())
     array: algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.StaticStruct] = new algopy.arc4.DynamicArray[test_cases.arc4_dynamic_arrays.contract.StaticStruct](struct1.copy(), struct1.copy())
     array[1u]: test_cases.arc4_dynamic_arrays.contract.StaticStruct = struct2.copy()
     log(array)
@@ -101,8 +101,8 @@ contract DynamicArrayContract
     three: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint2(), b=new algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]](test_cases.arc4_dynamic_arrays.contract::get_byte2(), test_cases.arc4_dynamic_arrays.contract::get_byte1()))
     four: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract::get_uint1(), b=test_cases.arc4_dynamic_arrays.contract::get_string1(), c=test_cases.arc4_dynamic_arrays.contract::get_uint2(), d=test_cases.arc4_dynamic_arrays.contract::get_u16_arr1(), e=test_cases.arc4_dynamic_arrays.contract::get_uint1())
     five: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract::get_string1(), b=test_cases.arc4_dynamic_arrays.contract::get_string2())
-    struct1: test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct = new test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct(one=one, two=two, three=three, four=four, five=five)
-    struct2: test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct = new test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct(one=one, two=new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract::get_string2(), b=test_cases.arc4_dynamic_arrays.contract::get_string1()), three=three, four=four, five=five)
+    struct1: test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct = new test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct(one=one.copy(), two=two.copy(), three=three.copy(), four=four.copy(), five=five.copy())
+    struct2: test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct = new test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct(one=one.copy(), two=new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract::get_string2(), b=test_cases.arc4_dynamic_arrays.contract::get_string1()), three=three.copy(), four=four.copy(), five=five.copy())
     struct2.two: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = two.copy()
     assert(reinterpret_cast<algopy.Bytes>(struct1) == reinterpret_cast<algopy.Bytes>(struct2), comment="struct1 does not match struct2")
   }

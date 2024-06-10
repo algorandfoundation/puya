@@ -42,8 +42,8 @@ class DynamicArrayContract(ARC4Contract):
         byte_array1 = arc4.StaticArray(get_byte1(), get_byte2())
         byte_array2 = arc4.StaticArray(get_byte3(), get_byte4())
 
-        struct1 = StaticStruct(get_uint1(), byte_array1)
-        struct2 = StaticStruct(get_uint2(), byte_array2)
+        struct1 = StaticStruct(get_uint1(), byte_array1.copy())
+        struct2 = StaticStruct(get_uint2(), byte_array2.copy())
         array = arc4.DynamicArray(struct1.copy(), struct1.copy())
         array[1] = struct2.copy()
         log(array)
@@ -114,18 +114,18 @@ class DynamicArrayContract(ARC4Contract):
         )
         five = DynamicStruct(get_string1(), get_string2())
         struct1 = NestedDynamicStruct(
-            one=one,
-            two=two,
-            three=three,
-            four=four,
-            five=five,
+            one=one.copy(),
+            two=two.copy(),
+            three=three.copy(),
+            four=four.copy(),
+            five=five.copy(),
         )
         struct2 = NestedDynamicStruct(
-            one=one,
+            one=one.copy(),
             two=DynamicStruct(get_string2(), get_string1()),  # this is the difference with struct1
-            three=three,
-            four=four,
-            five=five,
+            three=three.copy(),
+            four=four.copy(),
+            five=five.copy(),
         )
 
         struct2.two = two.copy()  # now struct2 should match struct1
