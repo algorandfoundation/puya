@@ -98,6 +98,10 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """Produce an expression for use as an intermediary"""
 
     @abc.abstractmethod
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+        """TODO: docstring"""
+
+    @abc.abstractmethod
     def resolve_lvalue(self) -> Lvalue:
         """Produce an expression for the target of an assignment"""
 
@@ -167,6 +171,16 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
     @property
     @abc.abstractmethod
     def value(self) -> ConstantValue: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> LiteralBuilder:
+        """Handle {op} self"""
+
+    @typing.override
+    @abc.abstractmethod
+    def member_access(self, name: str, location: SourceLocation) -> LiteralBuilder:
+        """Handle self.name"""
 
 
 class LiteralConverter(NodeBuilder, abc.ABC):

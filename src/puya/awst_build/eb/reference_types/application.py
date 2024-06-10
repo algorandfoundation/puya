@@ -85,6 +85,7 @@ class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
         super().__init__(
             expr,
             typ=pytypes.ApplicationType,
+            typ_literal_converter=ApplicationTypeBuilder,
             native_access_member=native_access_member,
             field_mapping=field_mapping,
             field_op_code=field_op_code,

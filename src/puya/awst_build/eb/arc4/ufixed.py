@@ -26,7 +26,6 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -120,6 +119,5 @@ class UFixedNxMExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        if isinstance(other, LiteralBuilder):
-            other = construct_from_literal(other, self.pytype)
+        other = other.resolve_literal(UFixedNxMTypeBuilder(self.pytype, other.source_location))
         return compare_bytes(op=op, lhs=self, rhs=other, source_location=location)

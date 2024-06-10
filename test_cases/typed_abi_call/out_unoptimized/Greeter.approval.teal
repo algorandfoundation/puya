@@ -1448,12 +1448,6 @@ test_native_bytes:
     // typed_abi_call/typed_c2c.py:135
     // result2, _txn = arc4.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app)
     itxn_begin
-    byte 0x62
-    len
-    itob
-    substring 6 8
-    byte 0x62
-    concat
     // typed_abi_call/typed_c2c.py:131
     // def test_native_bytes(self, app: Application) -> None:
     frame_dig -1
@@ -1462,6 +1456,7 @@ test_native_bytes:
     // result2, _txn = arc4.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app)
     method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
+    byte 0x000162
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1917,14 +1912,6 @@ test_native_tuple:
     extract 6 2
     byte "s1"
     concat
-    // typed_abi_call/typed_c2c.py:191
-    // Bytes(b"b1"),
-    byte 0x6231
-    len
-    itob
-    substring 6 8
-    byte 0x6231
-    concat
     // typed_abi_call/typed_c2c.py:192
     // UInt64(1),
     int 1
@@ -1943,15 +1930,11 @@ test_native_tuple:
     b|
     // typed_abi_call/typed_c2c.py:190
     // String("s1"),
-    uncover 3
+    uncover 2
     swap
-    // typed_abi_call/typed_c2c.py:191
-    // Bytes(b"b1"),
-    uncover 3
-    cover 2
     // typed_abi_call/typed_c2c.py:193
     // BigUInt(2),
-    cover 3
+    cover 2
     // typed_abi_call/typed_c2c.py:166
     // def test_native_tuple(self, app: Application) -> None:
     frame_dig -1
@@ -1969,9 +1952,22 @@ test_native_tuple:
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:191
+    // Bytes(b"b1"),
+    byte 0x00026231
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:187-195
+    // # test again using native types in arguments
+    // txn = arc4.abi_call(
+    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
+    //     String("s1"),
+    //     Bytes(b"b1"),
+    //     UInt64(1),
+    //     BigUInt(2),
+    //     app_id=app,
+    // )
     int appl
     itxn_field TypeEnum
     int 0

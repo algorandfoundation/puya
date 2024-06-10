@@ -1,0 +1,130 @@
+#pragma version 10
+
+test_cases.conditional_expressions.literals.Literals.approval_program:
+    // conditional_expressions/literals.py:6
+    // self.with_variable_condition(condition=False)
+    int 0
+    callsub with_variable_condition
+    // conditional_expressions/literals.py:7
+    // self.with_variable_condition(condition=True)
+    int 1
+    callsub with_variable_condition
+    // conditional_expressions/literals.py:9
+    // return True
+    int 1
+    return
+
+
+// test_cases.conditional_expressions.literals.Literals.with_variable_condition(condition: uint64) -> void:
+with_variable_condition:
+    // conditional_expressions/literals.py:14-15
+    // @subroutine
+    // def with_variable_condition(self, *, condition: bool) -> None:
+    proto 1 0
+    byte ""
+    dup
+    // conditional_expressions/literals.py:16
+    // x = UInt64(1 if condition else 0)
+    frame_dig -1
+    bz with_variable_condition_ternary_false@2
+    int 1
+    b with_variable_condition_ternary_merge@3
+
+with_variable_condition_ternary_false@2:
+    // conditional_expressions/literals.py:16
+    // x = UInt64(1 if condition else 0)
+    int 0
+
+with_variable_condition_ternary_merge@3:
+    // conditional_expressions/literals.py:16
+    // x = UInt64(1 if condition else 0)
+    dup
+    frame_bury 0
+    // conditional_expressions/literals.py:17
+    // assert bool(x) == condition
+    frame_dig -1
+    ==
+    assert
+    // conditional_expressions/literals.py:18
+    // assert x == -(-1 if condition else 0)  # test unary op propagation
+    frame_dig -1
+    bz with_variable_condition_ternary_false@5
+    int 1
+    b with_variable_condition_ternary_merge@6
+
+with_variable_condition_ternary_false@5:
+    // conditional_expressions/literals.py:18
+    // assert x == -(-1 if condition else 0)  # test unary op propagation
+    int 0
+
+with_variable_condition_ternary_merge@6:
+    // conditional_expressions/literals.py:18
+    // assert x == -(-1 if condition else 0)  # test unary op propagation
+    frame_dig 0
+    swap
+    ==
+    assert
+    // conditional_expressions/literals.py:19
+    // y = x + ((1 if condition else 2) - 1)  # test binary op with literal & non-literal
+    frame_dig -1
+    bz with_variable_condition_ternary_false@8
+    int 0
+    b with_variable_condition_ternary_merge@9
+
+with_variable_condition_ternary_false@8:
+    // conditional_expressions/literals.py:19
+    // y = x + ((1 if condition else 2) - 1)  # test binary op with literal & non-literal
+    int 1
+
+with_variable_condition_ternary_merge@9:
+    // conditional_expressions/literals.py:19
+    // y = x + ((1 if condition else 2) - 1)  # test binary op with literal & non-literal
+    frame_dig 0
+    swap
+    +
+    dup
+    frame_bury 1
+    // conditional_expressions/literals.py:20-21
+    // # TODO: test reverse
+    // assert y == 1
+    int 1
+    ==
+    assert
+    // conditional_expressions/literals.py:22
+    // maybe = (1 if condition else 0) < y  # test comparison with non-literal
+    frame_dig -1
+    bz with_variable_condition_ternary_false@11
+    int 1
+    b with_variable_condition_ternary_merge@12
+
+with_variable_condition_ternary_false@11:
+    // conditional_expressions/literals.py:22
+    // maybe = (1 if condition else 0) < y  # test comparison with non-literal
+    int 0
+
+with_variable_condition_ternary_merge@12:
+    // conditional_expressions/literals.py:22
+    // maybe = (1 if condition else 0) < y  # test comparison with non-literal
+    frame_dig 1
+    swap
+    >
+    // conditional_expressions/literals.py:23
+    // assert maybe == (not condition)
+    frame_dig -1
+    !
+    ==
+    assert
+    // conditional_expressions/literals.py:24
+    // assert (1 if condition else 0) != 2  # test comparison with literal
+    frame_dig -1
+    bz with_variable_condition_ternary_false@14
+    b with_variable_condition_ternary_merge@15
+
+with_variable_condition_ternary_false@14:
+
+with_variable_condition_ternary_merge@15:
+    // conditional_expressions/literals.py:24
+    // assert (1 if condition else 0) != 2  # test comparison with literal
+    int 1
+    assert
+    retsub

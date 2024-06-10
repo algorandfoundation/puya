@@ -12,6 +12,7 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._utils import arc4_tuple_from_items, get_arc4_args_and_signature
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -31,7 +32,8 @@ class EmitBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
+        inst_args = [require_instance_builder(a) for a in args]
+        match inst_args:
             case [LiteralBuilder(value=str(event_str)), *event_args]:
                 arc4_args, signature = get_arc4_args_and_signature(event_str, event_args, location)
                 if signature.return_type is not None:
@@ -41,7 +43,9 @@ class EmitBuilder(FunctionBuilder):
                         location,
                     )
                 event_name = signature.method_name
-                event_arg: Expression = arc4_tuple_from_items(arc4_args, location)
+                event_arg: Expression = arc4_tuple_from_items(
+                    [a.resolve() for a in arc4_args], location
+                )
             case [
                 InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
             ] if pytypes.ARC4StructBaseType in struct_type.mro:

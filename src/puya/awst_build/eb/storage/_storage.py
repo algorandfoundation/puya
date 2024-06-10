@@ -21,6 +21,7 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
+    LiteralConverter,
     NodeBuilder,
     StorageProxyConstructorResult,
 )
@@ -77,6 +78,10 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
     @typing.override
     def resolve(self) -> Expression:
         return self._assign_first(self.source_location)
+
+    @typing.override
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+        return self
 
     @typing.override
     def resolve_lvalue(self) -> Lvalue:

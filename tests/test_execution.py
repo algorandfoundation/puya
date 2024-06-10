@@ -648,7 +648,7 @@ def test_with_reentrancy(harness: _TestHarness) -> None:
 
 
 def test_conditional_expressions(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "conditional_expressions")
+    result = harness.deploy(TEST_CASES_DIR / "conditional_expressions" / "contract.py")
     logs = result.decode_logs(("u" * 6) + "i")
     counts = collections.Counter(logs[:-1])
     assert counts == {
@@ -656,6 +656,10 @@ def test_conditional_expressions(harness: _TestHarness) -> None:
         "side_effecting_op": 3,
     }
     assert logs[-1] == 19
+
+
+def test_literal_conditional_expressions(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "conditional_expressions" / "literals.py")
 
 
 def test_contains_operator(harness: _TestHarness) -> None:

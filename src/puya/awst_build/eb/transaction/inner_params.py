@@ -22,14 +22,15 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.string import StringTypeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
-    construct_from_literal,
     expect_operand_type,
     require_instance_builder,
+    maybe_resolve_literal,
 )
 from puya.errors import CodeError, InternalError
 
@@ -62,13 +63,14 @@ def get_field_expr(arg_name: str, arg: InstanceBuilder) -> tuple[TxnField, Expre
                 expr = arg.resolve()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    elif isinstance(arg, LiteralBuilder):
-        # TODO: REMOVE HACK
-        if wtypes.string_wtype in field.additional_input_wtypes and isinstance(arg.value, str):
-            field_expr = construct_from_literal(arg, pytypes.StringType).resolve()
-        else:
-            field_expr = construct_from_literal(arg, field_pytype).resolve()
+    elif (  # TODO: can we remove this hack?
+        field_pytype == pytypes.BytesType
+        and arg.pytype == pytypes.StrLiteralType
+        and wtypes.string_wtype in field.additional_input_wtypes
+    ):
+        field_expr = arg.resolve_literal(StringTypeBuilder(arg.source_location)).resolve()
     else:
+        arg = maybe_resolve_literal(arg, field_pytype)
         arg_typ = arg.pytype
         if not (arg_typ and field.valid_type(arg_typ.wtype)):
             raise CodeError("bad argument type", arg.source_location)

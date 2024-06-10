@@ -20,6 +20,7 @@ from puya.awst_build.eb.interface import (
     CallableBuilder,
     InstanceBuilder,
     Iteration,
+    LiteralConverter,
     NodeBuilder,
 )
 from puya.errors import CodeError, InternalError
@@ -128,6 +129,10 @@ class InstanceExpressionBuilder(
     @property
     def pytype(self) -> _TPyType_co:
         return self._pytype
+
+    @typing.override
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+        return self
 
     @typing.override
     @typing.final

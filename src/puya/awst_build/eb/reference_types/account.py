@@ -34,7 +34,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types._base import ReferenceValueExpressionBuilder
-from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -159,7 +158,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(converter=AccountTypeBuilder(other.source_location))
         return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
 

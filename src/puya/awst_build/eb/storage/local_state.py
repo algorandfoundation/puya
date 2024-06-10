@@ -41,8 +41,8 @@ from puya.awst_build.eb.storage._storage import (
     extract_key_override,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 from puya.awst_build.utils import (
-    convert_literal_to_builder,
     get_arg_mapping,
     require_instance_builder,
 )
@@ -143,7 +143,9 @@ class LocalStateExpressionBuilder(
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
-        index_expr = convert_literal_to_builder(index, pytypes.UInt64Type).resolve()
+        index_expr = index.resolve_literal(
+            converter=UInt64TypeBuilder(index.source_location)
+        ).resolve()
         match index_expr:
             case IntegerConstant(value=account_offset):
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability

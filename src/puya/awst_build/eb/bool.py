@@ -24,7 +24,6 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -94,7 +93,6 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
         if other.pytype == self.pytype:
             pass
         else:

@@ -25,6 +25,7 @@ from puya.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     Iteration,
+    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.utils import (
@@ -150,6 +151,10 @@ class _IterableOnlyBuilder(InstanceBuilder):
     @property
     def pytype(self) -> typing.Never:
         raise NotImplementedError("TODO")  # TODO
+
+    @typing.override
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+        return self
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:

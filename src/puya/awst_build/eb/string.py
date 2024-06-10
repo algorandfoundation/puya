@@ -41,7 +41,6 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
-    convert_literal_to_builder,
     expect_operand_type,
     require_instance_builder,
 )
@@ -161,7 +160,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(converter=StringTypeBuilder(other.source_location))
         return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
     @typing.override

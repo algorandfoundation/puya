@@ -53,6 +53,7 @@ from puya.awst_build.eb.arc4 import (
     ARC4ClientTypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolTypeBuilder
+from puya.awst_build.eb.conditional_literal import ConditionalLiteralBuilder
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -877,7 +878,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if result is NotImplemented and isinstance(rhs, NodeBuilder):
             result = rhs.binary_op(other=lhs, op=op, location=node_loc, reverse=True)
         if result is NotImplemented:
-            raise CodeError(f"Unsupported operation {op.value} between types", node_loc)
+            raise CodeError(f"unsupported operation {op.value} between types", node_loc)
         return result
 
     def _visit_bool_op_expr(
@@ -941,7 +942,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 condition=condition,
                 true_expr=lhs.resolve(),
                 false_expr=rhs.resolve(),
-                wtype=target_pytyp.wtype,
             )
         return builder_for_instance(target_pytyp, expr_result)
 
@@ -997,16 +997,26 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         true_b = require_instance_builder(expr.if_expr.accept(self))
         false_b = require_instance_builder(expr.else_expr.accept(self))
         if true_b.pytype != false_b.pytype:
-            self._error("Incompatible result types for 'true' and 'false' expressions", expr_loc)
+            self._error("incompatible result types for 'true' and 'false' expressions", expr_loc)
         expr_pytype = true_b.pytype
 
-        cond_expr = ConditionalExpression(
-            condition=condition,
-            true_expr=true_b.resolve(),
-            false_expr=false_b.resolve(),
-            source_location=expr_loc,
-        )
-        return builder_for_instance(expr_pytype, cond_expr)
+        if isinstance(expr_pytype, pytypes.LiteralOnlyType):
+            assert isinstance(true_b, LiteralBuilder)  # TODO: fixme
+            assert isinstance(false_b, LiteralBuilder)
+            return ConditionalLiteralBuilder(
+                true_literal=true_b,
+                false_literal=false_b,
+                condition=condition,
+                location=expr_loc,
+            )
+        else:
+            cond_expr = ConditionalExpression(
+                condition=condition,
+                true_expr=true_b.resolve(),
+                false_expr=false_b.resolve(),
+                source_location=expr_loc,
+            )
+            return builder_for_instance(expr_pytype, cond_expr)
 
     def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> NodeBuilder:
         from puya.awst_build.eb.bool import BoolExpressionBuilder

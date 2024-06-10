@@ -36,7 +36,6 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -78,14 +77,14 @@ class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
     ) -> InstanceBuilder:
         match args:
             case []:
-                const = UInt64Constant(value=0, source_location=location)
-            case [LiteralBuilder(value=int(int_value))]:
-                const = UInt64Constant(value=int_value, source_location=location)
+                expr: Expression = UInt64Constant(value=0, source_location=location)
+            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+                expr = arg.resolve_literal(converter=UInt64TypeBuilder(location)).resolve()
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
-                const = UInt64Constant(value=0, source_location=location)
-        return UInt64ExpressionBuilder(const)
+                expr = UInt64Constant(value=0, source_location=location)
+        return UInt64ExpressionBuilder(expr)
 
 
 class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
@@ -133,7 +132,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
         if other.pytype == self.pytype:
             pass
         else:
@@ -155,7 +154,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
         if other.pytype == self.pytype:
             pass
         else:
@@ -174,7 +173,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        rhs = convert_literal_to_builder(rhs, self.pytype)
+        rhs = rhs.resolve_literal(converter=UInt64TypeBuilder(rhs.source_location))
         if rhs.pytype == self.pytype:
             pass
         else:

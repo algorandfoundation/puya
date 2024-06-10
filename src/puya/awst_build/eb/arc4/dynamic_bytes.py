@@ -17,6 +17,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.arc4_utils import arc4_decode
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
+from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
@@ -24,7 +25,7 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.utils import construct_from_literal
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -80,11 +81,11 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], Literal
 
 
 def _coerce_to_byte(arg: NodeBuilder) -> Expression:
+    arg = require_instance_builder(arg)
+    arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
     match arg:
-        case LiteralBuilder(value=int()) as literal:
-            return construct_from_literal(literal, pytypes.ARC4ByteType).resolve()
-        case InstanceBuilder(pytype=pytypes.ARC4ByteType) as eb:
-            return eb.resolve()
+        case InstanceBuilder(pytype=pytypes.ARC4ByteType):
+            return arg.resolve()
         case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
             return ReinterpretCast(
                 expr=arg.resolve(),
@@ -92,7 +93,7 @@ def _coerce_to_byte(arg: NodeBuilder) -> Expression:
                 source_location=arg.source_location,
             )
         case _:
-            raise CodeError("Expected a Byte, UInt64 or int type", arg.source_location)
+            raise CodeError("invalid argument type", arg.source_location)
 
 
 class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):

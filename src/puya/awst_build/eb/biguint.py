@@ -35,7 +35,6 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.utils import convert_literal_to_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -115,7 +114,7 @@ class BigUIntExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
         if other.pytype == self.pytype:
             other_expr = other.resolve()
         elif other.pytype == pytypes.UInt64Type:
@@ -138,7 +137,7 @@ class BigUIntExpressionBuilder(
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
         if other.pytype == self.pytype:
             other_expr = other.resolve()
         elif other.pytype == pytypes.UInt64Type:
@@ -158,7 +157,7 @@ class BigUIntExpressionBuilder(
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        rhs = convert_literal_to_builder(rhs, self.pytype)
+        rhs = rhs.resolve_literal(converter=BigUIntTypeBuilder(rhs.source_location))
         if rhs.pytype == self.pytype:
             value = rhs.resolve()
         elif rhs.pytype == pytypes.UInt64Type:

@@ -1061,7 +1061,7 @@ def get_comparison_op_for_wtype(
                 case awst_nodes.NumericComparison.ne:
                     return AVMOp.neq
     raise InternalError(
-        f"Unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
+        f"unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
     )
 
 

@@ -18,7 +18,7 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    NodeBuilder,
+    LiteralConverter,
 )
 from puya.awst_build.utils import fold_binary_expr, fold_unary_expr
 from puya.errors import CodeError
@@ -56,10 +56,13 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def resolve(self) -> Expression:
-        # TODO: can we somehow trap this to only be as final act of assignment?
         if isinstance(self.value, bool):
             return BoolConstant(value=self.value, source_location=self.source_location)
         raise CodeError("A Python literal is not valid at this location", self.source_location)
+
+    @typing.override
+    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+        return converter.convert_literal(literal=self, location=converter.source_location)
 
     @typing.override
     def resolve_lvalue(self) -> Lvalue:
@@ -83,7 +86,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         raise CodeError("cannot delete literal", location)
 
     @typing.override
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> LiteralBuilder:
         folded = fold_unary_expr(location, op.value, self.value)
         return LiteralBuilderImpl(value=folded, source_location=location)
 
@@ -168,7 +171,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         return LiteralBuilderImpl(value=folded, source_location=location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> LiteralBuilder:
         # TODO: support stuff like int.from_bytes etc
         raise CodeError("unsupported member access from literal", location)
 

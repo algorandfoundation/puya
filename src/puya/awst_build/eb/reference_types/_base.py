@@ -18,15 +18,21 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import convert_literal_to_builder
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    NodeBuilder,
+    LiteralConverter,
+)
+from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 
 if typing.TYPE_CHECKING:
 
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Callable
 
     from puya.parse import SourceLocation
 
@@ -77,11 +83,13 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
         expr: Expression,
         *,
         typ: pytypes.PyType,
+        typ_literal_converter: type[LiteralConverter],
         native_access_member: str,
         field_mapping: Mapping[str, tuple[str, pytypes.PyType]],
         field_op_code: str,
         field_bool_comment: str,
     ):
+        self._typ_literal_converter = typ_literal_converter
         super().__init__(
             expr,
             typ=typ,
@@ -113,7 +121,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = convert_literal_to_builder(other, self.pytype)
+        other = other.resolve_literal(self._typ_literal_converter(other.source_location))
         if not (
             other.pytype == self.pytype  # can only compare with other of same type?
             and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)

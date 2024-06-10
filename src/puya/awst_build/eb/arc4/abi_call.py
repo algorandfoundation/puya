@@ -35,8 +35,8 @@ from puya.awst_build.eb._base import (
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
-    expect_arc4_operand_pytype,
     get_arc4_args_and_signature,
+    implicit_operand_conversion,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
@@ -171,7 +171,7 @@ class ABICallTypeBuilder(FunctionBuilder):
 @attrs.frozen
 class _ABICallExpr:
     method: NodeBuilder
-    abi_args: Sequence[NodeBuilder]
+    abi_args: Sequence[InstanceBuilder]
     transaction_kwargs: dict[str, NodeBuilder]
     abi_arg_typs: Sequence[pytypes.PyType]
 
@@ -219,7 +219,7 @@ def _abi_call(
                     location,
                 )
             arc4_args = [
-                expect_arc4_operand_pytype(arg, pt)
+                implicit_operand_conversion(arg, pt)
                 for arg, pt in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
             ]
         case _:
@@ -275,7 +275,7 @@ def _is_typed(typ: pytypes.PyType | None) -> typing.TypeGuard[pytypes.PyType]:
 
 def _create_abi_call_expr(
     signature: ARC4Signature,
-    abi_args: Sequence[Expression],
+    abi_args: Sequence[InstanceBuilder],
     declared_result_pytype: pytypes.PyType | None,
     transaction_kwargs: dict[str, NodeBuilder],
     location: SourceLocation,
@@ -292,37 +292,37 @@ def _create_abi_call_expr(
     account_exprs = list[Expression]()
     application_exprs = list[Expression]()
 
-    def append_ref_arg(ref_list: list[Expression], arg_expr: Expression) -> None:
+    def append_ref_arg(ref_list: list[Expression], arg: InstanceBuilder) -> None:
         # asset refs start at 0, account and application start at 1
         implicit_offset = 0 if ref_list is asset_exprs else 1
         # TODO: what about references that are used more than once?
         ref_index = len(ref_list)
-        ref_list.append(arg_expr)
+        ref_list.append(arg.resolve())
         abi_arg_exprs.append(
             BytesConstant(
                 value=(ref_index + implicit_offset).to_bytes(length=1),
                 encoding=BytesEncoding.base16,
-                source_location=arg_expr.source_location,
+                source_location=arg.source_location,
             )
         )
 
-    for arg_expr, pytyp in zip(abi_args, signature.arg_types, strict=True):
-        match pytyp.wtype:
+    for arg_b in abi_args:
+        match arg_b.pytype.wtype:
             case wtypes.ARC4Type():
-                abi_arg_exprs.append(arg_expr)
+                abi_arg_exprs.append(arg_b.resolve())
             case wtypes.asset_wtype:
-                append_ref_arg(asset_exprs, arg_expr)
+                append_ref_arg(asset_exprs, arg_b)
             case wtypes.account_wtype:
-                append_ref_arg(account_exprs, arg_expr)
+                append_ref_arg(account_exprs, arg_b)
             case wtypes.application_wtype:
-                append_ref_arg(application_exprs, arg_expr)
+                append_ref_arg(application_exprs, arg_b)
             case wtypes.WGroupTransaction():
                 raise CodeError(
-                    "Transaction arguments are not supported for contract to contract calls",
-                    arg_expr.source_location,
+                    "transaction arguments are not supported for contract to contract calls",
+                    arg_b.source_location,
                 )
             case _:
-                raise CodeError("Invalid argument type", arg_expr.source_location)
+                raise CodeError("invalid argument type", arg_b.source_location)
 
     fields: dict[TxnField, Expression] = {
         TxnFields.fee: UInt64Constant(
@@ -422,7 +422,7 @@ def _extract_abi_call_args(
     location: SourceLocation,
 ) -> _ABICallExpr:
     method: NodeBuilder | None = None
-    abi_args = list[NodeBuilder]()
+    abi_args = list[InstanceBuilder]()
     kwargs = dict[str, NodeBuilder]()
     abi_arg_typs = []
     for i in range(len(args)):
@@ -433,8 +433,9 @@ def _extract_abi_call_args(
         if arg_kind == mypy.nodes.ArgKind.ARG_POS and i == 0:
             method = arg
         elif arg_kind == mypy.nodes.ArgKind.ARG_POS:
-            abi_args.append(arg)
-            abi_arg_typs.append(require_instance_builder(arg).pytype)
+            arg_inst = require_instance_builder(arg)
+            abi_args.append(arg_inst)
+            abi_arg_typs.append(arg_inst.pytype)
         elif arg_kind == mypy.nodes.ArgKind.ARG_NAMED:
             if arg_name is None:
                 raise InternalError(f"Expected named argument at pos {i}", location)

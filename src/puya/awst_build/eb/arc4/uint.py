@@ -33,7 +33,6 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
-from puya.awst_build.utils import construct_from_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -125,8 +124,7 @@ class UIntNExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        if isinstance(other, LiteralBuilder):
-            other = construct_from_literal(other, self.pytype)
+        other = other.resolve_literal(UIntNTypeBuilder(self.pytype, other.source_location))
         match other.pytype:
             case pytypes.BigUIntType:
                 other_expr = other.resolve()
