@@ -102,7 +102,7 @@ class String(_ABIEncoded):
 
 
 # https://stackoverflow.com/a/75395800
-class _UIntNMeta(type(_ABIEncoded), typing.Generic[_TBitSize]):  # type: ignore  # noqa: PGH003
+class _UIntNMeta(type(_ABIEncoded), typing.Generic[_TBitSize]):
     __concrete__: typing.ClassVar[dict[type, type]] = {}
 
     def __getitem__(cls, key_t: type[_TBitSize]) -> type:
@@ -269,7 +269,7 @@ _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
 _MAX_M_SIZE = 160
 
 
-class _UFixedNxMMeta(type(_ABIEncoded), typing.Generic[_TBitSize, _TDecimalPlaces]):  # type: ignore  # noqa: PGH003
+class _UFixedNxMMeta(type(_ABIEncoded), typing.Generic[_TBitSize, _TDecimalPlaces]):
     __concrete__: typing.ClassVar[dict[tuple[type, type], type]] = {}
 
     def __getitem__(cls, key_t: tuple[type[_TBitSize], type[_TDecimalPlaces]]) -> type:
