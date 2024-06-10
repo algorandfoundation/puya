@@ -1,0 +1,46 @@
+struct UserStruct {
+  name: algopy.arc4.String
+  id: algopy.arc4.UInt64
+  asset: algopy.arc4.UInt64
+}
+
+contract ExampleContract
+{
+  subroutine read_from_box(user_id: algopy.arc4.UInt64): examples.struct_in_box.contract.UserStruct
+  {
+    (box_data, exists): tuple[algopy.Bytes, bool] = box_get(reinterpret_cast<algopy.Bytes>(user_id))
+    assert(exists, comment="User with that id does not exist")
+    return reinterpret_cast<examples.struct_in_box.contract.UserStruct>(box_data)
+  }
+  
+  subroutine write_to_box(user: examples.struct_in_box.contract.UserStruct): None
+  {
+    box_key: algopy.Bytes = reinterpret_cast<algopy.Bytes>(user.id)
+    box_del(box_key)
+    box_put(box_key, reinterpret_cast<algopy.Bytes>(user))
+  }
+  
+  subroutine box_exists(user_id: algopy.arc4.UInt64): bool
+  {
+    (_data, exists): tuple[algopy.Bytes, bool] = box_get(reinterpret_cast<algopy.Bytes>(user_id))
+    return exists
+  }
+  
+  abimethod add_user(user: examples.struct_in_box.contract.UserStruct): None
+  {
+    assert(!(this::box_exists(user.id)), comment="User with id must not exist")
+    this::write_to_box(user)
+  }
+  
+  abimethod attach_asset_to_user(user_id: algopy.arc4.UInt64, asset: algopy.Asset): None
+  {
+    user: examples.struct_in_box.contract.UserStruct = this::read_from_box(user_id)
+    user.asset: algopy.arc4.UInt64 = arc4_encode(reinterpret_cast<algopy.UInt64>(asset), algopy.arc4.UInt64)
+    this::write_to_box(user)
+  }
+  
+  abimethod get_user(user_id: algopy.arc4.UInt64): examples.struct_in_box.contract.UserStruct
+  {
+    return this::read_from_box(user_id)
+  }
+}
