@@ -56,7 +56,7 @@ contract examples.struct_in_box.contract.ExampleContract:
         
         subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
             block@0: // L31
-                let tmp%0#0: bytes = (extract3 user#0 2u 8u)
+                let tmp%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
                 let tmp%1#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(tmp%0#0)
                 let tmp%2#0: bool = (! tmp%1#0)
                 (assert tmp%2#0) // User with id must not exist
@@ -71,7 +71,7 @@ contract examples.struct_in_box.contract.ExampleContract:
         
         subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: bytes) -> bytes:
             block@0: // L18
-                let box_key#0: bytes = (extract3 user#0 2u 8u)
+                let box_key#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
                 (box_del box_key#0)
                 (box_put box_key#0 user#0)
                 return user#0
@@ -81,7 +81,7 @@ contract examples.struct_in_box.contract.ExampleContract:
                 let user#0: bytes = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
                 let val_as_bytes%0#0: bytes = (itob asset#0)
                 let assigned_value%0#0: bytes = val_as_bytes%0#0
-                let updated_data%0#0: bytes = ((replace2 10) user#0 assigned_value%0#0)
+                let updated_data%0#0: bytes = (replace3 user#0 10u assigned_value%0#0)
                 let user#0: bytes = updated_data%0#0
                 let write_to_box%0#0: bytes = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
                 return 

@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, arc4, op, subroutine, Asset
+from algopy import ARC4Contract, Asset, arc4, op, subroutine
 
 
 class UserStruct(arc4.Struct):

@@ -114,7 +114,7 @@ add_user:
     frame_dig -1
     int 2
     int 8
-    extract3
+    extract3 // on error: Index access is out of bounds
     callsub box_exists
     !
     assert // User with id must not exist
@@ -154,7 +154,7 @@ write_to_box:
     frame_dig -1
     int 2
     int 8
-    extract3
+    extract3 // on error: Index access is out of bounds
     // struct_in_box/contract.py:21-22
     // # Delete existing data, so we don't have to worry about resizing the box
     // op.Box.delete(box_key)
@@ -183,7 +183,10 @@ attach_asset_to_user:
     // user.asset = arc4.UInt64(asset.id)
     frame_dig -1
     itob
-    replace2 10
+    swap
+    int 10
+    uncover 2
+    replace3
     // struct_in_box/contract.py:40
     // self.write_to_box(user)
     callsub write_to_box
