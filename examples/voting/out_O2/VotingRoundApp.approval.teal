@@ -157,28 +157,27 @@ store_option_counts:
     <=
     assert // Can't have more than 112 questions
     int 0
-    frame_dig -1
-    extract 2 0
-    int 0
+    dup
 
 store_option_counts_for_header@1:
-    frame_dig 3
+    frame_dig 2
     frame_dig 0
     <
     bz store_option_counts_after_for@4
+    frame_dig -1
+    extract 2 0
     frame_dig 2
-    frame_dig 3
     dup
     cover 2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     btoi
     frame_dig 1
     +
     frame_bury 1
     int 1
     +
-    frame_bury 3
+    frame_bury 2
     b store_option_counts_for_header@1
 
 store_option_counts_after_for@4:
@@ -302,25 +301,26 @@ close:
     dup
     byte "option_counts"
     app_global_get_ex
-    assert // check option_counts exists
+    swap
     dup
+    uncover 2
+    assert // check option_counts exists
     int 0
     extract_uint16
-    swap
-    extract 2 0
     int 0
 
 close_for_header@1:
     frame_dig 9
-    frame_dig 7
+    frame_dig 8
     <
     bz close_after_for@15
-    frame_dig 8
+    frame_dig 7
+    extract 2 0
     frame_dig 9
     dup
     cover 2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_bury 1
     frame_dig 5
     frame_bury 0
@@ -646,8 +646,6 @@ vote:
     int 0
     extract_uint16
     dup
-    cover 2
-    dup
     uncover 2
     ==
     assert // Number of answers incorrect
@@ -673,48 +671,39 @@ vote:
     dup
 
 vote_for_header@1:
-    frame_dig 3
+    frame_dig 2
     frame_dig 0
     <
     bz vote_after_for@5
-    frame_dig 3
-    dup
-    frame_dig 1
-    <
-    assert // Index access is out of bounds
     frame_dig -1
     extract 2 0
-    dig 1
+    frame_dig 2
+    dup
+    cover 2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     btoi
     swap
     int 0
     byte "option_counts"
     app_global_get_ex
     assert // check option_counts exists
-    dup
-    int 0
-    extract_uint16
-    dig 2
-    >
-    assert // Index access is out of bounds
     extract 2 0
     dig 1
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     btoi
     dig 2
     dig 1
     <
     assert // Answer option index invalid
-    frame_dig 2
+    frame_dig 1
     dup
     uncover 4
     +
     callsub increment_vote_in_box
     +
-    frame_bury 2
+    frame_bury 1
     txn Sender
     frame_dig -1
     box_put
@@ -729,7 +718,7 @@ vote_for_header@1:
     app_global_put
     int 1
     +
-    frame_bury 3
+    frame_bury 2
     b vote_for_header@1
 
 vote_after_for@5:

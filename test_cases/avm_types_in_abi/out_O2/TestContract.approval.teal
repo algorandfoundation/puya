@@ -34,35 +34,31 @@ main_create_route@1:
     setbit
     swap
     dup
-    extract 1 8
+    extract 1 8 // on error: Index access is out of bounds
     cover 2
     dup
     int 9
     extract_uint16
-    dup2
-    extract_uint16
-    int 2
-    +
-    dig 2
-    cover 2
-    extract3
     swap
-    dup
-    extract 11 64
-    cover 2
     dup
     int 75
     extract_uint16
-    dup2
-    extract_uint16
-    int 2
-    +
-    extract3
+    dig 1
     uncover 3
+    dig 2
+    substring3
+    cover 2
+    dig 1
+    extract 11 64 // on error: Index access is out of bounds
+    cover 5
+    dig 1
+    len
+    substring3
+    uncover 2
     int 0
     getbit
     swap
-    uncover 4
+    uncover 3
     btoi
     swap
     uncover 3
@@ -148,9 +144,9 @@ main_tuple_of_arc4_route@2:
     assert // is not creating
     txna ApplicationArgs 1
     dup
-    extract 0 1
+    extract 0 1 // on error: Index access is out of bounds
     swap
-    extract 1 32
+    extract 1 32 // on error: Index access is out of bounds
     callsub tuple_of_arc4
     concat
     byte 0x151f7c75

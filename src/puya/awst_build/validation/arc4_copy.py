@@ -60,6 +60,12 @@ class ARC4CopyValidator(AWSTTraverser):
             for v in expr.values:
                 _check_for_arc4_copy(v, "being passed to an array constructor")
 
+    def visit_new_struct(self, expr: awst_nodes.NewStruct) -> None:
+        super().visit_new_struct(expr)
+        if isinstance(expr.wtype, wtypes.ARC4Struct):
+            for v in expr.values.values():
+                _check_for_arc4_copy(v, "being passed to a struct constructor")
+
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> None:
         super().visit_arc4_encode(expr)
 

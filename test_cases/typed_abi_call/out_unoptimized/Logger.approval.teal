@@ -385,27 +385,27 @@ main_return_args_after_14th_route@14:
     txna ApplicationArgs 15
     int 0
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 1
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 3
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 4
     int 4
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 8
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     // typed_abi_call/logger.py:69
     // @arc4.abimethod
     uncover 19
@@ -473,7 +473,12 @@ echo:
     proto 1 1
     // typed_abi_call/logger.py:21
     // return "echo: " + value
-    byte "\x00\x06echo: "
+    byte "echo: "
+    len
+    itob
+    extract 6 2
+    byte "echo: "
+    concat
     extract 2 0
     frame_dig -1
     extract 2 0
@@ -481,7 +486,7 @@ echo:
     dup
     len
     itob
-    extract 6 0
+    extract 6 2
     swap
     concat
     retsub

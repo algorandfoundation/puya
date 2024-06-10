@@ -1,5 +1,4 @@
 import re
-import typing
 from collections.abc import Iterable, Sequence
 from itertools import zip_longest
 
@@ -14,34 +13,48 @@ from puya.parse import SourceLocation
 from puya.utils import round_bits_to_nearest_bytes
 
 
-def get_arc4_fixed_bit_size(wtype: wtypes.WType) -> int | None:
+def get_arc4_fixed_bit_size(wtype: wtypes.ARC4Type) -> int:
+    if is_arc4_dynamic_size(wtype):
+        raise InternalError(f"Cannot get fixed bit size for a dynamic ABI type: {wtype}")
     match wtype:
         case wtypes.arc4_bool_wtype:
             return 1
         case wtypes.ARC4UIntN(n=n) | wtypes.ARC4UFixedNxM(n=n):
             return n
-        case wtypes.arc4_string_wtype | wtypes.ARC4DynamicArray():
-            return None
         case wtypes.ARC4StaticArray(element_type=element_type, array_size=array_size):
             el_size = get_arc4_fixed_bit_size(element_type)
-            return el_size and round_bits_to_nearest_bytes(array_size * el_size)
+            return round_bits_to_nearest_bytes(array_size * el_size)
         case wtypes.ARC4Tuple(types=types) | wtypes.ARC4Struct(types=types):
-            return _get_size_of_sequence(types, dynamic_size=None)
+            return determine_arc4_tuple_head_size(types, round_end_result=True)
     raise InternalError(f"Unexpected ABI wtype: {wtype}")
 
 
-def is_arc4_dynamic_size(wtype: wtypes.WType) -> bool:
-    return get_arc4_fixed_bit_size(wtype) is None
+def is_arc4_dynamic_size(wtype: wtypes.ARC4Type) -> bool:
+    match wtype:
+        # TODO: make arc4_string_wtype an ARC4DynamicArray
+        case wtypes.arc4_string_wtype | wtypes.ARC4DynamicArray():
+            return True
+        case wtypes.ARC4StaticArray(element_type=element_type):
+            return is_arc4_dynamic_size(element_type)
+        case wtypes.ARC4Tuple(types=types) | wtypes.ARC4Struct(types=types):
+            return any(map(is_arc4_dynamic_size, types))
+    return False
+
+
+def is_arc4_static_size(wtype: wtypes.ARC4Type) -> bool:
+    return not is_arc4_dynamic_size(wtype)
 
 
 def determine_arc4_tuple_head_size(
-    types: Sequence[wtypes.WType], *, round_end_result: bool
+    types: Sequence[wtypes.ARC4Type], *, round_end_result: bool
 ) -> int:
-    return _get_size_of_sequence(
-        types,
-        dynamic_size=16,  # size of "pointer"
-        round_end_result=round_end_result,
-    )
+    bit_size = 0
+    for t, next_t in zip_longest(types, types[1:]):
+        size = 16 if is_arc4_dynamic_size(t) else get_arc4_fixed_bit_size(t)
+        bit_size += size
+        if t == wtypes.arc4_bool_wtype and next_t != t and (round_end_result or next_t):
+            bit_size = round_bits_to_nearest_bytes(bit_size)
+    return bit_size
 
 
 _UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
@@ -179,20 +192,3 @@ def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4MethodC
     arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
     return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
     return f"{config.name}({','.join(arg_types)}){return_type}"
-
-
-_TIntOrNone = typing.TypeVar("_TIntOrNone", int, None)
-
-
-def _get_size_of_sequence(
-    types: Sequence[wtypes.WType], *, dynamic_size: _TIntOrNone, round_end_result: bool = True
-) -> int | _TIntOrNone:
-    bit_size = 0
-    for t, next_t in zip_longest(types, types[1:]):
-        size = get_arc4_fixed_bit_size(t) or dynamic_size
-        if size is None:
-            return None
-        bit_size += size
-        if t == wtypes.arc4_bool_wtype and next_t != t and (round_end_result or next_t):
-            bit_size = round_bits_to_nearest_bytes(bit_size)
-    return bit_size

@@ -257,24 +257,22 @@ store_option_counts:
     frame_dig -1
     int 0
     extract_uint16
-    frame_dig -1
-    extract 2 0
     int 0
 
 store_option_counts_for_header@1:
     // voting/voting.py:222
     // for item in option_counts:
-    frame_dig 3
+    frame_dig 2
     frame_dig 1
     <
     bz store_option_counts_after_for@4
-    frame_dig 3
+    frame_dig -1
+    extract 2 0
+    frame_dig 2
     int 1
     *
-    frame_dig 2
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     // voting/voting.py:223
     // total_options += item.native
     btoi
@@ -282,10 +280,10 @@ store_option_counts_for_header@1:
     swap
     +
     frame_bury 0
-    frame_dig 3
+    frame_dig 2
     int 1
     +
-    frame_bury 3
+    frame_bury 2
     b store_option_counts_for_header@1
 
 store_option_counts_after_for@4:
@@ -602,29 +600,31 @@ close:
     int 0
     byte "option_counts"
     app_global_get_ex
-    assert // check option_counts exists
+    swap
     dup
+    cover 2
+    cover 2
+    assert // check option_counts exists
     int 0
     extract_uint16
-    swap
-    extract 2 0
     int 0
 
 close_for_header@1:
     // voting/voting.py:130
     // for question_index, question_options in uenumerate(self.option_counts):
     frame_dig 9
-    frame_dig 7
+    frame_dig 8
     <
     bz close_after_for@15
+    frame_dig 7
+    extract 2 0
     frame_dig 9
     dup
+    cover 2
     int 1
     *
-    frame_dig 8
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_bury 1
     // voting/voting.py:131
     // if question_index > 0:
@@ -1275,19 +1275,15 @@ vote_for_header@1:
     // # Load the user's vote for this question
     // answer_option_index = answer_ids[question_index].native
     frame_dig -1
-    int 0
-    extract_uint16
-    dig 1
-    swap
-    <
-    assert // Index access is out of bounds
-    frame_dig -1
     extract 2 0
-    dig 1
+    swap
+    dup
     int 1
     *
+    uncover 2
+    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     btoi
     swap
     // voting/voting.py:196
@@ -1296,19 +1292,12 @@ vote_for_header@1:
     byte "option_counts"
     app_global_get_ex
     assert // check option_counts exists
-    dup
-    int 0
-    extract_uint16
-    dig 2
-    swap
-    <
-    assert // Index access is out of bounds
     extract 2 0
     swap
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     btoi
     // voting/voting.py:197
     // assert answer_option_index < options_count, "Answer option index invalid"
