@@ -15,7 +15,8 @@ class String:
     _value: bytes  # underlying 'bytes' value representing the String
 
     def __init__(self, value: str = "") -> None:
-        value = as_string(value)
+        if not isinstance(value, str):
+            raise TypeError(f"expected str, got {type(value).__name__!r}")
         self._value = value.encode("utf-8")
 
     def __repr__(self) -> str:

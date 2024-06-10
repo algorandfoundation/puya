@@ -55,11 +55,16 @@ class String(_ABIEncoded):
     _value: bytes
 
     def __init__(self, value: algopy.String | str = "", /) -> None:
-        bytes_value = (
-            value.bytes.value
-            if isinstance(value, algopy.String)
-            else as_string(value).encode("utf-8")
-        )
+        match value:
+            case algopy.String():
+                bytes_value = value.bytes.value
+            case str(value):
+                bytes_value = value.encode("utf-8")
+            case _:
+                raise TypeError(
+                    f"value must be a string or String type, not {type(value).__name__!r}"
+                )
+
         self._value = len(bytes_value).to_bytes(_ABI_LENGTH_SIZE) + bytes_value
 
     @property
