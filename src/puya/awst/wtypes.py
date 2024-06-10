@@ -406,7 +406,7 @@ class ARC4Struct(ARC4Type):
         return list(self.fields.keys())
 
     @cached_property
-    def types(self) -> Sequence[WType]:
+    def types(self) -> Sequence[ARC4Type]:
         return list(self.fields.values())
 
     def __init__(

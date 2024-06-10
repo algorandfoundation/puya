@@ -18,21 +18,19 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
-    NodeBuilder,
     LiteralConverter,
+    NodeBuilder,
 )
-from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 
 if typing.TYPE_CHECKING:
 
-    from collections.abc import Mapping, Callable
+    from collections.abc import Mapping
 
     from puya.parse import SourceLocation
 

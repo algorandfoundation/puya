@@ -29,8 +29,8 @@ from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
-    require_instance_builder,
     maybe_resolve_literal,
+    require_instance_builder,
 )
 from puya.errors import CodeError, InternalError
 
