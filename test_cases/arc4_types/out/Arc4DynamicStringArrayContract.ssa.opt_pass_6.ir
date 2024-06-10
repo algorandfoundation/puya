@@ -38,23 +38,27 @@ contract test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContra
         
         subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
             block@0: // L5
-                let value_as_uint16%4#0: bytes = 0x0009
-                let array_data%0#2: bytes = (concat 0x00030006 value_as_uint16%4#0)
-                let next_offset%0#2: uint64 = 12u
-                let value_as_bytes%5#0: bytes = (itob next_offset%0#2)
-                let value_as_uint16%5#0: bytes = ((extract 6 2) value_as_bytes%5#0)
-                let array_data%0#3: bytes = (concat array_data%0#2 value_as_uint16%5#0)
-                let array_data%0#4: bytes = (concat array_data%0#3 0x000158)
-                let array_data%0#5: bytes = (concat array_data%0#4 0x000159)
-                let array_data%0#6: bytes = (concat array_data%0#5 0x00015a)
-                return array_data%0#6
+                let next_item_head%1#0: bytes = 0x0009
+                let result%1#0: bytes = (concat 0x0006 next_item_head%1#0)
+                let tail_offset%1#0: uint64 = 12u
+                let as_bytes%5#0: bytes = (itob tail_offset%1#0)
+                let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%5#0)
+                let result%2#0: bytes = (concat result%1#0 next_item_head%2#0)
+                let result%3#0: bytes = (concat result%2#0 0x000158)
+                let result%4#0: bytes = (concat result%3#0 0x000159)
+                let result%5#0: bytes = (concat result%4#0 0x00015a)
+                let array_data%0#0: bytes = (concat 0x0003 result%5#0)
+                return array_data%0#0
         
         subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
             block@0: // L13
-                let array_data%3#3: bytes = 0x000300060009000c
-                let array_data%3#4: bytes = (concat array_data%3#3 0x000158)
-                let array_data%3#5: bytes = (concat array_data%3#4 0x000159)
-                let raw#0: bytes = (concat array_data%3#5 0x00015a)
+                let result%4#0: bytes = 0x00060009
+                let next_item_head%2#0: bytes = 0x000c
+                let result%5#0: bytes = (concat result%4#0 next_item_head%2#0)
+                let result%6#0: bytes = (concat result%5#0 0x000158)
+                let result%7#0: bytes = (concat result%6#0 0x000159)
+                let result%8#0: bytes = (concat result%7#0 0x00015a)
+                let raw#0: bytes = (concat 0x0003 result%8#0)
                 return raw#0
     
     program clear-state:

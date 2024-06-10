@@ -775,6 +775,12 @@ test_arg_conversion:
     // typed_abi_call/typed_c2c.py:57
     // txn = arc4.abi_call(Logger.log_bytes, b"4", app_id=app)
     itxn_begin
+    byte 0x34
+    len
+    itob
+    extract 6 2
+    byte 0x34
+    concat
     // typed_abi_call/typed_c2c.py:47
     // def test_arg_conversion(self, app: Application) -> None:
     frame_dig -1
@@ -783,7 +789,6 @@ test_arg_conversion:
     // txn = arc4.abi_call(Logger.log_bytes, b"4", app_id=app)
     method "log(byte[])void"
     itxn_field ApplicationArgs
-    byte 0x000134
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1414,6 +1419,12 @@ test_native_bytes:
     // typed_abi_call/typed_c2c.py:132
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
     itxn_begin
+    byte 0x62
+    len
+    itob
+    extract 6 2
+    byte 0x62
+    concat
     // typed_abi_call/typed_c2c.py:131
     // def test_native_bytes(self, app: Application) -> None:
     frame_dig -1
@@ -1422,7 +1433,6 @@ test_native_bytes:
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
     method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    byte 0x000162
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1448,6 +1458,12 @@ test_native_bytes:
     // typed_abi_call/typed_c2c.py:135
     // result2, _txn = arc4.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app)
     itxn_begin
+    byte 0x62
+    len
+    itob
+    extract 6 2
+    byte 0x62
+    concat
     // typed_abi_call/typed_c2c.py:131
     // def test_native_bytes(self, app: Application) -> None:
     frame_dig -1
@@ -1456,7 +1472,6 @@ test_native_bytes:
     // result2, _txn = arc4.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app)
     method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    byte 0x000162
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1482,6 +1497,14 @@ test_native_bytes:
     //     Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
     // )
     itxn_begin
+    // typed_abi_call/typed_c2c.py:139
+    // Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
+    byte 0x62
+    len
+    itob
+    extract 6 2
+    byte 0x62
+    concat
     // typed_abi_call/typed_c2c.py:131
     // def test_native_bytes(self, app: Application) -> None:
     frame_dig -1
@@ -1492,14 +1515,7 @@ test_native_bytes:
     // )
     method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:139
-    // Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
-    byte 0x000162
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:138-140
-    // result3, _txn = arc4.abi_call(
-    //     Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
-    // )
     int appl
     itxn_field TypeEnum
     int 0
@@ -1771,6 +1787,15 @@ test_native_tuple:
     extract 6 2
     byte "s1"
     concat
+    // typed_abi_call/typed_c2c.py:173
+    // b"b1",
+    byte 0x6231
+    len
+    itob
+    extract 6 2
+    byte 0x6231
+    concat
+    swap
     // typed_abi_call/typed_c2c.py:166
     // def test_native_tuple(self, app: Application) -> None:
     frame_dig -1
@@ -1788,9 +1813,6 @@ test_native_tuple:
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:173
-    // b"b1",
-    byte 0x00026231
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:174
     // 1,
@@ -1834,37 +1856,35 @@ test_native_tuple:
     dup
     int 0
     extract_uint16
-    dig 1
-    dig 1
-    extract_uint16
-    int 2
-    +
-    dig 2
-    uncover 2
-    uncover 2
-    extract3
     swap
     dup
     int 2
     extract_uint16
     dig 1
-    dig 1
-    extract_uint16
+    uncover 3
+    uncover 2
+    substring3
+    swap
+    dup
     int 2
-    +
-    dig 2
-    uncover 2
-    uncover 2
-    extract3
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
     swap
     dup
     int 4
     int 8
-    extract3
+    extract3 // on error: Index access is out of bounds
     swap
     int 12
     int 64
-    extract3
+    extract3 // on error: Index access is out of bounds
     uncover 3
     swap
     uncover 2
@@ -1912,6 +1932,14 @@ test_native_tuple:
     extract 6 2
     byte "s1"
     concat
+    // typed_abi_call/typed_c2c.py:191
+    // Bytes(b"b1"),
+    byte 0x6231
+    len
+    itob
+    extract 6 2
+    byte 0x6231
+    concat
     // typed_abi_call/typed_c2c.py:192
     // UInt64(1),
     int 1
@@ -1930,11 +1958,15 @@ test_native_tuple:
     b|
     // typed_abi_call/typed_c2c.py:190
     // String("s1"),
-    uncover 2
+    uncover 3
     swap
+    // typed_abi_call/typed_c2c.py:191
+    // Bytes(b"b1"),
+    uncover 3
+    cover 2
     // typed_abi_call/typed_c2c.py:193
     // BigUInt(2),
-    cover 2
+    cover 3
     // typed_abi_call/typed_c2c.py:166
     // def test_native_tuple(self, app: Application) -> None:
     frame_dig -1
@@ -1952,22 +1984,9 @@ test_native_tuple:
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:191
-    // Bytes(b"b1"),
-    byte 0x00026231
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:187-195
-    // # test again using native types in arguments
-    // txn = arc4.abi_call(
-    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-    //     String("s1"),
-    //     Bytes(b"b1"),
-    //     UInt64(1),
-    //     BigUInt(2),
-    //     app_id=app,
-    // )
     int appl
     itxn_field TypeEnum
     int 0
@@ -2010,6 +2029,15 @@ test_native_tuple:
     extract 6 2
     byte "s1"
     concat
+    // typed_abi_call/typed_c2c.py:205
+    // arc4.DynamicBytes(b"b1"),
+    byte 0x6231
+    len
+    itob
+    extract 6 2
+    byte 0x6231
+    concat
+    swap
     // typed_abi_call/typed_c2c.py:166
     // def test_native_tuple(self, app: Application) -> None:
     frame_dig -1
@@ -2027,9 +2055,6 @@ test_native_tuple:
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:205
-    // arc4.DynamicBytes(b"b1"),
-    byte 0x00026231
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:206
     // arc4.UInt64(1),

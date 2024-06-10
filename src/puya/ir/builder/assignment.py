@@ -120,8 +120,7 @@ def handle_assignment(
             if scalar_type == AVMType.bytes:
                 serialized_value = mat_value
                 if not (
-                    isinstance(wtype, wtypes.ARC4Type)
-                    and arc4_util.get_arc4_fixed_bit_size(wtype) is not None
+                    isinstance(wtype, wtypes.ARC4Type) and arc4_util.is_arc4_static_size(wtype)
                 ):
                     context.block_builder.add(
                         Intrinsic(

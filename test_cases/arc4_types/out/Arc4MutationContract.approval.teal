@@ -172,7 +172,7 @@ dynamic_array_string:
     // dynamic_string_array.extend((foo, bar))
     byte 0x0003466f6f0003426172
     int 2
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:225-227
     // assert dynamic_string_array.bytes == Bytes(
     //     b"\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar"
@@ -186,18 +186,23 @@ dynamic_array_string:
     dup
     int 0
     extract_uint16
+    swap
     dup
+    extract 2 0
+    swap
+    dig 2
     int 2
     *
-    int 2
-    +
+    swap
     dig 2
     len
-    dig 3
-    cover 2
-    substring3
     swap
-    callsub dynamic_array_concat_variable_size
+    uncover 3
+    uncover 3
+    uncover 3
+    substring3
+    uncover 2
+    callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:231
     // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
     byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
@@ -210,14 +215,14 @@ dynamic_array_string:
     // arc4_types/mutation.py:233
     // dynamic_string_array[3] = hello
     int 3
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:215
     // hello = String("Hello")
     byte 0x000548656c6c6f
     // arc4_types/mutation.py:234
     // dynamic_string_array[5] = hello
     int 5
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:236-238
     // assert dynamic_string_array == DynamicArray(
     //     hello, world, foo, hello, hello, hello, foo, bar
@@ -228,7 +233,7 @@ dynamic_array_string:
     assert
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_byte_length_head
     swap
     // arc4_types/mutation.py:218
     // bar = String("Bar")
@@ -239,7 +244,7 @@ dynamic_array_string:
     assert
     // arc4_types/mutation.py:241
     // assert dynamic_string_array.pop() == foo
-    callsub dynamic_array_pop_variable_size
+    callsub dynamic_array_pop_byte_length_head
     swap
     // arc4_types/mutation.py:217
     // foo = String("Foo")
@@ -269,7 +274,7 @@ array_of_array_dynamic:
     // array_of_array.append(DynamicArray[UInt8](UInt8(10)))
     byte 0x00010a
     int 1
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:75
     // assert array_of_array.bytes == Bytes.from_hex("0001000200010A")
     dup
@@ -280,7 +285,7 @@ array_of_array_dynamic:
     // array_of_array.append(DynamicArray[UInt8](UInt8(16)))
     byte 0x000110
     int 1
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:77
     // assert array_of_array.bytes == Bytes.from_hex("00020004000700010A000110")
     dup
@@ -290,18 +295,23 @@ array_of_array_dynamic:
     // arc4_types/mutation.py:78
     // array_of_array[0].append(UInt8(255))
     dup
+    extract 2 0
+    swap
+    dup
     int 0
     extract_uint16
     assert // Index access is out of bounds
-    dup
-    extract 2 0
-    dup
+    dig 1
     int 0
     extract_uint16
-    dup2
+    dig 2
+    dig 1
     extract_uint16
     int 2
     +
+    uncover 3
+    uncover 2
+    uncover 2
     extract3
     extract 2 0
     byte 0xff
@@ -309,11 +319,11 @@ array_of_array_dynamic:
     dup
     len
     itob
-    extract 6 0
+    extract 6 2
     swap
     concat
     int 0
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:80
     // assert array_of_array.bytes == Bytes.from_hex("00020004000800020AFF000110")
     dup
@@ -323,18 +333,23 @@ array_of_array_dynamic:
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
     dup
+    extract 2 0
+    swap
+    dup
     int 0
     extract_uint16
     assert // Index access is out of bounds
-    dup
-    extract 2 0
-    dup
+    dig 1
     int 0
     extract_uint16
-    dup2
+    dig 2
+    dig 1
     extract_uint16
     int 2
     +
+    uncover 3
+    uncover 2
+    uncover 2
     extract3
     dup
     int 0
@@ -345,7 +360,7 @@ array_of_array_dynamic:
     byte 0x00
     replace2 3
     int 0
-    callsub dynamic_array_replace_variable_size
+    callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:83
     // assert array_of_array.bytes == Bytes.from_hex("00020004000800020A00000110")
     byte 0x00020004000800020a00000110
@@ -379,7 +394,7 @@ array_of_array_static:
     // arc4_types/mutation.py:97
     // array_of_array[1][0] = UInt8(1)
     dup
-    extract 2 2
+    extract 2 2 // on error: Index access is out of bounds
     byte 0x01
     replace2 0
     replace2 2
@@ -466,19 +481,26 @@ struct_assign:
     len
     swap
     uncover 4
-    uncover 3
+    dig 3
     uncover 3
     substring3
-    uncover 2
+    uncover 3
     byte 0x0005486d6d6d6d
     concat
     swap
     concat
+    cover 2
+    -
     swap
+    dup
+    int 4
+    extract_uint16
     int 7
     +
+    uncover 2
+    -
     itob
-    substring 6 8
+    extract 6 2
     replace2 4
     // arc4_types/mutation.py:134
     // test_struct.s_val_2 = String("Oh well")
@@ -514,7 +536,7 @@ array_concat:
     byte 0x00010002000548656c6c6f
     byte 0x0005576f726c64
     int 1
-    callsub dynamic_array_concat_variable_size
+    callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:66
     // hello_world = DynamicArray(String("Hello"), String("World"))
     byte 0x00020004000b000548656c6c6f0005576f726c64
@@ -525,29 +547,29 @@ array_concat:
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_bit(source: bytes) -> bytes, bytes:
+// algopy_lib_arc4.dynamic_array_pop_bit(array: bytes) -> bytes, bytes:
 dynamic_array_pop_bit:
-    // <algopy>/algopy_lib_arc4.py:20-21
+    // <algopy>/algopy_lib_arc4.py:25-26
     proto 1 2
-    // <algopy>/algopy_lib_arc4.py:29
+    // <algopy>/algopy_lib_arc4.py:34
     frame_dig -1
     int 0
     extract_uint16
-    // <algopy>/algopy_lib_arc4.py:30
+    // <algopy>/algopy_lib_arc4.py:35
     int 1
     -
-    // <algopy>/algopy_lib_arc4.py:31
+    // <algopy>/algopy_lib_arc4.py:36
     dup
     itob
     extract 6 0
     frame_dig -1
     swap
     replace2 0
-    // <algopy>/algopy_lib_arc4.py:32
+    // <algopy>/algopy_lib_arc4.py:37
     dig 1
     int 16
     +
-    // <algopy>/algopy_lib_arc4.py:33
+    // <algopy>/algopy_lib_arc4.py:38
     dup2
     getbit
     byte 0x00
@@ -555,10 +577,10 @@ dynamic_array_pop_bit:
     uncover 2
     setbit
     cover 3
-    // <algopy>/algopy_lib_arc4.py:34
+    // <algopy>/algopy_lib_arc4.py:39
     int 0
     setbit
-    // <algopy>/algopy_lib_arc4.py:35
+    // <algopy>/algopy_lib_arc4.py:40
     swap
     int 7
     +
@@ -569,69 +591,69 @@ dynamic_array_pop_bit:
     int 0
     swap
     substring3
-    // <algopy>/algopy_lib_arc4.py:36
+    // <algopy>/algopy_lib_arc4.py:41
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// algopy_lib_arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
 dynamic_array_pop_fixed_size:
-    // <algopy>/algopy_lib_arc4.py:39-40
+    // <algopy>/algopy_lib_arc4.py:44-45
     proto 2 2
-    // <algopy>/algopy_lib_arc4.py:48
+    // <algopy>/algopy_lib_arc4.py:53
     frame_dig -2
     int 0
     extract_uint16
-    // <algopy>/algopy_lib_arc4.py:49
+    // <algopy>/algopy_lib_arc4.py:54
     int 1
     -
-    // <algopy>/algopy_lib_arc4.py:50
+    // <algopy>/algopy_lib_arc4.py:55
     itob
     extract 6 0
     frame_dig -2
     swap
     replace2 0
-    // <algopy>/algopy_lib_arc4.py:51
+    // <algopy>/algopy_lib_arc4.py:56
     dup
     len
     frame_dig -1
     -
-    // <algopy>/algopy_lib_arc4.py:52
+    // <algopy>/algopy_lib_arc4.py:57
     dup2
     frame_dig -1
     extract3
     cover 2
-    // <algopy>/algopy_lib_arc4.py:53
+    // <algopy>/algopy_lib_arc4.py:58
     int 0
     swap
     substring3
-    // <algopy>/algopy_lib_arc4.py:54
+    // <algopy>/algopy_lib_arc4.py:59
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_pop_variable_size(source: bytes) -> bytes, bytes:
-dynamic_array_pop_variable_size:
-    // <algopy>/algopy_lib_arc4.py:57-58
+// algopy_lib_arc4.dynamic_array_pop_byte_length_head(array: bytes) -> bytes, bytes:
+dynamic_array_pop_byte_length_head:
+    // <algopy>/algopy_lib_arc4.py:62-63
     proto 1 2
-    // <algopy>/algopy_lib_arc4.py:66
+    // <algopy>/algopy_lib_arc4.py:72
     frame_dig -1
     int 0
     extract_uint16
-    // <algopy>/algopy_lib_arc4.py:67
+    // <algopy>/algopy_lib_arc4.py:73
     int 1
     -
-    // <algopy>/algopy_lib_arc4.py:68
+    // <algopy>/algopy_lib_arc4.py:74
     dup
     int 2
     *
-    // <algopy>/algopy_lib_arc4.py:69
+    // <algopy>/algopy_lib_arc4.py:75
     frame_dig -1
     extract 2 0
-    // <algopy>/algopy_lib_arc4.py:70
+    // <algopy>/algopy_lib_arc4.py:76
     dup
     dig 2
     extract_uint16
     swap
-    // <algopy>/algopy_lib_arc4.py:72
+    // <algopy>/algopy_lib_arc4.py:78
     dup
     len
     swap
@@ -640,69 +662,71 @@ dynamic_array_pop_variable_size:
     uncover 3
     substring3
     cover 3
-    // <algopy>/algopy_lib_arc4.py:73
+    // <algopy>/algopy_lib_arc4.py:79
     dup
     int 0
     dig 4
     substring3
     cover 2
-    // <algopy>/algopy_lib_arc4.py:74
+    // <algopy>/algopy_lib_arc4.py:80
     uncover 3
     int 2
     +
-    // <algopy>/algopy_lib_arc4.py:73-75
+    // <algopy>/algopy_lib_arc4.py:79-81
     uncover 2
     substring3
     concat
-    // <algopy>/algopy_lib_arc4.py:77
+    // <algopy>/algopy_lib_arc4.py:84
     dig 2
     itob
-    extract 6 0
-    // <algopy>/algopy_lib_arc4.py:77-79
+    // <algopy>/algopy_lib_arc4.py:83-85
+    extract 6 2
+    // <algopy>/algopy_lib_arc4.py:85-87
     swap
     uncover 3
-    // <algopy>/algopy_lib_arc4.py:78
+    // <algopy>/algopy_lib_arc4.py:86
     int 0
-    // <algopy>/algopy_lib_arc4.py:77-79
-    callsub recalculate_array_offsets_static
+    // <algopy>/algopy_lib_arc4.py:85-87
+    callsub recalculate_head_for_elements_with_byte_length_head
+    // <algopy>/algopy_lib_arc4.py:83-87
     concat
-    // <algopy>/algopy_lib_arc4.py:81
+    // <algopy>/algopy_lib_arc4.py:89
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_concat_bits(source: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
+// algopy_lib_arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
 dynamic_array_concat_bits:
-    // <algopy>/algopy_lib_arc4.py:84-87
+    // <algopy>/algopy_lib_arc4.py:124-127
     proto 4 1
     byte ""
     dupn 2
-    // <algopy>/algopy_lib_arc4.py:100
+    // <algopy>/algopy_lib_arc4.py:140
     frame_dig -4
     int 0
     extract_uint16
     dupn 2
-    // <algopy>/algopy_lib_arc4.py:101
+    // <algopy>/algopy_lib_arc4.py:141
     frame_dig -2
     +
-    // <algopy>/algopy_lib_arc4.py:102
+    // <algopy>/algopy_lib_arc4.py:142
     dup
     itob
     extract 6 0
-    // <algopy>/algopy_lib_arc4.py:103
+    // <algopy>/algopy_lib_arc4.py:143
     frame_dig -4
     swap
     replace2 0
     dup
     uncover 2
     uncover 3
-    // <algopy>/algopy_lib_arc4.py:104
+    // <algopy>/algopy_lib_arc4.py:144
     int 7
     +
     int 8
     /
     dup
     cover 3
-    // <algopy>/algopy_lib_arc4.py:105
+    // <algopy>/algopy_lib_arc4.py:145
     swap
     int 7
     +
@@ -710,10 +734,10 @@ dynamic_array_concat_bits:
     /
     dup
     cover 3
-    // <algopy>/algopy_lib_arc4.py:106
+    // <algopy>/algopy_lib_arc4.py:146
     <
     bz dynamic_array_concat_bits_after_if_else@2
-    // <algopy>/algopy_lib_arc4.py:107
+    // <algopy>/algopy_lib_arc4.py:147
     frame_dig 6
     frame_dig 5
     -
@@ -726,12 +750,12 @@ dynamic_array_concat_bits:
 dynamic_array_concat_bits_after_if_else@2:
     frame_dig 7
     frame_bury 4
-    // <algopy>/algopy_lib_arc4.py:109
+    // <algopy>/algopy_lib_arc4.py:149
     frame_dig 3
     int 16
     +
     frame_bury 2
-    // <algopy>/algopy_lib_arc4.py:110
+    // <algopy>/algopy_lib_arc4.py:150
     frame_dig -1
     bz dynamic_array_concat_bits_ternary_false@4
     int 1
@@ -739,24 +763,24 @@ dynamic_array_concat_bits_after_if_else@2:
     b dynamic_array_concat_bits_ternary_merge@5
 
 dynamic_array_concat_bits_ternary_false@4:
-    // <algopy>/algopy_lib_arc4.py:110
+    // <algopy>/algopy_lib_arc4.py:150
     int 8
     frame_bury 1
 
 dynamic_array_concat_bits_ternary_merge@5:
-    // <algopy>/algopy_lib_arc4.py:110
+    // <algopy>/algopy_lib_arc4.py:150
     frame_dig 1
     assert // Step cannot be zero
     int 0
     frame_bury 0
 
 dynamic_array_concat_bits_for_header@6:
-    // <algopy>/algopy_lib_arc4.py:110
+    // <algopy>/algopy_lib_arc4.py:150
     frame_dig 0
     frame_dig -2
     <
     bz dynamic_array_concat_bits_after_for@10
-    // <algopy>/algopy_lib_arc4.py:111
+    // <algopy>/algopy_lib_arc4.py:151
     frame_dig -3
     frame_dig 0
     dup
@@ -769,196 +793,190 @@ dynamic_array_concat_bits_for_header@6:
     uncover 2
     setbit
     frame_bury 4
-    // <algopy>/algopy_lib_arc4.py:112
+    // <algopy>/algopy_lib_arc4.py:152
     int 1
     +
     frame_bury 2
-    // <algopy>/algopy_lib_arc4.py:110
+    // <algopy>/algopy_lib_arc4.py:150
     frame_dig 1
     +
     frame_bury 0
     b dynamic_array_concat_bits_for_header@6
 
 dynamic_array_concat_bits_after_for@10:
-    // <algopy>/algopy_lib_arc4.py:114
+    // <algopy>/algopy_lib_arc4.py:154
     frame_dig 4
     frame_bury 0
     retsub
 
 
-// algopy_lib_arc4.dynamic_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64) -> bytes:
-dynamic_array_replace_variable_size:
-    // <algopy>/algopy_lib_arc4.py:117-118
+// algopy_lib_arc4.dynamic_array_concat_byte_length_head(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+dynamic_array_concat_byte_length_head:
+    // <algopy>/algopy_lib_arc4.py:157-160
     proto 3 1
-    // <algopy>/algopy_lib_arc4.py:129
-    frame_dig -3
-    substring 0 2
-    // <algopy>/algopy_lib_arc4.py:130
-    dup
-    btoi
-    // <algopy>/algopy_lib_arc4.py:132
-    frame_dig -3
-    extract 2 0
-    // <algopy>/algopy_lib_arc4.py:131-136
-    frame_dig -2
-    frame_dig -1
-    uncover 3
-    callsub static_array_replace_variable_size
-    concat
-    retsub
-
-
-// algopy_lib_arc4.static_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-static_array_replace_variable_size:
-    // <algopy>/algopy_lib_arc4.py:139-142
-    proto 4 1
-    // <algopy>/algopy_lib_arc4.py:153
-    frame_dig -2
-    frame_dig -1
-    <
-    assert // Index out of bounds
-    // <algopy>/algopy_lib_arc4.py:154
-    frame_dig -2
-    int 2
-    *
-    frame_dig -4
-    swap
-    extract_uint16
-    // <algopy>/algopy_lib_arc4.py:155
-    frame_dig -4
-    dig 1
-    extract_uint16
-    // <algopy>/algopy_lib_arc4.py:156
-    dig 1
-    +
-    int 2
-    +
-    swap
-    // <algopy>/algopy_lib_arc4.py:158
-    frame_dig -4
-    int 0
-    uncover 2
-    substring3
-    // <algopy>/algopy_lib_arc4.py:158-159
-    frame_dig -3
-    concat
-    // <algopy>/algopy_lib_arc4.py:160
-    frame_dig -4
-    len
-    frame_dig -4
-    uncover 3
-    uncover 2
-    substring3
-    // <algopy>/algopy_lib_arc4.py:158-160
-    concat
-    // <algopy>/algopy_lib_arc4.py:157-163
-    frame_dig -1
-    frame_dig -2
-    callsub recalculate_array_offsets_static
-    retsub
-
-
-// algopy_lib_arc4.dynamic_array_concat_variable_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
-dynamic_array_concat_variable_size:
-    // <algopy>/algopy_lib_arc4.py:166-169
-    proto 3 1
-    // <algopy>/algopy_lib_arc4.py:179
+    // <algopy>/algopy_lib_arc4.py:171
     frame_dig -3
     int 0
     extract_uint16
-    // <algopy>/algopy_lib_arc4.py:180
+    // <algopy>/algopy_lib_arc4.py:172
     dup
     frame_dig -1
     +
     swap
-    // <algopy>/algopy_lib_arc4.py:181
+    // <algopy>/algopy_lib_arc4.py:173
     int 2
     *
     int 2
     +
     swap
-    // <algopy>/algopy_lib_arc4.py:183
+    // <algopy>/algopy_lib_arc4.py:176
     dup
     itob
-    extract 6 0
+    // <algopy>/algopy_lib_arc4.py:175-177
+    extract 6 2
     swap
-    // <algopy>/algopy_lib_arc4.py:185
+    // <algopy>/algopy_lib_arc4.py:179
     frame_dig -3
     int 2
     dig 4
     substring3
-    // <algopy>/algopy_lib_arc4.py:186
+    // <algopy>/algopy_lib_arc4.py:180
     frame_dig -1
     int 2
     *
     bzero
-    // <algopy>/algopy_lib_arc4.py:185-186
+    // <algopy>/algopy_lib_arc4.py:179-180
     concat
-    // <algopy>/algopy_lib_arc4.py:187
+    // <algopy>/algopy_lib_arc4.py:181
     frame_dig -3
     len
     frame_dig -3
     uncover 5
     uncover 2
     substring3
-    // <algopy>/algopy_lib_arc4.py:185-187
+    // <algopy>/algopy_lib_arc4.py:179-181
     concat
-    // <algopy>/algopy_lib_arc4.py:185-188
+    // <algopy>/algopy_lib_arc4.py:179-182
     frame_dig -2
     concat
-    // <algopy>/algopy_lib_arc4.py:183-192
+    // <algopy>/algopy_lib_arc4.py:177-186
     swap
-    // <algopy>/algopy_lib_arc4.py:191
+    // <algopy>/algopy_lib_arc4.py:185
     int 0
-    // <algopy>/algopy_lib_arc4.py:183-192
-    callsub recalculate_array_offsets_static
+    // <algopy>/algopy_lib_arc4.py:177-186
+    callsub recalculate_head_for_elements_with_byte_length_head
+    // <algopy>/algopy_lib_arc4.py:175-186
     concat
     retsub
 
 
-// algopy_lib_arc4.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
-recalculate_array_offsets_static:
-    // <algopy>/algopy_lib_arc4.py:195-198
+// algopy_lib_arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
+dynamic_array_replace_byte_length_head:
+    // <algopy>/algopy_lib_arc4.py:217-218
     proto 3 1
-    byte ""
-    dup
-    // <algopy>/algopy_lib_arc4.py:209
-    frame_dig -1
-    int 2
-    *
-    // <algopy>/algopy_lib_arc4.py:210
-    frame_dig -1
-    bnz recalculate_array_offsets_static_else_body@2
-    // <algopy>/algopy_lib_arc4.py:211
-    frame_dig -2
-    int 2
-    *
-    frame_bury 1
-    b recalculate_array_offsets_static_after_if_else@3
-
-recalculate_array_offsets_static_else_body@2:
-    // <algopy>/algopy_lib_arc4.py:213
+    // <algopy>/algopy_lib_arc4.py:230
     frame_dig -3
-    frame_dig 2
-    extract_uint16
-    frame_bury 1
-
-recalculate_array_offsets_static_after_if_else@3:
-    frame_dig -1
-    frame_bury 0
-
-recalculate_array_offsets_static_for_header@4:
-    // <algopy>/algopy_lib_arc4.py:215
-    frame_dig 0
+    substring 0 2
+    // <algopy>/algopy_lib_arc4.py:231
+    dup
+    btoi
+    // <algopy>/algopy_lib_arc4.py:233
+    frame_dig -3
+    extract 2 0
+    // <algopy>/algopy_lib_arc4.py:232-237
     frame_dig -2
+    frame_dig -1
+    uncover 3
+    callsub static_array_replace_byte_length_head
+    concat
+    retsub
+
+
+// algopy_lib_arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+static_array_replace_byte_length_head:
+    // <algopy>/algopy_lib_arc4.py:278-281
+    proto 4 1
+    // <algopy>/algopy_lib_arc4.py:293
+    frame_dig -2
+    frame_dig -1
     <
-    bz recalculate_array_offsets_static_after_for@8
-    // <algopy>/algopy_lib_arc4.py:216
+    assert // Index out of bounds
+    // <algopy>/algopy_lib_arc4.py:294
+    frame_dig -2
+    int 2
+    *
+    frame_dig -4
+    swap
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:295
+    frame_dig -4
+    dig 1
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:296
+    dig 1
+    +
+    int 2
+    +
+    swap
+    // <algopy>/algopy_lib_arc4.py:298
+    frame_dig -4
+    int 0
+    uncover 2
+    substring3
+    // <algopy>/algopy_lib_arc4.py:298-299
+    frame_dig -3
+    concat
+    // <algopy>/algopy_lib_arc4.py:300
+    frame_dig -4
+    len
+    frame_dig -4
+    uncover 3
+    uncover 2
+    substring3
+    // <algopy>/algopy_lib_arc4.py:298-300
+    concat
+    // <algopy>/algopy_lib_arc4.py:297-303
+    frame_dig -1
+    frame_dig -2
+    callsub recalculate_head_for_elements_with_byte_length_head
+    retsub
+
+
+// algopy_lib_arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
+recalculate_head_for_elements_with_byte_length_head:
+    // <algopy>/algopy_lib_arc4.py:306-309
+    proto 3 1
+    // <algopy>/algopy_lib_arc4.py:322
+    frame_dig -2
+    int 2
+    *
+    dup
+    // <algopy>/algopy_lib_arc4.py:323
+    frame_dig -1
+    int 2
+    *
+    frame_dig -3
+    dig 1
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:321-325
+    uncover 2
+    swap
+    frame_dig -1
+    select
+    swap
+
+recalculate_head_for_elements_with_byte_length_head_for_header@1:
+    // <algopy>/algopy_lib_arc4.py:327
+    frame_dig 2
+    frame_dig 0
+    <
+    bz recalculate_head_for_elements_with_byte_length_head_after_for@5
+    // <algopy>/algopy_lib_arc4.py:328
     frame_dig 1
     dup
     itob
-    extract 6 0
-    // <algopy>/algopy_lib_arc4.py:217
+    extract 6 2
+    // <algopy>/algopy_lib_arc4.py:329
     frame_dig -3
     frame_dig 2
     dup
@@ -967,26 +985,21 @@ recalculate_array_offsets_static_for_header@4:
     replace3
     dup
     frame_bury -3
-    // <algopy>/algopy_lib_arc4.py:218
+    // <algopy>/algopy_lib_arc4.py:330
     dig 1
     extract_uint16
     int 2
     +
     +
     frame_bury 1
-    // <algopy>/algopy_lib_arc4.py:219
+    // <algopy>/algopy_lib_arc4.py:327
     int 2
     +
     frame_bury 2
-    // <algopy>/algopy_lib_arc4.py:215
-    frame_dig 0
-    int 1
-    +
-    frame_bury 0
-    b recalculate_array_offsets_static_for_header@4
+    b recalculate_head_for_elements_with_byte_length_head_for_header@1
 
-recalculate_array_offsets_static_after_for@8:
-    // <algopy>/algopy_lib_arc4.py:221
+recalculate_head_for_elements_with_byte_length_head_after_for@5:
+    // <algopy>/algopy_lib_arc4.py:332
     frame_dig -3
     frame_bury 0
     retsub

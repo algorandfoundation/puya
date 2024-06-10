@@ -2,7 +2,7 @@
 
 test_cases.reversed_iteration.contract.MyContract.approval_program:
     int 0
-    dupn 4
+    dupn 5
     byte ""
     dupn 18
     // reversed_iteration/contract.py:8-9
@@ -64,10 +64,14 @@ main_for_body@3:
     b main_for_body@3
 
 main_after_for@6:
-    int 0
-    bury 18
     // reversed_iteration/contract.py:11
     // for x in reversed(arc4.StaticArray[arc4.UInt8, typing.Literal[0]]()):
+    byte 0x
+    byte 0x
+    concat
+    bury 25
+    int 0
+    bury 18
     int 0
     bury 7
 
@@ -83,12 +87,12 @@ main_for_header@7:
     -
     dup
     bury 8
-    int 1
-    *
-    byte 0x
+    dig 25
     swap
     int 1
-    extract3
+    *
+    int 1
+    extract3 // on error: Index access is out of bounds
     // reversed_iteration/contract.py:12
     // log(x.bytes)
     log
@@ -109,6 +113,9 @@ main_after_for@10:
     byte 0x00
     concat
     byte 0x00
+    concat
+    byte 0x
+    swap
     concat
     dup
     bury 22
@@ -357,6 +364,9 @@ main_after_for@24:
     concat
     swap
     concat
+    byte 0x
+    swap
+    concat
     bury 22
     // reversed_iteration/contract.py:29
     // some_string_reversed = arc4.String("")
@@ -386,16 +396,18 @@ main_for_header@25:
     -
     dup
     bury 7
+    dig 22
+    swap
     int 2
     *
-    dig 22
-    dup
-    cover 2
+    dig 1
     swap
     extract_uint16
     dig 1
     dig 1
     extract_uint16
+    int 1
+    *
     int 2
     +
     uncover 2
@@ -412,7 +424,7 @@ main_for_header@25:
     dup
     len
     itob
-    extract 6 0
+    extract 6 2
     swap
     concat
     bury 23
