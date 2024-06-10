@@ -264,7 +264,6 @@ class _StringStartsOrEndsWith(FunctionBuilder):
             condition=arg_length_gt_this_length.resolve(),
             true_expr=BoolConstant(location, value=False),
             false_expr=this_substr.compare(arg, BuilderComparisonOp.eq, location).resolve(),
-            wtype=wtypes.bool_wtype,
             source_location=location,
         )
         return BoolExpressionBuilder(cond)

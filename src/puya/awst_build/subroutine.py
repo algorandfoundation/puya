@@ -1004,7 +1004,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             condition=condition,
             true_expr=true_b.resolve(),
             false_expr=false_b.resolve(),
-            wtype=expr_pytype.wtype,
             source_location=expr_loc,
         )
         return builder_for_instance(expr_pytype, cond_expr)

@@ -1150,14 +1150,17 @@ class ConditionalExpression(Expression):
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     true_expr: Expression
     false_expr: Expression
+    wtype: WType = attrs.field(init=False)
 
-    def __attrs_post_init__(self) -> None:
-        super().__attrs_post_init__()
+    @wtype.default
+    def _wtype(self) -> WType:
         if self.true_expr.wtype != self.false_expr.wtype:
-            raise ValueError(
+            raise CodeError(
                 f"true and false expressions of conditional have differing types:"
-                f" {self.true_expr.wtype} and {self.false_expr.wtype}"
+                f" {self.true_expr.wtype} and {self.false_expr.wtype}",
+                self.source_location,
             )
+        return self.true_expr.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_conditional_expression(self)
