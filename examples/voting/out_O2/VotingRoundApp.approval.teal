@@ -157,27 +157,28 @@ store_option_counts:
     <=
     assert // Can't have more than 112 questions
     int 0
-    dup
+    frame_dig -1
+    extract 2 0
+    int 0
 
 store_option_counts_for_header@1:
-    frame_dig 2
+    frame_dig 3
     frame_dig 0
     <
     bz store_option_counts_after_for@4
-    frame_dig -1
-    extract 2 0
     frame_dig 2
+    frame_dig 3
     dup
     cover 2
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     frame_dig 1
     +
     frame_bury 1
     int 1
     +
-    frame_bury 2
+    frame_bury 3
     b store_option_counts_for_header@1
 
 store_option_counts_after_for@4:
@@ -203,7 +204,7 @@ bootstrap:
     int 0
     byte "is_bootstrapped"
     app_global_get_ex
-    assert // check is_bootstrapped exists
+    assert // check self.is_bootstrapped exists
     !
     assert // Must not be already bootstrapped
     byte "is_bootstrapped"
@@ -217,7 +218,7 @@ bootstrap:
     int 0
     byte "total_options"
     app_global_get_ex
-    assert // check total_options exists
+    assert // check self.total_options exists
     int 8
     *
     dup
@@ -261,7 +262,7 @@ close:
     int 0
     byte "vote_id"
     app_global_get_ex
-    assert // check vote_id exists
+    assert // check self.vote_id exists
     byte "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
     swap
     concat
@@ -270,21 +271,21 @@ close:
     int 0
     byte "metadata_ipfs_cid"
     app_global_get_ex
-    assert // check metadata_ipfs_cid exists
+    assert // check self.metadata_ipfs_cid exists
     concat
     byte "\",\"id\":\""
     concat
     int 0
     byte "vote_id"
     app_global_get_ex
-    assert // check vote_id exists
+    assert // check self.vote_id exists
     concat
     byte "\",\"quorum\":"
     concat
     int 0
     byte "quorum"
     app_global_get_ex
-    assert // check quorum exists
+    assert // check self.quorum exists
     callsub itoa
     concat
     byte ",\"voterCount\":"
@@ -292,7 +293,7 @@ close:
     int 0
     byte "voter_count"
     app_global_get_ex
-    assert // check voter_count exists
+    assert // check self.voter_count exists
     callsub itoa
     concat
     byte ",\"tallies\":["
@@ -301,26 +302,25 @@ close:
     dup
     byte "option_counts"
     app_global_get_ex
-    swap
+    assert // check self.option_counts exists
     dup
-    uncover 2
-    assert // check option_counts exists
     int 0
     extract_uint16
+    swap
+    extract 2 0
     int 0
 
 close_for_header@1:
     frame_dig 9
-    frame_dig 8
+    frame_dig 7
     <
     bz close_after_for@15
-    frame_dig 7
-    extract 2 0
+    frame_dig 8
     frame_dig 9
     dup
     cover 2
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     frame_bury 1
     frame_dig 5
     frame_bury 0
@@ -413,14 +413,14 @@ close_after_for@15:
     int 0
     byte "vote_id"
     app_global_get_ex
-    assert // check vote_id exists
+    assert // check self.vote_id exists
     byte "[VOTE RESULT] "
     swap
     concat
     int 0
     byte "nft_image_url"
     app_global_get_ex
-    assert // check nft_image_url exists
+    assert // check self.nft_image_url exists
     uncover 2
     itxn_field Note
     itxn_field ConfigAssetURL
@@ -559,7 +559,7 @@ voting_open:
     int 0
     byte "is_bootstrapped"
     app_global_get_ex
-    assert // check is_bootstrapped exists
+    assert // check self.is_bootstrapped exists
     bz voting_open_bool_false@5
     int 0
     byte "close_time"
@@ -569,7 +569,7 @@ voting_open:
     int 0
     byte "start_time"
     app_global_get_ex
-    assert // check start_time exists
+    assert // check self.start_time exists
     global LatestTimestamp
     dup
     frame_bury 0
@@ -578,7 +578,7 @@ voting_open:
     int 0
     byte "end_time"
     app_global_get_ex
-    assert // check end_time exists
+    assert // check self.end_time exists
     frame_dig 0
     >=
     bz voting_open_bool_false@5
@@ -603,7 +603,7 @@ allowed_to_vote:
     int 0
     byte "snapshot_public_key"
     app_global_get_ex
-    assert // check snapshot_public_key exists
+    assert // check self.snapshot_public_key exists
     frame_dig -1
     swap
     ed25519verify_bare
@@ -636,13 +636,15 @@ vote:
     int 0
     byte "option_counts"
     app_global_get_ex
-    assert // check option_counts exists
+    assert // check self.option_counts exists
     int 0
     extract_uint16
     dup
     frame_dig -1
     int 0
     extract_uint16
+    dup
+    cover 2
     dup
     uncover 2
     ==
@@ -669,39 +671,48 @@ vote:
     dup
 
 vote_for_header@1:
-    frame_dig 2
+    frame_dig 3
     frame_dig 0
     <
     bz vote_after_for@5
+    frame_dig 3
+    dup
+    frame_dig 1
+    <
+    assert // Index access is out of bounds
     frame_dig -1
     extract 2 0
-    frame_dig 2
-    dup
-    cover 2
+    dig 1
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     swap
     int 0
     byte "option_counts"
     app_global_get_ex
-    assert // check option_counts exists
+    assert // check self.option_counts exists
+    dup
+    int 0
+    extract_uint16
+    dig 2
+    >
+    assert // Index access is out of bounds
     extract 2 0
     dig 1
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     dig 2
     dig 1
     <
     assert // Answer option index invalid
-    frame_dig 1
+    frame_dig 2
     dup
     uncover 4
     +
     callsub increment_vote_in_box
     +
-    frame_bury 1
+    frame_bury 2
     txn Sender
     dup
     box_del
@@ -711,7 +722,7 @@ vote_for_header@1:
     int 0
     byte "voter_count"
     app_global_get_ex
-    assert // check voter_count exists
+    assert // check self.voter_count exists
     int 1
     +
     byte "voter_count"
@@ -719,7 +730,7 @@ vote_for_header@1:
     app_global_put
     int 1
     +
-    frame_bury 2
+    frame_bury 3
     b vote_for_header@1
 
 vote_after_for@5:

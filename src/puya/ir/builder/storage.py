@@ -22,7 +22,7 @@ def visit_app_state_expression(
     assert_value(
         context,
         value=exists,
-        comment=f"check {expr.member_name} exists",  # TODO: fixme
+        comment=expr.exists_assertion_message or "state exists",
         source_location=expr.source_location,
     )
     return maybe_value
@@ -36,7 +36,7 @@ def visit_app_account_state_expression(
     assert_value(
         context,
         value=exists,
-        comment=f"check {expr.member_name} exists for account",  # TODO: fixme
+        comment=expr.exists_assertion_message or "state exists for account",
         source_location=expr.source_location,
     )
     return maybe_value
@@ -50,7 +50,7 @@ def visit_box_value(
     assert_value(
         context,
         value=exists,
-        comment=f"box {expr.member_name} must exist",  # TODO: fixme
+        comment=expr.exists_assertion_message or "box exists",
         source_location=expr.source_location,
     )
     return maybe_value
@@ -159,7 +159,7 @@ def _build_state_get_ex(
     (value_tmp, did_exist_tmp) = assign(
         context,
         get_ex,
-        temp_description=[f"{expr.member_name}_maybe_value", f"{expr.member_name}_exists"],
+        temp_description=["maybe_value", "maybe_exists"],
         source_location=source_location,
     )
     if convert_op is None:
@@ -168,7 +168,7 @@ def _build_state_get_ex(
     value_tmp_converted = mktemp(
         context,
         ir_type=true_value_ir_type,
-        description=f"{expr.member_name}_maybe_value_converted",
+        description="maybe_value_converted",
         source_location=expr.source_location,
     )
 

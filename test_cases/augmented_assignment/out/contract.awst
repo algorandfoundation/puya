@@ -11,24 +11,24 @@ contract Augmented
   
   constructor()
   {
-    this.global_uint: uint64 = 0u
-    this.global_bytes: bytes = hex<"">
+    GlobalState['global_uint']: uint64 = 0u
+    GlobalState['global_bytes']: bytes = hex<"">
   }
   
   approval_program(): bool
   {
     me: account = txn<Sender>()
     if (txn<OnCompletion>() == OptIn) {
-      this.my_uint[me]: uint64 = 0u
-      this.my_bytes[me]: bytes = hex<"">
+      LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=augmented_assignment/contract.py:14:8-20, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'my_uint', encoding=<BytesEncoding.utf8: 'utf8'>)>, me]: uint64 = 0u
+      LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=augmented_assignment/contract.py:15:8-21, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'my_bytes', encoding=<BytesEncoding.utf8: 'utf8'>)>, me]: bytes = hex<"">
     }
     if (reinterpret_cast<bool>(txn<ApplicationID>())) {
       n: uint64 = txn<NumAppArgs>()
       bytes_to_add: bytes = reinterpret_cast<bytes>(itob(n))
-      this.my_uint[me] += n
-      this.my_bytes[me] += bytes_to_add
-      this.global_uint += n
-      this.global_bytes += bytes_to_add
+      LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=augmented_assignment/contract.py:14:8-20, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'my_uint', encoding=<BytesEncoding.utf8: 'utf8'>)>, me] += n
+      LocalState[<bound method BytesConstant.accept of BytesConstant(source_location=augmented_assignment/contract.py:15:8-21, wtype=WType(name='state_key', scalar_type=<AVMType.bytes: 1>, bounds=SizeBounds(min_size=0, max_size=64), ephemeral=False, immutable=True), value=b'my_bytes', encoding=<BytesEncoding.utf8: 'utf8'>)>, me] += bytes_to_add
+      GlobalState['global_uint'] += n
+      GlobalState['global_bytes'] += bytes_to_add
     }
     return true
   }

@@ -23,21 +23,21 @@ contract test_cases.augmented_assignment.contract.Augmented:
                 let n#0: uint64 = (txn NumAppArgs)
                 let reinterpret_bytes%0#0: bytes = (itob n#0)
                 let bytes_to_add#0: bytes = reinterpret_bytes%0#0
-                let (my_uint_maybe_value%0#0: uint64, my_uint_exists%0#0: bool) = (app_local_get_ex me#0 0u "my_uint")
-                (assert my_uint_exists%0#0) // check my_uint exists for account
-                let new_state_value%0#0: uint64 = (+ my_uint_maybe_value%0#0 n#0)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex me#0 0u "my_uint")
+                (assert maybe_exists%0#0) // check self.my_uint exists for account
+                let new_state_value%0#0: uint64 = (+ maybe_value%0#0 n#0)
                 (app_local_put me#0 "my_uint" new_state_value%0#0)
-                let (my_bytes_maybe_value%0#0: bytes, my_bytes_exists%0#0: bool) = (app_local_get_ex me#0 0u "my_bytes")
-                (assert my_bytes_exists%0#0) // check my_bytes exists for account
-                let new_state_value%1#0: bytes = (concat my_bytes_maybe_value%0#0 bytes_to_add#0)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex me#0 0u "my_bytes")
+                (assert maybe_exists%1#0) // check self.my_bytes exists for account
+                let new_state_value%1#0: bytes = (concat maybe_value%1#0 bytes_to_add#0)
                 (app_local_put me#0 "my_bytes" new_state_value%1#0)
-                let (global_uint_maybe_value%0#0: uint64, global_uint_exists%0#0: bool) = (app_global_get_ex 0u "global_uint")
-                (assert global_uint_exists%0#0) // check global_uint exists
-                let new_state_value%2#0: uint64 = (+ global_uint_maybe_value%0#0 n#0)
+                let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "global_uint")
+                (assert maybe_exists%2#0) // check self.global_uint exists
+                let new_state_value%2#0: uint64 = (+ maybe_value%2#0 n#0)
                 (app_global_put "global_uint" new_state_value%2#0)
-                let (global_bytes_maybe_value%0#0: bytes, global_bytes_exists%0#0: bool) = (app_global_get_ex 0u "global_bytes")
-                (assert global_bytes_exists%0#0) // check global_bytes exists
-                let new_state_value%3#0: bytes = (concat global_bytes_maybe_value%0#0 bytes_to_add#0)
+                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "global_bytes")
+                (assert maybe_exists%3#0) // check self.global_bytes exists
+                let new_state_value%3#0: bytes = (concat maybe_value%3#0 bytes_to_add#0)
                 (app_global_put "global_bytes" new_state_value%3#0)
                 goto block@6
             block@6: // after_if_else_L25

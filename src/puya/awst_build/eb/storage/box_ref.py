@@ -70,11 +70,14 @@ class BoxRefProxyExpressionBuilder(
         self._member_name = member_name
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
+        if self._member_name:
+            exists_assertion_message = f"check self.{self._member_name} exists"
+        else:
+            exists_assertion_message = "check BoxRef exists"
         return BoxValueExpression(
             key=self.resolve(),
             wtype=wtypes.bytes_wtype,
-            member_name=self._member_name,
-            from_map=False,
+            exists_assertion_message=exists_assertion_message,
             source_location=location,
         )
 

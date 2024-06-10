@@ -15,9 +15,9 @@ main_new_game_route@1:
     assert // OnCompletion is NoOp
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     swap
-    extract 8 8 // on error: Index access is out of bounds
+    extract 8 8
     swap
     btoi
     swap
@@ -34,9 +34,9 @@ main_join_game_route@2:
     assert // is not creating
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     swap
-    extract 8 8 // on error: Index access is out of bounds
+    extract 8 8
     swap
     btoi
     swap
@@ -67,9 +67,9 @@ main_play_route@4:
     assert // is not creating
     txna ApplicationArgs 1
     dup
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     swap
-    extract 8 8 // on error: Index access is out of bounds
+    extract 8 8
     swap
     btoi
     swap
@@ -132,14 +132,18 @@ new_game_bool_merge@8:
     int 0
     byte "game"
     app_global_get_ex
-    assert // check game exists
+    assert // check self.game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
     frame_dig -1
     int 3
     *
     dup
     cover 2
     int 3
-    extract3 // on error: Index access is out of bounds
+    extract3
     frame_dig 0
     assert // Index access is out of bounds
     frame_dig -2
@@ -148,11 +152,7 @@ new_game_bool_merge@8:
     int 0
     byte "game"
     app_global_get_ex
-    assert // check game exists
-    frame_dig -1
-    int 3
-    <
-    assert // Index access is out of bounds
+    assert // check self.game exists
     cover 2
     replace3
     byte "game"
@@ -206,40 +206,40 @@ make_move_bool_merge@4:
     int 0
     byte "game"
     app_global_get_ex
-    assert // check game exists
+    assert // check self.game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
     frame_dig -1
     int 3
     *
     dup
     cover 2
     int 3
-    extract3 // on error: Index access is out of bounds
+    extract3
+    frame_dig 0
+    assert // Index access is out of bounds
     frame_dig -2
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     byte 0x00
     b==
     assert // Square is already taken
     int 0
     byte "game"
     app_global_get_ex
-    assert // check game exists
+    assert // check self.game exists
     dig 1
     int 3
-    extract3 // on error: Index access is out of bounds
-    frame_dig 0
-    assert // Index access is out of bounds
+    extract3
     frame_dig -2
     frame_dig -3
     replace3
     int 0
     byte "game"
     app_global_get_ex
-    assert // check game exists
-    frame_dig -1
-    int 3
-    <
-    assert // Index access is out of bounds
+    assert // check self.game exists
     cover 2
     replace3
     byte "game"
@@ -248,7 +248,7 @@ make_move_bool_merge@4:
     int 0
     byte "turns"
     app_global_get_ex
-    assert // check turns exists
+    assert // check self.turns exists
     int 1
     +
     byte "turns"
@@ -268,7 +268,7 @@ make_move_else_body@6:
     int 0
     byte "turns"
     app_global_get_ex
-    assert // check turns exists
+    assert // check self.turns exists
     int 9
     ==
     bz make_move_after_if_else@9
@@ -290,22 +290,26 @@ did_win:
     swap
     dup
     uncover 2
-    assert // check game exists
+    assert // check self.game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
     frame_dig -1
     int 3
     *
     int 3
-    extract3 // on error: Index access is out of bounds
+    extract3
     dupn 2
-    extract 0 1 // on error: Index access is out of bounds
+    extract 0 1
     swap
-    extract 1 1 // on error: Index access is out of bounds
+    extract 1 1
     dup
     cover 2
     b==
     bz did_win_after_if_else@3
     frame_dig 4
-    extract 2 1 // on error: Index access is out of bounds
+    extract 2 1
     frame_dig 5
     b==
     bz did_win_after_if_else@3
@@ -318,59 +322,63 @@ did_win_if_body@2:
 did_win_after_if_else@3:
     frame_dig 3
     dup
-    extract 0 3 // on error: Index access is out of bounds
+    extract 0 3
     dup
     frame_bury 1
     frame_dig -2
+    int 3
+    <
+    assert // Index access is out of bounds
+    frame_dig -2
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     swap
-    extract 3 3 // on error: Index access is out of bounds
+    extract 3 3
     dup
     frame_bury 2
     frame_dig -2
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     dup
     frame_bury 0
     b==
     bz did_win_after_if_else@6
     frame_dig 3
-    extract 6 3 // on error: Index access is out of bounds
+    extract 6 3
     frame_dig -2
     int 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     frame_dig 0
     b==
     bnz did_win_if_body@2
 
 did_win_after_if_else@6:
     frame_dig 2
-    extract 1 1 // on error: Index access is out of bounds
+    extract 1 1
     frame_dig -3
     b==
     bz did_win_after_if_else@14
     frame_dig 1
-    extract 0 1 // on error: Index access is out of bounds
+    extract 0 1
     frame_dig -3
     b==
     bz did_win_after_if_else@10
     frame_dig 3
-    extract 6 3 // on error: Index access is out of bounds
-    extract 2 1 // on error: Index access is out of bounds
+    extract 6 3
+    extract 2 1
     frame_dig -3
     b==
     bnz did_win_if_body@2
 
 did_win_after_if_else@10:
     frame_dig 1
-    extract 2 1 // on error: Index access is out of bounds
+    extract 2 1
     frame_dig -3
     b==
     bz did_win_after_if_else@14
     frame_dig 3
-    extract 6 3 // on error: Index access is out of bounds
-    extract 0 1 // on error: Index access is out of bounds
+    extract 6 3
+    extract 0 1
     frame_dig -3
     b==
     bnz did_win_if_body@2
@@ -387,7 +395,7 @@ whose_turn:
     int 0
     byte "turns"
     app_global_get_ex
-    assert // check turns exists
+    assert // check self.turns exists
     int 2
     %
     bz whose_turn_ternary_false@2
@@ -413,7 +421,7 @@ play:
     int 0
     byte "turns"
     app_global_get_ex
-    assert // check turns exists
+    assert // check self.turns exists
     int 2
     %
     bz play_else_body@2
@@ -421,7 +429,7 @@ play:
     int 0
     byte "host"
     app_global_get_ex
-    assert // check host exists
+    assert // check self.host exists
     ==
     assert // It is the host's turn
     byte 0x01

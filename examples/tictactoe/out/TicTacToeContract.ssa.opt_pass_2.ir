@@ -57,11 +57,11 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let reinterpret_bool%0#0: bool = (txn ApplicationID)
                 goto reinterpret_bool%0#0 ? block@1 : block@4
             block@1: // if_body_L22
-                let (challenger_maybe_value%0#0: bytes, challenger_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
-                goto challenger_exists%0#0 ? block@2 : block@3
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+                goto maybe_exists%0#0 ? block@2 : block@3
             block@2: // if_body_L23
-                let (winner_maybe_value%0#0: bytes, winner_exists%0#0: bool) = (app_global_get_ex 0u "winner")
-                (assert winner_exists%0#0) // Game isn't over
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
+                (assert maybe_exists%1#0) // Game isn't over
                 goto block@3
             block@3: // after_if_else_L23
                 (app_global_del "challenger")
@@ -86,25 +86,25 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@8: // bool_merge_L33
                 let and_result%0#2: bool = φ(and_result%0#0 <- block@6, and_result%0#1 <- block@7)
                 (assert and_result%0#2) // Move must be in range
-                let (game_maybe_value%0#0: bytes, game_exists%0#0: bool) = (app_global_get_ex 0u "game")
-                (assert game_exists%0#0) // check game exists
+                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
+                (assert maybe_exists%2#0) // check self.game exists
                 let index_is_in_bounds%0#0: bool = (< move.1#0 3u)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let item_index%0#0: uint64 = (* move.1#0 3u)
-                let tmp%2#0: bytes = (extract3 game_maybe_value%0#0 item_index%0#0 3u)
+                let tmp%2#0: bytes = (extract3 maybe_value%2#0 item_index%0#0 3u)
                 (assert tmp%0#0) // Index access is out of bounds
                 let updated_target%0#0: bytes = (replace3 tmp%2#0 move.0#0 0x01)
-                let (game_maybe_value%1#0: bytes, game_exists%1#0: bool) = (app_global_get_ex 0u "game")
-                (assert game_exists%1#0) // check game exists
-                let updated_target%1#0: bytes = (replace3 game_maybe_value%1#0 item_index%0#0 updated_target%0#0)
+                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "game")
+                (assert maybe_exists%3#0) // check self.game exists
+                let updated_target%1#0: bytes = (replace3 maybe_value%3#0 item_index%0#0 updated_target%0#0)
                 (app_global_put "game" updated_target%1#0)
                 (app_global_put "turns" 0u)
                 return 
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
             block@0: // L37
-                let (challenger_maybe_value%0#0: bytes, challenger_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
-                let tmp%0#0: bool = (! challenger_exists%0#0)
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+                let tmp%0#0: bool = (! maybe_exists%0#0)
                 (assert tmp%0#0) // Host already has a challenger
                 let new_state_value%0#0: bytes = (txn Sender)
                 (app_global_put "challenger" new_state_value%0#0)
@@ -127,27 +127,27 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@4: // bool_merge_L63
                 let and_result%0#2: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
                 (assert and_result%0#2) // Move must be in range
-                let (game_maybe_value%0#0: bytes, game_exists%0#0: bool) = (app_global_get_ex 0u "game")
-                (assert game_exists%0#0) // check game exists
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
+                (assert maybe_exists%0#0) // check self.game exists
                 let index_is_in_bounds%0#0: bool = (< move.1#0 3u)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let item_index%0#0: uint64 = (* move.1#0 3u)
-                let tmp%2#0: bytes = (extract3 game_maybe_value%0#0 item_index%0#0 3u)
+                let tmp%2#0: bytes = (extract3 maybe_value%0#0 item_index%0#0 3u)
                 (assert tmp%0#0) // Index access is out of bounds
                 let reinterpret_biguint%0#0: biguint = (extract3 tmp%2#0 move.0#0 1u)
                 let tmp%3#0: bool = (b== reinterpret_biguint%0#0 0x00)
                 (assert tmp%3#0) // Square is already taken
-                let (game_maybe_value%1#0: bytes, game_exists%1#0: bool) = (app_global_get_ex 0u "game")
-                (assert game_exists%1#0) // check game exists
-                let tmp%4#0: bytes = (extract3 game_maybe_value%1#0 item_index%0#0 3u)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
+                (assert maybe_exists%1#0) // check self.game exists
+                let tmp%4#0: bytes = (extract3 maybe_value%1#0 item_index%0#0 3u)
                 let updated_target%0#0: bytes = (replace3 tmp%4#0 move.0#0 player#0)
-                let (game_maybe_value%2#0: bytes, game_exists%2#0: bool) = (app_global_get_ex 0u "game")
-                (assert game_exists%2#0) // check game exists
-                let updated_target%1#0: bytes = (replace3 game_maybe_value%2#0 item_index%0#0 updated_target%0#0)
+                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
+                (assert maybe_exists%2#0) // check self.game exists
+                let updated_target%1#0: bytes = (replace3 maybe_value%2#0 item_index%0#0 updated_target%0#0)
                 (app_global_put "game" updated_target%1#0)
-                let (turns_maybe_value%0#0: uint64, turns_exists%0#0: bool) = (app_global_get_ex 0u "turns")
-                (assert turns_exists%0#0) // check turns exists
-                let new_state_value%0#0: uint64 = (+ turns_maybe_value%0#0 1u)
+                let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
+                (assert maybe_exists%3#0) // check self.turns exists
+                let new_state_value%0#0: uint64 = (+ maybe_value%3#0 1u)
                 (app_global_put "turns" new_state_value%0#0)
                 let tmp%5#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, move.0#0, move.1#0)
                 goto tmp%5#0 ? block@5 : block@6
@@ -155,9 +155,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (app_global_put "winner" player#0)
                 goto block@9
             block@6: // else_body_L67
-                let (turns_maybe_value%1#0: uint64, turns_exists%1#0: bool) = (app_global_get_ex 0u "turns")
-                (assert turns_exists%1#0) // check turns exists
-                let tmp%6#0: bool = (== turns_maybe_value%1#0 9u)
+                let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "turns")
+                (assert maybe_exists%4#0) // check self.turns exists
+                let tmp%6#0: bool = (== maybe_value%4#0 9u)
                 goto tmp%6#0 ? block@7 : block@9
             block@7: // if_body_L69
                 (app_global_put "winner" 0x03)
@@ -167,8 +167,8 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: bytes, column: uint64, row: uint64) -> bool:
             block@0: // L72
-                let (g#0: bytes, game_exists%0#0: bool) = (app_global_get_ex 0u "game")
-                (assert game_exists%0#0) // check game exists
+                let (g#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
+                (assert maybe_exists%0#0) // check self.game exists
                 let index_is_in_bounds%0#0: bool = (< row#0 3u)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let item_index%0#0: uint64 = (* row#0 3u)
@@ -230,9 +230,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
             block@0: // L43
-                let (turns_maybe_value%0#0: uint64, turns_exists%0#0: bool) = (app_global_get_ex 0u "turns")
-                (assert turns_exists%0#0) // check turns exists
-                let reinterpret_bool%0#0: bool = (% turns_maybe_value%0#0 2u)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
+                (assert maybe_exists%0#0) // check self.turns exists
+                let reinterpret_bool%0#0: bool = (% maybe_value%0#0 2u)
                 goto reinterpret_bool%0#0 ? block@1 : block@2
             block@1: // ternary_true_L45
                 let ternary_result%0#0: bytes = 0x01
@@ -246,26 +246,26 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
             block@0: // L47
-                let (winner_maybe_value%0#0: bytes, winner_exists%0#0: bool) = (app_global_get_ex 0u "winner")
-                let tmp%0#0: bool = (! winner_exists%0#0)
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
+                let tmp%0#0: bool = (! maybe_exists%0#0)
                 (assert tmp%0#0) // Game is already finished
-                let (turns_maybe_value%0#0: uint64, turns_exists%0#0: bool) = (app_global_get_ex 0u "turns")
-                (assert turns_exists%0#0) // check turns exists
-                let reinterpret_bool%0#0: bool = (% turns_maybe_value%0#0 2u)
+                let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "turns")
+                (assert maybe_exists%1#0) // check self.turns exists
+                let reinterpret_bool%0#0: bool = (% maybe_value%1#0 2u)
                 goto reinterpret_bool%0#0 ? block@1 : block@2
             block@1: // if_body_L50
                 let tmp%1#0: bytes = (txn Sender)
-                let (host_maybe_value%0#0: bytes, host_exists%0#0: bool) = (app_global_get_ex 0u "host")
-                (assert host_exists%0#0) // check host exists
-                let tmp%2#0: bool = (== tmp%1#0 host_maybe_value%0#0)
+                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
+                (assert maybe_exists%2#0) // check self.host exists
+                let tmp%2#0: bool = (== tmp%1#0 maybe_value%2#0)
                 (assert tmp%2#0) // It is the host's turn
                 let player#0: bytes = 0x01
                 goto block@3
             block@2: // else_body_L50
                 let tmp%3#0: bytes = (txn Sender)
                 let tmp%4#0: bytes = (global ZeroAddress)
-                let (challenger_maybe_value%0#0: bytes, challenger_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
-                let tmp%5#0: bytes = (select tmp%4#0 challenger_maybe_value%0#0 challenger_exists%0#0)
+                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
+                let tmp%5#0: bytes = (select tmp%4#0 maybe_value%3#0 maybe_exists%3#0)
                 let tmp%6#0: bool = (== tmp%3#0 tmp%5#0)
                 (assert tmp%6#0) // It is the challenger's turn
                 let player#1: bytes = 0x02

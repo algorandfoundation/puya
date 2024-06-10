@@ -10,11 +10,11 @@ contract Reference
   
   constructor()
   {
-    this.asa: asset = reinterpret_cast<asset>(123u)
-    this.an_int: uint64 = 2u
-    this.some_bytes: arc4.static_array<arc4.byte, 3> = new arc4.static_array<arc4.byte, 3>(7arc4u8, 8arc4u8, 9arc4u8)
-    this.creator: account = txn<Sender>()
-    this.app: application = reinterpret_cast<application>(123u)
+    GlobalState['asa']: asset = reinterpret_cast<asset>(123u)
+    GlobalState['an_int']: uint64 = 2u
+    GlobalState['some_bytes']: arc4.static_array<arc4.byte, 3> = new arc4.static_array<arc4.byte, 3>(7arc4u8, 8arc4u8, 9arc4u8)
+    GlobalState['creator']: account = txn<Sender>()
+    GlobalState['app']: application = reinterpret_cast<application>(123u)
     assert(reinterpret_cast<bool>(len(Method("get(uint64,byte[])byte[]"))), comment="has method selector")
   }
   
@@ -44,8 +44,8 @@ contract Reference
   abimethod opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
-    this.asa: asset = asset
+    assert(!(reinterpret_cast<bool>(GlobalState['asa'])), comment="ASA already opted in")
+    GlobalState['asa']: asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -56,7 +56,7 @@ contract Reference
   
   abimethod with_transactions(asset: asset, an_int: arc4.uint64, pay: group_transaction_pay, another_int: arc4.uint64): void
   {
-    assert(this.asa == asset, comment="is correct asset")
+    assert(GlobalState['asa'] == asset, comment="is correct asset")
     assert(arc4_decode(an_int, uint64) == 1u, comment="is correct int")
     assert(gtxns<Receiver>(pay) == global<CurrentApplicationAddress>(), comment="is payment to app")
     assert(arc4_decode(another_int, uint64) == 2u, comment="is correct int")

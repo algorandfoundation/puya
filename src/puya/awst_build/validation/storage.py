@@ -24,12 +24,10 @@ class StorageTypesValidator(AWSTTraverser):
 
     def __init__(self) -> None:
         super().__init__()
-        self._seen_member_names = defaultdict[AppStorageKind, set[str]](set)
         self._seen_keys = defaultdict[AppStorageKind, set[bytes]](set)
 
     def visit_app_state_definition(self, state_defn: awst_nodes.AppStorageDefinition) -> None:
         super().visit_app_state_definition(state_defn)
-        self._seen_member_names[state_defn.kind].add(state_defn.member_name)
         wtypes.validate_persistable(state_defn.storage_wtype, state_defn.source_location)
         if state_defn.key_wtype is not None:
             wtypes.validate_persistable(state_defn.key_wtype, state_defn.source_location)
@@ -49,8 +47,6 @@ class StorageTypesValidator(AWSTTraverser):
         self._validate_usage(expr, AppStorageKind.box)
 
     def _validate_usage(self, expr: awst_nodes.StorageExpression, kind: AppStorageKind) -> None:
-        if expr.member_name and not set_add(self._seen_member_names[kind], expr.member_name):
-            return
         if isinstance(expr.key, awst_nodes.BytesConstant) and not set_add(
             self._seen_keys[kind], expr.key.value
         ):

@@ -115,11 +115,14 @@ class BoxProxyExpressionBuilder(
         super().__init__(typ, expr)
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
+        if self._member_name:
+            exists_assertion_message = f"check self.{self._member_name} exists"
+        else:
+            exists_assertion_message = "check Box exists"
         return BoxValueExpression(
             key=self.resolve(),
             wtype=self.pytype.content.wtype,
-            member_name=self._member_name,
-            from_map=False,
+            exists_assertion_message=exists_assertion_message,
             source_location=location,
         )
 
@@ -136,7 +139,6 @@ class BoxProxyExpressionBuilder(
                 return BoxMaybeExpressionBuilder(
                     self._box_key_expr(location), content_type=self.pytype.content
                 )
-
         return super().member_access(name, location)
 
     @typing.override

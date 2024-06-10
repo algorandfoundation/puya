@@ -69,11 +69,11 @@ contract test_cases.match.contract.MyContract:
         subroutine test_cases.match.contract.MyContract.match_attributes() -> void:
             block@0: // L60
                 let n#0: uint64 = (txn NumAppArgs)
-                let (case_one_maybe_value%0#0: uint64, case_one_exists%0#0: bool) = (app_global_get_ex 0u "case_one")
-                (assert case_one_exists%0#0) // check case_one exists
-                let (case_two_maybe_value%0#0: uint64, case_two_exists%0#0: bool) = (app_global_get_ex 0u "case_two")
-                (assert case_two_exists%0#0) // check case_two exists
-                switch n#0 {case_one_maybe_value%0#0 => block@1, case_two_maybe_value%0#0 => block@2, * => block@3}
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "case_one")
+                (assert maybe_exists%0#0) // check self.case_one exists
+                let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "case_two")
+                (assert maybe_exists%1#0) // check self.case_two exists
+                switch n#0 {maybe_value%0#0 => block@1, maybe_value%1#0 => block@2, * => block@3}
             block@1: // switch_case_0_L65
                 (log 0x48656c6c6f206f6e65)
                 goto block@4

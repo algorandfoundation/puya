@@ -1053,7 +1053,8 @@ class IntersectionSliceExpression(Expression):
 @attrs.frozen
 class AppStateExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
-    member_name: str | None
+    exists_assertion_message: str | None
+    """TEAL comment that will be emitted in a checked-read scenario"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
@@ -1062,7 +1063,8 @@ class AppStateExpression(Expression):
 @attrs.frozen
 class AppAccountStateExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.state_key))
-    member_name: str | None
+    exists_assertion_message: str | None
+    """TEAL comment that will be emitted in a checked-read scenario"""
     account: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)
     )
@@ -1074,10 +1076,8 @@ class AppAccountStateExpression(Expression):
 @attrs.frozen
 class BoxValueExpression(Expression):
     key: Expression = attrs.field(validator=expression_has_wtype(wtypes.box_key))
-    member_name: str | None
-    from_map: bool
-    """is the key derived from some prefix and some other value?
-    informative only, used to construct better messages etc"""
+    exists_assertion_message: str | None
+    """TEAL comment that will be emitted in a checked-read scenario"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_value_expression(self)

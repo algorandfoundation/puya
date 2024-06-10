@@ -20,40 +20,40 @@ contract TicTacToeContract
   abimethod new_game(move: tuple<uint64,uint64>): void
   {
     if (reinterpret_cast<bool>(txn<ApplicationID>())) {
-      if (STATE_EXISTS(this.challenger)) {
-        assert(STATE_EXISTS(this.winner), comment="Game isn't over")
+      if (STATE_EXISTS(GlobalState['challenger'])) {
+        assert(STATE_EXISTS(GlobalState['winner']), comment="Game isn't over")
       }
-      STATE_DELETE(this.challenger)
-      STATE_DELETE(this.winner)
+      STATE_DELETE(GlobalState['challenger'])
+      STATE_DELETE(GlobalState['winner'])
     }
-    this.host: account = txn<Sender>()
-    this.game: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = reinterpret_cast<arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3>>(bzero(9u))
+    GlobalState['host']: account = txn<Sender>()
+    GlobalState['game']: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = reinterpret_cast<arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3>>(bzero(9u))
     (column, row): tuple<uint64,uint64> = move
     assert(column < 3u and row < 3u, comment="Move must be in range")
-    this.game[row][column]: arc4.uint8 = 1arc4u8
-    this.turns: uint64 = 0u
+    GlobalState['game'][row][column]: arc4.uint8 = 1arc4u8
+    GlobalState['turns']: uint64 = 0u
   }
   
   abimethod join_game(move: tuple<uint64,uint64>): void
   {
-    assert(!(STATE_EXISTS(this.challenger)), comment="Host already has a challenger")
-    this.challenger: account = txn<Sender>()
+    assert(!(STATE_EXISTS(GlobalState['challenger'])), comment="Host already has a challenger")
+    GlobalState['challenger']: account = txn<Sender>()
     this::make_move(2arc4u8, move)
   }
   
   abimethod whose_turn(): arc4.uint8
   {
-    return (reinterpret_cast<bool>(this.turns % 2u)) ? (1arc4u8) : (2arc4u8)
+    return (reinterpret_cast<bool>(GlobalState['turns'] % 2u)) ? (1arc4u8) : (2arc4u8)
   }
   
   abimethod play(move: tuple<uint64,uint64>): void
   {
-    assert(!(STATE_EXISTS(this.winner)), comment="Game is already finished")
-    if (reinterpret_cast<bool>(this.turns % 2u)) {
-      assert(txn<Sender>() == this.host, comment="It is the host's turn")
+    assert(!(STATE_EXISTS(GlobalState['winner'])), comment="Game is already finished")
+    if (reinterpret_cast<bool>(GlobalState['turns'] % 2u)) {
+      assert(txn<Sender>() == GlobalState['host'], comment="It is the host's turn")
       player: arc4.uint8 = 1arc4u8
     } else {
-      assert(txn<Sender>() == STATE_GET(this.challenger, default=global<ZeroAddress>()), comment="It is the challenger's turn")
+      assert(txn<Sender>() == STATE_GET(GlobalState['challenger'], default=global<ZeroAddress>()), comment="It is the challenger's turn")
       player: arc4.uint8 = 2arc4u8
     }
     this::make_move(player, move)
@@ -63,21 +63,21 @@ contract TicTacToeContract
   {
     (column, row): tuple<uint64,uint64> = move
     assert(column < 3u and row < 3u, comment="Move must be in range")
-    assert(reinterpret_cast<biguint>(this.game[row][column]) == reinterpret_cast<biguint>(0arc4u8), comment="Square is already taken")
-    this.game[row][column]: arc4.uint8 = player
-    this.turns += 1u
+    assert(reinterpret_cast<biguint>(GlobalState['game'][row][column]) == reinterpret_cast<biguint>(0arc4u8), comment="Square is already taken")
+    GlobalState['game'][row][column]: arc4.uint8 = player
+    GlobalState['turns'] += 1u
     if (this::did_win(player, column=column, row=row)) {
-      this.winner: arc4.uint8 = player
+      GlobalState['winner']: arc4.uint8 = player
     } else {
-      if (this.turns == 9u) {
-        this.winner: arc4.uint8 = 3arc4u8
+      if (GlobalState['turns'] == 9u) {
+        GlobalState['winner']: arc4.uint8 = 3arc4u8
       }
     }
   }
   
   subroutine did_win(player: arc4.uint8, column: uint64, row: uint64): bool
   {
-    g: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = this.game.copy()
+    g: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = GlobalState['game'].copy()
     if (reinterpret_cast<biguint>(g[row][0u]) == reinterpret_cast<biguint>(SINGLE_EVAL(id=0, source=g[row][1u])) and reinterpret_cast<biguint>(SINGLE_EVAL(id=0, source=g[row][1u])) == reinterpret_cast<biguint>(g[row][2u])) {
       return true
     }

@@ -379,7 +379,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         else:
             global_state_target = AppStateExpression(
                 key=defn.key,
-                member_name=defn.member_name,
+                exists_assertion_message=None,  # this is a write, not a read
                 wtype=defn.definition.storage_wtype,
                 source_location=defn.source_location,
             )

@@ -68,9 +68,9 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:
             block@0: // L53
-                let (local_maybe_value%0#0: bytes, local_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
-                (assert local_exists%0#0) // check local exists for account
-                return local_maybe_value%0#0
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
+                (assert maybe_exists%0#0) // check self.local exists for account
+                return maybe_value%0#0
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(for_account: uint64) -> bytes:
             block@0: // L61
@@ -90,8 +90,8 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(for_account: uint64, default: bytes) -> bytes:
             block@0: // L57
-                let (local_maybe_value%0#0: bytes, local_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
-                let tmp%0#0: bytes = (select default#0 local_maybe_value%0#0 local_exists%0#0)
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex for_account#0 0u "local")
+                let tmp%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
                 return tmp%0#0
     
     program clear-state:

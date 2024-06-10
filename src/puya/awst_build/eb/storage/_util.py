@@ -111,13 +111,7 @@ def box_length_unchecked(box: BoxValueExpression, location: SourceLocation) -> E
 
 def box_length_checked(box: BoxValueExpression, location: SourceLocation) -> Expression:
     box_len_expr = _box_len(box.key, location)
-    if not box.member_name:
-        comment = "box exists"
-    elif not box.from_map:
-        comment = f"box {box.member_name} exists"
-    else:
-        comment = f"entry for box map {box.member_name} exists"
-    return CheckedMaybe(box_len_expr, comment=comment)
+    return CheckedMaybe(box_len_expr, comment=box.exists_assertion_message or "box exists")
 
 
 def _box_len(box_key: Expression, location: SourceLocation) -> IntrinsicCall:

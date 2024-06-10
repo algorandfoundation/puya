@@ -6,7 +6,7 @@ contract Reference
   
   constructor()
   {
-    this.asa: asset = reinterpret_cast<asset>(0u)
+    GlobalState['asa']: asset = reinterpret_cast<asset>(0u)
   }
   
   approval_program(): bool
@@ -35,8 +35,8 @@ contract Reference
   subroutine opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
-    this.asa: asset = asset
+    assert(!(reinterpret_cast<bool>(GlobalState['asa'])), comment="ASA already opted in")
+    GlobalState['asa']: asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -47,7 +47,7 @@ contract Reference
   
   subroutine is_opted_asset(asset: asset): void
   {
-    assert(this.asa == asset, comment="asset self.asa == asset")
+    assert(GlobalState['asa'] == asset, comment="asset self.asa == asset")
     assert(checked_maybe(asset_params_get<AssetTotal>(asset)) == 10000000u, comment="total")
     assert(checked_maybe(asset_params_get<AssetDecimals>(asset)) == 0u, comment="decimals")
     assert(!(checked_maybe(asset_params_get<AssetDefaultFrozen>(asset))), comment="default frozen")

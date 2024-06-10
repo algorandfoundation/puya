@@ -161,11 +161,15 @@ class LocalStateExpressionBuilder(
                     "Invalid index argument - must be either an Address or a UInt64",
                     index.source_location,
                 )
+        if self._member_name:
+            exists_assertion_message = f"check self.{self._member_name} exists for account"
+        else:
+            exists_assertion_message = "check LocalState exists for account"
         return AppAccountStateExpression(
             key=self.resolve(),
-            member_name=self._member_name,
             account=index_expr,
             wtype=self.pytype.content.wtype,
+            exists_assertion_message=exists_assertion_message,
             source_location=location,
         )
 

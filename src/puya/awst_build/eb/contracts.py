@@ -139,8 +139,8 @@ def _builder_for_storage_access(
                 content_type,
                 AppStateExpression(
                     key=storage_decl.key,
-                    member_name=storage_decl.member_name,
                     wtype=content_type.wtype,
+                    exists_assertion_message=f"check self.{storage_decl.member_name} exists",
                     source_location=location,
                 ),
             )

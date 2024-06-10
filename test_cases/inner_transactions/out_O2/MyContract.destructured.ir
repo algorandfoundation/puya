@@ -31,8 +31,8 @@ contract test_cases.inner_transactions.contract.MyContract:
         subroutine test_cases.inner_transactions.contract.MyContract.test1() -> void:
             block@0: // L42
                 (app_global_put "name" 0x41535431)
-                let (name_maybe_value%0#0: bytes, name_exists%0#0: bool) = (app_global_get_ex 0u "name")
-                (assert name_exists%0#0) // check name exists
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "name")
+                (assert maybe_exists%0#0) // check self.name exists
                 let asset_params%%param_ConfigAssetManager_idx_0#0: bytes = (global CurrentApplicationAddress)
                 let asset_params%%param_ConfigAssetReserve_idx_0#0: bytes = (global CurrentApplicationAddress)
                 (app_global_put "name" 0x41535432)
@@ -41,21 +41,21 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 3u)
                 ((itxn_field ConfigAssetUnitName) 0x756e6974)
-                ((itxn_field ConfigAssetName) name_maybe_value%0#0)
+                ((itxn_field ConfigAssetName) maybe_value%0#0)
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 let asset1_txn.ConfigAssetName#0: bytes = (itxn ConfigAssetName)
                 let asset1_txn.CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
-                let (name_maybe_value%1#0: bytes, name_exists%1#0: bool) = (app_global_get_ex 0u "name")
-                (assert name_exists%1#0) // check name exists
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "name")
+                (assert maybe_exists%1#0) // check self.name exists
                 itxn_begin
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 3u)
                 ((itxn_field ConfigAssetUnitName) 0x756e6974)
-                ((itxn_field ConfigAssetName) name_maybe_value%1#0)
+                ((itxn_field ConfigAssetName) maybe_value%1#0)
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
                 ((itxn_field Fee) 0u)

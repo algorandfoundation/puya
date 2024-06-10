@@ -131,11 +131,14 @@ class BoxMapProxyExpressionBuilder(
         full_key = intrinsic_factory.concat(
             key_prefix, key_data, location, result_type=wtypes.box_key
         )
+        if self._member_name:
+            exists_assertion_message = f"check self.{self._member_name} entry exists"
+        else:
+            exists_assertion_message = "check BoxMap entry exists"
         return BoxValueExpression(
             key=full_key,
             wtype=content_wtype,
-            member_name=self._member_name,
-            from_map=True,
+            exists_assertion_message=exists_assertion_message,
             source_location=location,
         )
 

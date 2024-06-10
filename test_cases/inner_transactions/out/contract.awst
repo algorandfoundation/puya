@@ -9,7 +9,7 @@ contract MyContract
   
   constructor()
   {
-    this.name: bytes = hex<"">
+    GlobalState['name']: bytes = hex<"">
   }
   
   approval_program(): bool
@@ -40,11 +40,11 @@ contract MyContract
   
   subroutine test1(): void
   {
-    this.name: bytes = hex<"41535431">
-    asset_params: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.name, ConfigAssetUnitName=hex<"756E6974">, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
-    this.name: bytes = hex<"41535432">
+    GlobalState['name']: bytes = hex<"41535431">
+    asset_params: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=GlobalState['name'], ConfigAssetUnitName=hex<"756E6974">, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
+    GlobalState['name']: bytes = hex<"41535432">
     asset1_txn: inner_transaction_acfg = submit_txn(asset_params)
-    update_inner_transaction(asset_params,ConfigAssetName=this.name)
+    update_inner_transaction(asset_params,ConfigAssetName=GlobalState['name'])
     asset2_txn: inner_transaction_acfg = submit_txn(asset_params)
     assert(asset1_txn.ConfigAssetName == hex<"41535431">, comment="asset1_txn is correct")
     assert(asset2_txn.ConfigAssetName == hex<"41535432">, comment="asset2_txn is correct")

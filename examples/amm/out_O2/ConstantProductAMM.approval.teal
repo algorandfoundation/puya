@@ -173,7 +173,7 @@ _check_is_governor:
     int 0
     byte "governor"
     app_global_get_ex
-    assert // check governor exists
+    assert // check self.governor exists
     ==
     assert // Only the account set in global_state.governor may call this method
     retsub
@@ -185,7 +185,7 @@ bootstrap:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     !
     assert // application has already been bootstrapped
     callsub _check_is_governor
@@ -220,17 +220,17 @@ bootstrap:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     callsub _do_opt_in
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     callsub _do_opt_in
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     retsub
 
 
@@ -241,7 +241,7 @@ _create_pool_token:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     asset_params_get AssetUnitName
     assert // asset exists
     byte 0x4450542d
@@ -252,7 +252,7 @@ _create_pool_token:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     asset_params_get AssetUnitName
     assert // asset exists
     concat
@@ -311,21 +311,21 @@ mint:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     frame_dig -3
     ==
     assert // asset pool incorrect
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     frame_dig -2
     ==
     assert // asset a incorrect
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     frame_dig -1
     ==
     assert // asset b incorrect
@@ -349,7 +349,7 @@ mint:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     ==
     assert // asset a incorrect
     frame_dig -5
@@ -366,7 +366,7 @@ mint:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     ==
     assert // asset b incorrect
     frame_dig -4
@@ -385,7 +385,7 @@ mint:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
@@ -398,7 +398,7 @@ _check_bootstrapped:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     assert // bootstrap method needs to be called first
     retsub
 
@@ -410,7 +410,7 @@ _current_pool_balance:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
@@ -423,7 +423,7 @@ _current_a_balance:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
@@ -436,7 +436,7 @@ _current_b_balance:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
@@ -535,21 +535,21 @@ burn:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     frame_dig -3
     ==
     assert // asset pool incorrect
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     frame_dig -2
     ==
     assert // asset a incorrect
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     frame_dig -1
     ==
     assert // asset b incorrect
@@ -567,7 +567,7 @@ burn:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check pool_token exists
+    assert // check self.pool_token exists
     ==
     assert // asset pool incorrect
     frame_dig -4
@@ -590,14 +590,14 @@ burn:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     uncover 2
     callsub do_asset_transfer
     txn Sender
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
@@ -629,14 +629,14 @@ swap:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     frame_dig -2
     ==
     assert // asset a incorrect
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     frame_dig -1
     ==
     assert // asset b incorrect
@@ -652,11 +652,11 @@ swap:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check asset_b exists
+    assert // check self.asset_b exists
     frame_dig -3
     gtxns XferAsset
     match swap_switch_case_0@1 swap_switch_case_1@2
@@ -671,7 +671,7 @@ swap_switch_case_0@1:
     app_global_get_ex
     swap
     frame_bury 1
-    assert // check asset_a exists
+    assert // check self.asset_a exists
     b swap_switch_case_next@4
 
 swap_switch_case_1@2:
@@ -683,7 +683,7 @@ swap_switch_case_1@2:
     app_global_get_ex
     swap
     frame_bury 1
-    assert // check asset_b exists
+    assert // check self.asset_b exists
 
 swap_switch_case_next@4:
     frame_dig 2

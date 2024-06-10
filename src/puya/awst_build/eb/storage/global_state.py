@@ -175,10 +175,14 @@ class GlobalStateExpressionBuilder(
                 return super().member_access(name, location)
 
     def _build_field(self, location: SourceLocation) -> AppStateExpression:
+        if self._member_name:
+            exists_assertion_message = f"check self.{self._member_name} exists"
+        else:
+            exists_assertion_message = "check GlobalState exists"
         return AppStateExpression(
             key=self.resolve(),
             wtype=self.pytype.content.wtype,
-            member_name=self._member_name,
+            exists_assertion_message=exists_assertion_message,
             source_location=location,
         )
 

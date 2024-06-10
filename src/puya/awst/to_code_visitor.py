@@ -70,25 +70,13 @@ class ToCodeVisitor(
         )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        if expr.member_name is not None:
-            return f"this.{expr.member_name}"
-        else:
-            return f"GlobalState[{expr.key.accept(self)}]"
+        return f"GlobalState[{expr.key.accept(self)}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        if expr.member_name is not None:
-            return f"this.{expr.member_name}[{expr.account.accept(self)}]"
-        else:
-            return f"LocalState[{expr.key.accept}, {expr.account.accept(self)}]"
+        return f"LocalState[{expr.key.accept}, {expr.account.accept(self)}]"
 
     def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
-        if expr.member_name is not None:
-            if not expr.from_map:
-                return f"this.{expr.member_name}"
-            else:
-                return f"this.{expr.member_name}[{expr.key.accept(self)}]"
-        else:
-            return f"Box[{expr.key.accept(self)}]"
+        return f"Box[{expr.key.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.values)
