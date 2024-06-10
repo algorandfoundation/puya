@@ -31,3 +31,8 @@ class DynamicArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
     def test_nested_struct_replacement(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_nested_tuple_modification(
+        self,
+    ) -> None: ...

@@ -3,10 +3,10 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
         subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program() -> bool:
             block@0: // L38
                 let tmp%0#0: bool = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@9
+                goto tmp%0#0 ? block@1 : block@10
             block@1: // abi_routing_L38
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "test_static_elements()void" => block@2, method "test_dynamic_elements()void" => block@3, method "test_mixed_single_dynamic_elements()void" => block@4, method "test_mixed_multiple_dynamic_elements()void" => block@5, method "test_nested_struct_replacement()void" => block@6, * => block@7}
+                switch tmp%1#0 {method "test_static_elements()void" => block@2, method "test_dynamic_elements()void" => block@3, method "test_mixed_single_dynamic_elements()void" => block@4, method "test_mixed_multiple_dynamic_elements()void" => block@5, method "test_nested_struct_replacement()void" => block@6, method "test_nested_tuple_modification()void" => block@7, * => block@8}
             block@2: // test_static_elements_route_L40
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: bool = (== tmp%2#0 NoOp)
@@ -47,19 +47,27 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 (assert tmp%16#0) // is not creating
                 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement()
                 return 1u
-            block@7: // switch_case_default_L38
-                goto block@8
-            block@8: // switch_case_next_L38
-                fail // reject transaction
-            block@9: // bare_routing_L38
+            block@7: // test_nested_tuple_modification_route_L134
                 let tmp%17#0: uint64 = (txn OnCompletion)
-                switch tmp%17#0 {0u => block@10, * => block@11}
-            block@10: // create_L38
-                let tmp%18#0: bool = (txn ApplicationID)
-                let tmp%19#0: bool = (! tmp%18#0)
-                (assert tmp%19#0) // is creating
+                let tmp%18#0: bool = (== tmp%17#0 NoOp)
+                (assert tmp%18#0) // OnCompletion is NoOp
+                let tmp%19#0: bool = (txn ApplicationID)
+                (assert tmp%19#0) // is not creating
+                test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification()
                 return 1u
-            block@11: // reject_bare_on_completion_L38
+            block@8: // switch_case_default_L38
+                goto block@9
+            block@9: // switch_case_next_L38
+                fail // reject transaction
+            block@10: // bare_routing_L38
+                let tmp%20#0: uint64 = (txn OnCompletion)
+                switch tmp%20#0 {0u => block@11, * => block@12}
+            block@11: // create_L38
+                let tmp%21#0: bool = (txn ApplicationID)
+                let tmp%22#0: bool = (! tmp%21#0)
+                (assert tmp%22#0) // is creating
+                return 1u
+            block@12: // reject_bare_on_completion_L38
                 fail // reject transaction
         
         subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
@@ -116,27 +124,27 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 return 
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_byte1() -> bytes:
-            block@0: // L160
+            block@0: // L198
                 return 0x04
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_byte2() -> bytes:
-            block@0: // L165
+            block@0: // L203
                 return 0x05
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_byte3() -> bytes:
-            block@0: // L170
+            block@0: // L208
                 return 0x2a
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_byte4() -> bytes:
-            block@0: // L175
+            block@0: // L213
                 return 0xff
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_uint1() -> bytes:
-            block@0: // L150
+            block@0: // L188
                 return 0x0000000000000003
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_uint2() -> bytes:
-            block@0: // L155
+            block@0: // L193
                 return 0x0000040000000000
         
         subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements() -> void:
@@ -250,7 +258,7 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 return 
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_string1() -> bytes:
-            block@0: // L135
+            block@0: // L173
                 let length%0#0: uint64 = (len "a")
                 let as_bytes%0#0: bytes = (itob length%0#0)
                 let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
@@ -258,7 +266,7 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 return encoded_value%0#0
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_string2() -> bytes:
-            block@0: // L140
+            block@0: // L178
                 let length%0#0: uint64 = (len "bee")
                 let as_bytes%0#0: bytes = (itob length%0#0)
                 let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
@@ -266,7 +274,7 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 return encoded_value%0#0
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_string3() -> bytes:
-            block@0: // L145
+            block@0: // L183
                 let length%0#0: uint64 = (len "Hello World")
                 let as_bytes%0#0: bytes = (itob length%0#0)
                 let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
@@ -448,7 +456,7 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 return 
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> bytes:
-            block@0: // L180
+            block@0: // L218
                 let result%0#0: bytes = (concat 0x 0xffff)
                 let result%1#0: bytes = (concat result%0#0 0x0000)
                 let result%2#0: bytes = (concat result%1#0 0x002a)
@@ -456,7 +464,7 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 return array_data%0#0
         
         subroutine test_cases.arc4_dynamic_arrays.contract.get_u16_arr2() -> bytes:
-            block@0: // L185
+            block@0: // L223
                 let result%0#0: bytes = (concat 0x 0x0001)
                 let result%1#0: bytes = (concat result%0#0 0x0002)
                 let result%2#0: bytes = (concat result%1#0 0x0003)
@@ -605,6 +613,181 @@ contract test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract:
                 let struct2#0: bytes = updated_data%3#0
                 let tmp%17#0: bool = (== struct1#0 struct2#0)
                 (assert tmp%17#0) // struct1 does not match struct2
+                return 
+        
+        subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
+            block@0: // L134
+                let tmp%0#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint1()
+                let tmp%1#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_byte1()
+                let tmp%2#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_byte2()
+                let result%0#0: bytes = (concat 0x tmp%1#0)
+                let result%1#0: bytes = (concat result%0#0 tmp%2#0)
+                let array_data%0#0: bytes = (concat 0x result%1#0)
+                let encoded_tuple_buffer%1#0: bytes = (concat 0x tmp%0#0)
+                let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 array_data%0#0)
+                let one#0: bytes = encoded_tuple_buffer%2#0
+                let tmp%3#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_string1()
+                let tmp%4#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_string2()
+                let as_bytes%0#0: bytes = (itob 4u)
+                let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_tuple_buffer%4#0: bytes = (concat 0x offset_as_uint16%0#0)
+                let data_length%0#0: uint64 = (len tmp%3#0)
+                let current_tail_offset%2#0: uint64 = (+ 4u data_length%0#0)
+                let as_bytes%1#0: bytes = (itob current_tail_offset%2#0)
+                let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 offset_as_uint16%1#0)
+                let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 tmp%3#0)
+                let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 tmp%4#0)
+                let two#0: bytes = encoded_tuple_buffer%7#0
+                let tmp%5#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint2()
+                let tmp%6#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_byte2()
+                let tmp%7#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_byte1()
+                let result%2#0: bytes = (concat 0x tmp%6#0)
+                let result%3#0: bytes = (concat result%2#0 tmp%7#0)
+                let array_data%1#0: bytes = (concat 0x result%3#0)
+                let encoded_tuple_buffer%9#0: bytes = (concat 0x tmp%5#0)
+                let encoded_tuple_buffer%10#0: bytes = (concat encoded_tuple_buffer%9#0 array_data%1#0)
+                let three#0: bytes = encoded_tuple_buffer%10#0
+                let tmp%8#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint1()
+                let tmp%9#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_string1()
+                let tmp%10#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint2()
+                let tmp%11#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_u16_arr1()
+                let tmp%12#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint1()
+                let encoded_tuple_buffer%12#0: bytes = (concat 0x tmp%8#0)
+                let as_bytes%2#0: bytes = (itob 28u)
+                let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let encoded_tuple_buffer%13#0: bytes = (concat encoded_tuple_buffer%12#0 offset_as_uint16%2#0)
+                let data_length%2#0: uint64 = (len tmp%9#0)
+                let current_tail_offset%6#0: uint64 = (+ 28u data_length%2#0)
+                let encoded_tuple_buffer%14#0: bytes = (concat encoded_tuple_buffer%13#0 tmp%10#0)
+                let as_bytes%3#0: bytes = (itob current_tail_offset%6#0)
+                let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+                let encoded_tuple_buffer%15#0: bytes = (concat encoded_tuple_buffer%14#0 offset_as_uint16%3#0)
+                let encoded_tuple_buffer%16#0: bytes = (concat encoded_tuple_buffer%15#0 tmp%12#0)
+                let encoded_tuple_buffer%17#0: bytes = (concat encoded_tuple_buffer%16#0 tmp%9#0)
+                let encoded_tuple_buffer%18#0: bytes = (concat encoded_tuple_buffer%17#0 tmp%11#0)
+                let four1#0: bytes = encoded_tuple_buffer%18#0
+                let tmp%13#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint1()
+                let tmp%14#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_string1()
+                let tmp%15#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint2()
+                let tmp%16#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_u16_arr1()
+                let expr_value_trimmed%0#0: bytes = ((extract 2 0) tmp%16#0)
+                let data%0#0: bytes = (concat 0x 0x007b)
+                let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 data%0#0)
+                let byte_len%0#0: uint64 = (len concatenated%0#0)
+                let len_%0#0: uint64 = (/ byte_len%0#0 2u)
+                let as_bytes%4#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%4#0)
+                let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let tmp%17#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_uint1()
+                let encoded_tuple_buffer%20#0: bytes = (concat 0x tmp%13#0)
+                let as_bytes%5#0: bytes = (itob 28u)
+                let offset_as_uint16%4#0: bytes = ((extract 6 2) as_bytes%5#0)
+                let encoded_tuple_buffer%21#0: bytes = (concat encoded_tuple_buffer%20#0 offset_as_uint16%4#0)
+                let data_length%4#0: uint64 = (len tmp%14#0)
+                let current_tail_offset%9#0: uint64 = (+ 28u data_length%4#0)
+                let encoded_tuple_buffer%22#0: bytes = (concat encoded_tuple_buffer%21#0 tmp%15#0)
+                let as_bytes%6#0: bytes = (itob current_tail_offset%9#0)
+                let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%6#0)
+                let encoded_tuple_buffer%23#0: bytes = (concat encoded_tuple_buffer%22#0 offset_as_uint16%5#0)
+                let encoded_tuple_buffer%24#0: bytes = (concat encoded_tuple_buffer%23#0 tmp%17#0)
+                let encoded_tuple_buffer%25#0: bytes = (concat encoded_tuple_buffer%24#0 tmp%14#0)
+                let encoded_tuple_buffer%26#0: bytes = (concat encoded_tuple_buffer%25#0 concat_result%0#0)
+                let four2#0: bytes = encoded_tuple_buffer%26#0
+                let tmp%18#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_string1()
+                let tmp%19#0: bytes = test_cases.arc4_dynamic_arrays.contract.get_string2()
+                let as_bytes%7#0: bytes = (itob 4u)
+                let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%7#0)
+                let encoded_tuple_buffer%28#0: bytes = (concat 0x offset_as_uint16%6#0)
+                let data_length%6#0: uint64 = (len tmp%18#0)
+                let current_tail_offset%12#0: uint64 = (+ 4u data_length%6#0)
+                let as_bytes%8#0: bytes = (itob current_tail_offset%12#0)
+                let offset_as_uint16%7#0: bytes = ((extract 6 2) as_bytes%8#0)
+                let encoded_tuple_buffer%29#0: bytes = (concat encoded_tuple_buffer%28#0 offset_as_uint16%7#0)
+                let encoded_tuple_buffer%30#0: bytes = (concat encoded_tuple_buffer%29#0 tmp%18#0)
+                let encoded_tuple_buffer%31#0: bytes = (concat encoded_tuple_buffer%30#0 tmp%19#0)
+                let five#0: bytes = encoded_tuple_buffer%31#0
+                let copy%0#0: bytes = one#0
+                let copy%1#0: bytes = two#0
+                let copy%2#0: bytes = three#0
+                let copy%3#0: bytes = four1#0
+                let copy%4#0: bytes = five#0
+                let encoded_tuple_buffer%33#0: bytes = (concat 0x copy%0#0)
+                let as_bytes%9#0: bytes = (itob 26u)
+                let offset_as_uint16%8#0: bytes = ((extract 6 2) as_bytes%9#0)
+                let encoded_tuple_buffer%34#0: bytes = (concat encoded_tuple_buffer%33#0 offset_as_uint16%8#0)
+                let data_length%8#0: uint64 = (len copy%1#0)
+                let current_tail_offset%15#0: uint64 = (+ 26u data_length%8#0)
+                let encoded_tuple_buffer%35#0: bytes = (concat encoded_tuple_buffer%34#0 copy%2#0)
+                let as_bytes%10#0: bytes = (itob current_tail_offset%15#0)
+                let offset_as_uint16%9#0: bytes = ((extract 6 2) as_bytes%10#0)
+                let encoded_tuple_buffer%36#0: bytes = (concat encoded_tuple_buffer%35#0 offset_as_uint16%9#0)
+                let data_length%9#0: uint64 = (len copy%3#0)
+                let current_tail_offset%16#0: uint64 = (+ current_tail_offset%15#0 data_length%9#0)
+                let as_bytes%11#0: bytes = (itob current_tail_offset%16#0)
+                let offset_as_uint16%10#0: bytes = ((extract 6 2) as_bytes%11#0)
+                let encoded_tuple_buffer%37#0: bytes = (concat encoded_tuple_buffer%36#0 offset_as_uint16%10#0)
+                let encoded_tuple_buffer%38#0: bytes = (concat encoded_tuple_buffer%37#0 copy%1#0)
+                let encoded_tuple_buffer%39#0: bytes = (concat encoded_tuple_buffer%38#0 copy%3#0)
+                let encoded_tuple_buffer%40#0: bytes = (concat encoded_tuple_buffer%39#0 copy%4#0)
+                let tup1#0: bytes = encoded_tuple_buffer%40#0
+                let copy%5#0: bytes = one#0
+                let copy%6#0: bytes = two#0
+                let copy%7#0: bytes = three#0
+                let copy%8#0: bytes = four2#0
+                let copy%9#0: bytes = five#0
+                let encoded_tuple_buffer%42#0: bytes = (concat 0x copy%5#0)
+                let as_bytes%12#0: bytes = (itob 26u)
+                let offset_as_uint16%11#0: bytes = ((extract 6 2) as_bytes%12#0)
+                let encoded_tuple_buffer%43#0: bytes = (concat encoded_tuple_buffer%42#0 offset_as_uint16%11#0)
+                let data_length%11#0: uint64 = (len copy%6#0)
+                let current_tail_offset%19#0: uint64 = (+ 26u data_length%11#0)
+                let encoded_tuple_buffer%44#0: bytes = (concat encoded_tuple_buffer%43#0 copy%7#0)
+                let as_bytes%13#0: bytes = (itob current_tail_offset%19#0)
+                let offset_as_uint16%12#0: bytes = ((extract 6 2) as_bytes%13#0)
+                let encoded_tuple_buffer%45#0: bytes = (concat encoded_tuple_buffer%44#0 offset_as_uint16%12#0)
+                let data_length%12#0: uint64 = (len copy%8#0)
+                let current_tail_offset%20#0: uint64 = (+ current_tail_offset%19#0 data_length%12#0)
+                let as_bytes%14#0: bytes = (itob current_tail_offset%20#0)
+                let offset_as_uint16%13#0: bytes = ((extract 6 2) as_bytes%14#0)
+                let encoded_tuple_buffer%46#0: bytes = (concat encoded_tuple_buffer%45#0 offset_as_uint16%13#0)
+                let encoded_tuple_buffer%47#0: bytes = (concat encoded_tuple_buffer%46#0 copy%6#0)
+                let encoded_tuple_buffer%48#0: bytes = (concat encoded_tuple_buffer%47#0 copy%8#0)
+                let encoded_tuple_buffer%49#0: bytes = (concat encoded_tuple_buffer%48#0 copy%9#0)
+                let tup2#0: bytes = encoded_tuple_buffer%49#0
+                let item_start_offset%0#0: uint64 = (extract_uint16 tup2#0 22u)
+                let item_end_offset%0#0: uint64 = (extract_uint16 tup2#0 24u)
+                let tmp%20#0: bytes = (substring3 tup2#0 item_start_offset%0#0 item_end_offset%0#0)
+                let item_start_offset%1#0: uint64 = (extract_uint16 tmp%20#0 18u)
+                let item_end_offset%1#0: uint64 = (len tmp%20#0)
+                let tmp%21#0: bytes = (substring3 tmp%20#0 item_start_offset%1#0 item_end_offset%1#0)
+                let (popped%0#1: bytes, data%1#1: bytes) = algopy_lib_arc4.dynamic_array_pop_fixed_size(tmp%21#0, 2u)
+                let item_start_offset%2#0: uint64 = (extract_uint16 tup2#0 22u)
+                let item_end_offset%2#0: uint64 = (extract_uint16 tup2#0 24u)
+                let tmp%22#0: bytes = (substring3 tup2#0 item_start_offset%2#0 item_end_offset%2#0)
+                let assigned_value%0#0: bytes = data%1#1
+                let item_offset%0#0: uint64 = (extract_uint16 tmp%22#0 18u)
+                let data_up_to_item%0#0: bytes = (extract3 tmp%22#0 0u item_offset%0#0)
+                let updated_data%0#0: bytes = (concat data_up_to_item%0#0 assigned_value%0#0)
+                let assigned_value%1#0: bytes = updated_data%0#0
+                let item_offset%1#0: uint64 = (extract_uint16 tup2#0 22u)
+                let data_up_to_item%1#0: bytes = (extract3 tup2#0 0u item_offset%1#0)
+                let next_item_offset%0#0: uint64 = (extract_uint16 tup2#0 24u)
+                let total_data_length%0#0: uint64 = (len tup2#0)
+                let data_beyond_item%0#0: bytes = (substring3 tup2#0 next_item_offset%0#0 total_data_length%0#0)
+                let updated_data%1#0: bytes = (concat data_up_to_item%1#0 assigned_value%1#0)
+                let updated_data%2#0: bytes = (concat updated_data%1#0 data_beyond_item%0#0)
+                let item_length%0#0: uint64 = (- next_item_offset%0#0 item_offset%1#0)
+                let new_value_length%0#0: uint64 = (len assigned_value%1#0)
+                let tail_offset%0#0: uint64 = (extract_uint16 updated_data%2#0 24u)
+                let tail_offset%1#0: uint64 = (+ tail_offset%0#0 new_value_length%0#0)
+                let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
+                let as_bytes%15#0: bytes = (itob tail_offset%2#0)
+                let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%15#0)
+                let updated_data%3#0: bytes = (replace3 updated_data%2#0 24u tail_offset_bytes%0#0)
+                let tup2#0: bytes = updated_data%3#0
+                let tmp%23#0: bool = (== tup1#0 tup2#0)
+                (assert tmp%23#0) // tup1 does not match tup2
                 return 
         
         subroutine algopy_lib_arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:

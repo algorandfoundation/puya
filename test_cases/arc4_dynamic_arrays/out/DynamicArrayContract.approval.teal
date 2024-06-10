@@ -4,14 +4,15 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz main_bare_routing@10
     method "test_static_elements()void"
     method "test_dynamic_elements()void"
     method "test_mixed_single_dynamic_elements()void"
     method "test_mixed_multiple_dynamic_elements()void"
     method "test_nested_struct_replacement()void"
+    method "test_nested_tuple_modification()void"
     txna ApplicationArgs 0
-    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5 main_test_nested_struct_replacement_route@6
+    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5 main_test_nested_struct_replacement_route@6 main_test_nested_tuple_modification_route@7
     err // reject transaction
 
 main_test_static_elements_route@2:
@@ -74,7 +75,19 @@ main_test_nested_struct_replacement_route@6:
     int 1
     return
 
-main_bare_routing@9:
+main_test_nested_tuple_modification_route@7:
+    // arc4_dynamic_arrays/contract.py:134
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_nested_tuple_modification
+    int 1
+    return
+
+main_bare_routing@10:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn OnCompletion
@@ -167,11 +180,11 @@ test_static_elements:
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte1() -> bytes:
 get_byte1:
-    // arc4_dynamic_arrays/contract.py:160-161
+    // arc4_dynamic_arrays/contract.py:198-199
     // @subroutine
     // def get_byte1() -> arc4.Byte:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:162
+    // arc4_dynamic_arrays/contract.py:200
     // return arc4.Byte(4)
     byte 0x04
     retsub
@@ -179,11 +192,11 @@ get_byte1:
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte2() -> bytes:
 get_byte2:
-    // arc4_dynamic_arrays/contract.py:165-166
+    // arc4_dynamic_arrays/contract.py:203-204
     // @subroutine
     // def get_byte2() -> arc4.Byte:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:167
+    // arc4_dynamic_arrays/contract.py:205
     // return arc4.Byte(5)
     byte 0x05
     retsub
@@ -191,11 +204,11 @@ get_byte2:
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte3() -> bytes:
 get_byte3:
-    // arc4_dynamic_arrays/contract.py:170-171
+    // arc4_dynamic_arrays/contract.py:208-209
     // @subroutine
     // def get_byte3() -> arc4.Byte:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:172
+    // arc4_dynamic_arrays/contract.py:210
     // return arc4.Byte(42)
     byte 0x2a
     retsub
@@ -203,11 +216,11 @@ get_byte3:
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte4() -> bytes:
 get_byte4:
-    // arc4_dynamic_arrays/contract.py:175-176
+    // arc4_dynamic_arrays/contract.py:213-214
     // @subroutine
     // def get_byte4() -> arc4.Byte:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:177
+    // arc4_dynamic_arrays/contract.py:215
     // return arc4.Byte(255)
     byte 0xff
     retsub
@@ -215,11 +228,11 @@ get_byte4:
 
 // test_cases.arc4_dynamic_arrays.contract.get_uint1() -> bytes:
 get_uint1:
-    // arc4_dynamic_arrays/contract.py:150-151
+    // arc4_dynamic_arrays/contract.py:188-189
     // @subroutine
     // def get_uint1() -> arc4.UInt64:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:152
+    // arc4_dynamic_arrays/contract.py:190
     // return arc4.UInt64(3)
     byte 0x0000000000000003
     retsub
@@ -227,11 +240,11 @@ get_uint1:
 
 // test_cases.arc4_dynamic_arrays.contract.get_uint2() -> bytes:
 get_uint2:
-    // arc4_dynamic_arrays/contract.py:155-156
+    // arc4_dynamic_arrays/contract.py:193-194
     // @subroutine
     // def get_uint2() -> arc4.UInt64:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:157
+    // arc4_dynamic_arrays/contract.py:195
     // return arc4.UInt64(2**42)
     byte 0x0000040000000000
     retsub
@@ -418,11 +431,11 @@ test_dynamic_elements:
 
 // test_cases.arc4_dynamic_arrays.contract.get_string1() -> bytes:
 get_string1:
-    // arc4_dynamic_arrays/contract.py:135-136
+    // arc4_dynamic_arrays/contract.py:173-174
     // @subroutine
     // def get_string1() -> arc4.String:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:137
+    // arc4_dynamic_arrays/contract.py:175
     // return arc4.String("a")
     byte 0x000161
     retsub
@@ -430,11 +443,11 @@ get_string1:
 
 // test_cases.arc4_dynamic_arrays.contract.get_string2() -> bytes:
 get_string2:
-    // arc4_dynamic_arrays/contract.py:140-141
+    // arc4_dynamic_arrays/contract.py:178-179
     // @subroutine
     // def get_string2() -> arc4.String:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:142
+    // arc4_dynamic_arrays/contract.py:180
     // return arc4.String("bee")
     byte 0x0003626565
     retsub
@@ -442,11 +455,11 @@ get_string2:
 
 // test_cases.arc4_dynamic_arrays.contract.get_string3() -> bytes:
 get_string3:
-    // arc4_dynamic_arrays/contract.py:145-146
+    // arc4_dynamic_arrays/contract.py:183-184
     // @subroutine
     // def get_string3() -> arc4.String:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:147
+    // arc4_dynamic_arrays/contract.py:185
     // return arc4.String("Hello World")
     byte 0x000b48656c6c6f20576f726c64
     retsub
@@ -734,11 +747,11 @@ test_mixed_multiple_dynamic_elements:
 
 // test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> bytes:
 get_u16_arr1:
-    // arc4_dynamic_arrays/contract.py:180-181
+    // arc4_dynamic_arrays/contract.py:218-219
     // @subroutine
     // def get_u16_arr1() -> arc4.DynamicArray[arc4.UInt16]:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:182
+    // arc4_dynamic_arrays/contract.py:220
     // return arc4.DynamicArray(arc4.UInt16(2**16 - 1), arc4.UInt16(0), arc4.UInt16(42))
     byte 0x0003ffff0000002a
     retsub
@@ -746,11 +759,11 @@ get_u16_arr1:
 
 // test_cases.arc4_dynamic_arrays.contract.get_u16_arr2() -> bytes:
 get_u16_arr2:
-    // arc4_dynamic_arrays/contract.py:185-186
+    // arc4_dynamic_arrays/contract.py:223-224
     // @subroutine
     // def get_u16_arr2() -> arc4.DynamicArray[arc4.UInt16]:
     proto 0 1
-    // arc4_dynamic_arrays/contract.py:187
+    // arc4_dynamic_arrays/contract.py:225
     // return arc4.DynamicArray(arc4.UInt16(1), arc4.UInt16(2), arc4.UInt16(3), arc4.UInt16(4))
     byte 0x00040001000200030004
     retsub
@@ -989,6 +1002,291 @@ test_nested_struct_replacement:
     // assert struct1.bytes == struct2.bytes, "struct1 does not match struct2"
     ==
     assert // struct1 does not match struct2
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
+test_nested_tuple_modification:
+    // arc4_dynamic_arrays/contract.py:134-135
+    // @arc4.abimethod()
+    // def test_nested_tuple_modification(self) -> None:
+    proto 0 0
+    // arc4_dynamic_arrays/contract.py:136
+    // one = StaticStruct(get_uint1(), arc4.StaticArray(get_byte1(), get_byte2()))
+    callsub get_uint1
+    callsub get_byte1
+    callsub get_byte2
+    concat
+    concat
+    // arc4_dynamic_arrays/contract.py:137
+    // two = DynamicStruct(get_string1(), get_string2())
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:138
+    // three = StaticStruct(get_uint2(), arc4.StaticArray(get_byte2(), get_byte1()))
+    callsub get_uint2
+    callsub get_byte2
+    callsub get_byte1
+    concat
+    concat
+    // arc4_dynamic_arrays/contract.py:140
+    // get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
+    callsub get_uint1
+    callsub get_string1
+    swap
+    callsub get_uint2
+    cover 2
+    callsub get_u16_arr1
+    cover 3
+    callsub get_uint1
+    cover 3
+    // arc4_dynamic_arrays/contract.py:139-141
+    // four1 = MixedMultipleStruct(
+    //     get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
+    // )
+    byte 0x001c
+    concat
+    dig 1
+    len
+    int 28
+    +
+    swap
+    uncover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:143
+    // get_uint1(),
+    callsub get_uint1
+    // arc4_dynamic_arrays/contract.py:144
+    // get_string1(),
+    callsub get_string1
+    swap
+    // arc4_dynamic_arrays/contract.py:145
+    // get_uint2(),
+    callsub get_uint2
+    cover 2
+    // arc4_dynamic_arrays/contract.py:146
+    // get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
+    callsub get_u16_arr1
+    extract 2 0
+    byte 0x007b
+    concat
+    dup
+    len
+    int 2
+    /
+    itob
+    extract 6 2
+    swap
+    concat
+    cover 2
+    // arc4_dynamic_arrays/contract.py:147
+    // get_uint1(),
+    callsub get_uint1
+    // arc4_dynamic_arrays/contract.py:142-148
+    // four2 = MixedMultipleStruct(
+    //     get_uint1(),
+    //     get_string1(),
+    //     get_uint2(),
+    //     get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
+    //     get_uint1(),
+    // )
+    swap
+    byte 0x001c
+    concat
+    dig 2
+    len
+    int 28
+    +
+    swap
+    uncover 5
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:149
+    // five = DynamicStruct(get_string1(), get_string2())
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:150-158
+    // tup1 = arc4.Tuple(
+    //     (
+    //         one.copy(),
+    //         two.copy(),
+    //         three.copy(),
+    //         four1.copy(),
+    //         five.copy(),
+    //     )
+    // )
+    uncover 5
+    byte 0x001a
+    concat
+    dig 5
+    len
+    int 26
+    +
+    swap
+    uncover 5
+    concat
+    swap
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 4
+    len
+    dig 1
+    +
+    itob
+    extract 6 2
+    dig 2
+    swap
+    concat
+    dig 6
+    concat
+    uncover 5
+    concat
+    dig 3
+    concat
+    cover 5
+    // arc4_dynamic_arrays/contract.py:159-167
+    // tup2 = arc4.Tuple(
+    //     (
+    //         one.copy(),
+    //         two.copy(),
+    //         three.copy(),
+    //         four2.copy(),
+    //         five.copy(),
+    //     )
+    // )
+    dig 3
+    len
+    +
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // arc4_dynamic_arrays/contract.py:169
+    // tup2[3].d.pop()
+    dup
+    int 22
+    extract_uint16
+    swap
+    dup
+    int 24
+    extract_uint16
+    dig 1
+    dig 3
+    dig 2
+    substring3
+    dup
+    int 18
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    dig 3
+    uncover 3
+    substring3
+    int 2
+    callsub dynamic_array_pop_fixed_size
+    bury 1
+    swap
+    int 0
+    uncover 3
+    extract3
+    swap
+    concat
+    dig 2
+    int 0
+    dig 5
+    extract3
+    swap
+    dig 3
+    len
+    swap
+    uncover 4
+    dig 4
+    uncover 3
+    substring3
+    uncover 2
+    dig 2
+    concat
+    swap
+    concat
+    uncover 2
+    uncover 3
+    -
+    cover 2
+    swap
+    len
+    dig 1
+    int 24
+    extract_uint16
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 24
+    // arc4_dynamic_arrays/contract.py:170
+    // assert tup1.bytes == tup2.bytes, "tup1 does not match tup2"
+    ==
+    assert // tup1 does not match tup2
     retsub
 
 

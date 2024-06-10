@@ -1355,10 +1355,6 @@ def test_tuple_element_mutation(harness: _TestHarness) -> None:
     harness.deploy_from_closure(test)
 
 
-@pytest.mark.xfail(
-    reason="Known issue, see https://github.com/algorandfoundation/puya/issues/152",
-    raises=puya.errors.CodeError,
-)
 def test_arc4_tuple_element_mutation(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Contract, arc4

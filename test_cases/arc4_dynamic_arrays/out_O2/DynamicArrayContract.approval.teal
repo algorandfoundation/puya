@@ -2,14 +2,15 @@
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz main_bare_routing@10
     method "test_static_elements()void"
     method "test_dynamic_elements()void"
     method "test_mixed_single_dynamic_elements()void"
     method "test_mixed_multiple_dynamic_elements()void"
     method "test_nested_struct_replacement()void"
+    method "test_nested_tuple_modification()void"
     txna ApplicationArgs 0
-    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5 main_test_nested_struct_replacement_route@6
+    match main_test_static_elements_route@2 main_test_dynamic_elements_route@3 main_test_mixed_single_dynamic_elements_route@4 main_test_mixed_multiple_dynamic_elements_route@5 main_test_nested_struct_replacement_route@6 main_test_nested_tuple_modification_route@7
     err // reject transaction
 
 main_test_static_elements_route@2:
@@ -62,7 +63,17 @@ main_test_nested_struct_replacement_route@6:
     int 1
     return
 
-main_bare_routing@9:
+main_test_nested_tuple_modification_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_nested_tuple_modification
+    int 1
+    return
+
+main_bare_routing@10:
     txn OnCompletion
     !
     assert // reject transaction
@@ -771,6 +782,232 @@ test_nested_struct_replacement:
     replace2 24
     ==
     assert // struct1 does not match struct2
+    retsub
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
+test_nested_tuple_modification:
+    proto 0 0
+    callsub get_uint1
+    callsub get_byte1
+    callsub get_byte2
+    concat
+    concat
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_uint2
+    callsub get_byte2
+    callsub get_byte1
+    concat
+    concat
+    callsub get_uint1
+    callsub get_string1
+    swap
+    callsub get_uint2
+    cover 2
+    callsub get_u16_arr1
+    cover 3
+    callsub get_uint1
+    cover 3
+    byte 0x001c
+    concat
+    dig 1
+    len
+    int 28
+    +
+    swap
+    uncover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_uint1
+    callsub get_string1
+    swap
+    callsub get_uint2
+    cover 2
+    callsub get_u16_arr1
+    extract 2 0
+    byte 0x007b
+    concat
+    dup
+    len
+    int 2
+    /
+    itob
+    extract 6 2
+    swap
+    concat
+    cover 2
+    callsub get_uint1
+    swap
+    byte 0x001c
+    concat
+    dig 2
+    len
+    int 28
+    +
+    swap
+    uncover 5
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    callsub get_string1
+    callsub get_string2
+    swap
+    dup
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    uncover 5
+    byte 0x001a
+    concat
+    dig 5
+    len
+    int 26
+    +
+    swap
+    uncover 5
+    concat
+    swap
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    dig 4
+    len
+    dig 1
+    +
+    itob
+    extract 6 2
+    dig 2
+    swap
+    concat
+    dig 6
+    concat
+    uncover 5
+    concat
+    dig 3
+    concat
+    cover 5
+    dig 3
+    len
+    +
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    dup
+    int 22
+    extract_uint16
+    swap
+    dup
+    int 24
+    extract_uint16
+    dig 1
+    dig 3
+    dig 2
+    substring3
+    dup
+    int 18
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    dig 3
+    uncover 3
+    substring3
+    int 2
+    callsub dynamic_array_pop_fixed_size
+    bury 1
+    swap
+    int 0
+    uncover 3
+    extract3
+    swap
+    concat
+    dig 2
+    int 0
+    dig 5
+    extract3
+    swap
+    dig 3
+    len
+    swap
+    uncover 4
+    dig 4
+    uncover 3
+    substring3
+    uncover 2
+    dig 2
+    concat
+    swap
+    concat
+    uncover 2
+    uncover 3
+    -
+    cover 2
+    swap
+    len
+    dig 1
+    int 24
+    extract_uint16
+    +
+    uncover 2
+    -
+    itob
+    extract 6 2
+    replace2 24
+    ==
+    assert // tup1 does not match tup2
     retsub
 
 

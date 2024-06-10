@@ -131,6 +131,44 @@ class DynamicArrayContract(ARC4Contract):
         struct2.two = two.copy()  # now struct2 should match struct1
         assert struct1.bytes == struct2.bytes, "struct1 does not match struct2"
 
+    @arc4.abimethod()
+    def test_nested_tuple_modification(self) -> None:
+        one = StaticStruct(get_uint1(), arc4.StaticArray(get_byte1(), get_byte2()))
+        two = DynamicStruct(get_string1(), get_string2())
+        three = StaticStruct(get_uint2(), arc4.StaticArray(get_byte2(), get_byte1()))
+        four1 = MixedMultipleStruct(
+            get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
+        )
+        four2 = MixedMultipleStruct(
+            get_uint1(),
+            get_string1(),
+            get_uint2(),
+            get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
+            get_uint1(),
+        )
+        five = DynamicStruct(get_string1(), get_string2())
+        tup1 = arc4.Tuple(
+            (
+                one.copy(),
+                two.copy(),
+                three.copy(),
+                four1.copy(),
+                five.copy(),
+            )
+        )
+        tup2 = arc4.Tuple(
+            (
+                one.copy(),
+                two.copy(),
+                three.copy(),
+                four2.copy(),
+                five.copy(),
+            )
+        )
+
+        tup2[3].d.pop()
+        assert tup1.bytes == tup2.bytes, "tup1 does not match tup2"
+
 
 @subroutine
 def get_string1() -> arc4.String:

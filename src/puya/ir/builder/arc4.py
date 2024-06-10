@@ -327,6 +327,23 @@ def handle_arc4_assign(
                 source_location=source_location,
             )
         case awst_nodes.TupleItemExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
+            index=index_value,
+        ):
+            return handle_arc4_assign(
+                context,
+                target=base_expr,
+                value=_arc4_replace_tuple_item(
+                    context,
+                    base_expr=base_expr,
+                    index_int=index_value,
+                    wtype=tuple_wtype,
+                    value=value,
+                    source_location=source_location,
+                ),
+                source_location=source_location,
+            )
+        case awst_nodes.TupleItemExpression(
             base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
             index=index_value,
         ) if not items_types[index_value].immutable:
@@ -708,15 +725,25 @@ def _arc4_replace_struct_item(
 ) -> Value:
     if not isinstance(wtype, wtypes.ARC4Struct):
         raise InternalError("Unsupported indexed assignment target", source_location)
+    try:
+        index_int = wtype.names.index(field_name)
+    except ValueError:
+        raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location) from None
+    return _arc4_replace_tuple_item(context, base_expr, index_int, wtype, value, source_location)
 
+
+def _arc4_replace_tuple_item(
+    context: IRFunctionBuildContext,
+    base_expr: awst_nodes.Expression,
+    index_int: int,
+    wtype: wtypes.ARC4Struct | wtypes.ARC4Tuple,
+    value: ValueProvider,
+    source_location: SourceLocation,
+) -> Value:
     factory = _OpFactory(context, source_location)
     base = context.visitor.visit_and_materialise_single(base_expr)
     value = factory.assign(value, "assigned_value")
-    element_type = wtype.fields.get(field_name)
-    if element_type is None:
-        raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location)
-    index_int = wtype.names.index(field_name)
-
+    element_type = wtype.types[index_int]
     header_up_to_item = determine_arc4_tuple_head_size(
         wtype.types[0:index_int],
         round_end_result=element_type != wtypes.arc4_bool_wtype,

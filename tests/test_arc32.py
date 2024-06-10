@@ -1198,3 +1198,9 @@ def test_nested_struct(
     dynamic_app_client: algokit_utils.ApplicationClient,
 ) -> None:
     dynamic_app_client.call("test_nested_struct_replacement")
+
+
+def test_nested_tuple(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    dynamic_app_client.call("test_nested_tuple_modification")
