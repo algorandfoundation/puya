@@ -326,32 +326,6 @@ class IntegerConstant(Expression):
     value: int = attrs.field()
     teal_alias: str | None = None
 
-    @value.validator
-    def check(self, _attribute: object, value: int) -> None:
-        match self.wtype.bounds:
-            case wtypes.ValueBounds(min_value=min_value, max_value=max_value):
-                if value < min_value:
-                    raise CodeError(
-                        "integer constant is"
-                        f" below minimum value of {min_value} for type {self.wtype}",
-                        self.source_location,
-                    )
-                if value > max_value:
-                    raise CodeError(
-                        "integer constant is"
-                        f" greater than maximum value of {max_value} for type {self.wtype}",
-                        self.source_location,
-                    )
-            case None:
-                pass
-            case wtypes.SizeBounds():
-                raise InternalError(
-                    "Integer types should have ValueBounds or None, not SizeBounds",
-                    self.source_location,
-                )
-            case _:
-                t.assert_never(self.wtype.bounds)
-
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_integer_constant(self)
 

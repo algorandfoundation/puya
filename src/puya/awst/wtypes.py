@@ -18,29 +18,10 @@ logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)
-class SizeBounds:
-    min_size: int = 0
-    max_size: int
-
-
-_bytes_bounds = SizeBounds(max_size=algo_constants.MAX_BYTES_LENGTH)
-
-
-@attrs.frozen(kw_only=True)
-class ValueBounds:
-    min_value: int = 0
-    max_value: int
-
-
-_uint64_bounds = ValueBounds(max_value=2**64 - 1)  # TODO: constant
-
-
-@attrs.frozen(kw_only=True)
 class WType:
     name: str
     scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
     "the (unbound) AVM stack type, if any"
-    bounds: SizeBounds | ValueBounds | None
     ephemeral: bool = False
     """ephemeral types are not suitable for naive storage / persistence,
      even if their underlying type is a simple stack value"""
@@ -54,75 +35,62 @@ void_wtype: typing.Final = WType(
     name="void",
     scalar_type=None,
     immutable=True,
-    bounds=None,
 )
 
 bool_wtype: typing.Final = WType(
     name="bool",
     scalar_type=AVMType.uint64,
-    bounds=ValueBounds(max_value=1),
     immutable=True,
 )
 
 uint64_wtype: typing.Final = WType(
     name="uint64",
     scalar_type=AVMType.uint64,
-    bounds=_uint64_bounds,
     immutable=True,
 )
 
 biguint_wtype: typing.Final = WType(
     name="biguint",
     scalar_type=AVMType.bytes,
-    bounds=ValueBounds(max_value=2**algo_constants.MAX_BIGUINT_BITS - 1),
     immutable=True,
 )
 
 bytes_wtype: typing.Final = WType(
     name="bytes",
     scalar_type=AVMType.bytes,
-    bounds=_bytes_bounds,
     immutable=True,
 )
 string_wtype: typing.Final = WType(
     name="string",
     scalar_type=AVMType.bytes,
-    bounds=_bytes_bounds,
     immutable=True,
 )
 asset_wtype: typing.Final = WType(
     name="asset",
     scalar_type=AVMType.uint64,
-    bounds=_uint64_bounds,
     immutable=True,
 )
 
 account_wtype: typing.Final = WType(
     name="account",
     scalar_type=AVMType.bytes,
-    bounds=SizeBounds(min_size=32, max_size=32),
     immutable=True,
 )
 
 application_wtype: typing.Final = WType(
     name="application",
     scalar_type=AVMType.uint64,
-    bounds=_uint64_bounds,
     immutable=True,
 )
 
 state_key: typing.Final = WType(
     name="state_key",
     scalar_type=AVMType.bytes,
-    bounds=SizeBounds(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
     immutable=True,
 )
 box_key: typing.Final = WType(
     name="box_key",
     scalar_type=AVMType.bytes,
-    bounds=SizeBounds(
-        min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
-    ),
     immutable=True,
 )
 
@@ -137,10 +105,6 @@ class _TransactionRelatedWType(WType):
 @typing.final
 @attrs.frozen
 class WGroupTransaction(_TransactionRelatedWType):
-    bounds: ValueBounds = attrs.field(
-        default=ValueBounds(max_value=algo_constants.MAX_TRANSACTION_GROUP_SIZE - 1),
-        init=False,
-    )
     scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
 
     @classmethod
@@ -154,7 +118,6 @@ class WGroupTransaction(_TransactionRelatedWType):
 @typing.final
 @attrs.frozen
 class WInnerTransactionFields(_TransactionRelatedWType):
-    bounds: None = attrs.field(default=None, init=False)
     scalar_type: None = attrs.field(default=None, init=False)
 
     @classmethod
@@ -170,7 +133,6 @@ class WInnerTransactionFields(_TransactionRelatedWType):
 @typing.final
 @attrs.frozen
 class WInnerTransaction(_TransactionRelatedWType):
-    bounds: None = attrs.field(default=None, init=False)
     scalar_type: None = attrs.field(default=None, init=False)
 
     @classmethod
@@ -204,7 +166,7 @@ class WStructType(WType):
             )
             + ">"
         )
-        self.__attrs_init__(name=name, fields=fields, immutable=immutable, bounds=None)
+        self.__attrs_init__(name=name, fields=fields, immutable=immutable)
 
 
 @typing.final
@@ -217,7 +179,7 @@ class WArray(WType):
         if element_type == void_wtype:
             raise CodeError("array element type cannot be void", source_location)
         name = f"array<{element_type.name}>"
-        self.__attrs_init__(name=name, element_type=element_type, immutable=False, bounds=None)
+        self.__attrs_init__(name=name, element_type=element_type, immutable=False)
 
 
 @typing.final
@@ -234,7 +196,7 @@ class WTuple(WType):
         if void_wtype in types:
             raise CodeError("tuple should not contain void types", source_location)
         name = f"tuple<{','.join([t.name for t in types])}>"
-        self.__attrs_init__(name=name, types=types, bounds=None)
+        self.__attrs_init__(name=name, types=types)
 
 
 @attrs.frozen
@@ -262,7 +224,7 @@ class ARC4UIntN(ARC4Type):
         if not (8 <= n <= 512):
             raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
         name = name or f"arc4.uint{n}"
-        self.__attrs_init__(name=name, n=n, alias=alias, bounds=ValueBounds(max_value=2**n - 1))
+        self.__attrs_init__(name=name, n=n, alias=alias)
 
 
 @typing.final
@@ -290,7 +252,7 @@ class ARC4Tuple(ARC4Type):
             # then the overall value is also mutable
             immutable = immutable and typ.immutable
         name = f"arc4.tuple<{','.join([t.name for t in types])}>"
-        self.__attrs_init__(name=name, types=tuple(arc4_types), immutable=immutable, bounds=None)
+        self.__attrs_init__(name=name, types=tuple(arc4_types), immutable=immutable)
 
 
 @typing.final
@@ -308,12 +270,7 @@ class ARC4UFixedNxM(ARC4Type):
         if not (1 <= precision <= 160):
             raise CodeError("Precision must be between 1 and 160 inclusive", source_location)
 
-        self.__attrs_init__(
-            name=f"arc4.ufixed{bits}x{precision}",
-            n=bits,
-            m=precision,
-            bounds=ValueBounds(max_value=2**bits - 1),
-        )
+        self.__attrs_init__(name=f"arc4.ufixed{bits}x{precision}", n=bits, m=precision)
 
 
 def _make_ufixed_literal_validator(
@@ -358,12 +315,7 @@ class ARC4DynamicArray(ARC4Array):
         if not isinstance(element_type, ARC4Type):
             raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
         name = name or f"arc4.dynamic_array<{element_type.name}>"
-        self.__attrs_init__(
-            name=name,
-            element_type=element_type,
-            alias=alias,
-            bounds=None,
-        )
+        self.__attrs_init__(name=name, element_type=element_type, alias=alias)
 
 
 @typing.final
@@ -386,11 +338,7 @@ class ARC4StaticArray(ARC4Array):
             raise CodeError("ARC4 static array size must be non-negative", source_location)
         name = name or f"arc4.static_array<{element_type.name}, {array_size}>"
         self.__attrs_init__(
-            name=name,
-            element_type=element_type,
-            array_size=array_size,
-            alias=alias,
-            bounds=None,
+            name=name, element_type=element_type, array_size=array_size, alias=alias
         )
 
 
@@ -444,25 +392,18 @@ class ARC4Struct(ARC4Type):
             )
             + ">"
         )
-        self.__attrs_init__(
-            name=name,
-            fields=arc4_fields,
-            immutable=immutable,
-            bounds=None,
-        )
+        self.__attrs_init__(name=name, fields=arc4_fields, immutable=immutable)
 
 
 arc4_string_wtype: typing.Final = ARC4Type(
     name="arc4.string",
     alias="string",
     immutable=True,
-    bounds=SizeBounds(max_size=algo_constants.MAX_BYTES_LENGTH - 2),
 )
 arc4_bool_wtype: typing.Final = ARC4Type(
     name="arc4.bool",
     alias="bool",
     immutable=True,
-    bounds=ValueBounds(max_value=1),
 )
 arc4_byte_type: typing.Final = ARC4UIntN(  # TODO: REMOVE ME
     n=8,
