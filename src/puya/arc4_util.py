@@ -63,19 +63,6 @@ _UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
 _FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
 _DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
 _TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
-_ARC4_WTYPE_MAPPING = {  # TODO: YEET ME
-    "bool": wtypes.arc4_bool_wtype,
-    "string": wtypes.arc4_string_wtype,
-    "account": wtypes.account_wtype,
-    "application": wtypes.application_wtype,
-    "asset": wtypes.asset_wtype,
-    "void": wtypes.void_wtype,
-    "txn": wtypes.WGroupTransaction.from_type(None),
-    **{t.name: wtypes.WGroupTransaction.from_type(t) for t in constants.TransactionType},
-    "address": wtypes.arc4_address_type,
-    "byte": wtypes.arc4_byte_type,
-    "byte[]": wtypes.arc4_dynamic_bytes,
-}
 _ARC4_PYTYPE_MAPPING = {
     "bool": pytypes.ARC4BoolType,
     "string": pytypes.ARC4StringType,
@@ -117,34 +104,6 @@ def make_tuple_wtype(
         else:
             raise CodeError(f"Invalid type for arc4.Tuple element: {typ}", location)
     return wtypes.ARC4Tuple(arc4_types, location)
-
-
-def arc4_to_wtype(typ: str, location: SourceLocation | None = None) -> wtypes.WType:
-    # TODO: YEET ME
-    try:
-        return _ARC4_WTYPE_MAPPING[typ]
-    except KeyError:
-        pass
-    if uint := _UINT_REGEX.match(typ):
-        n = uint.group("n")
-        return wtypes.ARC4UIntN(int(n), location)
-    if ufixed := _UFIXED_REGEX.match(typ):
-        n, m = ufixed.group("n", "m")
-        return wtypes.ARC4UFixedNxM(int(n), int(m), location)
-    if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
-        arr_type, size = fixed_array.group("type", "size")
-        element_type = arc4_to_wtype(arr_type, location)
-        return make_static_array_wtype(element_type, int(size), location)
-    if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
-        arr_type = dynamic_array.group("type")
-        element_type = arc4_to_wtype(arr_type, location)
-        return make_dynamic_array_wtype(element_type, location)
-    if tuple_match := _TUPLE_REGEX.match(typ):
-        tuple_types = [
-            arc4_to_wtype(x, location) for x in split_tuple_types(tuple_match.group("types"))
-        ]
-        return make_tuple_wtype(tuple_types, location)
-    raise CodeError(f"Unknown ARC4 type '{typ}'", location)
 
 
 def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.PyType:
