@@ -114,7 +114,7 @@ main_get_preconditions_route@6:
     // @arc4.abimethod(readonly=True)
     callsub get_preconditions
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -183,7 +183,7 @@ create:
     // assert end_time >= Global.latest_timestamp, "End time should be in the future"
     global LatestTimestamp
     frame_dig -4
-    swap
+    uncover 1
     >=
     assert // End time should be in the future
     // voting/voting.py:71
@@ -277,7 +277,7 @@ store_option_counts_for_header@1:
     // total_options += item.native
     btoi
     frame_dig 0
-    swap
+    uncover 1
     +
     frame_bury 0
     frame_dig 2
@@ -298,12 +298,12 @@ store_option_counts_after_for@4:
     // self.option_counts = option_counts.copy()
     frame_dig -1
     byte "option_counts"
-    swap
+    uncover 1
     app_global_put
     // voting/voting.py:227
     // self.total_options = total_options
     byte "total_options"
-    swap
+    uncover 1
     app_global_put
     frame_dig -1
     frame_bury 0
@@ -377,7 +377,7 @@ bootstrap:
     //     # tally box value
     //     + (tally_box_size * BOX_BYTE_MIN_BALANCE)
     // )
-    swap
+    uncover 1
     // voting/voting.py:91-100
     // # minimum balance req for: ALGOs + Vote result NFT asset
     // ASSET_MIN_BALANCE * 2
@@ -399,7 +399,7 @@ bootstrap:
     // fund_min_bal_req.amount == min_balance_req
     frame_dig -1
     gtxns Amount
-    swap
+    uncover 1
     ==
     // voting/voting.py:103-105
     // assert (
@@ -409,7 +409,7 @@ bootstrap:
     // voting/voting.py:106
     // assert op.Box.create(TALLY_BOX_KEY, tally_box_size)
     byte "V"
-    swap
+    uncover 1
     box_create
     assert
     retsub
@@ -435,7 +435,7 @@ close:
     int 0
     byte "close_time"
     app_global_get_ex
-    swap
+    cover 1
     pop
     !
     assert // Already closed
@@ -443,7 +443,7 @@ close:
     // self.close_time.value = Global.latest_timestamp
     global LatestTimestamp
     byte "close_time"
-    swap
+    uncover 1
     app_global_put
     // voting/voting.py:117
     // + self.vote_id
@@ -459,7 +459,7 @@ close:
     // '{"standard":"arc69",'
     // '"description":"This is a voting result NFT for voting round with ID '
     // + self.vote_id
-    swap
+    uncover 1
     concat
     // voting/voting.py:118
     // + '.","properties":{"metadata":"ipfs://'
@@ -600,7 +600,7 @@ close:
     int 0
     byte "option_counts"
     app_global_get_ex
-    swap
+    cover 1
     dup
     cover 2
     cover 2
@@ -651,7 +651,7 @@ close_after_if_else@4:
     b>
     frame_dig 6
     frame_bury 2
-    swap
+    uncover 1
     frame_bury 0
     bz close_after_if_else@13
     // voting/voting.py:134
@@ -761,7 +761,7 @@ close_after_for@15:
     // voting/voting.py:152
     // fee=Global.min_txn_fee,
     global MinTxnFee
-    swap
+    cover 1
     // voting/voting.py:148
     // asset_name="[VOTE RESULT] " + self.vote_id,
     int 0
@@ -769,7 +769,7 @@ close_after_for@15:
     app_global_get_ex
     assert // check vote_id exists
     byte "[VOTE RESULT] "
-    swap
+    uncover 1
     concat
     // voting/voting.py:150
     // url=self.nft_image_url,
@@ -849,7 +849,7 @@ close_after_for@15:
     //     .submit()
     //     .created_asset.id
     // )
-    swap
+    uncover 1
     app_global_put
     retsub
 
@@ -867,7 +867,7 @@ ensure_budget_while_top@1:
     // <algopy>/algopy.py:19
     global OpcodeBudget
     frame_dig 0
-    swap
+    uncover 1
     >
     bz ensure_budget_after_while@7
     // <algopy>/algopy.py:20
@@ -929,11 +929,11 @@ itoa:
     // radix = digits.length
     len
     dup
-    swap
+    cover 1
     // voting/voting.py:258
     // if i < radix:
     frame_dig -1
-    swap
+    uncover 1
     <
     bz itoa_after_if_else@2
     // voting/voting.py:259
@@ -949,7 +949,7 @@ itoa:
     frame_dig -1
     uncover 2
     substring3
-    swap
+    uncover 1
     retsub
 
 itoa_after_if_else@2:
@@ -961,9 +961,9 @@ itoa_after_if_else@2:
     cover 2
     /
     callsub itoa
-    swap
+    cover 1
     frame_dig -1
-    swap
+    uncover 1
     %
     dup
     int 1
@@ -977,7 +977,7 @@ itoa_after_if_else@2:
     uncover 2
     substring3
     concat
-    swap
+    uncover 1
     retsub
 
 
@@ -1040,7 +1040,7 @@ get_preconditions:
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     retsub
 
@@ -1068,7 +1068,7 @@ voting_open:
     int 0
     byte "close_time"
     app_global_get_ex
-    swap
+    cover 1
     pop
     bnz voting_open_bool_false@5
     // voting/voting.py:208
@@ -1087,7 +1087,7 @@ voting_open:
     app_global_get_ex
     assert // check end_time exists
     frame_dig 0
-    swap
+    uncover 1
     <=
     bz voting_open_bool_false@5
     int 1
@@ -1103,7 +1103,7 @@ voting_open_bool_merge@6:
     //     and not self.close_time
     //     and self.start_time <= Global.latest_timestamp <= self.end_time
     // )
-    swap
+    uncover 1
     retsub
 
 
@@ -1133,7 +1133,7 @@ allowed_to_vote:
     //     signature,
     //     self.snapshot_public_key,
     // )
-    swap
+    uncover 1
     frame_dig -1
     uncover 2
     ed25519verify_bare
@@ -1150,7 +1150,7 @@ already_voted:
     // (votes, exists) = op.Box.get(Txn.sender.bytes)
     txn Sender
     box_get
-    swap
+    cover 1
     pop
     // voting/voting.py:214
     // return exists
@@ -1197,13 +1197,13 @@ vote:
     int 0
     extract_uint16
     dup
-    swap
+    cover 1
     // voting/voting.py:180
     // assert answer_ids.length == questions_count, "Number of answers incorrect"
     frame_dig -1
     int 0
     extract_uint16
-    swap
+    uncover 1
     ==
     assert // Number of answers incorrect
     // voting/voting.py:183
@@ -1212,10 +1212,10 @@ vote:
     int 0
     extract_uint16
     int 1
-    swap
+    uncover 1
     *
     int 34
-    swap
+    uncover 1
     +
     int 400
     *
@@ -1228,7 +1228,7 @@ vote:
     // min_bal_req = BOX_FLAT_MIN_BALANCE + (
     //     (32 + 2 + VOTE_INDEX_BYTES * answer_ids.length) * BOX_BYTE_MIN_BALANCE
     // )
-    swap
+    uncover 1
     +
     // voting/voting.py:186
     // fund_min_bal_req.receiver == Global.current_application_address
@@ -1250,7 +1250,7 @@ vote:
     // assert fund_min_bal_req.amount == min_bal_req, "Payment must be the exact min balance"
     frame_dig -3
     gtxns Amount
-    swap
+    uncover 1
     ==
     assert // Payment must be the exact min balance
     // voting/voting.py:191-192
@@ -1276,16 +1276,16 @@ vote_for_header@1:
     // answer_option_index = answer_ids[question_index].native
     frame_dig -1
     extract 2 0
-    swap
+    cover 1
     dup
     int 1
     *
     uncover 2
-    swap
+    uncover 1
     int 1
     extract3 // on error: Index access is out of bounds
     btoi
-    swap
+    cover 1
     // voting/voting.py:196
     // options_count = self.option_counts[question_index].native
     int 0
@@ -1293,7 +1293,7 @@ vote_for_header@1:
     app_global_get_ex
     assert // check option_counts exists
     extract 2 0
-    swap
+    uncover 1
     int 1
     *
     int 1
@@ -1314,7 +1314,7 @@ vote_for_header@1:
     callsub increment_vote_in_box
     // voting/voting.py:199
     // cumulative_offset += options_count
-    swap
+    uncover 1
     +
     frame_bury 1
     // voting/voting.py:200
@@ -1331,7 +1331,7 @@ vote_for_header@1:
     int 1
     +
     byte "voter_count"
-    swap
+    uncover 1
     app_global_put
     // voting/voting.py:193
     // for question_index in urange(questions_count):

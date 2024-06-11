@@ -7,7 +7,7 @@ test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.approval_
     bz main_bare_routing@5
     txna ApplicationArgs 0
     method "create_and_transfer()void"
-    swap
+    uncover 1
     match main_create_and_transfer_route@2
     b main_switch_case_default@3
 
@@ -34,7 +34,7 @@ main_bare_routing@5:
     // class CreateAndTransferContract(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@6
     b main_reject_bare_on_completion@7
 
@@ -137,14 +137,14 @@ create_and_transfer:
     dup
     asset_params_get AssetCreator
     assert // asset exists
-    swap
+    cover 1
     // inner_transactions/asset_transfer.py:30
     // asset_receiver=Global.current_application_address,
     global CurrentApplicationAddress
     // inner_transactions/asset_transfer.py:13-14
     // # create
     // new_asset = (
-    swap
+    uncover 1
     itxn_field XferAsset
     // inner_transactions/asset_transfer.py:31
     // asset_amount=1000,

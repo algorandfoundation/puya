@@ -174,7 +174,7 @@ test1:
     itxn_submit
     itxn ConfigAssetName
     itxn CreatedAssetID
-    swap
+    cover 1
     // inner_transactions/contract.py:62
     // assert asset1_txn.asset_name == b"AST1", "asset1_txn is correct"
     frame_dig 0
@@ -188,7 +188,7 @@ test1:
     assert // asset2_txn is correct
     // inner_transactions/contract.py:65
     // assert asset1_txn.created_asset.name == b"AST1", "created asset 1 is correct"
-    swap
+    uncover 1
     asset_params_get AssetName
     assert // asset exists
     byte "AST1"
@@ -254,7 +254,7 @@ test1:
     itxn_submit
     gitxn 0 CreatedApplicationID
     itxn ConfigAssetName
-    swap
+    cover 1
     // inner_transactions/contract.py:80
     // assert app_create_txn.created_app, "created app"
     assert // created app
@@ -1104,7 +1104,7 @@ test4:
     //     b"\xFC\x0F"  # varuint 2044
     // )
     // + lots_of_bytes
-    swap
+    uncover 1
     concat
     // inner_transactions/contract.py:236
     // + Bytes(b"\x48")  # pop
@@ -1127,11 +1127,11 @@ test4:
     //     + Bytes(b"\x48")  # pop
     // )
     dup
-    swap
+    cover 1
     // inner_transactions/contract.py:230
     // approval_2 = (
     dup
-    swap
+    cover 1
     dup
     cover 2
     cover 2
@@ -1172,7 +1172,7 @@ test4:
     itxn_submit
     itxn ExtraProgramPages
     itxn NumApprovalProgramPages
-    swap
+    cover 1
     itxn NumClearStateProgramPages
     cover 2
     // inner_transactions/contract.py:246
@@ -1198,7 +1198,7 @@ test4:
     dup
     cover 2
     concat
-    swap
+    cover 1
     dup
     len
     int 3
@@ -1214,10 +1214,10 @@ test4:
     uncover 2
     substring3
     uncover 2
-    swap
+    uncover 1
     concat
     uncover 2
-    swap
+    uncover 1
     ==
     // inner_transactions/contract.py:248-250
     // assert (
@@ -1228,7 +1228,7 @@ test4:
     // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
     int 1
     itxnas ApprovalProgramPages
-    swap
+    cover 1
     dup
     len
     int 3
@@ -1239,13 +1239,13 @@ test4:
     uncover 2
     select
     dig 1
-    swap
+    uncover 1
     -
     dig 2
-    swap
+    uncover 1
     uncover 2
     substring3
-    swap
+    uncover 1
     concat
     ==
     // inner_transactions/contract.py:251-253

@@ -154,7 +154,7 @@ main_bare_routing@12:
     // class Auction(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@13
     b main_reject_bare_on_completion@14
 
@@ -279,7 +279,7 @@ start_auction:
     frame_dig -1
     gtxns AssetAmount
     byte "asa_amount"
-    swap
+    uncover 1
     app_global_put
     // auction/contract.py:59
     // self.auction_end = Global.latest_timestamp + length
@@ -287,7 +287,7 @@ start_auction:
     frame_dig -2
     +
     byte "auction_end"
-    swap
+    uncover 1
     app_global_put
     // auction/contract.py:60
     // self.previous_bid = starting_price
@@ -346,14 +346,14 @@ bid:
     frame_dig -1
     gtxns Amount
     byte "previous_bid"
-    swap
+    uncover 1
     app_global_put
     // auction/contract.py:77
     // self.previous_bidder = pay.sender
     frame_dig -1
     gtxns Sender
     byte "previous_bidder"
-    swap
+    uncover 1
     app_global_put
     // auction/contract.py:79-80
     // # Update claimable amount
@@ -381,9 +381,9 @@ claim_bids:
     app_local_get_ex
     assert // check claimable_amount exists for account
     dup
-    swap
+    cover 1
     dup
-    swap
+    cover 1
     // auction/contract.py:86-87
     // # subtract previous bid if sender is previous bidder
     // if Txn.sender == self.previous_bidder:
@@ -401,7 +401,7 @@ claim_bids:
     app_global_get_ex
     assert // check previous_bid exists
     frame_dig 1
-    swap
+    uncover 1
     -
     frame_bury 2
 
@@ -541,6 +541,6 @@ __init__:
     // self.previous_bidder = Account()
     global ZeroAddress
     byte "previous_bidder"
-    swap
+    uncover 1
     app_global_put
     retsub
