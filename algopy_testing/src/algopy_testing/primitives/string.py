@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from algopy_testing.primitives.bytes import Bytes
-from algopy_testing.utils import as_string
+from algopy_testing.utils import as_bytes, as_string
 
 
 class String:
@@ -12,10 +12,12 @@ class String:
     indexing and length operations are not supported. Use .bytes.length for byte length.
     """
 
-    value: str
+    _value: bytes  # underlying 'bytes' value representing the String
 
     def __init__(self, value: str = "") -> None:
-        self.value = as_string(value)
+        if not isinstance(value, str):
+            raise TypeError(f"expected str, got {type(value).__name__!r}")
+        self._value = value.encode("utf-8")
 
     def __repr__(self) -> str:
         return repr(self.value)
@@ -50,9 +52,16 @@ class String:
     @classmethod
     def from_bytes(cls, value: Bytes | bytes) -> String:
         """Construct an instance from the underlying bytes (no validation)"""
-        return cls(as_string(value))
+        value = as_bytes(value)
+        result = cls()
+        result._value = bytes(value)  # noqa: SLF001
+        return result
 
     @property
     def bytes(self) -> Bytes:
         """Get the underlying Bytes"""
-        return Bytes(self.value.encode("utf-8"))
+        return Bytes(self._value)
+
+    @property
+    def value(self) -> str:
+        return self._value.decode("utf-8")
