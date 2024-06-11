@@ -13,8 +13,8 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         a: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[8]]: ...
 
-    @algopy.arc4.abimethod(name='all_the_things', readonly=True, allow_actions=['NoOp', 'OptIn', 'CloseOut', 'UpdateApplication', 'DeleteApplication'], create='allow')
-    def full_abi_config(
+    @algopy.arc4.abimethod(readonly=True, allow_actions=['NoOp', 'OptIn', 'CloseOut', 'UpdateApplication', 'DeleteApplication'], create='allow')
+    def all_the_things(
         self,
         a: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[8]]: ...
@@ -57,17 +57,17 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
-    @algopy.arc4.abimethod(name='get_application', readonly=True)
-    def get_app(
+    @algopy.arc4.abimethod(readonly=True)
+    def get_application(
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
-    @algopy.arc4.abimethod(name='get_an_int', readonly=True)
-    def get_a_int(
+    @algopy.arc4.abimethod(readonly=True)
+    def get_an_int(
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
-    @algopy.arc4.abimethod(default_args={'asset_from_storage': 'asa', 'asset_from_function': 'get_asset', 'account_from_storage': 'creator', 'account_from_function': 'get_address', 'application_from_storage': 'app', 'application_from_function': 'get_app', 'bytes_from_storage': 'some_bytes', 'int_from_storage': 'an_int', 'int_from_function': 'get_a_int'})
+    @algopy.arc4.abimethod(default_args={'asset_from_storage': 'asa', 'asset_from_function': 'get_asset', 'account_from_storage': 'creator', 'account_from_function': 'get_address', 'application_from_storage': 'app', 'application_from_function': 'get_application', 'bytes_from_storage': 'some_bytes', 'int_from_storage': 'an_int', 'int_from_function': 'get_an_int'})
     def method_with_default_args(
         self,
         asset_from_storage: algopy.Asset,

@@ -5,7 +5,7 @@ from collections.abc import Sequence
 import mypy.nodes
 import mypy.types
 
-from puya import algo_constants, log
+from puya import algo_constants, log, utils
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesAugmentedAssignment,
@@ -129,20 +129,20 @@ class _FromEncodedStr(FunctionBuilder):
             if encoded_value is not None:
                 match self.encoding:
                     case BytesEncoding.base64:
-                        if not wtypes.valid_base64(encoded_value):
+                        if not utils.valid_base64(encoded_value):
                             logger.error("invalid base64 value", location=arg.source_location)
                             bytes_value = b""
                         else:
                             bytes_value = base64.b64decode(encoded_value)
                     case BytesEncoding.base32:
-                        if not wtypes.valid_base32(encoded_value):
+                        if not utils.valid_base32(encoded_value):
                             logger.error("invalid base32 value", location=arg.source_location)
                             bytes_value = b""
                         else:
                             bytes_value = base64.b32decode(encoded_value)
                     case BytesEncoding.base16:
                         encoded_value = encoded_value.upper()
-                        if not wtypes.valid_base16(encoded_value):
+                        if not utils.valid_base16(encoded_value):
                             logger.error("invalid base16 value", location=arg.source_location)
                             bytes_value = b""
                         else:

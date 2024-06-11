@@ -768,7 +768,12 @@ def _arc4_encode(
     """encode, with special handling of native tuples"""
     match base.wtype:
         case wtypes.WTuple(types=types):
-            base_temp = awst_nodes.SingleEvaluation(base)
+
+            base_temp = (
+                base
+                if isinstance(base, awst_nodes.SingleEvaluation)
+                else awst_nodes.SingleEvaluation(base)
+            )
 
             return awst_nodes.ARC4Encode(
                 source_location=location,

@@ -12,7 +12,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.arc4_util import split_tuple_types
 from puya.awst import wtypes
-from puya.awst_build import constants, pytypes
+from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
 from puya.errors import CodeError, InternalError
@@ -22,6 +22,7 @@ from puya.models import (
     ARC4CreateOption,
     ARC32StructDef,
     OnCompletionAction,
+    TransactionType,
 )
 from puya.parse import SourceLocation
 
@@ -449,7 +450,7 @@ _ARC4_PYTYPE_MAPPING = {
     "asset": pytypes.AssetType,
     "void": pytypes.NoneType,
     "txn": pytypes.GroupTransactionTypes[None],
-    **{t.name: pytypes.GroupTransactionTypes[t] for t in constants.TransactionType},
+    **{t.name: pytypes.GroupTransactionTypes[t] for t in TransactionType},
     "address": pytypes.ARC4AddressType,
     "byte": pytypes.ARC4ByteType,
     "byte[]": pytypes.ARC4DynamicBytesType,

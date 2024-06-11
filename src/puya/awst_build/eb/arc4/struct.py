@@ -73,7 +73,6 @@ class ARC4StructExpressionBuilder(
                 result_expr = FieldExpression(
                     base=self.resolve(),
                     name=field_name,
-                    wtype=field.wtype,
                     source_location=location,
                 )
                 return builder_for_instance(field, result_expr)

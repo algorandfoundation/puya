@@ -1,0 +1,684 @@
+#pragma version 10
+
+test_cases.compile.factory.HelloFactory.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@14
+    method "test_logicsig()address"
+    method "test_compile_contract()void"
+    method "test_compile_contract_tmpl()void"
+    method "test_compile_contract_prfx()void"
+    method "test_compile_contract_large()void"
+    method "test_arc4_create()void"
+    method "test_arc4_create_tmpl()void"
+    method "test_arc4_create_prfx()void"
+    method "test_arc4_create_large()void"
+    method "test_arc4_update()void"
+    txna ApplicationArgs 0
+    match main_test_logicsig_route@2 main_test_compile_contract_route@3 main_test_compile_contract_tmpl_route@4 main_test_compile_contract_prfx_route@5 main_test_compile_contract_large_route@6 main_test_arc4_create_route@7 main_test_arc4_create_tmpl_route@8 main_test_arc4_create_prfx_route@9 main_test_arc4_create_large_route@10 main_test_arc4_update_route@11
+    err // reject transaction
+
+main_test_logicsig_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_logicsig
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_test_compile_contract_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_compile_contract
+    int 1
+    return
+
+main_test_compile_contract_tmpl_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_compile_contract_tmpl
+    int 1
+    return
+
+main_test_compile_contract_prfx_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_compile_contract_prfx
+    int 1
+    return
+
+main_test_compile_contract_large_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_compile_contract_large
+    int 1
+    return
+
+main_test_arc4_create_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_arc4_create
+    int 1
+    return
+
+main_test_arc4_create_tmpl_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_arc4_create_tmpl
+    int 1
+    return
+
+main_test_arc4_create_prfx_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_arc4_create_prfx
+    int 1
+    return
+
+main_test_arc4_create_large_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_arc4_create_large
+    int 1
+    return
+
+main_test_arc4_update_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_arc4_update
+    int 1
+    return
+
+main_bare_routing@14:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes:
+test_logicsig:
+    proto 0 1
+    addr U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSVWQOKFM
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_compile_contract() -> void:
+test_compile_contract:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAJcxG0EAYYIDBCDfOlQEJDeNPATQooIANhoAjgMAAQAUACIAMRkURDEYFEQ2GgFXAgCIAEQiQzEZgQUSRDEYRIgAPiJDMRkURDEYRDYaAVcCAIgAMEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIAB4iQ4oBACiL/2eJigAAiYoBAYEAKGVEgAEgUIv/UImKAACJigAAKIAAZ4k=
+    itxn_field ApprovalProgramPages
+    method "create(string)void"
+    itxn_field ApplicationArgs
+    byte 0x000568656c6c6f
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x0005776f726c64
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte 0x000b68656c6c6f20776f726c64
+    ==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() -> void:
+test_compile_contract_tmpl:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogANoZXlniQ==
+    itxn_field ApprovalProgramPages
+    method "create()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x0005776f726c64
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte 0x000968657920776f726c64
+    ==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() -> void:
+test_compile_contract_prfx:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAJoaWeJ
+    itxn_field ApprovalProgramPages
+    method "create()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x0005776f726c64
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte 0x0008686920776f726c64
+    ==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_compile_contract_large() -> void:
+test_compile_contract_large:
+    proto 0 0
+    itxn_begin
+    int 2
+    itxn_field ExtraProgramPages
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABATEbQQA6ggIE9eT9TQQkN408NhoAjgIAAQAXADEZFEQxGESIACQWgAQVH3x1TFCwIkMxGYEFEkQxGESIEBsiQzEZFEQxGBREIkOKAAGIAAIViYoAAYCAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+    itxn_field ApprovalProgramPages
+    byte base64 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAImKAACJ
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "get_big_bytes_length()uint64"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    method "delete()void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte 0x0000000000001000
+    b==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
+test_arc4_create:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAJcxG0EAYYIDBCDfOlQEJDeNPATQooIANhoAjgMAAQAUACIAMRkURDEYFEQ2GgFXAgCIAEQiQzEZgQUSRDEYRIgAPiJDMRkURDEYRDYaAVcCAIgAMEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIAB4iQ4oBACiL/2eJigAAiYoBAYEAKGVEgAEgUIv/UImKAACJigAAKIAAZ4k=
+    itxn_field ApprovalProgramPages
+    method "create(string)void"
+    itxn_field ApplicationArgs
+    byte 0x000568656c6c6f
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x0005776f726c64
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    swap
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte "hello world"
+    ==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> void:
+test_arc4_create_tmpl:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAV0bXBsMmeJ
+    itxn_field ApprovalProgramPages
+    method "create()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x0005776f726c64
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    swap
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte "tmpl2 world"
+    ==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> void:
+test_arc4_create_prfx:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAVwcmZ4MmeJ
+    itxn_field ApprovalProgramPages
+    method "create()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x0005776f726c64
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    swap
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    byte "prfx2 world"
+    ==
+    assert
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> void:
+test_arc4_create_large:
+    proto 0 0
+    itxn_begin
+    int 2
+    itxn_field ExtraProgramPages
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABATEbQQA6ggIE9eT9TQQkN408NhoAjgIAAQAXADEZFEQxGESIACQWgAQVH3x1TFCwIkMxGYEFEkQxGESIEBsiQzEZFEQxGBREIkOKAAGIAAIViYoAAYCAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+    itxn_field ApprovalProgramPages
+    byte base64 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAImKAACJ
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "get_big_bytes_length()uint64"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    btoi
+    int 4096
+    ==
+    assert
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
+test_arc4_update:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAJoaWeJ
+    itxn_field ApprovalProgramPages
+    method "create()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x00057468657265
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    byte "hi there"
+    ==
+    assert
+    itxn_begin
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAJcxG0EAYYIDBCDfOlQEJDeNPATQooIANhoAjgMAAQAUACIAMRkURDEYFEQ2GgFXAgCIAEQiQzEZgQUSRDEYRIgAPiJDMRkURDEYRDYaAVcCAIgAMEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIAB4iQ4oBACiL/2eJigAAiYoBAYEAKGVEgAEgUIv/UImKAACJigAAKIAAZ4k=
+    itxn_field ApprovalProgramPages
+    int UpdateApplication
+    itxn_field OnCompletion
+    dup
+    itxn_field ApplicationID
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x00057468657265
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    byte "hi there"
+    ==
+    assert
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    retsub

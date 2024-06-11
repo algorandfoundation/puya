@@ -6,11 +6,10 @@ import mypy.nodes
 
 from puya.awst.nodes import UInt64Constant
 from puya.awst_build import pytypes
-from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.errors import CodeError
-from puya.models import OnCompletionAction
+from puya.models import OnCompletionAction, TransactionType
 from puya.parse import SourceLocation
 
 

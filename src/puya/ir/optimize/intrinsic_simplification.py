@@ -1,8 +1,9 @@
 import base64
+import enum
 import math
 import operator
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from itertools import zip_longest
 
 import attrs
@@ -10,9 +11,10 @@ import attrs
 from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.context import CompileContext
+from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.ir.models import Assignment, Intrinsic
+from puya.ir.models import Assignment, BasicBlock, Intrinsic, UInt64Constant
 from puya.ir.optimize._utils import get_definition
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor_mutator import IRMutator
@@ -30,6 +32,7 @@ def intrinsic_simplifier(_context: CompileContext, subroutine: models.Subroutine
 class IntrinsicSimplifier(IRMutator):
     subroutine: models.Subroutine
     modified: int = 0
+    current_block: BasicBlock | None = None
 
     @classmethod
     def apply(cls, to: models.Subroutine) -> int:
@@ -37,6 +40,11 @@ class IntrinsicSimplifier(IRMutator):
         for block in to.body:
             replacer.visit_block(block)
         return replacer.modified
+
+    def visit_block(self, block: BasicBlock) -> None:
+        self.current_block = block
+        super().visit_block(block)
+        self.current_block = None
 
     def visit_assignment(self, ass: Assignment) -> Assignment | None:
         match ass.source:
@@ -73,7 +81,33 @@ class IntrinsicSimplifier(IRMutator):
                     if assert_cond_maybe_simplified is not None:
                         self.modified += 1
                         return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
-
+            case Intrinsic(
+                op=AVMOp.itxn_field,
+                immediates=["ApprovalProgramPages" | "ClearStateProgramPages"],
+                args=[models.BytesConstant(value=b"")],
+            ):
+                return None
+            # remove some app allocation itxn_fields if they are not needed and
+            # can be safely removed
+            case Intrinsic(
+                op=AVMOp.itxn_field,
+                immediates=[
+                    "ExtraProgramPages"
+                    | "GlobalNumUint"
+                    | "GlobalNumByteSlice"
+                    | "LocalNumUint"
+                    | "LocalNumByteSlice"
+                ],
+                args=[arg],
+            ) as op if (
+                state := _get_itxn_field_txn_sequence(self.current_block, op)
+            ) != _ITxnFieldPosition.unknown:
+                if state == _ITxnFieldPosition.not_last_in_txn or (
+                    state == _ITxnFieldPosition.last_in_txn
+                    and isinstance(arg, UInt64Constant)
+                    and arg.value == 0
+                ):
+                    return None
             case _:
                 simplified = _try_convert_stack_args_to_immediates(intrinsic)
                 if simplified is not None:
@@ -89,6 +123,52 @@ class IntrinsicSimplifier(IRMutator):
             self.modified += 1
             return attrs.evolve(branch, condition=branch_cond_maybe_simplified)
         return branch
+
+
+class _ITxnFieldPosition(enum.StrEnum):
+    last_in_txn = enum.auto()
+    not_last_in_txn = enum.auto()
+    unknown = enum.auto()
+
+
+def _get_itxn_field_txn_sequence(
+    current_block: BasicBlock | None, set_field: Intrinsic
+) -> _ITxnFieldPosition:
+    if current_block is None or set_field.op != AVMOp.itxn_field:
+        raise InternalError("expect current block and itxn_field op", set_field.source_location)
+    for itxn_fields in _get_matching_itxn_fields(current_block, set_field):
+        if set_field in itxn_fields:
+            return (
+                _ITxnFieldPosition.last_in_txn
+                if set_field == itxn_fields[-1]
+                else _ITxnFieldPosition.not_last_in_txn
+            )
+    return _ITxnFieldPosition.unknown
+
+
+def _get_matching_itxn_fields(
+    block: BasicBlock, set_field: Intrinsic
+) -> Iterable[list[Intrinsic]]:
+    to_match = (set_field.op, set_field.immediates)
+    matching_fields: list[Intrinsic] | None = None
+    for op in block.ops:
+        if not isinstance(op, Intrinsic):
+            continue
+        # begin a txn
+        if op.op == AVMOp.itxn_begin:
+            matching_fields = []
+        # end/begin a txn
+        elif op.op == AVMOp.itxn_next:
+            if matching_fields is not None:
+                yield matching_fields
+            matching_fields = []
+        # end a txn
+        elif op.op == AVMOp.itxn_submit:
+            if matching_fields is not None:
+                yield matching_fields
+            matching_fields = None
+        elif matching_fields is not None and to_match == (op.op, op.immediates):
+            matching_fields.append(op)
 
 
 def _try_simplify_bool_condition(

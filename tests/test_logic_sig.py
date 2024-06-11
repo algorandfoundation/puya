@@ -1,10 +1,9 @@
-import base64
 from pathlib import Path
 
 import algokit_utils
 import algosdk
 import pytest
-from algokit_utils import TemplateValueMapping, TransferAssetParameters, replace_template_variables
+from algokit_utils import TransferAssetParameters
 from algosdk.atomic_transaction_composer import (
     AtomicTransactionComposer,
     LogicSigTransactionSigner,
@@ -12,43 +11,46 @@ from algosdk.atomic_transaction_composer import (
 )
 from algosdk.transaction import AssetTransferTxn, LogicSigAccount, LogicSigTransaction, PaymentTxn
 from algosdk.v2client.algod import AlgodClient
-from puya.models import CompiledLogicSignature
+from puya.models import CompiledLogicSig
+from puya.options import PuyaOptions
 
 from tests import TEST_CASES_DIR
-from tests.utils import compile_src
+from tests.utils import compile_src_from_options
 
 pytestmark = pytest.mark.localnet
 
 
 def compile_logic_sig(
-    algod_client: AlgodClient,
     src_path: Path,
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
-    artifact_name: str | None = None,
-    template_values: TemplateValueMapping | None = None,
+    template_variables: dict[str, int | bytes] | None = None,
 ) -> bytes:
-    result = compile_src(src_path, optimization_level=optimization_level, debug_level=debug_level)
-    (logic_sig,) = (
-        a
-        for file in result.teal.values()
-        for a in file
-        if not artifact_name or a.metadata.name == artifact_name
+    result = compile_src_from_options(
+        PuyaOptions(
+            paths=(src_path,),
+            optimization_level=optimization_level,
+            debug_level=debug_level,
+            output_arc32=False,
+            output_teal=False,
+            output_bytecode=True,
+            out_dir=Path("out"),
+            template_vars_override=template_variables or {},
+        )
     )
+    (logic_sig,) = (a for file in result.teal.values() for a in file)
     assert isinstance(
-        logic_sig, CompiledLogicSignature
+        logic_sig, CompiledLogicSig
     ), "Compilation artifact must be a logic signature"
-    teal = "\n".join(logic_sig.program)
-    teal = replace_template_variables(teal, template_values or {})
-    return base64.b64decode(algod_client.compile(source=teal)["result"])
+    bytecode = logic_sig.program.bytecode
+    assert bytecode is not None
+    return bytecode
 
 
 def test_logic_sig(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     logic_sig_prog = compile_logic_sig(
-        algod_client,
-        TEST_CASES_DIR / "logic_signature" / "signature.py",
-        artifact_name="always_allow",
+        TEST_CASES_DIR / "logic_signature" / "always_allow.py",
     )
     logic_sig = LogicSigAccount(
         program=logic_sig_prog,
@@ -121,13 +123,11 @@ def test_pre_approved_sale(
         ),
     )
     logic_sig_prog = compile_logic_sig(
-        algod_client,
         TEST_CASES_DIR / "logic_signature" / "signature.py",
-        artifact_name="pre_approved_sale",
-        template_values={
-            "SELLER": algosdk.encoding.decode_address(account.address),
-            "PRICE": 10_000_000,
-            "ASSET_ID": asset_a,
+        template_variables={
+            "TMPL_SELLER": algosdk.encoding.decode_address(account.address),
+            "TMPL_PRICE": 10_000_000,
+            "TMPL_ASSET_ID": asset_a,
         },
     )
     logic_sig = LogicSigAccount(program=logic_sig_prog)

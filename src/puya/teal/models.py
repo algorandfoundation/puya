@@ -155,15 +155,15 @@ class FrameBury(TealOpN):
 
 
 @attrs.frozen
-class PushInt(TealOp):
-    n: int | str
+class Int(TealOp):
+    value: int | str
     op_code: str = attrs.field(default="int", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
-        return (self.n,)
+        return (self.value,)
 
 
 @attrs.frozen
@@ -202,8 +202,8 @@ class Proto(TealOp):
 
 
 @attrs.frozen
-class PushBytes(TealOp):
-    n: bytes
+class Byte(TealOp):
+    value: bytes
     encoding: AVMBytesEncoding
     op_code: str = attrs.field(default="byte", init=False)
     consumes: int = attrs.field(default=0, init=False)
@@ -211,19 +211,23 @@ class PushBytes(TealOp):
 
     @property
     def immediates(self) -> Sequence[int | str]:
-        bytes_str = format_bytes(self.n, self.encoding)
-        if self.encoding in (
+        # not all encodings can handle an empty bytes, so use base16 if bytes is empty
+        encoding = self.encoding
+        if not self.value and encoding in (AVMBytesEncoding.base32, AVMBytesEncoding.base64):
+            encoding = AVMBytesEncoding.base16
+        bytes_str = format_bytes(self.value, encoding)
+        if encoding in (
             AVMBytesEncoding.utf8,
             AVMBytesEncoding.base16,
             AVMBytesEncoding.unknown,
         ):
             return (bytes_str,)
-        hint = self.encoding.name
+        hint = encoding.name
         return hint, bytes_str
 
 
 @attrs.frozen
-class PushTemplateVar(TealOp):
+class TemplateVar(TealOp):
     name: str
     op_code: str
     consumes: int = attrs.field(default=0, init=False)
@@ -235,27 +239,27 @@ class PushTemplateVar(TealOp):
 
 
 @attrs.frozen
-class PushAddress(TealOp):
-    a: str
+class Address(TealOp):
+    value: str
     op_code: str = attrs.field(default="addr", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
-        return (self.a,)
+        return (self.value,)
 
 
 @attrs.frozen
-class PushMethod(TealOp):
-    a: str
+class Method(TealOp):
+    value: str
     op_code: str = attrs.field(default="method", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
-        return (f'"{self.a}"',)
+        return (f'"{self.value}"',)
 
 
 @attrs.frozen

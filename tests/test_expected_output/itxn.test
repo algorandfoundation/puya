@@ -1,3 +1,7 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
 ## case: test_cant_instantiate_inner_transaction
 
 from algopy import Contract, itxn
@@ -162,32 +166,32 @@ class Client(arc4.ARC4Client, typing.Protocol):
 @subroutine
 def wrong_arg_type1() -> None:
     arc4.abi_call(
-        Client.foo, b"" ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
+        Client.foo, b"", app_id=1 ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
     )
 
 
 @subroutine
 def wrong_arg_type2() -> None:
     arc4.abi_call(
-        Client.foo, "" ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
+        Client.foo, "", app_id=1 ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
     )
 
 
 @subroutine
 def wrong_arg_type3() -> None:
     arc4.abi_call(
-        "foo(uint64)void", b"" ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
+        "foo(uint64)void", b"", app_id=1 ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
     )
 
 
 @subroutine
 def wrong_arg_type4() -> None:
-    arc4.abi_call("foo(uint8)void", 256) ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value
+    arc4.abi_call("foo(uint8)void", 256, app_id=1) ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value
 
 
 @subroutine
 def wrong_arg_type5() -> None:
-    arc4.abi_call("foo", 2**64 + 1) ## E: invalid algopy.arc4.UIntN[typing.Literal[64]] value
+    arc4.abi_call("foo", 2**64 + 1, app_id=1) ## E: invalid algopy.arc4.UIntN[typing.Literal[64]] value
 
 
 @subroutine
@@ -195,13 +199,14 @@ def method_selector_mismatch() -> None:
     arc4.abi_call[arc4.UInt64](
         "foo(uint8)void", ## E: method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
         1,
+        app_id=1,
     )
 
 
 @subroutine
 def allowed_coercions() -> None:
-    arc4.abi_call("foo", 256)  # value inferred from args
-    arc4.abi_call(Client.foo, 1)
+    arc4.abi_call("foo", 256, app_id=1)  # value inferred from args
+    arc4.abi_call(Client.foo, 1, app_id=1)
 
 
 ## case: test_stale_itxn_array_read
@@ -366,7 +371,7 @@ class AppArgs(ARC4Contract):
     def test_account(self) -> None:
         itxn.ApplicationCall(
             app_args=(
-                Account(), ## W: algopy.Account will not be added to foreign array, use .bytes to suppress this warning
+                Account(),  ## W: algopy.Account will not be added to foreign array, use .bytes to suppress this warning
             ),
         ).submit()
 
@@ -374,7 +379,7 @@ class AppArgs(ARC4Contract):
     def test_application(self) -> None:
         itxn.ApplicationCall(
             app_args=(
-                Application(), ## W: algopy.Application will not be added to foreign array, use .id to suppress this warning
+                Application(),  ## W: algopy.Application will not be added to foreign array, use .id to suppress this warning
             ),
         ).submit()
 
@@ -382,12 +387,12 @@ class AppArgs(ARC4Contract):
     def test_asset(self) -> None:
         itxn.ApplicationCall(
             app_args=(
-                Asset(), ## W: algopy.Asset will not be added to foreign array, use .id to suppress this warning
+                Asset(),  ## W: algopy.Asset will not be added to foreign array, use .id to suppress this warning
             ),
         ).submit()
 
     @arc4.abimethod
     def test_literal_int(self) -> None:
         itxn.ApplicationCall(
-            app_args=(42,), ## E: cannot serialize literal of type int
+            app_args=(42,),  ## E: cannot serialize literal of type int
         ).submit()

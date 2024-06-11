@@ -4,17 +4,15 @@ from puya.mir import models as mir
 from puya.mir.stack import Stack
 from puya.teal import models as teal_models
 from puya.teal.optimize.main import optimize_teal_program
-from puya.teal.output import emit_teal
 
 logger = log.get_logger(__name__)
 
 
-def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> list[str]:
+def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_models.TealProgram:
     teal = _build_teal(context, program_mir)
     if context.options.optimization_level > 0:
         teal = optimize_teal_program(context, teal)
-    output = emit_teal(context, teal)
-    return output
+    return teal
 
 
 def _build_teal(context: CompileContext, mir_program: mir.Program) -> teal_models.TealProgram:

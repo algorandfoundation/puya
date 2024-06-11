@@ -1,7 +1,8 @@
 import base64
 import typing as t
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 
+import puya.models
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
@@ -66,8 +67,16 @@ class ToCodeVisitor(
         return f"reinterpret_cast<{expr.wtype}>({expr.expr.accept(self)})"
 
     def visit_single_evaluation(self, expr: nodes.SingleEvaluation) -> str:
-        return (
-            f"SINGLE_EVAL(id={self._single_eval_index(expr)}, source={expr.source.accept(self)})"
+        # only render source the first time it is encountered
+        source = "" if expr in self._seen_single_evals else f", source={expr.source.accept(self)}"
+        eval_id = self._single_eval_index(expr)
+
+        return "".join(
+            (
+                f"SINGLE_EVAL(id={eval_id}",
+                source,
+                ")",
+            )
         )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
@@ -104,7 +113,9 @@ class ToCodeVisitor(
                 target = f"this::{instance_sub.name}"
             case nodes.BaseClassSubroutineTarget(
                 name=func_name,
-                base_class=nodes.ContractReference(module_name=module_name, class_name=class_name),
+                base_class=puya.models.ContractReference(
+                    module_name=module_name, class_name=class_name
+                ),
             ):
                 target = "::".join((module_name, class_name, func_name))
             case nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
@@ -372,6 +383,23 @@ class ToCodeVisitor(
 
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:
         return f'Address("{expr.value}")'
+
+    def visit_compiled_contract(self, expr: nodes.CompiledContract) -> str:
+        template_vars_fragment = self._template_vars_fragment(expr.prefix, expr.template_variables)
+        overrides = ", ".join(
+            f"{k.name}={v.accept(self)}" for k, v in expr.allocation_overrides.items()
+        )
+        return f"compiled_contract({expr.contract.full_name!r}{overrides}{template_vars_fragment})"
+
+    def visit_compiled_logicsig(self, expr: nodes.CompiledLogicSig) -> str:
+        template_vars_fragment = self._template_vars_fragment(expr.prefix, expr.template_variables)
+        return f"compiled_logicsig({expr.logic_sig!r}{template_vars_fragment})"
+
+    def _template_vars_fragment(
+        self, prefix: str | None, variables: Mapping[str, nodes.Expression]
+    ) -> str:
+        variables_str = ", ".join(f"{k!r}: {v.accept(self)}" for k, v in variables.items())
+        return f", {prefix=!r}, variables={{{variables_str}}}"
 
     def visit_conditional_expression(self, expr: nodes.ConditionalExpression) -> str:
         condition = expr.condition.accept(self)

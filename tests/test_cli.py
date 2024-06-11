@@ -36,6 +36,29 @@ def run_puyapy(
     return result
 
 
+def run_puyapy_clientgen(
+    path: Path,
+) -> subprocess.CompletedProcess[str]:
+    puyapy_clientgen = shutil.which("puyapy-clientgen")
+    assert puyapy_clientgen is not None
+    result = subprocess.run(
+        [  # noqa: S603
+            puyapy_clientgen,
+            str(path),
+        ],
+        text=True,
+        # capture stdout
+        stdout=subprocess.PIPE,
+        # redirect stderr to stdout, so they're interleaved in the correct ordering
+        stderr=subprocess.STDOUT,
+        cwd=VCS_ROOT,
+        check=False,
+        env=ENV_WITH_NO_COLOR,
+    )
+    assert result.returncode == 0, result.stdout
+    return result
+
+
 def test_run_no_args() -> None:
     result = run_puyapy([], check=False)
     assert result.returncode == 2
@@ -68,3 +91,7 @@ def test_run_multiple_files() -> None:
 
 def test_run_directory() -> None:
     run_puyapy([TEST_CASES_DIR / "simple"])
+
+
+def test_puyapy_clientgen() -> None:
+    run_puyapy_clientgen(TEST_CASES_DIR / Path("abi_routing") / "out" / "Reference.arc32.json")

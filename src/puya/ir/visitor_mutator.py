@@ -10,6 +10,8 @@ from puya.ir.models import (
     BasicBlock,
     BigUIntConstant,
     BytesConstant,
+    CompiledContractReference,
+    CompiledLogicSigReference,
     ConditionalBranch,
     ControlOp,
     Fail,
@@ -98,6 +100,26 @@ class IRMutator(IRVisitor[t.Any]):
 
     def visit_itxn_constant(self, const: ITxnConstant) -> ITxnConstant:
         return const
+
+    def visit_compiled_contract_reference(
+        self, const: CompiledContractReference
+    ) -> CompiledContractReference:
+        return attrs.evolve(
+            const,
+            template_variables={
+                var: value.accept(self) for var, value in const.template_variables.items()
+            },
+        )
+
+    def visit_compiled_logicsig_reference(
+        self, const: CompiledLogicSigReference
+    ) -> CompiledLogicSigReference:
+        return attrs.evolve(
+            const,
+            template_variables={
+                var: value.accept(self) for var, value in const.template_variables.items()
+            },
+        )
 
     def visit_phi(self, phi: Phi) -> Phi | None:
         with self._enter_target_context():

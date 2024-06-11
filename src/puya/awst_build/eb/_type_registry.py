@@ -9,6 +9,7 @@ from puya.awst_build.eb import (
     biguint,
     bool as bool_,
     bytes as bytes_,
+    compile,
     ensure_budget,
     intrinsics,
     log,
@@ -41,6 +42,10 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy._util.log": log.LogBuilder,
     "algopy.arc4.emit": arc4.EmitBuilder,
     "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
+    "algopy._compiled.compile_contract": compile.CompileContractFunctionBuilder,
+    "algopy._compiled.compile_logicsig": compile.CompileLogicSigFunctionBuilder,
+    "algopy.arc4.arc4_create": arc4.ARC4CreateFunctionBuilder,
+    "algopy.arc4.arc4_update": arc4.ARC4UpdateFunctionBuilder,
     constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericTypeBuilder,
     "algopy._template_variables.TemplateVar": (
         template_variables.GenericTemplateVariableExpressionBuilder
@@ -162,6 +167,8 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.BigUIntType: biguint.BigUIntExpressionBuilder,
     pytypes.BoolType: bool_.BoolExpressionBuilder,
     pytypes.BytesType: bytes_.BytesExpressionBuilder,
+    pytypes.CompiledContractType: compile.CompiledContractExpressionBuilder,
+    pytypes.CompiledLogicSigType: compile.CompiledLogicSigExpressionBuilder,
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
     pytypes.NoneType: none.NoneExpressionBuilder,

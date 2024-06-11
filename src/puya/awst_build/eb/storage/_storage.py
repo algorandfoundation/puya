@@ -7,7 +7,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
-    ContractReference,
     Expression,
     Lvalue,
     ReinterpretCast,
@@ -27,6 +26,7 @@ from puya.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puya.errors import CodeError
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

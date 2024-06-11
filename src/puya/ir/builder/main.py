@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import puya.awst.visitors
 import puya.ir.builder.storage
-from puya import algo_constants, log
+from puya import algo_constants, log, utils
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -35,6 +35,8 @@ from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
     BytesConstant,
+    CompiledContractReference,
+    CompiledLogicSigReference,
     ConditionalBranch,
     Fail,
     Intrinsic,
@@ -58,6 +60,7 @@ from puya.ir.types_ import (
     wtype_to_ir_types,
 )
 from puya.ir.utils import format_tuple_index
+from puya.models import CompiledReferenceField
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ValueProvider | None
@@ -133,6 +136,66 @@ class FunctionIRBuilder(
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         return arc4.encode_expr(self.context, expr)
+
+    def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
+        prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix
+        template_variables = {
+            prefix + k: self.visit_and_materialise_single(v)
+            for k, v in expr.template_variables.items()
+        }
+        program_pages = [
+            CompiledContractReference(
+                artifact=expr.contract,
+                field=field,
+                program_page=page,
+                ir_type=IRType.bytes,
+                source_location=expr.source_location,
+                template_variables=template_variables,
+            )
+            for field in (
+                CompiledReferenceField.approval_program,
+                CompiledReferenceField.clear_state_program,
+            )
+            for page in (0, 1)
+        ]
+        return ValueTuple(
+            values=program_pages
+            + [
+                CompiledContractReference(
+                    artifact=expr.contract,
+                    field=field,
+                    ir_type=IRType.uint64,
+                    source_location=expr.source_location,
+                    template_variables=template_variables,
+                )
+                for field in (
+                    CompiledReferenceField.extra_program_pages,
+                    CompiledReferenceField.global_uints,
+                    CompiledReferenceField.global_bytes,
+                    CompiledReferenceField.local_uints,
+                    CompiledReferenceField.local_bytes,
+                )
+            ],
+            source_location=expr.source_location,
+        )
+
+    def visit_compiled_logicsig(self, expr: awst_nodes.CompiledLogicSig) -> TExpression:
+        prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix
+        template_variables = {
+            prefix + k: self.visit_and_materialise_single(v)
+            for k, v in expr.template_variables.items()
+        }
+        return ValueTuple(
+            values=[
+                CompiledLogicSigReference(
+                    artifact=expr.logic_sig,
+                    ir_type=IRType.bytes,
+                    source_location=expr.source_location,
+                    template_variables=template_variables,
+                )
+            ],
+            source_location=expr.source_location,
+        )
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
         if self._itxn.handle_inner_transaction_field_assignments(stmt):  # noqa: SIM114
@@ -278,7 +341,7 @@ class FunctionIRBuilder(
         )
 
     def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> TExpression:
-        if not wtypes.valid_address(expr.value):
+        if not utils.valid_address(expr.value):
             # TODO: should this be here, or on IR model? there's pros and cons to each
             raise CodeError("invalid Algorand address", expr.source_location)
         return AddressConstant(

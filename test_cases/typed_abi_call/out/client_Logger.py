@@ -13,38 +13,38 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         value: algopy.arc4.String,
     ) -> algopy.arc4.String: ...
 
-    @algopy.arc4.abimethod(name='log')
-    def log_uint64(
+    @algopy.arc4.abimethod
+    def log(
         self,
         value: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod(name='log')
-    def log_uint512(
+    def log2(
         self,
         value: algopy.arc4.BigUIntN[typing.Literal[512]],
     ) -> None: ...
 
     @algopy.arc4.abimethod(name='log')
-    def log_string(
+    def log3(
         self,
         value: algopy.arc4.String,
     ) -> None: ...
 
     @algopy.arc4.abimethod(name='log')
-    def log_bool(
+    def log4(
         self,
         value: algopy.arc4.Bool,
     ) -> None: ...
 
     @algopy.arc4.abimethod(name='log')
-    def log_bytes(
+    def log5(
         self,
         value: algopy.arc4.DynamicBytes,
     ) -> None: ...
 
     @algopy.arc4.abimethod(name='log')
-    def log_asset_account_app(
+    def log6(
         self,
         asset: algopy.Asset,
         account: algopy.Account,

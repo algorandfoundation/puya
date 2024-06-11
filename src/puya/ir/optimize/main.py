@@ -5,11 +5,12 @@ from pathlib import Path
 import attrs
 
 from puya import log
-from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
+from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
+from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
@@ -22,7 +23,7 @@ from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimi
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
 
 MAX_PASSES = 100
-SubroutineOptimizerCallable = Callable[[CompileContext, models.Subroutine], bool]
+SubroutineOptimizerCallable = Callable[[IROptimizeContext, models.Subroutine], bool]
 logger = log.get_logger(__name__)
 
 
@@ -41,7 +42,7 @@ class SubroutineOptimization:
         func_desc = func_name.replace("_", " ").title()
         return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
 
-    def optimize(self, context: CompileContext, ir: models.Subroutine) -> bool:
+    def optimize(self, context: IROptimizeContext, ir: models.Subroutine) -> bool:
         did_modify = self._optimize(context, ir)
         if did_modify:
             while self.loop and self._optimize(context, ir):
@@ -57,6 +58,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(intrinsic_simplifier, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
+            SubroutineOptimization.from_function(replace_compiled_references),
             SubroutineOptimization.from_function(simplify_control_ops, loop=True),
             SubroutineOptimization.from_function(remove_linear_jump),
             SubroutineOptimization.from_function(remove_empty_blocks),
@@ -68,6 +70,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
+            SubroutineOptimization.from_function(replace_compiled_references),
         ]
 
 
@@ -97,7 +100,7 @@ def _split_parallel_copies(sub: models.Subroutine) -> None:
 
 
 def optimize_contract_ir(
-    context: CompileContext,
+    context: IROptimizeContext,
     artifact_ir: models.ModuleArtifact,
     output_ir_base_path: Path | None = None,
 ) -> models.ModuleArtifact:

@@ -8,7 +8,6 @@ from puya import log
 from puya.awst.nodes import (
     ContractFragment,
     ContractMethod,
-    ContractReference,
 )
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
@@ -24,6 +23,7 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4MethodConfig,
+    ContractReference,
     OnCompletionAction,
 )
 from puya.parse import SourceLocation

@@ -430,7 +430,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> Sequence[pytypes.PyTy
 
 def immediate_kind_to_type(kind: ImmediateKind) -> type[int | str]:
     match kind:
-        case ImmediateKind.uint8 | ImmediateKind.int8 | ImmediateKind.uint64:
+        case ImmediateKind.uint8 | ImmediateKind.int8 | ImmediateKind.varuint:
             return int
         case ImmediateKind.arg_enum:
             return str

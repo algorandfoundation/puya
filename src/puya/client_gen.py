@@ -34,7 +34,7 @@ class PuyaGenOptions:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="puya-gen",
+        prog="puyapy-clientgen",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description="Output algopy contract client for typed ARC4 ABI calls from an "
         "ARC32 application.json spec",
@@ -50,7 +50,7 @@ def output_stubs(paths: Sequence[Path]) -> None:
     try:
         app_spec_paths = resolve_app_specs(paths)
         for app_spec_path in app_spec_paths:
-            name, methods = _parse_app_spec_methods(app_spec_path)
+            name, methods = parse_app_spec_methods(app_spec_path)
             write_arc32_client(name, methods, app_spec_path.parent)
     except PuyaError as ex:
         logger.error(str(ex))  # noqa: TRY400
@@ -74,8 +74,9 @@ def resolve_app_specs(paths: Sequence[Path]) -> Sequence[Path]:
     return app_specs
 
 
-def _parse_app_spec_methods(path: Path) -> tuple[str, Sequence[ARC4Method]]:
-    app_spec = json.loads(path.read_text())
+def parse_app_spec_methods(path_or_str: Path | str) -> tuple[str, Sequence[ARC4Method]]:
+    app_spec_json = path_or_str.read_text() if isinstance(path_or_str, Path) else path_or_str
+    app_spec = json.loads(app_spec_json)
     contract = app_spec["contract"]
     hints = app_spec["hints"]
     contract_name = contract["name"]

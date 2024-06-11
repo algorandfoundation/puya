@@ -50,7 +50,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
     ):
         super().__init__(pytype, location)
         self.context = context
-        self._type_info = type_info
+        self.type_info = type_info
         self._cref = qualified_class_name(type_info)
 
     @typing.override
@@ -65,7 +65,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        node = resolve_member_node(self._type_info, name, location)
+        node = resolve_member_node(self.type_info, name, location)
         if node is None:
             return super().member_access(name, location)
         if symbol_node_is_function(node):
