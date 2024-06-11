@@ -617,8 +617,160 @@ class StaticArray(
         raise ValueError("ABI return prefix not found")
 
 
+class _DynamicArrayMeta(type(_ABIEncoded), typing.Generic[_TArrayItem, _TArrayLength]):  # type: ignore  # noqa: PGH003
+    __concrete__: typing.ClassVar[dict[type, type]] = {}
+
+    def __getitem__(cls, key_t: type[_TArrayItem]) -> type:
+        cache = cls.__concrete__
+        if c := cache.get(key_t, None):
+            return c
+
+        cache[key_t] = c = types.new_class(
+            f"{cls.__name__}[{key_t.__name__}]", (cls,), {}, lambda ns: ns.update(_t=key_t)
+        )
+        cache[key_t] = c = types.new_class(
+            f"{cls.__name__}[{key_t.__name__}]",
+            (cls,),
+            {},
+            lambda ns: ns.update(
+                _child_types=[],
+                _array_item_t=key_t,
+            ),
+        )
+        return c
+
+
+class DynamicArray(
+    _ABIEncoded,
+    typing.Generic[_TArrayItem],
+    Reversible[_TArrayItem],
+    metaclass=_DynamicArrayMeta,
+):
+    """A dynamically sized ARC4 Array of the specified type"""
+
+    _array_item_t: type[_TArrayItem]
+    _child_types: list[_TypeInfo]
+
+    _value: bytes
+
+    def __init__(self, *items: _TArrayItem):
+        self._value = self._encode_with_length(items)
+        if items:
+            self._array_item_t = type(items[0])
+            self._child_types = [self._get_type_info(item) for item in items]
+
+        # ensure these two variables are set as instance variables instead of class variables
+        # to avoid sharing state between instances created by copy operation
+        self._array_item_t = self._array_item_t
+        self._child_types = self._child_types or []
+
+    def _get_type_info(self, item: _TArrayItem) -> _TypeInfo:
+        return _TypeInfo(
+            self._array_item_t,
+            item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
+        )
+
+    def __iter__(self) -> typing.Iterator[_TArrayItem]:
+        """Returns an iterator for the items in the array"""
+        return iter(self._list())
+
+    def __reversed__(self) -> typing.Iterator[_TArrayItem]:
+        """Returns an iterator for the items in the array, in reverse order"""
+        return reversed(self._list())
+
+    @property
+    def length(self) -> algopy.UInt64:
+        """Returns the current length of the array"""
+        return algopy.UInt64(len(self._list()))
+
+    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem:
+        if isinstance(index, slice):
+            return self._list()[index][0]
+        return self._list()[index]
+
+    def append(self, item: _TArrayItem, /) -> None:
+        """Append items to this array"""
+        if not issubclass(type(item), self._array_item_t):
+            expected_type = self._array_item_t.__name__
+            actual_type = type(item).__name__
+            raise TypeError(f"item must be of type {expected_type!r}, not {actual_type!r}")
+        x = self._list()
+        x.append(item)
+        self._child_types.append(self._get_type_info(item))
+        self._value = self._encode_with_length(x)
+
+    def extend(self, other: Iterable[_TArrayItem], /) -> None:
+        """Extend this array with the contents of another array"""
+        if any(not issubclass(type(x), self._array_item_t) for x in other):
+            raise TypeError(f"items must be of type {self._array_item_t.__name__!r}")
+        x = self._list()
+        x.extend(other)
+        self._child_types.extend([self._get_type_info(x) for x in other])
+        self._value = self._encode_with_length(x)
+
+    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem:
+        if not issubclass(type(value), self._array_item_t):
+            expected_type = self._array_item_t.__name__
+            actual_type = type(value).__name__
+            raise TypeError(f"item must be of type {expected_type!r}, not {actual_type!r}")
+        x = self._list()
+        x[index] = value
+        self._value = self._encode_with_length(x)
+        return value
+
+    def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]:
+        self.extend(other)
+        return self
+
+    def pop(self) -> _TArrayItem:
+        """Remove and return the last item in the array"""
+        x = self._list()
+        item = x.pop()
+        self._child_types.pop()
+        self._value = self._encode_with_length(x)
+        return item
+
+    def copy(self) -> typing.Self:
+        """Create a copy of this array"""
+        return copy.deepcopy(self)
+
+    def __bool__(self) -> bool:
+        """Returns `True` if not an empty array"""
+        return bool(self._list())
+
+    def _list(self) -> list[_TArrayItem]:
+        length = int.from_bytes(self._value[:_ABI_LENGTH_SIZE])
+        self._child_types = self._child_types or []
+        self._child_types += [_TypeInfo(self._array_item_t)] * (length - len(self._child_types))
+        return _decode(self._value[_ABI_LENGTH_SIZE:], self._child_types)
+
+    def _encode_with_length(self, items: list[_TArrayItem] | tuple[_TArrayItem, ...]) -> bytes:
+        return len(items).to_bytes(_ABI_LENGTH_SIZE) + _encode(items)
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes (no validation)"""
+        value = as_bytes(value)
+        result = cls()
+        result._value = value  # noqa: SLF001
+        return result
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying Bytes"""
+        return algopy.Bytes(self._value)
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
+
+
 def _is_arc4_dynamic(value: object) -> bool:
-    if isinstance(value, StaticArray):
+    if isinstance(value, StaticArray | DynamicArray):
         return any(_is_arc4_dynamic(v) for v in value)
     return not isinstance(value, BigUFixedNxM | BigUIntN | UFixedNxM | UIntN | Bool)
 
@@ -630,7 +782,12 @@ def _is_arc4_dynamic_type(value: _TypeInfo) -> bool:
 
 
 def _find_bool(
-    values: StaticArray[typing.Any, typing.Any] | tuple[typing.Any, ...] | list[typing.Any],
+    values: (
+        StaticArray[typing.Any, typing.Any]
+        | DynamicArray[typing.Any]
+        | tuple[typing.Any, ...]
+        | list[typing.Any]
+    ),
     index: int,
     delta: int,
 ) -> int:
@@ -687,13 +844,21 @@ def _compress_multiple_bool(value_list: list[Bool]) -> int:
 
 
 def _encode(
-    values: StaticArray[typing.Any, typing.Any] | tuple[typing.Any, ...] | list[typing.Any],
+    values: (
+        StaticArray[typing.Any, typing.Any]
+        | DynamicArray[typing.Any]
+        | tuple[typing.Any, ...]
+        | list[typing.Any]
+    ),
 ) -> bytes:
     heads = []
     tails = []
     is_dynamic_index = []
     i = 0
     values_length = len(values) if isinstance(values, tuple | list) else values.length.value
+    values_length_bytes = (
+        int_to_bytes(values_length, _ABI_LENGTH_SIZE) if isinstance(values, DynamicArray) else b""
+    )
     while i < values_length:
         value = values[i]
         is_dynamic_index.append(_is_arc4_dynamic(value))
@@ -737,7 +902,7 @@ def _encode(
         tail_curr_length += len(tails[i])
 
     # Concatenate bytes
-    return b"".join(heads) + b"".join(tails)
+    return values_length_bytes + b"".join(heads) + b"".join(tails)
 
 
 def _decode(  # noqa: PLR0912, C901
@@ -806,7 +971,6 @@ def _decode(  # noqa: PLR0912, C901
     values = []
     for i, child_type in enumerate(child_types):
         val = child_type.value.from_bytes(value_partitions[i])  # type: ignore[attr-defined]
-        val._array_item_t = child_type.value  # noqa: SLF001
         val._child_types = child_type.child_types  # noqa: SLF001
         values.append(val)
     return values
