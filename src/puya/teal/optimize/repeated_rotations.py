@@ -36,7 +36,10 @@ def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
                 modified = modified or modified_
                 result.extend(maybe_simplified)
                 maybe_simplify = []
-            result.append(op)
+            if isinstance(op, models.Cover | models.Uncover):
+                maybe_simplify.append(op)
+            else:
+                result.append(op)
     if maybe_simplify:
         result.extend(maybe_simplify)
     block.ops = result
