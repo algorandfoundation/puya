@@ -82,10 +82,10 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter)
         typ = self.produces()
         wtype = typ.wtype
         match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as int_literal_builder]:
-                return int_literal_builder.resolve_literal(UIntNTypeBuilder(typ, location))
             case []:
                 expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
+            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as int_literal_builder]:
+                return int_literal_builder.resolve_literal(UIntNTypeBuilder(typ, location))
             case [
                 InstanceBuilder(
                     pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)

@@ -6,6 +6,7 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Decode,
     ARC4Encode,
     BytesConstant,
     BytesEncoding,
@@ -13,7 +14,6 @@ from puya.awst.nodes import (
     NewArray,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.arc4_utils import arc4_decode
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
@@ -85,12 +85,6 @@ def _coerce_to_byte(arg: NodeBuilder) -> Expression:
     match arg:
         case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
             return arg.resolve()
-        # case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
-        #     return ReinterpretCast(
-        #         expr=arg.resolve(),
-        #         wtype=wtypes.arc4_byte_alias,
-        #         source_location=arg.source_location,
-        #     )
         case _:
             raise CodeError("invalid argument type", arg.source_location)
 
@@ -103,7 +97,9 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
         match name:
             case "native":
                 return BytesExpressionBuilder(
-                    arc4_decode(self.resolve(), wtypes.bytes_wtype, location)
+                    ARC4Decode(
+                        value=self.resolve(), wtype=wtypes.bytes_wtype, source_location=location
+                    )
                 )
             case _:
                 return super().member_access(name, location)
