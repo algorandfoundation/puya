@@ -327,3 +327,54 @@ from algopy import *
 @subroutine
 def test_tuple_type() -> None:
     tuple[UInt64, Bytes]((UInt64(), Bytes())) # ## E: variadic tuples are not supported
+
+
+## case: template_value_too_big
+from algopy import Contract, TemplateVar, UInt64, Bytes, arc4
+
+class TooBig(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        pass
+
+    @arc4.abimethod
+    def big_uint64(self) -> UInt64:
+        return TemplateVar[UInt64]("UINT64")
+
+    @arc4.abimethod
+    def big_bytes(self) -> UInt64:
+        return TemplateVar[Bytes]("BYTES").length
+
+class TooBigFactory(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def create_too_big_int(self) -> None:
+        arc4.abi_call(TooBig.create, UINT64=2**64, BYTES=b"") ## E: invalid algopy.UInt64 value
+
+    @arc4.abimethod()
+    def create_too_big_bytes(self) -> None:
+        arc4.abi_call(TooBig.create, UINT64=0, BYTES=b" " * 4097) ## E: bytes constant exceeds max length
+
+
+## case: recursive_compile
+from algopy import *
+
+class Contract1(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.abi_call(Contract2.create) ## E: cyclical program reference: recursive_compile.Contract1 -> recursive_compile.Contract2 -> recursive_compile.Contract3 -> recursive_compile.Contract1
+
+class Contract2(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.abi_call(Contract3.create)
+
+
+class Contract3(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.abi_call(Contract1.create)

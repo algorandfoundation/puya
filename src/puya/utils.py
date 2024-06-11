@@ -1,3 +1,4 @@
+import base64
 import contextlib
 import functools
 import math
@@ -8,10 +9,102 @@ from pathlib import Path
 
 import attrs
 
+from puya.algo_constants import (
+    ADDRESS_CHECKSUM_LENGTH,
+    ENCODED_ADDRESS_LENGTH,
+    MAX_BYTES_LENGTH,
+    MAX_UINT64,
+    PUBLIC_KEY_HASH_LENGTH,
+)
+
 if typing.TYPE_CHECKING:
     from puya.options import PuyaOptions
 
 T_A = typing.TypeVar("T_A", bound=attrs.AttrsInstance)
+
+
+@attrs.frozen
+class Address:
+    address: str
+    public_key: bytes = b""
+    check_sum: bytes = b""
+    is_valid: bool = False
+
+    @classmethod
+    def from_public_key(cls, public_key: bytes) -> typing.Self:
+        check_sum = sha512_256_hash(public_key)[-ADDRESS_CHECKSUM_LENGTH:]
+        address_bytes = public_key + check_sum
+        address = base64.b32encode(address_bytes).decode("utf8").rstrip("=")
+        assert len(address) == ENCODED_ADDRESS_LENGTH
+        return cls(
+            address=address,
+            public_key=public_key,
+            check_sum=check_sum,
+            is_valid=True,
+        )
+
+    @classmethod
+    def parse(cls, address: str) -> typing.Self:
+        # Pad address so it's a valid b32 string
+        padded_address = address + (6 * "=")
+        if not (len(address) == ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)):
+            return cls(address)
+        address_bytes = base64.b32decode(padded_address)
+        if len(address_bytes) != PUBLIC_KEY_HASH_LENGTH + ADDRESS_CHECKSUM_LENGTH:
+            return cls(address)
+
+        public_key_hash = address_bytes[:PUBLIC_KEY_HASH_LENGTH]
+        check_sum = address_bytes[PUBLIC_KEY_HASH_LENGTH:]
+        verified_address = cls.from_public_key(public_key_hash)
+        return cls(
+            address=address,
+            public_key=public_key_hash,
+            check_sum=check_sum,
+            is_valid=verified_address.check_sum == check_sum,
+        )
+
+
+def valid_base32(s: str) -> bool:
+    """check if s is a valid base32 encoding string and fits into AVM bytes type"""
+    try:
+        value = base64.b32decode(s)
+    except ValueError:
+        return False
+    return valid_bytes(value)
+    # regex from PyTEAL, appears to be RFC-4648
+    # ^(?:[A-Z2-7]{8})*(?:([A-Z2-7]{2}([=]{6})?)|([A-Z2-7]{4}([=]{4})?)|([A-Z2-7]{5}([=]{3})?)|([A-Z2-7]{7}([=]{1})?))?  # noqa: E501
+
+
+def valid_base16(s: str) -> bool:
+    try:
+        value = base64.b16decode(s)
+    except ValueError:
+        return False
+    return valid_bytes(value)
+
+
+def valid_base64(s: str) -> bool:
+    """check if s is a valid base64 encoding string and fits into AVM bytes type"""
+    try:
+        value = base64.b64decode(s, validate=True)
+    except ValueError:
+        return False
+    return valid_bytes(value)
+    # regex from PyTEAL, appears to be RFC-4648
+    # ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
+
+
+def valid_bytes(value: bytes) -> bool:
+    return len(value) <= MAX_BYTES_LENGTH
+
+
+def valid_int64(value: int) -> bool:
+    return bool(0 <= value <= MAX_UINT64)
+
+
+def valid_address(address: str) -> bool:
+    """check if address is a valid address with checksum"""
+    return Address.parse(address).is_valid
 
 
 def sha512_256_hash(value: bytes) -> bytes:
@@ -29,9 +122,8 @@ def sha512_256_hash(value: bytes) -> bytes:
 def attrs_extend(
     new_type: type[T_A], base_instance: typing.Any, **changes: typing.Any  # noqa: ANN401
 ) -> T_A:
-    """Like attrs.evolve but allows creating a sub-type"""
+    """Like attrs.evolve but allows creating a related type"""
     base_type = type(base_instance)
-    assert issubclass(new_type, base_type)
     old_type_fields = attrs.fields_dict(base_type)
     new_type_fields = attrs.fields(new_type)
     for a in new_type_fields:

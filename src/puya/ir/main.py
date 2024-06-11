@@ -173,12 +173,14 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
         folded.approval_program,
         StableSet(*approval_subs_srefs, *ctx.embedded_funcs),
         on_create=folded.init,
+        id=f"{contract.module_name}.{contract.name}.approval",
     )
     clear_state_ir = _make_program(
         ctx,
         folded.clear_program,
         StableSet(*clear_subs_srefs, *ctx.embedded_funcs),
         on_create=None,
+        id=f"{contract.module_name}.{contract.name}.clear_state",
     )
     result = Contract(
         source_location=contract.source_location,
@@ -221,6 +223,7 @@ def _build_logic_sig_ir(
         logic_sig.program,
         StableSet(*program_sub_refs, *ctx.embedded_funcs),
         on_create=None,
+        id=f"{logic_sig.module_name}.{logic_sig.name}",
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
@@ -302,6 +305,7 @@ def _make_program(
     main: awst_nodes.Function,
     references: Iterable[awst_nodes.Function],
     on_create: awst_nodes.Function | None,
+    id: str,
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -322,6 +326,7 @@ def _make_program(
         on_create_sub = ctx.subroutines[on_create]
     FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub, on_create=on_create_sub)
     return Program(
+        id=id,
         main=main_sub,
         subroutines=[ctx.subroutines[ref] for ref in references],
     )

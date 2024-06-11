@@ -1,0 +1,134 @@
+#pragma version 10
+
+test_cases.compile.factory.HelloPrfx.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    // compile/factory.py:74
+    // class HelloPrfx(HelloBase):
+    txna ApplicationArgs 0
+    method "create()void"
+    method "delete()void"
+    method "greet(string)string"
+    uncover 3
+    match main_create_route@3 main_delete_route@4 main_greet_route@5
+    b main_switch_case_default@6
+
+main_create_route@3:
+    // compile/factory.py:79
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    callsub create
+    int 1
+    return
+
+main_delete_route@4:
+    // compile/factory.py:28
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    int DeleteApplication
+    ==
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID
+    assert // is not creating
+    callsub delete
+    int 1
+    return
+
+main_greet_route@5:
+    // compile/factory.py:32
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // compile/factory.py:74
+    // class HelloPrfx(HelloBase):
+    txna ApplicationArgs 1
+    extract 2 0
+    // compile/factory.py:32
+    // @arc4.abimethod()
+    callsub greet
+    dup
+    len
+    itob
+    extract 6 2
+    uncover 1
+    concat
+    byte 0x151f7c75
+    uncover 1
+    concat
+    log
+    int 1
+    return
+
+main_switch_case_default@6:
+    // compile/factory.py:74
+    // class HelloPrfx(HelloBase):
+    err // reject transaction
+
+
+// test_cases.compile.factory.HelloPrfx.create() -> void:
+create:
+    // compile/factory.py:79-80
+    // @arc4.abimethod(create="require")
+    // def create(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.factory.HelloBase.delete() -> void:
+delete:
+    // compile/factory.py:28-29
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // def delete(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.factory.HelloBase.greet(name: bytes) -> bytes:
+greet:
+    // compile/factory.py:32-33
+    // @arc4.abimethod()
+    // def greet(self, name: String) -> String:
+    proto 1 1
+    // compile/factory.py:34
+    // return self.greeting + " " + name
+    int 0
+    // compile/factory.py:26
+    // self.greeting = String()
+    byte "greeting"
+    // compile/factory.py:34
+    // return self.greeting + " " + name
+    app_global_get_ex
+    assert // check self.greeting exists
+    byte " "
+    concat
+    frame_dig -1
+    concat
+    retsub
+
+
+// test_cases.compile.factory.HelloPrfx.__init__() -> void:
+__init__:
+    // compile/factory.py:76
+    // def __init__(self) -> None:
+    proto 0 0
+    // compile/factory.py:26
+    // self.greeting = String()
+    byte "greeting"
+    // compile/factory.py:77
+    // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
+    byte PRFX_GREETING
+    app_global_put
+    retsub

@@ -373,6 +373,9 @@ class ToCodeVisitor(
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:
         return f'Address("{expr.value}")'
 
+    def visit_compiled_reference(self, expr: nodes.CompiledReference) -> str:
+        return f"compiled({expr.artifact!r}, field={expr.field.name})"
+
     def visit_conditional_expression(self, expr: nodes.ConditionalExpression) -> str:
         condition = expr.condition.accept(self)
         true = expr.true_expr.accept(self)

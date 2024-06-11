@@ -1,6 +1,6 @@
 import enum
 
-from puya.models import OnCompletionAction
+from puya.models import OnCompletionAction, TransactionType
 
 ALGOPY_PREFIX = "algopy."
 ARC4_PREFIX = f"{ALGOPY_PREFIX}arc4."
@@ -41,6 +41,7 @@ CLS_BOX_REF_PROXY_ALIAS = f"{ALGOPY_PREFIX}BoxRef"
 CLS_BOX_MAP_PROXY = f"{ALGOPY_PREFIX}_box.BoxMap"
 CLS_BOX_MAP_PROXY_ALIAS = f"{ALGOPY_PREFIX}BoxMap"
 SUBROUTINE_HINT = f"{ALGOPY_PREFIX}_hints.subroutine"
+LOGICSIG = f"{ALGOPY_PREFIX}_logic_sig.LogicSig"
 LOGICSIG_DECORATOR = f"{ALGOPY_PREFIX}_logic_sig.logicsig"
 LOGICSIG_DECORATOR_ALIAS = f"{ALGOPY_PREFIX}.logicsig"
 SUBROUTINE_HINT_ALIAS = f"{ALGOPY_PREFIX}subroutine"
@@ -55,6 +56,9 @@ CLEAR_STATE_METHOD = "clear_state_program"
 ALGOPY_OP_PREFIX = f"{ALGOPY_PREFIX}op."
 URANGE = f"{ALGOPY_PREFIX}_unsigned_builtins.urange"
 UENUMERATE = f"{ALGOPY_PREFIX}_unsigned_builtins.uenumerate"
+GET_LOGICSIG_ACCOUNT = f"{ALGOPY_PREFIX}_compiled.get_logicsig_account"
+GET_APPROVAL_PROGRAM = f"{ALGOPY_PREFIX}_compiled.get_approval_program"
+GET_CLEAR_STATE_PROGRAM = f"{ALGOPY_PREFIX}_compiled.get_clear_state_program"
 ENSURE_BUDGET = f"{ALGOPY_PREFIX}_util.ensure_budget"
 LOG = f"{ALGOPY_PREFIX}_util.log"
 EMIT = f"{ARC4_PREFIX}emit"
@@ -93,16 +97,6 @@ KNOWN_METHOD_DECORATORS = [
     ABIMETHOD_DECORATOR,
     BAREMETHOD_DECORATOR,
 ]
-
-
-# values and names are matched to AVM definitions
-class TransactionType(enum.IntEnum):
-    pay = 1
-    keyreg = 2
-    acfg = 3
-    axfer = 4
-    afrz = 5
-    appl = 6
 
 
 class _TransactionTypeNames:

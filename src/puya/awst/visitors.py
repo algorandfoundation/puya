@@ -110,6 +110,9 @@ class ExpressionVisitor(t.Generic[T], ABC):
     def visit_address_constant(self, expr: puya.awst.nodes.AddressConstant) -> T: ...
 
     @abstractmethod
+    def visit_compiled_reference(self, expr: puya.awst.nodes.CompiledReference) -> T: ...
+
+    @abstractmethod
     def visit_numeric_comparison_expression(
         self, expr: puya.awst.nodes.NumericComparisonExpression
     ) -> T: ...

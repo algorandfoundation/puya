@@ -15,7 +15,7 @@ from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig
+from puya.models import ARC4MethodConfig, CompiledReferenceField
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
@@ -324,6 +324,47 @@ class StringConstant(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)
+
+
+@attrs.frozen
+class CompiledReference(Expression):
+    artifact: str
+    """Contract or logic sig fullname"""
+    field: CompiledReferenceField
+    program_page: int = 0
+    prefix: str | None = None
+    template_variables: Mapping[str, bytes | int] = attrs.field(
+        converter=immutabledict, factory=immutabledict
+    )
+
+    @classmethod
+    def pages_tuple(
+        cls,
+        *,
+        artifact: str,
+        field: CompiledReferenceField,
+        prefix: str | None,
+        template_variables: Mapping[str, bytes | int],
+        source_location: SourceLocation,
+    ) -> "TupleExpression":
+        return TupleExpression.from_items(
+            [
+                CompiledReference(
+                    wtype=wtypes.bytes_wtype,
+                    artifact=artifact,
+                    field=field,
+                    program_page=page,
+                    prefix=prefix,
+                    template_variables=template_variables,
+                    source_location=source_location,
+                )
+                for page in (0, 1)
+            ],
+            source_location,
+        )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_compiled_reference(self)
 
 
 @attrs.frozen

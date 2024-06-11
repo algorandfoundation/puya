@@ -13,6 +13,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
+from puya.models import TransactionType
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -769,14 +770,14 @@ GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
 @attrs.frozen
 class TransactionRelatedType(PyType):
     wtype: wtypes.WType
-    transaction_type: constants.TransactionType | None
+    transaction_type: TransactionType | None
     """None implies "any" type"""
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
 
 
-def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
+def _make_gtxn_type(kind: TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         cls_name = "Transaction"
     else:
@@ -791,7 +792,7 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelate
     )
 
 
-def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
+def _make_itxn_fieldset_type(kind: TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         cls_name = "InnerTransaction"
     else:
@@ -804,7 +805,7 @@ def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> Transact
     )
 
 
-def _make_itxn_result_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
+def _make_itxn_result_type(kind: TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         cls_name = "InnerTransactionResult"
     else:
@@ -817,27 +818,27 @@ def _make_itxn_result_type(kind: constants.TransactionType | None) -> Transactio
     )
 
 
-_TXN_TYPE_NAMES: typing.Final[Mapping[constants.TransactionType, str]] = {
-    constants.TransactionType.pay: "Payment",
-    constants.TransactionType.keyreg: "KeyRegistration",
-    constants.TransactionType.acfg: "AssetConfig",
-    constants.TransactionType.axfer: "AssetTransfer",
-    constants.TransactionType.afrz: "AssetFreeze",
-    constants.TransactionType.appl: "ApplicationCall",
+_TXN_TYPE_NAMES: typing.Final[Mapping[TransactionType, str]] = {
+    TransactionType.pay: "Payment",
+    TransactionType.keyreg: "KeyRegistration",
+    TransactionType.acfg: "AssetConfig",
+    TransactionType.axfer: "AssetTransfer",
+    TransactionType.afrz: "AssetFreeze",
+    TransactionType.appl: "ApplicationCall",
 }
 
-_all_txn_kinds: typing.Final[Sequence[constants.TransactionType | None]] = [
+_all_txn_kinds: typing.Final[Sequence[TransactionType | None]] = [
     None,
-    *constants.TransactionType,
+    *TransactionType,
 ]
-GroupTransactionTypes: typing.Final[
-    Mapping[constants.TransactionType | None, TransactionRelatedType]
-] = {kind: _make_gtxn_type(kind) for kind in _all_txn_kinds}
+GroupTransactionTypes: typing.Final[Mapping[TransactionType | None, TransactionRelatedType]] = {
+    kind: _make_gtxn_type(kind) for kind in _all_txn_kinds
+}
 InnerTransactionFieldsetTypes: typing.Final[
-    Mapping[constants.TransactionType | None, TransactionRelatedType]
+    Mapping[TransactionType | None, TransactionRelatedType]
 ] = {kind: _make_itxn_fieldset_type(kind) for kind in _all_txn_kinds}
 InnerTransactionResultTypes: typing.Final[
-    Mapping[constants.TransactionType | None, TransactionRelatedType]
+    Mapping[TransactionType | None, TransactionRelatedType]
 ] = {kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds}
 
 

@@ -521,6 +521,8 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
+        prefix: str = ...,
+        **template_vars: int | bytes,
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
 
 class _ABICallProtocolType(typing.Protocol):
@@ -543,6 +545,8 @@ class _ABICallProtocolType(typing.Protocol):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
+        prefix: str = ...,
+        **template_vars: int | bytes,
     ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
     @typing.overload
     def __call__(  # type: ignore[misc]
@@ -561,8 +565,10 @@ class _ABICallProtocolType(typing.Protocol):
         extra_program_pages: UInt64 | int = ...,
         fee: algopy.UInt64 | int = 0,
         sender: algopy.Account | str = ...,
-        note: algopy.Bytes | bytes | str = ...,
+        note: algopy.Bytes | algopy.String | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
+        prefix: str = ...,
+        **template_vars: int | bytes,
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
     def __getitem__(
         self, _: type[_TABIResult_co]
@@ -571,6 +577,32 @@ class _ABICallProtocolType(typing.Protocol):
 abi_call: _ABICallProtocolType = ...
 """Provides a typesafe way of calling ARC4 methods via an inner transaction
 
+:param method: Either the name, method selector or Algorand Python method to call
+:param app_id: Application to call, if 0 or not specified will create a new application
+:param on_completion: OnCompleteAction value for the transaction
+                      If not specified will be inferred from Algorand Python method where possible
+:param approval_program: When creating or updating an application, the approval program.
+                         Will be automatically inferred if referencing an Algorand Python method
+:param clear_state_program: When creating or updating an application, the clear state program.
+                            Will be automatically inferred if referencing an Algorand Python method
+:param global_num_uint: When creating an application the number of global uints
+                        Will be automatically inferred if referencing an Algorand Python method
+:param global_num_bytes: When creating an application the number of global bytes
+                         Will be automatically inferred if referencing an Algorand Python method
+:param local_num_uint: When creating an application the number of local uints
+                       Will be automatically inferred if referencing an Algorand Python method
+:param local_num_bytes: When creating an application the number of local bytes
+                        Will be automatically inferred if referencing an Algorand Python method
+:param extra_program_pages: When creating an application the The number of extra program pages
+                            Will be automatically inferred if referencing an Algorand Python method
+:param fee: The fee to pay for the transaction, defaults to 0
+:param sender: The sender address for the transaction
+:param note: Note to include with the transaction
+:param rekey_to: Account to rekey to
+:param prefix: Prefix to add to provided template vars,
+               defaults to the prefix supplied on command line
+:param template_vars: Template variables to substitute into the logic signature,
+                      without the prefix
 Examples:
 ```
 # can reference another algopy contract method

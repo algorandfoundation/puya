@@ -131,6 +131,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     func_def,
                     source_location,
                 )
+                ctx.register_pytype(pytypes.LogicSigType, alias=program.full_name)
                 return LogicSignature(
                     module_name=ctx.module_name,
                     program=program,

@@ -5,16 +5,16 @@ from puya.context import CompileContext
 from puya.ir import models as ir
 from puya.mir import models
 from puya.mir.builder import MemoryIRBuilder
-from puya.mir.context import ProgramCodeGenContext
+from puya.mir.context import ProgramMIRContext
 from puya.mir.output import output_memory_ir
 from puya.mir.stack_allocation import global_stack_allocation
 from puya.utils import attrs_extend
 
 
 def program_ir_to_mir(
-    context: CompileContext, program_ir: ir.Program, mir_output_path: Path
+    context: CompileContext, program_ir: ir.Program, mir_output_path: Path | None
 ) -> models.Program:
-    ctx = attrs_extend(ProgramCodeGenContext, context, program=program_ir)
+    ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
 
     result = models.Program(
         main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True),
@@ -27,13 +27,13 @@ def program_ir_to_mir(
         sub_ctx = ctx.for_subroutine(mir_sub)
         global_stack_allocation(sub_ctx)
 
-    if context.options.output_memory_ir:
+    if context.options.output_memory_ir and mir_output_path:
         output_memory_ir(context, program_ir, result, mir_output_path)
     return result
 
 
 def _lower_subroutine_to_mir(
-    context: ProgramCodeGenContext, subroutine: ir.Subroutine, *, is_main: bool
+    context: ProgramMIRContext, subroutine: ir.Subroutine, *, is_main: bool
 ) -> models.MemorySubroutine:
     builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
     body = [

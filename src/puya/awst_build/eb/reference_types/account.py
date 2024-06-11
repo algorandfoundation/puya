@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya import log
+from puya import log, utils
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -45,7 +45,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
     ) -> InstanceBuilder | None:
         match literal.value:
             case str(str_value):
-                if not wtypes.valid_address(str_value):
+                if not utils.valid_address(str_value):
                     logger.error(
                         "invalid address value - should have length"
                         f" {ENCODED_ADDRESS_LENGTH} and not include base32 padding",

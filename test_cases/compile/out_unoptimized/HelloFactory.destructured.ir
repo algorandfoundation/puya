@@ -1,0 +1,560 @@
+contract test_cases.compile.factory.HelloFactory:
+    program approval:
+        subroutine test_cases.compile.factory.HelloFactory.approval_program() -> bool:
+            block@0: // L84
+                let tmp%0#0: bool = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@13
+            block@1: // abi_routing_L84
+                let tmp%1#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%1#0 {method "test_logicsig()address" => block@2, method "test_get_program()void" => block@3, method "test_get_program_tmpl()void" => block@4, method "test_get_program_prfx()void" => block@5, method "test_get_program_large()void" => block@6, method "test_abi_call()void" => block@7, method "test_abi_call_tmpl()void" => block@8, method "test_abi_call_prfx()void" => block@9, method "test_abi_call_large()void" => block@10, * => block@11}
+            block@2: // test_logicsig_route_L86
+                let tmp%2#0: uint64 = (txn OnCompletion)
+                let tmp%3#0: bool = (== tmp%2#0 NoOp)
+                (assert tmp%3#0) // OnCompletion is NoOp
+                let tmp%4#0: bool = (txn ApplicationID)
+                (assert tmp%4#0) // is not creating
+                let tmp%5#0: bytes = test_cases.compile.factory.HelloFactory.test_logicsig()
+                let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
+                (log tmp%6#0)
+                return 1u
+            block@3: // test_get_program_route_L90
+                let tmp%7#0: uint64 = (txn OnCompletion)
+                let tmp%8#0: bool = (== tmp%7#0 NoOp)
+                (assert tmp%8#0) // OnCompletion is NoOp
+                let tmp%9#0: bool = (txn ApplicationID)
+                (assert tmp%9#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_get_program()
+                return 1u
+            block@4: // test_get_program_tmpl_route_L120
+                let tmp%10#0: uint64 = (txn OnCompletion)
+                let tmp%11#0: bool = (== tmp%10#0 NoOp)
+                (assert tmp%11#0) // OnCompletion is NoOp
+                let tmp%12#0: bool = (txn ApplicationID)
+                (assert tmp%12#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_get_program_tmpl()
+                return 1u
+            block@5: // test_get_program_prfx_route_L150
+                let tmp%13#0: uint64 = (txn OnCompletion)
+                let tmp%14#0: bool = (== tmp%13#0 NoOp)
+                (assert tmp%14#0) // OnCompletion is NoOp
+                let tmp%15#0: bool = (txn ApplicationID)
+                (assert tmp%15#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_get_program_prfx()
+                return 1u
+            block@6: // test_get_program_large_route_L180
+                let tmp%16#0: uint64 = (txn OnCompletion)
+                let tmp%17#0: bool = (== tmp%16#0 NoOp)
+                (assert tmp%17#0) // OnCompletion is NoOp
+                let tmp%18#0: bool = (txn ApplicationID)
+                (assert tmp%18#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_get_program_large()
+                return 1u
+            block@7: // test_abi_call_route_L211
+                let tmp%19#0: uint64 = (txn OnCompletion)
+                let tmp%20#0: bool = (== tmp%19#0 NoOp)
+                (assert tmp%20#0) // OnCompletion is NoOp
+                let tmp%21#0: bool = (txn ApplicationID)
+                (assert tmp%21#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_abi_call()
+                return 1u
+            block@8: // test_abi_call_tmpl_route_L233
+                let tmp%22#0: uint64 = (txn OnCompletion)
+                let tmp%23#0: bool = (== tmp%22#0 NoOp)
+                (assert tmp%23#0) // OnCompletion is NoOp
+                let tmp%24#0: bool = (txn ApplicationID)
+                (assert tmp%24#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_abi_call_tmpl()
+                return 1u
+            block@9: // test_abi_call_prfx_route_L253
+                let tmp%25#0: uint64 = (txn OnCompletion)
+                let tmp%26#0: bool = (== tmp%25#0 NoOp)
+                (assert tmp%26#0) // OnCompletion is NoOp
+                let tmp%27#0: bool = (txn ApplicationID)
+                (assert tmp%27#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_abi_call_prfx()
+                return 1u
+            block@10: // test_abi_call_large_route_L274
+                let tmp%28#0: uint64 = (txn OnCompletion)
+                let tmp%29#0: bool = (== tmp%28#0 NoOp)
+                (assert tmp%29#0) // OnCompletion is NoOp
+                let tmp%30#0: bool = (txn ApplicationID)
+                (assert tmp%30#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_abi_call_large()
+                return 1u
+            block@11: // switch_case_default_L84
+                goto block@12
+            block@12: // switch_case_next_L84
+                fail // reject transaction
+            block@13: // bare_routing_L84
+                let tmp%31#0: uint64 = (txn OnCompletion)
+                switch tmp%31#0 {0u => block@14, * => block@15}
+            block@14: // create_L84
+                let tmp%32#0: bool = (txn ApplicationID)
+                let tmp%33#0: bool = (! tmp%32#0)
+                (assert tmp%33#0) // is creating
+                return 1u
+            block@15: // reject_bare_on_completion_L84
+                fail // reject transaction
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes:
+            block@0: // L86
+                let tmp%0#0: uint64 = (len addr U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSVWQOKFM)
+                let tmp%1#0: bool = (== 32u tmp%0#0)
+                let check%0#0: bool = tmp%1#0
+                (assert check%0#0) // Address length is 32 bytes
+                return addr U3ZXEUNFRSUDPPNFC6U7OBYO4S4AUOEP4RDBI23L2Q5TX3K5LTSVWQOKFM
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_get_program() -> void:
+            block@0: // L90
+                itxn_begin
+                let length%0#0: uint64 = (len "hello")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hello")
+                let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiACFNhoAggMEIN86VAQkN408BNCiggBPA44DAAMAFwAlQgBIMRkiEkQxGBRENhoBVwIAiAA3I0MxGYEFEkQxGESIADEjQzEZIhJEMRhENhoBVwIAiAAiSRUWVwYCTwFQgAQVH3x1TwFQsCNDAIoBACiL/2eJigAAiYoBASIoZUSAASBQi/9QiYoAACiAAGeJ)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create(string)void")
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L94
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%1#0: uint64 = (len "world")
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "world")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L104
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%0#0: bytes = txn.LastLog#0
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = value%0#0
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L111
+                itxn_submit
+                let length%2#0: uint64 = (len "hello world")
+                let as_bytes%2#0: bytes = (itob length%2#0)
+                let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+                let encoded_value%2#0: bytes = (concat length_uint16%2#0 "hello world")
+                let tmp%3#0: bool = (== result#0 encoded_value%2#0)
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_get_program_tmpl() -> void:
+            block@0: // L120
+                itxn_begin
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiAB7NhoAggMETFxhugQkN408BNCiggBPA44DAAMAEQAfQgBCMRkiEkQxGBREiAA3I0MxGYEFEkQxGESIAC0jQzEZIhJEMRhENhoBVwIAiAAeSRUWVwYCTwFQgAQVH3x1TwFQsCNDAIoAAImKAACJigEBIihlRIABIFCL/1CJigAAKIADaGV5Z4k=)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L124
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%0#0: uint64 = (len "world")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L134
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%0#0: bytes = txn.LastLog#0
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = value%0#0
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L141
+                itxn_submit
+                let length%1#0: uint64 = (len "hey world")
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "hey world")
+                let tmp%3#0: bool = (== result#0 encoded_value%1#0)
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_get_program_prfx() -> void:
+            block@0: // L150
+                itxn_begin
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiAB7NhoAggMETFxhugQkN408BNCiggBPA44DAAMAEQAfQgBCMRkiEkQxGBREiAA3I0MxGYEFEkQxGESIAC0jQzEZIhJEMRhENhoBVwIAiAAeSRUWVwYCTwFQgAQVH3x1TwFQsCNDAIoAAImKAACJigEBIihlRIABIFCL/1CJigAAKIACaGlniQ==)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L154
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%0#0: uint64 = (len "world")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L164
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%0#0: bytes = txn.LastLog#0
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = value%0#0
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L171
+                itxn_submit
+                let length%1#0: uint64 = (len "hi world")
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "hi world")
+                let tmp%3#0: bool = (== result#0 encoded_value%1#0)
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_get_program_large() -> void:
+            block@0: // L180
+                itxn_begin
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field ExtraProgramPages) 3u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAQA2GgCCAwT15P1NBExcYboEJDeNPE8DjgMAAwAbAClCADQxGSMSRDEYRIgAKhaABBUffHVPAVCwIkMxGSMSRDEYFESIECAiQzEZgQUSRDEYRIgQFiJDAIoAAYgAAhWJigABgIAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==)
+                ((itxn_field ApprovalProgramPages) AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiYoAAImKAACJ)
+                ((itxn_field ApplicationArgs) method "create()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L184
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "get_big_bytes_length()uint64")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L195
+                itxn_submit
+                let txn.LastLog#0: bytes = (itxn LastLog)
+                let awst_tmp%0#0: bytes = txn.LastLog#0
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = value%0#0
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L202
+                itxn_submit
+                let reinterpret_biguint%0#0: biguint = result#0
+                let tmp%3#0: bool = (b== reinterpret_biguint%0#0 0x0000000000001000)
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_abi_call() -> void:
+            block@0: // L211
+                itxn_begin
+                let length%0#0: uint64 = (len "hello")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hello")
+                let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                ((itxn_field ExtraProgramPages) 0u)
+                ((itxn_field LocalNumByteSlice) 0u)
+                ((itxn_field LocalNumUint) 0u)
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field GlobalNumUint) 0u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiACFNhoAggMEIN86VAQkN408BNCiggBPA44DAAMAFwAlQgBIMRkiEkQxGBRENhoBVwIAiAA3I0MxGYEFEkQxGESIADEjQzEZIhJEMRhENhoBVwIAiAAiSRUWVwYCTwFQgAQVH3x1TwFQsCNDAIoBACiL/2eJigAAiYoBASIoZUSAASBQi/9QiYoAACiAAGeJ)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create(string)void")
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L213
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%1#0: uint64 = (len "world")
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "world")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L221
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = ((extract 2 0) value%0#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L224
+                itxn_submit
+                let tmp%3#0: bool = (== result#0 "hello world")
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_abi_call_tmpl() -> void:
+            block@0: // L233
+                itxn_begin
+                ((itxn_field ExtraProgramPages) 0u)
+                ((itxn_field LocalNumByteSlice) 0u)
+                ((itxn_field LocalNumUint) 0u)
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field GlobalNumUint) 0u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiAB7NhoAggMETFxhugQkN408BNCiggBPA44DAAMAEQAfQgBCMRkiEkQxGBREiAA3I0MxGYEFEkQxGESIAC0jQzEZIhJEMRhENhoBVwIAiAAeSRUWVwYCTwFQgAQVH3x1TwFQsCNDAIoAAImKAACJigEBIihlRIABIFCL/1CJigAAKIAFdG1wbDJniQ==)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L235
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%0#0: uint64 = (len "world")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L241
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = ((extract 2 0) value%0#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L244
+                itxn_submit
+                let tmp%3#0: bool = (== result#0 "tmpl2 world")
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_abi_call_prfx() -> void:
+            block@0: // L253
+                itxn_begin
+                ((itxn_field ExtraProgramPages) 0u)
+                ((itxn_field LocalNumByteSlice) 0u)
+                ((itxn_field LocalNumUint) 0u)
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field GlobalNumUint) 0u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiAB7NhoAggMETFxhugQkN408BNCiggBPA44DAAMAEQAfQgBCMRkiEkQxGBREiAA3I0MxGYEFEkQxGESIAC0jQzEZIhJEMRhENhoBVwIAiAAeSRUWVwYCTwFQgAQVH3x1TwFQsCNDAIoAAImKAACJigEBIihlRIABIFCL/1CJigAAKIAFcHJmeDJniQ==)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L255
+                itxn_submit
+                let hello_app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%0#0: uint64 = (len "world")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "world")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L262
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: bytes = ((extract 2 0) value%0#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = hello_app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L265
+                itxn_submit
+                let tmp%3#0: bool = (== result#0 "prfx2 world")
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_abi_call_large() -> void:
+            block@0: // L274
+                itxn_begin
+                ((itxn_field ExtraProgramPages) 2u)
+                ((itxn_field LocalNumByteSlice) 0u)
+                ((itxn_field LocalNumUint) 0u)
+                ((itxn_field GlobalNumByteSlice) 0u)
+                ((itxn_field GlobalNumUint) 0u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAQA2GgCCAwT15P1NBExcYboEJDeNPE8DjgMAAwAbAClCADQxGSMSRDEYRIgAKhaABBUffHVPAVCwIkMxGSMSRDEYFESIECAiQzEZgQUSRDEYRIgQFiJDAIoAAYgAAhWJigABgIAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==)
+                ((itxn_field ApprovalProgramPages) AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiYoAAImKAACJ)
+                ((itxn_field ApplicationArgs) method "create()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L276
+                itxn_submit
+                let app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "get_big_bytes_length()uint64")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L281
+                itxn_submit
+                let awst_tmp%1#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%1#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%1#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                let value%0#0: bytes = tmp%0#0
+                let check%0#0: bool = tmp%2#0
+                (assert check%0#0) // ARC4 prefix is valid
+                let result#0: uint64 = (btoi value%0#0)
+                let tmp%3#0: bool = (== result#0 4096u)
+                (assert tmp%3#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L285
+                itxn_submit
+                return 
+    
+    program clear-state:
+        subroutine test_cases.compile.factory.HelloFactory.clear_state_program() -> bool:
+            block@0: // L84
+                return 1u

@@ -73,7 +73,12 @@ class IntrinsicSimplifier(IRMutator):
                     if assert_cond_maybe_simplified is not None:
                         self.modified += 1
                         return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
-
+            case Intrinsic(
+                op=AVMOp.itxn_field,
+                immediates=["ApprovalProgramPages" | "ClearStateProgramPages"],
+                args=[models.BytesConstant(value=b"")],
+            ):
+                return None
             case _:
                 simplified = _try_convert_stack_args_to_immediates(intrinsic)
                 if simplified is not None:

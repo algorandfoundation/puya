@@ -31,6 +31,9 @@ class IRVisitor(t.Generic[T], ABC):
     def visit_bytes_constant(self, const: puya.ir.models.BytesConstant) -> T: ...
 
     @abstractmethod
+    def visit_compiled_reference(self, const: puya.ir.models.CompiledReference) -> T: ...
+
+    @abstractmethod
     def visit_address_constant(self, const: puya.ir.models.AddressConstant) -> T: ...
 
     @abstractmethod
@@ -122,6 +125,9 @@ class IRTraverser(IRVisitor[None]):
     def visit_method_constant(self, const: puya.ir.models.MethodConstant) -> None:
         pass
 
+    def visit_compiled_reference(self, const: puya.ir.models.CompiledReference) -> None:
+        pass
+
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> None:
         pass
 
@@ -201,6 +207,9 @@ class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
         return None
 
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> T | None:
+        return None
+
+    def visit_compiled_reference(self, const: puya.ir.models.CompiledReference) -> T | None:
         return None
 
     def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:

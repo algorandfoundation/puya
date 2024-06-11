@@ -1,5 +1,4 @@
 import functools
-import tempfile
 import typing
 from collections.abc import Iterable
 from pathlib import Path
@@ -8,18 +7,16 @@ import attrs
 from puya.awst.nodes import Module
 from puya.awst_build.main import output_awst, transform_ast
 from puya.compile import (
-    module_irs_to_teal,
-    optimize_and_destructure_module_irs,
+    awst_to_teal,
     parse_with_mypy,
     write_artifacts,
 )
 from puya.context import CompileContext
 from puya.errors import CodeError
-from puya.ir.main import build_module_irs
-from puya.log import Log, LoggingContext, LogLevel, logging_context
+from puya.log import Log, LogLevel, logging_context
 from puya.models import CompilationArtifact
 from puya.options import PuyaOptions
-from puya.parse import ParseResult, ParseSource, SourceLocation, get_parse_sources
+from puya.parse import ParseResult, SourceLocation, get_parse_sources
 from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
@@ -70,14 +67,11 @@ class CompilationResult:
     context: CompileContext
     module_awst: dict[str, Module]
     logs: list[Log]
-    teal: dict[ParseSource, list[CompilationArtifact]]
-    output_files: dict[Path, str]
+    teal: dict[Path, list[CompilationArtifact]]
     src_path: Path
     """original source path"""
     root_dir: Path
     """examples or test_cases path"""
-    tmp_dir: Path
-    """tmp path used during compilation"""
 
 
 def narrow_sources(parse_result: ParseResult, src_path: Path) -> ParseResult:
@@ -125,27 +119,20 @@ def _get_log_errors(logs: Iterable[Log]) -> str:
     return "\n".join(str(log) for log in logs if log.level == LogLevel.error)
 
 
-def awst_to_teal(
-    log_ctx: LoggingContext,
-    context: CompileContext,
-    module_asts: dict[str, Module],
-) -> dict[ParseSource, list[CompilationArtifact]] | None:
-    if log_ctx.num_errors:
-        return None
-    module_irs = build_module_irs(context, module_asts)
-    if log_ctx.num_errors:
-        return None
-    module_irs_destructured = optimize_and_destructure_module_irs(context, module_irs)
-    if log_ctx.num_errors:
-        return None
-    compiled_contracts = module_irs_to_teal(context, module_irs_destructured)
-    if log_ctx.num_errors:
-        return None
-    return compiled_contracts
+def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> CompilationResult:
+    return compile_src_from_options(
+        PuyaOptions(
+            paths=(path,),
+            optimization_level=optimization_level,
+            debug_level=debug_level,
+            output_arc32=False,
+            output_teal=False,
+        )
+    )
 
 
-@functools.cache
-def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> CompilationResult:
+def compile_src_from_options(options: PuyaOptions) -> CompilationResult:
+    (src_path,) = options.paths
     root_dir = _get_root_dir(src_path)
     context, awst, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
@@ -154,52 +141,61 @@ def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> Co
     if awst_errors:
         raise CodeError(awst_errors)
     # create a new context from cache and specified src
-    with tempfile.TemporaryDirectory() as tmp_dir_, logging_context() as log_ctx:
-        tmp_dir = Path(tmp_dir_)
+    with logging_context() as log_ctx:
         context = attrs.evolve(
             context,
+            options=options,
             parse_result=narrow_sources(context.parse_result, src_path),
-            options=PuyaOptions(
-                paths=(src_path,),
-                optimization_level=optimization_level,
-                debug_level=debug_level,
-                output_teal=True,
-                output_awst=True,
-                output_destructured_ir=True,
-                output_arc32=True,
-                output_ssa_ir=optimization_level < 2,
-                output_optimization_ir=optimization_level < 2,
-                output_memory_ir=True,
-                output_client=True,
-                out_dir=tmp_dir,
-            ),
         )
 
         with pushd(root_dir):
             # write AWST
-            sources = tuple(str(s.path) for s in context.parse_result.sources)
-            for module in awst.values():
-                if module.source_file_path.startswith(sources):
-                    output_awst(module, context.options)
+            if options.output_awst:
+                sources = tuple(str(s.path) for s in context.parse_result.sources)
+                for module in awst.values():
+                    if module.source_file_path.startswith(sources):
+                        output_awst(module, context.options)
 
-            teal = awst_to_teal(log_ctx, context, awst)
-            if teal is None:
-                raise CodeError(_get_log_errors(log_ctx.logs))
+            try:
+                teal = awst_to_teal(log_ctx, context, awst)
+            except SystemExit as ex:
+                raise CodeError(_get_log_errors(log_ctx.logs)) from ex
 
             write_artifacts(context, teal)
 
-        output_files = {
-            file.relative_to(tmp_dir): file.read_text("utf8")
-            for file in tmp_dir.iterdir()
-            if file.suffix in APPROVAL_EXTENSIONS
-        }
         return CompilationResult(
             context=context,
             module_awst=awst,
             logs=awst_logs + log_ctx.logs,
             teal=teal,
-            output_files=output_files,
-            tmp_dir=tmp_dir,
             root_dir=root_dir,
             src_path=src_path,
         )
+
+
+@attrs.frozen
+class PuyaExample:
+    root: Path
+    name: str
+
+    @property
+    def path(self) -> Path:
+        return self.root / self.name
+
+    @property
+    def template_vars_path(self) -> Path | None:
+        template_vars_path = self.path / "template.vars"
+        return template_vars_path.resolve() if template_vars_path.exists() else None
+
+    @property
+    def id(self) -> str:
+        return f"{self.root.stem}_{self.name}"
+
+
+def get_all_examples() -> list[PuyaExample]:
+    return [
+        PuyaExample(root, item.name)
+        for root in (EXAMPLES_DIR, TEST_CASES_DIR)
+        for item in root.iterdir()
+        if item.is_dir() and any(item.glob("*.py"))
+    ]

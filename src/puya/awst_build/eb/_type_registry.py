@@ -9,6 +9,7 @@ from puya.awst_build.eb import (
     biguint,
     bool as bool_,
     bytes as bytes_,
+    compile,
     ensure_budget,
     intrinsics,
     log,
@@ -25,6 +26,7 @@ from puya.awst_build.eb import (
 from puya.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
 from puya.errors import InternalError
+from puya.models import CompiledReferenceField
 from puya.parse import SourceLocation
 
 __all__ = [
@@ -36,6 +38,17 @@ CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
+    **{
+        name: functools.partial(
+            compile.GetCompiledProgramExpressionBuilder,
+            field=field,
+        )
+        for name, field in (
+            (constants.GET_LOGICSIG_ACCOUNT, CompiledReferenceField.account),
+            (constants.GET_APPROVAL_PROGRAM, CompiledReferenceField.approval),
+            (constants.GET_CLEAR_STATE_PROGRAM, CompiledReferenceField.clear_state),
+        )
+    },
     constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
     constants.LOG: log.LogBuilder,
     constants.EMIT: arc4.EmitBuilder,

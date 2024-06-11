@@ -22,6 +22,7 @@ from puya.models import (
     ARC4CreateOption,
     ARC32StructDef,
     OnCompletionAction,
+    TransactionType,
 )
 from puya.parse import SourceLocation
 
@@ -449,7 +450,7 @@ _ARC4_PYTYPE_MAPPING = {
     "asset": pytypes.AssetType,
     "void": pytypes.NoneType,
     "txn": pytypes.GroupTransactionTypes[None],
-    **{t.name: pytypes.GroupTransactionTypes[t] for t in constants.TransactionType},
+    **{t.name: pytypes.GroupTransactionTypes[t] for t in TransactionType},
     "address": pytypes.ARC4AddressType,
     "byte": pytypes.ARC4ByteType,
     "byte[]": pytypes.ARC4DynamicBytesType,

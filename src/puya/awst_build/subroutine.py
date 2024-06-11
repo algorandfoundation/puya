@@ -68,6 +68,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     StorageProxyConstructorResult,
 )
+from puya.awst_build.eb.logicsig import LogicSigExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.exceptions import TypeUnionError
@@ -604,6 +605,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             if (
                 pytypes.ContractBaseType not in py_typ.mro
                 and pytypes.ARC4ClientBaseType not in py_typ.bases
+                and py_typ != pytypes.LogicSigType
             ):
                 return builder_for_type(py_typ, expr_loc)
 
@@ -627,6 +629,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     )
                 if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
                     return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
+            case mypy.nodes.RefExpr(fullname=fullname) if py_typ == pytypes.LogicSigType:
+                return LogicSigExpressionBuilder(fullname, expr_loc)
             case mypy.nodes.NameExpr(
                 node=mypy.nodes.Var(is_self=True, type=mypy.types.Instance() as self_mypy_type)
             ):

@@ -19,11 +19,6 @@ def pre_approved_sale() -> bool:
     return True
 
 
-@logicsig(name="always_allow")
-def some_sig() -> bool:
-    return True
-
-
 @subroutine
 def assert_correct_payment(txn: gtxn.PaymentTransaction) -> None:
     assert txn.receiver == TemplateVar[Account]("SELLER") and (

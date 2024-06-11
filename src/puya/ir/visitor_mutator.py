@@ -10,6 +10,7 @@ from puya.ir.models import (
     BasicBlock,
     BigUIntConstant,
     BytesConstant,
+    CompiledReference,
     ConditionalBranch,
     ControlOp,
     Fail,
@@ -97,6 +98,9 @@ class IRMutator(IRVisitor[t.Any]):
         return const
 
     def visit_itxn_constant(self, const: ITxnConstant) -> ITxnConstant:
+        return const
+
+    def visit_compiled_reference(self, const: CompiledReference) -> CompiledReference:
         return const
 
     def visit_phi(self, phi: Phi) -> Phi | None:

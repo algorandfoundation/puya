@@ -30,30 +30,30 @@ class BaseOp(abc.ABC):
 
 
 @attrs.frozen(eq=False)
-class PushInt(BaseOp):
+class Int(BaseOp):
     value: int | str
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_push_int(self)
+        return visitor.visit_int(self)
 
     def __str__(self) -> str:
         return f"int {self.value}"
 
 
 @attrs.frozen(eq=False)
-class PushBytes(BaseOp):
+class Byte(BaseOp):
     value: bytes
     encoding: AVMBytesEncoding
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_push_bytes(self)
+        return visitor.visit_byte(self)
 
     def __str__(self) -> str:
         return f"byte {format_bytes(self.value, self.encoding)}"
 
 
 @attrs.frozen(eq=False)
-class PushTemplateVar(BaseOp):
+class TemplateVar(BaseOp):
     name: str
     atype: AVMType = attrs.field()
     op_code: str = attrs.field(init=False)
@@ -67,33 +67,33 @@ class PushTemplateVar(BaseOp):
                 return "int"
             case _:
                 raise InternalError(
-                    f"Unsupported atype for PushTemplateVar: {self.atype}", self.source_location
+                    f"Unsupported atype for TemplateVar: {self.atype}", self.source_location
                 )
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_push_deploy_var(self)
+        return visitor.visit_template_var(self)
 
     def __str__(self) -> str:
         return f"{self.op_code} {self.name}"
 
 
 @attrs.frozen(eq=False)
-class PushAddress(BaseOp):
+class Address(BaseOp):
     value: str
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_push_address(self)
+        return visitor.visit_address(self)
 
     def __str__(self) -> str:
         return f'addr "{self.value}"'
 
 
 @attrs.frozen(eq=False)
-class PushMethod(BaseOp):
+class Method(BaseOp):
     value: str
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_push_method(self)
+        return visitor.visit_method(self)
 
     def __str__(self) -> str:
         return f"method {self.value}"

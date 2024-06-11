@@ -7,12 +7,14 @@ import attrs
 from immutabledict import immutabledict
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
     from puya.avm_type import AVMType
     from puya.parse import SourceLocation
+    from puya.teal.models import TealProgram
 
 
+# values and names are matched to AVM definitions
 class OnCompletionAction(enum.IntEnum):
     NoOp = 0
     OptIn = 1
@@ -20,6 +22,15 @@ class OnCompletionAction(enum.IntEnum):
     ClearState = 3
     UpdateApplication = 4
     DeleteApplication = 5
+
+
+class TransactionType(enum.IntEnum):
+    pay = 1
+    keyreg = 2
+    acfg = 3
+    axfer = 4
+    afrz = 5
+    appl = 6
 
 
 class ARC4CreateOption(enum.Enum):
@@ -147,20 +158,51 @@ class ContractMetaData:
         return ".".join((self.module_name, self.class_name))
 
 
-@attrs.define(kw_only=True)
+TemplateVariables = tuple[tuple[str, int | bytes], ...]
+
+
+@attrs.frozen(kw_only=True)
+class CompiledProgram:
+    teal: TealProgram
+    teal_src: str
+    bytecodes: Mapping[TemplateVariables, bytes]
+
+    @property
+    def bytecode(self) -> bytes:
+        """Returns the bytecode for the program using CLI template values"""
+        return self.get_bytecode_overrides(None)
+
+    def get_bytecode_overrides(
+        self, template_variables: Mapping[str, int | bytes] | None
+    ) -> bytes:
+        """Returns bytecode for the program when using the specified template overrides"""
+        template_variables = template_variables or {}
+        key = tuple(sorted((k, v) for k, v in template_variables.items()))
+        return self.bytecodes[key]
+
+
+@attrs.frozen(kw_only=True)
 class CompiledContract:
-    approval_program: list[str]
-    """lines of the TEAL approval program for the contract"""
-    clear_program: list[str]
-    """lines of the TEAL clear program for the contract"""
+    approval_program: CompiledProgram
+    clear_program: CompiledProgram
     metadata: ContractMetaData
 
 
-@attrs.define(kw_only=True)
+@attrs.frozen(kw_only=True)
 class CompiledLogicSignature:
-    program: list[str]
-    """lines of the TEAL program for the logic signature"""
+    program: CompiledProgram
     metadata: LogicSignatureMetaData
 
 
 CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSignature
+
+
+class CompiledReferenceField(enum.StrEnum):
+    approval = enum.auto()
+    clear_state = enum.auto()
+    account = enum.auto()  # logic sig only
+    global_uints = enum.auto()
+    global_bytes = enum.auto()
+    local_uints = enum.auto()
+    local_bytes = enum.auto()
+    extra_program_pages = enum.auto()
