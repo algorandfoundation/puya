@@ -6,12 +6,9 @@ import re
 import shutil
 import subprocess
 import sys
-from collections import defaultdict
-from collections.abc import Mapping
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-import algokit_utils
 import attrs
 import prettytable
 
@@ -22,7 +19,6 @@ CONTRACT_ROOT_DIRS = [
     GIT_ROOT / "test_cases",
 ]
 SIZE_TALLY_PATH = GIT_ROOT / "examples" / "sizes.txt"
-ALGOD_CLIENT = algokit_utils.get_algod_client(algokit_utils.get_default_localnet_config("algod"))
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
     "PYTHONUTF8": "1",  # force utf8 on windows
@@ -59,13 +55,11 @@ def get_unique_name(path: Path) -> str:
 class ProgramSizes:
     sizes: dict[str, dict[int, int]] = attrs.field(factory=dict)
 
-    def add(self, teal_programs: Mapping[int, list[Path]]) -> None:
-        for level, teal_files in teal_programs.items():
-            for teal in teal_files:
-                name = get_unique_name(teal)
-                sizes = self.sizes.setdefault(name, {})
-                # this combines both approval and clear program sizes
-                sizes[level] = sizes.get(level, 0) + get_program_size(teal)
+    def add_at_level(self, level: int, bin_file: Path) -> None:
+        name = get_unique_name(bin_file)
+        sizes = self.sizes.setdefault(name, {})
+        # this combines both approval and clear program sizes
+        sizes[level] = sizes.get(level, 0) + bin_file.stat().st_size
 
     @classmethod
     def read_file(cls, path: Path) -> "ProgramSizes":
@@ -82,9 +76,6 @@ class ProgramSizes:
                     continue
                 program_sizes.sizes[name][key] = val
         return program_sizes
-
-    def update(self, other: "ProgramSizes") -> "ProgramSizes":
-        return ProgramSizes(sizes={**self.sizes, **other.sizes})
 
     def __str__(self) -> str:
         writer = prettytable.PrettyTable(
@@ -115,24 +106,8 @@ class ProgramSizes:
 class CompilationResult:
     rel_path: str
     ok: bool
-    teal_files: list[Path]
+    bin_files: list[Path]
     stdout: str
-
-
-def get_program_size(path: Path) -> int:
-    try:
-        program = algokit_utils.Program(replace_templates(path.read_text("utf-8")), ALGOD_CLIENT)
-        return len(program.raw_binary)
-    except Exception as e:
-        raise RuntimeError(f"Error compiling teal application: {path}") from e
-
-
-def replace_templates(
-    teal: str, *, uint_replacement: int = 0, bytes_replacement: bytes = b""
-) -> str:
-    teal = re.sub(r"int TMPL_\w+", f"int {uint_replacement}", teal)
-    teal = re.sub(r"byte TMPL_\w+", f"byte 0x{bytes_replacement.hex()}", teal)
-    return teal
 
 
 def _stabilise_logs(stdout: str) -> list[str]:
@@ -161,6 +136,7 @@ def checked_compile(
 ) -> CompilationResult:
     assert p.is_dir()
     out_dir = (p / f"out{out_suffix}").resolve()
+    template_vars_path = p / "template.vars"
 
     root, rel_path_ = get_root_and_relative_path(p)
     rel_path = str(rel_path_)
@@ -177,7 +153,9 @@ def checked_compile(
         "puyapy",
         *flags,
         f"--out-dir={out_dir}",
+        "--output-bytecode",
         "--log-level=debug",
+        *([f"--template-vars-path={template_vars_path}"] if template_vars_path.exists() else []),
         rel_path,
     ]
     result = subprocess.run(
@@ -190,7 +168,7 @@ def checked_compile(
         env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
-    teal_files_written = re.findall(r"info: Writing (.+\.teal)", result.stdout)
+    bin_files_written = re.findall(r"info: Writing (.+\.bin)", result.stdout)
 
     if write_logs:
         if p.is_dir():
@@ -204,7 +182,7 @@ def checked_compile(
     return CompilationResult(
         rel_path=rel_path,
         ok=ok,
-        teal_files=[root / p for p in teal_files_written],
+        bin_files=[root / p for p in bin_files_written],
         stdout=result.stdout if not ok else "",  # don't thunk stdout if no errors
     )
 
@@ -253,7 +231,6 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
 @attrs.define(kw_only=True)
 class CompileAllOptions:
     limit_to: list[Path] = attrs.field(factory=list)
-    update_sizes: bool = True
 
 
 def main(options: CompileAllOptions) -> None:
@@ -268,8 +245,8 @@ def main(options: CompileAllOptions) -> None:
             if item.is_dir() and any(item.glob("*.py"))
         ]
 
-    modified_teal = defaultdict[int, list[Path]](list)
     failures = list[tuple[str, str]]()
+    program_sizes = ProgramSizes()
     with ProcessPoolExecutor() as executor:
         # iterate optimization levels first and with O1 first and then cases, this is a workaround
         # to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to
@@ -279,8 +256,9 @@ def main(options: CompileAllOptions) -> None:
         for compilation_result, level in executor.map(_compile_for_level, args):
             rel_path = compilation_result.rel_path
             case_name = f"{rel_path} -O{level}"
+            for bin_file in compilation_result.bin_files:
+                program_sizes.add_at_level(level, bin_file)
             if compilation_result.ok:
-                modified_teal[level].extend(compilation_result.teal_files)
                 print(f"✅  {case_name}")
             else:
                 print(f"💥 {case_name}", file=sys.stderr)
@@ -291,25 +269,16 @@ def main(options: CompileAllOptions) -> None:
         for name, stdout in sorted(failures, key=operator.itemgetter(0)):
             print(f" ~~~ {name} ~~~ ")
             print("\n".join(ln for ln in stdout.splitlines() if not ln.startswith("debug: ")))
-    if options.update_sizes:
-        print("Updating sizes.txt")
-        program_sizes = ProgramSizes()
-        program_sizes.add(modified_teal)
-        if limit_to:
-            existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
-            program_sizes = existing.update(program_sizes)
-        SIZE_TALLY_PATH.write_text(str(program_sizes))
+    print("Updating sizes.txt")
+    if limit_to:
+        existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
+        program_sizes = ProgramSizes(sizes={**existing.sizes, **program_sizes.sizes})
+    SIZE_TALLY_PATH.write_text(str(program_sizes))
     sys.exit(len(failures))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--update-sizes",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Update sizes.txt",
-    )
     parser.add_argument("limit_to", type=Path, nargs="*", metavar="LIMIT_TO")
     options = CompileAllOptions()
     parser.parse_args(namespace=options)

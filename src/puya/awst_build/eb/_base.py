@@ -160,7 +160,9 @@ class InstanceExpressionBuilder(
 
     @typing.override
     def single_eval(self) -> InstanceBuilder:
-        if not isinstance(self.__expr, VarExpression | CompileTimeConstantExpression):
+        if not isinstance(
+            self.__expr, VarExpression | CompileTimeConstantExpression | SingleEvaluation
+        ):
             return builder_for_instance(self.pytype, SingleEvaluation(self.__expr))
         return self
 

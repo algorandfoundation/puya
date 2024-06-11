@@ -182,10 +182,6 @@ class BaseMyPyVisitor(
             "star expressions should be handled at a higher level", self._location(expr)
         )
 
-    # ~~~ unsupported data structures (yet?) ~~~ #
-    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> typing.Never:
-        self._unsupported_node(expr, "dictionaries are not supported")
-
     def visit_dictionary_comprehension(
         self, expr: mypy.nodes.DictionaryComprehension
     ) -> typing.Never:

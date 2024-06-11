@@ -16,7 +16,12 @@ from puya.awst.txn_fields import TxnField
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig
+from puya.models import (
+    ARC4MethodConfig,
+    CompiledReferenceField,
+    ContractReference,
+    LogicSigReference,
+)
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
@@ -666,6 +671,17 @@ class FieldExpression(Expression):
         validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct)
     )
     name: str
+    wtype: wtypes.WType = attrs.field()
+
+    @wtype.default
+    def _wtype_factory(self) -> wtypes.WType:
+        struct_wtype = self.base.wtype
+        if not isinstance(struct_wtype, wtypes.WStructType | wtypes.ARC4Struct):
+            raise InternalError("invalid struct wtype")
+        try:
+            return struct_wtype.fields[self.name]
+        except KeyError:
+            raise InternalError(f"invalid field for {struct_wtype}") from None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_field_expression(self)
@@ -983,16 +999,6 @@ class BytesComparisonExpression(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_comparison_expression(self)
-
-
-@attrs.frozen
-class ContractReference:
-    module_name: str
-    class_name: str
-
-    @property
-    def full_name(self) -> str:
-        return ".".join((self.module_name, self.class_name))
 
 
 @attrs.frozen
@@ -1497,6 +1503,43 @@ class LogicSignature(ModuleStatement):
 
     def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
         return visitor.visit_logic_signature(self)
+
+
+@attrs.frozen
+class CompiledContract(Expression):
+    contract: ContractReference
+    allocation_overrides: Mapping[CompiledReferenceField, Expression] = attrs.field(
+        factory=immutabledict, converter=immutabledict
+    )
+    prefix: str | None = None
+    template_variables: Mapping[str, Expression] = attrs.field(
+        factory=immutabledict, converter=immutabledict
+    )
+
+    @allocation_overrides.validator
+    def _allocation_overrides(
+        self, _attribute: object, value: Mapping[CompiledReferenceField, Expression]
+    ) -> None:
+        if {
+            CompiledReferenceField.approval_program,
+            CompiledReferenceField.clear_state_program,
+        }.intersection(value):
+            raise InternalError("only allocation fields can be overridden", self.source_location)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_compiled_contract(self)
+
+
+@attrs.frozen
+class CompiledLogicSig(Expression):
+    logic_sig: LogicSigReference
+    prefix: str | None = None
+    template_variables: Mapping[str, Expression] = attrs.field(
+        converter=immutabledict, factory=immutabledict
+    )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_compiled_logicsig(self)
 
 
 @attrs.frozen(kw_only=True)

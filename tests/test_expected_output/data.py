@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import difflib
 import tempfile
 import typing as t
@@ -9,13 +10,13 @@ import attrs
 import pytest
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
-from puya.compile import parse_with_mypy
+from puya.compile import awst_to_teal, parse_with_mypy
 from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.utils import coalesce
 
-from tests.utils import awst_to_teal, narrow_sources
+from tests.utils import narrow_sources
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -28,6 +29,7 @@ REPO_DIR = THIS_DIR.parent.parent
 CASE_COMMENT = "##"
 CASE_PREFIX = f"{CASE_COMMENT} case:"
 PATH_PREFIX = f"{CASE_COMMENT} path:"
+TEMPLATE_PREFIX = f"{CASE_COMMENT} template:"
 EXPECTED_PREFIX = f"{CASE_COMMENT} expected:"
 EXPECTED_OUTPUTS = {"awst"}
 LINE_CONTINUATION = "\\"
@@ -39,6 +41,7 @@ PREFIX_TO_LEVEL = {
     "N:": LogLevel.info,
 }
 LEVEL_TO_PREFIX = {v: k for k, v in PREFIX_TO_LEVEL.items()}
+MIN_LEVEL_TO_REPORT = min(LEVEL_TO_PREFIX)
 OUTPUT_TYPE_PREFIX_LENGTH = len(next(iter(PREFIX_TO_LEVEL)))
 assert all(len(k) == OUTPUT_TYPE_PREFIX_LENGTH for k in PREFIX_TO_LEVEL)
 
@@ -49,7 +52,15 @@ class TestCaseOutput:
     output: str
 
     def as_comment(self) -> str:
-        return f"{LEVEL_TO_PREFIX[self.level]} {self.output}"
+        try:
+            prefix = LEVEL_TO_PREFIX[self.level]
+        except KeyError:
+            # display missing keys as error, this is so critical errors are displayed nicely
+            # while still causing the test case to fail.
+            # Critical errors should never be "expected", but can be useful to trigger
+            # during development
+            prefix = LEVEL_TO_PREFIX[LogLevel.error] + " !!!"
+        return f"{prefix} {self.output}"
 
 
 OutputMapping: t.TypeAlias = dict[LineNum, list[TestCaseOutput]]
@@ -91,6 +102,7 @@ class TestCase:
     name: str
     src_line: int
     files: list[TestCaseFile] = attrs.field(factory=list)
+    template_vars: list[str] = attrs.field(factory=list)
     approved_case_source: list[str] = attrs.field(factory=list)
     """An adjusted test case source that has all the expected output as comments.
     Defaults to original input if test case is not executed"""
@@ -172,6 +184,12 @@ def parse_file(path: Path) -> tuple[list[str], list[TestCase]]:
                 assert current_case.current_file.path is None
                 current_case.current_file.path = Path(case_path)
                 current_line_collector = current_case.current_file.body
+            elif template := line_matches_prefix(line, TEMPLATE_PREFIX):
+                if not current_case:
+                    raise ValueError(
+                        f"Template encountered before a case is defined {path}:{line_num}"
+                    )
+                current_case.template_vars.append(template)
             elif maybe_collecting_output_for := line_matches_prefix(line, EXPECTED_PREFIX):
                 if not current_case:
                     raise ValueError(
@@ -213,6 +231,8 @@ def get_test_lines_to_match_output(
 ) -> list[str]:
     expected = list[str]()
     expected.append(f"{CASE_PREFIX} {test_case.name}")
+    for template in test_case.template_vars:
+        expected.append(f"{TEMPLATE_PREFIX} {template}")
     for test_file in test_case.files:
         if test_file.path:
             expected.append(f"{PATH_PREFIX} {test_file.path}")
@@ -279,7 +299,12 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 srcs.append(tmp_src)
                 file.src_path = tmp_src
                 file.module_name = get_python_module_name(root_dir, tmp_src)
-        context = parse_with_mypy(PuyaOptions(paths=srcs))
+        context = parse_with_mypy(
+            PuyaOptions(
+                paths=srcs,
+                output_bytecode=True,
+            )
+        )
         awst = transform_ast(context)
         # lower each case further if possible and process
         for case in cases:
@@ -290,11 +315,19 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 # from lower layers
                 # this needs a new logging context so AWST errors from other cases
                 # are not seen
-                with logging_context() as case_log_ctx, log_exceptions():
-                    case_context = attrs.evolve(
-                        context,
-                        parse_result=narrow_sources(context.parse_result, case_path[case]),
-                    )
+                case_context = attrs.evolve(
+                    context,
+                    options=attrs.evolve(
+                        context.options,
+                        cli_template_definitions=case.template_vars,
+                    ),
+                    parse_result=narrow_sources(context.parse_result, case_path[case]),
+                )
+                with (
+                    contextlib.suppress(SystemExit),
+                    logging_context() as case_log_ctx,
+                    log_exceptions(),
+                ):
                     awst_to_teal(case_log_ctx, case_context, awst)
                 case_logs = case_log_ctx.logs
             process_test_case(case, awst_log_ctx.logs + case_logs, awst)
@@ -355,7 +388,7 @@ def process_test_case(
                 ),
             )
             for record in path_records
-            if record.line is not None and record.level in LEVEL_TO_PREFIX
+            if record.line is not None and record.level >= MIN_LEVEL_TO_REPORT
         }
         file_missing_output = expected_output - seen_output
         file_unexpected_output = seen_output - expected_output

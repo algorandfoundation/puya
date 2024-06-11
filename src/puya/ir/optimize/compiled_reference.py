@@ -1,0 +1,168 @@
+from collections.abc import Mapping
+
+import attrs
+from immutabledict import immutabledict
+
+from puya import algo_constants, log
+from puya.algo_constants import MAX_APP_PAGE_SIZE, MAX_BYTES_LENGTH, PROGRAM_DATA
+from puya.errors import InternalError
+from puya.ir import models as ir
+from puya.ir.optimize.context import IROptimizeContext
+from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.visitor_mutator import IRMutator
+from puya.models import (
+    CompiledReferenceField,
+    TemplateValue,
+)
+from puya.parse import SourceLocation
+from puya.utils import Address, sha512_256_hash
+
+logger = log.get_logger(__name__)
+
+
+def replace_compiled_references(context: IROptimizeContext, subroutine: ir.Subroutine) -> bool:
+    replacer = CompiledReferenceReplacer(context)
+    for block in subroutine.body:
+        replacer.visit_block(block)
+    return replacer.modified
+
+
+@attrs.define
+class CompiledReferenceReplacer(IRMutator):
+    context: IROptimizeContext
+    modified: bool = False
+
+    def visit_compiled_logicsig_reference(  # type: ignore[override]
+        self,
+        const: ir.CompiledLogicSigReference,
+    ) -> ir.CompiledLogicSigReference | ir.Constant:
+        if not _is_constant(const.template_variables):
+            return const
+        template_constants = _get_template_constants(
+            self.context.options.template_variables, const.template_variables
+        )
+        program_bytecode = self.context.get_program_bytecode(
+            const.artifact, "logic_sig", template_constants
+        )
+        address_public_key = sha512_256_hash(PROGRAM_DATA + program_bytecode)
+        return ir.AddressConstant(
+            value=Address.from_public_key(address_public_key).address,
+            source_location=const.source_location,
+        )
+
+    def visit_compiled_contract_reference(  # type: ignore[override]
+        self,
+        const: ir.CompiledContractReference,
+    ) -> ir.CompiledContractReference | ir.Constant:
+        field = const.field
+        if field in (
+            CompiledReferenceField.global_uints,
+            CompiledReferenceField.global_bytes,
+            CompiledReferenceField.local_uints,
+            CompiledReferenceField.local_bytes,
+        ):
+            try:
+                state_total = self.context.state_totals[const.artifact]
+            except KeyError:
+                raise InternalError(
+                    f"Invalid contract reference: {const.artifact}", const.source_location
+                ) from None
+            total = attrs.asdict(state_total).get(const.field.name)
+            if not isinstance(total, int):
+                raise InternalError(
+                    f"Invalid state total field: {field.name}", const.source_location
+                )
+            return ir.UInt64Constant(
+                value=total,
+                source_location=const.source_location,
+            )
+
+        if not _is_constant(const.template_variables):
+            return const
+        template_constants = _get_template_constants(
+            self.context.options.template_variables, const.template_variables
+        )
+        match field:
+            case (
+                CompiledReferenceField.approval_program
+                | CompiledReferenceField.clear_state_program
+            ):
+                program_bytecode = self.context.get_program_bytecode(
+                    const.artifact,
+                    (
+                        "approval"
+                        if field == CompiledReferenceField.approval_program
+                        else "clear_state"
+                    ),
+                    template_constants,
+                )
+                page = const.program_page
+                program_page = program_bytecode[
+                    page * MAX_BYTES_LENGTH : (page + 1) * MAX_BYTES_LENGTH
+                ]
+                return ir.BytesConstant(
+                    value=program_page,
+                    encoding=AVMBytesEncoding.base64,
+                    source_location=const.source_location,
+                )
+            case CompiledReferenceField.extra_program_pages:
+                approval_bytecode = self.context.get_program_bytecode(
+                    const.artifact, "approval", template_constants
+                )
+                clear_bytecode = self.context.get_program_bytecode(
+                    const.artifact, "clear_state", template_constants
+                )
+                total_bytes = len(approval_bytecode) + len(clear_bytecode)
+                extra_pages = (total_bytes - 1) // MAX_APP_PAGE_SIZE
+                return ir.UInt64Constant(
+                    value=extra_pages,
+                    source_location=const.source_location,
+                )
+        raise InternalError(
+            f"Unhandled compiled reference field: {field.name}", const.source_location
+        )
+
+
+def _is_constant(template_variables: Mapping[str, ir.Value]) -> bool:
+    return all(isinstance(var, ir.Constant) for var in template_variables.values())
+
+
+def _get_template_constants(
+    global_consts: Mapping[str, int | bytes], template_variables: Mapping[str, ir.Value]
+) -> immutabledict[str, TemplateValue]:
+    template_consts = dict[str, TemplateValue](global_consts)
+    for var, value in template_variables.items():
+        match value:
+            case ir.UInt64Constant() | ir.BytesConstant() as const:
+                template_consts[var] = _template_value(const.value, const.source_location)
+            case ir.BigUIntConstant(value=biguint, source_location=loc):
+                template_consts[var] = _template_value(
+                    biguint.to_bytes(algo_constants.MAX_BIGUINT_BYTES), loc
+                )
+            case ir.AddressConstant(value=addr, source_location=loc):
+                address = Address.parse(addr)
+                template_consts[var] = _template_value(address.public_key, loc)
+            case ir.MethodConstant(value=method, source_location=loc):
+                template_consts[var] = _template_value(
+                    sha512_256_hash(method.encode("utf8"))[:4], loc
+                )
+            case ir.ITxnConstant():
+                logger.error(
+                    "inner transactions cannot be used as a template variable",
+                    location=value.source_location,
+                )
+            case ir.TemplateVar():  # allowed assuming it is defined
+                pass
+            case _:
+                logger.error(
+                    "template variable must be a compile time constant",
+                    location=value.source_location,
+                )
+    return immutabledict(template_consts)
+
+
+def _template_value(value: int | bytes, loc: SourceLocation | None) -> TemplateValue:
+    if loc is None:
+        return value
+    else:
+        return value, loc

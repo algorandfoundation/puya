@@ -1,0 +1,253 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+## case: test_non_constant_templates
+## template: SOME_VAR="test"
+import arc4 ## E: Cannot find implementation or library stub for module named "arc4"  [import-not-found] \
+            ## N: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod ## E: Expression has type "Any"  [misc] \
+                    ## E: Untyped decorator makes function "log" untyped  [misc] \
+                    ## E: Unsupported decorator ""
+    def log(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must be annotated with exactly one of @algopy.subroutine, @algopy.arc4.abimethod, or @algopy.arc4.baremethod \
+                           ## E: Function is untyped after decorator transformation  [misc]
+        log(TemplateVar[String]("SOME_VAR"))
+
+
+class Factory(ARC4Contract):
+
+    @arc4.abimethod ## E: Untyped decorator makes function "compile" untyped  [misc] \
+                    ## E: Expression has type "Any"  [misc] \
+                    ## E: Unsupported decorator ""
+    def compile(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must be annotated with exactly one of @algopy.subroutine, @algopy.arc4.abimethod, or @algopy.arc4.baremethod \
+                               ## E: Function is untyped after decorator transformation  [misc]
+        compiled = compile_contract(MyContract, template_vars={"SOME_VAR": get_non_const()})
+        log(compiled.extra_program_pages)
+
+@subroutine
+def get_non_const() -> String:
+    return String("uh oh")
+
+## case: test_wrong_template_variable_types_expression
+## template: SOME_VAR="test"
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def log(self) -> None:
+        log(TemplateVar[String]("SOME_VAR"))
+
+class Factory(ARC4Contract):
+
+    @arc4.abimethod
+    def compile(self) -> None:
+        compiled = compile_contract(MyContract, template_vars={"SOME_VAR": UInt64(2)}) ## E: invalid template value type for 'TMPL_SOME_VAR', expected bytes
+        log(compiled.extra_program_pages)
+
+## case: test_wrong_template_variable_types_cli
+## template: SOME_VAR=2
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def log(self) -> None:
+        log(TemplateVar[String]("SOME_VAR")) ## E: invalid template value type for 'TMPL_SOME_VAR', expected bytes
+
+## case: recursive_compile
+from algopy import *
+
+class Contract1(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.arc4_create(Contract2.create) ## E: cyclical program reference: recursive_compile.Contract1 -> recursive_compile.Contract2 -> recursive_compile.Contract3 -> recursive_compile.Contract1
+
+class Contract2(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.arc4_create(Contract3.create)
+
+
+class Contract3(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.arc4_create(Contract1)
+
+## case: arc4_create_mismatch
+from algopy import *
+
+class Contract1(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def call_me(self) -> None:
+        pass
+
+    @arc4.baremethod(allow_actions=['UpdateApplication'])
+    def update(self) -> None:
+        pass
+
+
+class Contract2(arc4.ARC4Contract):
+
+    @arc4.baremethod(create="require")
+    def create(self) -> None:
+        pass
+
+    @arc4.abimethod()
+    def call_me_too(self) -> None:
+        pass
+
+
+class Mismatch(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def mismatch1(self) -> None:
+        arc4.arc4_create(
+            Contract1, ## N: other contract reference
+            compiled=compile_contract(Contract2), ## W: compiled parameter is for a different contract
+        )
+
+    @arc4.abimethod()
+    def mismatch2(self) -> None:
+        arc4.arc4_create(
+            Contract2.create, ## N: other contract reference
+            compiled=compile_contract(Contract1), ## W: compiled parameter is for a different contract
+        )
+
+
+    @arc4.abimethod()
+    def mismatch3(self) -> None:
+        arc4.arc4_update(
+            Contract1, ## N: other contract reference
+            app_id=1234,
+            compiled=compile_contract(Contract2), ## W: compiled parameter is for a different contract
+        )
+
+    @arc4.abimethod()
+    def mismatch4(self) -> None:
+        arc4.arc4_update(
+            Contract1.update, ## N: other contract reference
+            app_id=1234,
+            compiled=compile_contract(Contract2), ## W: compiled parameter is for a different contract
+        )
+
+
+## case: arc4_multiple_lifecycle
+from algopy import *
+
+class MultipleLifeCycle(arc4.ARC4Contract):
+
+    @arc4.baremethod(allow_actions=['UpdateApplication'])
+    def update(self) -> None:
+        pass
+
+    @arc4.abimethod(allow_actions=['UpdateApplication'])
+    def update2(self) -> None:
+        pass
+
+    @arc4.abimethod(create="allow")
+    def create(self) -> None:
+        pass
+
+    @arc4.abimethod(create="allow")
+    def create2(self) -> None:
+        pass
+
+class Ambiguous(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def create(self) -> None:
+        arc4.arc4_create(MultipleLifeCycle) ## E: found multiple create methods on arc4_multiple_lifecycle.MultipleLifeCycle, please specify which one to use
+
+    @arc4.abimethod()
+    def update(self) -> None:
+        arc4.arc4_update(MultipleLifeCycle, app_id=1234) ## E: found multiple update methods on arc4_multiple_lifecycle.MultipleLifeCycle, please specify which one to use
+
+# case: lifecycle_call_validation
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.baremethod(create="require") ## N: method ARC4 configuration
+    def create(self) -> None:
+        pass
+
+    @arc4.baremethod(allow_actions=["UpdateApplication"])
+    def update(self) -> None:
+        pass
+
+    @arc4.abimethod() ## N: method ARC4 configuration
+    def noop(self) -> None:
+        pass
+
+class Factory(ARC4Contract):
+
+    @arc4.abimethod
+    def test_abi_call(self) -> None:
+        arc4.abi_call(
+            MyContract.noop, ## E: method cannot be used to create application
+        )
+        arc4.abi_call( ## E: missing required arguments to create app: approval_program, clear_state_program
+            MyContract.create,
+        )
+        arc4.abi_call(
+            MyContract.create,
+            approval_program=b"",
+            clear_state_program=b"",
+        ) # ok
+
+        arc4.abi_call(
+            MyContract.noop,
+            app_id=1234,
+            approval_program=b"", ## E: provided argument is only valid when creating or updating an application
+            clear_state_program=b"", ## E: provided argument is only valid when creating or updating an application
+        )
+        arc4.abi_call(
+            MyContract.noop,
+            app_id=1234,
+            extra_program_pages=0, ## E: provided argument is only valid when creating an application
+            global_num_uint=0, ## E: provided argument is only valid when creating an application
+            global_num_bytes=0, ## E: provided argument is only valid when creating an application
+            local_num_uint=0, ## E: provided argument is only valid when creating an application
+            local_num_bytes=0, ## E: provided argument is only valid when creating an application
+        )
+        arc4.abi_call(
+            MyContract.noop,
+            app_id=1234,
+            on_completion=OnCompleteAction.OptIn, ## E: on completion action is not supported by ARC4 method being called
+        )
+
+    @arc4.abimethod
+    def test_arc4_create(self) -> None:
+        arc4.arc4_create(
+            MyContract.noop, ## E: method cannot be used to create application
+        )
+        arc4.arc4_create(
+            MyContract.create,
+        ) # ok
+        arc4.arc4_create(
+            MyContract.create,
+            on_completion=OnCompleteAction.OptIn, ## E: on completion action is not supported by ARC4 method being called
+        )
+
+    @arc4.abimethod
+    def test_arc4_update(self) -> None:
+        arc4.arc4_update(
+            MyContract.noop, ## E: method cannot be used to update application
+            app_id=1234,
+        )
+        arc4.arc4_update(
+            MyContract.create, ## E: method cannot be used to update application
+            app_id=1234
+        )
+        arc4.arc4_update(
+            MyContract.update,
+            app_id=1234
+        ) # ok

@@ -81,31 +81,31 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             - 1
         )
 
-    def visit_push_int(self, push: models.PushInt) -> list[teal.TealOp]:
+    def visit_int(self, push: models.Int) -> list[teal.TealOp]:
         self.l_stack.append(str(push.value))
-        return [teal.PushInt(push.value, source_location=push.source_location)]
+        return [teal.Int(push.value, source_location=push.source_location)]
 
-    def visit_push_bytes(self, push: models.PushBytes) -> list[teal.TealOp]:
+    def visit_byte(self, push: models.Byte) -> list[teal.TealOp]:
         self.l_stack.append(format_bytes(push.value, push.encoding))
-        return [teal.PushBytes(push.value, push.encoding, source_location=push.source_location)]
+        return [teal.Byte(push.value, push.encoding, source_location=push.source_location)]
 
-    def visit_push_deploy_var(self, deploy_var: models.PushTemplateVar) -> list[teal.TealOp]:
+    def visit_template_var(self, deploy_var: models.TemplateVar) -> list[teal.TealOp]:
         self.l_stack.append(deploy_var.name)
         return [
-            teal.PushTemplateVar(
+            teal.TemplateVar(
                 name=deploy_var.name,
                 op_code=deploy_var.op_code,
                 source_location=deploy_var.source_location,
             )
         ]
 
-    def visit_push_address(self, addr: models.PushAddress) -> list[teal.TealOp]:
+    def visit_address(self, addr: models.Address) -> list[teal.TealOp]:
         self.l_stack.append(addr.value)
-        return [teal.PushAddress(addr.value, source_location=addr.source_location)]
+        return [teal.Address(addr.value, source_location=addr.source_location)]
 
-    def visit_push_method(self, method: models.PushMethod) -> list[teal.TealOp]:
+    def visit_method(self, method: models.Method) -> list[teal.TealOp]:
         self.l_stack.append(f'method<"{method.value}">')
-        return [teal.PushMethod(method.value, source_location=method.source_location)]
+        return [teal.Method(method.value, source_location=method.source_location)]
 
     def visit_comment(self, _comment: models.Comment) -> list[teal.TealOp]:
         return []
@@ -283,9 +283,9 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
                 case _:
                     return [value_op, teal.DupN(n=n - 1, source_location=allocate.source_location)]
 
-        bad_bytes_value = teal.PushInt(0, source_location=allocate.source_location)
-        bad_uint_value = teal.PushBytes(
-            n=b"", encoding=AVMBytesEncoding.utf8, source_location=allocate.source_location
+        bad_bytes_value = teal.Int(0, source_location=allocate.source_location)
+        bad_uint_value = teal.Byte(
+            value=b"", encoding=AVMBytesEncoding.utf8, source_location=allocate.source_location
         )
         return [
             *push_n(bad_bytes_value, allocate.num_bytes),

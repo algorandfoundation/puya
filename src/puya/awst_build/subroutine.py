@@ -21,7 +21,6 @@ from puya.awst.nodes import (
     ConditionalExpression,
     ContinueStatement,
     ContractMethod,
-    ContractReference,
     Expression,
     ExpressionStatement,
     ForInLoop,
@@ -40,6 +39,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb.arc4 import (
     ARC4BoolTypeBuilder,
@@ -51,6 +51,7 @@ from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
 )
+from puya.awst_build.eb.dict_ import DictLiteralBuilder
 from puya.awst_build.eb.factories import (
     builder_for_instance,
     builder_for_type,
@@ -66,6 +67,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     StorageProxyConstructorResult,
 )
+from puya.awst_build.eb.logicsig import LogicSigExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
@@ -80,7 +82,7 @@ from puya.awst_build.utils import (
     symbol_node_is_function,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig
+from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -665,6 +667,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             if (
                 pytypes.ContractBaseType not in py_typ.mro
                 and pytypes.ARC4ClientBaseType not in py_typ.bases
+                and py_typ != pytypes.LogicSigType
             ):
                 return builder_for_type(py_typ, expr_loc)
 
@@ -688,6 +691,13 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     )
                 if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
                     return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
+            case mypy.nodes.RefExpr(fullname=fullname) if py_typ == pytypes.LogicSigType:
+                module_name, func_name = fullname.rsplit(".", maxsplit=1)
+                ref = LogicSigReference(
+                    module_name=module_name,
+                    func_name=func_name,
+                )
+                return LogicSigExpressionBuilder(ref, expr_loc)
             case mypy.nodes.NameExpr(
                 node=mypy.nodes.Var(is_self=True, type=mypy.types.Instance() as self_mypy_type)
             ):
@@ -1134,6 +1144,21 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             require_instance_builder(mypy_item.accept(self)) for mypy_item in mypy_expr.items
         ]
         return TupleLiteralBuilder(item_builders, location)
+
+    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> NodeBuilder:
+        location = self._location(expr)
+        mappings = dict[str, InstanceBuilder]()
+        for mypy_name, mypy_value in expr.items:
+            if mypy_name is None:
+                logger.error("None is not usable as a value", location=location)
+                continue
+            key_node = mypy_name.accept(self)
+            value_node = mypy_value.accept(self)
+            key = expect.simple_string_literal(key_node, default=expect.default_none)
+            value = require_instance_builder(value_node)
+            if key is not None:
+                mappings[key] = value
+        return DictLiteralBuilder(mappings, location)
 
     def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> NodeBuilder:
         expr_loc = self._location(expr)

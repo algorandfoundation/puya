@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     CheckedMaybe,
-    ContractReference,
     Expression,
     IntrinsicCall,
     NumericComparison,
@@ -31,6 +30,7 @@ from puya.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

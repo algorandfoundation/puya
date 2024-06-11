@@ -1,0 +1,114 @@
+#pragma version 10
+
+test_cases.compile.apps.HelloPrfx.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    txn NumAppArgs
+    bz main_bare_routing@9
+    method "create()void"
+    method "delete()void"
+    method "greet(string)string"
+    txna ApplicationArgs 0
+    match main_create_route@4 main_delete_route@5 main_greet_route@6
+    err // reject transaction
+
+main_create_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    callsub create
+    int 1
+    return
+
+main_delete_route@5:
+    txn OnCompletion
+    int DeleteApplication
+    ==
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID
+    assert // is not creating
+    callsub delete
+    int 1
+    return
+
+main_greet_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    callsub greet
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@9:
+    int 4
+    txn OnCompletion
+    match main_update@10
+    err // reject transaction
+
+main_update@10:
+    txn ApplicationID
+    assert // is not creating
+    callsub update
+    int 1
+    return
+
+
+// test_cases.compile.apps.HelloPrfx.create() -> void:
+create:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.delete() -> void:
+delete:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+greet:
+    proto 1 1
+    int 0
+    byte "greeting"
+    app_global_get_ex
+    assert // check self.greeting exists
+    byte " "
+    concat
+    frame_dig -1
+    concat
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.update() -> void:
+update:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloPrfx.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "greeting"
+    byte PRFX_GREETING
+    app_global_put
+    retsub

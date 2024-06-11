@@ -9,8 +9,8 @@ from puya.mir.vla import VariableLifetimeAnalysis
 from puya.utils import attrs_extend
 
 
-@attrs.define
-class ProgramCodeGenContext(CompileContext):
+@attrs.define(kw_only=True)
+class ProgramMIRContext(CompileContext):
     program: ir.Program
     subroutine_names: Mapping[ir.Subroutine, str] = attrs.field(init=False)
 
@@ -44,7 +44,7 @@ class ProgramCodeGenContext(CompileContext):
 
 
 @attrs.define(frozen=False)
-class SubroutineCodeGenContext(ProgramCodeGenContext):
+class SubroutineCodeGenContext(ProgramMIRContext):
     subroutine: models.MemorySubroutine
     _vla: VariableLifetimeAnalysis | None = None
 

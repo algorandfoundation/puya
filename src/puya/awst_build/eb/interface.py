@@ -8,10 +8,11 @@ import mypy.nodes
 import typing_extensions
 
 from puya import log
-from puya.awst.nodes import ConstantValue, ContractReference, Expression, Lvalue, Range, Statement
+from puya.awst.nodes import ConstantValue, Expression, Lvalue, Range, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.errors import CodeError
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op
 
@@ -71,8 +72,6 @@ class NodeBuilder(abc.ABC):
     @abc.abstractmethod
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         """Handle self.name"""
-        # TODO: remove mypy Expression from this signature, only added temporarily
-        #       because of pytype resolution failures
 
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

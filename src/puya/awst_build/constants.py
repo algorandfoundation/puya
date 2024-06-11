@@ -1,5 +1,3 @@
-import enum
-
 ARC4_CONTRACT_BASE = "algopy.arc4.ARC4Contract"
 CONTRACT_BASE = "algopy._contract.Contract"
 STRUCT_META = "algopy._struct._StructMeta"
@@ -29,13 +27,3 @@ KNOWN_METHOD_DECORATORS = [
     ABIMETHOD_DECORATOR,
     BAREMETHOD_DECORATOR,
 ]
-
-
-# values and names are matched to AVM definitions
-class TransactionType(enum.IntEnum):
-    pay = 1
-    keyreg = 2
-    acfg = 3
-    axfer = 4
-    afrz = 5
-    appl = 6

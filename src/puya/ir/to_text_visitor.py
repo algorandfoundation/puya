@@ -42,6 +42,36 @@ class ToTextVisitor(IRVisitor[str]):
     def visit_itxn_constant(self, op: models.ITxnConstant) -> str:
         return f"{op.ir_type.name}({op.value})"
 
+    def visit_compiled_contract_reference(self, const: models.CompiledContractReference) -> str:
+        return (
+            ", ".join(
+                (
+                    f"compiled_contract({const.artifact!r}",
+                    f"field={const.field.name}",
+                    f"program_page={const.program_page}",
+                    *(
+                        f"{var}={val.accept(self)}"
+                        for var, val in const.template_variables.items()
+                    ),
+                )
+            )
+            + ")"
+        )
+
+    def visit_compiled_logicsig_reference(self, const: models.CompiledLogicSigReference) -> str:
+        return (
+            ", ".join(
+                (
+                    f"compiled_logicsig({const.artifact!r}",
+                    *(
+                        f"{var}={val.accept(self)}"
+                        for var, val in const.template_variables.items()
+                    ),
+                )
+            )
+            + ")"
+        )
+
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
         callee = intrinsic.op.code
         immediates = list(map(str, intrinsic.immediates))

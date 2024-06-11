@@ -1,4 +1,3 @@
-import base64
 import typing
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from functools import cached_property
@@ -6,12 +5,11 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
-from puya import algo_constants, log
+from puya import log
 from puya.avm_type import AVMType
-from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
+from puya.models import TransactionType
 from puya.parse import SourceLocation
-from puya.utils import sha512_256_hash
 
 logger = log.get_logger(__name__)
 
@@ -96,7 +94,7 @@ box_key: typing.Final = WType(
 
 @attrs.frozen
 class _TransactionRelatedWType(WType):
-    transaction_type: constants.TransactionType | None
+    transaction_type: TransactionType | None
     ephemeral: bool = attrs.field(default=True, init=False)
     immutable: bool = attrs.field(default=True, init=False)
 
@@ -107,7 +105,7 @@ class WGroupTransaction(_TransactionRelatedWType):
     scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
 
     @classmethod
-    def from_type(cls, transaction_type: constants.TransactionType | None) -> "WGroupTransaction":
+    def from_type(cls, transaction_type: TransactionType | None) -> "WGroupTransaction":
         name = "group_transaction"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
@@ -120,9 +118,7 @@ class WInnerTransactionFields(_TransactionRelatedWType):
     scalar_type: None = attrs.field(default=None, init=False)
 
     @classmethod
-    def from_type(
-        cls, transaction_type: constants.TransactionType | None
-    ) -> "WInnerTransactionFields":
+    def from_type(cls, transaction_type: TransactionType | None) -> "WInnerTransactionFields":
         name = "inner_transaction_fields"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
@@ -135,7 +131,7 @@ class WInnerTransaction(_TransactionRelatedWType):
     scalar_type: None = attrs.field(default=None, init=False)
 
     @classmethod
-    def from_type(cls, transaction_type: constants.TransactionType | None) -> "WInnerTransaction":
+    def from_type(cls, transaction_type: TransactionType | None) -> "WInnerTransaction":
         name = "inner_transaction"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
@@ -487,57 +483,3 @@ def _storage_type_or_error(wtype: WType) -> str | typing.Literal[AVMType.uint64,
     if wtype.scalar_type is None:
         return "type is not suitable for storage"
     return wtype.scalar_type
-
-
-# TODO: move these validation functions somewhere else
-def valid_base32(s: str) -> bool:
-    """check if s is a valid base32 encoding string and fits into AVM bytes type"""
-    try:
-        value = base64.b32decode(s)
-    except ValueError:
-        return False
-    return len(value) <= algo_constants.MAX_BYTES_LENGTH
-    # regex from PyTEAL, appears to be RFC-4648
-    # ^(?:[A-Z2-7]{8})*(?:([A-Z2-7]{2}([=]{6})?)|([A-Z2-7]{4}([=]{4})?)|([A-Z2-7]{5}([=]{3})?)|([A-Z2-7]{7}([=]{1})?))?  # noqa: E501
-
-
-def valid_base16(s: str) -> bool:
-    try:
-        value = base64.b16decode(s)
-    except ValueError:
-        return False
-    return len(value) <= algo_constants.MAX_BYTES_LENGTH
-
-
-def valid_base64(s: str) -> bool:
-    """check if s is a valid base64 encoding string and fits into AVM bytes type"""
-    try:
-        value = base64.b64decode(s, validate=True)
-    except ValueError:
-        return False
-    return len(value) <= algo_constants.MAX_BYTES_LENGTH
-    # regex from PyTEAL, appears to be RFC-4648
-    # ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
-
-
-def valid_address(address: str) -> bool:
-    """check if address is a valid address with checksum"""
-    # Pad address so it's a valid b32 string
-    padded_address = address + (6 * "=")
-    if not (
-        len(address) == algo_constants.ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)
-    ):
-        return False
-    address_bytes = base64.b32decode(padded_address)
-    if (
-        len(address_bytes)
-        != algo_constants.PUBLIC_KEY_HASH_LENGTH + algo_constants.ADDRESS_CHECKSUM_LENGTH
-    ):
-        return False
-
-    public_key_hash = address_bytes[: algo_constants.PUBLIC_KEY_HASH_LENGTH]
-    check_sum = address_bytes[algo_constants.PUBLIC_KEY_HASH_LENGTH :]
-    verified_check_sum = sha512_256_hash(public_key_hash)[
-        -algo_constants.ADDRESS_CHECKSUM_LENGTH :
-    ]
-    return check_sum == verified_check_sum

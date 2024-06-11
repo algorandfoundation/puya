@@ -1,0 +1,157 @@
+#pragma version 10
+
+test_cases.compile.apps.HelloPrfx.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    // compile/apps.py:60
+    // class HelloPrfx(HelloBase):
+    txn NumAppArgs
+    bz main_bare_routing@9
+    method "create()void"
+    method "delete()void"
+    method "greet(string)string"
+    txna ApplicationArgs 0
+    match main_create_route@4 main_delete_route@5 main_greet_route@6
+    err // reject transaction
+
+main_create_route@4:
+    // compile/apps.py:65
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    callsub create
+    int 1
+    return
+
+main_delete_route@5:
+    // compile/apps.py:14
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    int DeleteApplication
+    ==
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID
+    assert // is not creating
+    callsub delete
+    int 1
+    return
+
+main_greet_route@6:
+    // compile/apps.py:22
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // compile/apps.py:60
+    // class HelloPrfx(HelloBase):
+    txna ApplicationArgs 1
+    extract 2 0
+    // compile/apps.py:22
+    // @arc4.abimethod()
+    callsub greet
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@9:
+    // compile/apps.py:60
+    // class HelloPrfx(HelloBase):
+    int 4
+    txn OnCompletion
+    match main_update@10
+    err // reject transaction
+
+main_update@10:
+    // compile/apps.py:18
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    txn ApplicationID
+    assert // is not creating
+    // compile/apps.py:18-19
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def update(self) -> None:
+    callsub update
+    int 1
+    return
+
+
+// test_cases.compile.apps.HelloPrfx.create() -> void:
+create:
+    // compile/apps.py:65-66
+    // @arc4.abimethod(create="require")
+    // def create(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.delete() -> void:
+delete:
+    // compile/apps.py:14-15
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // def delete(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+greet:
+    // compile/apps.py:22-23
+    // @arc4.abimethod()
+    // def greet(self, name: String) -> String:
+    proto 1 1
+    // compile/apps.py:24
+    // return self.greeting + " " + name
+    int 0
+    // compile/apps.py:12
+    // self.greeting = String()
+    byte "greeting"
+    // compile/apps.py:24
+    // return self.greeting + " " + name
+    app_global_get_ex
+    assert // check self.greeting exists
+    byte " "
+    concat
+    frame_dig -1
+    concat
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.update() -> void:
+update:
+    // compile/apps.py:18-19
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def update(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloPrfx.__init__() -> void:
+__init__:
+    // compile/apps.py:62
+    // def __init__(self) -> None:
+    proto 0 0
+    // compile/apps.py:12
+    // self.greeting = String()
+    byte "greeting"
+    // compile/apps.py:63
+    // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
+    byte PRFX_GREETING
+    app_global_put
+    retsub

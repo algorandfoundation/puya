@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -13,6 +13,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
+from puya.models import CompiledReferenceField, TransactionType
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -206,17 +207,28 @@ class TypingLiteralType(PyType):
         raise CodeError(f"{self} is not usable as a value", self.source_location)
 
 
+_TupleWTypeFactory = Callable[
+    [Iterable[wtypes.WType], SourceLocation | None],
+    wtypes.WTuple | wtypes.ARC4Tuple,
+]
+
+
 @typing.final
 @attrs.frozen(kw_only=True)
 class TupleType(PyType):
-    generic: _GenericType[TupleType]
+    names: tuple[str, ...] | None = attrs.field()
     items: tuple[PyType, ...]
-    _wtype_cls: type[wtypes.WTuple | wtypes.ARC4Tuple]
+    _wtype_factory: _TupleWTypeFactory
     source_location: SourceLocation | None
+
+    @names.validator
+    def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
+        if names is not None and len(names) != len(self.items):
+            raise InternalError("names length must match items length", self.source_location)
 
     @property
     def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
-        return self._wtype_cls((i.wtype for i in self.items), self.source_location)
+        return self._wtype_factory((i.wtype for i in self.items), self.source_location)
 
 
 @typing.final
@@ -557,7 +569,7 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 
 
 def _make_tuple_parameterise(
-    wtype_cls: type[wtypes.WTuple | wtypes.ARC4Tuple],
+    wtype_factory: _TupleWTypeFactory,
 ) -> _Parameterise[TupleType]:
     def parameterise(
         self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
@@ -566,8 +578,9 @@ def _make_tuple_parameterise(
         return TupleType(
             generic=self,
             name=name,
+            names=None,
             items=tuple(args),
-            wtype_cls=wtype_cls,
+            wtype_factory=wtype_factory,
             source_location=source_location,
         )
 
@@ -582,6 +595,53 @@ GenericTupleType: typing.Final = _GenericType(
 GenericARC4TupleType: typing.Final = _GenericType(
     name="algopy.arc4.Tuple",
     parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
+)
+
+
+def _named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
+    def _flatten(items: Iterable[wtypes.WType]) -> Iterable[wtypes.WType]:
+        for item in items:
+            if isinstance(item, wtypes.WTuple):
+                yield from _flatten(item.types)
+            else:
+                yield item
+
+    pytype = TupleType(
+        name=name,
+        generic=None,
+        names=tuple(items.keys()),
+        items=tuple(items.values()),
+        wtype_factory=lambda items, loc: wtypes.WTuple(_flatten(items), loc),
+        source_location=None,
+    )
+    _register_builtin(pytype)
+    return pytype
+
+
+# TODO: The CompiledContract and CompiledLogicSig types are currently just protocols in the stubs,
+#       however the should become named tuples once nested tuples are supported.
+#       For now it is convenient to represent them as named tuples at the pytypes level
+CompiledContractType: typing.Final[TupleType] = _named_tuple(
+    name="algopy._compiled.CompiledContract",
+    items={
+        CompiledReferenceField.approval_program: GenericTupleType.parameterise(
+            [BytesType, BytesType], None
+        ),
+        CompiledReferenceField.clear_state_program: GenericTupleType.parameterise(
+            [BytesType, BytesType], None
+        ),
+        CompiledReferenceField.extra_program_pages: UInt64Type,
+        CompiledReferenceField.global_uints: UInt64Type,
+        CompiledReferenceField.global_bytes: UInt64Type,
+        CompiledReferenceField.local_uints: UInt64Type,
+        CompiledReferenceField.local_bytes: UInt64Type,
+    },
+)
+CompiledLogicSigType: typing.Final[TupleType] = _named_tuple(
+    name="algopy._compiled.CompiledLogicSig",
+    items={
+        "account": AccountType,
+    },
 )
 
 
@@ -788,14 +848,14 @@ GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
 @attrs.frozen
 class TransactionRelatedType(PyType):
     wtype: wtypes.WType
-    transaction_type: constants.TransactionType | None
+    transaction_type: TransactionType | None
     """None implies "any" type"""
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
 
 
-def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
+def _make_gtxn_type(kind: TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         cls_name = "Transaction"
     else:
@@ -810,7 +870,7 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelate
     )
 
 
-def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
+def _make_itxn_fieldset_type(kind: TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         cls_name = "InnerTransaction"
     else:
@@ -823,7 +883,7 @@ def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> Transact
     )
 
 
-def _make_itxn_result_type(kind: constants.TransactionType | None) -> TransactionRelatedType:
+def _make_itxn_result_type(kind: TransactionType | None) -> TransactionRelatedType:
     if kind is None:
         cls_name = "InnerTransactionResult"
     else:
@@ -836,27 +896,27 @@ def _make_itxn_result_type(kind: constants.TransactionType | None) -> Transactio
     )
 
 
-_TXN_TYPE_NAMES: typing.Final[Mapping[constants.TransactionType, str]] = {
-    constants.TransactionType.pay: "Payment",
-    constants.TransactionType.keyreg: "KeyRegistration",
-    constants.TransactionType.acfg: "AssetConfig",
-    constants.TransactionType.axfer: "AssetTransfer",
-    constants.TransactionType.afrz: "AssetFreeze",
-    constants.TransactionType.appl: "ApplicationCall",
+_TXN_TYPE_NAMES: typing.Final[Mapping[TransactionType, str]] = {
+    TransactionType.pay: "Payment",
+    TransactionType.keyreg: "KeyRegistration",
+    TransactionType.acfg: "AssetConfig",
+    TransactionType.axfer: "AssetTransfer",
+    TransactionType.afrz: "AssetFreeze",
+    TransactionType.appl: "ApplicationCall",
 }
 
-_all_txn_kinds: typing.Final[Sequence[constants.TransactionType | None]] = [
+_all_txn_kinds: typing.Final[Sequence[TransactionType | None]] = [
     None,
-    *constants.TransactionType,
+    *TransactionType,
 ]
-GroupTransactionTypes: typing.Final[
-    Mapping[constants.TransactionType | None, TransactionRelatedType]
-] = {kind: _make_gtxn_type(kind) for kind in _all_txn_kinds}
+GroupTransactionTypes: typing.Final[Mapping[TransactionType | None, TransactionRelatedType]] = {
+    kind: _make_gtxn_type(kind) for kind in _all_txn_kinds
+}
 InnerTransactionFieldsetTypes: typing.Final[
-    Mapping[constants.TransactionType | None, TransactionRelatedType]
+    Mapping[TransactionType | None, TransactionRelatedType]
 ] = {kind: _make_itxn_fieldset_type(kind) for kind in _all_txn_kinds}
 InnerTransactionResultTypes: typing.Final[
-    Mapping[constants.TransactionType | None, TransactionRelatedType]
+    Mapping[TransactionType | None, TransactionRelatedType]
 ] = {kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds}
 
 

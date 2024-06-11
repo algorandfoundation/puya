@@ -489,7 +489,9 @@ class Struct(metaclass=_StructMeta):
 
 class ARC4Client(typing.Protocol): ...
 
-_TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
+_TABIResult_co = typing.TypeVar(
+    "_TABIResult_co", bound=(algopy.BytesBacked | algopy.UInt64 | algopy.Bytes), covariant=True
+)
 _TABIArg: typing.TypeAlias = (
     algopy.BytesBacked
     | algopy.UInt64
@@ -562,7 +564,7 @@ class _ABICallProtocolType(typing.Protocol):
         extra_program_pages: UInt64 | int = ...,
         fee: algopy.UInt64 | int = 0,
         sender: algopy.Account | str = ...,
-        note: algopy.Bytes | bytes | str = ...,
+        note: algopy.Bytes | algopy.String | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
     def __getitem__(
@@ -572,6 +574,21 @@ class _ABICallProtocolType(typing.Protocol):
 abi_call: _ABICallProtocolType = ...
 """Provides a typesafe way of calling ARC4 methods via an inner transaction
 
+:param method: The name, method selector or Algorand Python method to call
+:param app_id: Application to call, if 0 or not specified will create a new application
+:param on_completion: OnCompleteAction value for the transaction
+                      If not specified will be inferred from Algorand Python method where possible
+:param approval_program: When creating or updating an application, the approval program.
+:param clear_state_program: When creating or updating an application, the clear state program.
+:param global_num_uint: When creating an application the number of global uints
+:param global_num_bytes: When creating an application the number of global bytes
+:param local_num_uint: When creating an application the number of local uints
+:param local_num_bytes: When creating an application the number of local bytes
+:param extra_program_pages: When creating an application the The number of extra program pages
+:param fee: The fee to pay for the transaction, defaults to 0
+:param sender: The sender address for the transaction
+:param note: Note to include with the transaction
+:param rekey_to: Account to rekey to
 Examples:
 ```
 # can reference another algopy contract method
@@ -587,6 +604,82 @@ result, txn = abi_call[arc4.String]("hello", "There", app=...)
 assert result == "Hello, There"
 ```
 """
+_TABIArgs = typing.ParamSpec("_TABIArgs")
+
+@typing.overload
+def arc4_create(
+    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], None] | type[ARC4Contract],
+    /,
+    *args: _TABIArg,
+    compiled: algopy.CompiledContract = ...,
+    on_completion: algopy.OnCompleteAction = ...,
+    fee: algopy.UInt64 | int = 0,
+    sender: algopy.Account | str = ...,
+    note: algopy.Bytes | bytes | str = ...,
+    rekey_to: algopy.Account | str = ...,
+) -> algopy.itxn.ApplicationCallInnerTransaction: ...
+@typing.overload
+def arc4_create(
+    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], _TABIResult_co],
+    /,
+    *args: _TABIArg,
+    compiled: algopy.CompiledContract = ...,
+    on_completion: algopy.OnCompleteAction = ...,
+    fee: algopy.UInt64 | int = 0,
+    sender: algopy.Account | str = ...,
+    note: algopy.Bytes | bytes | str = ...,
+    rekey_to: algopy.Account | str = ...,
+) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
+    """
+    Provides a typesafe and convenient way of creating an ARC4Contract via an inner transaction
+
+    :param method: Either an ARC4 abimethod, baremethod or an ARC4Contract with a single create method
+    :param compiled: If supplied will be used to specify transaction parameters required for creation,
+                     can be omitted if template variables are not used
+    :param on_completion: OnCompleteAction value for the transaction
+                          If not specified will be inferred from Algorand Python method where possible
+    :param fee: The fee to pay for the transaction, defaults to 0
+    :param sender: The sender address for the transaction
+    :param note: Note to include with the transaction
+    :param rekey_to: Account to rekey to
+    """
+
+@typing.overload
+def arc4_update(
+    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], None] | type[ARC4Contract],
+    /,
+    *args: _TABIArg,
+    app_id: algopy.Application | algopy.UInt64 | int,
+    compiled: algopy.CompiledContract = ...,
+    fee: algopy.UInt64 | int = 0,
+    sender: algopy.Account | str = ...,
+    note: algopy.Bytes | bytes | str = ...,
+    rekey_to: algopy.Account | str = ...,
+) -> algopy.itxn.ApplicationCallInnerTransaction: ...
+@typing.overload
+def arc4_update(
+    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], _TABIResult_co],
+    /,
+    *args: _TABIArg,
+    app_id: algopy.Application | algopy.UInt64 | int,
+    compiled: algopy.CompiledContract = ...,
+    fee: algopy.UInt64 | int = 0,
+    sender: algopy.Account | str = ...,
+    note: algopy.Bytes | bytes | str = ...,
+    rekey_to: algopy.Account | str = ...,
+) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
+    """
+    Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction
+
+    :param method: Either an ARC4 abimethod, baremethod or an ARC4Contract with a single update method
+    :param app_id: Application to update
+    :param compiled: If supplied will be used to specify transaction parameters required for updating,
+                     can be omitted if template variables are not used
+    :param fee: The fee to pay for the transaction, defaults to 0
+    :param sender: The sender address for the transaction
+    :param note: Note to include with the transaction
+    :param rekey_to: Account to rekey to
+    """
 
 @typing.overload
 def emit(event: Struct, /) -> None: ...

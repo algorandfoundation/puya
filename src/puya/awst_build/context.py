@@ -8,12 +8,13 @@ import mypy.nodes
 import mypy.types
 
 from puya import log
-from puya.awst.nodes import ConstantValue, ContractReference
+from puya.awst.nodes import ConstantValue
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.exceptions import TypeUnionError
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
 
@@ -227,7 +228,7 @@ def type_to_pytype(
             return _maybe_parameterise_pytype(registry, generic, items, loc)
         case mypy.types.LiteralType(fallback=fallback, value=literal_value) as mypy_literal_type:
             if not in_type_args:
-                # this is a bit clumsy, but exists for some reason, bool types
+                # this is a bit clumsy, but exists because for some reason, bool types
                 # can be "narrowed" down to a typing.Literal. e.g. in the case of:
                 #   assert a
                 #   assert a or b

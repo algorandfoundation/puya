@@ -127,6 +127,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
             def deferred(ctx: ASTConversionModuleContext) -> ModuleStatement:
                 program = FunctionASTConverter.convert(ctx, func_def, source_location)
+                ctx.register_pytype(pytypes.LogicSigType, alias=program.full_name)
                 return LogicSignature(
                     module_name=ctx.module_name,
                     program=program,
@@ -568,6 +569,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         return self._unsupported(expr)
 
     def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> ConstantValue:
+        return self._unsupported(expr)
+
+    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> ConstantValue:
         return self._unsupported(expr)
 
     def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> ConstantValue:

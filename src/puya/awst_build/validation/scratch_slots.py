@@ -2,7 +2,7 @@ from collections.abc import Iterator
 
 from puya import log
 from puya.awst import nodes as awst_nodes
-from puya.awst_build.validation.awst_traverser import AWSTTraverser
+from puya.awst.awst_traverser import AWSTTraverser
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
