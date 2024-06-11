@@ -44,7 +44,7 @@ main_noop_with_uint64_route@4:
     // @arc4.abimethod
     callsub noop_with_uint64
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -69,7 +69,7 @@ main_all_the_things_route@5:
     // )
     callsub full_abi_config
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -88,7 +88,7 @@ main_mixed_oca_route@6:
     // )
     txn OnCompletion
     int 1
-    swap
+    uncover 1
     shl
     int 37
     &
@@ -110,7 +110,7 @@ main_mixed_oca_route@6:
     // )
     callsub mixed_oca
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -204,7 +204,7 @@ main_get_address_route@10:
     assert // is not creating
     callsub get_address
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -221,7 +221,7 @@ main_get_asset_route@11:
     assert // is not creating
     callsub get_asset
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -238,7 +238,7 @@ main_get_application_route@12:
     assert // is not creating
     callsub get_app
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -255,7 +255,7 @@ main_get_an_int_route@13:
     assert // is not creating
     callsub get_a_int
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -393,11 +393,11 @@ main_method_with_more_than_15_args_route@15:
     dup
     int 40
     extract_uint16
-    swap
+    cover 1
     dup
     int 42
     extract_uint16
-    swap
+    uncover 1
     uncover 2
     uncover 2
     substring3
@@ -406,10 +406,10 @@ main_method_with_more_than_15_args_route@15:
     dup
     int 42
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
@@ -466,7 +466,7 @@ main_method_with_more_than_15_args_route@15:
     uncover 25
     callsub method_with_more_than_15_args
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -492,10 +492,10 @@ main_hello_with_algopy_string_route@16:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -567,7 +567,7 @@ noop_with_uint64:
     frame_dig -1
     btoi
     int 1
-    swap
+    uncover 1
     +
     // abi_routing/contract.py:35
     // return arc4.UInt8(result)
@@ -598,7 +598,7 @@ full_abi_config:
     frame_dig -1
     btoi
     int 1
-    swap
+    uncover 1
     +
     // abi_routing/contract.py:51
     // return arc4.UInt8(result)
@@ -626,7 +626,7 @@ mixed_oca:
     frame_dig -1
     btoi
     int 1
-    swap
+    uncover 1
     +
     // abi_routing/contract.py:64
     // return arc4.UInt8(result)
@@ -842,14 +842,14 @@ method_with_default_args:
     // assert account_from_storage == op.Global.creator_address, "wrong account from storage"
     global CreatorAddress
     frame_dig -7
-    swap
+    uncover 1
     ==
     assert // wrong account from storage
     // abi_routing/contract.py:157
     // assert account_from_function == op.Global.zero_address, "wrong account from function"
     global ZeroAddress
     frame_dig -6
-    swap
+    uncover 1
     ==
     assert // wrong account from function
     // abi_routing/contract.py:158
@@ -1394,16 +1394,16 @@ __init__:
     byte 0x09
     concat
     byte 0x
-    swap
+    uncover 1
     concat
     byte "some_bytes"
-    swap
+    uncover 1
     app_global_put
     // abi_routing/contract.py:27
     // self.creator = op.Txn.sender
     txn Sender
     byte "creator"
-    swap
+    uncover 1
     app_global_put
     // abi_routing/contract.py:28
     // self.app = Application(123)

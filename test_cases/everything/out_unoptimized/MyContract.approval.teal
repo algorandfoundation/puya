@@ -32,7 +32,7 @@ main_register_route@2:
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
     int 1
-    swap
+    uncover 1
     shl
     int 3
     &
@@ -59,7 +59,7 @@ main_say_hello_route@3:
     assert // is not creating
     callsub say_hello
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -82,7 +82,7 @@ main_calculate_route@4:
     // @abimethod
     callsub calculate
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -166,7 +166,7 @@ remember_creator:
     // self.creator = op.Txn.sender
     txn Sender
     byte "creator"
-    swap
+    uncover 1
     app_global_put
     retsub
 
@@ -192,7 +192,7 @@ register:
     int 0
     byte "name"
     app_local_get_ex
-    swap
+    cover 1
     pop
     // everything/contract.py:52
     // if not sender_name_existed:
@@ -206,7 +206,7 @@ register:
     callsub multiplicative_identity
     +
     byte "counter"
-    swap
+    uncover 1
     app_global_put
 
 register_after_if_else@3:
@@ -259,7 +259,7 @@ say_hello:
     extract 6 2
     byte "Howdy stranger!"
     concat
-    swap
+    uncover 1
     retsub
 
 say_hello_after_if_else@2:
@@ -279,7 +279,7 @@ say_hello_after_if_else@2:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     extract 2 0
     byte "!"
@@ -294,9 +294,9 @@ say_hello_after_if_else@2:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     retsub
 
 
@@ -365,7 +365,7 @@ _remove_sender:
     callsub positive_one
     -
     byte "counter"
-    swap
+    uncover 1
     app_global_put
     retsub
 

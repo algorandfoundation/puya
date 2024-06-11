@@ -71,7 +71,7 @@ silly:
     frame_dig -1
     callsub itoa
     byte "silly = "
-    swap
+    uncover 1
     concat
     log
     // with_reentrancy/contract.py:37
@@ -100,7 +100,7 @@ silly2:
     frame_dig -1
     callsub itoa
     byte "silly2 = "
-    swap
+    uncover 1
     concat
     log
     // with_reentrancy/contract.py:45
@@ -123,13 +123,13 @@ silly3:
     int 0
     ==
     dup
-    swap
+    cover 1
     // with_reentrancy/contract.py:51
     // a = x + 2
     frame_dig -1
     int 2
     +
-    swap
+    cover 1
     // with_reentrancy/contract.py:52
     // if is_even:
     bz silly3_else_body@2
@@ -172,7 +172,7 @@ silly3_after_if_else@5:
     frame_dig -1
     callsub itoa
     byte "silly3 = "
-    swap
+    uncover 1
     concat
     log
     // with_reentrancy/contract.py:61
@@ -195,11 +195,11 @@ itoa:
     // radix = digits.length
     len
     dup
-    swap
+    cover 1
     // with_reentrancy/contract.py:20
     // if i < radix:
     frame_dig -1
-    swap
+    uncover 1
     <
     bz itoa_after_if_else@2
     // with_reentrancy/contract.py:21
@@ -215,7 +215,7 @@ itoa:
     frame_dig -1
     uncover 2
     substring3
-    swap
+    uncover 1
     retsub
 
 itoa_after_if_else@2:
@@ -227,9 +227,9 @@ itoa_after_if_else@2:
     cover 2
     /
     callsub itoa
-    swap
+    cover 1
     frame_dig -1
-    swap
+    uncover 1
     %
     dup
     int 1
@@ -243,5 +243,5 @@ itoa_after_if_else@2:
     uncover 2
     substring3
     concat
-    swap
+    uncover 1
     retsub

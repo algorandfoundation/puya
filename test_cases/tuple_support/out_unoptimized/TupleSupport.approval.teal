@@ -24,7 +24,7 @@ main_entrypoint@2:
     // tuple_support/tuple_support.py:12
     // (did_overflow, self.state) = op.addw(a, b)
     addw
-    swap
+    cover 1
     byte "state"
     uncover 2
     app_global_put
@@ -113,7 +113,7 @@ main_after_if_else@5:
     int 3
     // tuple_support/tuple_support.py:30
     // assert cd[1] == tup[1]
-    swap
+    uncover 1
     ==
     assert
     // tuple_support/tuple_support.py:32-34
@@ -131,7 +131,7 @@ main_after_if_else@5:
     // tuple_support/tuple_support.py:36
     // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
     addw
-    swap
+    cover 1
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
     int 1
@@ -139,7 +139,7 @@ main_after_if_else@5:
     // tuple_support/tuple_support.py:36
     // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
     addw
-    swap
+    cover 1
     uncover 2
     uncover 3
     uncover 2
@@ -147,7 +147,7 @@ main_after_if_else@5:
     callsub addw2
     cover 2
     cover 2
-    swap
+    uncover 1
     cover 2
     // tuple_support/tuple_support.py:37
     // log(hi)
@@ -256,7 +256,7 @@ add_three_values_for_body@4:
     // tuple_support/tuple_support.py:80
     // total += value
     frame_dig 2
-    swap
+    uncover 1
     +
     frame_bury 2
     frame_dig 0
@@ -305,18 +305,18 @@ addw2:
     // tuple_support/tuple_support.py:88
     // b_hi, b_lo = b
     frame_dig -2
-    swap
+    cover 1
     frame_dig -1
     // tuple_support/tuple_support.py:89
     // lo_carry, c_lo = op.addw(a_lo, b_lo)
     addw
-    swap
+    cover 1
     cover 2
     cover 3
     // tuple_support/tuple_support.py:90
     // hi_carry1, c_mid = op.addw(a_hi, b_hi)
     uncover 2
-    swap
+    uncover 1
     addw
     // tuple_support/tuple_support.py:91
     // hi_carry2, c_mid = op.addw(c_mid, lo_carry)
@@ -326,14 +326,14 @@ addw2:
     // tuple_support/tuple_support.py:92
     // did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
     addw
-    swap
+    cover 1
     // tuple_support/tuple_support.py:93
     // assert not did_overflow, "is such a thing even possible? 👽"
     !
     assert // is such a thing even possible? 👽
     // tuple_support/tuple_support.py:94
     // return c_hi, c_mid, c_lo
-    swap
+    uncover 1
     uncover 2
     retsub
 
@@ -442,7 +442,7 @@ slicing:
     // tuple_support/tuple_support.py:111
     // assert one_to_three[-2:-1][0] == one_to_three[1]
     dup
-    swap
+    uncover 1
     ==
     assert
     retsub

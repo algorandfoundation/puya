@@ -7,7 +7,7 @@ examples.calculator.contract.MyContract.approval_program:
     // num_args = Txn.num_app_args
     txn NumAppArgs
     dup
-    swap
+    cover 1
     // calculator/contract.py:21
     // if num_args == 0:
     int 0
@@ -60,7 +60,7 @@ main_else_body@2:
     // calculator/contract.py:32
     // b_bytes = Txn.application_args(2)
     txna ApplicationArgs 2
-    swap
+    cover 1
     // calculator/contract.py:33
     // log(a_bytes)
     dup
@@ -93,15 +93,15 @@ main_after_if_else@3:
     // calculator/contract.py:39
     // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
     callsub itoa
-    swap
+    uncover 1
     callsub op
     concat
-    swap
+    uncover 1
     callsub itoa
     concat
     byte " = "
     concat
-    swap
+    uncover 1
     callsub itoa
     concat
     // calculator/contract.py:40
@@ -249,11 +249,11 @@ itoa:
     // radix = digits.length
     len
     dup
-    swap
+    cover 1
     // calculator/contract.py:13
     // if i < radix:
     frame_dig -1
-    swap
+    uncover 1
     <
     bz itoa_after_if_else@2
     // calculator/contract.py:14
@@ -269,7 +269,7 @@ itoa:
     frame_dig -1
     uncover 2
     substring3
-    swap
+    uncover 1
     retsub
 
 itoa_after_if_else@2:
@@ -281,9 +281,9 @@ itoa_after_if_else@2:
     cover 2
     /
     callsub itoa
-    swap
+    cover 1
     frame_dig -1
-    swap
+    uncover 1
     %
     dup
     int 1
@@ -297,7 +297,7 @@ itoa_after_if_else@2:
     uncover 2
     substring3
     concat
-    swap
+    uncover 1
     retsub
 
 
