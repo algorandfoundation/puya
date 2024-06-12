@@ -769,6 +769,40 @@ class DynamicArray(
         raise ValueError("ABI return prefix not found")
 
 
+class DynamicBytes(DynamicArray[Byte]):
+    """A variable sized array of bytes"""
+
+    @typing.overload
+    def __init__(self, *values: Byte | UInt8 | int): ...
+
+    @typing.overload
+    def __init__(self, value: algopy.Bytes | bytes, /): ...
+
+    def __init__(
+        self,
+        *value: algopy.Bytes | bytes | Byte | UInt8 | int,
+    ):
+        items = []
+        for x in value:
+            if isinstance(x, int):
+                items.append(Byte(x))
+            elif isinstance(x, Byte):
+                items.append(x)
+            elif isinstance(x, UInt8):  # type: ignore[misc]
+                items.append(typing.cast(Byte, x))
+            elif isinstance(x, algopy.Bytes):
+                items.extend([Byte(int.from_bytes(i.value)) for i in x])
+            elif isinstance(x, bytes):
+                items.extend([Byte(int.from_bytes(i.value)) for i in algopy.Bytes(x)])
+
+        super().__init__(*items)
+
+    @property
+    def native(self) -> algopy.Bytes:
+        """Return the Bytes representation of the address after ARC4 decoding"""
+        return self.bytes
+
+
 def _is_arc4_dynamic(value: object) -> bool:
     if isinstance(value, StaticArray | DynamicArray):
         return any(_is_arc4_dynamic(v) for v in value)
