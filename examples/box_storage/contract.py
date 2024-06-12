@@ -20,6 +20,28 @@ class BoxContract(arc4.ARC4Contract):
 
         self.box_a.value += 3
 
+        assert self.box_a.length == 8
+        assert self.box_b.length == b.length
+        assert self.box_c.length == c.bytes.length
+
+    @arc4.abimethod
+    def check_keys(self) -> None:
+        assert self.box_a.key == b"box_a", "box a key ok"
+        assert self.box_b.key == b"b", "box b key ok"
+        assert self.box_c.key == b"BOX_C", "box c key ok"
+
+    @arc4.abimethod
+    def delete_boxes(self) -> None:
+        del self.box_a.value
+        del self.box_b.value
+        del self.box_c.value
+        assert self.box_a.get(default=UInt64(42)) == 42
+        assert self.box_b.get(default=Bytes(b"42")) == b"42"
+        assert self.box_c.get(default=arc4.String("42")) == "42"
+        a, a_exists = self.box_a.maybe()
+        assert not a_exists
+        assert a == 0
+
     @arc4.abimethod
     def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String]:
         return self.box_a.value, self.box_b.value, self.box_c.value
@@ -48,23 +70,40 @@ class BoxContract(arc4.ARC4Contract):
         assert box_d.value[3] == 3
 
     @arc4.abimethod
-    def box_blob(self) -> None:
-        box_blob = BoxRef(key="blob")
+    def box_ref(self) -> None:
+        # init ref
+        box_ref = BoxRef(key="blob")
+        assert not box_ref, "no data"
+
+        # create
+        assert box_ref.create(size=32)
+        assert box_ref, "has data"
+
+        # manipulate data
         sender_bytes = Txn.sender.bytes
         app_address = Global.current_application_address.bytes
-        assert box_blob.create(size=8000)
-        box_blob.replace(0, sender_bytes)
-        box_blob.splice(0, 0, app_address)
-        first_64 = box_blob.extract(0, 32 * 2)
-        assert first_64 == app_address + sender_bytes
-        assert box_blob.delete()
+        value_3 = Bytes(b"hello")
+        box_ref.replace(0, sender_bytes)
+        box_ref.resize(8000)
+        box_ref.splice(0, 0, app_address)
+        box_ref.replace(64, value_3)
+        prefix = box_ref.extract(0, 32 * 2 + value_3.length)
+        assert prefix == app_address + sender_bytes + value_3
 
-        value, exists = box_blob.maybe()
+        # delete
+        assert box_ref.delete()
+        assert box_ref.key == b"blob"
+
+        # query
+        value, exists = box_ref.maybe()
         assert not exists
-        assert box_blob.get(default=sender_bytes) == sender_bytes
-        box_blob.put(sender_bytes + app_address)
-        assert box_blob, "Blob exists"
-        assert box_blob.length == 64
+        assert value == b""
+        assert box_ref.get(default=sender_bytes) == sender_bytes
+
+        # update
+        box_ref.put(sender_bytes + app_address)
+        assert box_ref, "Blob exists"
+        assert box_ref.length == 64
 
     @arc4.abimethod
     def box_map_test(self) -> None:
