@@ -126,21 +126,3 @@ class Account:
 
     def __hash__(self) -> int:
         return hash(self._public_key)
-
-
-@dataclass
-class AccountData:
-    """
-    Data class to store account-related information.
-
-    Attributes:
-        opted_asset_balances (dict[int, algopy.UInt64]): A dictionary mapping asset IDs to their
-        balances.
-        opted_app_ids (dict[int, algopy.UInt64]): A dictionary mapping application IDs to
-        their instances.
-        data (AccountFields): Additional account fields.
-    """
-
-    opted_asset_balances: dict[algopy.UInt64, algopy.UInt64]
-    opted_apps: dict[algopy.UInt64, algopy.Application]
-    fields: AccountFields

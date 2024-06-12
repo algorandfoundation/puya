@@ -18,7 +18,7 @@ from ecdsa import (  # type: ignore  # noqa: PGH003
 
 from algopy_testing.constants import BITS_IN_BYTE, MAX_BYTES_SIZE, MAX_UINT64
 from algopy_testing.enums import ECDSA, Base64, VrfVerify
-from algopy_testing.models.global_state import Global
+from algopy_testing.models.global_values import Global
 from algopy_testing.models.itxn import ITxn
 from algopy_testing.models.txn import Txn
 from algopy_testing.primitives.biguint import BigUInt

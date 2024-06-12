@@ -9,36 +9,24 @@ from .contract import AuctionContract
 
 @pytest.fixture()
 def context() -> Generator[AlgopyTestContext, None, None]:
-    with algopy_testing_context(AuctionContract) as ctx:
+    with algopy_testing_context() as ctx:
         yield ctx
         ctx.reset()
 
 
 def test_opt_into_asset(context: AlgopyTestContext) -> None:
     # Arrange
-    account = context.any_account(
-        auth_address=context.any_account(), balance=context.any_uint64(1, 1000)
-    )
-    application_address = context.any_account()
     asset = context.any_asset()
-
-    context.patch_global_fields(
-        creator_address=account, current_application_address=application_address
-    )
-    context.patch_txn_fields(sender=account)
-
     contract = AuctionContract()
 
     # Act
     contract.opt_into_asset(asset)
 
     # Assert
-    assert asset.id
+    assert len(context.get_transaction_group()) == 1
     assert contract.asa.id == asset.id
-    assert len(context.inner_transactions) == 1
-    assert isinstance(context.inner_transactions[0], algopy.itxn.AssetTransfer)
     assert context.inner_transactions[0] == algopy.itxn.AssetTransfer(
-        asset_receiver=application_address,
+        asset_receiver=context.default_creator,
         xfer_asset=asset,
     )
 
@@ -67,6 +55,8 @@ def test_start_auction(
     context.patch_txn_fields(sender=account)
 
     # Act
+    # group index that will be added to group_index, represents the index in the group for the unit under test
+    # contract.set_transaction_group([a, b, c], txn_group_index=0)
     contract.start_auction(
         auction_price,
         auction_duration,
@@ -77,6 +67,9 @@ def test_start_auction(
     assert contract.auction_end == latest_timestamp + auction_duration
     assert contract.previous_bid == auction_price
     assert contract.asa_amount == auction_price
+
+    # Given: Oracle
+    # Mock Oracle to see what happens when USD$ goes > or < dollar
 
 
 def test_bid(context: AlgopyTestContext) -> None:
@@ -170,6 +163,7 @@ def test_delete_application(
     contract.delete_application()
 
     # Assert
+    assert len(context.get_transaction_group()) == 1
     assert len(context.inner_transactions) == 1
     assert isinstance(context.inner_transactions[0], algopy.itxn.Payment)
     assert context.inner_transactions[0] == algopy.itxn.Payment(

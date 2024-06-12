@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, TypedDict, get_type_hints
+from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     import algopy
@@ -43,9 +43,7 @@ class TransactionBase(_GroupTransaction):
         self.__dict__.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        type_hints = get_type_hints(TransactionBaseFields)
-
-        if name in type_hints:
+        if name in TransactionBaseFields.__annotations__:
             return self.__dict__.get(name)
 
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
@@ -72,9 +70,7 @@ class AssetTransferTransaction(TransactionBase):
         self.__dict__.update(kwargs)
 
     def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
-        type_hints = get_type_hints(AssetTransferFields)
-
-        if name in type_hints:
+        if name in AssetTransferFields.__annotations__:
             return self.__dict__.get(name)
 
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
@@ -92,43 +88,151 @@ class PaymentTransaction(TransactionBase):
         super().__init__(group_index=group_index)
         self.__dict__.update(kwargs)
 
-    def set(self, **kwargs: typing.Unpack[PaymentFields]) -> None:
-        """Updates inner transaction parameter values"""
-        self.__dict__.update(kwargs)
-
     def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
-        type_hints = get_type_hints(PaymentFields)
-
-        if name in type_hints:
+        if name in PaymentFields.__annotations__:
             return self.__dict__.get(name)
 
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 
-# TODO: Implement remaining transaction types
+class ApplicationCallFields(TransactionBaseFields, total=False):
+    app_id: algopy.Application
+    on_completion: algopy.OnCompleteAction
+    num_app_args: algopy.UInt64
+    num_accounts: algopy.UInt64
+    approval_program: algopy.Bytes
+    clear_state_program: algopy.Bytes
+    num_assets: algopy.UInt64
+    num_apps: algopy.UInt64
+    global_num_uint: algopy.UInt64
+    global_num_bytes: algopy.UInt64
+    local_num_uint: algopy.UInt64
+    local_num_bytes: algopy.UInt64
+    extra_program_pages: algopy.UInt64
+    last_log: algopy.Bytes
+    num_approval_program_pages: algopy.UInt64
+    num_clear_state_program_pages: algopy.UInt64
+
+    app_args: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
+    accounts: typing.Callable[[algopy.UInt64 | int], algopy.Account]
+    assets: typing.Callable[[algopy.UInt64 | int], algopy.Asset]
+    apps: typing.Callable[[algopy.UInt64 | int], algopy.Application]
+    approval_program_pages: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
+    clear_state_program_pages: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
+
+
 @dataclass
 class ApplicationCallTransaction(TransactionBase):
-    pass
+    def __init__(
+        self, group_index: algopy.UInt64 | int, **kwargs: typing.Unpack[ApplicationCallFields]
+    ):
+        super().__init__(group_index=group_index)
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+        if name in ApplicationCallFields.__annotations__:
+            return self.__dict__.get(name)
+
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 
-@dataclass
+class KeyRegistrationFields(TransactionBaseFields, total=False):
+    vote_key: algopy.Bytes
+    selection_key: algopy.Bytes
+    vote_first: algopy.UInt64
+    vote_last: algopy.UInt64
+    vote_key_dilution: algopy.UInt64
+    non_participation: bool
+    state_proof_key: algopy.Bytes
+
+
 class KeyRegistrationTransaction(TransactionBase):
-    pass
+    def __init__(
+        self, group_index: algopy.UInt64 | int, **kwargs: typing.Unpack[KeyRegistrationFields]
+    ):
+        super().__init__(group_index=group_index)
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+        if name in KeyRegistrationFields.__annotations__:
+            return self.__dict__.get(name)
+
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+
+class AssetConfigFields(TransactionBaseFields, total=False):
+    config_asset: algopy.Asset
+    total: algopy.UInt64
+    decimals: algopy.UInt64
+    default_frozen: bool
+    unit_name: algopy.Bytes
+    asset_name: algopy.Bytes
+    url: algopy.Bytes
+    metadata_hash: algopy.Bytes
+    manager: algopy.Account
+    reserve: algopy.Account
+    freeze: algopy.Account
+    clawback: algopy.Account
 
 
 @dataclass
 class AssetConfigTransaction(TransactionBase):
-    pass
+    def __init__(
+        self, group_index: algopy.UInt64 | int, **kwargs: typing.Unpack[AssetConfigFields]
+    ):
+        super().__init__(group_index=group_index)
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+        if name in AssetConfigFields.__annotations__:
+            return self.__dict__.get(name)
+
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+
+class AssetFreezeFields(TransactionBaseFields, total=False):
+    freeze_asset: algopy.Asset
+    freeze_account: algopy.Account
+    frozen: bool
 
 
 @dataclass
 class AssetFreezeTransaction(TransactionBase):
-    pass
+    def __init__(
+        self, group_index: algopy.UInt64 | int, **kwargs: typing.Unpack[AssetFreezeFields]
+    ):
+        super().__init__(group_index=group_index)
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+        if name in AssetFreezeFields.__annotations__:
+            return self.__dict__.get(name)
+
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 
 @dataclass
 class Transaction(TransactionBase):
-    pass
+    def __init__(
+        self,
+        group_index: algopy.UInt64 | int,
+        **kwargs: dict[str, typing.Any],
+    ):
+        super().__init__(group_index=group_index)
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+        if name in {
+            **TransactionBaseFields.__annotations__,
+            **AssetTransferFields.__annotations__,
+            **PaymentFields.__annotations__,
+            **ApplicationCallFields.__annotations__,
+            **KeyRegistrationFields.__annotations__,
+            **AssetConfigFields.__annotations__,
+            **AssetFreezeFields.__annotations__,
+        }:
+            return self.__dict__[name]
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 
 __all__ = [

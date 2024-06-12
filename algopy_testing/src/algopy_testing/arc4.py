@@ -3,32 +3,93 @@ from __future__ import annotations
 import decimal
 import types
 import typing
+from typing import Any
 
-import algopy_testing.primitives as algopy
 from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
-from algopy_testing.utils import as_bytes, as_int, as_int64, as_int512, as_string, int_to_bytes
+from algopy_testing.models.contract import Contract
+from algopy_testing.utils import as_bytes, as_int, as_int64, as_int512, int_to_bytes
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable
+
+    import algopy
+
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
 _ABI_LENGTH_SIZE = 2
 
+class ABIMethod:
+    def __init__(self, dummy: typing.Callable):
+        self.dummy = dummy
+
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self.dummy(*args, **kwds)
+
 
 def abimethod(
     fn: Callable[_P, _R],
 ) -> Callable[_P, _R]:
-    return fn
+    return ABIMethod(fn)
 
 
-class ARC4Contract:
+# def abimethod(
+#     fn: Callable[_P, _R],
+# ) -> Callable[_P, _R]:
+#     @functools.wraps(fn)
+#     def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+#         return fn(*args, **kwargs)
+
+#     wrapper._is_abimethod = True  # type: ignore[attr-defined]
+#     return wrapper
+
+
+class ARC4Contract(Contract):
+    @typing.final
+    def approval_program(self) -> algopy.UInt64 | bool:
+        # Implement the logic for the approval program
+        from algopy import UInt64
+
+        return UInt64(1)  # Example return value
+
+    def clear_state_program(self) -> algopy.UInt64 | bool:
+        # Implement the logic for the clear state program
+        return algopy.UInt64(0)  # Example return value
+
+    def __getattribute__(self, name: str) -> object:
+        attr = super().__getattribute__(name)
+        if isinstance(attr, ABIMethod):
+            from algopy.gtxn import TransactionBase
+
+            from algopy_testing import get_test_context
+
+            context = get_test_context()
+            if context is None or context.active_transaction_index is not None:
+                return attr
+
+            last_gtxn_index = len(context.get_transaction_group())
+            context.add_transactions(
+                [
+                    typing.cast(
+                        TransactionBase,
+                        context.any_app_call_txn(
+                            sender=context.default_creator,
+                            app_id=context.default_application,
+                        ),
+                    )
+                ]
+            )
+            context.set_active_transaction_index(last_gtxn_index)
+
+        return attr
+
+
+class String:
     pass
 
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
-_RETURN_PREFIX = algopy.Bytes(ARC4_RETURN_PREFIX)
 
 
 class _ABIEncoded(typing.Protocol):
@@ -129,6 +190,8 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     _value: bytes  # underlying 'bytes' value representing the UIntN
 
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None:
+        import algopy  # noqa: F401
+
         self._bit_size = as_int(typing.get_args(self._t)[0], max=self._max_bits_len)
         self._max_int = 2**self._bit_size - 1
         self._max_bytes_len = self._bit_size // BITS_IN_BYTE
@@ -183,6 +246,8 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
+        import algopy  # noqa: F401
+
         value = as_bytes(value)
         result = cls()
         result._value = value  # noqa: SLF001
@@ -191,13 +256,17 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self._value)
+        from algopy import Bytes
+
+        return Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        from algopy import Bytes
+
+        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -212,7 +281,9 @@ class UIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     @property
     def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        return algopy.UInt64(int.from_bytes(self._value))
+        from algopy import UInt64
+
+        return UInt64(int.from_bytes(self._value))
 
     def __eq__(self, other: object) -> bool:
         return as_int64(self.native) == as_int(other, max=None)
@@ -246,7 +317,9 @@ class BigUIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     @property
     def native(self) -> algopy.BigUInt:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        return algopy.BigUInt.from_bytes(self._value)
+        from algopy import BigUInt
+
+        return BigUInt.from_bytes(self._value)
 
     def __eq__(self, other: object) -> bool:
         return as_int512(self.native) == as_int(other, max=None)

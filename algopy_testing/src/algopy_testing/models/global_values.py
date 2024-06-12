@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import typing
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypedDict, TypeVar
+from typing import TypedDict, TypeVar
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
     import algopy

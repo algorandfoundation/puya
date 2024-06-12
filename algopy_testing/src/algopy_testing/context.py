@@ -3,15 +3,17 @@ from __future__ import annotations
 import random
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Unpack
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Unpack
 
 import algosdk
 
-from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64
-from algopy_testing.models.account import AccountData, AccountFields
+from algopy_testing.constants import DEFAULT_GLOBAL_GENESIS_HASH, MAX_BYTES_SIZE, MAX_UINT64
+from algopy_testing.gtxn import ApplicationCallFields, AssetTransferFields, PaymentFields
+from algopy_testing.models.account import AccountFields
 from algopy_testing.models.application import ApplicationFields
 from algopy_testing.models.asset import AssetFields
-from algopy_testing.models.global_state import GlobalFields
+from algopy_testing.models.global_values import GlobalFields
 from algopy_testing.models.txn import TxnFields
 
 if TYPE_CHECKING:
@@ -23,23 +25,81 @@ if TYPE_CHECKING:
     from algopy_testing.itxn import BaseInnerTransaction
 
 
+@dataclass
+class AccountContextData:
+    """
+    Data class to store account-related information.
+
+    Attributes:
+        opted_asset_balances (dict[int, algopy.UInt64]): A dictionary mapping asset IDs to their
+        balances.
+        opted_app_ids (dict[int, algopy.UInt64]): A dictionary mapping application IDs to
+        their instances.
+        data (AccountFields): Additional account fields.
+    """
+
+    opted_asset_balances: dict[algopy.UInt64, algopy.UInt64]
+    opted_apps: dict[algopy.UInt64, algopy.Application]
+    fields: AccountFields
+
+
+@dataclass
+class ContractContextData:
+    """
+    Data class to store account-related information.
+
+    Attributes:
+        opted_asset_balances (dict[int, algopy.UInt64]): A dictionary mapping asset IDs to their
+        balances.
+        opted_app_ids (dict[int, algopy.UInt64]): A dictionary mapping application IDs to
+        their instances.
+        data (AccountFields): Additional account fields.
+    """
+
+    contract: algopy.Contract | algopy.ARC4Contract
+    app_id: algopy.UInt64
+
+
 class AlgopyTestContext:
     def __init__(
-        self, contract_cls: type[algopy.Contract | algopy.ARC4Contract] | None = None
+        self,
+        *,
+        default_creator: algopy.Account | None = None,
+        default_application: algopy.Application | None = None,
+        auto_append_contract_calls: bool = True,
     ) -> None:
-        self._contract_cls = (
-            contract_cls  # TODO: not utilized yet, just storing the reference for now
-        )
-        self.account_data: dict[str, AccountData] = {}
+        import algopy
+
+        self._asset_id = iter(range(1001, 2**64))
+        self._app_id = iter(range(1001, 2**64))
+
+        self.auto_append_contract_calls = auto_append_contract_calls
+        self.contracts: list[algopy.Contract | algopy.ARC4Contract] = []
+        self.txn_fields: TxnFields = {}
+        self.gtxns: list[algopy.gtxn.TransactionBase] = []
+        self.active_transaction_index: int | None = None
+        self.account_data: dict[str, AccountContextData] = {}
         self.application_data: dict[int, ApplicationFields] = {}
         self.asset_data: dict[int, AssetFields] = {}
         self.inner_transactions: list[BaseInnerTransaction] = []
-        self.global_fields: GlobalFields = {}
-        self.txn_fields: TxnFields = {}
-        self.gtxns: list[algopy.gtxn.TransactionBase] = []
         self.logs: list[str] = []
-        self._asset_id = iter(range(1001, 2**64))
-        self._app_id = iter(range(1001, 2**64))
+        self.default_creator = default_creator or algopy.Account(
+            algosdk.account.generate_account()[1]
+        )
+        self.default_application = default_application or self.any_application(
+            address=self.any_account()
+        )
+        self.global_fields: GlobalFields = {
+            "min_txn_fee": algopy.UInt64(1_000),
+            "min_balance": algopy.UInt64(100_000),
+            "max_txn_life": algopy.UInt64(1_000),
+            "zero_address": algopy.Account(algosdk.constants.ZERO_ADDRESS),
+            "creator_address": self.default_creator,
+            "current_application_address": algopy.Account(algosdk.account.generate_account()[1]),
+            "asset_create_min_balance": algopy.UInt64(100_000),
+            "asset_opt_in_min_balance": algopy.UInt64(10_000),
+            "genesis_hash": algopy.Bytes(DEFAULT_GLOBAL_GENESIS_HASH),
+        }
 
     def patch_global_fields(self, **global_fields: Unpack[GlobalFields]) -> None:
         """
@@ -129,7 +189,7 @@ class AlgopyTestContext:
 
         response = self.account_data.get(
             str(account),
-            AccountData(fields=AccountFields(), opted_asset_balances={}, opted_apps={}),
+            AccountContextData(fields=AccountFields(), opted_asset_balances={}, opted_apps={}),
         ).opted_asset_balances.get(asset_id, None)
 
         return response
@@ -200,6 +260,12 @@ class AlgopyTestContext:
 
         self.application_data[app_id].update(application_fields)
 
+    def add_contract(
+        self,
+        contract: algopy.Contract | algopy.ARC4Contract,
+    ) -> None:
+        self.contracts.append(contract)
+
     def add_inner_transaction(self, itxn: BaseInnerTransaction) -> None:
         """
         Add an inner transaction to the test context.
@@ -248,13 +314,14 @@ class AlgopyTestContext:
         new_account_address = address or algosdk.account.generate_account()[1]
         new_account = Account(new_account_address)
         new_account_fields = AccountFields(**account_fields)
-        new_account_data = AccountData(
+        new_account_data = AccountContextData(
             fields=new_account_fields,
             opted_asset_balances=opted_asset_balances or {},
             opted_apps=opted_apps or {},
         )
 
         self.account_data[new_account_address] = new_account_data
+
         return new_account
 
     def any_asset(
@@ -290,14 +357,24 @@ class AlgopyTestContext:
         self.application_data[int(new_app.id)] = ApplicationFields(**application_fields)
         return new_app
 
-    def set_transaction_group(self, gtxn: list[algopy.gtxn.TransactionBase]) -> None:
+    def set_transaction_group(
+        self, gtxn: list[algopy.gtxn.TransactionBase], active_transaction_index: int | None = None
+    ) -> None:
         """
         Set the transaction group in the test context using a list of transactions.
 
         Args:
             gtxn (list[algopy.gtxn.TransactionBase]): The list of transactions to set.
+            active_transaction_index (int, optional): The index of the active transaction in the group.
+            Defaults to None.
         """
         self.gtxns = gtxn
+
+        if active_transaction_index is not None:
+            self.set_active_transaction_index(active_transaction_index)
+
+    def add_transactions(self, txns: list[algopy.gtxn.TransactionBase]) -> None:
+        self.gtxns.extend(txns)
 
     def get_transaction_group(self) -> list[algopy.gtxn.TransactionBase]:
         """
@@ -307,6 +384,14 @@ class AlgopyTestContext:
             list[algopy.gtxn.TransactionBase]: The current transaction group.
         """
         return self.gtxns
+
+    def set_active_transaction_index(self, index: int) -> None:
+        self.active_transaction_index = index
+
+    def get_active_transaction(self) -> algopy.gtxn.TransactionBase | None:
+        if self.active_transaction_index is None:
+            return None
+        return self.gtxns[self.active_transaction_index]
 
     def any_uint64(self, min_value: int = 0, max_value: int = MAX_UINT64) -> algopy.UInt64:
         """
@@ -345,9 +430,23 @@ class AlgopyTestContext:
         """
         from algopy import Bytes
 
-        return Bytes(random.randbytes(length))  # noqa: S311
+        return Bytes(random.randbytes(length))
 
-    def any_axfer_txn(self, **kwargs: Any) -> algopy.gtxn.AssetTransferTransaction:
+    def any_app_call_txn(
+        self, **kwargs: Unpack[ApplicationCallFields]
+    ) -> algopy.gtxn.ApplicationCallTransaction:
+        from algopy import gtxn
+
+        new_txn = gtxn.ApplicationCallTransaction(0)
+
+        for key, value in kwargs.items():
+            setattr(new_txn, key, value)
+
+        return new_txn
+
+    def any_axfer_txn(
+        self, **kwargs: Unpack[AssetTransferFields]
+    ) -> algopy.gtxn.AssetTransferTransaction:
         """
         Generate a new asset transfer transaction with specified fields.
 
@@ -366,7 +465,7 @@ class AlgopyTestContext:
 
         return new_txn
 
-    def any_pay_txn(self, **kwargs: Any) -> algopy.gtxn.PaymentTransaction:
+    def any_pay_txn(self, **kwargs: Unpack[PaymentFields]) -> algopy.gtxn.PaymentTransaction:
         """
         Generate a new payment transaction with specified fields.
 
@@ -378,7 +477,9 @@ class AlgopyTestContext:
         """
         from algopy import gtxn
 
-        new_txn = gtxn.PaymentTransaction(0)
+        new_txn = gtxn.PaymentTransaction(
+            0,
+        )
 
         for key, value in kwargs.items():
             setattr(new_txn, key, value)
@@ -458,9 +559,15 @@ def get_test_context() -> AlgopyTestContext:
 
 @contextmanager
 def algopy_testing_context(
-    contract_cls: type[Any] | None = None,
+    *,
+    default_creator: algopy.Account | None = None,
+    auto_append_contract_calls: bool = True,
 ) -> Generator[AlgopyTestContext, None, None]:
-    token = _var.set(AlgopyTestContext(contract_cls))
+    token = _var.set(
+        AlgopyTestContext(
+            default_creator=default_creator, auto_append_contract_calls=auto_append_contract_calls
+        )
+    )
     try:
         yield _var.get()
     finally:
