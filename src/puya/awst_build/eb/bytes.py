@@ -78,7 +78,7 @@ class BytesTypeBuilder(TypeBuilder, LiteralConverter):
                     value=literal_value, encoding=BytesEncoding.unknown, source_location=location
                 )
                 return BytesExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal {literal.value} to {self.produces()}", location)
+        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
 
     @typing.override
     def call(
