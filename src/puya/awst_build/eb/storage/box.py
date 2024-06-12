@@ -25,7 +25,8 @@ from puya.awst_build.eb.storage._common import (
     BoxValueExpressionBuilder,
 )
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
-from puya.awst_build.eb.storage._util import BoxProxyConstructorResult
+from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -126,11 +127,14 @@ class BoxProxyExpressionBuilder(
             source_location=location,
         )
 
+    def _get_value(self, location: SourceLocation) -> BoxValueExpressionBuilder:
+        return BoxValueExpressionBuilder(self.pytype.content, self._box_key_expr(location))
+
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "value":
-                return BoxValueExpressionBuilder(self.pytype.content, self._box_key_expr(location))
+                return self._get_value(location)
             case "get":
                 return BoxGetExpressionBuilder(
                     self._box_key_expr(location), content_type=self.pytype.content
@@ -138,6 +142,10 @@ class BoxProxyExpressionBuilder(
             case "maybe":
                 return BoxMaybeExpressionBuilder(
                     self._box_key_expr(location), content_type=self.pytype.content
+                )
+            case "length":
+                return UInt64ExpressionBuilder(
+                    box_length_checked(self._get_value(location).resolve(), location)
                 )
         return super().member_access(name, location)
 

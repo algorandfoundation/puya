@@ -115,7 +115,14 @@ class BoxRefProxyExpressionBuilder(
                     return_type=pytypes.BytesType,
                 )
             case "resize":
-                raise NotImplementedError("TODO: BoxRef.resize handler")
+                return _IntrinsicMethod(
+                    location,
+                    box_proxy=self.resolve(),
+                    op_code="box_resize",
+                    arg_types=(pytypes.UInt64Type,),
+                    args=("new_size",),
+                    return_type=pytypes.NoneType,
+                )
             case "replace":
                 return _IntrinsicMethod(
                     location,
