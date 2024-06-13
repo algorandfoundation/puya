@@ -96,6 +96,25 @@ get_guaranteed_data:
     byte "local"
     app_local_get_ex
     assert // check self.local exists for account
+    dup
+    len
+    byte "local"
+    frame_dig -1
+    callsub get_local_state_length
+    ==
+    assert
+    retsub
+
+
+// examples.local_state.local_state_contract.get_local_state_length(state: bytes, account: bytes) -> uint64:
+get_local_state_length:
+    proto 2 1
+    frame_dig -1
+    int 0
+    frame_dig -2
+    app_local_get_ex
+    assert // check LocalState exists for account
+    len
     retsub
 
 

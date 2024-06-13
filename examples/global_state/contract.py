@@ -1,4 +1,4 @@
-from algopy import Account, Application, Asset, Bytes, Contract, GlobalState, UInt64
+from algopy import Account, Application, Asset, Bytes, Contract, GlobalState, UInt64, subroutine
 
 
 class AppStateContract(Contract):
@@ -55,7 +55,15 @@ class AppStateContract(Contract):
         assert self.global_bool_simplified
         assert self.global_bool_no_default.value
 
+        # test the proxy can be passed as an argument
+        assert get_global_state_plus_1(self.global_int_no_default) == 45
+
         return True
 
     def clear_state_program(self) -> bool:
         return True
+
+
+@subroutine
+def get_global_state_plus_1(state: GlobalState[UInt64]) -> UInt64:
+    return state.value + 1
