@@ -1392,6 +1392,20 @@ def test_arc4_copy_in_state(harness: _TestHarness) -> None:
     harness.deploy_from_closure(test)
 
 
+def test_empty_box_key(harness: _TestHarness) -> None:
+    def test() -> None:
+        from algopy import Box, arc4
+
+        class MyContract(arc4.ARC4Contract):
+            def __init__(self) -> None:
+                # TODO: this should error, migrate to box.test once it does
+                self.my_box = Box(bool, key="")
+                # length op fails because the key is empty
+                assert not self.my_box.length
+
+    harness.deploy_from_closure(test)
+
+
 @pytest.mark.slow()
 def test_brute_force_rotation_search(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")

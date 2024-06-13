@@ -12,7 +12,6 @@ class Box(typing.Generic[_TValue]):
     it.
     """
 
-    # TODO: ensure default key works, ensure str/String work
     def __init__(
         self, type_: type[_TValue], /, *, key: bytes | str | Bytes | String = ...
     ) -> None: ...
@@ -65,7 +64,6 @@ class BoxRef:
     value.
     """
 
-    # TODO: ensure default key works, ensure str/String work
     def __init__(self, /, *, key: bytes | str | Bytes | String = ...) -> None: ...
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""

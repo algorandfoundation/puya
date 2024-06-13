@@ -1384,8 +1384,8 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
 def test_box_ref(box_client: algokit_utils.ApplicationClient) -> None:
 
     box_client.call(
-        call_abi_method="box_ref",
-        transaction_parameters=_params_with_boxes(b"blob", additional_refs=7),
+        call_abi_method="test_box_ref",
+        transaction_parameters=_params_with_boxes("box_ref", b"blob", additional_refs=6),
     )
 
 

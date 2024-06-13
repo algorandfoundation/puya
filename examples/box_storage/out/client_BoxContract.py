@@ -46,7 +46,7 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
-    def box_ref(
+    def test_box_ref(
         self,
     ) -> None: ...
 
