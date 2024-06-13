@@ -62,7 +62,9 @@ contract LocalStateContract
   
   subroutine get_guaranteed_data(for_account: account): bytes
   {
-    return LocalState['local', for_account]
+    result: bytes = LocalState['local', for_account]
+    assert(len(result) == examples.local_state.local_state_contract::get_local_state_length('local', for_account))
+    return result
   }
   
   subroutine get_data_with_default(for_account: account, default: bytes): bytes
@@ -86,4 +88,9 @@ contract LocalStateContract
   {
     STATE_DELETE(LocalState['local', for_account])
   }
+}
+
+subroutine get_local_state_length(state: state_key, account: account): uint64
+{
+  return len(LocalState[state, account])
 }

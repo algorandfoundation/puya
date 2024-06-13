@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Box, BoxMap, BoxRef, Bytes, Global, String, Txn, UInt64, arc4
+from algopy import Box, BoxMap, BoxRef, Bytes, Global, String, Txn, UInt64, arc4, subroutine
 
 StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
 
@@ -44,7 +44,7 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String]:
-        return self.box_a.value, self.box_b.value, self.box_c.value
+        return get_box_value_plus_1(self.box_a) - 1, self.box_b.value, self.box_c.value
 
     @arc4.abimethod
     def boxes_exist(self) -> tuple[bool, bool, bool]:
@@ -104,6 +104,7 @@ class BoxContract(arc4.ARC4Contract):
         box_ref.put(sender_bytes + app_address)
         assert box_ref, "Blob exists"
         assert box_ref.length == 64
+        assert get_box_ref_length(box_ref) == 64
 
     @arc4.abimethod
     def box_map_test(self) -> None:
@@ -118,6 +119,13 @@ class BoxContract(arc4.ARC4Contract):
         value, exists = self.box_map.maybe(key_1)
         assert not exists
         assert key_0 in self.box_map
+        assert self.box_map.key_prefix == b""
+
+        # test box map not assigned to the class and passed to subroutine
+        tmp_box_map = BoxMap(UInt64, String, key_prefix=b"")
+        tmp_box_map[key_1] = String("hello")
+        assert get_box_map_value_from_key_plus_1(tmp_box_map, UInt64(0)) == "hello"
+        del tmp_box_map[key_1]
 
     @arc4.abimethod
     def box_map_set(self, key: UInt64, value: String) -> None:
@@ -128,5 +136,24 @@ class BoxContract(arc4.ARC4Contract):
         return self.box_map[key]
 
     @arc4.abimethod
+    def box_map_del(self, key: UInt64) -> None:
+        del self.box_map[key]
+
+    @arc4.abimethod
     def box_map_exists(self, key: UInt64) -> bool:
         return key in self.box_map
+
+
+@subroutine
+def get_box_value_plus_1(box: Box[UInt64]) -> UInt64:
+    return box.value + 1
+
+
+@subroutine
+def get_box_ref_length(ref: BoxRef) -> UInt64:
+    return ref.length
+
+
+@subroutine
+def get_box_map_value_from_key_plus_1(box_map: BoxMap[UInt64, String], key: UInt64) -> String:
+    return box_map[key + 1]
