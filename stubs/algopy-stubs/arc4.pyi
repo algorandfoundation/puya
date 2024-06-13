@@ -8,6 +8,19 @@ _R = typing.TypeVar("_R")
 
 _ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
 
+class ARC4Contract(algopy.Contract):
+    """A contract that conforms to the ARC4 ABI specification, functions decorated with
+    `@abimethod` or `@baremethod` will form the public interface of the contract
+
+    The approval_program will be implemented by the compiler, and route application args
+    according to the ARC4 ABI specification
+
+    The clear_state_program will by default return True, but can be overridden"""
+
+    @typing.final
+    def approval_program(self) -> algopy.UInt64 | bool: ...
+    def clear_state_program(self) -> algopy.UInt64 | bool: ...
+
 # if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
 def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
@@ -40,8 +53,10 @@ def abimethod(
     :arg default_args: Default argument sources for clients to use.
     """
 
+_TARC4Contract = typing.TypeVar("_TARC4Contract", bound=ARC4Contract)
+
 @typing.overload
-def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
+def baremethod(fn: Callable[[_TARC4Contract], None], /) -> Callable[[_TARC4Contract], None]: ...
 @typing.overload
 def baremethod(
     *,
@@ -57,7 +72,7 @@ def baremethod(
             "DeleteApplication",
         ]
     ] = ...,
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+) -> Callable[[Callable[[_TARC4Contract], None]], Callable[[_TARC4Contract], None]]:
     """Decorator that indicates a method is an ARC4 bare method.
 
     There can be only one bare method on a contract for each given On-Completion Action.
@@ -69,19 +84,6 @@ def baremethod(
 
 def arc4_signature(signature: str, /) -> algopy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""
-
-class ARC4Contract(algopy.Contract):
-    """A contract that conforms to the ARC4 ABI specification, functions decorated with
-    `@abimethod` or `@baremethod` will form the public interface of the contract
-
-    The approval_program will be implemented by the compiler, and route application args
-    according to the ARC4 ABI specification
-
-    The clear_state_program will by default return True, but can be overridden"""
-
-    @typing.final
-    def approval_program(self) -> algopy.UInt64 | bool: ...
-    def clear_state_program(self) -> algopy.UInt64 | bool: ...
 
 class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
     @classmethod
