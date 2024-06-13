@@ -480,7 +480,7 @@ class MethodConstant(Expression):
 class AddressConstant(Expression):
     wtype: WType = attrs.field(
         default=wtypes.account_wtype,
-        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_wtype),
+        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_alias),
     )
     value: str = attrs.field()
 
@@ -1759,7 +1759,7 @@ class Subroutine(Function):
 @attrs.frozen
 class ContractMethod(Function):
     class_name: str
-    abimethod_config: ARC4MethodConfig | None
+    arc4_method_config: ARC4MethodConfig | None
 
     @property
     def full_name(self) -> str:
@@ -1868,7 +1868,7 @@ class ContractFragment(ModuleStatement):
                     "init method should take no arguments (other than self)",
                     init.source_location,
                 )
-            if init.abimethod_config is not None:
+            if init.arc4_method_config is not None:
                 raise CodeError(
                     "init method should not be marked as an ABI method", init.source_location
                 )
@@ -1886,7 +1886,7 @@ class ContractFragment(ModuleStatement):
                     "Invalid return type for approval method, should be either bool or UInt64.",
                     approval.source_location,
                 )
-            if approval.abimethod_config:
+            if approval.arc4_method_config:
                 raise CodeError(
                     "approval method should not be marked as an ABI method",
                     approval.source_location,
@@ -1905,7 +1905,7 @@ class ContractFragment(ModuleStatement):
                     "Invalid return type for clear-state method, should be either bool or UInt64.",
                     clear.source_location,
                 )
-            if clear.abimethod_config:
+            if clear.arc4_method_config:
                 raise CodeError(
                     "clear-state method should not be marked as an ABI method",
                     clear.source_location,

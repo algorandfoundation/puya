@@ -85,7 +85,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
         return VoidExpressionBuilder(call_expr)
 
 
-class OpUpFeeSourceClassBuilder(TypeBuilder):
+class OpUpFeeSourceTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
 

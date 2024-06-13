@@ -1,10 +1,10 @@
 from puya.awst_build.eb.storage.box import (
-    BoxClassGenericExpressionBuilder,
+    BoxGenericTypeExpressionBuilder,
     BoxProxyExpressionBuilder,
     BoxTypeBuilder,
 )
 from puya.awst_build.eb.storage.box_map import (
-    BoxMapClassGenericExpressionBuilder,
+    BoxMapGenericTypeExpressionBuilder,
     BoxMapProxyExpressionBuilder,
     BoxMapTypeBuilder,
 )
@@ -25,12 +25,12 @@ from puya.awst_build.eb.storage.local_state import (
 
 __all__ = [
     "BoxTypeBuilder",
-    "BoxClassGenericExpressionBuilder",
+    "BoxGenericTypeExpressionBuilder",
     "BoxProxyExpressionBuilder",
     "BoxRefTypeBuilder",
     "BoxRefProxyExpressionBuilder",
     "BoxMapTypeBuilder",
-    "BoxMapClassGenericExpressionBuilder",
+    "BoxMapGenericTypeExpressionBuilder",
     "BoxMapProxyExpressionBuilder",
     "GlobalStateTypeBuilder",
     "GlobalStateGenericTypeBuilder",

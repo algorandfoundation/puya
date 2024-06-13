@@ -6,6 +6,7 @@ from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.errors import InternalError
+from puya.models import ARC4ABIMethodConfig, ARC4BareMethodConfig
 
 
 class ToCodeVisitor(
@@ -282,13 +283,19 @@ class ToCodeVisitor(
     def visit_contract_method(self, statement: nodes.ContractMethod) -> list[str]:
         body = statement.body.accept(self)
         args = ", ".join([f"{a.name}: {a.wtype}" for a in statement.args])
-        if statement.abimethod_config is not None:
-            if statement.abimethod_config.name != statement.name:
-                deco = f"abimethod[name_override={statement.abimethod_config.name}]"
-            else:
-                deco = "abimethod"
-        else:
-            deco = "subroutine"
+        match statement.arc4_method_config:
+            case None:
+                deco = "subroutine"
+            case ARC4BareMethodConfig():
+                deco = "baremethod"
+            case ARC4ABIMethodConfig(name=config_name):
+                if statement.name != config_name:
+                    deco = f"abimethod[name_override={config_name}]"
+                else:
+                    deco = "abimethod"
+            case other:
+                t.assert_never(other)
+
         return [
             "",
             f"{deco} {statement.name}({args}): {statement.return_type}",

@@ -384,7 +384,7 @@ OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(  # TODO: replace with ali
 
 ARC4StringType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_ARC4_STRING,
-    wtype=wtypes.arc4_string_wtype,
+    wtype=wtypes.arc4_string_alias,
 )
 ARC4BoolType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_ARC4_BOOL,
@@ -661,7 +661,7 @@ GenericARC4StaticArrayType: typing.Final = _GenericType(
 ARC4AddressType: typing.Final = _register_builtin(
     ArrayType(
         name=constants.CLS_ARC4_ADDRESS,
-        wtype=wtypes.arc4_address_wtype,
+        wtype=wtypes.arc4_address_alias,
         size=32,
         generic=None,
         items=ARC4ByteType,

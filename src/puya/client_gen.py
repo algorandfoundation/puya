@@ -11,9 +11,10 @@ from puya import log
 from puya.arc32 import OCA_ARC32_MAPPING, write_arc32_client
 from puya.errors import PuyaError
 from puya.models import (
+    ARC4ABIMethod,
+    ARC4ABIMethodConfig,
     ARC4Method,
     ARC4MethodArg,
-    ARC4MethodConfig,
     ARC4Returns,
     ARC32StructDef,
     OnCompletionAction,
@@ -82,15 +83,14 @@ def _parse_app_spec_methods(path: Path) -> tuple[str, Sequence[ARC4Method]]:
         method_hints = hints[str(arc4_method.signature)]
         allow_create, require_create, allowed_oca = _call_config(method_hints["call_config"])
         methods.append(
-            ARC4Method(
+            ARC4ABIMethod(
                 name=arc4_method.python_name,
                 desc=arc4_method.desc,
                 args=arc4_method.signature.args,
                 returns=arc4_method.signature.returns,
-                config=ARC4MethodConfig(
+                config=ARC4ABIMethodConfig(
                     source_location=None,
                     name=arc4_method.signature.name,
-                    is_bare=False,
                     allow_create=allow_create,
                     require_create=require_create,
                     readonly=bool(method_hints.get("read_only")),

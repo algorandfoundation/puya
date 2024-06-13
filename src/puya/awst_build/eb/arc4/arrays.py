@@ -352,7 +352,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                             f"Element type: {self.pytype.items}",
                         ),
                         source_location=location,
-                        wtype=wtypes.arc4_string_wtype,
+                        wtype=wtypes.arc4_string_alias,
                     )
                 )
             case _:
@@ -577,6 +577,6 @@ def _address_from_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype == pytypes.AccountType
     return ReinterpretCast(
         expr=builder.resolve(),
-        wtype=wtypes.arc4_address_wtype,
+        wtype=wtypes.arc4_address_alias,
         source_location=builder.source_location,
     )
