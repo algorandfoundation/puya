@@ -508,9 +508,7 @@ class _TypeInfo:
     def __init__(self, value: type, child_types: list[_TypeInfo] | None = None):
         self.value = value
         self.child_types = (
-            value._child_types  # noqa: SLF001
-            if issubclass(value, StaticArray) and hasattr(value, "_child_types")
-            else child_types
+            value._child_types if hasattr(value, "_child_types") else child_types  # noqa: SLF001
         )
 
 
@@ -672,9 +670,6 @@ class _DynamicArrayMeta(type(_ABIEncoded), typing.Generic[_TArrayItem, _TArrayLe
         if c := cache.get(key_t, None):
             return c
 
-        cache[key_t] = c = types.new_class(
-            f"{cls.__name__}[{key_t.__name__}]", (cls,), {}, lambda ns: ns.update(_t=key_t)
-        )
         cache[key_t] = c = types.new_class(
             f"{cls.__name__}[{key_t.__name__}]",
             (cls,),
@@ -848,6 +843,86 @@ class DynamicBytes(DynamicArray[Byte]):
     def native(self) -> algopy.Bytes:
         """Return the Bytes representation of the address after ARC4 decoding"""
         return self.bytes
+
+
+_TTuple = typing.TypeVarTuple("_TTuple")
+
+
+class _TupleMeta(type(_ABIEncoded), typing.Generic[typing.Unpack[_TTuple]]):  # type: ignore  # noqa: PGH003
+    __concrete__: typing.ClassVar[dict[tuple, type]] = {}  # type: ignore[type-arg]
+
+    def __getitem__(cls, key_t: tuple) -> type:  # type: ignore[type-arg]
+        cache = cls.__concrete__
+        if c := cache.get(key_t, None):
+            return c
+
+        cache[key_t] = c = types.new_class(
+            f"{cls.__name__}[{key_t}]",
+            (cls,),
+            {},
+            lambda ns: ns.update(
+                _child_types=[_TypeInfo(typing.cast(type, item)) for item in key_t],
+            ),
+        )
+        return c
+
+
+class Tuple(
+    _ABIEncoded,
+    tuple[*_TTuple],
+    typing.Generic[typing.Unpack[_TTuple]],
+    metaclass=_TupleMeta,
+):
+    """An ARC4 ABI tuple, containing other ARC4 ABI types"""
+
+    __slots__ = ()
+
+    _child_types: list[_TypeInfo]
+    _value: bytes
+
+    def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
+        """Construct an ARC4 tuple from a python tuple"""
+        self._value = _encode(items)
+        if items:
+            self._child_types = [self._get_type_info(item) for item in items]
+
+        # ensure the variable is set as instance variables instead of class variables
+        # to avoid sharing state between instances created by copy operation
+        self._child_types = self._child_types or []
+
+    def _get_type_info(self, item: typing.Any) -> _TypeInfo:  # noqa: ANN401
+        return _TypeInfo(
+            type(item),
+            item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
+        )
+
+    @property
+    def native(self) -> tuple[typing.Unpack[_TTuple]]:
+        """Return the Bytes representation of the address after ARC4 decoding"""
+        return typing.cast(
+            tuple[typing.Unpack[_TTuple]], tuple(_decode(self._value, self._child_types))
+        )
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes (no validation)"""
+        value = as_bytes(value)
+        result = cls()  # type: ignore[call-arg]
+        result._value = value  # noqa: SLF001
+        return result
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying Bytes"""
+        return algopy.Bytes(self._value)
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        if log[:4] == _RETURN_PREFIX:
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
 
 
 def _is_arc4_dynamic(value: object) -> bool:
