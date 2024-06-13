@@ -216,7 +216,7 @@ def _abi_call(
             num_types = len(signature.arg_types)
             if num_types != num_args:
                 raise CodeError(
-                    f"Number of arguments ({num_args}) does not match signature ({num_types})",
+                    f"number of arguments ({num_args}) does not match signature ({num_types})",
                     location,
                 )
             arc4_args = [

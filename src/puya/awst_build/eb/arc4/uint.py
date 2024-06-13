@@ -61,7 +61,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter)
         match literal.value:
             case int(constant):
                 if constant < 0 or constant.bit_length() > pytype.bits:
-                    raise CodeError(f"Invalid  {pytype} value: {constant}", location)
+                    raise CodeError(f"invalid {pytype} value: {constant}", location)
                 typed_const = IntegerConstant(
                     value=int(constant), source_location=location, wtype=pytype.wtype
                 )
