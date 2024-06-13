@@ -44,7 +44,7 @@ contract BoxContract
   
   abimethod read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
   {
-    return (Box['box_a'], Box['b'], Box[hex<"424F585F43">])
+    return (examples.box_storage.contract::get_box_value_plus_1('box_a') - 1u, Box['b'], Box[hex<"424F585F43">])
   }
   
   abimethod boxes_exist(): tuple<bool,bool,bool>
@@ -95,6 +95,7 @@ contract BoxContract
     box_put(box_ref, sender_bytes + app_address)
     assert(STATE_EXISTS(Box[box_ref]), comment="Blob exists")
     assert(checked_maybe(box_len(box_ref)) == 64u)
+    assert(examples.box_storage.contract::get_box_ref_length(box_ref) == 64u)
   }
   
   abimethod box_map_test(): void
@@ -109,6 +110,11 @@ contract BoxContract
     (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', itob(key_1))])
     assert(!(exists))
     assert(STATE_EXISTS(Box[concat('', itob(key_0))]))
+    assert(reinterpret_cast<bytes>('') == hex<"">)
+    tmp_box_map: box_key = hex<"">
+    Box[concat(tmp_box_map, itob(key_1))]: string = 'hello'
+    assert(examples.box_storage.contract::get_box_map_value_from_key_plus_1(tmp_box_map, 0u) == 'hello')
+    STATE_DELETE(Box[concat(tmp_box_map, itob(key_1))])
   }
   
   abimethod box_map_set(key: uint64, value: string): void
@@ -121,8 +127,28 @@ contract BoxContract
     return Box[concat('', itob(key))]
   }
   
+  abimethod box_map_del(key: uint64): void
+  {
+    STATE_DELETE(Box[concat('', itob(key))])
+  }
+  
   abimethod box_map_exists(key: uint64): bool
   {
     return STATE_EXISTS(Box[concat('', itob(key))])
   }
+}
+
+subroutine get_box_value_plus_1(box: box_key): uint64
+{
+  return Box[box] + 1u
+}
+
+subroutine get_box_ref_length(ref: box_key): uint64
+{
+  return checked_maybe(box_len(ref))
+}
+
+subroutine get_box_map_value_from_key_plus_1(box_map: box_key, key: uint64): string
+{
+  return Box[concat(box_map, itob(key + 1u))]
 }

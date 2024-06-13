@@ -16,6 +16,16 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def check_keys(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def delete_boxes(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def read_boxes(
         self,
     ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.DynamicBytes, algopy.arc4.String]: ...
@@ -36,7 +46,7 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
-    def box_blob(
+    def box_ref(
         self,
     ) -> None: ...
 
@@ -57,6 +67,12 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         key: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.String: ...
+
+    @algopy.arc4.abimethod
+    def box_map_del(
+        self,
+        key: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
 
     @algopy.arc4.abimethod
     def box_map_exists(

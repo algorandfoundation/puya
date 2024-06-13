@@ -1416,3 +1416,21 @@ def test_box_map(box_client: algokit_utils.ApplicationClient) -> None:
         ).return_value
         == "Hello 123"
     ), "Box value is what was set"
+
+    assert box_client.call(
+        call_abi_method="box_map_exists",
+        key=key,
+        transaction_parameters=transaction_parameters,
+    ).return_value, "Box exists"
+
+    box_client.call(
+        call_abi_method="box_map_del",
+        key=key,
+        transaction_parameters=transaction_parameters,
+    )
+
+    assert not box_client.call(
+        call_abi_method="box_map_exists",
+        key=key,
+        transaction_parameters=transaction_parameters,
+    ).return_value, "Box does not exist after deletion"
