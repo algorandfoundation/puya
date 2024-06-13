@@ -6,8 +6,12 @@ import types
 import typing
 from collections.abc import Iterable, Reversible
 
-from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
 from algopy_testing.decorators.abimethod import abimethod
+import algosdk
+
+import algopy_testing.primitives as algopy
+from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
+from algopy_testing.models import Account
 from algopy_testing.utils import (
     as_bytes,
     as_int,
@@ -615,6 +619,49 @@ class StaticArray(
         if log[:4] == _RETURN_PREFIX:
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
+
+
+class Address(StaticArray[Byte, typing.Literal[32]]):
+    """An alias for an array containing 32 bytes representing an Algorand address"""
+
+    def __init__(self, value: Account | str | algopy.Bytes = algosdk.constants.ZERO_ADDRESS):
+        """
+        If `value` is a string, it should be a 58 character base32 string,
+        ie a base32 string-encoded 32 bytes public key + 4 bytes checksum.
+        If `value` is a Bytes, it's length checked to be 32 bytes - to avoid this
+        check, use `Address.from_bytes(...)` instead.
+        Defaults to the zero-address.
+        """
+        if isinstance(value, str):
+            try:
+                bytes_value = algosdk.encoding.decode_address(value)
+            except Exception as e:
+                raise ValueError(f"cannot encode the following address: {value!r}") from e
+        else:
+            bytes_value = (
+                value.bytes.value if isinstance(value, Account) else as_bytes(value, max_size=32)
+            )
+        if len(bytes_value) != 32:
+            raise ValueError(f"expected 32 bytes, got: {len(bytes_value)}")
+        self._value = bytes_value
+
+    @property
+    def native(self) -> Account:
+        # """Return the Account representation of the address after ARC4 decoding"""
+        return Account(self.bytes)
+
+    def __bool__(self) -> bool:
+        # """Returns `True` if not equal to the zero address"""
+        zero_bytes = algosdk.encoding.decode_address(algosdk.constants.ZERO_ADDRESS)
+        return self.bytes != zero_bytes if isinstance(zero_bytes, bytes) else False
+
+    def __eq__(self, other: Address | Account | str) -> bool:  # type: ignore[override]
+        """Address equality is determined by the address of another
+        `arc4.Address`, `Account` or `str`"""
+        if isinstance(other, Address | Account):
+            return self.bytes == other.bytes
+        other_bytes = algosdk.encoding.decode_address(other)
+        return self.bytes == other_bytes if isinstance(other_bytes, bytes) else False
 
 
 class _DynamicArrayMeta(type(_ABIEncoded), typing.Generic[_TArrayItem, _TArrayLength]):  # type: ignore  # noqa: PGH003
