@@ -1,6 +1,6 @@
 import base64
 import typing
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -198,7 +198,13 @@ class ARC4Type(WType):
     scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
     decode_type: WType | None
-    encodeable_types: frozenset[WType]
+    _other_encodeable_types: Collection[WType] = attrs.field(default=())
+
+    @cached_property
+    def encodeable_types(self) -> frozenset[WType]:
+        if self.decode_type is None:
+            return frozenset(self._other_encodeable_types)
+        return frozenset([self.decode_type, *self._other_encodeable_types])
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
@@ -206,7 +212,6 @@ arc4_bool_wtype: typing.Final = ARC4Type(
     arc4_name="bool",
     immutable=True,
     decode_type=bool_wtype,
-    encodeable_types=frozenset({bool_wtype}),
 )
 
 
@@ -243,7 +248,7 @@ class ARC4UIntN(ARC4Type):
             arc4_name=arc4_name,
             n=n,
             decode_type=decode_type,
-            encodeable_types=frozenset({bool_wtype, uint64_wtype, biguint_wtype}),
+            other_encodeable_types=frozenset({bool_wtype, uint64_wtype, biguint_wtype}),
         )
 
 
@@ -269,7 +274,6 @@ class ARC4UFixedNxM(ARC4Type):
             n=bits,
             m=precision,
             decode_type=None,
-            encodeable_types=frozenset(),
         )
 
 
@@ -306,7 +310,6 @@ class ARC4Tuple(ARC4Type):
             types=tuple(arc4_types),
             immutable=immutable,
             decode_type=native_type,
-            encodeable_types=frozenset((native_type,)),
         )
 
 
@@ -336,7 +339,6 @@ class ARC4DynamicArray(ARC4Array):
             arc4_name=arc4_name,
             element_type=element_type,
             decode_type=native_type,
-            encodeable_types=frozenset({native_type} if native_type else {}),
             immutable=immutable,
         )
 
@@ -368,7 +370,6 @@ class ARC4StaticArray(ARC4Array):
             element_type=element_type,
             array_size=array_size,
             decode_type=native_type,
-            encodeable_types=frozenset({native_type} if native_type else {}),
             immutable=immutable,
         )
 
@@ -427,7 +428,6 @@ class ARC4Struct(ARC4Type):
             fields=arc4_fields,
             immutable=immutable,
             decode_type=None,
-            encodeable_types=frozenset(),
         )
 
 

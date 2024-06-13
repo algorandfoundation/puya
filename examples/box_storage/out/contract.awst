@@ -17,6 +17,29 @@ contract BoxContract
     Box['b']: bytes = b
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = c
     Box['box_a'] += 3u
+    assert(checked_maybe(box_len('box_a')) == 8u)
+    assert(checked_maybe(box_len('b')) == len(b))
+    assert(checked_maybe(box_len(hex<"424F585F43">)) == len(reinterpret_cast<bytes>(c)))
+  }
+  
+  abimethod check_keys(): void
+  {
+    assert(reinterpret_cast<bytes>('box_a') == hex<"626F785F61">, comment="box a key ok")
+    assert(reinterpret_cast<bytes>('b') == hex<"62">, comment="box b key ok")
+    assert(reinterpret_cast<bytes>(hex<"424F585F43">) == hex<"424F585F43">, comment="box c key ok")
+  }
+  
+  abimethod delete_boxes(): void
+  {
+    STATE_DELETE(Box['box_a'])
+    STATE_DELETE(Box['b'])
+    STATE_DELETE(Box[hex<"424F585F43">])
+    assert(STATE_GET(Box['box_a'], default=42u) == 42u)
+    assert(STATE_GET(Box['b'], default=hex<"3432">) == hex<"3432">)
+    assert(STATE_GET(Box[hex<"424F585F43">], default=arc4_encode('42', arc4.dynamic_array<arc4.uint8>)) == arc4_encode('42', arc4.dynamic_array<arc4.uint8>))
+    (a, a_exists): tuple<uint64,bool> = STATE_GET_EX(Box['box_a'])
+    assert(!(a_exists))
+    assert(a == 0u)
   }
   
   abimethod read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
@@ -48,23 +71,30 @@ contract BoxContract
     assert(reinterpret_cast<biguint>(Box[box_d][3u]) == reinterpret_cast<biguint>(3arc4u8))
   }
   
-  abimethod box_blob(): void
+  abimethod box_ref(): void
   {
-    box_blob: box_key = 'blob'
+    box_ref: box_key = 'blob'
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    assert(box_create(box_ref, 32u))
+    assert(STATE_EXISTS(Box[box_ref]), comment="has data")
     sender_bytes: bytes = reinterpret_cast<bytes>(txn<Sender>())
     app_address: bytes = reinterpret_cast<bytes>(global<CurrentApplicationAddress>())
-    assert(box_create(box_blob, 8000u))
-    box_replace(box_blob, 0u, sender_bytes)
-    box_splice(box_blob, 0u, 0u, app_address)
-    first_64: bytes = box_extract(box_blob, 0u, 64u)
-    assert(first_64 == app_address + sender_bytes)
-    assert(box_del(box_blob))
-    (value, exists): tuple<bytes,bool> = STATE_GET_EX(Box[box_blob])
+    value_3: bytes = hex<"68656C6C6F">
+    box_replace(box_ref, 0u, sender_bytes)
+    box_resize(box_ref, 8000u)
+    box_splice(box_ref, 0u, 0u, app_address)
+    box_replace(box_ref, 64u, value_3)
+    prefix: bytes = box_extract(box_ref, 0u, 64u + len(value_3))
+    assert(prefix == app_address + sender_bytes + value_3)
+    assert(box_del(box_ref))
+    assert(reinterpret_cast<bytes>(box_ref) == hex<"626C6F62">)
+    (value, exists): tuple<bytes,bool> = STATE_GET_EX(Box[box_ref])
     assert(!(exists))
-    assert(STATE_GET(Box[box_blob], default=sender_bytes) == sender_bytes)
-    box_put(box_blob, sender_bytes + app_address)
-    assert(STATE_EXISTS(Box[box_blob]), comment="Blob exists")
-    assert(checked_maybe(box_len(box_blob)) == 64u)
+    assert(value == hex<"">)
+    assert(STATE_GET(Box[box_ref], default=sender_bytes) == sender_bytes)
+    box_put(box_ref, sender_bytes + app_address)
+    assert(STATE_EXISTS(Box[box_ref]), comment="Blob exists")
+    assert(checked_maybe(box_len(box_ref)) == 64u)
   }
   
   abimethod box_map_test(): void
