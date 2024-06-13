@@ -50,7 +50,7 @@ class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
         return _init(args, arg_names, location, result_type=self.produces())
 
 
-class BoxMapClassGenericExpressionBuilder(GenericTypeBuilder):
+class BoxMapGenericTypeExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

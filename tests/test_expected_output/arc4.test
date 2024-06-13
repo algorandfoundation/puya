@@ -56,11 +56,11 @@ def wrong_arg_type2() -> None:
 
 @subroutine
 def wrong_arg_type3() -> None:
-    arc4.emit("Event(string,uint8)", "a", 256) ## E: Invalid algopy.arc4.UInt8 value: 256
+    arc4.emit("Event(string,uint8)", "a", 256) ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value: 256
 
 @subroutine
 def wrong_arg_type4() -> None:
-    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: Number of arguments (1) does not match signature (2)
+    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: number of arguments (1) does not match signature (2)
 
 @subroutine
 def wrong_arg_type5() -> None:
@@ -68,7 +68,7 @@ def wrong_arg_type5() -> None:
 
 @subroutine
 def wrong_number_args() -> None:
-    arc4.emit("Event(string,uint8)", "a", 1, 2) ## E: Number of arguments (3) does not match signature (2)
+    arc4.emit("Event(string,uint8)", "a", 1, 2) ## E: number of arguments (3) does not match signature (2)
 
 @subroutine
 def invalid_signature1() -> None:
@@ -266,7 +266,7 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         var_outer = OuterStruct(number=arc4.UInt64(5), inner=InnerStruct(number=arc4.UInt64(6)))
 
         number = arc4.UInt64(42)
-        bad_outer_from_locals = OuterStruct(number, var_inner) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a struct constructor
+        bad_outer_from_locals = OuterStruct(number, var_inner) ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a struct constructor
         ok_outer_from_locals = OuterStruct(number, var_inner.copy())
 
         # **FUNCTION LOCALS**
@@ -396,5 +396,9 @@ from algopy import arc4, Contract
 
 class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContract is implicitly abstract
     @arc4.abimethod ## E: algopy.arc4.abimethod decorator is only for subclasses of algopy.ARC4Contract
-    def test(self) -> None:
+    def abi(self) -> None:
+        pass
+
+    @arc4.baremethod # type: ignore[type-var]  ## E: algopy.arc4.baremethod decorator is only for subclasses of algopy.ARC4Contract
+    def bare(self) -> None:
         pass

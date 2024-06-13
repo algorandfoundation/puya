@@ -13,7 +13,13 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
+from puya.models import (
+    ARC4ABIMethodConfig,
+    ARC4BareMethodConfig,
+    ARC4MethodConfig,
+    ARC32StructDef,
+    OnCompletionAction,
+)
 from puya.parse import SourceLocation
 
 __all__ = [
@@ -21,7 +27,17 @@ __all__ = [
     "get_arc4_method_data",
 ]
 
-ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
+
+def _allowed_oca(name: object) -> OnCompletionAction | None:
+    if not isinstance(name, str):
+        return None
+    try:
+        result = OnCompletionAction[name]
+    except KeyError:
+        return None
+    if result is OnCompletionAction.ClearState:
+        return None
+    return result
 
 
 def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
@@ -58,79 +74,134 @@ def get_arc4_method_data(
 ) -> ARC4MethodData:
     dec_loc = context.node_location(decorator, func_def.info)
     func_types = _get_func_types(context, func_def, dec_loc)
+    config: ARC4MethodConfig
     match decorator:
         case mypy.nodes.RefExpr(fullname=fullname):
-            config = ARC4MethodConfig(
-                name=func_def.name,
-                source_location=dec_loc,
-                is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-            )
+            if fullname == constants.BAREMETHOD_DECORATOR:
+                config = ARC4BareMethodConfig(source_location=dec_loc)
+            else:
+                config = ARC4ABIMethodConfig(
+                    name=func_def.name,
+                    source_location=dec_loc,
+                )
         case mypy.nodes.CallExpr(
             args=args,
             arg_names=arg_names,
             callee=mypy.nodes.RefExpr(fullname=fullname),
         ):
             visitor = _ARC4DecoratorArgEvaluator(context)
-            abi_hints = typing.cast(
-                _AbiHints,
-                {n: a.accept(visitor) for n, a in zip(filter(None, arg_names), args, strict=True)},
-            )
-            name = abi_hints.get("name", func_def.name)
-            allow_actions = abi_hints.get("allow_actions", ["NoOp"])
-            if len(set(allow_actions)) != len(allow_actions):
-                context.error("Cannot have duplicate allow_actions", dec_loc)
-            if not allow_actions:
-                context.error("Must have at least one allow_actions", dec_loc)
-            invalid_actions = [a for a in allow_actions if a not in ALLOWABLE_OCA]
-            if invalid_actions:
-                context.error(
-                    f"Invalid allowed actions: {invalid_actions}",
-                    dec_loc,
-                )
-            create = abi_hints.get("create", "disallow")
-            readonly = abi_hints.get("readonly", False)
-            default_args = immutabledict[str, str](abi_hints.get("default_args", {}))
-            all_args = [
-                a.variable.name for a in (func_def.arguments or []) if not a.variable.is_self
-            ]
-            for parameter in default_args:
-                if parameter not in all_args:
+            abi_hints = {n: a.accept(visitor) for n, a in zip(arg_names, args, strict=True)}
+
+            # map "create" param
+            allow_create = False
+            require_create = False
+            match abi_hints.pop("create", None):
+                case "allow":
+                    allow_create = True
+                case "require":
+                    require_create = True
+                case "disallow" | None:
+                    pass
+                case invalid_create_option:
+                    context.error(f"invalid create option: {invalid_create_option}", dec_loc)
+
+            # map "allow_actions" param
+            allowed_completion_types = []
+            match abi_hints.pop("allow_actions", None):
+                case None:
+                    allowed_completion_types = [puya.models.OnCompletionAction.NoOp]
+                case []:
+                    context.error("must have at least one allow_actions", dec_loc)
+                case [*allow_actions]:
+                    for a in allow_actions:
+                        oca = _allowed_oca(a)
+                        if oca is None:
+                            context.error(f"invalid allow action: {a}", dec_loc)
+                        elif oca in allowed_completion_types:
+                            context.error(f"duplicate value in allow_actions: {a}", dec_loc)
+                        else:
+                            allowed_completion_types.append(oca)
+                case invalid_allow_actions_option:
                     context.error(
-                        f"'{parameter}' is not a parameter of {func_def.fullname}", dec_loc
+                        f"invalid allow_actions option: {invalid_allow_actions_option}", dec_loc
                     )
 
-            structs = immutabledict[str, ARC32StructDef](
-                {
-                    n: _wtype_to_struct_def(pt)
-                    for n, pt in func_types.items()
-                    if _is_arc4_struct(pt)
-                }
-            )
+            if fullname == constants.BAREMETHOD_DECORATOR:
+                config = ARC4BareMethodConfig(
+                    source_location=dec_loc,
+                    allowed_completion_types=allowed_completion_types,
+                    allow_create=allow_create,
+                    require_create=require_create,
+                )
+            else:
+                # map "name" param
+                name = func_def.name
+                match abi_hints.pop("name", None):
+                    case None:
+                        pass
+                    case str(name):
+                        pass
+                    case invalid_name:
+                        context.error(f"invalid name option: {invalid_name}", dec_loc)
 
-            config = ARC4MethodConfig(
-                source_location=dec_loc,
-                name=name,
-                allowed_completion_types=[
-                    puya.models.OnCompletionAction[a] for a in allow_actions
-                ],
-                allow_create=create == "allow",
-                require_create=create == "require",
-                readonly=readonly,
-                is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-                default_args=default_args,
-                structs=structs,
-            )
-        case _:
-            raise InternalError("Unexpected ARC4 decorator", dec_loc)
+                # map "readonly" param
+                readonly = False
+                match abi_hints.pop("readonly", None):
+                    case None:
+                        pass
+                    case bool(readonly):
+                        pass
+                    case invalid_readonly_option:
+                        context.error(
+                            f"invalid readonly option: {invalid_readonly_option}", dec_loc
+                        )
+
+                # map "default_args" param
+                default_args = dict[str, str]()
+                match abi_hints.pop("default_args", {}):
+                    case {**options}:
+                        method_arg_names = func_types.keys() - {"output"}
+                        for parameter, value in options.items():
+                            if parameter not in method_arg_names:
+                                context.error(
+                                    f"{parameter!r} is not a parameter of {func_def.fullname}",
+                                    dec_loc,
+                                )
+                            elif not isinstance(value, str):
+                                context.error(f"invalid default_args value: {value!r}", dec_loc)
+                            else:
+                                # if it's in method_arg_names, it's a str
+                                assert isinstance(parameter, str)
+                                default_args[parameter] = value
+                    case invalid_default_args_option:
+                        context.error(
+                            f"invalid default_args option: {invalid_default_args_option}", dec_loc
+                        )
+
+                structs = immutabledict[str, ARC32StructDef](
+                    {
+                        n: _wtype_to_struct_def(pt)
+                        for n, pt in func_types.items()
+                        if _is_arc4_struct(pt)
+                    }
+                )
+                config = ARC4ABIMethodConfig(
+                    source_location=dec_loc,
+                    allowed_completion_types=allowed_completion_types,
+                    allow_create=allow_create,
+                    require_create=require_create,
+                    name=name,
+                    readonly=readonly,
+                    default_args=immutabledict(default_args),
+                    structs=structs,
+                )
+
+            if abi_hints:
+                context.error(f"unexpected parameters: {', '.join(map(str, abi_hints))}", dec_loc)
+
+        case unexpected_node:
+            raise CodeError(f"unexpected ARC4 decorator node: {unexpected_node}", dec_loc)
     return ARC4MethodData(config=config, signature=func_types)
-
-
-class _AbiHints(typing.TypedDict, total=False):
-    name: str
-    allow_actions: list[str]
-    create: typing.Literal["allow", "require", "disallow"]
-    readonly: bool
-    default_args: dict[str, str]
 
 
 class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
@@ -227,28 +298,51 @@ def _wtype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
 def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
 ) -> dict[str, pytypes.PyType]:
-    if not (func_def.arguments and func_def.arguments[0].variable.is_self):
+    if func_def.type is None:
+        raise CodeError("typing error", location)
+    func_type = context.type_to_pytype(
+        func_def.type, source_location=context.node_location(func_def, module_src=func_def.info)
+    )
+    if not isinstance(func_type, pytypes.FuncType):
         raise InternalError(
-            "arc4_utils.get_func_types called with non class method,"
-            " which means it can't be an ABI method",
+            f"unexpected type result for ABI function definition type: {type(func_type).__name__}",
             location,
         )
-    func_type = func_def.type
-    if not isinstance(func_type, mypy.types.CallableType):
-        raise InternalError(f"Unexpected FuncDef type: {type(func_def.type).__name__}", location)
-    if "output" in (arg.variable.name for arg in func_def.arguments):
+
+    def require_arg_name(arg: pytypes.FuncArg) -> str:
+        if arg.name is None:
+            raise CodeError(
+                "positional only arguments are not supported with ARC-4 methods", location
+            )
+        return arg.name
+
+    def require_single_type(arg: pytypes.FuncArg) -> pytypes.PyType:
+        try:
+            (typ,) = arg.types
+        except ValueError:
+            raise CodeError(
+                "union types are not supported as method arguments", location
+            ) from None
+        else:
+            return typ
+
+    if not (
+        func_type.args
+        and set(require_single_type(func_type.args[0]).mro).intersection(
+            (pytypes.ARC4ContractBaseType, pytypes.ARC4ClientBaseType)
+        )
+    ):
+        raise CodeError(
+            f"ARC-4 method decorators can only be applied to"
+            f" instance methods of classes derived from {pytypes.ARC4ContractBaseType}",
+            location,
+        )
+    result = {require_arg_name(arg): require_single_type(arg) for arg in func_type.args[1:]}
+    if "output" in result:
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(
-            "For compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
+            "for compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
             location,
         )
-    return {
-        **{
-            arg.variable.name: context.type_to_pytype(
-                t, source_location=context.node_location(arg, module_src=func_def.info)
-            )
-            for t, arg in zip(func_type.arg_types, func_def.arguments, strict=True)
-            if not arg.variable.is_self
-        },
-        "output": context.type_to_pytype(func_type.ret_type, source_location=location),
-    }
+    result["output"] = func_type.ret_type
+    return result

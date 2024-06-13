@@ -11,6 +11,8 @@ from puya.arc4_util import arc4_to_pytype
 from puya.awst_build import constants
 from puya.errors import InternalError
 from puya.models import (
+    ARC4ABIMethod,
+    ARC4BareMethod,
     ARC4Method,
     ARC4MethodArg,
     ARC4MethodConfig,
@@ -84,14 +86,14 @@ def _encode_call_config(config: ARC4MethodConfig) -> JSONDict:
     return {OCA_ARC32_MAPPING[oca]: call_config for oca in config.allowed_completion_types}
 
 
-def _encode_bare_method_configs(methods: list[ARC4Method]) -> JSONDict:
+def _encode_bare_method_configs(methods: list[ARC4BareMethod]) -> JSONDict:
     result: dict[str, JSONValue] = {}
     for method in methods:
         result.update(**_encode_call_config(method.config))
     return result
 
 
-def _get_signature(method: ARC4Method) -> str:
+def _get_signature(method: ARC4ABIMethod) -> str:
     return f"{method.config.name}({','.join(m.type_ for m in method.args)}){method.returns.type_}"
 
 
@@ -110,7 +112,7 @@ def _encode_default_arg(
             "data": state.key.decode("utf-8"),
         }
     for method in contract.metadata.arc4_methods:
-        if method.name == source:
+        if isinstance(method, ARC4ABIMethod) and method.name == source:
             return {
                 "source": "abi-method",
                 "data": _encode_arc4_method(method),
@@ -119,7 +121,7 @@ def _encode_default_arg(
     raise InternalError(f"Cannot find source '{source}' on {contract.metadata.full_name}", loc)
 
 
-def _encode_arc32_method_hint(contract: CompiledContract, method: ARC4Method) -> JSONDict:
+def _encode_arc32_method_hint(contract: CompiledContract, method: ARC4ABIMethod) -> JSONDict:
     return {
         # deprecated by ARC-22
         "read_only": True if method.config.readonly else None,
@@ -136,7 +138,7 @@ def _encode_arc32_method_hint(contract: CompiledContract, method: ARC4Method) ->
     }
 
 
-def _encode_arc32_method_structs(method: ARC4Method) -> JSONDict | None:
+def _encode_arc32_method_structs(method: ARC4ABIMethod) -> JSONDict | None:
     if len(method.config.structs):
         return {
             struct_purpose: {
@@ -148,13 +150,13 @@ def _encode_arc32_method_structs(method: ARC4Method) -> JSONDict | None:
     return None
 
 
-def _encode_arc32_hints(contract: CompiledContract, methods: list[ARC4Method]) -> JSONDict:
+def _encode_arc32_hints(contract: CompiledContract, methods: list[ARC4ABIMethod]) -> JSONDict:
     return {
         _get_signature(method): _encode_arc32_method_hint(contract, method) for method in methods
     }
 
 
-def _encode_arc4_method(method: ARC4Method) -> JSONDict:
+def _encode_arc4_method(method: ARC4ABIMethod) -> JSONDict:
     return {
         "name": method.config.name,
         "args": [
@@ -174,7 +176,9 @@ def _encode_arc4_method(method: ARC4Method) -> JSONDict:
     }
 
 
-def _encode_arc4_contract(name: str, desc: str | None, methods: Sequence[ARC4Method]) -> JSONDict:
+def _encode_arc4_contract(
+    name: str, desc: str | None, methods: Sequence[ARC4ABIMethod]
+) -> JSONDict:
     return {
         "name": name,
         "desc": desc,
@@ -193,8 +197,8 @@ def _filter_none(value: JSONDict) -> JSONValue:
 
 def create_arc32_json(contract: CompiledContract) -> str:
     metadata = contract.metadata
-    bare_methods = [m for m in metadata.arc4_methods if m.config.is_bare]
-    arc4_methods = [m for m in metadata.arc4_methods if not m.config.is_bare]
+    bare_methods = [m for m in metadata.arc4_methods if isinstance(m, ARC4BareMethod)]
+    arc4_methods = [m for m in metadata.arc4_methods if isinstance(m, ARC4ABIMethod)]
     app_spec = {
         "hints": _encode_arc32_hints(contract, arc4_methods),
         "source": {
@@ -230,6 +234,7 @@ def _can_overwrite_auto_generated_file(path: Path) -> bool:
 
 
 def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
+    abi_methods = [m for m in methods if isinstance(m, ARC4ABIMethod)]
     return "\n".join(
         (
             _AUTO_GENERATED_COMMENT,
@@ -242,17 +247,13 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
             *itertools.chain(
                 *(
                     _abi_struct_to_class(s)
-                    for s in unique(s for m in methods for s in m.config.structs.values())
+                    for s in unique(s for m in abi_methods for s in m.config.structs.values())
                 )
             ),
             "",
             f"class {name}(algopy.arc4.ARC4Client, typing.Protocol):",
-            *(
-                [_indent(["pass"]), ""]
-                if not any(True for m in methods if not m.config.is_bare)
-                else []
-            ),
-            *(_abi_method_to_signature(m) for m in methods if not m.config.is_bare),
+            *([_indent(["pass"]), ""] if not abi_methods else []),
+            *(_abi_method_to_signature(m) for m in abi_methods),
         )
     )
 
@@ -266,7 +267,7 @@ def _abi_struct_to_class(s: ARC32StructDef) -> Iterable[str]:
     )
 
 
-def _abi_method_to_signature(m: ARC4Method) -> str:
+def _abi_method_to_signature(m: ARC4ABIMethod) -> str:
     structs = dict(m.config.structs)
     try:
         output_struct = structs["output"]
@@ -300,7 +301,7 @@ def _arc4_type_to_algopy_cls(typ: str) -> str:
     return str(arc4_to_pytype(typ))
 
 
-def _arc4_method_to_decorator(method: ARC4Method) -> str:
+def _arc4_method_to_decorator(method: ARC4ABIMethod) -> str:
     config = method.config
     abimethod_args = dict[str, object]()
     if config.name and config.name != method.name:

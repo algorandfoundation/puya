@@ -49,7 +49,7 @@ class BoxTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
         return _init(args, arg_names, location, result_type=self.produces())
 
 
-class BoxClassGenericExpressionBuilder(GenericTypeBuilder):
+class BoxGenericTypeExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

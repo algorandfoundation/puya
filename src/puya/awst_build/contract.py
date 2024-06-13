@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Iterator, Mapping
 
 import mypy.nodes
@@ -24,7 +25,12 @@ from puya.awst_build.utils import (
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, OnCompletionAction
+from puya.models import (
+    ARC4ABIMethodConfig,
+    ARC4BareMethodConfig,
+    ARC4MethodConfig,
+    OnCompletionAction,
+)
 from puya.parse import SourceLocation
 from puya.utils import unique
 
@@ -145,7 +151,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                abimethod_config=None,
+                arc4_method_config=None,
                 source_location=source_location,
             )
             if sub is not None:
@@ -161,16 +167,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         elif (
             is_approval := func_def.name == constants.APPROVAL_METHOD
         ) or func_def.name == constants.CLEAR_STATE_METHOD:
-            if is_approval and self._is_arc4:
-                self.context.warning(
-                    "ARC4 contract compliance may be violated"
-                    f" when a custom {func_def.name} function is used",
-                    func_loc,
-                )
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                abimethod_config=None,
+                arc4_method_config=None,
                 source_location=source_location,
             )
             if sub is not None:
@@ -207,46 +207,51 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         f" of {constants.ARC4_CONTRACT_BASE_ALIAS}",
                         arc4_decorator_loc,
                     )
-                if abimethod_dec and baremethod_dec:
-                    self._error("cannot be both an abimethod and a baremethod", arc4_decorator_loc)
-                if subroutine_dec is not None:
-                    self._error(
-                        f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
-                    )
-                arc4_method_data = get_arc4_method_data(self.context, arc4_decorator, func_def)
-                arc4_method_config = arc4_method_data.config
-                arg_pytypes = arc4_method_data.argument_types
-                ret_pytype = arc4_method_data.return_type
-                if arc4_method_data.config.is_bare:
-                    if arg_pytypes or (ret_pytype != pytypes.NoneType):
-                        self._error(
-                            "bare methods should have no arguments or return values",
-                            arc4_decorator_loc,
-                        )
                 else:
-                    for arg_type in arg_pytypes:
-                        if not (
-                            wtypes.is_arc4_argument_type(arg_type.wtype)
-                            or wtypes.has_arc4_equivalent_type(arg_type.wtype)
-                        ):
+                    if abimethod_dec and baremethod_dec:
+                        self._error(
+                            "cannot be both an abimethod and a baremethod", arc4_decorator_loc
+                        )
+                    if subroutine_dec is not None:
+                        self._error(
+                            f"cannot be both a subroutine and {arc4_decorator_name}",
+                            subroutine_dec,
+                        )
+                    arc4_method_data = get_arc4_method_data(self.context, arc4_decorator, func_def)
+                    arc4_method_config = arc4_method_data.config
+                    arg_pytypes = arc4_method_data.argument_types
+                    ret_pytype = arc4_method_data.return_type
+                    if isinstance(arc4_method_config, ARC4BareMethodConfig):
+                        if arg_pytypes or (ret_pytype != pytypes.NoneType):
                             self._error(
-                                f"Invalid argument type for an ARC4 method: {arg_type}",
+                                "bare methods should have no arguments or return values",
                                 arc4_decorator_loc,
                             )
-                    if not (
-                        ret_pytype == pytypes.NoneType
-                        or isinstance(ret_pytype.wtype, ARC4Type)
-                        or wtypes.has_arc4_equivalent_type(ret_pytype.wtype)
-                    ):
-                        self._error(
-                            f"Invalid return type for an ARC4 method: {ret_pytype}",
-                            arc4_decorator_loc,
-                        )
-                # TODO: validate against super-class configs??
+                    else:
+                        typing.assert_type(arc4_method_config, ARC4ABIMethodConfig)
+                        for arg_type in arg_pytypes:
+                            if not (
+                                wtypes.is_arc4_argument_type(arg_type.wtype)
+                                or wtypes.has_arc4_equivalent_type(arg_type.wtype)
+                            ):
+                                self._error(
+                                    f"Invalid argument type for an ARC4 method: {arg_type}",
+                                    arc4_decorator_loc,
+                                )
+                        if not (
+                            ret_pytype == pytypes.NoneType
+                            or isinstance(ret_pytype.wtype, ARC4Type)
+                            or wtypes.has_arc4_equivalent_type(ret_pytype.wtype)
+                        ):
+                            self._error(
+                                f"Invalid return type for an ARC4 method: {ret_pytype}",
+                                arc4_decorator_loc,
+                            )
+                    # TODO: validate against super-class configs??
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                abimethod_config=arc4_method_config,
+                arc4_method_config=arc4_method_config if self._is_arc4 else None,
                 source_location=source_location,
             )
             if sub is not None:
@@ -256,7 +261,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self,
         func_def: mypy.nodes.FuncDef,
         extra_decorators: Mapping[str, mypy.nodes.Expression],
-        abimethod_config: ARC4MethodConfig | None,
+        arc4_method_config: ARC4MethodConfig | None,
         source_location: SourceLocation,
     ) -> ContractMethod | None:
         func_loc = self._location(func_def)
@@ -279,7 +284,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     source_location=source_location,
                     contract_method_info=ContractMethodInfo(
                         type_info=self.class_def.info,
-                        arc4_method_config=abimethod_config,
+                        arc4_method_config=arc4_method_config,
                         cref=self.cref,
                     ),
                 )

@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Iterable, Mapping, Sequence
 
 from puya import arc4_util
@@ -11,6 +12,10 @@ from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
 from puya.models import (
+    ARC4ABIMethod,
+    ARC4ABIMethodConfig,
+    ARC4BareMethod,
+    ARC4BareMethodConfig,
     ARC4Method,
     ARC4MethodArg,
     ARC4MethodConfig,
@@ -123,7 +128,7 @@ def create_oca_switch(
 
 def route_bare_methods(
     location: SourceLocation,
-    bare_methods: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
+    bare_methods: dict[awst_nodes.ContractMethod, ARC4BareMethodConfig],
     *,
     add_create: bool,
 ) -> awst_nodes.Block | None:
@@ -165,9 +170,7 @@ def route_bare_methods(
             location,
             "create",
             *assert_create_state(
-                ARC4MethodConfig(
-                    name="", source_location=location, is_bare=True, require_create=True
-                ),
+                ARC4BareMethodConfig(require_create=True, source_location=location),
                 location,
             ),
             approve(location),
@@ -466,7 +469,8 @@ def map_abi_args(
 
 
 def route_abi_methods(
-    location: SourceLocation, methods: dict[awst_nodes.ContractMethod, ARC4MethodConfig]
+    location: SourceLocation,
+    methods: dict[awst_nodes.ContractMethod, ARC4ABIMethodConfig],
 ) -> awst_nodes.Block:
     if not methods:
         return create_block(location, "reject_abi_methods", reject(location))
@@ -523,9 +527,12 @@ def _validate_default_args(
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod],
 ) -> None:
     for method in arc4_methods:
-        assert method.abimethod_config
+        assert isinstance(method.arc4_method_config, ARC4ABIMethodConfig)
         args_by_name = {a.name: a for a in method.args}
-        for parameter_name, source_name in method.abimethod_config.default_args.items():
+        for (
+            parameter_name,
+            source_name,
+        ) in method.arc4_method_config.default_args.items():
             # any invalid parameter matches should have been caught earlier
             parameter = args_by_name[parameter_name]
             param_arc4_type = arc4_util.wtype_to_arc4(parameter.wtype)
@@ -546,21 +553,21 @@ def _validate_default_args(
 
             match source:
                 case awst_nodes.ContractMethod(
-                    abimethod_config=ARC4MethodConfig() as abimethod_config,
+                    arc4_method_config=ARC4ABIMethodConfig() as abi_method_config,
                     args=args,
                     return_type=return_type,
                 ):
-                    if OnCompletionAction.NoOp not in abimethod_config.allowed_completion_types:
+                    if OnCompletionAction.NoOp not in abi_method_config.allowed_completion_types:
                         raise CodeError(
                             f"'{source_name}' does not allow no_op on completion calls",
                             method.source_location,
                         )
-                    if abimethod_config.require_create:
+                    if abi_method_config.require_create:
                         raise CodeError(
                             f"'{source_name}' can only be used for create calls",
                             method.source_location,
                         )
-                    if not abimethod_config.readonly:
+                    if not abi_method_config.readonly:
                         raise CodeError(
                             f"'{source_name}' is not readonly",
                             method.source_location,
@@ -617,14 +624,21 @@ def create_abi_router(
     abi_methods = {}
     bare_methods = {}
     has_create = False
-    for m, abi_config in arc4_methods_with_configs.items():
-        assert abi_config is m.abimethod_config
-        if abi_config.allow_create or abi_config.require_create:
+    known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
+        **global_state,
+        **local_state,
+    }
+    for m, arc4_config in arc4_methods_with_configs.items():
+        assert arc4_config is m.arc4_method_config
+        if arc4_config.allow_create or arc4_config.require_create:
             has_create = True
-        if abi_config.is_bare:
-            bare_methods[m] = abi_config
+        if isinstance(arc4_config, ARC4BareMethodConfig):
+            bare_methods[m] = arc4_config
+        elif isinstance(arc4_config, ARC4ABIMethodConfig):
+            abi_methods[m] = arc4_config
+            known_sources[m.name] = m
         else:
-            abi_methods[m] = abi_config
+            typing.assert_never(arc4_config)
     router_location = contract.source_location
     if bare_methods or not has_create:
         router: list[awst_nodes.Statement] = [
@@ -640,49 +654,43 @@ def create_abi_router(
     else:
         router = list(route_abi_methods(router_location, abi_methods).body)
 
-    known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
-        **global_state,
-        **local_state,
-    }
-    for method in arc4_methods_with_configs:
-        known_sources[method.name] = method
-    _validate_default_args(arc4_methods_with_configs.keys(), known_sources)
+    _validate_default_args(abi_methods.keys(), known_sources)
 
     docs = {s: parse_docstring(s.docstring) for s in arc4_methods_with_configs}
 
-    arc4_method_metadata = [
-        ARC4Method(
-            name=m.name,
-            desc=docs[m].description,
-            args=[
-                ARC4MethodArg(
-                    name=a.name,
-                    type_=arc4_util.wtype_to_arc4(a.wtype),
-                    desc=docs[m].args.get(a.name),
-                )
-                for a in m.args
-            ],
-            returns=ARC4Returns(
-                desc=docs[m].returns,
-                type_=arc4_util.wtype_to_arc4(m.return_type),
-            ),
-            config=abi_config,
+    arc4_method_metadata = list[ARC4Method]()
+    for m, bare_method_config in bare_methods.items():
+        arc4_method_metadata.append(
+            ARC4BareMethod(
+                desc=docs[m].description,
+                config=bare_method_config,
+            )
         )
-        for m, abi_config in arc4_methods_with_configs.items()
-    ]
+    for m, abi_method_config in abi_methods.items():
+        arc4_method_metadata.append(
+            ARC4ABIMethod(
+                name=m.name,
+                desc=docs[m].description,
+                args=[
+                    ARC4MethodArg(
+                        name=a.name,
+                        type_=arc4_util.wtype_to_arc4(a.wtype),
+                        desc=docs[m].args.get(a.name),
+                    )
+                    for a in m.args
+                ],
+                returns=ARC4Returns(
+                    desc=docs[m].returns,
+                    type_=arc4_util.wtype_to_arc4(m.return_type),
+                ),
+                config=abi_method_config,
+            )
+        )
     if not has_create:
         arc4_method_metadata.append(
-            ARC4Method(
-                name="",
+            ARC4BareMethod(
+                config=ARC4BareMethodConfig(require_create=True, source_location=router_location),
                 desc=None,
-                args=[],
-                returns=ARC4Returns(type_="void", desc=None),
-                config=ARC4MethodConfig(
-                    source_location=router_location,
-                    name="",
-                    is_bare=True,
-                    require_create=True,
-                ),
             )
         )
 
@@ -695,7 +703,7 @@ def create_abi_router(
         return_type=wtypes.bool_wtype,
         body=create_block(router_location, "abi_bare_routing", *router),
         docstring=None,
-        abimethod_config=None,
+        arc4_method_config=None,
     )
     return approval_program, arc4_method_metadata
 
@@ -717,7 +725,7 @@ def create_default_clear_state(contract: awst_nodes.ContractFragment) -> awst_no
             approve(contract.source_location),
         ),
         docstring=None,
-        abimethod_config=None,
+        arc4_method_config=None,
     )
 
 

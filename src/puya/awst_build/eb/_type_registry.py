@@ -63,10 +63,10 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.uenumerateGenericType: functools.partial(
         unsigned_builtins.UnsignedEnumerateBuilder, None
     ),
-    pytypes.OpUpFeeSourceType: ensure_budget.OpUpFeeSourceClassBuilder,
-    pytypes.GenericBoxType: storage.BoxClassGenericExpressionBuilder,
+    pytypes.OpUpFeeSourceType: ensure_budget.OpUpFeeSourceTypeBuilder,
+    pytypes.GenericBoxType: storage.BoxGenericTypeExpressionBuilder,
     pytypes.BoxRefType: storage.BoxRefTypeBuilder,
-    pytypes.GenericBoxMapType: storage.BoxMapClassGenericExpressionBuilder,
+    pytypes.GenericBoxMapType: storage.BoxMapGenericTypeExpressionBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateGenericTypeBuilder,
     pytypes.GenericGlobalStateType: storage.GlobalStateGenericTypeBuilder,
     pytypes.ARC4AddressType: arc4.AddressTypeBuilder,

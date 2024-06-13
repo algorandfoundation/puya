@@ -976,11 +976,6 @@ def _get_arc4_array_tail_data_and_item_count(
                 source_location=source_location,
             )
             return data, tuple_length
-        case awst_nodes.Expression(wtype=wtypes.arc4_string_wtype) as str_expr:
-            str_value = context.visitor.visit_and_materialise_single(str_expr)
-            array_length = factory.extract_uint16(str_value, 0, "array_length")
-            data = factory.extract_to_end(str_value, 2, "data")
-            return data, array_length
         case _:
             raise InternalError(f"Unsupported array type: {expr.wtype}")
 
@@ -1242,7 +1237,7 @@ def _concat_dynamic_array_fixed_size(
         match expr.wtype:
             case wtypes.ARC4StaticArray():
                 return context.visitor.visit_and_materialise_single(expr)
-            case wtypes.ARC4DynamicArray() | wtypes.arc4_string_wtype:
+            case wtypes.ARC4DynamicArray():
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple():
