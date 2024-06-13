@@ -270,10 +270,37 @@ main_entrypoint@2:
     app_global_get_ex
     assert // check self.global_bool_no_default exists
     assert
-    // global_state/contract.py:58
+    // global_state/contract.py:8
+    // self.global_int_no_default = GlobalState(UInt64)
+    byte "global_int_no_default"
+    // global_state/contract.py:58-59
+    // # test the proxy can be passed as an argument
+    // assert get_global_state_plus_1(self.global_int_no_default) == 45
+    callsub get_global_state_plus_1
+    int 45
+    ==
+    assert
+    // global_state/contract.py:61
     // return True
     int 1
     return
+
+
+// examples.global_state.contract.get_global_state_plus_1(state: bytes) -> uint64:
+get_global_state_plus_1:
+    // global_state/contract.py:67-68
+    // @subroutine
+    // def get_global_state_plus_1(state: GlobalState[UInt64]) -> UInt64:
+    proto 1 1
+    // global_state/contract.py:69
+    // return state.value + 1
+    int 0
+    frame_dig -1
+    app_global_get_ex
+    assert // check GlobalState exists
+    int 1
+    +
+    retsub
 
 
 // examples.global_state.contract.AppStateContract.__init__() -> void:

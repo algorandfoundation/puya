@@ -72,7 +72,17 @@ contract examples.global_state.contract.AppStateContract:
                 let (maybe_value%17#0: bool, maybe_exists%17#0: bool) = (app_global_get_ex 0u "global_bool_no_default")
                 (assert maybe_exists%17#0) // check self.global_bool_no_default exists
                 (assert maybe_value%17#0)
+                let tmp%15#0: uint64 = examples.global_state.contract.get_global_state_plus_1("global_int_no_default")
+                let tmp%16#0: bool = (== tmp%15#0 45u)
+                (assert tmp%16#0)
                 return 1u
+        
+        subroutine examples.global_state.contract.get_global_state_plus_1(state: bytes) -> uint64:
+            block@0: // L67
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u state#0)
+                (assert maybe_exists%0#0) // check GlobalState exists
+                let tmp%0#0: uint64 = (+ maybe_value%0#0 1u)
+                return tmp%0#0
         
         subroutine examples.global_state.contract.AppStateContract.__init__() -> void:
             block@0: // L5
@@ -86,5 +96,5 @@ contract examples.global_state.contract.AppStateContract:
     
     program clear-state:
         subroutine examples.global_state.contract.AppStateContract.clear_state_program() -> bool:
-            block@0: // L60
+            block@0: // L63
                 return 1u
