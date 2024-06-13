@@ -274,7 +274,7 @@ def _should_include_implicit_returns(
     Anything else would require further analysis, so err on the side of caution and include
     the implicit returns.
     """
-    if isinstance(func, awst_nodes.ContractMethod) and func.abimethod_config:
+    if isinstance(func, awst_nodes.ContractMethod) and func.arc4_method_config:
         return bool(callees - {approval_program})
     return True
 
@@ -438,8 +438,8 @@ def fold_state_and_special_methods(
                 case _:
                     typing.assert_never(state.kind)
         for cm in c.subroutines:
-            if cm.abimethod_config:
-                maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.abimethod_config))
+            if cm.arc4_method_config:
+                maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
             else:
                 maybe_arc4_method_refs.setdefault(cm.name, None)
     if not (c.init and c.init.body.body):

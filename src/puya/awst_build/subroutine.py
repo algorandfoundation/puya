@@ -195,7 +195,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 return_type=self._return_type.wtype,
                 body=translated_body,
                 docstring=func_def.docstring,
-                abimethod_config=self.contract_method_info.arc4_method_config,
+                arc4_method_config=self.contract_method_info.arc4_method_config,
             )
 
     @classmethod

@@ -51,6 +51,7 @@ from puya.awst_build.utils import (
     resolve_method_from_type_info,
 )
 from puya.errors import CodeError, InternalError
+from puya.models import ARC4ABIMethodConfig
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -248,6 +249,7 @@ def _get_arc4_signature_and_return_pytype(
         if abimethod_dec is not None:
             func_def = func_or_dec.func
             arc4_method_data = get_arc4_method_data(context, abimethod_dec, func_def)
+            assert isinstance(arc4_method_data.config, ARC4ABIMethodConfig)
             arc4_return_type = _pytype_to_arc4_pytype(arc4_method_data.return_type)
             arc4_arg_types = list(map(_pytype_to_arc4_pytype, arc4_method_data.argument_types))
             name = arc4_method_data.config.name

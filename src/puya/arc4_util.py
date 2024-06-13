@@ -9,7 +9,7 @@ from puya.awst import (
 from puya.awst.wtypes import ARC4Type
 from puya.awst_build import constants, pytypes
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig
+from puya.models import ARC4ABIMethodConfig
 from puya.parse import SourceLocation
 from puya.utils import round_bits_to_nearest_bytes
 
@@ -176,7 +176,7 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
 
 
-def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4MethodConfig) -> str:
+def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:
     arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
     return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
     return f"{config.name}({','.join(arg_types)}){return_type}"
