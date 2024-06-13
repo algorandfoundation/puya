@@ -79,7 +79,7 @@ class StringTypeBuilder(ARC4TypeBuilder, LiteralConverter):
 def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression:
     return ARC4Encode(
         value=StringConstant(value=value, source_location=location),
-        wtype=wtypes.arc4_string_wtype,
+        wtype=wtypes.arc4_string_alias,
         source_location=location,
     )
 
@@ -99,7 +99,7 @@ def _expect_string_or_bytes(expr: NodeBuilder, location: SourceLocation) -> Expr
         case InstanceBuilder(pytype=pytypes.StringType) as eb:
             bytes_expr = eb.resolve()
             return ARC4Encode(
-                value=bytes_expr, wtype=wtypes.arc4_string_wtype, source_location=location
+                value=bytes_expr, wtype=wtypes.arc4_string_alias, source_location=location
             )
         case InstanceBuilder(pytype=invalid_pytype, source_location=invalid_builder_location):
             raise CodeError(
@@ -127,7 +127,7 @@ class StringExpressionBuilder(
                         base=self.resolve(),
                         other=_expect_string_or_bytes(rhs, rhs.source_location),
                         source_location=location,
-                        wtype=wtypes.arc4_string_wtype,
+                        wtype=wtypes.arc4_string_alias,
                     )
                 )
             case _:
@@ -153,7 +153,7 @@ class StringExpressionBuilder(
                         left=lhs,
                         right=rhs,
                         source_location=location,
-                        wtype=wtypes.arc4_string_wtype,
+                        wtype=wtypes.arc4_string_alias,
                     )
                 )
 

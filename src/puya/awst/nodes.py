@@ -480,7 +480,7 @@ class MethodConstant(Expression):
 class AddressConstant(Expression):
     wtype: WType = attrs.field(
         default=wtypes.account_wtype,
-        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_wtype),
+        validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_alias),
     )
     value: str = attrs.field()
 

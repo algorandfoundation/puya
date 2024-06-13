@@ -438,7 +438,7 @@ arc4_byte_alias: typing.Final = ARC4UIntN(
     source_location=None,
 )
 
-arc4_string_wtype: typing.Final = ARC4DynamicArray(
+arc4_string_alias: typing.Final = ARC4DynamicArray(
     alias="string",
     element_type=arc4_byte_alias,
     native_type=string_wtype,
@@ -446,7 +446,7 @@ arc4_string_wtype: typing.Final = ARC4DynamicArray(
     source_location=None,
 )
 
-arc4_address_wtype: typing.Final = ARC4StaticArray(
+arc4_address_alias: typing.Final = ARC4StaticArray(
     alias="address",
     element_type=arc4_byte_alias,
     native_type=account_wtype,
@@ -574,7 +574,7 @@ def avm_to_arc4_equivalent_type(wtype: WType) -> ARC4Type:
             element_type=arc4_byte_alias, native_type=wtype, source_location=None
         )
     if wtype is string_wtype:
-        return arc4_string_wtype
+        return arc4_string_alias
     if isinstance(wtype, WTuple):
         return ARC4Tuple(
             types=(

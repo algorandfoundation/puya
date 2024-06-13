@@ -32,8 +32,7 @@ def get_arc4_fixed_bit_size(wtype: wtypes.ARC4Type) -> int:
 
 def is_arc4_dynamic_size(wtype: wtypes.ARC4Type) -> bool:
     match wtype:
-        # TODO: make arc4_string_wtype an ARC4DynamicArray
-        case wtypes.arc4_string_wtype | wtypes.ARC4DynamicArray():
+        case wtypes.ARC4DynamicArray():
             return True
         case wtypes.ARC4StaticArray(element_type=element_type):
             return is_arc4_dynamic_size(element_type)
