@@ -186,7 +186,7 @@ def extract_key_override(
             )
         case _:
             raise CodeError(
-                f"invalid type for key{'_prefix' if is_prefix else ''}  argument",
+                f"invalid type for key{'_prefix' if is_prefix else ''} argument",
                 key_arg.source_location,
             )
     return key_override

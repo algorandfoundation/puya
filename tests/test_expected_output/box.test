@@ -1,0 +1,140 @@
+# fmt: off
+# ruff: noqa
+## case: box
+
+from algopy import Box, Bytes, String, UInt64, subroutine
+
+@subroutine
+def test_key_types() -> None:
+    box = Box(UInt64, key="1")
+    box = Box(UInt64, key=b"1")
+    box = Box(UInt64, key=String("1"))
+    box = Box(UInt64, key=Bytes(b"1"))
+    box = Box(UInt64, key=2)  # type: ignore[arg-type] ## E: invalid type for key argument
+
+@subroutine
+def wrong_arg() -> None:
+    Box("oops", key=b"box")  # type: ignore[arg-type] ## E: First argument must be a type reference
+
+
+@subroutine
+def non_pos() -> None:
+    Box(type="oops", key=b"box")  # type: ignore[call-arg] ## E: Required positional argument missing
+
+
+@subroutine
+def bad_kwarg() -> None:
+    Box(String, bad_key=b"box")  # type: ignore[call-arg] ## E: Unrecognised keyword argument(s): bad_key
+
+
+@subroutine
+def type_mismatch() -> None:
+    box = Box[UInt64](UInt64, key="box")  # ok
+    Box[String](UInt64, key=b"Box")  # type: ignore[arg-type] ## E: algopy.Box explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
+
+
+## case: box_ref
+from algopy import ARC4Contract, BoxRef, Bytes, String, arc4
+
+
+class BoxRefContract(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.ok = BoxRef()
+
+    @arc4.abimethod()
+    def test_key_types(self) -> None:
+        box_ref = BoxRef(key="1")
+        box_ref = BoxRef(key=b"1")
+        box_ref = BoxRef(key=String("1"))
+        box_ref = BoxRef(key=Bytes(b"1"))
+        box_ref = BoxRef(key=2)  # type: ignore[arg-type] ## E: invalid type for key argument
+
+    @arc4.abimethod()
+    def wrong_key(self) -> None:
+        box = BoxRef(keyz="")  # type: ignore[call-arg] ## E: Invalid/unhandled arguments
+
+    @arc4.abimethod()
+    def missing_key(self) -> None:
+        box = BoxRef() ## E: algopy.BoxRef with inferred key must be assigned to an instance variable before being used
+    @arc4.abimethod()
+    def bad_put_arg(self) -> None:
+        self.ok.put(b"ok", "too many")  # type: ignore[call-arg] ## E: Expected a single argument, got 2
+
+    @arc4.abimethod()
+    def bad_create_arg(self) -> None:
+        self.ok.create(size=32, too_many=42)  # type: ignore[call-arg] ## E: Expected a single argument, got 2
+
+
+    @arc4.abimethod()
+    def bad_resize_arg(self) -> None:
+        self.ok.resize(new_size=32, too_many=42)  # type: ignore[call-arg] ## E: Invalid/unexpected args
+
+
+    @arc4.abimethod()
+    def missing_resize_arg(self) -> None:
+        self.ok.resize()  # type: ignore[call-arg] ## E: Missing required arg 'new_size'
+
+
+## case: box_map
+from algopy import BoxMap, Bytes, ARC4Contract, String, UInt64, arc4
+
+
+class BoxMapContract(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.ok = BoxMap(UInt64, String)
+        self.ok2 = BoxMap[UInt64, String](UInt64, String)
+        self.non_constant_box_key = BoxMap(UInt64, String, key_prefix=Bytes()) ## E: assigning algopy.BoxMap[algopy.UInt64, algopy.String] to a member variable requires a constant value for key
+
+    @arc4.abimethod()
+    def test_prefix_types(self) -> None:
+        box_map = BoxMap(UInt64, String, key_prefix="1")
+        box_map = BoxMap(UInt64, String, key_prefix=b"1")
+        box_map = BoxMap(UInt64, String, key_prefix=Bytes(b"1"))
+        box_map = BoxMap(UInt64, String, key_prefix=String("1"))
+        bad_box_map = BoxMap(UInt64, String, key_prefix=2)  # type: ignore[arg-type] ## E: invalid type for key_prefix argument
+
+    @arc4.abimethod()
+    def collection_bool(self) -> None:
+        assert self.ok, "error" ## E: cannot determine if a BoxMap is empty or not
+
+    @arc4.abimethod()
+    def missing_prefix(self) -> None:
+        bad = BoxMap(UInt64, String) ## E: algopy.BoxMap[algopy.UInt64, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used
+
+    @arc4.abimethod()
+    def non_pos(self) -> None:
+        bad: BoxMap[UInt64, String] = BoxMap(key_typ="oops", value_typ="oops", key_prefix="bad")  # type: ignore[call-arg] ## E: Required positional argument missing
+
+    @arc4.abimethod()
+    def wrong_keyword(self) -> None:
+        bad = BoxMap(UInt64, String, oops="bad")  # type: ignore[call-arg] ## E: Unrecognised keyword argument(s): oops
+
+    @arc4.abimethod()
+    def wrong_type(self) -> None:
+        bad: BoxMap[UInt64, String] = BoxMap("oops", "oops", key_prefix="bad")  # type: ignore[arg-type] ## E: First and second arguments must be type references
+
+    @arc4.abimethod()
+    def mismatch_key(self) -> None:
+        bad = BoxMap[String, String](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required
+
+    @arc4.abimethod()
+    def mismatch_value(self) -> None:
+        bad = BoxMap[UInt64, UInt64](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required
+
+    @arc4.abimethod()
+    def slice(self) -> None:
+        bad = self.ok[:UInt64(2)]  # type: ignore[index] ## E: slicing of BoxMap is not supported
+
+    @arc4.abimethod()
+    def length(self) -> None:
+        bad = self.ok.length(bad=UInt64(2)) # type: ignore[call-arg] ## E: Invalid/unexpected args
+
+    @arc4.abimethod()
+    def get(self) -> None:
+        bad = self.ok.get(bad=UInt64(2)) # type: ignore[call-arg] ## E: invalid/unexpected args
+
+    @arc4.abimethod()
+    def maybe(self) -> None:
+        bad = self.ok.maybe(bad=UInt64(2)) # type: ignore[call-arg] ## E: invalid/unexpected args

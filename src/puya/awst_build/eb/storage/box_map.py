@@ -19,7 +19,6 @@ from puya.awst_build.eb._base import (
     TypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
@@ -178,12 +177,12 @@ class BoxMapProxyExpressionBuilder(
         raise CodeError("slicing of BoxMap is not supported", location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Iteration:  # pragma: no cover
         raise CodeError("iteration of BoxMap is not supported", self.source_location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        raise CodeError("cannot determine if a BoxMap is empty or not", location)
 
 
 class _BoxMapProxyExpressionBuilderFromConstructor(
@@ -218,8 +217,8 @@ class _Length(_MethodBase):
         location: SourceLocation,
     ) -> InstanceBuilder:
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
-        item_key = args_map.pop("key")
-        if args_map:
+        item_key = args_map.pop("key", None)
+        if item_key is None or args_map:
             raise CodeError("Invalid/unexpected args", location)
         item_key_inst = require_instance_builder(item_key)
         return UInt64ExpressionBuilder(
@@ -261,8 +260,8 @@ class _Maybe(_MethodBase):
         location: SourceLocation,
     ) -> InstanceBuilder:
         args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
-        item_key = args_map.pop("key")
-        if args_map:
+        item_key = args_map.pop("key", None)
+        if args_map or item_key is None:
             raise CodeError("invalid/unexpected args", location)
         item_key_inst = require_instance_builder(item_key)
         result_typ = pytypes.GenericTupleType.parameterise(
