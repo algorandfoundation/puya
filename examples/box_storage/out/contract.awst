@@ -5,6 +5,7 @@ contract BoxContract
     ['b']: bytes
     [hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8>
     ['']: uint64 => string
+    ['box_ref']: bytes
   }
   
   constructor()
@@ -71,7 +72,7 @@ contract BoxContract
     assert(reinterpret_cast<biguint>(Box[box_d][3u]) == reinterpret_cast<biguint>(3arc4u8))
   }
   
-  abimethod box_ref(): void
+  abimethod test_box_ref(): void
   {
     box_ref: box_key = 'blob'
     assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
@@ -96,6 +97,9 @@ contract BoxContract
     assert(STATE_EXISTS(Box[box_ref]), comment="Blob exists")
     assert(checked_maybe(box_len(box_ref)) == 64u)
     assert(examples.box_storage.contract::get_box_ref_length(box_ref) == 64u)
+    box_create('box_ref', 32u)
+    assert(STATE_EXISTS(Box['box_ref']), comment="has data")
+    box_del('box_ref')
   }
   
   abimethod box_map_test(): void

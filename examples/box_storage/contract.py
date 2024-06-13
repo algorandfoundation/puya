@@ -8,9 +8,10 @@ StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
-        self.box_b = Box(Bytes, key="b")
+        self.box_b = Box[Bytes](Bytes, key="b")
         self.box_c = Box(arc4.String, key=b"BOX_C")
         self.box_map = BoxMap(UInt64, String, key_prefix="")
+        self.box_ref = BoxRef()
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: Bytes, c: arc4.String) -> None:
@@ -70,7 +71,7 @@ class BoxContract(arc4.ARC4Contract):
         assert box_d.value[3] == 3
 
     @arc4.abimethod
-    def box_ref(self) -> None:
+    def test_box_ref(self) -> None:
         # init ref
         box_ref = BoxRef(key="blob")
         assert not box_ref, "no data"
@@ -105,6 +106,11 @@ class BoxContract(arc4.ARC4Contract):
         assert box_ref, "Blob exists"
         assert box_ref.length == 64
         assert get_box_ref_length(box_ref) == 64
+
+        # instance box ref
+        self.box_ref.create(size=UInt64(32))
+        assert self.box_ref, "has data"
+        self.box_ref.delete()
 
     @arc4.abimethod
     def box_map_test(self) -> None:

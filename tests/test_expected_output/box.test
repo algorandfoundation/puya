@@ -1,0 +1,76 @@
+# fmt: off
+# ruff: noqa
+## case: box
+from algopy import Box, Bytes, String, UInt64, subroutine
+
+
+@subroutine
+def key_overloads() -> None:
+    box_const_str = Box(UInt64, key="box")
+    box_const_bytes = Box(UInt64, key=b"box")
+    box_string = Box(UInt64, key=get_string_key())
+    box_bytes = Box(UInt64, key=get_bytes_key())
+
+
+@subroutine
+def wrong_arg() -> None:
+    Box("oops", key=get_bytes_key())  # type: ignore[arg-type] ## E: First argument must be a type reference
+
+
+@subroutine
+def non_pos() -> None:
+    Box(type="oops", key=get_bytes_key())  # type: ignore[call-arg] ## E: Required positional argument missing
+
+
+@subroutine
+def bad_kwarg() -> None:
+    Box(String, bad_key=get_bytes_key())  # type: ignore[call-arg] ## E: Unrecognised keyword argument(s): bad_key
+
+
+@subroutine
+def type_mismatch() -> None:
+    Box[UInt64](UInt64, key="box")  # ok ## W: expression result is ignored
+    Box[String](UInt64, key=get_bytes_key())  # type: ignore[arg-type] ## E: algopy.Box explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
+
+
+@subroutine
+def get_string_key() -> String:
+    return String("box")
+
+
+@subroutine
+def get_bytes_key() -> Bytes:
+    return Bytes(b"box")
+
+
+## case: box_ref
+from algopy import BoxRef, Bytes, ARC4Contract, String, UInt64, arc4
+
+
+class BoxRefContract(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.ok = BoxRef()
+        also_bad = BoxRef(keyz="")  # type: ignore[call-arg] ## E: Invalid/unhandled arguments
+
+    @arc4.abimethod()
+    def missing_key(self) -> None:
+        bad = BoxRef() ## E: algopy.BoxRef with inferred key must be assigned to an instance variable before being used
+
+    @arc4.abimethod()
+    def bad_put_arg(self) -> None:
+        self.ok.put(b"ok", "too many")  # type: ignore[call-arg] ## E: Expected a single argument, got 2
+
+    @arc4.abimethod()
+    def bad_create_arg(self) -> None:
+        self.ok.create(size=32, too_many=42)  # type: ignore[call-arg] ## E: Expected a single argument, got 2
+
+
+    @arc4.abimethod()
+    def bad_resize_arg(self) -> None:
+        self.ok.resize(new_size=32, too_many=42)  # type: ignore[call-arg] ## E: Invalid/unexpected args
+
+
+    @arc4.abimethod()
+    def missing_resize_arg(self) -> None:
+        self.ok.resize()  # type: ignore[call-arg] ## E: Missing required arg 'new_size'
