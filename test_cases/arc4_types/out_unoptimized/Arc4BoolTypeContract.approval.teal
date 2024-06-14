@@ -12,6 +12,7 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     int 0
     setbit
     callsub test_stuff
+    pop
     // arc4_types/bool.py:16
     // ARC4Bool(True),
     byte 0x00
@@ -278,12 +279,12 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     return
 
 
-// test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> void:
+// test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> uint64:
 test_stuff:
     // arc4_types/bool.py:46-47
     // @subroutine
-    // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> None:
-    proto 2 0
+    // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
+    proto 2 1
     // arc4_types/bool.py:48
     // assert true.native
     frame_dig -2
@@ -323,4 +324,9 @@ test_stuff:
     swap
     ==
     assert
+    // arc4_types/bool.py:55
+    // return true.native
+    frame_dig -2
+    int 0
+    getbit
     retsub
