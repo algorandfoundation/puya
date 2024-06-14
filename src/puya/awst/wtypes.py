@@ -186,7 +186,7 @@ class WTuple(WType):
     def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
         types = tuple(types)
         if not types:
-            raise CodeError("tuple needs types", source_location)
+            raise CodeError("empty tuples are not supported", source_location)
         if void_wtype in types:
             raise CodeError("tuple should not contain void types", source_location)
         name = f"tuple<{','.join([t.name for t in types])}>"
@@ -285,7 +285,7 @@ class ARC4Tuple(ARC4Type):
     def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
         types = tuple(types)
         if not types:
-            raise CodeError("ARC4 Tuple cannot be empty", source_location)
+            raise CodeError("empty tuples are not supported", source_location)
         immutable = True
         arc4_types = []
         for typ_idx, typ in enumerate(types):

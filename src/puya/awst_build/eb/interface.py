@@ -12,6 +12,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puya.utils import invert_ordered_binary_op
 
 if typing.TYPE_CHECKING:
     from collections.abc import Collection, Sequence
@@ -27,6 +28,9 @@ class BuilderComparisonOp(enum.StrEnum):
     lte = "<="
     gt = ">"
     gte = ">="
+
+    def reversed(self) -> BuilderComparisonOp:
+        return BuilderComparisonOp(invert_ordered_binary_op(self.value))
 
 
 @enum.unique
