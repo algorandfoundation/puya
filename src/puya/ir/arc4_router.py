@@ -2,6 +2,7 @@ import typing
 from collections.abc import Iterable, Mapping, Sequence
 
 from puya import arc4_util
+from puya.arc4_util import wtype_to_arc4
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -499,7 +500,7 @@ def route_abi_methods(
             call_and_maybe_log,
             approve(abi_loc),
         )
-        arc4_signature = arc4_util.get_abi_signature(method, config)
+        arc4_signature = _get_abi_signature(method, config)
         if arc4_signature in seen_signatures:
             raise CodeError(
                 f"Cannot have duplicate ARC4 method signatures: {arc4_signature}", abi_loc
@@ -837,3 +838,9 @@ def _maybe_arc4_decode(
     if current_wtype == target_wtype:
         return item
     return _arc4_decode(item, target_wtype, location)
+
+
+def _get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:
+    arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
+    return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
+    return f"{config.name}({','.join(arg_types)}){return_type}"
