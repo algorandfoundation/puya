@@ -11,7 +11,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst_build import pytypes
+from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import require_instance_builder
@@ -49,9 +49,9 @@ class ARC4Signature:
 
     @property
     def method_selector(self) -> str:
-        args = ",".join(map(arc4_util.pytype_to_arc4, self.arg_types))
+        args = ",".join(map(arc4_utils.pytype_to_arc4, self.arg_types))
         return_type = self.return_type or pytypes.NoneType
-        return f"{self.method_name}({args}){arc4_util.pytype_to_arc4(return_type)}"
+        return f"{self.method_name}({args}){arc4_utils.pytype_to_arc4(return_type)}"
 
 
 def get_arc4_args_and_signature(
@@ -165,9 +165,9 @@ def _parse_method_signature(
 ) -> tuple[str, list[pytypes.PyType] | None, pytypes.PyType | None]:
     name, maybe_args, maybe_returns = _split_signature(signature, location)
     args = (
-        [arc4_util.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)]
+        [arc4_utils.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)]
         if maybe_args
         else None
     )
-    returns = arc4_util.arc4_to_pytype(maybe_returns, location) if maybe_returns else None
+    returns = arc4_utils.arc4_to_pytype(maybe_returns, location) if maybe_returns else None
     return name, args, returns
