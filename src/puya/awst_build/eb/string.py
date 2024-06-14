@@ -39,6 +39,7 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
+from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
@@ -282,16 +283,23 @@ class _StringJoin(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case [InstanceBuilder(pytype=pytypes.TupleType(items=items)) as eb] if all(
-                tt == pytypes.StringType for tt in items
+            case [TupleLiteralBuilder(items=item_builders)]:
+                items = [
+                    expect_operand_type(arg, pytypes.StringType).resolve() for arg in item_builders
+                ]
+            case [InstanceBuilder(pytype=pytypes.TupleType(items=item_types)) as eb] if all(
+                tt == pytypes.StringType for tt in item_types
             ):
                 tuple_arg = SingleEvaluation(eb.resolve())
+                items = [
+                    TupleItemExpression(tuple_arg, index=i, source_location=location)
+                    for i, _ in enumerate(item_types)
+                ]
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                raise CodeError("expected a single argument with tuple type", location)
         sep = StringExpressionBuilder(SingleEvaluation(self._base))
         joined_value: Expression | None = None
-        for idx, _ in enumerate(items):
-            item_expr = TupleItemExpression(tuple_arg, index=idx, source_location=location)
+        for item_expr in items:
             if joined_value is None:
                 joined_value = item_expr
             else:

@@ -39,6 +39,9 @@ class StringContract(Contract):
 
         d, e, f = String("d"), String("e"), String("f")
         assert String(".").join((d, e, f)) == "d.e.f"
+        assert String(".").join((d, "e", f)) == "d.e.f"
+        assert String(".").join(("d", "e", "f")) == "d.e.f"
+        assert String(".").join(tuple("def")) == "d.e.f"
         assert String("").join((d, e, f)) == "def"
         assert String(".").join((d,)) == "d"
         assert String("").join((d,)) == "d"

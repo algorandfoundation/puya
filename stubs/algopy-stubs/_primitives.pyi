@@ -334,7 +334,7 @@ class String(BytesBacked, Container[String]):
         Only a single argument is currently supported.
         """
 
-    def join(self, others: tuple[String, ...], /) -> String:  # TODO: support str literals in tuple
+    def join(self, others: tuple[String | str, ...], /) -> String:
         """Join a sequence of Strings with a common separator.
 
         The behaviour should mirror `str.join`.
