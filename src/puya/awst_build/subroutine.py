@@ -9,7 +9,6 @@ import mypy.patterns
 import mypy.types
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
     AssertStatement,
@@ -39,7 +38,6 @@ from puya.awst.nodes import (
     Subroutine,
     SubroutineArgument,
     Switch,
-    TupleExpression,
     UInt64Constant,
     VarExpression,
     WhileLoop,
@@ -89,7 +87,7 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
-from puya.utils import invert_ordered_binary_op, lazy_setdefault
+from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
 
@@ -970,25 +968,21 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             case _:
                 typing.assert_never(expr.analyzed)
 
-        base_expr = require_instance_builder(expr.base.accept(self))
-        if isinstance(base_expr, LiteralBuilder):
-            raise CodeError(  # TODO: yeet me
-                "Python literals cannot be indexed or sliced", base_expr.source_location
-            )
-
+        base_builder = require_instance_builder(expr.base.accept(self))
         match expr.index:
             # special case handling of SliceExpr, so we don't need to handle slice Literal's
             # or some such everywhere
+            # TODO: SliceBuilder?
             case mypy.nodes.SliceExpr(begin_index=begin, end_index=end, stride=stride):
-                return base_expr.slice_index(
+                return base_builder.slice_index(
                     begin_index=(require_instance_builder(begin.accept(self)) if begin else None),
                     end_index=(require_instance_builder(end.accept(self)) if end else None),
                     stride=(require_instance_builder(stride.accept(self)) if stride else None),
                     location=expr_location,
                 )
 
-        index_expr_or_literal = require_instance_builder(expr.index.accept(self))
-        return base_expr.index(index=index_expr_or_literal, location=expr_location)
+        index_builder = require_instance_builder(expr.index.accept(self))
+        return base_builder.index(index=index_builder, location=expr_location)
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
@@ -1071,12 +1065,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 return contains_builder.resolve()
 
         result: InstanceBuilder = NotImplemented
+        op = BuilderComparisonOp(operator)
         if isinstance(lhs, NodeBuilder):
-            op = BuilderComparisonOp(operator)
             result = lhs.compare(other=rhs, op=op, location=cmp_loc)
         if result is NotImplemented and isinstance(rhs, NodeBuilder):
-            op = BuilderComparisonOp(invert_ordered_binary_op(operator))
-            result = rhs.compare(other=lhs, op=op, location=cmp_loc)
+            result = rhs.compare(other=lhs, op=op.reversed(), location=cmp_loc)
         if result is NotImplemented:
             raise CodeError(f"Unsupported comparison {operator!r} between types", cmp_loc)
         return result.resolve()
@@ -1092,26 +1085,17 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         return LiteralBuilderImpl(value=bytes_const, source_location=self._location(expr))
 
     def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> NodeBuilder:
-        from puya.awst_build.eb.tuple import TupleExpressionBuilder
+        from puya.awst_build.eb.tuple import TupleLiteralBuilder
 
-        items = [
-            require_instance_builder(mypy_item.accept(self)).resolve()
-            for mypy_item in mypy_expr.items
-        ]
-        # TODO: grab item types from EB items?
-        typ = self.context.mypy_expr_node_type(mypy_expr)
         location = self._location(mypy_expr)
-        if not items:
-            raise CodeError("Empty tuples are not supported", location)
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WTuple)
-        tuple_expr = TupleExpression(
-            source_location=location,
-            wtype=wtype,
-            items=items,
-        )
+        if not mypy_expr.items:
+            raise CodeError("empty tuples are not supported", location)
 
-        return TupleExpressionBuilder(tuple_expr, typ)
+        item_builders = [
+            require_instance_builder(mypy_item.accept(self)) for mypy_item in mypy_expr.items
+        ]
+
+        return TupleLiteralBuilder(item_builders, location)
 
     def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> NodeBuilder:
         expr_loc = self._location(expr)

@@ -58,7 +58,7 @@ class LiteralBuilderImpl(LiteralBuilder):
     def resolve(self) -> Expression:
         if isinstance(self.value, bool):
             return BoolConstant(value=self.value, source_location=self.source_location)
-        raise CodeError("A Python literal is not valid at this location", self.source_location)
+        raise CodeError("a Python literal is not valid at this location", self.source_location)
 
     @typing.override
     def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:

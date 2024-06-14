@@ -39,12 +39,13 @@ from puya.awst_build.eb.arc4._utils import (
     implicit_operand_conversion,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
-from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
     require_instance_builder,
@@ -398,12 +399,9 @@ def _create_abi_call_expr(
         else:
             raise InternalError("Return type does not match signature type", location)
 
-    result_pytype = pytypes.GenericTupleType.parameterise(
-        [declared_result_pytype, itxn_result_pytype], location
-    )
-    tuple_expr = TupleExpression.from_items((abi_result, itxn_tmp), location)
-    assert tuple_expr.wtype == result_pytype.wtype  # TODO: fixme
-    return TupleExpressionBuilder(tuple_expr, result_pytype)
+    abi_result_builder = builder_for_instance(declared_result_pytype, abi_result)
+    itxn_tmp_builder = builder_for_instance(itxn_result_pytype, itxn_tmp)
+    return TupleLiteralBuilder((abi_result_builder, itxn_tmp_builder), location)
 
 
 def _add_array_exprs(
