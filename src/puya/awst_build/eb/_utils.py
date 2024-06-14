@@ -21,6 +21,9 @@ logger = log.get_logger(__name__)
 def bool_eval_to_constant(
     *, value: bool, location: SourceLocation, negate: bool = False
 ) -> InstanceBuilder:
+    # TODO: this function hides multiple semantic compatibility issues,
+    #       it's used frequently without retaining the underlying expression,
+    #       so it's never evaluated, which is wrong if there are side effects
     from puya.awst_build.eb._literals import LiteralBuilderImpl
 
     if negate:
