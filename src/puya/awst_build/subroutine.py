@@ -75,7 +75,6 @@ from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
-    bool_eval,
     expect_operand_type,
     extract_bytes_literal_from_mypy,
     get_unaliased_fullname,
@@ -433,9 +432,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
     def _eval_condition(self, mypy_expr: mypy.nodes.Expression) -> Expression:
         with self._enter_bool_context():
-            builder_or_literal = mypy_expr.accept(self)
+            builder = mypy_expr.accept(self)
         loc = self._location(mypy_expr)
-        condition = bool_eval(builder_or_literal, loc)
+        condition = builder.bool_eval(loc)
         return condition.resolve()
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop:
@@ -918,8 +917,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     location,
                 )
             target_pytyp = pytypes.BoolType
-            lhs = bool_eval(lhs, location)
-            rhs = bool_eval(rhs, location)
+            lhs = lhs.bool_eval(location)
+            rhs = rhs.bool_eval(location)
         else:
             (target_pytyp,) = result_pytypes
             lhs = expect_operand_type(lhs, target_pytyp)
