@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -207,11 +207,16 @@ class TypingLiteralType(PyType):
 
 
 @typing.final
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class TupleType(PyType):
     generic: _GenericType[TupleType]
-    items: tuple[PyType, ...] = attrs.field(validator=attrs.validators.min_len(1))
-    wtype: wtypes.WType
+    items: tuple[PyType, ...]
+    _wtype_cls: type[wtypes.WTuple | wtypes.ARC4Tuple]
+    source_location: SourceLocation | None
+
+    @property
+    def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
+        return self._wtype_cls((i.wtype for i in self.items), self.source_location)
 
 
 @typing.final
@@ -530,18 +535,18 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 
 
 def _make_tuple_parameterise(
-    typ: Callable[[Iterable[wtypes.WType], SourceLocation | None], wtypes.WType]
+    wtype_cls: type[wtypes.WTuple | wtypes.ARC4Tuple],
 ) -> _Parameterise[TupleType]:
     def parameterise(
         self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
     ) -> TupleType:
-        item_wtypes = [arg.wtype for arg in args]
         name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
         return TupleType(
             generic=self,
             name=name,
             items=tuple(args),
-            wtype=typ(item_wtypes, source_location),
+            wtype_cls=wtype_cls,
+            source_location=source_location,
         )
 
     return parameterise
