@@ -402,3 +402,32 @@ class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContra
     @arc4.baremethod # type: ignore[type-var] ## E: decorator is only valid in subclasses of algopy.ARC4Contract
     def bare(self) -> None: ## E: missing @algopy.subroutine decorator
         pass
+
+
+## case: bad_signatures
+from algopy import *
+
+class MyContract(ARC4Contract):
+    @arc4.abimethod(name=1) # type: ignore[misc,call-overload] ## E: invalid name option: 1
+    def a(self) -> None:
+        pass
+
+    @arc4.baremethod(allow_actions=[]) ## E: empty allow_actions
+    def b(self) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.BoxRef
+    def c(self, box: BoxRef) -> None:
+        pass
+
+    @arc4.abimethod ## E: invalid type for an ARC4 method: algopy.BoxRef
+    def d(self, arg: Bytes) -> BoxRef:
+        return BoxRef(key=arg)
+
+    @arc4.baremethod # type: ignore[arg-type] ## E: bare methods should have no arguments or return values
+    def e(self, x: UInt64) -> None:
+        pass
+
+    @arc4.baremethod # type: ignore[arg-type] ## E: bare methods should have no arguments or return values
+    def f(self) -> UInt64:
+        return UInt64(0)

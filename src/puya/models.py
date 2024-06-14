@@ -22,6 +22,12 @@ class OnCompletionAction(enum.IntEnum):
     DeleteApplication = 5
 
 
+class ARC4CreateOption(enum.Enum):
+    allow = enum.auto()
+    require = enum.auto()
+    disallow = enum.auto()
+
+
 @attrs.frozen(kw_only=True)
 class ARC4BareMethodConfig:
     source_location: SourceLocation | None
@@ -30,8 +36,7 @@ class ARC4BareMethodConfig:
         converter=tuple[OnCompletionAction],
         validator=attrs.validators.min_len(1),
     )
-    allow_create: bool = False
-    require_create: bool = False
+    create: ARC4CreateOption = ARC4CreateOption.disallow
 
 
 @attrs.frozen(kw_only=True)
@@ -42,8 +47,7 @@ class ARC4ABIMethodConfig:
         converter=tuple[OnCompletionAction],
         validator=attrs.validators.min_len(1),
     )
-    allow_create: bool = False
-    require_create: bool = False
+    create: ARC4CreateOption = ARC4CreateOption.disallow
     name: str
     readonly: bool = False
     default_args: immutabledict[str, str] = immutabledict()

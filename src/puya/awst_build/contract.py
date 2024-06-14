@@ -1,4 +1,3 @@
-import typing
 from collections.abc import Iterator, Mapping
 
 import mypy.nodes
@@ -6,15 +5,13 @@ import mypy.types
 import mypy.visitor
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ContractFragment,
     ContractMethod,
     ContractReference,
 )
-from puya.awst.wtypes import ARC4Type
 from puya.awst_build import constants, pytypes
-from puya.awst_build.arc4_utils import get_arc4_method_data
+from puya.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
@@ -26,8 +23,6 @@ from puya.awst_build.utils import (
 )
 from puya.errors import CodeError, InternalError
 from puya.models import (
-    ARC4ABIMethodConfig,
-    ARC4BareMethodConfig,
     ARC4MethodConfig,
     OnCompletionAction,
 )
@@ -215,39 +210,17 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     func_loc,
                 )
 
-            arc4_method_config = None
-            arc4_decorator = abimethod_dec or baremethod_dec
-            if arc4_decorator:
-                arc4_method_data = get_arc4_method_data(self.context, arc4_decorator, func_def)
-                arc4_method_config = arc4_method_data.config
-                arg_pytypes = arc4_method_data.argument_types
-                ret_pytype = arc4_method_data.return_type
-                if isinstance(arc4_method_config, ARC4BareMethodConfig):
-                    if arg_pytypes or (ret_pytype != pytypes.NoneType):
-                        self._error(
-                            "bare methods should have no arguments or return values",
-                            arc4_decorator,
-                        )
-                else:
-                    typing.assert_type(arc4_method_config, ARC4ABIMethodConfig)
-                    for arg_type in arg_pytypes:
-                        if not (
-                            wtypes.is_arc4_argument_type(arg_type.wtype)
-                            or wtypes.has_arc4_equivalent_type(arg_type.wtype)
-                        ):
-                            self._error(
-                                f"Invalid argument type for an ARC4 method: {arg_type}",
-                                arc4_decorator,
-                            )
-                    if not (
-                        ret_pytype == pytypes.NoneType
-                        or isinstance(ret_pytype.wtype, ARC4Type)
-                        or wtypes.has_arc4_equivalent_type(ret_pytype.wtype)
-                    ):
-                        self._error(
-                            f"Invalid return type for an ARC4 method: {ret_pytype}",
-                            arc4_decorator,
-                        )
+            arc4_method_config: ARC4MethodConfig | None
+            if abimethod_dec:
+                arc4_method_config = get_arc4_abimethod_data(
+                    self.context, abimethod_dec, func_def
+                ).config
+            elif baremethod_dec:
+                arc4_method_config = get_arc4_baremethod_data(
+                    self.context, baremethod_dec, func_def
+                )
+            else:
+                arc4_method_config = None
             # TODO: validate against super-class configs??
             sub = self._handle_method(
                 func_def,

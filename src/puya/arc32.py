@@ -8,6 +8,7 @@ from puya.errors import InternalError
 from puya.models import (
     ARC4ABIMethod,
     ARC4BareMethod,
+    ARC4CreateOption,
     ARC4MethodConfig,
     CompiledContract,
     ContractState,
@@ -66,12 +67,15 @@ def _encode_schema(state: Collection[ContractState]) -> JSONDict:
 
 
 def _encode_call_config(config: ARC4MethodConfig) -> JSONDict:
-    if config.require_create:
-        call_config = "CREATE"
-    elif config.allow_create:
-        call_config = "ALL"
-    else:
-        call_config = "CALL"
+    match config.create:
+        case ARC4CreateOption.require:
+            call_config = "CREATE"
+        case ARC4CreateOption.allow:
+            call_config = "ALL"
+        case ARC4CreateOption.disallow:
+            call_config = "CALL"
+        case never:
+            typing.assert_never(never)
     return {OCA_ARC32_MAPPING[oca]: call_config for oca in config.allowed_completion_types}
 
 

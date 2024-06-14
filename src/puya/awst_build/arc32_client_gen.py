@@ -2,6 +2,7 @@
 #       into that new package, but probably outside awst_build
 import itertools
 import textwrap
+import typing
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from puya.awst_build import constants
 from puya.awst_build.arc4_utils import arc4_to_pytype
 from puya.models import (
     ARC4ABIMethod,
+    ARC4CreateOption,
     ARC4Method,
     ARC4MethodArg,
     ARC32StructDef,
@@ -119,10 +121,15 @@ def _arc4_method_to_decorator(method: ARC4ABIMethod) -> str:
         abimethod_args["default_args"] = dict(config.default_args)
     if config.allowed_completion_types != (OnCompletionAction.NoOp,):
         abimethod_args["allow_actions"] = [oca.name for oca in config.allowed_completion_types]
-    if config.allow_create:
-        abimethod_args["create"] = "allow"
-    elif config.require_create:
-        abimethod_args["create"] = "require"
+    match config.create:
+        case ARC4CreateOption.allow:
+            abimethod_args["create"] = "allow"
+        case ARC4CreateOption.require:
+            abimethod_args["create"] = "require"
+        case ARC4CreateOption.disallow:
+            pass
+        case invalid:
+            typing.assert_never(invalid)
     kwargs = ", ".join(f"{name}={value!r}" for name, value in abimethod_args.items())
     decorator = f"@{constants.ABIMETHOD_DECORATOR_ALIAS}"
     if kwargs:

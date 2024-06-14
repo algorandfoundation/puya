@@ -79,30 +79,3 @@ def split_tuple_types(types: str) -> Iterable[str]:
             yield types[last_idx:idx]
             last_idx = idx + 1
     yield types[last_idx:]
-
-
-def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
-    match wtype:
-        case wtypes.ARC4Type(arc4_name=arc4_name):
-            return arc4_name
-        case (
-            wtypes.void_wtype
-            | wtypes.asset_wtype
-            | wtypes.account_wtype
-            | wtypes.application_wtype
-            | wtypes.uint64_wtype
-            | wtypes.bool_wtype
-            | wtypes.string_wtype
-        ):
-            return wtype.name
-        case wtypes.biguint_wtype:
-            return "uint512"
-        case wtypes.bytes_wtype:
-            return "byte[]"
-        case wtypes.WGroupTransaction(transaction_type=transaction_type):
-            return transaction_type.name if transaction_type else "txn"
-        case wtypes.WTuple(types=types):
-            item_types = ",".join([wtype_to_arc4(item) for item in types])
-            return f"({item_types})"
-        case _:
-            raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
