@@ -4,7 +4,6 @@ from collections.abc import Callable, Sequence
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BinaryBooleanOperator,
     BooleanBinaryOperation,
@@ -51,23 +50,13 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
-            raise CodeError("empty tuples are not supported", location)
-        if len(args) != 1:
-            raise CodeError("tuple constructor takes a single argument")
-        inst_args = [require_instance_builder(a) for a in args]
-        typ = pytypes.GenericTupleType.parameterise([ia.pytype for ia in inst_args], location)
-        tuple_expr = TupleExpression.from_items([ia.resolve() for ia in inst_args], location)
-        return TupleExpressionBuilder(tuple_expr, typ)
+        return _init(args, location)
 
 
 class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericTupleType
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WTuple)
-        self._wtype = wtype
         super().__init__(typ, location)
 
     @typing.override
@@ -78,16 +67,36 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        pytype = self.produces()
-        if len(args) != len(pytype.items):
-            raise CodeError("")
+        result = _init(args, location)
+        if result.pytype != self.produces():
+            raise CodeError("type mismatch between tuple parameters and argument types", location)
+        return result
 
-        tuple_expr = TupleExpression(
-            items=[require_instance_builder(a).resolve() for a in args],
-            wtype=self._wtype,
-            source_location=location,
-        )
-        return TupleExpressionBuilder(tuple_expr, self.produces())
+
+def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuilder:
+    if not args:
+        raise CodeError("empty tuples are not supported", location)
+    if len(args) != 1:
+        raise CodeError("tuple constructor takes a single argument")
+    (arg,) = args
+    arg = require_instance_builder(arg)
+    match arg:
+        case InstanceBuilder(pytype=pytypes.TupleType(items=t_items)):
+            fixed_size = len(t_items)
+        case InstanceBuilder(pytype=pytypes.ArrayType(size=int(fixed_size))):
+            pass
+        case LiteralBuilder(value=bytes(bytes_lit)):
+            fixed_size = len(bytes_lit)
+        case LiteralBuilder(value=str(str_lit)):
+            fixed_size = len(str_lit)
+        case _:
+            raise CodeError("unhandled argument type", arg.source_location)
+    if fixed_size == 0:
+        raise CodeError("empty tuples are not supported", location)
+    indexer = _make_maybe_tuple_indexer(arg, location)
+    return TupleLiteralBuilder(
+        items=[indexer(idx) for idx in range(fixed_size)], location=location
+    )
 
 
 class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
@@ -236,7 +245,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                 match other:
                     # can't handle non-simple literals here
                     case LiteralBuilder(value=int(mult_literal)):
-                        indexer = _make_tuple_indexer(self, location)
+                        indexer = _make_maybe_tuple_indexer(self, location)
                         items = [indexer(idx) for idx in range(len(self.pytype.items))]
                         return TupleLiteralBuilder(items * mult_literal, location)
                     case _:
@@ -365,8 +374,8 @@ def _compare(
         # TODO: semantic compatibility issue
         return bool_eval_to_constant(value=result_if_types_differ, location=location)
 
-    lhs_indexer = _make_tuple_indexer(lhs, location)
-    rhs_indexer = _make_tuple_indexer(rhs, location)
+    lhs_indexer = _make_maybe_tuple_indexer(lhs, location)
+    rhs_indexer = _make_maybe_tuple_indexer(rhs, location)
 
     def compare_at_index(idx: int) -> Expression:
         left = lhs_indexer(idx)
@@ -407,8 +416,8 @@ def _concat(
     else:
         lhs, rhs = other, this
 
-    lhs_indexer = _make_tuple_indexer(lhs, location)
-    rhs_indexer = _make_tuple_indexer(rhs, location)
+    lhs_indexer = _make_maybe_tuple_indexer(lhs, location)
+    rhs_indexer = _make_maybe_tuple_indexer(rhs, location)
 
     items = [
         *(lhs_indexer(idx) for idx in range(len(lhs.pytype.items))),
@@ -417,10 +426,10 @@ def _concat(
     return TupleLiteralBuilder(items, location)
 
 
-def _make_tuple_indexer(
+def _make_maybe_tuple_indexer(
     builder: InstanceBuilder, location: SourceLocation
 ) -> Callable[[int], InstanceBuilder]:
-    """this function should ONLY be used if ALL tuple elements are going to be visited"""
+    """this function should ONLY be used if ALL elements are going to be visited"""
     if isinstance(builder, TupleLiteralBuilder):
         # this is why this function exists, going through .index() would evaluate to
         # an expression in the general case, but this way we can support comparisons with
