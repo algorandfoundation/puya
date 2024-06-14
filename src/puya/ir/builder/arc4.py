@@ -75,6 +75,7 @@ def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) ->
                 op=AVMOp.getbit,
                 args=[value, UInt64Constant(value=0, source_location=None)],
                 source_location=expr.source_location,
+                types=(IRType.bool,),
             )
         case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
             return Intrinsic(
