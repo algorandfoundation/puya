@@ -149,7 +149,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
     @abc.abstractmethod
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         """Handle self[index]"""
-        raise CodeError("expression is not a collection", self.source_location)
+        raise CodeError("expression is not a collection", location)
 
     @abc.abstractmethod
     def slice_index(
@@ -160,7 +160,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         location: SourceLocation,
     ) -> InstanceBuilder:
         """Handle self[begin_index:end_index:stride]"""
-        raise CodeError("expression is not a collection", self.source_location)
+        raise CodeError("expression is not a collection", location)
 
     @abc.abstractmethod
     def to_bytes(self, location: SourceLocation) -> Expression:
