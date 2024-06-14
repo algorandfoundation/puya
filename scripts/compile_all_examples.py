@@ -271,11 +271,11 @@ def main(options: CompileAllOptions) -> None:
     modified_teal = defaultdict[int, list[Path]](list)
     failures = list[tuple[str, str]]()
     with ProcessPoolExecutor() as executor:
-        # iterate optimization levels first and with O1 last and then cases, this is a workaround
+        # iterate optimization levels first and with O1 first and then cases, this is a workaround
         # to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to
         # read the client_<contract>.py output from the 01 level before it is finished writing to
         # disk
-        args = [(case, level) for level in (0, 2, 1) for case in to_compile]
+        args = [(case, level) for level in (1, 0, 2) for case in to_compile]
         for compilation_result, level in executor.map(_compile_for_level, args):
             rel_path = compilation_result.rel_path
             case_name = f"{rel_path} -O{level}"
