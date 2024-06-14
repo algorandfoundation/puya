@@ -55,7 +55,7 @@ contract BoxContract
   
   abimethod slice_box(): void
   {
-    box_0: box_key = hex<"30">
+    box_0: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('0'))
     Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
     assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0]))) == hex<"54657374696E67">)
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
@@ -64,7 +64,7 @@ contract BoxContract
   
   abimethod arc4_box(): void
   {
-    box_d: box_key = hex<"64">
+    box_d: box_key = reinterpret_cast<box_key>(hex<"64">)
     Box[box_d]: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
     assert(reinterpret_cast<biguint>(Box[box_d][0u]) == reinterpret_cast<biguint>(0arc4u8))
     assert(reinterpret_cast<biguint>(Box[box_d][1u]) == reinterpret_cast<biguint>(1arc4u8))
@@ -75,6 +75,12 @@ contract BoxContract
   abimethod test_box_ref(): void
   {
     box_ref: box_key = 'blob'
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    box_ref: box_key = hex<"626C6F62">
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    box_ref: box_key = reinterpret_cast<box_key>(hex<"626C6F62">)
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    box_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('blob'))
     assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
     assert(box_create(box_ref, 32u))
     assert(STATE_EXISTS(Box[box_ref]), comment="has data")
@@ -115,7 +121,7 @@ contract BoxContract
     assert(!(exists))
     assert(STATE_EXISTS(Box[concat('', itob(key_0))]))
     assert(reinterpret_cast<bytes>('') == hex<"">)
-    tmp_box_map: box_key = hex<"">
+    tmp_box_map: box_key = reinterpret_cast<box_key>(hex<"">)
     Box[concat(tmp_box_map, itob(key_1))]: string = 'hello'
     assert(examples.box_storage.contract::get_box_map_value_from_key_plus_1(tmp_box_map, 0u) == 'hello')
     STATE_DELETE(Box[concat(tmp_box_map, itob(key_1))])

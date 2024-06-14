@@ -53,7 +53,7 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def slice_box(self) -> None:
-        box_0 = Box(Bytes, key=b"0")
+        box_0 = Box(Bytes, key=String("0"))
         box_0.value = Bytes(b"Testing testing 123")
         assert box_0.value[0:7] == b"Testing"
 
@@ -62,7 +62,7 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def arc4_box(self) -> None:
-        box_d = Box(StaticInts, key=b"d")
+        box_d = Box(StaticInts, key=Bytes(b"d"))
         box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
 
         assert box_d.value[0] == 0
@@ -72,8 +72,14 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def test_box_ref(self) -> None:
-        # init ref
+        # init ref, with valid key types
         box_ref = BoxRef(key="blob")
+        assert not box_ref, "no data"
+        box_ref = BoxRef(key=b"blob")
+        assert not box_ref, "no data"
+        box_ref = BoxRef(key=Bytes(b"blob"))
+        assert not box_ref, "no data"
+        box_ref = BoxRef(key=String("blob"))
         assert not box_ref, "no data"
 
         # create
@@ -128,7 +134,7 @@ class BoxContract(arc4.ARC4Contract):
         assert self.box_map.key_prefix == b""
 
         # test box map not assigned to the class and passed to subroutine
-        tmp_box_map = BoxMap(UInt64, String, key_prefix=b"")
+        tmp_box_map = BoxMap(UInt64, String, key_prefix=Bytes())
         tmp_box_map[key_1] = String("hello")
         assert get_box_map_value_from_key_plus_1(tmp_box_map, UInt64(0)) == "hello"
         del tmp_box_map[key_1]
