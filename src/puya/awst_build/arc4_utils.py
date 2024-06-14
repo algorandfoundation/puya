@@ -1,5 +1,6 @@
 import typing
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from functools import cached_property
 
 import attrs
 import mypy.nodes
@@ -9,6 +10,7 @@ from immutabledict import immutabledict
 
 import puya.models
 from puya.arc4_util import pytype_to_arc4
+from puya.awst import wtypes
 from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
@@ -55,16 +57,38 @@ def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]
 class ARC4MethodData:
     config: ARC4MethodConfig
     _signature: dict[str, pytypes.PyType]
+    _arc4_signature: Mapping[str, pytypes.PyType] = attrs.field(init=False)
+
+    @_arc4_signature.default
+    def _arc4_signature_default(self) -> Mapping[str, pytypes.PyType]:
+        return {
+            k: _pytype_to_arc4_pytype(v, self.config.source_location)
+            for k, v in self._signature.items()
+        }
 
     @property
+    def signature(self) -> Mapping[str, pytypes.PyType]:
+        return self._signature
+
+    @cached_property
     def return_type(self) -> pytypes.PyType:
         return self._signature["output"]
 
-    @property
+    @cached_property
+    def arc4_return_type(self) -> pytypes.PyType:
+        return self._arc4_signature["output"]
+
+    @cached_property
     def argument_types(self) -> Sequence[pytypes.PyType]:
         names, types = zip(*self._signature.items(), strict=True)
         assert names[-1] == "output"
-        return types[:-1]
+        return tuple(types[:-1])
+
+    @cached_property
+    def arc4_argument_types(self) -> Sequence[pytypes.PyType]:
+        names, types = zip(*self._arc4_signature.items(), strict=True)
+        assert names[-1] == "output"
+        return tuple(types[:-1])
 
 
 def get_arc4_method_data(
@@ -346,3 +370,38 @@ def _get_func_types(
         )
     result["output"] = func_type.ret_type
     return result
+
+
+def _pytype_to_arc4_pytype(
+    pytype: pytypes.PyType, location: SourceLocation | None
+) -> pytypes.PyType:
+    match pytype:
+        case pytypes.BoolType:
+            return pytypes.ARC4BoolType
+        case pytypes.UInt64Type:
+            return pytypes.ARC4UIntN_Aliases[64]
+        case pytypes.BigUIntType:
+            return pytypes.ARC4UIntN_Aliases[512]
+        case pytypes.BytesType:
+            return pytypes.ARC4DynamicBytesType
+        case pytypes.StringType:
+            return pytypes.ARC4StringType
+        case pytypes.TupleType(generic=pytypes.GenericTupleType, items=tuple_item_types):
+            return pytypes.GenericARC4TupleType.parameterise(
+                [_pytype_to_arc4_pytype(item_typ, location) for item_typ in tuple_item_types],
+                location,
+            )
+        case (
+            pytypes.NoneType
+            | pytypes.ApplicationType
+            | pytypes.AssetType
+            | pytypes.AccountType
+            | pytypes.GroupTransactionBaseType
+        ):
+            return pytype
+        case maybe_gtxn if maybe_gtxn in pytypes.GroupTransactionTypes.values():
+            return pytype
+        case pytypes.PyType(wtype=wtypes.ARC4Type()):
+            return pytype
+        case unsupported:
+            raise CodeError(f"type {str(unsupported)!r} is not a supported ARC-4 type", location)
