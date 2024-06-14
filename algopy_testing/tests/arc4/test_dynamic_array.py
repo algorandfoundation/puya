@@ -694,10 +694,7 @@ def _compare_abi_and_arc4_values(
         x = arc4_value._list()  # noqa: SLF001
         j = 0
         while j < len(x):
-            if hasattr(x[j], "_list"):
-                assert x[j]._list() == abi_value[j]  # noqa: SLF001
-            else:
-                assert x[j] == abi_value[j]
+            _compare_abi_and_arc4_values(x[j], abi_value[j])
             j += 1
     else:
         assert arc4_value.bytes == int_to_bytes(abi_value, len(arc4_value.bytes))

@@ -533,8 +533,9 @@ class StaticArray(
 
         # ensure these two variables are set as instance variables instead of class variables
         # to avoid sharing state between instances created by copy operation
-        self._array_item_t = self._array_item_t
-        self._child_types = self._child_types or []
+        if hasattr(self, "_array_item_t"):
+            self._array_item_t = self._array_item_t
+        self._child_types = self._child_types or [] if hasattr(self, "_child_types") else []
 
     def _get_type_info(self, item: _TArrayItem) -> _TypeInfo:
         return _TypeInfo(
@@ -703,8 +704,9 @@ class DynamicArray(
 
         # ensure these two variables are set as instance variables instead of class variables
         # to avoid sharing state between instances created by copy operation
-        self._array_item_t = self._array_item_t
-        self._child_types = self._child_types or []
+        if hasattr(self, "_array_item_t"):
+            self._array_item_t = self._array_item_t
+        self._child_types = self._child_types or [] if hasattr(self, "_child_types") else []
 
     def _get_type_info(self, item: _TArrayItem) -> _TypeInfo:
         return _TypeInfo(
@@ -783,7 +785,10 @@ class DynamicArray(
     def _list(self) -> list[_TArrayItem]:
         length = int.from_bytes(self._value[:_ABI_LENGTH_SIZE])
         self._child_types = self._child_types or []
-        self._child_types += [_TypeInfo(self._array_item_t)] * (length - len(self._child_types))
+        if hasattr(self, "_array_item_t"):
+            self._child_types += [_TypeInfo(self._array_item_t)] * (
+                length - len(self._child_types)
+            )
         return _decode(self._value[_ABI_LENGTH_SIZE:], self._child_types)
 
     def _encode_with_length(self, items: list[_TArrayItem] | tuple[_TArrayItem, ...]) -> bytes:
@@ -880,7 +885,7 @@ class Tuple(
     _child_types: list[_TypeInfo]
     _value: bytes
 
-    def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
+    def __init__(self, items: tuple[typing.Unpack[_TTuple]] = (), /):  # type: ignore[assignment]
         """Construct an ARC4 tuple from a python tuple"""
         self._value = _encode(items)
         if items:
@@ -888,7 +893,7 @@ class Tuple(
 
         # ensure the variable is set as instance variables instead of class variables
         # to avoid sharing state between instances created by copy operation
-        self._child_types = self._child_types or []
+        self._child_types = self._child_types or [] if hasattr(self, "_child_types") else []
 
     def _get_type_info(self, item: typing.Any) -> _TypeInfo:  # noqa: ANN401
         return _TypeInfo(
@@ -907,7 +912,7 @@ class Tuple(
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
-        result = cls()  # type: ignore[call-arg]
+        result = cls()
         result._value = value  # noqa: SLF001
         return result
 
@@ -926,7 +931,7 @@ class Tuple(
 
 
 def _is_arc4_dynamic(value: object) -> bool:
-    if isinstance(value, StaticArray | DynamicArray):
+    if isinstance(value, StaticArray | DynamicArray | Tuple):
         return any(_is_arc4_dynamic(v) for v in value)
     return not isinstance(value, BigUFixedNxM | BigUIntN | UFixedNxM | UIntN | Bool)
 
@@ -941,6 +946,7 @@ def _find_bool(
     values: (
         StaticArray[typing.Any, typing.Any]
         | DynamicArray[typing.Any]
+        | Tuple[typing.Any]
         | tuple[typing.Any, ...]
         | list[typing.Any]
     ),
@@ -999,10 +1005,22 @@ def _compress_multiple_bool(value_list: list[Bool]) -> int:
     return result
 
 
+def _get_max_bytes_len(type_info: _TypeInfo) -> int:
+    value = type_info.value()
+    if hasattr(value, "_max_bytes_len"):
+        return typing.cast(int, value._max_bytes_len)  # noqa: SLF001
+    result = 0
+    if type_info.child_types:
+        for c in type_info.child_types:
+            result += _get_max_bytes_len(c)
+    return result
+
+
 def _encode(
     values: (
         StaticArray[typing.Any, typing.Any]
         | DynamicArray[typing.Any]
+        | Tuple[typing.Any]
         | tuple[typing.Any, ...]
         | list[typing.Any]
     ),
@@ -1100,7 +1118,7 @@ def _decode(  # noqa: PLR0912, C901
             i += after
             array_index += 1
         else:
-            curr_len = child_type.value()._max_bytes_len  # type: ignore[attr-defined] #noqa: SLF001
+            curr_len = _get_max_bytes_len(child_type)
             value_partitions.append(value[array_index : array_index + curr_len])
             array_index += curr_len
 
