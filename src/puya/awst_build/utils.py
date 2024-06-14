@@ -12,7 +12,6 @@ from mypy.types import get_proper_type, is_named_instance
 
 from puya import log
 from puya.awst.nodes import (
-    BoolConstant,
     ConstantValue,
     ContractReference,
 )
@@ -21,7 +20,6 @@ from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
-    LiteralBuilder,
     LiteralConverter,
     NodeBuilder,
 )
@@ -198,17 +196,6 @@ def require_instance_builder_of_type(
             builder.source_location,
         )
     return builder
-
-
-def bool_eval(
-    builder_or_literal: NodeBuilder, loc: SourceLocation
-) -> InstanceBuilder:  # TODO: yeet me
-    from puya.awst_build.eb.bool import BoolExpressionBuilder
-
-    if not isinstance(builder_or_literal, LiteralBuilder):
-        return builder_or_literal.bool_eval(location=loc)
-    constant_value = bool(builder_or_literal.value)
-    return BoolExpressionBuilder(BoolConstant(value=constant_value, source_location=loc))
 
 
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:

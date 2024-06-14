@@ -1,15 +1,9 @@
-import re
 from collections.abc import Iterable, Sequence
 from itertools import zip_longest
 
-from puya.awst import (
-    nodes as awst_nodes,
-    wtypes,
-)
+from puya.awst import wtypes
 from puya.awst.wtypes import ARC4Type
-from puya.awst_build import constants, pytypes
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4ABIMethodConfig
 from puya.parse import SourceLocation
 from puya.utils import round_bits_to_nearest_bytes
 
@@ -57,26 +51,6 @@ def determine_arc4_tuple_head_size(
     return bit_size
 
 
-_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
-_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
-_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
-_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
-_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
-_ARC4_PYTYPE_MAPPING = {
-    "bool": pytypes.ARC4BoolType,
-    "string": pytypes.ARC4StringType,
-    "account": pytypes.AccountType,
-    "application": pytypes.ApplicationType,
-    "asset": pytypes.AssetType,
-    "void": pytypes.NoneType,
-    "txn": pytypes.GroupTransactionTypes[None],
-    **{t.name: pytypes.GroupTransactionTypes[t] for t in constants.TransactionType},
-    "address": pytypes.ARC4AddressType,
-    "byte": pytypes.ARC4ByteType,
-    "byte[]": pytypes.ARC4DynamicBytesType,
-}
-
-
 def make_tuple_wtype(
     types: Iterable[wtypes.WType], location: SourceLocation | None
 ) -> wtypes.ARC4Tuple:
@@ -87,42 +61,6 @@ def make_tuple_wtype(
         else:
             raise CodeError(f"Invalid type for arc4.Tuple element: {typ}", location)
     return wtypes.ARC4Tuple(arc4_types, location)
-
-
-def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.PyType:
-    if known_typ := _ARC4_PYTYPE_MAPPING.get(typ):
-        return known_typ
-    if uint := _UINT_REGEX.match(typ):
-        n = int(uint.group("n"))
-        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
-        if n <= 64:
-            return pytypes.GenericARC4UIntNType.parameterise([n_typ], location)
-        else:
-            return pytypes.GenericARC4BigUIntNType.parameterise([n_typ], location)
-    if ufixed := _UFIXED_REGEX.match(typ):
-        n, m = map(int, ufixed.group("n", "m"))
-        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
-        m_typ = pytypes.TypingLiteralType(value=n, source_location=None)
-        if n <= 64:
-            return pytypes.GenericARC4UFixedNxMType.parameterise([n_typ, m_typ], location)
-        else:
-            return pytypes.GenericARC4BigUFixedNxMType.parameterise([n_typ, m_typ], location)
-    if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
-        arr_type, size_str = fixed_array.group("type", "size")
-        size = int(size_str)
-        size_typ = pytypes.TypingLiteralType(value=size, source_location=None)
-        element_type = arc4_to_pytype(arr_type, location)
-        return pytypes.GenericARC4StaticArrayType.parameterise([element_type, size_typ], location)
-    if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
-        arr_type = dynamic_array.group("type")
-        element_type = arc4_to_pytype(arr_type, location)
-        return pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
-    if tuple_match := _TUPLE_REGEX.match(typ):
-        tuple_types = [
-            arc4_to_pytype(x, location) for x in split_tuple_types(tuple_match.group("types"))
-        ]
-        return pytypes.GenericARC4TupleType.parameterise(tuple_types, location)
-    raise CodeError(f"unknown ARC4 type '{typ}'", location)
 
 
 def split_tuple_types(types: str) -> Iterable[str]:
@@ -141,41 +79,3 @@ def split_tuple_types(types: str) -> Iterable[str]:
             yield types[last_idx:idx]
             last_idx = idx + 1
     yield types[last_idx:]
-
-
-def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> str:
-    # TODO: implement
-    return wtype_to_arc4(typ.wtype, loc)
-
-
-def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
-    match wtype:
-        case wtypes.ARC4Type(arc4_name=arc4_name):
-            return arc4_name
-        case (
-            wtypes.void_wtype
-            | wtypes.asset_wtype
-            | wtypes.account_wtype
-            | wtypes.application_wtype
-            | wtypes.uint64_wtype
-            | wtypes.bool_wtype
-            | wtypes.string_wtype
-        ):
-            return wtype.name
-        case wtypes.biguint_wtype:
-            return "uint512"
-        case wtypes.bytes_wtype:
-            return "byte[]"
-        case wtypes.WGroupTransaction(transaction_type=transaction_type):
-            return transaction_type.name if transaction_type else "txn"
-        case wtypes.WTuple(types=types):
-            item_types = ",".join([wtype_to_arc4(item) for item in types])
-            return f"({item_types})"
-        case _:
-            raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
-
-
-def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:
-    arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
-    return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
-    return f"{config.name}({','.join(arg_types)}){return_type}"

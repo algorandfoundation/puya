@@ -1,4 +1,3 @@
-import typing
 from collections.abc import Iterator, Mapping
 
 import mypy.nodes
@@ -6,15 +5,13 @@ import mypy.types
 import mypy.visitor
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ContractFragment,
     ContractMethod,
     ContractReference,
 )
-from puya.awst.wtypes import ARC4Type
 from puya.awst_build import constants, pytypes
-from puya.awst_build.arc4_utils import get_arc4_method_data
+from puya.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
@@ -26,8 +23,6 @@ from puya.awst_build.utils import (
 )
 from puya.errors import CodeError, InternalError
 from puya.models import (
-    ARC4ABIMethodConfig,
-    ARC4BareMethodConfig,
     ARC4MethodConfig,
     OnCompletionAction,
 )
@@ -178,80 +173,59 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._approval_program = sub
                 else:
                     self._clear_program = sub
+        elif not self._is_arc4:
+            for arc4_only_dec_name in (
+                constants.ABIMETHOD_DECORATOR,
+                constants.BAREMETHOD_DECORATOR,
+            ):
+                if invalid_dec := dec_by_fullname.pop(arc4_only_dec_name, None):
+                    self._error(
+                        f"decorator is only valid in subclasses of"
+                        f" {constants.ARC4_CONTRACT_BASE_ALIAS}",
+                        invalid_dec,
+                    )
+            if not dec_by_fullname.pop(constants.SUBROUTINE_HINT, None):
+                self._error(f"missing @{constants.SUBROUTINE_HINT_ALIAS} decorator", func_loc)
+            sub = self._handle_method(
+                func_def,
+                extra_decorators=dec_by_fullname,
+                arc4_method_config=None,
+                source_location=source_location,
+            )
+            if sub is not None:
+                self._subroutines.append(sub)
         else:
             subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
             abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
             baremethod_dec = dec_by_fullname.pop(constants.BAREMETHOD_DECORATOR, None)
 
-            if not (subroutine_dec or abimethod_dec or baremethod_dec):
+            if len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))) != 1:
                 self._error(
-                    f"member functions (other than __init__ or approval / clear program methods)"
-                    f" must be annotated with exactly one of @{constants.SUBROUTINE_HINT_ALIAS} or"
-                    f" @{constants.ABIMETHOD_DECORATOR_ALIAS}",
+                    f"ARC-4 contract member functions"
+                    f" (other than __init__ or approval / clear program methods)"
+                    f" must be annotated with exactly one of"
+                    f" @{constants.SUBROUTINE_HINT_ALIAS},"
+                    f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
+                    f" or @{constants.BAREMETHOD_DECORATOR_ALIAS}",
                     func_loc,
                 )
 
-            arc4_method_config = None
-            arc4_decorator = abimethod_dec or baremethod_dec
-            if arc4_decorator is not None:
-                arc4_decorator_name = (
-                    constants.ABIMETHOD_DECORATOR_ALIAS
-                    if abimethod_dec
-                    else constants.BAREMETHOD_DECORATOR_ALIAS
+            arc4_method_config: ARC4MethodConfig | None
+            if abimethod_dec:
+                arc4_method_config = get_arc4_abimethod_data(
+                    self.context, abimethod_dec, func_def
+                ).config
+            elif baremethod_dec:
+                arc4_method_config = get_arc4_baremethod_data(
+                    self.context, baremethod_dec, func_def
                 )
-
-                arc4_decorator_loc = self._location(arc4_decorator)
-                if not self._is_arc4:
-                    self._error(
-                        f"{arc4_decorator_name} decorator is only for subclasses"
-                        f" of {constants.ARC4_CONTRACT_BASE_ALIAS}",
-                        arc4_decorator_loc,
-                    )
-                else:
-                    if abimethod_dec and baremethod_dec:
-                        self._error(
-                            "cannot be both an abimethod and a baremethod", arc4_decorator_loc
-                        )
-                    if subroutine_dec is not None:
-                        self._error(
-                            f"cannot be both a subroutine and {arc4_decorator_name}",
-                            subroutine_dec,
-                        )
-                    arc4_method_data = get_arc4_method_data(self.context, arc4_decorator, func_def)
-                    arc4_method_config = arc4_method_data.config
-                    arg_pytypes = arc4_method_data.argument_types
-                    ret_pytype = arc4_method_data.return_type
-                    if isinstance(arc4_method_config, ARC4BareMethodConfig):
-                        if arg_pytypes or (ret_pytype != pytypes.NoneType):
-                            self._error(
-                                "bare methods should have no arguments or return values",
-                                arc4_decorator_loc,
-                            )
-                    else:
-                        typing.assert_type(arc4_method_config, ARC4ABIMethodConfig)
-                        for arg_type in arg_pytypes:
-                            if not (
-                                wtypes.is_arc4_argument_type(arg_type.wtype)
-                                or wtypes.has_arc4_equivalent_type(arg_type.wtype)
-                            ):
-                                self._error(
-                                    f"Invalid argument type for an ARC4 method: {arg_type}",
-                                    arc4_decorator_loc,
-                                )
-                        if not (
-                            ret_pytype == pytypes.NoneType
-                            or isinstance(ret_pytype.wtype, ARC4Type)
-                            or wtypes.has_arc4_equivalent_type(ret_pytype.wtype)
-                        ):
-                            self._error(
-                                f"Invalid return type for an ARC4 method: {ret_pytype}",
-                                arc4_decorator_loc,
-                            )
-                    # TODO: validate against super-class configs??
+            else:
+                arc4_method_config = None
+            # TODO: validate against super-class configs??
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                arc4_method_config=arc4_method_config if self._is_arc4 else None,
+                arc4_method_config=arc4_method_config,
                 source_location=source_location,
             )
             if sub is not None:

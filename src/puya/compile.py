@@ -17,7 +17,8 @@ import mypy.util
 from packaging import version
 
 from puya import log
-from puya.arc32 import create_arc32_json, write_arc32_client
+from puya.arc32 import create_arc32_json
+from puya.awst_build.arc32_client_gen import write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
 from puya.errors import InternalError, log_exceptions
