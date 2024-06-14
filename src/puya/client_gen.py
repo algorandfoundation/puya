@@ -8,7 +8,8 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.arc32 import OCA_ARC32_MAPPING, write_arc32_client
+from puya.arc32 import OCA_ARC32_MAPPING
+from puya.awst_build.arc32_client_gen import write_arc32_client
 from puya.errors import PuyaError
 from puya.models import (
     ARC4ABIMethod,

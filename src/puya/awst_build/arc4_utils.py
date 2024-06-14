@@ -1,3 +1,4 @@
+import re
 import typing
 from collections.abc import Mapping, Sequence
 from functools import cached_property
@@ -9,7 +10,7 @@ import mypy.visitor
 from immutabledict import immutabledict
 
 import puya.models
-from puya.arc4_util import pytype_to_arc4
+from puya.arc4_util import split_tuple_types, wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
@@ -27,6 +28,8 @@ from puya.parse import SourceLocation
 __all__ = [
     "ARC4MethodData",
     "get_arc4_method_data",
+    "arc4_to_pytype",
+    "pytype_to_arc4",
 ]
 
 
@@ -405,3 +408,64 @@ def _pytype_to_arc4_pytype(
             return pytype
         case unsupported:
             raise CodeError(f"type {str(unsupported)!r} is not a supported ARC-4 type", location)
+
+
+_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
+_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
+_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
+_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
+_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
+_ARC4_PYTYPE_MAPPING = {
+    "bool": pytypes.ARC4BoolType,
+    "string": pytypes.ARC4StringType,
+    "account": pytypes.AccountType,
+    "application": pytypes.ApplicationType,
+    "asset": pytypes.AssetType,
+    "void": pytypes.NoneType,
+    "txn": pytypes.GroupTransactionTypes[None],
+    **{t.name: pytypes.GroupTransactionTypes[t] for t in constants.TransactionType},
+    "address": pytypes.ARC4AddressType,
+    "byte": pytypes.ARC4ByteType,
+    "byte[]": pytypes.ARC4DynamicBytesType,
+}
+
+
+def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.PyType:
+    if known_typ := _ARC4_PYTYPE_MAPPING.get(typ):
+        return known_typ
+    if uint := _UINT_REGEX.match(typ):
+        n = int(uint.group("n"))
+        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        if n <= 64:
+            return pytypes.GenericARC4UIntNType.parameterise([n_typ], location)
+        else:
+            return pytypes.GenericARC4BigUIntNType.parameterise([n_typ], location)
+    if ufixed := _UFIXED_REGEX.match(typ):
+        n, m = map(int, ufixed.group("n", "m"))
+        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        m_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        if n <= 64:
+            return pytypes.GenericARC4UFixedNxMType.parameterise([n_typ, m_typ], location)
+        else:
+            return pytypes.GenericARC4BigUFixedNxMType.parameterise([n_typ, m_typ], location)
+    if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
+        arr_type, size_str = fixed_array.group("type", "size")
+        size = int(size_str)
+        size_typ = pytypes.TypingLiteralType(value=size, source_location=None)
+        element_type = arc4_to_pytype(arr_type, location)
+        return pytypes.GenericARC4StaticArrayType.parameterise([element_type, size_typ], location)
+    if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
+        arr_type = dynamic_array.group("type")
+        element_type = arc4_to_pytype(arr_type, location)
+        return pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
+    if tuple_match := _TUPLE_REGEX.match(typ):
+        tuple_types = [
+            arc4_to_pytype(x, location) for x in split_tuple_types(tuple_match.group("types"))
+        ]
+        return pytypes.GenericARC4TupleType.parameterise(tuple_types, location)
+    raise CodeError(f"unknown ARC4 type '{typ}'", location)
+
+
+def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> str:
+    # TODO: implement
+    return wtype_to_arc4(typ.wtype, loc)
