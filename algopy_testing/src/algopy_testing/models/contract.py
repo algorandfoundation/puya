@@ -1,8 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, final
-
-from attr import dataclass
 
 if TYPE_CHECKING:
     import algopy
