@@ -60,8 +60,6 @@ def test_start_auction(
     context.patch_txn_fields(sender=account)
 
     # Act
-    # group index that will be added to group_index, represents the index in the group for
-    # the unit under test contract.set_transaction_group([a, b, c], txn_group_index=0)
     contract.start_auction(
         auction_price,
         auction_duration,
@@ -72,9 +70,6 @@ def test_start_auction(
     assert contract.auction_end == latest_timestamp + auction_duration
     assert contract.previous_bid == auction_price
     assert contract.asa_amount == auction_price
-
-    # Given: Oracle
-    # Mock Oracle to see what happens when USD$ goes > or < dollar
 
 
 def test_bid(context: AlgopyTestContext) -> None:
