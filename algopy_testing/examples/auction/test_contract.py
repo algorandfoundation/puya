@@ -129,7 +129,7 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     auction_end = context.any_uint64(1, 100)
     contract.auction_end = auction_end
     contract.previous_bidder = account
-    asa_amount = context.any_uint64(1000, 1000)
+    asa_amount = context.any_uint64(1000, 2000)
     contract.asa_amount = asa_amount
     asset = context.any_asset()
 
