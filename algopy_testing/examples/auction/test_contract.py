@@ -1,3 +1,4 @@
+import time
 from collections.abc import Generator
 
 import algopy
@@ -25,10 +26,14 @@ def test_opt_into_asset(context: AlgopyTestContext) -> None:
     # Assert
     assert len(context.get_transaction_group()) == 1
     assert contract.asa.id == asset.id
-    assert context.inner_transactions[0] == algopy.itxn.AssetTransfer(
-        asset_receiver=context.default_creator,
-        xfer_asset=asset,
-    )
+    inner_txn = context.get_last_submitted_inner_transaction()
+    assert (
+        inner_txn.type == algopy.TransactionType.AssetTransfer
+    ), "Expected an AssetTransfer transaction"
+    assert (
+        inner_txn.asset_receiver == context.default_application.address
+    ), "Asset receiver does not match"
+    assert inner_txn.xfer_asset == asset, "Transferred asset does not match"
 
 
 def test_start_auction(
@@ -55,8 +60,8 @@ def test_start_auction(
     context.patch_txn_fields(sender=account)
 
     # Act
-    # group index that will be added to group_index, represents the index in the group for the unit under test
-    # contract.set_transaction_group([a, b, c], txn_group_index=0)
+    # group index that will be added to group_index, represents the index in the group for
+    # the unit under test contract.set_transaction_group([a, b, c], txn_group_index=0)
     contract.start_auction(
         auction_price,
         auction_duration,
@@ -74,22 +79,18 @@ def test_start_auction(
 
 def test_bid(context: AlgopyTestContext) -> None:
     # Arrange
-    account = context.any_account()
-    auction_end = context.any_uint64(1000, 2000)
+    account = context.default_creator
+    auction_end = context.any_uint64(min_value=int(time.time()) + 10_000)
     previous_bid = context.any_uint64(1, 100)
     pay_amount = context.any_uint64(100, 200)
-    context.patch_global_fields(
-        creator_address=account, latest_timestamp=context.any_uint64(1000, 1000)
-    )
-    context.patch_txn_fields(sender=account)
 
     contract = AuctionContract()
     contract.auction_end = auction_end
     contract.previous_bid = previous_bid
-    pay = context.any_pay_txn(sender=account, amount=pay_amount)
+    pay = context.any_pay_txn(group_index=0, sender=account, amount=pay_amount)
 
     # Act
-    contract.bid(pay)
+    contract.bid(pay=pay)
 
     # Assert
     assert contract.previous_bid == pay_amount
@@ -115,12 +116,12 @@ def test_claim_bids(
 
     # Assert
     expected_payment = claimable_amount - previous_bid
-    assert len(context.inner_transactions) == 1
-    assert isinstance(context.inner_transactions[0], algopy.itxn.Payment)
-    assert context.inner_transactions[0] == algopy.itxn.Payment(
-        amount=expected_payment,
-        receiver=account,
-    )
+    inner_transactions = context.get_last_inner_transaction_group()
+    assert len(inner_transactions) == 1
+    last_inner_txn = inner_transactions[0]
+    assert last_inner_txn.type == algopy.TransactionType.Payment
+    assert last_inner_txn.amount == expected_payment
+    assert last_inner_txn.receiver == account
     assert contract.claimable_amount[account] == claimable_amount - expected_payment
 
 
@@ -141,14 +142,14 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     contract.claim_asset(asset)
 
     # Assert
-    assert len(context.inner_transactions) == 1
-    assert isinstance(context.inner_transactions[0], algopy.itxn.AssetTransfer)
-    assert context.inner_transactions[0] == algopy.itxn.AssetTransfer(
-        xfer_asset=asset,
-        asset_close_to=account,
-        asset_receiver=account,
-        asset_amount=asa_amount,
-    )
+    inner_transactions = context.get_last_inner_transaction_group()
+    assert len(inner_transactions) == 1
+    last_inner_txn = inner_transactions[0]
+    assert last_inner_txn.type == algopy.TransactionType.AssetTransfer
+    assert last_inner_txn.xfer_asset == asset
+    assert last_inner_txn.asset_close_to == account
+    assert last_inner_txn.asset_receiver == account
+    assert last_inner_txn.asset_amount == asa_amount
 
 
 def test_delete_application(
@@ -164,14 +165,14 @@ def test_delete_application(
 
     # Assert
     assert len(context.get_transaction_group()) == 1
-    assert len(context.inner_transactions) == 1
-    assert isinstance(context.inner_transactions[0], algopy.itxn.Payment)
-    assert context.inner_transactions[0] == algopy.itxn.Payment(
-        receiver=account,
-        close_remainder_to=account,
-    )
+    inner_transactions = context.get_last_submitted_inner_transaction()
+    assert inner_transactions
+    assert inner_transactions.type == algopy.TransactionType.Payment
+    assert inner_transactions.receiver == account
+    assert inner_transactions.close_remainder_to == account
 
 
+@pytest.mark.usefixtures("context")
 def test_clear_state_program() -> None:
     contract = AuctionContract()
     assert contract.clear_state_program()

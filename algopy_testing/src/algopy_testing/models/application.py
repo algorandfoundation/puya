@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
@@ -33,7 +34,7 @@ class Application:
 
         self.id = application_id if isinstance(application_id, UInt64) else UInt64(application_id)
 
-    def __getattr__(self, name: str) -> object:
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
         from algopy_testing.context import get_test_context
 
         context = get_test_context()

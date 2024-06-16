@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 import typing
 from dataclasses import dataclass
 from typing import TypedDict, TypeVar
@@ -36,6 +37,8 @@ class GlobalFields(TypedDict, total=False):
 @dataclass
 class _Global:
     def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+        from algopy import UInt64
+
         from algopy_testing.context import get_test_context
 
         context = get_test_context()
@@ -44,6 +47,13 @@ class _Global:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
+
+        if name == "latest_timestamp" and context.global_fields.get(name) is None:
+            return UInt64(int(time.time()))
+
+        if name == "group_size" and context.global_fields.get(name) is None:
+            return UInt64(len(context.get_transaction_group()))
+
         if name not in context.global_fields:
             raise AttributeError(
                 f"'algopy.Global' object has no value set for attribute named '{name}'. "

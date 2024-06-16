@@ -82,9 +82,11 @@ class TxnFields(TypedDict, total=False):
 
 
 class _Txn:
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
-        import algopy  # noqa: F401
+    def _map_fields(self, name: str) -> str:
+        field_mapping = {"type": "type_bytes", "type_enum": "type", "application_args": "app_args"}
+        return field_mapping.get(name, name)
 
+    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
         from algopy_testing.context import get_test_context
 
         context = get_test_context()
@@ -97,7 +99,7 @@ class _Txn:
         if name in context.txn_fields and context.txn_fields[name] is not None:  # type: ignore[literal-required]
             return context.txn_fields[name]  # type: ignore[literal-required]
         elif active_txn:
-            return getattr(active_txn, name)
+            return getattr(active_txn, self._map_fields(name))
         else:
             raise AttributeError(
                 f"'Txn' object has no value set for attribute named '{name}'. "

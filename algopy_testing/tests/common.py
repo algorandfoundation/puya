@@ -1,6 +1,6 @@
+import secrets
 import typing
 from pathlib import Path
-from random import randbytes
 
 from algokit_utils import ApplicationClient, get_localnet_default_account
 from algosdk.v2client.algod import AlgodClient
@@ -34,7 +34,7 @@ class AVMInvoker:
 
 
 def _random_note() -> bytes:
-    return randbytes(8)  # noqa: S311
+    return secrets.token_bytes(8)
 
 
 def create_avm_invoker(app_spec: Path, algod_client: AlgodClient) -> AVMInvoker:

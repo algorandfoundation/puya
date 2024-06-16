@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import abc
+from typing import TYPE_CHECKING, Any, final
 
 from attr import dataclass
 
@@ -17,7 +17,7 @@ class StateTotals:
 
 
 class _ContractMeta(type):
-    def __call__(cls, *args: Any, **kwargs: dict[str, Any]) -> Any:  # noqa: ANN401
+    def __call__(cls, *args: Any, **kwargs: dict[str, Any]) -> object:
         from algopy import Contract
 
         from algopy_testing.context import get_test_context
@@ -42,20 +42,38 @@ class Contract(metaclass=_ContractMeta):
         cls,
         *,
         name: str | None = None,
-        scratch_slots: algopy.UInt64
-        | tuple[int | algopy.UInt64, ...]
-        | list[int | algopy.UInt64]
-        | None = None,
+        scratch_slots: (
+            algopy.UInt64 | tuple[int | algopy.UInt64, ...] | list[int | algopy.UInt64] | None
+        ) = None,
         state_totals: StateTotals | None = None,
     ):
         cls._name = name or cls.__name__
         cls._scratch_slots = scratch_slots
         cls._state_totals = state_totals
 
-    @abc.abstractmethod
     def approval_program(self) -> algopy.UInt64 | bool:
-        """Represents the program called for all transactions where `OnCompletion` != `ClearState`"""
+        # Implement the logic for the approval program
+        from algopy import UInt64
 
-    @abc.abstractmethod
+        return UInt64(1)  # Example return value
+
     def clear_state_program(self) -> algopy.UInt64 | bool:
-        """Represents the program called when `OnCompletion` == `ClearState`"""
+        # Implement the logic for the clear state program
+        from algopy import UInt64
+
+        return UInt64(0)  # Example return value
+
+
+class ARC4Contract(Contract):
+    @final
+    def approval_program(self) -> algopy.UInt64 | bool:
+        # Implement the logic for the approval program
+        from algopy import UInt64
+
+        return UInt64(1)  # Example return value
+
+    def clear_state_program(self) -> algopy.UInt64 | bool:
+        # Implement the logic for the clear state program
+        from algopy import UInt64
+
+        return UInt64(0)  # Example return value

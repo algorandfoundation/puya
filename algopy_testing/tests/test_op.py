@@ -206,6 +206,20 @@ def test_ecdsa_verify_k1(
     assert avm_result == result, "The AVM result should match the expected result"
 
 
+def test_stuff(
+    algod_client: AlgodClient,
+    get_crypto_ops_avm_result: AVMInvoker,
+) -> None:
+    sp = algod_client.suggested_params()
+    sp.fee = 5000
+
+    avm_result = get_crypto_ops_avm_result(
+        "return_stuff",
+        suggested_params=sp,
+    )
+    assert avm_result
+
+
 def test_ecdsa_verify_r1(
     algod_client: AlgodClient,
     get_crypto_ops_avm_result: AVMInvoker,

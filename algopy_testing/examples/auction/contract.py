@@ -9,7 +9,6 @@ from algopy import (
     arc4,
     gtxn,
     itxn,
-    subroutine,
 )
 
 
@@ -105,7 +104,7 @@ class AuctionContract(ARC4Contract):
             asset_amount=self.asa_amount,
         ).submit()
 
-    @subroutine
+    @arc4.abimethod(allow_actions=["DeleteApplication"])
     def delete_application(self) -> None:
         itxn.Payment(
             receiver=Global.creator_address,
