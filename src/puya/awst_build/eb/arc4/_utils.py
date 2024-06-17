@@ -14,7 +14,7 @@ from puya.awst import (
 from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import require_instance_builder
+from puya.awst_build.utils import require_instance_builder, maybe_resolve_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -30,18 +30,22 @@ def implicit_operand_conversion(
     operand: NodeBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
     operand = require_instance_builder(operand)
-    if operand.pytype != target_type:
+    operand = maybe_resolve_literal(operand, target_type)
+    if operand.pytype == target_type:
+        return operand
+    # TODO: this is a bit of a hack, the target_type in case we get this far is most likely
+    #       derived from a call to _implicit_arc4_conversion
+    if target_type == _implicit_arc4_conversion(operand.pytype, operand.source_location):
         target_type_builder = builder_for_type(target_type, operand.source_location)
-        # TODO: this will automatically convert single items into collections,
-        #       which is bad... should really just be using maybe_resolve_literal,
-        #       expect that won't handle e.g. arc4.Address from Account or Bytes
-        operand = target_type_builder.call(
+        return target_type_builder.call(
             args=[operand],
             arg_names=[None],
             arg_kinds=[mypy.nodes.ARG_POS],
             location=operand.source_location,
         )
-    return operand
+    raise CodeError(
+        f"Expected type {target_type}, got type {operand.pytype}", operand.source_location
+    )
 
 
 @attrs.frozen
