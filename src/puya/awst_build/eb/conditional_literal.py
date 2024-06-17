@@ -19,7 +19,6 @@ from puya.parse import SourceLocation
 
 
 class ConditionalLiteralBuilder(InstanceBuilder):
-
     def __init__(
         self,
         *,
