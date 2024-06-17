@@ -40,6 +40,8 @@ if TYPE_CHECKING:
         | algopy.itxn.ApplicationCallInnerTransaction
     )
 
+    TestBla = str | int
+
 
 T = TypeVar("T")
 
@@ -93,7 +95,7 @@ class AlgopyTestContext:
         self.account_data: dict[str, AccountContextData] = {}
         self.application_data: dict[int, ApplicationFields] = {}
         self.asset_data: dict[int, AssetFields] = {}
-        self.inner_transaction_groups: list[Sequence[InnerTransactionResultType]] = []
+        self.inner_transaction_groups: list[Sequence[algopy.itxn.InnerTransactionResult]] = []
         self.logs: list[str] = []
         self.default_creator = default_creator or algopy.Account(
             algosdk.account.generate_account()[1]
@@ -297,15 +299,16 @@ class AlgopyTestContext:
         Args:
             itxn (Sequence[InnerTransactionResultType]): The group of inner transactions to append.
         """
+        import algopy.itxn
 
-        self.inner_transaction_groups.append(itxn)
+        self.inner_transaction_groups.append(cast(list[algopy.itxn.InnerTransactionResult], itxn))
 
-    def get_last_inner_transaction_group(self) -> Sequence[InnerTransactionResultType]:
+    def get_last_inner_transaction_group(self) -> Sequence[algopy.itxn.InnerTransactionResult]:
         """
         Retrieve the last group of inner transactions.
 
         Returns:
-            Sequence[InnerTransactionResultType]: The last group of inner transactions.
+            Sequence[algopy.itxn.InnerTransactionResult]: The last group of inner transactions.
 
         Raises:
             ValueError: If no inner transaction groups have been submitted yet.
@@ -315,12 +318,12 @@ class AlgopyTestContext:
             raise ValueError("No inner transaction groups submitted yet!")
         return self.inner_transaction_groups[-1]
 
-    def get_last_submitted_inner_transaction(self) -> InnerTransactionResultType:
+    def get_last_submitted_inner_transaction(self) -> algopy.itxn.InnerTransactionResult:
         """
         Retrieve the last submitted inner transaction.
 
         Returns:
-            InnerTransactionResultType: The last submitted inner transaction.
+            algopy.itxn.InnerTransactionResult: The last submitted inner transaction.
 
         Raises:
             ValueError: If no inner transactions exist in the last inner transaction group.
