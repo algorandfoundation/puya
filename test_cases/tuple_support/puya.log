@@ -516,28 +516,6 @@ debug: Terminated block@5: // after_while_L11
 debug: Sealing block@0: // L13
 tuple_support/tuple_comparisons.py:15:5 warning: assertion is always true, ignoring
 debug: Terminated block@0: // L13
-debug: Sealing block@None: // or_contd_L21
-debug: Terminated block@1: // or_contd_L21
-debug: Sealing block@None: // bool_true_L21
-debug: Sealing block@None: // bool_false_L21
-debug: Terminated block@2: // bool_true_L21
-debug: Terminated block@3: // bool_false_L21
-debug: Sealing block@4: // bool_merge_L21
-debug: Created Phi assignment: let or_result%0#2: bool = undefined while trying to resolve 'or_result%0' in block@4: // bool_merge_L21
-debug: Added or_result%0#0 to Phi node: let or_result%0#2: bool = φ(or_result%0#0 <- block@2) in block@2: // bool_true_L21
-debug: Added or_result%0#1 to Phi node: let or_result%0#2: bool = φ(or_result%0#0 <- block@2, or_result%0#1 <- block@3) in block@3: // bool_false_L21
-debug: Terminated block@4: // bool_merge_L21
-debug: Sealing block@None: // and_contd_L22
-debug: Terminated block@5: // and_contd_L22
-debug: Sealing block@None: // bool_true_L22
-debug: Sealing block@None: // bool_false_L22
-debug: Terminated block@6: // bool_true_L22
-debug: Terminated block@7: // bool_false_L22
-debug: Sealing block@8: // bool_merge_L22
-debug: Created Phi assignment: let and_result%0#2: bool = undefined while trying to resolve 'and_result%0' in block@8: // bool_merge_L22
-debug: Added and_result%0#0 to Phi node: let and_result%0#2: bool = φ(and_result%0#0 <- block@6) in block@6: // bool_true_L22
-debug: Added and_result%0#1 to Phi node: let and_result%0#2: bool = φ(and_result%0#0 <- block@6, and_result%0#1 <- block@7) in block@7: // bool_false_L22
-debug: Terminated block@8: // bool_merge_L22
 debug: Sealing block@0: // L26
 debug: Terminated block@0: // L26
 debug: Sealing block@0: // L5
@@ -722,8 +700,6 @@ debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tup
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: and_result%0#2, tmp#0
-debug: Replacing {and_result%0#2} with tmp#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (!= 1u 3u) to 1u
 debug: Simplified (== 1u 3u) to 0u
@@ -775,30 +751,16 @@ debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tup
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (&& 0u tmp%6#0) to 0u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
-debug: Removing unused variable tmp%3#0
+debug: Removing unused variable tmp%4#0
+debug: Removing unused variable tmp%6#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@0: // L13 from goto 1u ? block@2 : block@1 to goto block@2
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@4: // bool_merge_L21 from goto 0u ? block@5 : block@7 to goto block@7
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Removed empty block: block@0: // L13
 debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@1: // or_contd_L21, block@3: // bool_false_L21, block@5: // and_contd_L22, block@6: // bool_true_L22
-debug: Removed unreachable predecessors from block@2: // bool_true_L21
-debug: Removed unreachable predecessors from block@4: // bool_merge_L21
-debug: Removed unreachable predecessors from block@7: // bool_false_L22
-debug: Removed unreachable predecessors from block@8: // bool_merge_L22
-debug: Removing unreachable phi arguments: or_result%0#1 <- block@3
-debug: Replacing trivial Phi node: let or_result%0#2: bool = φ(or_result%0#0 <- block@2) (or_result%0#2) with or_result%0#0
-debug: Deleting Phi assignment: let or_result%0#2: bool = φ(or_result%0#0 <- block@2)
-debug: Removing unreachable phi arguments: and_result%0#0 <- block@6
-debug: Replacing trivial Phi node: let tmp#0: bool = φ(and_result%0#1 <- block@7) (tmp#0) with and_result%0#1
-debug: Deleting Phi assignment: let tmp#0: bool = φ(and_result%0#1 <- block@7)
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
 debug: Optimizer: Constant Replacer
@@ -841,16 +803,22 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (! 0u) to 1u
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable or_result%0#0
-debug: Removing unused variable and_result%0#1
+debug: Not removing unused assignment since source is not marked as pure: let tmp%5#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Removing unused variable tmp#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@4: // bool_merge_L21 with block@2: // bool_true_L21 in block@7: // bool_false_L22
-debug: Merged linear block@4: // bool_merge_L21 into block@2: // bool_true_L21
-debug: Replaced predecessor block@7: // bool_false_L22 with block@2: // bool_true_L21 in block@8: // bool_merge_L22
-debug: Merged linear block@7: // bool_false_L22 into block@2: // bool_true_L21
-debug: Merged linear block@8: // bool_merge_L22 into block@2: // bool_true_L21
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
@@ -883,7 +851,19 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%6#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%5#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Removing unused variable tmp%7#0
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -919,6 +899,18 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let tmp%5#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -939,15 +931,19 @@ debug: Optimizer: Repeated Expression Elimination
 debug: No optimizations performed in pass 5, ending loop
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval
+debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.log_and_return
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.TupleComparisons.clear_state_program
 debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
+debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.log_and_return using strategy RootOperandGrouping
+debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.TupleComparisons.clear_state_program using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval
+debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.log_and_return
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.TupleComparisons.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to tuple_support/out/TupleComparisons.destructured.ir
@@ -1730,6 +1726,14 @@ debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_support
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_support.TupleSupport.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to tuple_support/out/TupleSupport.destructured.ir
+debug: Inserted test_tuple_cmp_eval_block@0.ops[10]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced test_tuple_cmp_eval_block@0.ops[12]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted test_tuple_cmp_eval_block@0.ops[2]: 'store tmp%1#0 to l-stack (copy)'
+debug: Replaced test_tuple_cmp_eval_block@0.ops[5]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
+debug: Inserted test_tuple_cmp_eval_block@0.ops[7]: 'store tmp%2#0 to l-stack (copy)'
+debug: Replaced test_tuple_cmp_eval_block@0.ops[10]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
+debug: Inserted log_and_return_block@0.ops[2]: 'store tmp%0#0 to l-stack (copy)'
+debug: Replaced log_and_return_block@0.ops[4]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
 debug: Inserted main_block@0.ops[1]: 'store app_id%0#0 to l-stack (copy)'
 debug: Replaced main_block@0.ops[3]: 'load app_id%0#0' with 'load app_id%0#0 from l-stack (no copy)'
 debug: Inserted main_entrypoint@2.ops[4]: 'store total#0 to l-stack (copy)'
