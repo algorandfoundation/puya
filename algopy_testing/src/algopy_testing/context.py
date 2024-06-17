@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import secrets
 import string
-import typing
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
+
+# Define the union type
 from typing import TYPE_CHECKING, TypeVar, Unpack, cast
 
 import algosdk
@@ -18,7 +19,7 @@ from algopy_testing.models.global_values import GlobalFields
 from algopy_testing.models.txn import TxnFields
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
     import algopy
 
@@ -27,6 +28,16 @@ if TYPE_CHECKING:
         AssetTransferFields,
         PaymentFields,
         TransactionFields,
+    )
+
+    InnerTransactionResultType = (
+        algopy.itxn.InnerTransactionResult
+        | algopy.itxn.PaymentInnerTransaction
+        | algopy.itxn.KeyRegistrationInnerTransaction
+        | algopy.itxn.AssetConfigInnerTransaction
+        | algopy.itxn.AssetTransferInnerTransaction
+        | algopy.itxn.AssetFreezeInnerTransaction
+        | algopy.itxn.ApplicationCallInnerTransaction
     )
 
 
@@ -82,7 +93,7 @@ class AlgopyTestContext:
         self.account_data: dict[str, AccountContextData] = {}
         self.application_data: dict[int, ApplicationFields] = {}
         self.asset_data: dict[int, AssetFields] = {}
-        self.inner_transaction_groups: list[list[algopy.itxn.InnerTransactionResult]] = []
+        self.inner_transaction_groups: list[Sequence[InnerTransactionResultType]] = []
         self.logs: list[str] = []
         self.default_creator = default_creator or algopy.Account(
             algosdk.account.generate_account()[1]
@@ -278,53 +289,43 @@ class AlgopyTestContext:
 
     def append_inner_transaction_group(
         self,
-        itxn: typing.Sequence[
-            algopy.itxn.InnerTransactionResult
-            | algopy.itxn.PaymentInnerTransaction
-            | algopy.itxn.KeyRegistrationInnerTransaction
-            | algopy.itxn.AssetConfigInnerTransaction
-            | algopy.itxn.AssetTransferInnerTransaction
-            | algopy.itxn.AssetFreezeInnerTransaction
-            | algopy.itxn.ApplicationCallInnerTransaction
-        ],
+        itxn: Sequence[InnerTransactionResultType],
     ) -> None:
         """
         Append a group of inner transactions to the context.
 
         Args:
-            itxn (Sequence[InnerTransactionResult | PaymentInnerTransaction |
-            KeyRegistrationInnerTransaction | AssetConfigInnerTransaction
-            | AssetTransferInnerTransaction | AssetFreezeInnerTransaction
-            | ApplicationCallInnerTransaction]): The group of inner transactions to append.
+            itxn (Sequence[InnerTransactionResultType]): The group of inner transactions to append.
         """
-        import algopy.itxn
 
-        self.inner_transaction_groups.append(cast(list[algopy.itxn.InnerTransactionResult], itxn))
+        self.inner_transaction_groups.append(itxn)
 
-    def get_last_inner_transaction_group(self) -> list[algopy.itxn.InnerTransactionResult]:
+    def get_last_inner_transaction_group(self) -> Sequence[InnerTransactionResultType]:
         """
         Retrieve the last group of inner transactions.
 
         Returns:
-            list[algopy.itxn.InnerTransactionResult]: The last group of inner transactions.
+            Sequence[InnerTransactionResultType]: The last group of inner transactions.
 
         Raises:
             ValueError: If no inner transaction groups have been submitted yet.
         """
+
         if not self.inner_transaction_groups:
             raise ValueError("No inner transaction groups submitted yet!")
         return self.inner_transaction_groups[-1]
 
-    def get_last_submitted_inner_transaction(self) -> algopy.itxn.InnerTransactionResult:
+    def get_last_submitted_inner_transaction(self) -> InnerTransactionResultType:
         """
         Retrieve the last submitted inner transaction.
 
         Returns:
-            algopy.itxn.InnerTransactionResult: The last submitted inner transaction.
+            InnerTransactionResultType: The last submitted inner transaction.
 
         Raises:
             ValueError: If no inner transactions exist in the last inner transaction group.
         """
+
         inner_transaction_group = self.get_last_inner_transaction_group()
         if not inner_transaction_group:
             raise ValueError("No inner transactions in the last inner transaction group!")

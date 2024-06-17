@@ -51,28 +51,19 @@ class Contract(metaclass=_ContractMeta):
         cls._state_totals = state_totals
 
     def approval_program(self) -> algopy.UInt64 | bool:
-        # Implement the logic for the approval program
-        from algopy import UInt64
-
-        return UInt64(1)  # Example return value
+        raise NotImplementedError("`approval_program` is not implemented.")
 
     def clear_state_program(self) -> algopy.UInt64 | bool:
-        # Implement the logic for the clear state program
-        from algopy import UInt64
-
-        return UInt64(0)  # Example return value
+        raise NotImplementedError("`clear_state_program` is not implemented.")
 
 
 class ARC4Contract(Contract):
     @final
     def approval_program(self) -> algopy.UInt64 | bool:
-        # Implement the logic for the approval program
-        from algopy import UInt64
-
-        return UInt64(1)  # Example return value
+        raise NotImplementedError(
+            "`approval_program` is not implemented. To test ARC4 specific logic, "
+            "refer to direct calls to ARC4 methods."
+        )
 
     def clear_state_program(self) -> algopy.UInt64 | bool:
-        # Implement the logic for the clear state program
-        from algopy import UInt64
-
-        return UInt64(0)  # Example return value
+        return True

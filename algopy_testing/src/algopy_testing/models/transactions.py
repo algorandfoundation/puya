@@ -77,6 +77,7 @@ class _ApplicationCallBaseFields(TypedDict, total=False):
     num_approval_program_pages: algopy.UInt64
     num_clear_state_program_pages: algopy.UInt64
 
+    # TODO: changing callable to a Sequence so users can pass in a list of app args
     app_args: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
     accounts: typing.Callable[[algopy.UInt64 | int], algopy.Account]
     assets: typing.Callable[[algopy.UInt64 | int], algopy.Asset]

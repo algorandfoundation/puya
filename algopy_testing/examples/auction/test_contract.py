@@ -27,9 +27,7 @@ def test_opt_into_asset(context: AlgopyTestContext) -> None:
     assert len(context.get_transaction_group()) == 1
     assert contract.asa.id == asset.id
     inner_txn = context.get_last_submitted_inner_transaction()
-    assert (
-        inner_txn.type == algopy.TransactionType.AssetTransfer
-    ), "Expected an AssetTransfer transaction"
+    assert isinstance(inner_txn, algopy.itxn.AssetTransferInnerTransaction)
     assert (
         inner_txn.asset_receiver == context.default_application.address
     ), "Asset receiver does not match"
@@ -114,7 +112,7 @@ def test_claim_bids(
     inner_transactions = context.get_last_inner_transaction_group()
     assert len(inner_transactions) == 1
     last_inner_txn = inner_transactions[0]
-    assert last_inner_txn.type == algopy.TransactionType.Payment
+    assert isinstance(last_inner_txn, algopy.itxn.PaymentInnerTransaction)
     assert last_inner_txn.amount == expected_payment
     assert last_inner_txn.receiver == account
     assert contract.claimable_amount[account] == claimable_amount - expected_payment
@@ -140,7 +138,7 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     inner_transactions = context.get_last_inner_transaction_group()
     assert len(inner_transactions) == 1
     last_inner_txn = inner_transactions[0]
-    assert last_inner_txn.type == algopy.TransactionType.AssetTransfer
+    assert isinstance(last_inner_txn, algopy.itxn.AssetTransferInnerTransaction)
     assert last_inner_txn.xfer_asset == asset
     assert last_inner_txn.asset_close_to == account
     assert last_inner_txn.asset_receiver == account
@@ -162,7 +160,7 @@ def test_delete_application(
     assert len(context.get_transaction_group()) == 1
     inner_transactions = context.get_last_submitted_inner_transaction()
     assert inner_transactions
-    assert inner_transactions.type == algopy.TransactionType.Payment
+    assert isinstance(inner_transactions, algopy.itxn.PaymentInnerTransaction)
     assert inner_transactions.receiver == account
     assert inner_transactions.close_remainder_to == account
 

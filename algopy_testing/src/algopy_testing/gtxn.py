@@ -65,7 +65,7 @@ class TransactionBase(_GroupTransaction):
         if name in _TransactionBaseFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 @dataclass
@@ -84,7 +84,7 @@ class AssetTransferTransaction(TransactionBase):
         if name in AssetTransferFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 @dataclass
@@ -105,7 +105,7 @@ class PaymentTransaction(TransactionBase):
         if name in PaymentFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 @dataclass
@@ -128,7 +128,7 @@ class ApplicationCallTransaction(TransactionBase):
         if name in ApplicationCallFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 class KeyRegistrationTransaction(TransactionBase):
@@ -150,7 +150,7 @@ class KeyRegistrationTransaction(TransactionBase):
         if name in KeyRegistrationFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 @dataclass
@@ -173,7 +173,7 @@ class AssetConfigTransaction(TransactionBase):
         if name in AssetConfigFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 @dataclass
@@ -198,7 +198,7 @@ class AssetFreezeTransaction(TransactionBase):
         if name in AssetFreezeFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 @dataclass
@@ -218,7 +218,7 @@ class Transaction(TransactionBase):
         if name in TransactionFields.__annotations__:
             return self._fields.get(name)
 
-        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
 
 
 __all__ = [

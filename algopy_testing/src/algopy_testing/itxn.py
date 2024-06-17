@@ -249,6 +249,8 @@ class _BaseInnerTransactionResult:
                 self.get_fields()[name] = algopy.UInt64(value)
             if isinstance(value, bytes):
                 self.get_fields()[name] = algopy.Bytes(value)
+            if isinstance(value, str):
+                self.get_fields()[name] = algopy.String(value)
 
 
 class PaymentInnerTransaction(_BaseInnerTransactionResult):
