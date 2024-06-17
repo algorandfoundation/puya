@@ -21,44 +21,24 @@ test_tuple_cmp_eval:
     int 1
     int 3
     !=
-    bnz test_tuple_cmp_eval_bool_true@2
     int 43
     callsub log_and_return
     int 2
     swap
     !=
-    bz test_tuple_cmp_eval_bool_false@3
-
-test_tuple_cmp_eval_bool_true@2:
-    int 1
-    b test_tuple_cmp_eval_bool_merge@4
-
-test_tuple_cmp_eval_bool_false@3:
-    int 0
-
-test_tuple_cmp_eval_bool_merge@4:
-    // tuple_support/tuple_comparisons.py:21
-    // assert (UInt64(1), UInt64(2)) != (UInt64(3), log_and_return(UInt64(43)))
+    ||
     assert
     // tuple_support/tuple_comparisons.py:22
     // tmp = (UInt64(1), UInt64(2)) == (UInt64(3), log_and_return(UInt64(44)))
     int 1
     int 3
     ==
-    bz test_tuple_cmp_eval_bool_false@7
     int 44
     callsub log_and_return
     int 2
     swap
     ==
-    bz test_tuple_cmp_eval_bool_false@7
-    int 1
-    b test_tuple_cmp_eval_bool_merge@8
-
-test_tuple_cmp_eval_bool_false@7:
-    int 0
-
-test_tuple_cmp_eval_bool_merge@8:
+    &&
     // tuple_support/tuple_comparisons.py:23
     // assert not tmp
     !

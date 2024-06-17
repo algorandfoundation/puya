@@ -9,17 +9,17 @@ contract Logger
   
   abimethod[name_override=log] log_uint64(value: arc4.uint64): void
   {
-    log(value)
+    log(reinterpret_cast<bytes>(value))
   }
   
   abimethod[name_override=log] log_uint512(value: arc4.uint512): void
   {
-    log(value)
+    log(reinterpret_cast<bytes>(value))
   }
   
   abimethod[name_override=log] log_string(value: arc4.dynamic_array<arc4.uint8>): void
   {
-    log(arc4_decode(value, string))
+    log(reinterpret_cast<bytes>(arc4_decode(value, string)))
   }
   
   abimethod[name_override=log] log_bool(value: arc4.bool): void
@@ -34,7 +34,7 @@ contract Logger
   
   abimethod[name_override=log] log_asset_account_app(asset: asset, account: account, app: application): void
   {
-    log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<bytes>(account)), ''), checked_maybe(app_params_get<AppAddress>(app))))
+    log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<bytes>(account)), ''), reinterpret_cast<bytes>(checked_maybe(app_params_get<AppAddress>(app)))))
   }
   
   abimethod echo_native_string(value: string): string
