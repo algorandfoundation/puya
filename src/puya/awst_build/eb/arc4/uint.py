@@ -59,17 +59,15 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter)
     ) -> InstanceBuilder:
         pytype = self.produces()
         match literal.value:
-            case int(constant):
-                if constant < 0 or constant.bit_length() > pytype.bits:
-                    raise CodeError(f"invalid {pytype} value: {constant}", location)
-                typed_const = IntegerConstant(
-                    value=int(constant), source_location=location, wtype=pytype.wtype
+            case int(int_value):
+                if int_value < 0 or int_value.bit_length() > pytype.bits:
+                    logger.error(f"invalid {pytype} value: {int_value}", location=location)
+                # take int() of the value since it could match a bool also
+                expr = IntegerConstant(
+                    value=int(int_value), source_location=location, wtype=pytype.wtype
                 )
-                return UIntNExpressionBuilder(typed_const, pytype)
-            case _:
-                raise CodeError(
-                    f"cannot construct {pytype} from literal {literal.value!r}", location
-                )
+                return UIntNExpressionBuilder(expr, pytype)
+        raise CodeError(f"can't covert literal {literal.value!r} to {pytype}", location)
 
     @typing.override
     def call(

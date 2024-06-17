@@ -32,11 +32,14 @@ def implicit_operand_conversion(
     operand = require_instance_builder(operand)
     if operand.pytype != target_type:
         target_type_builder = builder_for_type(target_type, operand.source_location)
+        # TODO: this will automatically convert single items into collections,
+        #       which is bad... should really just be using maybe_resolve_literal,
+        #       expect that won't handle e.g. arc4.Address from Account or Bytes
         operand = target_type_builder.call(
             args=[operand],
             arg_names=[None],
             arg_kinds=[mypy.nodes.ARG_POS],
-            location=operand.source_location,  # TODO: fixme?
+            location=operand.source_location,
         )
     return operand
 

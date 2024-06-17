@@ -61,11 +61,15 @@ class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
+        pytype = self.produces()
         match literal.value:
             case int(int_value):
+                if int_value < 0 or int_value.bit_length() > 64:
+                    logger.error(f"invalid {pytype} value: {int_value}", location=location)
+                # take int() of the value since it could match a bool also
                 expr = UInt64Constant(value=int(int_value), source_location=location)
                 return UInt64ExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+        raise CodeError(f"can't covert literal {literal.value!r} to {pytype}", location)
 
     @typing.override
     def call(
