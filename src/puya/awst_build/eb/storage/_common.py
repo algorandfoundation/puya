@@ -76,25 +76,27 @@ class BoxMaybeExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
 
 
 class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxValueExpression]):
+    """This is used to intercept operations on Box and BoxMap values to use more efficient
+    ops (i.e. box_extract, box_length) where possible and provide support for operations like
+    delete"""
+
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return StateDelete(field=self.resolve(), source_location=location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        match name:
-            case "length":
-                return UInt64ExpressionBuilder(box_length_checked(self.resolve(), location))
-            case "bytes":
-                return _ValueBytes(self.resolve(), location)
-            case _:
-                return super().member_access(name, location)
+        if name == "bytes":
+            return _ValueBytes(self.resolve(), location)
+        else:
+            return super().member_access(name, location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
             return super().index(index, location)
-        return index_box_bytes(self.resolve(), index, location)
+        else:
+            return index_box_bytes(self.resolve(), index, location)
 
     @typing.override
     def slice_index(
@@ -106,8 +108,8 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxV
     ) -> InstanceBuilder:
         if self.pytype != pytypes.BytesType:
             return super().slice_index(begin_index, end_index, stride, location)
-
-        return slice_box_bytes(self.resolve(), begin_index, end_index, stride, location)
+        else:
+            return slice_box_bytes(self.resolve(), begin_index, end_index, stride, location)
 
 
 class _ValueBytes(ValueProxyExpressionBuilder):
