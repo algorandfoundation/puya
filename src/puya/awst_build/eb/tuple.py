@@ -258,14 +258,13 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the
         # result type, but also we can statically validate that value
-        index_expr_or_literal = index
-        match index_expr_or_literal:
+        match index:
             case LiteralBuilder(value=int(index_value)):
                 pass
             case _:
                 raise CodeError(
                     "tuples can only be indexed by int constants",
-                    index_expr_or_literal.source_location,
+                    index.source_location,
                 )
         try:
             item_typ = self.pytype.items[index_value]
