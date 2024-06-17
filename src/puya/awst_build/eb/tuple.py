@@ -4,12 +4,12 @@ from collections.abc import Callable, Sequence
 import mypy.nodes
 
 from puya import log
+from puya.awst import wtypes
 from puya.awst.nodes import (
-    BinaryBooleanOperator,
-    BooleanBinaryOperation,
     Contains,
     Expression,
     IntegerConstant,
+    IntrinsicCall,
     Lvalue,
     SliceExpression,
     Statement,
@@ -366,10 +366,10 @@ def _compare(
 
     match op:
         case BuilderComparisonOp.eq:
-            chain_op = BinaryBooleanOperator.and_
+            chain_op = "&&"
             result_if_types_differ = False
         case BuilderComparisonOp.ne:
-            chain_op = BinaryBooleanOperator.or_
+            chain_op = "||"
             result_if_types_differ = True
         case _:
             raise CodeError(
@@ -398,11 +398,11 @@ def _compare(
 
     result = compare_at_index(0)
     for i in range(1, len(lhs.pytype.items)):
-        result = BooleanBinaryOperation(
-            left=result,
-            right=compare_at_index(i),
-            op=chain_op,
+        result = IntrinsicCall(
+            op_code=chain_op,
+            stack_args=[result, compare_at_index(i)],
             source_location=location,
+            wtype=wtypes.bool_wtype,
         )
     return BoolExpressionBuilder(result)
 
