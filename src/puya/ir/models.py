@@ -282,7 +282,7 @@ class AddressConstant(Constant):
     """Constant for address literals"""
 
     ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
-    value: str
+    value: str = attrs.field()
     source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:

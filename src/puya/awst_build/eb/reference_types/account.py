@@ -57,7 +57,22 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+        pytype = self.produces()
+        match literal.value:
+            case str(str_value):
+                if not wtypes.valid_address(str_value):
+                    logger.error(
+                        f"Invalid address value. Address literals should be"
+                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
+                        location=literal.source_location,
+                    )
+                expr = AddressConstant(
+                    value=str_value,
+                    wtype=pytype.wtype,
+                    source_location=location,
+                )
+                return AccountExpressionBuilder(expr)
+        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
 
     @typing.override
     def call(
@@ -68,16 +83,10 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
+            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+                return arg.resolve_literal(converter=AccountTypeBuilder(location))
             case []:
                 value: Expression = intrinsic_factory.zero_address(location)
-            case [LiteralBuilder(value=str(addr_value))]:
-                if not wtypes.valid_address(addr_value):
-                    raise CodeError(
-                        f"Invalid address value. Address literals should be"
-                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
-                        location,
-                    )
-                value = AddressConstant(value=addr_value, source_location=location)
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 address_bytes_temp = eb.single_eval().resolve()
                 is_correct_length = NumericComparisonExpression(

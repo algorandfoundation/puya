@@ -482,12 +482,7 @@ class AddressConstant(Expression):
         default=wtypes.account_wtype,
         validator=wtype_is_one_of(wtypes.account_wtype, wtypes.arc4_address_alias),
     )
-    value: str = attrs.field()
-
-    @value.validator
-    def _validate_value(self, _attribute: object, value: str) -> None:
-        if not wtypes.valid_address(value):
-            raise CodeError("invalid address", self.source_location)
+    value: str
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
