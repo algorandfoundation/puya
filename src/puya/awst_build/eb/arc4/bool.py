@@ -94,4 +94,5 @@ class ARC4BoolExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
+        # TODO: support comparisons with native bool
         return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)

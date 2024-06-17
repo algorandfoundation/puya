@@ -80,6 +80,13 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
         raise CodeError("tuple constructor takes a single argument")
     (arg,) = args
     arg = require_instance_builder(arg)
+    # TODO: generalise statically-iterable expressions at InstanceBuilder level
+    #       e.g. arc4.StaticArray, sequence literals, all should support an "iterate_static"
+    #       method that returns a sequence of builders.
+    #       This will not just maintain a better cohesion, putting that code closer to the
+    #       supporting type, rather than having to update the code here if a new type is added etc.
+    #       but will also mean we could use that function in other places, for example we can
+    #       easily add support for * unpacking like (*my_static_arr, ...)
     match arg:
         case InstanceBuilder(pytype=pytypes.TupleType(items=t_items)):
             fixed_size = len(t_items)
@@ -258,14 +265,13 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         # special handling of tuples, they can be indexed by int literal only,
         # mostly because they can be non-homogenous so we need to be able to resolve the
         # result type, but also we can statically validate that value
-        index_expr_or_literal = index
-        match index_expr_or_literal:
+        match index:
             case LiteralBuilder(value=int(index_value)):
                 pass
             case _:
                 raise CodeError(
                     "tuples can only be indexed by int constants",
-                    index_expr_or_literal.source_location,
+                    index.source_location,
                 )
         try:
             item_typ = self.pytype.items[index_value]

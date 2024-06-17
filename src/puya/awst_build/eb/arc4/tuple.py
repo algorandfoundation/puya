@@ -90,7 +90,6 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
 
 
 class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType]):
-
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, expr)

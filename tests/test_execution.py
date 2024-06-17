@@ -558,7 +558,7 @@ def test_ssa(harness: _TestHarness) -> None:
 
 
 def test_tuple_support(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "tuple_support")
+    result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_support.py")
     total, msg, hi, mid, lo, batman = result.decode_logs("iuiiiu")
     assert total == 306
     assert msg == "Hello, world!"
@@ -566,6 +566,12 @@ def test_tuple_support(harness: _TestHarness) -> None:
     assert mid == 2
     assert lo == 1
     assert batman == "nanananana"
+
+
+def test_tuple_comparisons(harness: _TestHarness) -> None:
+    result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_comparisons.py")
+    assert len(result.logs) == 3
+    assert result.decode_logs("iii") == [42, 43, 44]
 
 
 def test_chained_assignment(harness: _TestHarness) -> None:
