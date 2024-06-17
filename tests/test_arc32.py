@@ -750,7 +750,7 @@ def test_state_proxies(algod_client: AlgodClient, account: algokit_utils.Account
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
     app_client.create(transaction_parameters={"on_complete": OnComplete.OptInOC})
-    assert app_client.get_global_state() == {"g1": 1, "g2": 0}
+    assert app_client.get_global_state() == {"g1": 1, "g2": 0, "funky": 123}
     assert app_client.get_local_state(account.address) == {"l1": 2, "l2": 3}
 
 

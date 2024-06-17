@@ -6,8 +6,8 @@ test_cases.state_proxies.contract.StateProxyContract.approval_program:
     callsub __init__
 
 main_entrypoint@2:
-    // state_proxies/contract.py:4
-    // class StateProxyContract(ARC4Contract):
+    // state_proxies/contract.py:12
+    // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     txna ApplicationArgs 0
     method "create()void"
     uncover 1
@@ -15,7 +15,7 @@ main_entrypoint@2:
     b main_switch_case_default@4
 
 main_create_route@3:
-    // state_proxies/contract.py:11
+    // state_proxies/contract.py:25
     // @arc4.abimethod(allow_actions=["OptIn"], create="require")
     txn OnCompletion
     int OptIn
@@ -29,41 +29,41 @@ main_create_route@3:
     return
 
 main_switch_case_default@4:
-    // state_proxies/contract.py:4
-    // class StateProxyContract(ARC4Contract):
+    // state_proxies/contract.py:12
+    // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     err // reject transaction
 
 
 // test_cases.state_proxies.contract.StateProxyContract.create() -> void:
 create:
-    // state_proxies/contract.py:11-12
+    // state_proxies/contract.py:25-26
     // @arc4.abimethod(allow_actions=["OptIn"], create="require")
     // def create(self) -> None:
     proto 0 0
-    // state_proxies/contract.py:8
+    // state_proxies/contract.py:16
     // self.global1 = GlobalState(UInt64, key="g1", description="g1 description")
     byte "g1"
-    // state_proxies/contract.py:13
+    // state_proxies/contract.py:27
     // self.global1.value = UInt64(1)
     int 1
     app_global_put
-    // state_proxies/contract.py:14
+    // state_proxies/contract.py:28
     // self.local1[Txn.sender] = UInt64(2)
     txn Sender
-    // state_proxies/contract.py:6
+    // state_proxies/contract.py:14
     // self.local1 = LocalState(UInt64, key="l1", description="l1 description")
     byte "l1"
-    // state_proxies/contract.py:14
+    // state_proxies/contract.py:28
     // self.local1[Txn.sender] = UInt64(2)
     int 2
     app_local_put
-    // state_proxies/contract.py:15
+    // state_proxies/contract.py:29
     // self.local2[Txn.sender] = UInt64(3)
     txn Sender
-    // state_proxies/contract.py:7
+    // state_proxies/contract.py:15
     // self.local2 = LocalState[UInt64](UInt64, key=b"l2", description="l2 description")
     byte 0x6c32
-    // state_proxies/contract.py:15
+    // state_proxies/contract.py:29
     // self.local2[Txn.sender] = UInt64(3)
     int 3
     app_local_put
@@ -72,12 +72,35 @@ create:
 
 // test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
 __init__:
-    // state_proxies/contract.py:5
+    // state_proxies/contract.py:13
     // def __init__(self) -> None:
     proto 0 0
-    // state_proxies/contract.py:9
+    // state_proxies/contract.py:17
     // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
     byte 0x6732
     int 0
+    app_global_put
+    // state_proxies/contract.py:20
+    // if Txn.num_app_args
+    txn NumAppArgs
+    // state_proxies/contract.py:19-21
+    // GlobalState(UInt64, key="funky")
+    // if Txn.num_app_args
+    // else GlobalState(UInt64, key="town")
+    bz __init___ternary_false@2
+    // state_proxies/contract.py:19
+    // GlobalState(UInt64, key="funky")
+    byte "funky"
+    b __init___ternary_merge@3
+
+__init___ternary_false@2:
+    // state_proxies/contract.py:21
+    // else GlobalState(UInt64, key="town")
+    byte "town"
+
+__init___ternary_merge@3:
+    // state_proxies/contract.py:23
+    // funky_town.value = UInt64(123)
+    int 123
     app_global_put
     retsub

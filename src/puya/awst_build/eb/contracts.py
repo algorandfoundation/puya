@@ -92,7 +92,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):
         state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
         if state_decl is not None:
             return _builder_for_storage_access(state_decl, location)
-
+        # TODO: improve error message if not callable type???
         func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
         if func_or_dec is None:
             raise CodeError(f"Unknown member {name!r} of {self._type_info.fullname!r}", location)
