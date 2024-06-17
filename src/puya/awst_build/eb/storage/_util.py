@@ -121,8 +121,9 @@ def _eval_slice_component(
 
     if not isinstance(val, LiteralBuilder):
         # no negatives to deal with here, easy
-        index_expr = require_instance_builder_of_type(val, pytypes.UInt64Type).resolve()
-        temp_index = SingleEvaluation(index_expr)
+        temp_index = (
+            require_instance_builder_of_type(val, pytypes.UInt64Type).single_eval().resolve()
+        )
         return intrinsic_factory.select(
             false=len_expr,
             true=temp_index,
@@ -166,7 +167,7 @@ def _eval_slice_component(
 class BoxProxyConstructorResult(StorageProxyConstructorResult, abc.ABC):
     @typing.override
     @property
-    def initial_value(self) -> Expression | None:
+    def initial_value(self) -> None:
         return None
 
     @typing.override

@@ -220,6 +220,12 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
     ) -> InstanceBuilder:
         return self._expr_builder().slice_index(begin_index, end_index, stride, location)
 
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        return TupleLiteralBuilder(
+            items=[item.single_eval() for item in self._items], location=self.source_location
+        )
+
 
 class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):

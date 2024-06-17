@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import typing
 
 import mypy.nodes
@@ -28,6 +29,7 @@ from puya.awst_build.eb.interface import (
     LiteralConverter,
     NodeBuilder,
 )
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
     require_instance_builder,
@@ -56,18 +58,22 @@ class UnsignedRangeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        uint64_args = [
-            expect_operand_type(in_arg, pytypes.UInt64Type).resolve() for in_arg in args
-        ]
+        uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type) for in_arg in args]
         match uint64_args:
             case [range_start, range_stop, range_step]:
                 if isinstance(range_step, IntegerConstant) and range_step.value == 0:
                     raise CodeError("urange step size cannot be zero", range_step.source_location)
             case [range_start, range_stop]:
-                range_step = UInt64Constant(value=1, source_location=location)
+                range_step = UInt64ExpressionBuilder(
+                    UInt64Constant(value=1, source_location=location)
+                )
             case [range_stop]:
-                range_start = UInt64Constant(value=0, source_location=location)
-                range_step = UInt64Constant(value=1, source_location=location)
+                range_start = UInt64ExpressionBuilder(
+                    UInt64Constant(value=0, source_location=location)
+                )
+                range_step = UInt64ExpressionBuilder(
+                    UInt64Constant(value=1, source_location=location)
+                )
             case []:
                 raise CodeError("urange function takes at least one argument", location=location)
             case _:
@@ -76,13 +82,12 @@ class UnsignedRangeBuilder(TypeBuilder):
                     location=location,
                 )
 
-        sequence = Range(
+        return _RangeIterBuilder(
             source_location=location,
             start=range_start,
             stop=range_stop,
             step=range_step,
         )
-        return _IterableOnlyBuilder(sequence)
 
 
 class UnsignedEnumerateBuilder(TypeBuilder):
@@ -107,9 +112,8 @@ class UnsignedEnumerateBuilder(TypeBuilder):
                 "(ie, start must always be zero)",
                 location,
             ) from ex
-        sequence = require_instance_builder(arg).iterate()
-        enumeration = Enumeration(expr=sequence, source_location=location)
-        return _IterableOnlyBuilder(enumeration)
+        sequence = require_instance_builder(arg)
+        return _EnumerateIterBuilder(sequence, location)
 
 
 class ReversedFunctionExpressionBuilder(TypeBuilder):
@@ -133,20 +137,11 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
                 "reversed expects a single argument",
                 location,
             ) from ex
-        sequence = require_instance_builder(arg).iterate()
-        reversed_ = Reversed(expr=sequence, source_location=location)
-        return _IterableOnlyBuilder(reversed_)
+        sequence = require_instance_builder(arg)
+        return _ReversedIterBuilder(sequence, location)
 
 
-class _IterableOnlyBuilder(InstanceBuilder):
-    def __init__(self, expr: Iteration):
-        super().__init__(expr.source_location)
-        self._expr = expr
-
-    @typing.override
-    def iterate(self) -> Iteration:
-        return self._expr
-
+class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
     @typing.override
     @property
     def pytype(self) -> typing.Never:
@@ -227,3 +222,63 @@ class _IterableOnlyBuilder(InstanceBuilder):
 
     def _iterable_only(self, location: SourceLocation) -> typing.Never:
         raise CodeError("expression is only usable as the source of a for-loop", location)
+
+
+class _RangeIterBuilder(_IterableOnlyBuilder):
+    def __init__(
+        self,
+        start: InstanceBuilder,
+        stop: InstanceBuilder,
+        step: InstanceBuilder,
+        source_location: SourceLocation,
+    ):
+        super().__init__(source_location)
+        self._start = start
+        self._stop = stop
+        self._step = step
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        return Range(
+            start=self._start.resolve(),
+            stop=self._stop.resolve(),
+            step=self._step.resolve(),
+            source_location=self.source_location,
+        )
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        return _RangeIterBuilder(
+            start=self._start.single_eval(),
+            stop=self._stop.single_eval(),
+            step=self._step.single_eval(),
+            source_location=self.source_location,
+        )
+
+
+class _EnumerateIterBuilder(_IterableOnlyBuilder):
+    def __init__(self, sequence: InstanceBuilder, source_location: SourceLocation):
+        super().__init__(source_location)
+        self._sequence = sequence
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        return Enumeration(expr=self._sequence.iterate(), source_location=self.source_location)
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        return _EnumerateIterBuilder(self._sequence.single_eval(), self.source_location)
+
+
+class _ReversedIterBuilder(_IterableOnlyBuilder):
+    def __init__(self, sequence: InstanceBuilder, source_location: SourceLocation):
+        super().__init__(source_location)
+        self._sequence = sequence
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        return Reversed(expr=self._sequence.iterate(), source_location=self.source_location)
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        return _ReversedIterBuilder(self._sequence.single_eval(), self.source_location)
