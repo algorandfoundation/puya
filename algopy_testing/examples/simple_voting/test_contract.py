@@ -33,16 +33,13 @@ def test_vote(context: AlgopyTestContext) -> None:
     contract.votes.value = algopy.UInt64(0)
     voter = context.default_creator
 
-    def _app_args(index: algopy.UInt64 | int) -> algopy.Bytes:
-        return algopy.Bytes(b"vote") if index == 0 else voter.bytes
-
     context.set_transaction_group(
         gtxn=[
             context.any_app_call_txn(
                 group_index=0,
                 sender=voter,
                 app_id=context.any_application(),
-                app_args=_app_args,
+                app_args=[algopy.Bytes(b"vote"), voter.bytes],
             ),
             context.any_pay_txn(
                 group_index=1,
@@ -69,16 +66,13 @@ def test_vote_already_voted(context: AlgopyTestContext) -> None:
     contract.voted[voter] = algopy.UInt64(1)
     context.patch_txn_fields(sender=voter)
 
-    def _app_args(index: algopy.UInt64 | int) -> algopy.Bytes:
-        return algopy.Bytes(b"vote") if index == 0 else voter.bytes
-
     context.set_transaction_group(
         gtxn=[
             context.any_app_call_txn(
                 group_index=0,
                 sender=voter,
                 app_id=context.any_application(),
-                app_args=_app_args,
+                app_args=[algopy.Bytes(b"vote"), voter.bytes],
             ),
             context.any_pay_txn(
                 group_index=1,

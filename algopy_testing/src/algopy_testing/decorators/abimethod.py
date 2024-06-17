@@ -72,16 +72,12 @@ def _extract_and_append_txn_to_context(
                 group_index=1,
                 sender=context.default_creator,
                 app_id=context.default_application,
-                accounts=lambda index: _extract_refs_from_args(args, kwargs, algopy.Account)[
-                    index
-                ],
-                assets=lambda index: _extract_refs_from_args(args, kwargs, algopy.Asset)[index],
-                apps=lambda index: _extract_refs_from_args(args, kwargs, algopy.Application)[
-                    index
-                ],
-                app_args=lambda index: _extract_refs_from_args(args, kwargs, algopy.Bytes)[index],
-                approval_program_pages=lambda _index: algopy.Bytes(b"\x01"),
-                clear_state_program_pages=lambda _index: algopy.Bytes(b"\x01"),
+                accounts=_extract_refs_from_args(args, kwargs, algopy.Account),
+                assets=_extract_refs_from_args(args, kwargs, algopy.Asset),
+                apps=_extract_refs_from_args(args, kwargs, algopy.Application),
+                app_args=_extract_refs_from_args(args, kwargs, algopy.Bytes),
+                approval_program_pages=_extract_refs_from_args(args, kwargs, algopy.Bytes),
+                clear_state_program_pages=_extract_refs_from_args(args, kwargs, algopy.Bytes),
             ),
         ]
     )

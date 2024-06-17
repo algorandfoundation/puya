@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     import algopy
 
     from algopy_testing.gtxn import (
-        ApplicationCallFields,
         AssetTransferFields,
         PaymentFields,
         TransactionFields,
     )
+    from algopy_testing.models.transactions import _ApplicationCallFields
 
     InnerTransactionResultType = (
         algopy.itxn.InnerTransactionResult
@@ -535,8 +535,16 @@ class AlgopyTestContext:
             "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length))
         )
 
-    def any_app_call_txn(
-        self, group_index: int, **kwargs: Unpack[ApplicationCallFields]
+    def any_app_call_txn(  # noqa: PLR0913
+        self,
+        group_index: int,
+        app_args: Sequence[algopy.Bytes] = [],
+        accounts: Sequence[algopy.Account] = [],
+        assets: Sequence[algopy.Asset] = [],
+        apps: Sequence[algopy.Application] = [],
+        approval_program_pages: Sequence[algopy.Bytes] = [],
+        clear_state_program_pages: Sequence[algopy.Bytes] = [],
+        **kwargs: Unpack[_ApplicationCallFields],
     ) -> algopy.gtxn.ApplicationCallTransaction:
         """
         Generate a new application call transaction with specified fields.
@@ -551,9 +559,17 @@ class AlgopyTestContext:
         """
         import algopy.gtxn
 
+        callable_params = {
+            "app_args": lambda index: app_args[index],
+            "accounts": lambda index: accounts[index],
+            "assets": lambda index: assets[index],
+            "apps": lambda index: apps[index],
+            "approval_program_pages": lambda index: approval_program_pages[index],
+            "clear_state_program_pages": lambda index: clear_state_program_pages[index],
+        }
         new_txn = algopy.gtxn.ApplicationCallTransaction(group_index)
 
-        for key, value in kwargs.items():
+        for key, value in {**kwargs, **callable_params}.items():
             setattr(new_txn, key, value)
 
         return new_txn

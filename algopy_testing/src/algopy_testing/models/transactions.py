@@ -59,7 +59,7 @@ class _AssetConfigBaseFields(TypedDict, total=False):
     clawback: algopy.Account
 
 
-class _ApplicationCallBaseFields(TypedDict, total=False):
+class _ApplicationCallCoreFields(TypedDict, total=False):
     app_id: algopy.Application
     on_completion: algopy.OnCompleteAction
     num_app_args: algopy.UInt64
@@ -77,13 +77,18 @@ class _ApplicationCallBaseFields(TypedDict, total=False):
     num_approval_program_pages: algopy.UInt64
     num_clear_state_program_pages: algopy.UInt64
 
-    # TODO: changing callable to a Sequence so users can pass in a list of app args
+
+class _ApplicationCallBaseFields(_ApplicationCallCoreFields, total=False):
     app_args: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
     accounts: typing.Callable[[algopy.UInt64 | int], algopy.Account]
     assets: typing.Callable[[algopy.UInt64 | int], algopy.Asset]
     apps: typing.Callable[[algopy.UInt64 | int], algopy.Application]
     approval_program_pages: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
     clear_state_program_pages: typing.Callable[[algopy.UInt64 | int], algopy.Bytes]
+
+
+class _ApplicationCallFields(_TransactionBaseFields, _ApplicationCallCoreFields, total=False):
+    pass
 
 
 class _KeyRegistrationBaseFields(TypedDict, total=False):
@@ -134,19 +139,20 @@ class KeyRegistrationFields(_TransactionBaseFields, _KeyRegistrationBaseFields, 
 
 
 __all__ = [
-    "_TransactionCoreFields",
-    "_AssetTransferBaseFields",
-    "_PaymentBaseFields",
-    "_AssetFreezeBaseFields",
-    "_AssetConfigBaseFields",
     "_ApplicationCallBaseFields",
+    "_ApplicationCallFields",
+    "_AssetConfigBaseFields",
+    "_AssetFreezeBaseFields",
+    "_AssetTransferBaseFields",
     "_KeyRegistrationBaseFields",
+    "_PaymentBaseFields",
     "_TransactionBaseFields",
+    "_TransactionCoreFields",
     "_TransactionFields",
-    "AssetTransferFields",
-    "PaymentFields",
-    "AssetFreezeFields",
-    "AssetConfigFields",
     "ApplicationCallFields",
+    "AssetConfigFields",
+    "AssetFreezeFields",
+    "AssetTransferFields",
     "KeyRegistrationFields",
+    "PaymentFields",
 ]
