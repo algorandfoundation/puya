@@ -209,6 +209,10 @@ def _abi_call(
             context=context, node=node
         ) | BaseClassSubroutineInvokerExpressionBuilder(context=context, node=node):
             # in this case the arc4 signature and declared return type are inferred
+            # TODO: in order to remove the usage of context, we should defer method body evaluation
+            #       like we do for function body evaluation, and then these types should make the
+            #       resulting metadata (decorator args, function signature) available on them,
+            #       instead of shunting the context object around
             signature, abi_return_type = _get_arc4_signature_and_return_pytype(
                 context, node, location
             )
