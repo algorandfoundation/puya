@@ -65,11 +65,11 @@ class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
         match literal.value:
             case int(int_value):
                 if int_value < 0 or int_value.bit_length() > 64:
-                    logger.error(f"invalid {pytype} value: {int_value}", location=location)
+                    logger.error(f"invalid {pytype} value", location=literal.source_location)
                 # take int() of the value since it could match a bool also
                 expr = UInt64Constant(value=int(int_value), source_location=location)
                 return UInt64ExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal {literal.value!r} to {pytype}", location)
+        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
 
     @typing.override
     def call(
@@ -80,10 +80,14 @@ class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
-            case []:
-                expr: Expression = UInt64Constant(value=0, source_location=location)
             case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
-                expr = arg.resolve_literal(converter=UInt64TypeBuilder(location)).resolve()
+                return arg.resolve_literal(converter=UInt64TypeBuilder(location))
+            case [InstanceBuilder(pytype=pytypes.BoolType) as arg]:
+                expr: Expression = ReinterpretCast(
+                    expr=arg.resolve(), wtype=wtypes.uint64_wtype, source_location=location
+                )
+            case []:
+                expr = UInt64Constant(value=0, source_location=location)
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with

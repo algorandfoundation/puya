@@ -5,6 +5,7 @@ from collections.abc import Collection, Sequence
 
 import mypy.nodes
 
+from puya import log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -31,6 +32,8 @@ from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
+logger = log.get_logger(__name__)
+
 
 class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConverter):
     def __init__(self, location: SourceLocation):
@@ -45,7 +48,22 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConve
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+        pytype = self.produces()
+        match literal.value:
+            case str(str_value):
+                if not wtypes.valid_address(str_value):
+                    logger.error(
+                        f"Invalid address value. Address literals should be"
+                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
+                        location=literal.source_location,
+                    )
+                expr = AddressConstant(
+                    value=str_value,
+                    wtype=pytype.wtype,
+                    source_location=location,
+                )
+                return AddressExpressionBuilder(expr)
+        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
 
     @typing.override
     def call(
@@ -57,20 +75,10 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConve
     ) -> InstanceBuilder:
         wtype = self.produces().wtype
         match args:
+            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+                return arg.resolve_literal(converter=AddressTypeBuilder(location))
             case []:
                 result: Expression = intrinsic_factory.zero_address(location, as_type=wtype)
-            case [LiteralBuilder(value=str(addr_value))]:
-                if not wtypes.valid_address(addr_value):
-                    raise CodeError(
-                        f"Invalid address value. Address literals should be"
-                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
-                        location,
-                    )
-                result = AddressConstant(
-                    value=addr_value,
-                    wtype=wtype,
-                    source_location=location,
-                )
             case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
                 result = _address_from_native(eb)
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:

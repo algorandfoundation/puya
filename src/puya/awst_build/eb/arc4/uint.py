@@ -61,13 +61,13 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter)
         match literal.value:
             case int(int_value):
                 if int_value < 0 or int_value.bit_length() > pytype.bits:
-                    logger.error(f"invalid {pytype} value: {int_value}", location=location)
+                    logger.error(f"invalid {pytype} value", location=literal.source_location)
                 # take int() of the value since it could match a bool also
                 expr = IntegerConstant(
-                    value=int(int_value), source_location=location, wtype=pytype.wtype
+                    value=int(int_value), wtype=pytype.wtype, source_location=location
                 )
                 return UIntNExpressionBuilder(expr, pytype)
-        raise CodeError(f"can't covert literal {literal.value!r} to {pytype}", location)
+        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
 
     @typing.override
     def call(
@@ -80,10 +80,10 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter)
         typ = self.produces()
         wtype = typ.wtype
         match args:
-            case []:
-                expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
             case [InstanceBuilder(pytype=pytypes.IntLiteralType) as int_literal_builder]:
                 return int_literal_builder.resolve_literal(UIntNTypeBuilder(typ, location))
+            case []:
+                expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
             case [
                 InstanceBuilder(
                     pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)

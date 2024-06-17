@@ -258,6 +258,9 @@ class FunctionIRBuilder(
         )
 
     def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> TExpression:
+        if not wtypes.valid_address(expr.value):
+            # TODO: should this be here, or on IR model? there's pros and cons to each
+            raise CodeError("invalid Algorand address", expr.source_location)
         return AddressConstant(
             value=expr.value,
             source_location=expr.source_location,
