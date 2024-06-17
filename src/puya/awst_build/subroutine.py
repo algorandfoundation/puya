@@ -1081,13 +1081,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         from puya.awst_build.eb.tuple import TupleLiteralBuilder
 
         location = self._location(mypy_expr)
-        if not mypy_expr.items:
-            raise CodeError("empty tuples are not supported", location)
-
         item_builders = [
             require_instance_builder(mypy_item.accept(self)) for mypy_item in mypy_expr.items
         ]
-
         return TupleLiteralBuilder(item_builders, location)
 
     def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> NodeBuilder:

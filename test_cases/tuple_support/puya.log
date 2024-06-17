@@ -1,6 +1,7 @@
 debug: PuyaOptions(paths=['tuple_support'], output_teal=True, output_arc32=True, output_client=True, output_awst=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, debug_level=1, optimization_level=1, log_level=<LogLevel.debug: 10>, target_avm_version=10, locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>)
 info: Found python prefix: <git root>/.venv
-tuple_support/tuple_comparisons.py:15:12 warning: expression is always True
+tuple_support/tuple_comparisons.py:47:12 warning: expression is always True
+tuple_support/tuple_comparisons.py:48:11 warning: expression is always False
 debug: Sealing block@0: // L11
 debug: Terminated block@0: // L11
 debug: Looking for 'required_budget_with_buffer' in an unsealed block creating an incomplete Phi: block@1: // while_top_L19
@@ -513,15 +514,18 @@ debug: Deleting Phi assignment: let sequence#1: bytes = φ(sequence#0 <- block@0
 debug: Replaced trivial Phi node: let sequence#1: bytes = φ(sequence#0 <- block@0, sequence#1 <- block@4) (sequence#1) with sequence#0 in current definition for 3 blocks
 debug: Sealing block@None: // after_while_L11
 debug: Terminated block@5: // after_while_L11
-debug: Sealing block@0: // L13
-tuple_support/tuple_comparisons.py:15:5 warning: assertion is always true, ignoring
-debug: Terminated block@0: // L13
-debug: Sealing block@0: // L26
-debug: Terminated block@0: // L26
+debug: Sealing block@0: // L14
+debug: Terminated block@0: // L14
+debug: Sealing block@0: // L56
+debug: Terminated block@0: // L56
+debug: Sealing block@0: // L45
+tuple_support/tuple_comparisons.py:47:5 warning: assertion is always true, ignoring
+tuple_support/tuple_comparisons.py:51:5 warning: assertion is always true, ignoring
+debug: Terminated block@0: // L45
 debug: Sealing block@0: // L5
 debug: Terminated block@0: // L5
-debug: Sealing block@0: // L9
-debug: Terminated block@0: // L9
+debug: Sealing block@0: // L10
+debug: Terminated block@0: // L10
 debug: Sealing block@0: // L76
 debug: Terminated block@0: // L76
 debug: Sealing block@1: // for_header_0_L79
@@ -701,9 +705,21 @@ debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (!= "abc" "abc") to 0u
+debug: Simplified (== awst_tmp%0#0 awst_tmp%0#0) to 1u
+debug: Simplified (== "abc" "abc") to 1u
+debug: Simplified (!= awst_tmp%1#0 awst_tmp%1#0) to 0u
+debug: Simplified (!= "abc" "abc") to 0u
+debug: Simplified (== awst_tmp%2#0 awst_tmp%2#0) to 1u
+debug: Simplified (== "abc" "abc") to 1u
+debug: Simplified (!= awst_tmp%3#0 awst_tmp%3#0) to 0u
 debug: Simplified (!= 1u 3u) to 1u
 debug: Simplified (== 1u 3u) to 0u
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%0#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(42u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%1#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(43u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%2#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%3#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(45u)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -716,6 +732,22 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
+debug: Splitting parallel copies prior to optimization
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (! 0u) to 1u
+debug: Simplified (! 0u) to 1u
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp#0
+debug: Removing unused variable tmp#1
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -751,11 +783,27 @@ debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tup
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (&& 0u tmp%6#0) to 0u
+debug: Simplified (|| 0u 1u) to 1u
+debug: Simplified (&& 1u 0u) to 0u
+debug: Simplified (|| 0u 1u) to 1u
+debug: Simplified (&& 1u 0u) to 0u
+debug: Simplified (&& 0u tmp%18#0) to 0u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%0#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(42u)
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tmp%3#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%1#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(43u)
 debug: Removing unused variable tmp%4#0
 debug: Removing unused variable tmp%6#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%2#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Removing unused variable tmp%7#0
+debug: Removing unused variable tmp%9#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%3#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(45u)
+debug: Removing unused variable tmp%10#0
+debug: Removing unused variable tmp%12#0
+debug: Removing unused variable tmp%16#0
+debug: Removing unused variable tmp%18#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -767,6 +815,19 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%0#0
+debug: Removing unused variable tmp%1#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -802,9 +863,19 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (! 0u) to 1u
+debug: Simplified (! 0u) to 1u
+debug: Simplified (! 0u) to 1u
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let tmp%5#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%0#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(42u)
+debug: Removing unused variable tmp%2#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%1#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(43u)
 debug: Removing unused variable tmp#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%2#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Removing unused variable tmp%8#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%3#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(45u)
+debug: Removing unused variable tmp#1
+debug: Not removing unused assignment since source is not marked as pure: let tmp%17#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(47u)
+debug: Removing unused variable tmp#2
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -812,6 +883,17 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -851,8 +933,14 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let tmp%5#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
-debug: Removing unused variable tmp%7#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%0#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(42u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%1#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(43u)
+debug: Removing unused variable tmp%5#0
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%2#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%3#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(45u)
+debug: Removing unused variable tmp%11#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%17#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(47u)
+debug: Removing unused variable tmp%19#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -860,6 +948,17 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -899,7 +998,11 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let tmp%5#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%0#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(42u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%1#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(43u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%2#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(44u)
+debug: Not removing unused assignment since source is not marked as pure: let awst_tmp%3#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(45u)
+debug: Not removing unused assignment since source is not marked as pure: let tmp%17#0: uint64 = test_cases.tuple_support.tuple_comparisons.log_and_return(47u)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -907,6 +1010,17 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -932,6 +1046,7 @@ debug: No optimizations performed in pass 5, ending loop
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
 debug: Removing Phis from test_cases.tuple_support.tuple_comparisons.TupleComparisons.clear_state_program
 debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
@@ -939,11 +1054,14 @@ debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.
 debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.log_and_return using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
+debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty using strategy RootOperandGrouping
+debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in test_cases.tuple_support.tuple_comparisons.TupleComparisons.clear_state_program using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.log_and_return
+debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_comparisons.TupleComparisons.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to tuple_support/out/TupleComparisons.destructured.ir
@@ -1726,12 +1844,12 @@ debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_support
 debug: Sequentializing parallel copies in test_cases.tuple_support.tuple_support.TupleSupport.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to tuple_support/out/TupleSupport.destructured.ir
-debug: Inserted test_tuple_cmp_eval_block@0.ops[10]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced test_tuple_cmp_eval_block@0.ops[12]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted test_tuple_cmp_eval_block@0.ops[2]: 'store tmp%1#0 to l-stack (copy)'
-debug: Replaced test_tuple_cmp_eval_block@0.ops[5]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
-debug: Inserted test_tuple_cmp_eval_block@0.ops[7]: 'store tmp%2#0 to l-stack (copy)'
-debug: Replaced test_tuple_cmp_eval_block@0.ops[10]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
+debug: Inserted test_tuple_cmp_eval_block@0.ops[22]: 'store tmp%15#0 to l-stack (copy)'
+debug: Replaced test_tuple_cmp_eval_block@0.ops[24]: 'load tmp%15#0' with 'load tmp%15#0 from l-stack (no copy)'
+debug: Inserted test_tuple_cmp_eval_block@0.ops[14]: 'store tmp%13#0 to l-stack (copy)'
+debug: Replaced test_tuple_cmp_eval_block@0.ops[17]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
+debug: Inserted test_tuple_cmp_eval_block@0.ops[19]: 'store tmp%14#0 to l-stack (copy)'
+debug: Replaced test_tuple_cmp_eval_block@0.ops[22]: 'load tmp%14#0' with 'load tmp%14#0 from l-stack (no copy)'
 debug: Inserted log_and_return_block@0.ops[2]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced log_and_return_block@0.ops[4]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
 debug: Inserted main_block@0.ops[1]: 'store app_id%0#0 to l-stack (copy)'

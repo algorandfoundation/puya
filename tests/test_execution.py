@@ -570,8 +570,9 @@ def test_tuple_support(harness: _TestHarness) -> None:
 
 def test_tuple_comparisons(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_comparisons.py")
-    assert len(result.logs) == 3
-    assert result.decode_logs("iii") == [42, 43, 44]
+    expected_log_values = list(range(42, 48))
+    assert len(result.logs) == len(expected_log_values)
+    assert result.decode_logs("i" * len(expected_log_values)) == expected_log_values
 
 
 def test_chained_assignment(harness: _TestHarness) -> None:
