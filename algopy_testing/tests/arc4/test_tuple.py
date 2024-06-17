@@ -44,12 +44,12 @@ _test_data = [
         ),
         arc4.Tuple(
             (
-                arc4.DynamicArray(*[_arc4_string, _arc4_string]),
-                arc4.DynamicArray(*[_arc4_string, _arc4_string]),
+                arc4.DynamicArray(_arc4_string, _arc4_string),
+                arc4.DynamicArray(_arc4_string, _arc4_string),
                 _arc4_string,
                 _arc4_uint8,
                 _arc4_bool,
-                arc4.StaticArray(*[_arc4_uint8, _arc4_uint8, _arc4_uint8]),
+                arc4.StaticArray(_arc4_uint8, _arc4_uint8, _arc4_uint8),
             ),
         ),
         arc4.Tuple[
@@ -77,12 +77,12 @@ _test_data = [
                 arc4.Tuple(
                     (
                         _arc4_bool,
-                        arc4.DynamicArray(*[_arc4_string, _arc4_string]),
+                        arc4.DynamicArray(_arc4_string, _arc4_string),
                         _arc4_string,
                     )
                 ),
                 _arc4_uint8,
-                arc4.StaticArray(*[_arc4_uint8, _arc4_uint8, _arc4_uint8]),
+                arc4.StaticArray(_arc4_uint8, _arc4_uint8, _arc4_uint8),
             ),
         ),
         arc4.Tuple[
@@ -109,14 +109,14 @@ _test_data = [
                 arc4.Tuple(
                     (
                         _arc4_bool,
-                        arc4.DynamicArray(*[_arc4_string, _arc4_string]),
+                        arc4.DynamicArray(_arc4_string, _arc4_string),
                         _arc4_string,
                     )
                 ),
                 arc4.Tuple(
                     (
                         _arc4_uint8,
-                        arc4.StaticArray(*[_arc4_uint8, _arc4_uint8, _arc4_uint8]),
+                        arc4.StaticArray(_arc4_uint8, _arc4_uint8, _arc4_uint8),
                     )
                 ),
             )
@@ -148,7 +148,7 @@ _test_data = [
                         _arc4_bool,
                         arc4.Tuple(
                             (
-                                arc4.DynamicArray(*[_arc4_string, _arc4_string]),
+                                arc4.DynamicArray(_arc4_string, _arc4_string),
                                 _arc4_string,
                             )
                         ),
@@ -157,7 +157,7 @@ _test_data = [
                 arc4.Tuple(
                     (
                         _arc4_uint8,
-                        arc4.StaticArray(*[_arc4_uint8, _arc4_uint8, _arc4_uint8]),
+                        arc4.StaticArray(_arc4_uint8, _arc4_uint8, _arc4_uint8),
                     )
                 ),
             )

@@ -507,7 +507,7 @@ class _TypeInfo:
 
     def __init__(self, value: type, child_types: list[_TypeInfo] | None = None):
         self.value = value
-        self.child_types = (
+        self.child_types = child_types or (
             value._child_types if hasattr(value, "_child_types") else child_types  # noqa: SLF001
         )
 
@@ -901,6 +901,20 @@ class Tuple(
             item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
         )
 
+    def __len__(self) -> int:
+        return len(self.native)
+
+    @typing.overload
+    def __getitem__(self, value: typing.SupportsIndex, /) -> object: ...
+    @typing.overload
+    def __getitem__(self, value: slice, /) -> tuple[object, ...]: ...
+
+    def __getitem__(self, index: typing.SupportsIndex | slice) -> tuple[object, ...] | object:
+        return self.native[index]
+
+    def __iter__(self) -> typing.Iterator[object]:
+        return iter(self.native)
+
     @property
     def native(self) -> tuple[typing.Unpack[_TTuple]]:
         """Return the Bytes representation of the address after ARC4 decoding"""
@@ -931,13 +945,17 @@ class Tuple(
 
 
 def _is_arc4_dynamic(value: object) -> bool:
-    if isinstance(value, StaticArray | DynamicArray | Tuple):
+    if isinstance(value, DynamicArray):
+        return True
+    elif isinstance(value, StaticArray | Tuple):
         return any(_is_arc4_dynamic(v) for v in value)
     return not isinstance(value, BigUFixedNxM | BigUIntN | UFixedNxM | UIntN | Bool)
 
 
 def _is_arc4_dynamic_type(value: _TypeInfo) -> bool:
-    if value.child_types:
+    if issubclass(value.value, DynamicArray):
+        return True
+    elif value.child_types:
         return any(_is_arc4_dynamic_type(v) for v in value.child_types)
     return not issubclass(value.value, BigUFixedNxM | BigUIntN | UFixedNxM | UIntN | Bool)
 
@@ -1013,6 +1031,8 @@ def _get_max_bytes_len(type_info: _TypeInfo) -> int:
     if type_info.child_types:
         for c in type_info.child_types:
             result += _get_max_bytes_len(c)
+        if issubclass(type_info.value, DynamicArray):
+            result += _ABI_LENGTH_SIZE
     return result
 
 

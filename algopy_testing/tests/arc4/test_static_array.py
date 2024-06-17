@@ -62,6 +62,7 @@ _arc4_string_static_array: arc4.StaticArray[arc4.String, typing.Literal[10]] = a
     *_arc4_string_static_array_values
 )
 
+
 _bigufixednxm_values = [
     arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]("0"),
     arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]("1"),
@@ -153,6 +154,64 @@ _arc4_string_static_array_of_array_of_array = arc4.StaticArray[
 ](*_arc4_string_static_array_of_array_of_array_values)
 
 
+_abi_tuple_static_array_type = abi.ABIType.from_string(
+    "(string[],(string[],string,uint256),bool,uint256[3])[2]"
+)
+_abi_tuple_static_array_values = [
+    (
+        _abi_string_static_array_values[:2],
+        (
+            _abi_string_static_array_values[6:8],
+            _abi_string_static_array_values[9],
+            _abi_uint256_static_array_values[4],
+        ),
+        _abi_bool_static_array_values[3],
+        _abi_uint256_static_array_values[4:7],
+    ),
+] * 2
+_arc4_tuple_static_array_values: list[
+    arc4.Tuple[
+        arc4.DynamicArray[arc4.String],
+        arc4.Tuple[
+            arc4.DynamicArray[arc4.String],
+            arc4.String,
+            arc4.UInt256,
+        ],
+        arc4.Bool,
+        arc4.StaticArray[arc4.UInt256, typing.Literal[3]],
+    ]
+] = [
+    arc4.Tuple(
+        (
+            arc4.DynamicArray(*_arc4_string_static_array_values[:2]),
+            arc4.Tuple(
+                (
+                    arc4.DynamicArray(*_arc4_string_static_array_values[6:8]),
+                    _arc4_string_static_array_values[9],
+                    _arc4_uint256_static_array_values[4],
+                )
+            ),
+            _arc4_bool_static_array_values[3],
+            arc4.StaticArray(*_arc4_uint256_static_array_values[4:7]),
+        )
+    )
+] * 2
+
+_arc4_tuple_static_array: arc4.StaticArray[
+    arc4.Tuple[
+        arc4.DynamicArray[arc4.String],
+        arc4.Tuple[
+            arc4.DynamicArray[arc4.String],
+            arc4.String,
+            arc4.UInt256,
+        ],
+        arc4.Bool,
+        arc4.StaticArray[arc4.UInt256, typing.Literal[3]],
+    ],
+    typing.Literal[2],
+] = arc4.StaticArray(*_arc4_tuple_static_array_values)
+
+
 @pytest.mark.parametrize(
     ("abi_type", "abi_values", "arc4_value"),
     [
@@ -187,6 +246,11 @@ _arc4_string_static_array_of_array_of_array = arc4.StaticArray[
             _abi_string_static_array_of_array_of_array_values,
             _arc4_string_static_array_of_array_of_array,
         ),
+        (
+            _abi_tuple_static_array_type,
+            _abi_tuple_static_array_values,
+            _arc4_tuple_static_array,
+        ),
     ],
 )
 def test_bytes(
@@ -197,7 +261,6 @@ def test_bytes(
     abi_result = abi_type.encode(abi_values)
 
     arc4_result = arc4_value.bytes
-
     assert abi_result == arc4_result
 
 
@@ -234,6 +297,11 @@ def test_bytes(
             _abi_string_static_array_of_array_of_array_type,
             _abi_string_static_array_of_array_of_array_values,
             _arc4_string_static_array_of_array_of_array,
+        ),
+        (
+            _abi_tuple_static_array_type,
+            _abi_tuple_static_array_values,
+            _arc4_tuple_static_array,
         ),
     ],
 )
@@ -280,24 +348,16 @@ def test_copy(
             _abi_string_static_array_of_array_of_array_values,
             _arc4_string_static_array_of_array_of_array,
         ),
+        (
+            _abi_tuple_static_array_values,
+            _arc4_tuple_static_array,
+        ),
     ],
 )
 def test_get_item(abi_values: list[typing.Any], arc4_value: arc4.StaticArray) -> None:  # type: ignore[type-arg]
     i = 0
     while i < arc4_value.length:
-        if hasattr(arc4_value[i], "native"):
-            assert arc4_value[i].native == abi_values[i]
-        elif hasattr(arc4_value[i], "_list"):
-            x = arc4_value[i]._list()  # noqa: SLF001
-            j = 0
-            while j < len(x):
-                if hasattr(x[j], "_list"):
-                    assert x[j]._list() == abi_values[i][j]  # noqa: SLF001
-                else:
-                    assert x[j] == abi_values[i][j]
-                j += 1
-        else:
-            assert arc4_value[i].bytes == int_to_bytes(abi_values[i], len(arc4_value[i].bytes))
+        _compare_abi_and_arc4_values(arc4_value[i], abi_values[i])
         i += 1
 
     assert len(abi_values) == arc4_value.length
@@ -359,6 +419,12 @@ def test_get_item(abi_values: list[typing.Any], arc4_value: arc4.StaticArray) ->
             ](),
             _arc4_string_static_array_of_array_of_array_values,
         ),
+        (
+            _abi_tuple_static_array_type,
+            _abi_tuple_static_array_values,
+            arc4.StaticArray[arc4.Tuple, typing.Literal[0]](),  # type: ignore[type-arg]
+            _arc4_tuple_static_array_values,
+        ),
     ],
 )
 def test_append_to_empty(
@@ -412,6 +478,11 @@ def test_append_to_empty(
             abi.ABIType.from_string("string[10][3][4]"),
             _abi_string_static_array_of_array_of_array_values,
             _arc4_string_static_array_of_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("(string[],(string[],string,uint256),bool,uint256[3])[4]"),
+            _abi_tuple_static_array_values,
+            _arc4_tuple_static_array,
         ),
     ],
 )
@@ -491,6 +562,12 @@ def test_append(
             ](),
             _arc4_string_static_array_of_array_of_array_values,
         ),
+        (
+            _abi_tuple_static_array_type,
+            _abi_tuple_static_array_values,
+            arc4.StaticArray[arc4.Tuple, typing.Literal[0]](),  # type: ignore[type-arg]
+            _arc4_tuple_static_array_values,
+        ),
     ],
 )
 def test_extend_to_empty(
@@ -548,6 +625,11 @@ def test_extend_to_empty(
             abi.ABIType.from_string("string[10][3][4]"),
             _abi_string_static_array_of_array_of_array_values,
             _arc4_string_static_array_of_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("(string[],(string[],string,uint256),bool,uint256[3])[4]"),
+            _abi_tuple_static_array_values,
+            _arc4_tuple_static_array,
         ),
     ],
 )
@@ -616,6 +698,23 @@ def test_extend(
                 typing.Literal[2],
             ],
         ),
+        (
+            _abi_tuple_static_array_type,
+            _abi_tuple_static_array_values,
+            arc4.StaticArray[
+                arc4.Tuple[
+                    arc4.DynamicArray[arc4.String],
+                    arc4.Tuple[
+                        arc4.DynamicArray[arc4.String],
+                        arc4.String,
+                        arc4.UInt256,
+                    ],
+                    arc4.Bool,
+                    arc4.StaticArray[arc4.UInt256, typing.Literal[3]],
+                ],
+                typing.Literal[2],
+            ],
+        ),
     ],
 )
 def test_from_bytes(
@@ -626,19 +725,7 @@ def test_from_bytes(
     i = 0
     arc4_value = arc4_type.from_bytes(abi_type.encode(abi_values))
     while i < arc4_value.length:
-        if hasattr(arc4_value[i], "native"):
-            assert arc4_value[i].native == abi_values[i]
-        elif hasattr(arc4_value[i], "_list"):
-            x = arc4_value[i]._list()  # noqa: SLF001
-            j = 0
-            while j < len(x):
-                if hasattr(x[j], "_list"):
-                    assert x[j]._list() == abi_values[i][j]  # noqa: SLF001
-                else:
-                    assert x[j] == abi_values[i][j]
-                j += 1
-        else:
-            assert arc4_value[i].bytes == int_to_bytes(abi_values[i], len(arc4_value[i].bytes))
+        _compare_abi_and_arc4_values(arc4_value[i], abi_values[i])
         i += 1
 
     assert len(abi_values) == arc4_value.length
@@ -678,6 +765,11 @@ def test_from_bytes(
             _abi_string_static_array_of_array_of_array_values,
             _arc4_string_static_array_of_array_of_array,
         ),
+        (
+            _abi_tuple_static_array_type,
+            _abi_tuple_static_array_values,
+            _arc4_tuple_static_array,
+        ),
     ],
 )
 def test_set_item(
@@ -698,3 +790,23 @@ def test_set_item(
     arc4_result = arc4.bytes
 
     assert abi_result == arc4_result
+
+
+def _compare_abi_and_arc4_values(
+    arc4_value: typing.Any,  # noqa: ANN401
+    abi_value: typing.Any,  # noqa: ANN401
+) -> None:
+    if hasattr(arc4_value, "_list") or isinstance(arc4_value, tuple):
+        x = (
+            list(arc4_value)
+            if isinstance(arc4_value, tuple)
+            else arc4_value._list()  # noqa: SLF001
+        )
+        j = 0
+        while j < len(x):
+            _compare_abi_and_arc4_values(x[j], abi_value[j])
+            j += 1
+    elif hasattr(arc4_value, "native"):
+        assert arc4_value.native == abi_value
+    else:
+        assert arc4_value.bytes == int_to_bytes(abi_value, len(arc4_value.bytes))

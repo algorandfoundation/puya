@@ -17,6 +17,19 @@ _abi_uint256_array_values = [0, 1, 2, 3, 2**8, 2**16, 2**32, 2**64, 2**128, 2**2
 _arc4_uint256_array_values = [arc4.UInt256(value) for value in _abi_uint256_array_values]
 _arc4_uint256_array = arc4.DynamicArray[arc4.UInt256](*_arc4_uint256_array_values)
 
+_abi_uint256_array_of_array_type = abi.ABIType.from_string("uint256[][]")
+_abi_uint256_array_of_array_values = [
+    _abi_uint256_array_values,
+    _abi_uint256_array_values,
+]
+_arc4_uint256_array_of_array_values = [
+    arc4.DynamicArray[arc4.UInt256](*[arc4.UInt256(value) for value in _abi_uint256_array_values]),
+    arc4.DynamicArray[arc4.UInt256](*[arc4.UInt256(value) for value in _abi_uint256_array_values]),
+]
+_arc4_uint256_array_of_array = arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]](
+    *_arc4_uint256_array_of_array_values
+)
+
 _abi_string_array_type = abi.ABIType.from_string("string[]")
 _abi_string_array_values = [
     "",
@@ -114,6 +127,62 @@ _arc4_string_array_of_array_of_array = arc4.DynamicArray[
     arc4.DynamicArray[arc4.DynamicArray[arc4.String]]
 ](*_arc4_string_array_of_array_of_array_values)
 
+_abi_tuple_array_type = abi.ABIType.from_string(
+    "(string[],(string[],string,uint256),bool,uint256[3])[]"
+)
+_abi_tuple_array_values = [
+    (
+        _abi_string_array_values[:2],
+        (
+            _abi_string_array_values[6:8],
+            _abi_string_array_values[9],
+            _abi_uint256_array_values[4],
+        ),
+        _abi_bool_array_values[3],
+        _abi_uint256_array_values[4:7],
+    ),
+] * 2
+_arc4_tuple_array_values: list[
+    arc4.Tuple[
+        arc4.DynamicArray[arc4.String],
+        arc4.Tuple[
+            arc4.DynamicArray[arc4.String],
+            arc4.String,
+            arc4.UInt256,
+        ],
+        arc4.Bool,
+        arc4.StaticArray[arc4.UInt256, typing.Literal[3]],
+    ]
+] = [
+    arc4.Tuple(
+        (
+            arc4.DynamicArray(*_arc4_string_array_values[:2]),
+            arc4.Tuple(
+                (
+                    arc4.DynamicArray(*_arc4_string_array_values[6:8]),
+                    _arc4_string_array_values[9],
+                    _arc4_uint256_array_values[4],
+                )
+            ),
+            _arc4_bool_array_values[3],
+            arc4.StaticArray(*_arc4_uint256_array_values[4:7]),
+        )
+    )
+] * 2
+
+_arc4_tuple_array: arc4.DynamicArray[
+    arc4.Tuple[
+        arc4.DynamicArray[arc4.String],
+        arc4.Tuple[
+            arc4.DynamicArray[arc4.String],
+            arc4.String,
+            arc4.UInt256,
+        ],
+        arc4.Bool,
+        arc4.StaticArray[arc4.UInt256, typing.Literal[3]],
+    ]
+] = arc4.DynamicArray(*_arc4_tuple_array_values)
+
 
 @pytest.mark.parametrize(
     ("abi_type", "abi_values", "arc4_value"),
@@ -139,6 +208,11 @@ _arc4_string_array_of_array_of_array = arc4.DynamicArray[
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -147,6 +221,11 @@ _arc4_string_array_of_array_of_array = arc4.DynamicArray[
             _abi_string_array_of_array_of_array_type,
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -186,6 +265,11 @@ def test_bytes(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -194,6 +278,11 @@ def test_bytes(
             _abi_string_array_of_array_of_array_type,
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -232,12 +321,20 @@ def test_copy(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
         ),
         (
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -278,6 +375,12 @@ def test_get_item(abi_values: list[typing.Any], arc4_value: arc4.DynamicArray) -
             _arc4_bigufixednxm_array_values,
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]](),
+            _arc4_uint256_array_of_array_values,
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.String]](),
@@ -288,6 +391,12 @@ def test_get_item(abi_values: list[typing.Any], arc4_value: arc4.DynamicArray) -
             _abi_string_array_of_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.DynamicArray[arc4.String]]](),
             _arc4_string_array_of_array_of_array_values,
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            arc4.DynamicArray[arc4.Tuple](),  # type: ignore[type-arg]
+            _arc4_tuple_array_values,
         ),
     ],
 )
@@ -329,6 +438,11 @@ def test_append_to_empty(
             _arc4_bigufixednxm_array,
         ),
         (
+            abi.ABIType.from_string("uint256[][]"),
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             abi.ABIType.from_string("string[][]"),
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -337,6 +451,11 @@ def test_append_to_empty(
             abi.ABIType.from_string("string[][][]"),
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("(string[],(string[],string,uint256),bool,uint256[3])[]"),
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -388,6 +507,12 @@ def test_append(
             _arc4_bigufixednxm_array_values,
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]](),
+            _arc4_uint256_array_of_array_values,
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.String]](),
@@ -398,6 +523,12 @@ def test_append(
             _abi_string_array_of_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.DynamicArray[arc4.String]]](),
             _arc4_string_array_of_array_of_array_values,
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            arc4.DynamicArray[arc4.Tuple](),  # type: ignore[type-arg]
+            _arc4_tuple_array_values,
         ),
     ],
 )
@@ -443,6 +574,11 @@ def test_extend_to_empty(
             _arc4_bigufixednxm_array,
         ),
         (
+            abi.ABIType.from_string("uint256[][]"),
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             abi.ABIType.from_string("string[][]"),
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -451,6 +587,11 @@ def test_extend_to_empty(
             abi.ABIType.from_string("string[][][]"),
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("(string[],(string[],string,uint256),bool,uint256[3])[]"),
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -496,6 +637,11 @@ def test_extend(
             arc4.DynamicArray[arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]],
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]],
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.String]],
@@ -504,6 +650,22 @@ def test_extend(
             _abi_string_array_of_array_of_array_type,
             _abi_string_array_of_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.DynamicArray[arc4.String]]],
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            arc4.DynamicArray[
+                arc4.Tuple[
+                    arc4.DynamicArray[arc4.String],
+                    arc4.Tuple[
+                        arc4.DynamicArray[arc4.String],
+                        arc4.String,
+                        arc4.UInt256,
+                    ],
+                    arc4.Bool,
+                    arc4.StaticArray[arc4.UInt256, typing.Literal[3]],
+                ]
+            ],
         ),
     ],
 )
@@ -545,6 +707,11 @@ def test_from_bytes(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -553,6 +720,11 @@ def test_from_bytes(
             _abi_string_array_of_array_of_array_type,
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -600,6 +772,11 @@ def test_set_item(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_uint256_array_of_array_type,
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             _abi_string_array_of_array_type,
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -608,6 +785,11 @@ def test_set_item(
             _abi_string_array_of_array_of_array_type,
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            _abi_tuple_array_type,
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -655,6 +837,11 @@ def test_pop(
             _arc4_bigufixednxm_array,
         ),
         (
+            abi.ABIType.from_string("uint256[][]"),
+            _abi_uint256_array_of_array_values,
+            _arc4_uint256_array_of_array,
+        ),
+        (
             abi.ABIType.from_string("string[][]"),
             _abi_string_array_of_array_values,
             _arc4_string_array_of_array,
@@ -663,6 +850,11 @@ def test_pop(
             abi.ABIType.from_string("string[][][]"),
             _abi_string_array_of_array_of_array_values,
             _arc4_string_array_of_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("(string[],(string[],string,uint256),bool,uint256[3])[]"),
+            _abi_tuple_array_values,
+            _arc4_tuple_array,
         ),
     ],
 )
@@ -688,13 +880,17 @@ def _compare_abi_and_arc4_values(
     arc4_value: typing.Any,  # noqa: ANN401
     abi_value: typing.Any,  # noqa: ANN401
 ) -> None:
-    if hasattr(arc4_value, "native"):
-        assert arc4_value.native == abi_value
-    elif hasattr(arc4_value, "_list"):
-        x = arc4_value._list()  # noqa: SLF001
+    if hasattr(arc4_value, "_list") or isinstance(arc4_value, tuple):
+        x = (
+            list(arc4_value)
+            if isinstance(arc4_value, tuple)
+            else arc4_value._list()  # noqa: SLF001
+        )
         j = 0
         while j < len(x):
             _compare_abi_and_arc4_values(x[j], abi_value[j])
             j += 1
+    elif hasattr(arc4_value, "native"):
+        assert arc4_value.native == abi_value
     else:
         assert arc4_value.bytes == int_to_bytes(abi_value, len(arc4_value.bytes))
