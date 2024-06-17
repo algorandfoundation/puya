@@ -556,9 +556,13 @@ class StaticArray(
         # """Returns the current length of the array"""
         return algopy.UInt64(len(self._list()))
 
-    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem:
+    @typing.overload
+    def __getitem__(self, value: algopy.UInt64 | int, /) -> _TArrayItem: ...
+    @typing.overload
+    def __getitem__(self, value: slice, /) -> list[_TArrayItem]: ...
+    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem | list[_TArrayItem]:
         if isinstance(index, slice):
-            return self._list()[index][0]
+            return self._list()[index]
         return self._list()[index]
 
     def append(self, item: _TArrayItem, /) -> None:
@@ -727,9 +731,13 @@ class DynamicArray(
         """Returns the current length of the array"""
         return algopy.UInt64(len(self._list()))
 
-    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem:
+    @typing.overload
+    def __getitem__(self, value: algopy.UInt64 | int, /) -> _TArrayItem: ...
+    @typing.overload
+    def __getitem__(self, value: slice, /) -> list[_TArrayItem]: ...
+    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem | list[_TArrayItem]:
         if isinstance(index, slice):
-            return self._list()[index][0]
+            return self._list()[index]
         return self._list()[index]
 
     def append(self, item: _TArrayItem, /) -> None:
@@ -1024,16 +1032,31 @@ def _compress_multiple_bool(value_list: list[Bool]) -> int:
 
 
 def _get_max_bytes_len(type_info: _TypeInfo) -> int:
-    value = type_info.value()
-    if hasattr(value, "_max_bytes_len"):
-        return typing.cast(int, value._max_bytes_len)  # noqa: SLF001
-    result = 0
-    if type_info.child_types:
-        for c in type_info.child_types:
-            result += _get_max_bytes_len(c)
-        if issubclass(type_info.value, DynamicArray):
-            result += _ABI_LENGTH_SIZE
-    return result
+    size = 0
+    if issubclass(type_info.value, DynamicArray):
+        size += _ABI_LENGTH_SIZE
+    elif type_info.child_types:
+        i = 0
+        child_types = type_info.child_types or []
+        while i < len(child_types):
+            if issubclass(child_types[i].value, Bool):
+                after = _find_bool_types(child_types, i, 1)
+                i += after
+                bool_num = after + 1
+                size += bool_num // 8
+                if bool_num % 8 != 0:
+                    size += 1
+            else:
+                child_byte_size = _get_max_bytes_len(child_types[i])
+                size += child_byte_size
+            i += 1
+
+    else:
+        value = type_info.value()
+        if hasattr(value, "_max_bytes_len"):
+            size = typing.cast(int, value._max_bytes_len)  # noqa: SLF001
+
+    return size
 
 
 def _encode(

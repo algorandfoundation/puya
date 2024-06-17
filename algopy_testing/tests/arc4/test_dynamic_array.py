@@ -17,6 +17,19 @@ _abi_uint256_array_values = [0, 1, 2, 3, 2**8, 2**16, 2**32, 2**64, 2**128, 2**2
 _arc4_uint256_array_values = [arc4.UInt256(value) for value in _abi_uint256_array_values]
 _arc4_uint256_array = arc4.DynamicArray[arc4.UInt256](*_arc4_uint256_array_values)
 
+_abi_bool_array_of_array_type = abi.ABIType.from_string("bool[][]")
+_abi_bool_array_of_array_values = [
+    _abi_bool_array_values,
+    _abi_bool_array_values,
+]
+_arc4_bool_array_of_array_values = [
+    arc4.DynamicArray[arc4.Bool](*[arc4.Bool(value) for value in _abi_bool_array_values]),
+    arc4.DynamicArray[arc4.Bool](*[arc4.Bool(value) for value in _abi_bool_array_values]),
+]
+_arc4_bool_array_of_array = arc4.DynamicArray[arc4.DynamicArray[arc4.Bool]](
+    *_arc4_bool_array_of_array_values
+)
+
 _abi_uint256_array_of_array_type = abi.ABIType.from_string("uint256[][]")
 _abi_uint256_array_of_array_values = [
     _abi_uint256_array_values,
@@ -29,6 +42,21 @@ _arc4_uint256_array_of_array_values = [
 _arc4_uint256_array_of_array = arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]](
     *_arc4_uint256_array_of_array_values
 )
+
+_abi_uint256_array_of_static_array_type = abi.ABIType.from_string("uint256[10][]")
+_abi_uint256_array_of_static_array_values = _abi_uint256_array_of_array_values
+_arc4_uint256_array_of_static_array_values = [
+    arc4.StaticArray[arc4.UInt256, typing.Literal[10]](
+        *[arc4.UInt256(value) for value in _abi_uint256_array_values]
+    ),
+    arc4.StaticArray[arc4.UInt256, typing.Literal[10]](
+        *[arc4.UInt256(value) for value in _abi_uint256_array_values]
+    ),
+]
+_arc4_uint256_array_of_static_array = arc4.DynamicArray[
+    arc4.StaticArray[arc4.UInt256, typing.Literal[10]]
+](*_arc4_uint256_array_of_static_array_values)
+
 
 _abi_string_array_type = abi.ABIType.from_string("string[]")
 _abi_string_array_values = [
@@ -208,9 +236,19 @@ _arc4_tuple_array: arc4.DynamicArray[
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             _abi_string_array_of_array_type,
@@ -265,9 +303,19 @@ def test_bytes(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             _abi_string_array_of_array_type,
@@ -321,8 +369,16 @@ def test_copy(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             _abi_string_array_of_array_values,
@@ -375,10 +431,22 @@ def test_get_item(abi_values: list[typing.Any], arc4_value: arc4.DynamicArray) -
             _arc4_bigufixednxm_array_values,
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            arc4.DynamicArray[arc4.DynamicArray[arc4.Bool]](),
+            _arc4_bool_array_of_array_values,
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]](),
             _arc4_uint256_array_of_array_values,
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            arc4.DynamicArray[arc4.StaticArray[arc4.UInt256, typing.Literal[10]]](),
+            _arc4_uint256_array_of_static_array_values,
         ),
         (
             _abi_string_array_of_array_type,
@@ -438,9 +506,19 @@ def test_append_to_empty(
             _arc4_bigufixednxm_array,
         ),
         (
+            abi.ABIType.from_string("bool[][]"),
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             abi.ABIType.from_string("uint256[][]"),
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("uint256[10][]"),
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             abi.ABIType.from_string("string[][]"),
@@ -507,10 +585,22 @@ def test_append(
             _arc4_bigufixednxm_array_values,
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            arc4.DynamicArray[arc4.DynamicArray[arc4.Bool]](),
+            _arc4_bool_array_of_array_values,
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]](),
             _arc4_uint256_array_of_array_values,
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            arc4.DynamicArray[arc4.StaticArray[arc4.UInt256, typing.Literal[10]]](),
+            _arc4_uint256_array_of_static_array_values,
         ),
         (
             _abi_string_array_of_array_type,
@@ -574,9 +664,19 @@ def test_extend_to_empty(
             _arc4_bigufixednxm_array,
         ),
         (
+            abi.ABIType.from_string("bool[][]"),
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             abi.ABIType.from_string("uint256[][]"),
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("uint256[10][]"),
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             abi.ABIType.from_string("string[][]"),
@@ -637,9 +737,19 @@ def test_extend(
             arc4.DynamicArray[arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]],
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            arc4.DynamicArray[arc4.DynamicArray[arc4.Bool]],
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             arc4.DynamicArray[arc4.DynamicArray[arc4.UInt256]],
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            arc4.DynamicArray[arc4.StaticArray[arc4.UInt256, typing.Literal[10]]],
         ),
         (
             _abi_string_array_of_array_type,
@@ -707,9 +817,19 @@ def test_from_bytes(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             _abi_string_array_of_array_type,
@@ -772,9 +892,19 @@ def test_set_item(
             _arc4_bigufixednxm_array,
         ),
         (
+            _abi_bool_array_of_array_type,
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             _abi_uint256_array_of_array_type,
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            _abi_uint256_array_of_static_array_type,
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             _abi_string_array_of_array_type,
@@ -837,9 +967,19 @@ def test_pop(
             _arc4_bigufixednxm_array,
         ),
         (
+            abi.ABIType.from_string("bool[][]"),
+            _abi_bool_array_of_array_values,
+            _arc4_bool_array_of_array,
+        ),
+        (
             abi.ABIType.from_string("uint256[][]"),
             _abi_uint256_array_of_array_values,
             _arc4_uint256_array_of_array,
+        ),
+        (
+            abi.ABIType.from_string("uint256[10][]"),
+            _abi_uint256_array_of_static_array_values,
+            _arc4_uint256_array_of_static_array,
         ),
         (
             abi.ABIType.from_string("string[][]"),

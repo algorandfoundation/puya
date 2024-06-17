@@ -17,6 +17,22 @@ _arc4_bool = arc4.Bool(True)  # noqa: FBT003
 
 _test_data = [
     (
+        abi.ABIType.from_string("(uint8,bool,bool)"),
+        (
+            _abi_uint8,
+            _abi_bool,
+            _abi_bool,
+        ),
+        arc4.Tuple(
+            (
+                _arc4_uint8,
+                _arc4_bool,
+                _arc4_bool,
+            )
+        ),
+        arc4.Tuple[arc4.UInt8, arc4.Bool, arc4.Bool],
+    ),
+    (
         abi.ABIType.from_string("(string,uint8,bool)"),
         (
             _abi_string,
@@ -31,6 +47,43 @@ _test_data = [
             )
         ),
         arc4.Tuple[arc4.String, arc4.UInt8, arc4.Bool],
+    ),
+    (
+        abi.ABIType.from_string("((uint8,bool,bool),(uint8,bool,bool))"),
+        (
+            (
+                _abi_uint8,
+                _abi_bool,
+                _abi_bool,
+            ),
+            (
+                _abi_uint8,
+                _abi_bool,
+                _abi_bool,
+            ),
+        ),
+        arc4.Tuple(
+            (
+                arc4.Tuple(
+                    (
+                        _arc4_uint8,
+                        _arc4_bool,
+                        _arc4_bool,
+                    )
+                ),
+                arc4.Tuple(
+                    (
+                        _arc4_uint8,
+                        _arc4_bool,
+                        _arc4_bool,
+                    )
+                ),
+            )
+        ),
+        arc4.Tuple[
+            arc4.Tuple[arc4.UInt8, arc4.Bool, arc4.Bool],
+            arc4.Tuple[arc4.UInt8, arc4.Bool, arc4.Bool],
+        ],
     ),
     (
         abi.ABIType.from_string("(string[],string[],string,uint8,bool,uint8[3])"),
