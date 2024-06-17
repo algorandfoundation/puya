@@ -10,12 +10,34 @@ from puya.awst.nodes import (
     Expression,
     ReinterpretCast,
 )
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder
+from puya.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
+    BuilderUnaryOp,
+    InstanceBuilder,
+    LiteralBuilder,
+)
+from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 
 if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
+
+
+def resolve_negative_literal_index(
+    index: InstanceBuilder, length: InstanceBuilder, location: SourceLocation
+) -> InstanceBuilder:
+    match index:
+        case LiteralBuilder(value=int(int_index)) if int_index < 0:
+            return length.binary_op(
+                index.unary_op(BuilderUnaryOp.negative, location),
+                BuilderBinaryOp.sub,
+                location,
+                reverse=False,
+            )
+        case _:
+            return index.resolve_literal(UInt64TypeBuilder(index.source_location))
 
 
 def bool_eval_to_constant(

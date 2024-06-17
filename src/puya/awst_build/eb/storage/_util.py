@@ -19,6 +19,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._utils import resolve_negative_literal_index
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -38,26 +39,14 @@ def index_box_bytes(
     index: InstanceBuilder,
     location: SourceLocation,
 ) -> InstanceBuilder:
-
-    if isinstance(index, InstanceBuilder):
-        # no negatives
-        begin_index_expr = index.resolve()
-    elif not isinstance(index.value, int):
-        raise CodeError("Invalid literal index type", index.source_location)
-    elif index.value >= 0:
-        begin_index_expr = UInt64Constant(value=index.value, source_location=index.source_location)
-    else:
-        box_length = box_length_unchecked(box, location)
-        box_length_builder = UInt64ExpressionBuilder(box_length)
-        begin_index_expr = box_length_builder.binary_op(
-            index, BuilderBinaryOp.sub, location, reverse=False
-        ).resolve()
+    box_length = UInt64ExpressionBuilder(box_length_unchecked(box, location))
+    begin_index = resolve_negative_literal_index(index, box_length, location)
     return BytesExpressionBuilder(
         IntrinsicCall(
             op_code="box_extract",
             stack_args=[
                 box.key,
-                begin_index_expr,
+                begin_index.resolve(),
                 UInt64Constant(value=1, source_location=location),
             ],
             source_location=location,
