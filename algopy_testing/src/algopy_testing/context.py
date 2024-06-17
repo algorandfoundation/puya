@@ -40,8 +40,6 @@ if TYPE_CHECKING:
         | algopy.itxn.ApplicationCallInnerTransaction
     )
 
-    TestBla = str | int
-
 
 T = TypeVar("T")
 
