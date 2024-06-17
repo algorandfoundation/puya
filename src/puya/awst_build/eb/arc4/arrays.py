@@ -23,8 +23,6 @@ from puya.awst.nodes import (
     SingleEvaluation,
     Statement,
     TupleExpression,
-    UInt64BinaryOperation,
-    UInt64BinaryOperator,
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
@@ -33,7 +31,12 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, compare_expr_bytes
+from puya.awst_build.eb._utils import (
+    bool_eval_to_constant,
+    compare_bytes,
+    compare_expr_bytes,
+    resolve_negative_literal_index,
+)
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -48,7 +51,6 @@ from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
-    expect_operand_type,
     require_instance_builder,
     require_instance_builder_of_type,
 )
@@ -254,22 +256,13 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        if isinstance(index, LiteralBuilder) and isinstance(index.value, int) and index.value < 0:
-            index_expr: Expression = UInt64BinaryOperation(
-                left=require_instance_builder(
-                    self.member_access("length", index.source_location)
-                ).resolve(),
-                op=UInt64BinaryOperator.sub,
-                right=UInt64Constant(
-                    value=abs(index.value), source_location=index.source_location
-                ),
-                source_location=index.source_location,
-            )
-        else:
-            index_expr = expect_operand_type(index, pytypes.UInt64Type).resolve()
+        array_length = require_instance_builder(
+            self.member_access("length", index.source_location)
+        )
+        index = resolve_negative_literal_index(index, array_length, location)
         result_expr = IndexExpression(
             base=self.resolve(),
-            index=index_expr,
+            index=index.resolve(),
             wtype=self.pytype.items.wtype,
             source_location=location,
         )

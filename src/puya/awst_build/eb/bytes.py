@@ -30,7 +30,7 @@ from puya.awst_build.eb._base import (
     InstanceExpressionBuilder,
     TypeBuilder,
 )
-from puya.awst_build.eb._utils import compare_bytes
+from puya.awst_build.eb._utils import compare_bytes, resolve_negative_literal_index
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -175,20 +175,21 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return self.resolve()
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
         match name:
             case "length":
                 len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
                 return UInt64ExpressionBuilder(len_call)
-        return super().member_access(name, location)
+        raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        index_expr = expect_operand_type(index, pytypes.UInt64Type).resolve()
+        length = self.member_access("length", location)
+        index = resolve_negative_literal_index(index, length, location)
         expr = IndexExpression(
             source_location=location,
             base=self.resolve(),
-            index=index_expr,
+            index=index.resolve(),
             wtype=self.pytype.wtype,
         )
         return BytesExpressionBuilder(expr)
