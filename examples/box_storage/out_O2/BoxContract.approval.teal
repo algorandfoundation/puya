@@ -29,7 +29,6 @@ main_set_boxes_route@2:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
-    extract 2 0
     txna ApplicationArgs 3
     callsub set_boxes
     int 1
@@ -277,6 +276,27 @@ set_boxes:
     byte 0x424f585f43
     frame_dig -1
     box_put
+    frame_dig -2
+    extract 2 0
+    byte "box_d"
+    box_del
+    pop
+    byte "box_d"
+    dig 1
+    box_put
+    byte "b"
+    box_get
+    assert // check self.box_b exists
+    byte "b"
+    box_get
+    assert // check self.box_b exists
+    int 0
+    extract_uint16
+    swap
+    int 0
+    extract_uint16
+    ==
+    assert // direct reference should match copy
     byte "box_a"
     box_get
     swap
@@ -307,6 +327,129 @@ set_boxes:
     assert // check self.box_c exists
     frame_dig -1
     len
+    dup
+    cover 2
+    ==
+    assert
+    byte "box_d"
+    box_len
+    assert // check self.box_d exists
+    dig 2
+    len
+    dup
+    cover 4
+    ==
+    assert
+    byte 0x424f585f43
+    box_len
+    pop
+    int 2
+    dig 1
+    <
+    int 2
+    swap
+    select
+    byte 0x424f585f43
+    int 0
+    uncover 2
+    box_extract
+    int 2
+    dig 2
+    >=
+    int 2
+    uncover 3
+    uncover 2
+    select
+    frame_dig -1
+    int 0
+    uncover 2
+    substring3
+    ==
+    assert
+    byte "box_d"
+    int 0
+    int 1
+    box_extract
+    dig 1
+    extract 0 1
+    ==
+    assert
+    byte "box_d"
+    box_len
+    pop
+    int 1
+    -
+    byte "box_d"
+    swap
+    int 1
+    box_extract
+    dig 2
+    int 1
+    -
+    dup
+    int 1
+    +
+    dig 3
+    cover 2
+    substring3
+    ==
+    assert
+    byte "box_d"
+    box_len
+    pop
+    int 1
+    dig 1
+    <
+    swap
+    dup
+    int 1
+    uncover 3
+    select
+    -
+    byte "box_d"
+    int 0
+    uncover 2
+    box_extract
+    int 1
+    dig 3
+    >=
+    int 1
+    dig 4
+    uncover 2
+    select
+    dig 3
+    swap
+    -
+    dig 2
+    int 0
+    uncover 2
+    substring3
+    ==
+    assert
+    byte "box_d"
+    box_len
+    pop
+    int 5
+    dig 1
+    <
+    int 5
+    swap
+    select
+    byte "box_d"
+    int 0
+    uncover 2
+    box_extract
+    int 5
+    dig 3
+    >=
+    int 5
+    uncover 4
+    uncover 2
+    select
+    uncover 2
+    int 0
+    uncover 2
+    substring3
     ==
     assert
     retsub
@@ -343,9 +486,10 @@ delete_boxes:
     assert
     byte "b"
     box_get
-    byte 0x3432
+    byte 0x00023432
     cover 2
     select
+    extract 2 0
     byte 0x3432
     ==
     assert
@@ -379,6 +523,7 @@ read_boxes:
     byte "b"
     box_get
     assert // check self.box_b exists
+    extract 2 0
     byte 0x424f585f43
     box_get
     assert // check self.box_c exists

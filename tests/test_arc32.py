@@ -1329,7 +1329,7 @@ def _params_with_boxes(
 
 def test_box(box_client: algokit_utils.ApplicationClient) -> None:
     box_c = b"BOX_C"
-    transaction_parameters = _params_with_boxes("box_a", "b", box_c)
+    transaction_parameters = _params_with_boxes("box_a", "b", box_c, "box_d")
 
     (a_exist, b_exist, c_exist) = box_client.call(
         call_abi_method="boxes_exist",
