@@ -20,7 +20,6 @@ from puya.awst.nodes import (
     BoolConstant,
     BooleanBinaryOperation,
     BreakStatement,
-    CompileTimeConstantExpression,
     ConditionalExpression,
     ContinueStatement,
     ContractMethod,
@@ -33,7 +32,6 @@ from puya.awst.nodes import (
     Lvalue,
     Not,
     ReturnStatement,
-    SingleEvaluation,
     Statement,
     Subroutine,
     SubroutineArgument,
@@ -338,7 +336,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     stmt_loc,
                 )
         elif len(stmt.lvalues) > 1:
-            rvalue = temporary_assignment_if_required(rvalue)
+            rvalue = rvalue.single_eval()
 
         return [
             AssignmentStatement(
@@ -384,7 +382,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             return [
                 AssignmentStatement(
                     target=global_state_target,
-                    value=rvalue.initial_value,
+                    value=rvalue.initial_value.resolve(),
                     source_location=stmt_loc,
                 )
             ]
@@ -425,17 +423,16 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         else_branch = self.visit_block(stmt.else_body) if stmt.else_body else None
         return IfElse(
             source_location=self._location(stmt),
-            condition=condition,
+            condition=condition.resolve(),
             if_branch=if_branch,
             else_branch=else_branch,
         )
 
-    def _eval_condition(self, mypy_expr: mypy.nodes.Expression) -> Expression:
+    def _eval_condition(self, mypy_expr: mypy.nodes.Expression) -> InstanceBuilder:
         with self._enter_bool_context():
             builder = mypy_expr.accept(self)
         loc = self._location(mypy_expr)
-        condition = builder.bool_eval(loc)
-        return condition.resolve()
+        return builder.bool_eval(loc)
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop:
         if stmt.else_body is not None:
@@ -444,7 +441,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         loop_body = self.visit_block(stmt.body)
         return WhileLoop(
             source_location=self._location(stmt),
-            condition=condition,
+            condition=condition.resolve(),
             loop_body=loop_body,
         )
 
@@ -481,7 +478,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         condition = self._eval_condition(stmt.expr)
         return AssertStatement(
             source_location=self._location(stmt),
-            condition=condition,
+            condition=condition.resolve(),
             comment=comment,
         )
 
@@ -512,7 +509,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         loc = self._location(stmt)
         subject_eb = require_instance_builder(stmt.subject.accept(self))
         subject_typ = subject_eb.pytype
-        subject = temporary_assignment_if_required(subject_eb).resolve()
+        subject = subject_eb.single_eval().resolve()
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
@@ -929,7 +926,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 source_location=location, left=lhs.resolve(), op=op, right=rhs.resolve()
             )
         else:
-            lhs = temporary_assignment_if_required(lhs)
+            lhs = lhs.single_eval()
             # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
             # TODO: this is a bit convoluted in terms of NodeBuilder <-> Expression
@@ -986,7 +983,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
         condition = self._eval_condition(expr.cond)
-        # TODO: conditional literals as literal builders
         true_b = require_instance_builder(expr.if_expr.accept(self))
         false_b = require_instance_builder(expr.else_expr.accept(self))
         if true_b.pytype != false_b.pytype:
@@ -1004,7 +1000,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             )
         else:
             cond_expr = ConditionalExpression(
-                condition=condition,
+                condition=condition.resolve(),
                 true_expr=true_b.resolve(),
                 false_expr=false_b.resolve(),
                 source_location=expr_loc,
@@ -1030,9 +1026,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         #       compile time, but it would always result in a constant ...
 
         operands = [require_instance_builder(o.accept(self)) for o in expr.operands]
-        operands[1:-1] = [
-            temporary_assignment_if_required(operand) for operand in list(operands)[1:-1]
-        ]
+        operands[1:-1] = [operand.single_eval() for operand in list(operands)[1:-1]]
 
         comparisons = [
             self._build_compare(operator=operator, lhs=lhs, rhs=rhs)
@@ -1175,16 +1169,3 @@ def is_self_member(
         case mypy.nodes.MemberExpr(expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))):
             return True
     return False
-
-
-def temporary_assignment_if_required(operand: InstanceBuilder) -> InstanceBuilder:
-    if isinstance(operand, LiteralBuilder):
-        return operand
-
-    expr = operand.resolve()
-    # TODO: optimise the below checks so we don't create unnecessary temporaries,
-    #       ie when Expression has no side effects
-    if not isinstance(expr, VarExpression | CompileTimeConstantExpression):
-        return builder_for_instance(operand.pytype, SingleEvaluation(expr))
-    else:
-        return operand

@@ -108,9 +108,9 @@ def _init(
 
     match first_arg:
         case NodeBuilder(pytype=pytypes.TypeType(typ=content)):
-            initial_value = None
+            iv_builder = None
         case InstanceBuilder(pytype=content) as iv_builder:
-            initial_value = iv_builder.resolve()
+            pass
         case _:
             raise CodeError(
                 "First argument must be a type reference or an initial value", location
@@ -130,13 +130,13 @@ def _init(
     description = extract_description(descr_arg)
     if key_override is None:
         return StorageProxyDefinitionBuilder(
-            result_type, location=location, description=description, initial_value=initial_value
+            result_type, location=location, description=description, initial_value=iv_builder
         )
     return _GlobalStateExpressionBuilderFromConstructor(
         key_override=key_override,
         typ=result_type,
         description=description,
-        initial_value=initial_value,
+        initial_value=iv_builder,
     )
 
 
@@ -195,7 +195,7 @@ class _GlobalStateExpressionBuilderFromConstructor(
         key_override: Expression,
         typ: pytypes.StorageProxyType,
         description: str | None,
-        initial_value: Expression | None,
+        initial_value: InstanceBuilder | None,
     ):
         super().__init__(key_override, typ, member_name=None)
         self.description = description
@@ -203,7 +203,7 @@ class _GlobalStateExpressionBuilderFromConstructor(
 
     @typing.override
     @property
-    def initial_value(self) -> Expression | None:
+    def initial_value(self) -> InstanceBuilder | None:
         return self._initial_value
 
     @typing.override

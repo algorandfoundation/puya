@@ -13,7 +13,6 @@ from puya.awst.nodes import (
     ConditionalExpression,
     Expression,
     FreeSubroutineTarget,
-    SingleEvaluation,
     Statement,
     StringConstant,
     SubroutineCallExpression,
@@ -105,11 +104,11 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "startswith":
-                return _StringStartsOrEndsWith(self.resolve(), location, at_start=True)
+                return _StringStartsOrEndsWith(self, location, at_start=True)
             case "endswith":
-                return _StringStartsOrEndsWith(self.resolve(), location, at_start=False)
+                return _StringStartsOrEndsWith(self, location, at_start=False)
             case "join":
-                return _StringJoin(self.resolve(), location)
+                return _StringJoin(self, location)
             case _:
                 return super().member_access(name, location)
 
@@ -211,7 +210,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
 
 
 class _StringStartsOrEndsWith(FunctionBuilder):
-    def __init__(self, base: Expression, location: SourceLocation, *, at_start: bool):
+    def __init__(self, base: StringExpressionBuilder, location: SourceLocation, *, at_start: bool):
         super().__init__(location)
         self._base = base
         self._at_start = at_start
@@ -226,10 +225,8 @@ class _StringStartsOrEndsWith(FunctionBuilder):
     ) -> InstanceBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
-        arg = StringExpressionBuilder(
-            SingleEvaluation(expect_operand_type(args[0], pytypes.StringType).resolve())
-        )
-        this = StringExpressionBuilder(SingleEvaluation(self._base))
+        arg = expect_operand_type(args[0], pytypes.StringType).single_eval()
+        this = self._base.single_eval()
 
         this_length = require_instance_builder(
             this.member_access("bytes", location).member_access("length", location)
@@ -270,7 +267,7 @@ class _StringStartsOrEndsWith(FunctionBuilder):
 
 
 class _StringJoin(FunctionBuilder):
-    def __init__(self, base: Expression, location: SourceLocation):
+    def __init__(self, base: StringExpressionBuilder, location: SourceLocation):
         super().__init__(location)
         self._base = base
 
@@ -290,21 +287,21 @@ class _StringJoin(FunctionBuilder):
             case [InstanceBuilder(pytype=pytypes.TupleType(items=item_types)) as eb] if all(
                 tt == pytypes.StringType for tt in item_types
             ):
-                tuple_arg = SingleEvaluation(eb.resolve())
+                tuple_arg = eb.single_eval().resolve()
                 items = [
                     TupleItemExpression(tuple_arg, index=i, source_location=location)
                     for i, _ in enumerate(item_types)
                 ]
             case _:
                 raise CodeError("expected a single argument with tuple type", location)
-        sep = StringExpressionBuilder(SingleEvaluation(self._base))
+        sep = self._base.single_eval().resolve()
         joined_value: Expression | None = None
         for item_expr in items:
             if joined_value is None:
                 joined_value = item_expr
             else:
                 joined_value = intrinsic_factory.concat(
-                    intrinsic_factory.concat(joined_value, sep.resolve(), location),
+                    intrinsic_factory.concat(joined_value, sep, location),
                     item_expr,
                     location,
                     result_type=wtypes.string_wtype,
