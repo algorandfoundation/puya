@@ -203,10 +203,16 @@ class FunctionIRBuilder(
                 return BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
                 num_bytes = bit_size // 8
+                try:
+                    arc4_result = expr.value.to_bytes(num_bytes, "big", signed=False)
+                except OverflowError:
+                    raise CodeError(
+                        f"invalid literal value for {expr.wtype}", expr.source_location
+                    ) from None
                 return BytesConstant(
-                    source_location=expr.source_location,
+                    value=arc4_result,
                     encoding=AVMBytesEncoding.base16,
-                    value=expr.value.to_bytes(num_bytes, "big", signed=False),
+                    source_location=expr.source_location,
                 )
             case _:
                 raise InternalError(

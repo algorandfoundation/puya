@@ -1099,8 +1099,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         value = source.resolve()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
-        # TODO: take PyType from source NodeBuilder
-        result_typ = self.context.mypy_expr_node_type(expr)
+        result_typ = source.pytype
         return builder_for_instance(result_typ, result)
 
     def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> NodeBuilder:
