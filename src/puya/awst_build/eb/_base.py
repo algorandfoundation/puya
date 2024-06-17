@@ -6,13 +6,17 @@ import typing
 import typing_extensions
 
 from puya.awst.nodes import (
+    CompileTimeConstantExpression,
     Expression,
     FieldExpression,
     Lvalue,
+    SingleEvaluation,
     Statement,
     TupleExpression,
+    VarExpression,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -178,6 +182,12 @@ class InstanceExpressionBuilder(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         raise CodeError(f"{self.pytype} does not support augmented assignment", location)
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        if not isinstance(self.__expr, VarExpression | CompileTimeConstantExpression):
+            return builder_for_instance(self.pytype, SingleEvaluation(self.__expr))
+        return self
 
 
 class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co], abc.ABC):

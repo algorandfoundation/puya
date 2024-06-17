@@ -32,13 +32,14 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
+@typing.final
 class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
     def __init__(
         self,
         typ: pytypes.StorageProxyType | pytypes.StorageMapProxyType,
         location: SourceLocation,
         description: str | None,
-        initial_value: Expression | None = None,
+        initial_value: InstanceBuilder | None = None,
     ):
         super().__init__(location)
         self._typ = typ
@@ -51,7 +52,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
     @typing.override
     @property
-    def initial_value(self) -> Expression | None:
+    def initial_value(self) -> InstanceBuilder | None:
         return self._initial_value
 
     @typing.override
@@ -154,6 +155,15 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
             f" key{'_prefix' if isinstance(self._typ, pytypes.StorageMapProxyType) else ''}"
             " must be assigned to an instance variable before being used",
             location,
+        )
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        return StorageProxyDefinitionBuilder(
+            typ=self._typ,
+            location=self.source_location,
+            description=self.description,
+            initial_value=(self._initial_value and self._initial_value.single_eval()),
         )
 
 

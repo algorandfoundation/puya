@@ -24,7 +24,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         *,
         true_literal: LiteralBuilder,
         false_literal: LiteralBuilder,
-        condition: Expression,
+        condition: InstanceBuilder,
         location: SourceLocation
     ):
         super().__init__(location)
@@ -43,8 +43,9 @@ class ConditionalLiteralBuilder(InstanceBuilder):
     def resolve(self) -> Expression:
         true_expr = self._true_literal.resolve()
         false_expr = self._false_literal.resolve()
+        condition_expr = self._condition.resolve()
         return ConditionalExpression(
-            condition=self._condition,
+            condition=condition_expr,
             true_expr=true_expr,
             false_expr=false_expr,
             source_location=self.source_location,
@@ -62,8 +63,9 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         result_pytype = true_b.pytype
         true_expr = true_b.resolve()
         false_expr = false_b.resolve()
+        condition_expr = self._condition.resolve()
         result_expr = ConditionalExpression(
-            condition=self._condition,
+            condition=condition_expr,
             true_expr=true_expr,
             false_expr=false_expr,
             source_location=self.source_location,
@@ -108,8 +110,9 @@ class ConditionalLiteralBuilder(InstanceBuilder):
             )
         true_expr = transformed_true.resolve()
         false_expr = transformed_false.resolve()
+        condition_expr = self._condition.resolve()
         result_expr = ConditionalExpression(
-            condition=self._condition,
+            condition=condition_expr,
             true_expr=true_expr,
             false_expr=false_expr,
             source_location=location,
@@ -142,8 +145,9 @@ class ConditionalLiteralBuilder(InstanceBuilder):
             )
         true_expr = transformed_true.resolve()  # TODO: maybe we pass other to resolve..?
         false_expr = transformed_false.resolve()
+        condition_expr = self._condition.resolve()
         result_expr = ConditionalExpression(
-            condition=self._condition,
+            condition=condition_expr,
             true_expr=true_expr,
             false_expr=false_expr,
             source_location=location,
@@ -160,8 +164,9 @@ class ConditionalLiteralBuilder(InstanceBuilder):
     def to_bytes(self, location: SourceLocation) -> Expression:
         true_expr = self._true_literal.to_bytes(location)
         false_expr = self._false_literal.to_bytes(location)
+        condition_expr = self._condition.resolve()
         return ConditionalExpression(
-            condition=self._condition,
+            condition=condition_expr,
             true_expr=true_expr,
             false_expr=false_expr,
             source_location=self.source_location,
@@ -182,9 +187,10 @@ class ConditionalLiteralBuilder(InstanceBuilder):
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         true_expr = self._true_literal.bool_eval(location, negate=negate).resolve()
         false_expr = self._false_literal.bool_eval(location, negate=negate).resolve()
+        condition_expr = self._condition.resolve()
         return BoolExpressionBuilder(
             ConditionalExpression(
-                condition=self._condition,
+                condition=condition_expr,
                 true_expr=true_expr,
                 false_expr=false_expr,
                 source_location=location,
@@ -212,3 +218,13 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise NotImplementedError("TODO")
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        condition = self._condition.single_eval()
+        return ConditionalLiteralBuilder(
+            true_literal=self._true_literal,
+            false_literal=self._false_literal,
+            condition=condition,
+            location=self.source_location,
+        )

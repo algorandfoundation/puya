@@ -188,3 +188,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         if warn:
             logger.warning(f"expression is always {value}", location=location)
         return LiteralBuilderImpl(value=value, source_location=location)
+
+    @typing.override
+    def single_eval(self) -> InstanceBuilder:
+        return self

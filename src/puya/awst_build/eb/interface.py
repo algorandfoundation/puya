@@ -170,6 +170,10 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
     def to_bytes(self, location: SourceLocation) -> Expression:
         """Handle conversion/cast to bytes, if possible"""
 
+    @abc.abstractmethod
+    def single_eval(self) -> InstanceBuilder:
+        """wrap any underlying expressions etc. (if applicable) to avoid multiple evaluations"""
+
 
 class LiteralBuilder(InstanceBuilder, abc.ABC):
     @property
@@ -203,7 +207,7 @@ class StorageProxyConstructorResult(
 ):
     @property
     @abc.abstractmethod
-    def initial_value(self) -> Expression | None: ...
+    def initial_value(self) -> InstanceBuilder | None: ...
 
     @abc.abstractmethod
     def build_definition(

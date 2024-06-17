@@ -226,7 +226,7 @@ class _LocalStateExpressionBuilderFromConstructor(
 
     @typing.override
     @property
-    def initial_value(self) -> Expression | None:
+    def initial_value(self) -> None:
         return None
 
     @typing.override

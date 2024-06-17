@@ -15,7 +15,6 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
-    SingleEvaluation,
     TupleItemExpression,
     UInt64Constant,
 )
@@ -80,8 +79,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
                     )
                 value = AddressConstant(value=addr_value, source_location=location)
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                value = eb.resolve()
-                address_bytes_temp = SingleEvaluation(value)
+                address_bytes_temp = eb.single_eval().resolve()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
