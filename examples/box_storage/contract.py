@@ -32,7 +32,10 @@ class BoxContract(arc4.ARC4Contract):
         assert self.box_c.length == c.bytes.length
         assert self.box_d.length == b.native.length
 
-        # test .value
+        # test .value.bytes
+        assert self.box_c.value.bytes[0] == c.bytes[0]
+        assert self.box_c.value.bytes[-1] == c.bytes[-1]
+        assert self.box_c.value.bytes[:-1] == c.bytes[:-1]
         assert self.box_c.value.bytes[:2] == c.bytes[:2]
 
         # test .value with Bytes type

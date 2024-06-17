@@ -18,6 +18,24 @@ def wrong_arg() -> None:
 
 
 @subroutine
+def wrong_get_arg() -> None:
+    box = Box(UInt64, key=b"box")
+    box.get()  # type: ignore[call-arg] ## E: Expected 1 argument, got 0
+
+
+@subroutine
+def wrong_get_arg_type() -> None:
+    box = Box(UInt64, key=b"box")
+    box.get(default=String())  # type: ignore[arg-type] ## E: default argument should have same type as box value
+
+
+@subroutine
+def wrong_maybe_arg() -> None:
+    box = Box(UInt64, key=b"box")
+    box.maybe(UInt64())  # type: ignore[call-arg] ## E: Invalid/unexpected args
+
+
+@subroutine
 def non_pos() -> None:
     Box(type="oops", key=b"box")  # type: ignore[call-arg] ## E: Required positional argument missing
 
