@@ -2,8 +2,9 @@ contract BoxContract
 {
   boxes {
     ['box_a']: uint64
-    ['b']: bytes
+    ['b']: arc4.dynamic_array<arc4.uint8>
     [hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8>
+    ['box_d']: bytes
     ['']: uint64 => string
     ['box_ref']: bytes
   }
@@ -12,15 +13,24 @@ contract BoxContract
   {
   }
   
-  abimethod set_boxes(a: uint64, b: bytes, c: arc4.dynamic_array<arc4.uint8>): void
+  abimethod set_boxes(a: uint64, b: arc4.dynamic_array<arc4.uint8>, c: arc4.dynamic_array<arc4.uint8>): void
   {
     Box['box_a']: uint64 = a
-    Box['b']: bytes = b
+    Box['b']: arc4.dynamic_array<arc4.uint8> = b.copy()
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = c
+    Box['box_d']: bytes = arc4_decode(b, bytes)
+    b_value: arc4.dynamic_array<arc4.uint8> = Box['b'].copy()
+    assert(extract_uint16(Box['b'], 0u) == extract_uint16(b_value, 0u), comment="direct reference should match copy")
     Box['box_a'] += 3u
     assert(checked_maybe(box_len('box_a')) == 8u)
-    assert(checked_maybe(box_len('b')) == len(b))
+    assert(checked_maybe(box_len('b')) == len(reinterpret_cast<bytes>(b)))
     assert(checked_maybe(box_len(hex<"424F585F43">)) == len(reinterpret_cast<bytes>(c)))
+    assert(checked_maybe(box_len('box_d')) == len(arc4_decode(b, bytes)))
+    assert(box_extract(hex<"424F585F43">, 0u, select(SINGLE_EVAL(id=0, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=0, source=box_len(hex<"424F585F43">)[0])) - 0u) == reinterpret_cast<bytes>(c)[:2])
+    assert(box_extract('box_d', 0u, 1u) == arc4_decode(b, bytes)[0u])
+    assert(box_extract('box_d', box_len('box_d')[0] - 1u, 1u) == arc4_decode(b, bytes)[len(arc4_decode(b, bytes)) - 1u])
+    assert(box_extract('box_d', 0u, SINGLE_EVAL(id=1, source=box_len('box_d')[0]) - select(SINGLE_EVAL(id=1, source=box_len('box_d')[0]), 1u, 1u < SINGLE_EVAL(id=1, source=box_len('box_d')[0])) - 0u) == arc4_decode(b, bytes)[:-1])
+    assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=2, source=box_len('box_d')[0]), 5u, 5u < SINGLE_EVAL(id=2, source=box_len('box_d')[0])) - 0u) == arc4_decode(b, bytes)[:5])
   }
   
   abimethod check_keys(): void
@@ -36,7 +46,7 @@ contract BoxContract
     STATE_DELETE(Box['b'])
     STATE_DELETE(Box[hex<"424F585F43">])
     assert(STATE_GET(Box['box_a'], default=42u) == 42u)
-    assert(STATE_GET(Box['b'], default=hex<"3432">) == hex<"3432">)
+    assert(arc4_decode(STATE_GET(Box['b'], default=arc4_encode(hex<"3432">, arc4.dynamic_array<arc4.uint8>)), bytes) == hex<"3432">)
     assert(STATE_GET(Box[hex<"424F585F43">], default=arc4_encode('42', arc4.dynamic_array<arc4.uint8>)) == arc4_encode('42', arc4.dynamic_array<arc4.uint8>))
     (a, a_exists): tuple<uint64,bool> = STATE_GET_EX(Box['box_a'])
     assert(!(a_exists))
@@ -45,7 +55,7 @@ contract BoxContract
   
   abimethod read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
   {
-    return (examples.box_storage.contract::get_box_value_plus_1('box_a') - 1u, Box['b'], Box[hex<"424F585F43">])
+    return (examples.box_storage.contract::get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">])
   }
   
   abimethod boxes_exist(): tuple<bool,bool,bool>
@@ -57,9 +67,9 @@ contract BoxContract
   {
     box_0: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('0'))
     Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
-    assert(box_extract(box_0, select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=0, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=0, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=0, source=box_len(box_0)[0]))) == hex<"54657374696E67">)
+    assert(box_extract(box_0, select(SINGLE_EVAL(id=3, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=3, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=3, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=3, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=3, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=3, source=box_len(box_0)[0]))) == hex<"54657374696E67">)
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
-    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]))) == hex<"48656C6C6F">)
+    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=4, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=4, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=4, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=4, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=4, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=4, source=box_len(hex<"424F585F43">)[0]))) == hex<"48656C6C6F">)
   }
   
   abimethod arc4_box(): void

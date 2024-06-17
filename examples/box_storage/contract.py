@@ -8,22 +8,38 @@ StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
-        self.box_b = Box[Bytes](Bytes, key="b")
+        self.box_b = Box[arc4.DynamicBytes](arc4.DynamicBytes, key="b")
         self.box_c = Box(arc4.String, key=b"BOX_C")
+        self.box_d = Box(Bytes)
         self.box_map = BoxMap(UInt64, String, key_prefix="")
         self.box_ref = BoxRef()
 
     @arc4.abimethod
-    def set_boxes(self, a: UInt64, b: Bytes, c: arc4.String) -> None:
+    def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
         self.box_a.value = a
-        self.box_b.value = b
+        self.box_b.value = b.copy()
         self.box_c.value = c
+        self.box_d.value = b.native
+
+        b_value = self.box_b.value.copy()
+        assert self.box_b.value.length == b_value.length, "direct reference should match copy"
 
         self.box_a.value += 3
 
+        # test .length
         assert self.box_a.length == 8
-        assert self.box_b.length == b.length
+        assert self.box_b.length == b.bytes.length
         assert self.box_c.length == c.bytes.length
+        assert self.box_d.length == b.native.length
+
+        # test .value
+        assert self.box_c.value.bytes[:2] == c.bytes[:2]
+
+        # test .value with Bytes type
+        assert self.box_d.value[0] == b.native[0]
+        assert self.box_d.value[-1] == b.native[-1]
+        assert self.box_d.value[:-1] == b.native[:-1]
+        assert self.box_d.value[:5] == b.native[:5]
 
     @arc4.abimethod
     def check_keys(self) -> None:
@@ -37,7 +53,7 @@ class BoxContract(arc4.ARC4Contract):
         del self.box_b.value
         del self.box_c.value
         assert self.box_a.get(default=UInt64(42)) == 42
-        assert self.box_b.get(default=Bytes(b"42")) == b"42"
+        assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
         assert self.box_c.get(default=arc4.String("42")) == "42"
         a, a_exists = self.box_a.maybe()
         assert not a_exists
@@ -45,7 +61,7 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String]:
-        return get_box_value_plus_1(self.box_a) - 1, self.box_b.value, self.box_c.value
+        return get_box_value_plus_1(self.box_a) - 1, self.box_b.value.native, self.box_c.value
 
     @arc4.abimethod
     def boxes_exist(self) -> tuple[bool, bool, bool]:
