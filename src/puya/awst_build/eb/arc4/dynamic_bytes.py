@@ -40,7 +40,7 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], Literal
     @typing.override
     @property
     def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.StrLiteralType,)
+        return (pytypes.BytesLiteralType,)
 
     @typing.override
     def convert_literal(
