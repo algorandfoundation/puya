@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 import typing
-from collections.abc import Collection, Sequence
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -25,7 +23,6 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
@@ -35,19 +32,14 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConverter):
+class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4AddressType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.StrLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder | None:
         pytype = self.produces()
         match literal.value:
             case str(str_value):
@@ -63,7 +55,7 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConve
                     source_location=location,
                 )
                 return AddressExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
+        return None
 
     @typing.override
     def call(

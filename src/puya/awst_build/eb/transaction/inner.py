@@ -1,32 +1,19 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
-from puya.awst.nodes import (
-    Expression,
-    InnerTransactionField,
-    SubmitInnerTransaction,
-    TxnField,
-)
+import mypy.nodes
+
+from puya.awst.nodes import Expression, InnerTransactionField, SubmitInnerTransaction, TxnField
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.constants import TransactionType
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import expect_operand_type, require_instance_builder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.awst_build.constants import TransactionType
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 class InnerTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):

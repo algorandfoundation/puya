@@ -15,7 +15,7 @@ from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
+    from collections.abc import Sequence
 
 Iteration: typing.TypeAlias = Expression | Range
 
@@ -102,7 +102,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """Produce an expression for use as an intermediary"""
 
     @abc.abstractmethod
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         """TODO: docstring"""
 
     @abc.abstractmethod
@@ -191,15 +191,51 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
         """Handle self.name"""
 
 
-class LiteralConverter(NodeBuilder, abc.ABC):
-    @property
-    @abc.abstractmethod
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]: ...
+# TODO: separate interface from implementation? particularly bool_eval and member_access impls
+class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
+    def __init__(self, pytype: _TPyType_co, location: SourceLocation):
+        super().__init__(location)
+        self._pytype = pytype
 
-    @abc.abstractmethod
+    @typing.final
+    @typing.override
+    @property
+    def pytype(self) -> pytypes.TypeType:
+        return pytypes.TypeType(self._pytype)
+
+    @typing.final
+    def produces(self) -> _TPyType_co:
+        return self._pytype
+
+    @typing.final
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder: ...
+    ) -> InstanceBuilder:
+        result = self.try_convert_literal(literal, location)
+        if result is None:
+            raise CodeError(f"can't covert literal to {self.produces()}", literal.source_location)
+        return result
+
+    def try_convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        """
+        If the type of `literal.value` is correct, return a new instance, otherwise return `None`.
+        If the value is out of range or otherwise invalid, an error is logged,
+        but an instance is still returned.
+        """
+        return None
+
+    @typing.override
+    @typing.final
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        from puya.awst_build.eb._utils import bool_eval_to_constant
+
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
 class StorageProxyConstructorResult(

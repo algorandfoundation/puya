@@ -161,19 +161,16 @@ from algopy import *
 
 @subroutine
 def baddie() -> None:
-    result = op.setbit_bytes(UInt64(0), 0, 0, 1) # type: ignore[call-arg,arg-type] ## E: Too many positional arguments \
-                                                                                   ## E: Invalid argument type "algopy.UInt64" for argument "a" when calling algopy.op.setbit_bytes
-    result = op.setbit_bytes(UInt64(0), 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: Unexpected argument \
-                                                                                           ## E: Invalid argument type "algopy.UInt64" for argument "a" when calling algopy.op.setbit_bytes
-    result = op.setbit_bytes(0, 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: Unexpected argument \
-                                                                                   ## E: Unhandled literal type 'int' for argument
-    result = op.setbit_bytes(b"", 0) # type: ignore[call-arg] ## E: Missing expected argument c
+    result = op.setbit_bytes(UInt64(0), 0, 0, 1) # type: ignore[call-arg,arg-type] ## E: expected 3 args, got 4
+    result = op.setbit_bytes(UInt64(0), 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: expected 3 args, got 4
+    result = op.setbit_bytes(0, 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: expected 3 args, got 4
+    result = op.setbit_bytes(b"", 0) # type: ignore[call-arg] ## E: expected 3 args, got 2
 
     result2 = op.GITxn.application_args(UInt64(0), UInt64(0)) # type: ignore[arg-type] ## E: Argument must be a literal int value
 
     foo = arc4.arc4_signature(String("foo(uint64)uint64")) # type: ignore[arg-type] ## E: Unexpected args for algopy.arc4.arc4_signature
 
-    result3 = op.GITxn.fee() # type: ignore[call-arg] ## E: Missing expected argument t
+    result3 = op.GITxn.fee() # type: ignore[call-arg] ## E: expected 1 args, got 0
 
 
 ## case: non_existent_members

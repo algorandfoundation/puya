@@ -4,21 +4,12 @@ from collections.abc import Sequence
 import mypy.nodes
 
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    BoxValueExpression,
-    Expression,
-    Not,
-    StateExists,
-)
+from puya.awst.nodes import BoxValueExpression, Expression, Not, StateExists
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    GenericTypeBuilder,
-    NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import GenericTypeBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.storage._common import (
     BoxGetExpressionBuilder,
     BoxMaybeExpressionBuilder,

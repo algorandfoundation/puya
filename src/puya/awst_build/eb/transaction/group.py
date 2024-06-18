@@ -1,10 +1,9 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya import algo_constants
+from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CheckedMaybe,
@@ -13,41 +12,52 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
-    SingleEvaluation,
     TxnField,
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import expect_operand_type
 from puya.errors import CodeError
+from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.parse import SourceLocation
+logger = log.get_logger(__name__)
 
 
-class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType], LiteralConverter):
-
+class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.IntLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case int(int_value):
+                if int_value < 0:
+                    logger.error(
+                        "transaction group index should be between non-negative",
+                        location=literal.source_location,
+                    )
+                elif int_value >= algo_constants.MAX_TRANSACTION_GROUP_SIZE:
+                    logger.error(
+                        "transaction group index should be"
+                        f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
+                        location=literal.source_location,
+                    )
+                typ = self.produces()
+                wtype = typ.wtype
+                assert isinstance(wtype, wtypes.WGroupTransaction)
+                group_index = UInt64Constant(value=int_value, source_location=location)
+                txn = check_transaction_type(group_index, wtype, location)
+                return GroupTransactionExpressionBuilder(txn, typ)
+        return None
 
     @typing.override
     def call(
@@ -61,27 +71,13 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType], L
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
         match args:
-            case [LiteralBuilder(value=int(int_value))]:
-                if int_value < 0:
-                    raise CodeError(
-                        "Transaction group index should be between non-negative", location
-                    )
-                if int_value >= algo_constants.MAX_TRANSACTION_GROUP_SIZE:
-                    raise CodeError(
-                        "Transaction group index should be"
-                        f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
-                        location,
-                    )
-                group_index: Expression = UInt64Constant(value=int_value, source_location=location)
+            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+                return arg.resolve_literal(GroupTransactionTypeBuilder(typ, location))
             case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
                 group_index = eb.resolve()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        txn = (
-            check_transaction_type(group_index, wtype, location)
-            if wtype.transaction_type is not None
-            else ReinterpretCast(expr=group_index, wtype=wtype, source_location=location)
-        )
+        txn = check_transaction_type(group_index, wtype, location)
         return GroupTransactionExpressionBuilder(txn, typ)
 
 
@@ -148,30 +144,31 @@ def check_transaction_type(  # TODO: introduce GroupTransaction node and push th
     location: SourceLocation,
 ) -> Expression:
     if expected_transaction_type.transaction_type is None:
-        return transaction_index
-    transaction_index_tmp = SingleEvaluation(transaction_index)
-    return ReinterpretCast(
-        source_location=location,
-        wtype=expected_transaction_type,
-        expr=CheckedMaybe.from_tuple_items(
-            transaction_index_tmp,
-            NumericComparisonExpression(
-                lhs=IntrinsicCall(
-                    op_code="gtxns",
-                    immediates=["TypeEnum"],
-                    stack_args=[transaction_index_tmp],
-                    wtype=wtypes.uint64_wtype,
-                    source_location=location,
-                ),
-                operator=NumericComparison.eq,
-                rhs=UInt64Constant(
-                    value=expected_transaction_type.transaction_type.value,
-                    teal_alias=expected_transaction_type.transaction_type.name,
-                    source_location=location,
-                ),
+        uint64_expr = transaction_index
+    else:
+        index_builder = UInt64ExpressionBuilder(transaction_index).single_eval()
+        runtime_type_check = NumericComparisonExpression(
+            lhs=IntrinsicCall(
+                op_code="gtxns",
+                immediates=["TypeEnum"],
+                stack_args=[index_builder.resolve()],
+                wtype=wtypes.uint64_wtype,
                 source_location=location,
             ),
+            operator=NumericComparison.eq,
+            rhs=UInt64Constant(
+                value=expected_transaction_type.transaction_type.value,
+                teal_alias=expected_transaction_type.transaction_type.name,
+                source_location=location,
+            ),
+            source_location=location,
+        )
+        uint64_expr = CheckedMaybe.from_tuple_items(
+            index_builder.resolve(),
+            runtime_type_check,
             location,
             comment=f"transaction type is {expected_transaction_type.transaction_type.name}",
-        ),
+        )
+    return ReinterpretCast(
+        expr=uint64_expr, wtype=expected_transaction_type, source_location=location
     )

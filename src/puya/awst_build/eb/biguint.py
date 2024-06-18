@@ -1,9 +1,9 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
+import mypy.types
 
 from puya import log
 from puya.awst import wtypes
@@ -18,9 +18,7 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
@@ -32,39 +30,27 @@ from puya.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
+class BigUIntTypeBuilder(BytesBackedTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BigUIntType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.IntLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder | None:
         match literal.value:
-            case int(int_value):
+            case int(int_value):  # TODO: validation
                 expr = BigUIntConstant(value=int(int_value), source_location=location)
                 return BigUIntExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+        return None
 
     @typing.override
     def call(
@@ -75,10 +61,10 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
+            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+                return arg.resolve_literal(converter=BigUIntTypeBuilder(location))
             case []:
                 value: Expression = BigUIntConstant(value=0, source_location=location)
-            case [LiteralBuilder(value=int(int_value))]:
-                value = BigUIntConstant(value=int_value, source_location=location)
             case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
                 value = _uint64_to_biguint(eb, location)
             case _:

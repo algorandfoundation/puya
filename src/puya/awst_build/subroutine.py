@@ -335,6 +335,10 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     " when assigning to a member variable",
                     stmt_loc,
                 )
+        elif isinstance(
+            rvalue.pytype, pytypes.StorageProxyType | pytypes.StorageMapProxyType
+        ) and any(is_self_member(lvalue) for lvalue in stmt.lvalues):
+            raise CodeError("unsupported usage of storage type", stmt_loc)
         elif len(stmt.lvalues) > 1:
             rvalue = rvalue.single_eval()
 

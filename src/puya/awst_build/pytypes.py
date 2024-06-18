@@ -19,7 +19,10 @@ from puya.utils import lazy_setdefault
 if typing.TYPE_CHECKING:
     from mypy.nodes import ArgKind
 
-    from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
+    from puya.awst_build.intrinsic_models import (
+        OpMappingWithOverloads,
+        PropertyOpMapping,
+    )
 
 logger = log.get_logger(__name__)
 
@@ -347,9 +350,9 @@ class LiteralOnlyType(PyType):
 
 NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
 BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
-IntLiteralType: typing.Final[PyType] = _register_builtin(LiteralOnlyType(name="builtins.int"))
-StrLiteralType: typing.Final[PyType] = _register_builtin(LiteralOnlyType(name="builtins.str"))
-BytesLiteralType: typing.Final[PyType] = _register_builtin(LiteralOnlyType(name="builtins.bytes"))
+IntLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.int"))
+StrLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.str"))
+BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.bytes"))
 
 UInt64Type: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_UINT64,
@@ -885,15 +888,12 @@ def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
     ]
 
 
-OpEnumTypes: typing.Final = _make_intrinsic_enum_types()
-
-
 @attrs.frozen(kw_only=True)
 class IntrinsicNamespaceType(PyType):
     generic: None = attrs.field(default=None, init=False)
     bases: Sequence[PyType] = attrs.field(default=(), init=False)
     mro: Sequence[PyType] = attrs.field(default=(), init=False)
-    members: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]] = attrs.field(
+    members: Mapping[str, PropertyOpMapping | OpMappingWithOverloads] = attrs.field(
         converter=immutabledict
     )
 
@@ -916,6 +916,7 @@ def _make_intrinsic_namespace_types() -> Sequence[IntrinsicNamespaceType]:
     ]
 
 
+OpEnumTypes: typing.Final = _make_intrinsic_enum_types()
 OpNamespaceTypes: typing.Final = _make_intrinsic_namespace_types()
 
 StateTotalsType: typing.Final[PyType] = _CompileTimeType(

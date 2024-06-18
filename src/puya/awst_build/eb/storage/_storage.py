@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import typing
 
 from puya.awst import wtypes
@@ -21,15 +19,12 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
     StorageProxyConstructorResult,
+    TypeBuilder,
 )
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 @typing.final
@@ -81,7 +76,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(self.source_location)
 
     @typing.override
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         return self
 
     @typing.override

@@ -1,39 +1,39 @@
 # ruff: noqa
 # fmt: off
 # type: ignore
-## case: test_global_state
-from algopy import ARC4Contract, GlobalState, Txn, UInt64
+## case: test_global_state1
+from algopy import *
 
 
 class StateProxyContract(ARC4Contract):
     def __init__(self) -> None:
         global3 = (
-            GlobalState(UInt64(42), key="global3") # TODO: this should error
+            GlobalState(UInt64(42), key="global3") ## E: providing an initial value is only allowed when assigning to a member variable
             if Txn.num_app_args
-            else GlobalState(UInt64(43), key="global3")
+            else GlobalState(UInt64(43), key="global3") ## E: providing an initial value is only allowed when assigning to a member variable
         )
-        self.global3 = ( ## E: unsupported reference to non-function member 'global3'
-            GlobalState(UInt64(42), key="global3")  # TODO: this should error
+        self.global3 = ( ## E: unsupported usage of storage type
+            GlobalState(UInt64(42), key="global3") ## E: providing an initial value is only allowed when assigning to a member variable
             if Txn.num_app_args
-            else GlobalState(UInt64(43), key="global3")
+            else GlobalState(UInt64(43), key="global3") ## E: providing an initial value is only allowed when assigning to a member variable
         )
 
 
 class StateProxyContract2(ARC4Contract):
     def __init__(self) -> None:
         self.global2 = GlobalState(UInt64(123))
-        self.global_two = self.global2 ## E: unsupported reference to non-function member 'global_two'
+        self.global_two = self.global2 ## E: unsupported usage of storage type
 
 
 class StateProxyContract3(ARC4Contract):
     def __init__(self) -> None:
         global3 = GlobalState(UInt64, key="global3")
-        self.global_three = global3 ## E: unsupported reference to non-function member 'global_three'
+        self.global_three = global3 ## E: unsupported usage of storage type
 
 
 class StateProxyContract4(ARC4Contract):
     def __init__(self) -> None:
-        self.global3 = ( ## E: unsupported reference to non-function member 'global3'
+        self.global3 = ( ## E: unsupported usage of storage type
             GlobalState(UInt64, key="global3")
             if Txn.num_app_args
             else GlobalState(UInt64, key="global3")
