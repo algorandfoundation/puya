@@ -137,6 +137,9 @@ class LocalStateExpressionBuilder(
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
+        # TODO: maybe resolve literal should allow functions, so we can validate
+        #       constant values inside e.g. conditional expressions, not just plain constants
+        #       like we check below with matching on IntegerConstant
         index_expr = index.resolve_literal(UInt64TypeBuilder(index.source_location)).resolve()
         match index_expr:
             case IntegerConstant(value=account_offset):
