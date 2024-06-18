@@ -12,8 +12,12 @@ from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance, builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
-from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
-from puya.awst_build.utils import get_arg_mapping, require_instance_builder
+from puya.awst_build.intrinsic_models import (
+    FunctionOpMapping,
+    OpMappingWithOverloads,
+    PropertyOpMapping,
+)
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -95,11 +99,10 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
 
 class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
     def __init__(
-        self, fullname: str, mappings: Sequence[FunctionOpMapping], location: SourceLocation
+        self, fullname: str, mapping: OpMappingWithOverloads, location: SourceLocation
     ) -> None:
-        assert mappings
         self._fullname = fullname
-        self._mappings = mappings
+        self._mapping = mapping
         super().__init__(location)
 
     @typing.override
@@ -110,98 +113,93 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        primary_mapping = self._mappings[0]  # TODO: remove this assumption
-        func_arg_names = (*primary_mapping.literal_arg_names, *primary_mapping.stack_inputs.keys())
-
-        args_ = [require_instance_builder(a) for a in args]
-
-        arg_mapping = get_arg_mapping(
-            func_arg_names, args=zip(arg_names, args_, strict=False), location=location
-        )
-        intrinsic_expr = _map_call(self._mappings, args=arg_mapping, location=location)
-        return intrinsic_expr
+        expected_num_args = self._mapping.arity
+        if len(args) != expected_num_args:
+            logger.error(f"expected {expected_num_args} args, got {len(args)}", location=location)
+            # dummy data to continue with
+            intrinsic_expr = IntrinsicCall(
+                op_code="bad_args",
+                wtype=self._mapping.result.wtype,
+                source_location=location,
+            )
+        else:
+            args_ = [require_instance_builder(a) for a in args]
+            intrinsic_expr = _map_call(self._mapping, args=args_, location=location)
+        return builder_for_instance(self._mapping.result, intrinsic_expr)
 
 
 def _best_op_mapping(
-    op_mappings: Sequence[FunctionOpMapping], args: dict[str, InstanceBuilder]
+    op_mappings: OpMappingWithOverloads, args: Sequence[InstanceBuilder]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
-    literal_arg_names = {
-        arg_name
-        for arg_name, arg in args.items()
+    literal_arg_positions = {
+        arg_idx
+        for arg_idx, arg in enumerate(args)
         # we can't handle any form of dynamism for immediates, such as `1 if foo else 2`,
         # so we must check for LiteralBuilder only
         if isinstance(arg, LiteralBuilder)
     }
-    for op_mapping in sorted(op_mappings, key=lambda om: len(om.literal_arg_names), reverse=True):
-        if literal_arg_names.issuperset(op_mapping.literal_arg_names):
+    for op_mapping in sorted(
+        op_mappings.overloads, key=lambda om: len(om.literal_arg_positions), reverse=True
+    ):
+        if literal_arg_positions.issuperset(op_mapping.literal_arg_positions):
             return op_mapping
     # fall back to first, let argument mapping handle logging errors
-    return op_mappings[0]
+    return op_mappings.overloads[0]
 
 
 def _map_call(
-    ast_mapper: Sequence[FunctionOpMapping],
-    args: dict[str, InstanceBuilder],
+    ast_mapper: OpMappingWithOverloads,
+    args: Sequence[InstanceBuilder],
     location: SourceLocation,
-) -> InstanceBuilder:
-    if len(ast_mapper) == 1:
-        (op_mapping,) = ast_mapper
+) -> IntrinsicCall:
+    if len(ast_mapper.overloads) == 1:
+        (op_mapping,) = ast_mapper.overloads
     else:
         op_mapping = _best_op_mapping(ast_mapper, args)
 
-    args = args.copy()  # make a copy since we're going to mutate
-
-    immediates = list[str | int]()
-    for immediate in op_mapping.immediates.items():
-        match immediate:
-            case value, None:
-                immediates.append(value)
-            case arg_name, literal_type:
-                arg_in = args.pop(arg_name, None)
-                if arg_in is None:
-                    logger.error(f"missing expected argument {arg_name!r}", location=location)
-                elif not (
-                    isinstance(arg_in, LiteralBuilder)  # see note in _best_op_mapping
-                    and isinstance(arg_value := arg_in.value, literal_type)
-                ):
-                    logger.error(
-                        f"Argument must be a literal {literal_type.__name__} value",
-                        location=arg_in.source_location,
-                    )
-                else:
-                    assert isinstance(arg_value, int | str)
-                    immediates.append(arg_value)
-
+    immediates = list(op_mapping.immediates)
     stack_args = list[InstanceBuilder]()
-    for arg_name, allowed_pytypes in op_mapping.stack_inputs.items():
-        arg_in = args.pop(arg_name, None)
-        if arg_in is None:
-            logger.error(f"missing expected argument {arg_name!r}", location=location)
-        elif isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
-            for allowed_type in allowed_pytypes:
-                type_builder = builder_for_type(allowed_type, arg_in.source_location)
-                if isinstance(type_builder, TypeBuilder):
-                    assert isinstance(arg_in, LiteralBuilder)  # TODO: fixme
-                    converted = type_builder.try_convert_literal(arg_in, arg_in.source_location)
-                    if converted is not None:
-                        stack_args.append(converted)
-                        break
+    for arg_in, arg_data in zip(args, op_mapping.args, strict=True):
+        if isinstance(arg_data, int):
+            immediates_index = arg_data
+            literal_type = typing.cast(type[str | int], immediates[immediates_index])
+            if not (
+                isinstance(arg_in, LiteralBuilder)  # see note in _best_op_mapping
+                and isinstance(arg_value := arg_in.value, literal_type)
+            ):
+                logger.error(
+                    f"Argument must be a literal {literal_type.__name__} value",
+                    location=arg_in.source_location,
+                )
+                immediates[immediates_index] = literal_type()
             else:
-                logger.error("invalid argument type", location=arg_in.source_location)
+                assert isinstance(arg_value, int | str)
+                immediates[immediates_index] = arg_value
         else:
-            if arg_in.pytype not in allowed_pytypes:
-                logger.error("invalid argument type", location=arg_in.source_location)
-            stack_args.append(arg_in)
+            allowed_pytypes = arg_data
+            if not isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
+                if arg_in.pytype not in allowed_pytypes:
+                    logger.error("invalid argument type", location=arg_in.source_location)
+                stack_args.append(arg_in)
+            else:
+                for allowed_type in allowed_pytypes:
+                    type_builder = builder_for_type(allowed_type, arg_in.source_location)
+                    if isinstance(type_builder, TypeBuilder):
+                        try:
+                            converted = arg_in.resolve_literal(type_builder)
+                        except CodeError: # TODO: fixme, need a try version or something here
+                            pass
+                        else:
+                            stack_args.append(converted)
+                            break
+                else:
+                    logger.error("invalid argument type", location=arg_in.source_location)
 
-    for arg_in in args.values():
-        logger.error("unexpected argument", location=arg_in.source_location)
-
-    result_expr = IntrinsicCall(
+    return IntrinsicCall(
         op_code=op_mapping.op_code,
-        wtype=op_mapping.result.wtype,
-        immediates=immediates,
+        wtype=ast_mapper.result.wtype,
+        immediates=typing.cast(list[str | int], immediates),
         stack_args=[a.resolve() for a in stack_args],
         source_location=location,
     )
-    return builder_for_instance(op_mapping.result, result_expr)
