@@ -89,7 +89,8 @@ def _extract_and_append_txn_to_context(
 
 
 @typing.overload
-def abimethod(fn: typing.Callable[_P, _R], /) -> typing.Callable[_P, _R]: ...
+def abimethod(fn: typing.Callable[_P, _R], /) -> typing.Callable[_P, _R]:
+    ...
 
 
 @typing.overload
@@ -110,7 +111,8 @@ def abimethod(
     ] = ("NoOp",),
     readonly: bool = False,
     default_args: typing.Mapping[str, str | object] = {},
-) -> typing.Callable[[typing.Callable[_P, _R]], typing.Callable[_P, _R]]: ...
+) -> typing.Callable[[typing.Callable[_P, _R]], typing.Callable[_P, _R]]:
+    ...
 
 
 def abimethod(  # noqa: PLR0913
