@@ -12,7 +12,7 @@ from pathlib import Path
 import attrs
 from puya import log
 from puya.awst_build import pytypes
-from puya.awst_build.intrinsic_models import FunctionOpMapping
+from puya.awst_build.intrinsic_models import FunctionOpMapping, OpMappingWithOverloads
 from puya.awst_build.utils import snake_case
 
 from scripts.transform_lang_spec import (
@@ -30,27 +30,14 @@ INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
 
 
-def _get_imported_name(typ: pytypes.PyType) -> str:
-    return typ.name.rsplit(".", maxsplit=1)[-1]
-
-
-PYTYPE_REFERENCES = [
-    pytypes.AccountType,
-    pytypes.ApplicationType,
-    pytypes.AssetType,
-    pytypes.BigUIntType,
-    pytypes.BytesType,
-    pytypes.UInt64Type,
-]
-PYTYPE_TO_LITERAL: dict[pytypes.PyType, type[int | str | bytes] | None] = {
-    pytypes.BytesType: bytes,
-    pytypes.UInt64Type: int,
-    pytypes.AccountType: None,  # could be str
-    pytypes.BigUIntType: int,
+PYTYPE_TO_LITERAL: dict[pytypes.PyType, pytypes.LiteralOnlyType | None] = {
+    pytypes.BytesType: pytypes.BytesLiteralType,
+    pytypes.UInt64Type: pytypes.IntLiteralType,
+    pytypes.AccountType: None,  # pytypes.StrLiteralType, # TODO: should we enable this?
+    pytypes.BigUIntType: pytypes.IntLiteralType,
     pytypes.BoolType: None,  # already a Python type
-    # below are covered transitively with respect to STACK_TYPE_MAPPING
-    pytypes.ApplicationType: None,  # maybe could be int? but also covered transitively anyway
-    pytypes.AssetType: None,  # same as above
+    pytypes.ApplicationType: pytypes.IntLiteralType,
+    pytypes.AssetType: pytypes.IntLiteralType,
 }
 STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
     StackType.address_or_index: [pytypes.AccountType, pytypes.UInt64Type],
@@ -349,7 +336,7 @@ class FunctionDef:
     is_property: bool
     args: list[TypedName] = attrs.field(factory=list)
     returns: list[TypedName] = attrs.field(factory=list)
-    op_mappings: list[FunctionOpMapping] = attrs.field(factory=list)
+    op_mapping: OpMappingWithOverloads
 
     @property
     def has_any_arg(self) -> bool:
@@ -459,12 +446,12 @@ def get_python_type(
             if any_as and stack_type == StackType.any:
                 return any_as
             ptypes_ = sub_types(stack_type, covariant=covariant)
-            names = [_get_imported_name(wt) for wt in ptypes_]
+            names = [str(wt).removeprefix("algopy.") for wt in ptypes_]
             if covariant:
                 for pt in ptypes_:
                     lit_t = PYTYPE_TO_LITERAL[pt]
                     if lit_t is not None:
-                        lit_name = lit_t.__name__
+                        lit_name = str(lit_t)
                         if lit_name not in names:
                             names.append(lit_name)
             return " | ".join(names)
@@ -506,7 +493,7 @@ def build_method_stub(function: FunctionDef, prefix: str = "") -> Iterable[str]:
         else:
             doc = return_docs
     signature.append(f") -> {returns}:")
-    teal_ops = sorted({op.op_code for op in function.op_mappings})
+    teal_ops = sorted({op.op_code for op in function.op_mapping.overloads})
     teal_op_desc = ", ".join(_get_algorand_doc(teal_op) for teal_op in teal_ops)
     doc.append("")
     doc.append(f"Native TEAL opcode: {teal_op_desc}")
@@ -612,7 +599,7 @@ def build_class_from_overriding_immediate(
             op, snake_case(value.name), aliases, const_immediate_value=(immediate, value)
         )
 
-        for op_mapping in method.op_mappings:
+        for op_mapping in method.op_mapping.overloads:
             class_ops.add(op_mapping.op_code)
 
         methods.append(method)
@@ -626,51 +613,11 @@ def get_op_doc(op: Op) -> list[str]:
     return doc
 
 
-def map_typed_names(
-    values: Iterable[StackValue], replace_any_with: StackType | None = None
-) -> Iterable[TypedName]:
-    yield from (
-        TypedName(
-            name=arg.name.lower(),
-            type=(
-                replace_any_with
-                if arg.stack_type == StackType.any and replace_any_with
-                else arg.stack_type
-            ),
-            doc=arg.doc,
-        )
-        for arg in values
-    )
-
-
 def get_python_enum_class(arg_enum: str) -> str:
     # don't change acronyms
     if arg_enum.isupper():
         return arg_enum
     return snake_case(arg_enum).replace("_", " ").title().replace(" ", "")
-
-
-def get_op_args(op: Op, replace_any_with: StackType | None) -> Iterable[TypedName]:
-    for immediate in op.immediate_args:
-        arg_type: ImmediateKind | str = immediate.immediate_type
-        if immediate.immediate_type == ImmediateKind.arg_enum:
-            assert immediate.arg_enum, "Arg enum expected"
-            arg_type = get_python_enum_class(immediate.arg_enum)
-
-        yield TypedName(
-            name=immediate.name.lower(),
-            type=arg_type,
-            doc=immediate.doc,
-        )
-
-    yield from map_typed_names(op.stack_inputs, replace_any_with=replace_any_with)
-
-
-def get_op_returns(op: Op, replace_any_with: StackType | None) -> Iterable[TypedName]:
-    if op.halts:
-        yield TypedName(name="", type="typing.Never", doc="Halts program")
-    else:
-        yield from map_typed_names(op.stack_outputs, replace_any_with=replace_any_with)
 
 
 def get_overriding_immediate(op: Op) -> Immediate | None:
@@ -695,106 +642,105 @@ def build_enum(spec: LanguageSpec, arg_enum: str) -> Iterable[str]:
     yield ""
 
 
-def build_function_op_mapping(
+def build_operation_method(
     op: Op,
-    arg_map: list[str],
-    signature_args: list[TypedName],
-    any_as: StackType | None = None,
+    op_function_name: str,
+    aliases: list[AliasT],
     const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
-) -> FunctionOpMapping:
-    if arg_map:
-        arg_name_map = {n: signature_args[idx].name for idx, n in enumerate(arg_map)}
+) -> FunctionDef:
+    args = []
+    # python stub args can be different to mapping args, due to immediate args
+    # that are inferred based on the method/property used
+    function_args = []
+    doc = get_op_doc(op)
+    for immediate in op.immediate_args:
+        arg_type: ImmediateKind | str
+        if immediate.immediate_type == ImmediateKind.arg_enum:
+            assert immediate.arg_enum, "Arg enum expected"
+            arg_type = get_python_enum_class(immediate.arg_enum)
+        else:
+            arg_type = immediate.immediate_type
+        im_arg = TypedName(name=immediate.name.lower(), type=arg_type, doc=immediate.doc)
+        args.append(im_arg)
+        if const_immediate_value and const_immediate_value[0] == immediate:
+            # omit immediate arg from signature
+            doc = []
+        else:
+            function_args.append(im_arg)
+    for si in op.stack_inputs:
+        stack_arg = TypedName(name=si.name.lower(), type=si.stack_type, doc=si.doc)
+        args.append(stack_arg)
+        function_args.append(stack_arg)
+
+    if op.halts:
+        function_returns = [TypedName(name="", type="typing.Never", doc="Halts program")]
     else:
-        arg_name_map = {n.name.upper(): n.name for n in signature_args}
+        function_returns = [
+            TypedName(name=so.name.lower(), type=so.stack_type, doc=so.doc)
+            for so in op.stack_outputs
+        ]
+
+    try:
+        property_op = PROPERTY_OPS[op.name]
+    except KeyError:
+        is_property = False
+    else:
+        is_property = op_function_name not in property_op["exclude"]
+
     # replace immediate reference to arg enum with a constant enum value
-    result_ptypes = [
-        sub_types(
-            any_as if o.stack_type == StackType.any and any_as else o.stack_type,
-            covariant=False,
-        )[0]
-        for o in op.stack_outputs
-    ]
+    result_ptypes = [sub_types(o.stack_type, covariant=False)[0] for o in op.stack_outputs]
     if not result_ptypes:
         result_typ = pytypes.NoneType
     elif len(op.stack_outputs) == 1:
         (result_typ,) = result_ptypes
     else:
         result_typ = pytypes.GenericTupleType.parameterise(result_ptypes, source_location=None)
+    op_mappings = []
+    ops_with_aliases = [(op, list[str]()), *aliases]
+    for map_op, alias_args in ops_with_aliases:
+        assert map_op.stack_outputs == op.stack_outputs
+        if alias_args:
+            # map the stack or immediate input name to the function signature position
+            name_to_sig_idx = {n: idx2 for idx2, n in enumerate(alias_args)}
+        else:
+            name_to_sig_idx = {tn.name.upper(): idx2 for idx2, tn in enumerate(args)}
+        map_immediates = list[str | int | type[str | int]]()
+        map_args_map = dict[int, Sequence[pytypes.PyType] | int]()
+        for idx, i_arg in enumerate(map_op.immediate_args):
+            if const_immediate_value and const_immediate_value[0] == i_arg:
+                map_immediates.append(const_immediate_value[1].name)
+            else:
+                im_typ = immediate_kind_to_type(i_arg.immediate_type)
+                map_immediates.append(im_typ)
+                sig_idx = name_to_sig_idx[i_arg.name]
+                map_args_map[sig_idx] = idx
 
-    return FunctionOpMapping(
-        op_code=op.name,
-        immediates={
-            (
-                const_immediate_value[1].name
-                if (const_immediate_value and const_immediate_value[0] == arg)
-                else arg_name_map[arg.name]
-            ): (
-                None
-                if (const_immediate_value and const_immediate_value[0] == arg)
-                else immediate_kind_to_type(arg.immediate_type)
+        for s_arg in map_op.stack_inputs:
+            allowed_types = tuple(sub_types(s_arg.stack_type, covariant=True))
+            sig_idx = name_to_sig_idx[s_arg.name]
+            map_args_map[sig_idx] = allowed_types
+
+        op_mappings.append(
+            FunctionOpMapping(
+                op_code=map_op.name,
+                immediates=map_immediates,
+                args=[map_args_map[k] for k in sorted(map_args_map)],
             )
-            for arg in op.immediate_args
-        },
-        stack_inputs={
-            arg_name_map[arg.name]: tuple(
-                sub_types(
-                    any_as if arg.stack_type == StackType.any and any_as else arg.stack_type,
-                    covariant=True,
-                )
-            )
-            for arg in op.stack_inputs
-        },
-        result=result_typ,
-    )
-
-
-def build_operation_method(
-    op: Op,
-    op_function_name: str,
-    aliases: list[AliasT],
-    replace_any_with: StackType | None = None,
-    const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
-) -> FunctionDef:
-    args = list(get_op_args(op, replace_any_with))
-    function_returns = list(get_op_returns(op, replace_any_with))
-
-    # python stub args can be different to mapping args, due to immediate args
-    # that are inferred based on the method/property used
-    function_args = args.copy()
-    # remove immediate arg from signature
-    if const_immediate_value:
-        doc = []
-        immediate_arg_index = op.immediate_args.index(const_immediate_value[0])
-        function_args.pop(immediate_arg_index)
-    else:
-        doc = get_op_doc(op)
+        )
     proto_function = FunctionDef(
         name=op_function_name,
         doc=doc,
-        is_property=_op_is_stub_property(op.name, op_function_name),
+        is_property=is_property,
         args=function_args,
         returns=function_returns,
-        op_mappings=[
-            build_function_op_mapping(
-                op,
-                alias_args,
-                args,
-                any_as=replace_any_with,
-                const_immediate_value=const_immediate_value,
-            )
-            for op, alias_args in [(op, list[str]()), *aliases]
-        ],
+        op_mapping=OpMappingWithOverloads(
+            arity=len(function_args),
+            result=result_typ,
+            overloads=op_mappings,
+        ),
     )
 
     return proto_function
-
-
-def _op_is_stub_property(op_name: str, op_function_name: str) -> bool:
-    try:
-        property_op = PROPERTY_OPS[op_name]
-    except KeyError:
-        return False
-    return op_function_name not in property_op["exclude"]
 
 
 def build_operation_methods(
@@ -804,20 +750,37 @@ def build_operation_methods(
 
     if StackType.any in (s.stack_type for s in op.stack_outputs):
         logger.info(f"Found any output for {op.name}")
-        yield build_operation_method(
-            op,
-            op_function_name + "_bytes",
-            aliases,
-            replace_any_with=StackType.bytes,
-        )
-        yield build_operation_method(
-            op,
-            op_function_name + "_uint64",
-            aliases,
-            replace_any_with=StackType.uint64,
-        )
+        for replace_any_with in (StackType.bytes, StackType.uint64):
+            new_op = op_any_replaced(op, replace_any_with)
+            new_name = f"{op_function_name}_{replace_any_with.name}"
+            new_aliases = [
+                (op_any_replaced(alias_op, replace_any_with), names) for alias_op, names in aliases
+            ]
+            yield build_operation_method(new_op, new_name, new_aliases)
     else:
         yield build_operation_method(op, op_function_name, aliases)
+
+
+def op_any_replaced(op: Op, replace_any_with: StackType) -> Op:
+    stack_inputs = []
+    input_replaced = 0
+    for si in op.stack_inputs:
+        if si.stack_type != StackType.any:
+            stack_inputs.append(si)
+        else:
+            input_replaced += 1
+            stack_inputs.append(attrs.evolve(si, stack_type=replace_any_with))
+
+    stack_outputs = []
+    outputs_replaced = 0
+    for so in op.stack_outputs:
+        if so.stack_type != StackType.any:
+            stack_outputs.append(so)
+        else:
+            outputs_replaced += 1
+            stack_outputs.append(attrs.evolve(so, stack_type=replace_any_with))
+    assert outputs_replaced == 1
+    return attrs.evolve(op, stack_inputs=stack_inputs, stack_outputs=stack_outputs)
 
 
 def build_aliased_ops(spec: LanguageSpec, group: RenamedOpCode) -> Iterable[FunctionDef]:
@@ -920,53 +883,52 @@ def pytype_repr(typ: pytypes.PyType) -> str:
 
 def build_op_specification_body(function: FunctionDef) -> Iterable[str]:
     if function.is_property:
-        assert len(function.op_mappings) == 1
-        (op_mapping,) = function.op_mappings
-        assert len(op_mapping.immediates) == 1
+        (op_mapping,) = function.op_mapping.overloads
         (immediate,) = op_mapping.immediates
         yield (
             f"{function.name}=PropertyOpMapping("
-            f"{op_mapping.op_code!r}, {immediate!r}, {pytype_repr(op_mapping.result)},"
+            f"{op_mapping.op_code!r}, {immediate!r}, {pytype_repr(function.op_mapping.result)},"
             f"),"
         )
     else:
-        assert len(function.op_mappings) >= 1
-        yield f"{function.name}=("
-        for op_mapping in function.op_mappings:
+        yield f"{function.name}=OpMappingWithOverloads("
+        if function.op_mapping.result is not pytypes.NoneType:
+            yield f" result={pytype_repr(function.op_mapping.result)},"
+        yield f" arity={function.op_mapping.arity}, "
+        yield " overloads=["
+        for op_mapping in function.op_mapping.overloads:
             yield f"FunctionOpMapping({op_mapping.op_code!r},"
             if op_mapping.immediates:
-                yield " immediates=dict("
-                for idx, (name_or_value, literal_type_or_none) in enumerate(
-                    op_mapping.immediates.items()
-                ):
+                yield " immediates=["
+                for idx, item in enumerate(op_mapping.immediates):
                     if idx:
                         yield ", "
-                    if literal_type_or_none is None:
-                        val_repr = repr(literal_type_or_none)
+                    if not isinstance(item, type):
+                        yield repr(item)
                     else:
-                        val_repr = literal_type_or_none.__name__
+                        yield item.__name__
+                yield "],"
+            if op_mapping.args:
+                yield " args=["
+                for idx, allowed_types_or_idx in enumerate(op_mapping.args):
+                    if idx:
+                        yield ", "
+                    if isinstance(allowed_types_or_idx, int):
+                        yield repr(allowed_types_or_idx)
+                    else:  # noqa: PLR5501
+                        if len(allowed_types_or_idx) == 1:
+                            yield f"({pytype_repr(*allowed_types_or_idx)},)"
+                        else:
+                            yield "("
+                            for idx2, allowed_type in enumerate(allowed_types_or_idx):
+                                if idx2:
+                                    yield ","
+                                yield pytype_repr(allowed_type)
+                            yield ")"
+                yield "],"
 
-                    yield f"{name_or_value}={val_repr}"
-                yield "),"
-            if op_mapping.stack_inputs:
-                yield " stack_inputs=dict("
-                for idx, (arg_name, allowed_types) in enumerate(op_mapping.stack_inputs.items()):
-                    if idx:
-                        yield ", "
-                    yield f"{arg_name}="
-                    if len(allowed_types) == 1:
-                        yield f"({pytype_repr(*allowed_types)},)"
-                    else:
-                        yield "("
-                        for idx2, allowed_type in enumerate(allowed_types):
-                            if idx2:
-                                yield ","
-                            yield pytype_repr(allowed_type)
-                        yield ")"
-                yield "),"
-            if op_mapping.result is not pytypes.NoneType:
-                yield f" result={pytype_repr(op_mapping.result)},"
             yield "),"
+        yield "]"
         yield "),"
 
 
@@ -980,8 +942,8 @@ def build_awst_data(
     yield "from collections.abc import Mapping, Sequence"
     yield "from puya.awst_build import pytypes"
     yield (
-        "from puya.awst_build.intrinsic_models import"
-        " FunctionOpMapping, ImmediateArgMapping, PropertyOpMapping"
+        "from puya.awst_build.intrinsic_models"
+        " import FunctionOpMapping, OpMappingWithOverloads, PropertyOpMapping"
     )
     yield "ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict("
     for enum_name in enums:
@@ -992,14 +954,14 @@ def build_awst_data(
         yield "),"
     yield ")"
     yield ""
-    yield "FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, Sequence[FunctionOpMapping]]] = dict("
+    yield "FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict("
     for function_op in function_ops:
         yield "".join(build_op_specification_body(function_op))
     yield ")"
 
     yield (
         "NAMESPACE_CLASSES: "
-        "typing.Final[Mapping[str, Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]]]]"
+        "typing.Final[Mapping[str, Mapping[str, PropertyOpMapping | OpMappingWithOverloads]]]"
         " = dict("
     )
     for class_op in class_ops:
@@ -1016,7 +978,13 @@ def output_stub(
     function_ops: list[FunctionDef],
     class_ops: list[ClassDef],
 ) -> None:
-    references = ", ".join(map(_get_imported_name, PYTYPE_REFERENCES))
+    references = ", ".join(
+        sorted(
+            str(pt).removeprefix("algopy.")
+            for pt, lit_t in PYTYPE_TO_LITERAL.items()
+            if str(pt).startswith("algopy.")
+        )
+    )
     stub: list[str] = [
         "import typing",
         "",

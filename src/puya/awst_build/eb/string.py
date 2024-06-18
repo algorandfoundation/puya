@@ -1,6 +1,7 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
@@ -20,9 +21,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
@@ -35,45 +34,30 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import (
-    expect_operand_type,
-    require_instance_builder,
-)
+from puya.awst_build.utils import expect_operand_type, require_instance_builder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class StringTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
+class StringTypeBuilder(BytesBackedTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.StringType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.StrLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder | None:
         match literal.value:
-            case str(value):
+            case str(value):  # TODO: validation
                 expr = StringConstant(value=value, source_location=location)
                 return StringExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+        return None
 
     @typing.override
     def call(
@@ -84,10 +68,10 @@ class StringTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
+            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+                return arg.resolve_literal(converter=StringTypeBuilder(location))
             case []:
                 value = ""
-            case [LiteralBuilder(value=str(value))]:
-                pass
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with

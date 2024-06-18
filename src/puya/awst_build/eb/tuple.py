@@ -19,7 +19,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import GenericTypeBuilder, InstanceExpressionBuilder, TypeBuilder
+from puya.awst_build.eb._base import GenericTypeBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -31,8 +31,8 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
@@ -145,7 +145,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
         return self.resolve()
 
     @typing.override
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         # even though this may contain literals, it's not homogenous, so we can't really
         # resolve with a single converter currently...?
         return self

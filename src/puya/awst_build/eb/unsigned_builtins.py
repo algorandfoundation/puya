@@ -1,9 +1,9 @@
-from __future__ import annotations
-
 import abc
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
 from puya import log
 from puya.awst.nodes import (
@@ -17,31 +17,19 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    TypeBuilder,
-)
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
     Iteration,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import (
-    expect_operand_type,
-    require_instance_builder,
-)
+from puya.awst_build.utils import expect_operand_type, require_instance_builder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -148,7 +136,7 @@ class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
         raise NotImplementedError("TODO")  # TODO
 
     @typing.override
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         return self
 
     @typing.override

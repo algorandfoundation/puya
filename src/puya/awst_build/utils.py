@@ -20,8 +20,8 @@ from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -251,7 +251,7 @@ def get_arg_mapping(
             except IndexError:
                 if not has_too_many_error:
                     logger.error(  # noqa: TRY400
-                        "Too many positional arguments", location=location
+                        "too many positional arguments", location=location
                     )
                     has_too_many_error = True
                 continue
@@ -304,6 +304,6 @@ def maybe_resolve_literal(
 ) -> InstanceBuilder:
     if operand.pytype != target_type:
         target_type_builder = builder_for_type(target_type, operand.source_location)
-        if isinstance(target_type_builder, LiteralConverter):
+        if isinstance(target_type_builder, TypeBuilder):
             operand = operand.resolve_literal(target_type_builder)
     return operand

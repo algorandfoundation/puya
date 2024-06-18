@@ -5,18 +5,13 @@ from collections.abc import Sequence
 import mypy.nodes
 import typing_extensions
 
-from puya.awst.nodes import (
-    BytesConstant,
-    BytesEncoding,
-    Expression,
-    ReinterpretCast,
-)
+from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, ReinterpretCast
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder, TypeBuilder
+from puya.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._utils import cast_to_bytes
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

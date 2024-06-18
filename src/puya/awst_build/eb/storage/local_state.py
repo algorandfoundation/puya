@@ -19,11 +19,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    GenericTypeBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
@@ -34,6 +30,7 @@ from puya.awst_build.eb.interface import (
     Iteration,
     NodeBuilder,
     StorageProxyConstructorResult,
+    TypeBuilder,
 )
 from puya.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
@@ -42,10 +39,7 @@ from puya.awst_build.eb.storage._storage import (
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64TypeBuilder
-from puya.awst_build.utils import (
-    get_arg_mapping,
-    require_instance_builder,
-)
+from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -143,9 +137,10 @@ class LocalStateExpressionBuilder(
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
-        index_expr = index.resolve_literal(
-            converter=UInt64TypeBuilder(index.source_location)
-        ).resolve()
+        # TODO: maybe resolve literal should allow functions, so we can validate
+        #       constant values inside e.g. conditional expressions, not just plain constants
+        #       like we check below with matching on IntegerConstant
+        index_expr = index.resolve_literal(UInt64TypeBuilder(index.source_location)).resolve()
         match index_expr:
             case IntegerConstant(value=account_offset):
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability

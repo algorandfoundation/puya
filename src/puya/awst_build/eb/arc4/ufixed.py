@@ -1,36 +1,24 @@
-from __future__ import annotations
-
 import decimal
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    DecimalConstant,
-    Expression,
-)
+from puya.awst.nodes import DecimalConstant, Expression
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import (
-    compare_bytes,
-)
+from puya.awst_build.eb._utils import compare_bytes
 from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
 
 __all__ = [
     "UFixedNxMTypeBuilder",
@@ -38,17 +26,15 @@ __all__ = [
 ]
 
 
-class UFixedNxMTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+class UFixedNxMTypeBuilder(ARC4TypeBuilder):
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.StrLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case str():  # TODO: fixme
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+        return None
 
     @typing.override
     def call(

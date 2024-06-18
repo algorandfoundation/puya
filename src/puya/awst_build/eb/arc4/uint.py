@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -25,15 +24,10 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 __all__ = [
     "UIntNTypeBuilder",
@@ -43,20 +37,15 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter):
+class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
     def __init__(self, pytype: pytypes.PyType, location: SourceLocation):
         assert isinstance(pytype, pytypes.ARC4UIntNType)
         super().__init__(pytype, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return pytypes.IntLiteralType, pytypes.BoolType
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder | None:
         pytype = self.produces()
         match literal.value:
             case int(int_value):
@@ -67,7 +56,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverter)
                     value=int(int_value), wtype=pytype.wtype, source_location=location
                 )
                 return UIntNExpressionBuilder(expr, pytype)
-        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
+        return None
 
     @typing.override
     def call(

@@ -1,9 +1,9 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
+import mypy.types
 
 from puya import log
 from puya.awst import wtypes
@@ -24,7 +24,6 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
 )
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -33,43 +32,32 @@ from puya.awst_build.eb.interface import (
     BuilderUnaryOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class UInt64TypeBuilder(TypeBuilder, LiteralConverter):
+class UInt64TypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return pytypes.IntLiteralType, pytypes.BoolType
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        pytype = self.produces()
+    ) -> InstanceBuilder | None:
         match literal.value:
             case int(int_value):
+                pytype = self.produces()
                 if int_value < 0 or int_value.bit_length() > 64:
                     logger.error(f"invalid {pytype} value", location=literal.source_location)
                 # take int() of the value since it could match a bool also
                 expr = UInt64Constant(value=int(int_value), source_location=location)
                 return UInt64ExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
+        return None
 
     @typing.override
     def call(

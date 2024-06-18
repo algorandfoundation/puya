@@ -5,27 +5,13 @@ import mypy.nodes
 import mypy.types
 
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    ArrayExtend,
-    Contains,
-    Expression,
-    NewArray,
-    TupleExpression,
-)
+from puya.awst.nodes import ArrayExtend, Contains, Expression, NewArray, TupleExpression
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    GenericTypeBuilder,
-    InstanceExpressionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import (
-    require_instance_builder,
-    require_instance_builder_of_type,
-)
+from puya.awst_build.utils import require_instance_builder, require_instance_builder_of_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

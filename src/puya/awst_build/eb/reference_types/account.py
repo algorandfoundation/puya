@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -19,9 +18,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes, compare_expr_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -29,34 +26,23 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types._base import ReferenceValueExpressionBuilder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.parse import SourceLocation
-
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
+class AccountTypeBuilder(BytesBackedTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AccountType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.StrLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder | None:
         pytype = self.produces()
         match literal.value:
             case str(str_value):
@@ -72,7 +58,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder, LiteralConverter):
                     source_location=location,
                 )
                 return AccountExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal to {pytype}", literal.source_location)
+        return None
 
     @typing.override
     def call(

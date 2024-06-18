@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -18,35 +17,24 @@ from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.interface import (
-    InstanceBuilder,
-    LiteralBuilder,
-    LiteralConverter,
-    NodeBuilder,
-)
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
-class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConverter):
+class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4DynamicBytesType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.BytesLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case bytes():  # TODO: fixme
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+        return None
 
     @typing.override
     def call(

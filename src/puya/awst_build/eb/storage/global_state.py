@@ -1,9 +1,10 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
@@ -23,7 +24,6 @@ from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
     NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
@@ -33,6 +33,7 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
+    TypeBuilder,
 )
 from puya.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
@@ -40,17 +41,11 @@ from puya.awst_build.eb.storage._storage import (
     extract_key_override,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.utils import (
-    get_arg_mapping,
-)
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
+from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+logger = log.get_logger(__name__)
 
 
 class GlobalStateTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
@@ -197,6 +192,7 @@ class _GlobalStateExpressionBuilderFromConstructor(
         description: str | None,
         initial_value: InstanceBuilder | None,
     ):
+        self._key_override = key_override
         super().__init__(key_override, typ, member_name=None)
         self.description = description
         self._initial_value = initial_value
@@ -207,6 +203,15 @@ class _GlobalStateExpressionBuilderFromConstructor(
         return self._initial_value
 
     @typing.override
+    def resolve(self) -> Expression:
+        if self._initial_value is not None:
+            logger.error(
+                "providing an initial value is only allowed when assigning to a member variable",
+                location=self.source_location,
+            )
+        return super().resolve()
+
+    @typing.override
     def build_definition(
         self,
         member_name: str,
@@ -214,7 +219,7 @@ class _GlobalStateExpressionBuilderFromConstructor(
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        key_override = self.resolve()
+        key_override = self._key_override
         if not isinstance(key_override, BytesConstant):
             raise CodeError(
                 f"assigning {typ} to a member variable requires a constant value for key",

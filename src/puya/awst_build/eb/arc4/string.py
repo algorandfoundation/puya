@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -17,49 +16,37 @@ from puya.awst.nodes import (
     StringConstant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import compare_expr_bytes
-from puya.awst_build.eb.arc4.base import (
-    ARC4TypeBuilder,
-    arc4_bool_bytes,
-)
+from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
 )
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
 from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class StringTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+class StringTypeBuilder(ARC4TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4StringType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.StrLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case str():  # TODO: fixme
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+        return None
 
     @typing.override
     def call(
