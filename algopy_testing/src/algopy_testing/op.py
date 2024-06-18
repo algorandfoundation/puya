@@ -75,10 +75,10 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
         ) from e
 
     # TODO: Decide on whether to pick clear or approval depending on OnComplete state
-    if not ctx.txn_fields:
+    if not ctx._txn_fields:
         raise RuntimeError("`txn_fields` must be set in the context")
 
-    program_bytes = as_bytes(ctx.txn_fields.get("approval_program", None))
+    program_bytes = as_bytes(ctx._txn_fields.get("approval_program", None))
     if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 
@@ -581,7 +581,7 @@ class _MultiKeyDict(dict[Any, Any]):
         ]
         self._items = items
 
-    def items(self) -> Any:  # noqa: ANN401
+    def items(self) -> Any:
         return self._items
 
 

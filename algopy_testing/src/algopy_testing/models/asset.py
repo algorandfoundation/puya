@@ -44,14 +44,14 @@ class Asset:
                 "the context manager."
             )
 
-        if account not in context.account_data:
+        if account not in context._account_data:
             raise ValueError(
                 "The account is not present in the test context! "
                 "Use `context.add_account()` or `context.any_account()` to add the account to "
                 "your test setup."
             )
 
-        account_data = context.account_data.get(str(account), None)
+        account_data = context._account_data.get(str(account), None)
 
         if not account_data:
             raise ValueError("Account not found in testing context!")
@@ -80,14 +80,14 @@ class Asset:
                 "the context manager."
             )
 
-        if int(self.id) not in context.asset_data:
+        if int(self.id) not in context._asset_data:
             raise ValueError(
                 "`algopy.Asset` is not present in the test context! "
                 "Use `context.add_asset()` or `context.any_asset()` to add the asset to "
                 "your test setup."
             )
 
-        return_value = context.asset_data[int(self.id)].get(name)
+        return_value = context._asset_data[int(self.id)].get(name)
         if return_value is None:
             raise AttributeError(
                 f"The value for '{name}' in the test context is None. "

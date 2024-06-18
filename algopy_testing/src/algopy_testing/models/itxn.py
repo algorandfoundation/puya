@@ -12,12 +12,12 @@ class _ITxn:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if not context.inner_transaction_groups:
+        if not context._inner_transaction_groups:
             raise ValueError(
                 "No inner transaction found in the context! Use `with algopy_testing_context()` "
                 "to access the context manager."
             )
-        last_itxn_group = context.inner_transaction_groups[-1]
+        last_itxn_group = context._inner_transaction_groups[-1]
 
         if not last_itxn_group:
             raise ValueError("No inner transaction found in the testing context!")

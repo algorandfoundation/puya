@@ -86,7 +86,7 @@ class _Txn:
         field_mapping = {"type": "type_bytes", "type_enum": "type", "application_args": "app_args"}
         return field_mapping.get(name, name)
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         from algopy_testing.context import get_test_context
 
         context = get_test_context()
@@ -96,8 +96,8 @@ class _Txn:
                 "the context manager."
             )
         active_txn = context.get_active_transaction()
-        if name in context.txn_fields and context.txn_fields[name] is not None:  # type: ignore[literal-required]
-            return context.txn_fields[name]  # type: ignore[literal-required]
+        if name in context._txn_fields and context._txn_fields[name] is not None:  # type: ignore[literal-required]
+            return context._txn_fields[name]  # type: ignore[literal-required]
         elif active_txn:
             return getattr(active_txn, self._map_fields(name))
         else:

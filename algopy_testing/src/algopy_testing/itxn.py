@@ -28,6 +28,8 @@ if typing.TYPE_CHECKING:
 
 
 class _BaseInnerTransaction:
+    fields: dict[str, typing.Any]
+
     def submit(self) -> object:
         import algopy.itxn
 
@@ -36,32 +38,26 @@ class _BaseInnerTransaction:
         if not context:
             raise RuntimeError("No test context found")
 
-        result = algopy.itxn.InnerTransactionResult(**self.fields)  # type: ignore[attr-defined, unused-ignore]
-        context.append_inner_transaction_group([result])
+        result = algopy.itxn.InnerTransactionResult(**self.fields)
+        context._append_inner_transaction_group([result])
         return result
 
     def copy(self) -> typing.Self:
         return deepcopy(self)
 
-    # ideally the type dict used for each field would be a type parameter of this class
-    # unfortunately type dicts aren't true types, so can't be used as such
-    def get_fields(self) -> dict[str, typing.Any]:
-        fields = self.fields  # type: ignore[attr-defined]
-        return typing.cast(dict[str, typing.Any], fields)
-
-    def get_field(self, type_dict: object, name: str) -> typing.Any:  # noqa: ANN401
+    def get_field(self, type_dict: object, name: str) -> typing.Any:
         if name in type_dict.__annotations__:
-            return self.get_fields().get(name)
+            return self.fields.get(name)
 
         raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _BaseInnerTransaction):
-            return bool(self.get_fields() == other.get_fields())
+            return bool(self.fields == other.fields)
         return False
 
     def __hash__(self) -> int:
-        return hash(self.get_fields())
+        return hash(self.fields)
 
 
 class InnerTransaction(_BaseInnerTransaction):
@@ -137,7 +133,15 @@ class AssetTransfer(_BaseInnerTransaction):
     def __init__(self, **kwargs: typing.Unpack[_AssetTransferBaseFields]):
         import algopy
 
-        self.fields = {**kwargs, "type": algopy.TransactionType.AssetTransfer}
+        from algopy_testing import get_test_context
+
+        context = get_test_context()
+        self.fields = {
+            "type": algopy.TransactionType.AssetTransfer,
+            "asset_sender": context.default_application.address if context else None,
+            "amount": 0,
+            **kwargs,
+        }
 
     def set(self, **kwargs: typing.Unpack[_AssetTransferBaseFields]) -> None:
         """Updates inner transaction parameter values"""
@@ -187,6 +191,8 @@ class ApplicationCall(_BaseInnerTransaction):
 
 
 class _BaseInnerTransactionResult:
+    fields: dict[str, typing.Any]
+
     @typing.overload
     def __init__(
         self,
@@ -229,13 +235,9 @@ class _BaseInnerTransactionResult:
         }
         self._parse_covariant_types()
 
-    def get_fields(self) -> dict[str, typing.Any]:
-        fields = self.fields  # type: ignore[attr-defined, unused-ignore]
-        return fields
-
-    def get_field(self, type_dict: object, name: str) -> typing.Any:  # noqa: ANN401
+    def get_field(self, type_dict: object, name: str) -> typing.Any:
         if name in type_dict.__annotations__:
-            return self.get_fields().get(name)
+            return self.fields.get(name)
 
         raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
 
@@ -246,11 +248,11 @@ class _BaseInnerTransactionResult:
 
         for name, value in self.fields.items():
             if isinstance(value, int):
-                self.get_fields()[name] = algopy.UInt64(value)
+                self.fields[name] = algopy.UInt64(value)
             if isinstance(value, bytes):
-                self.get_fields()[name] = algopy.Bytes(value)
+                self.fields[name] = algopy.Bytes(value)
             if isinstance(value, str):
-                self.get_fields()[name] = algopy.String(value)
+                self.fields[name] = algopy.Bytes(value.encode("utf-8"))
 
 
 class PaymentInnerTransaction(_BaseInnerTransactionResult):

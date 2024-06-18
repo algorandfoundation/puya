@@ -37,7 +37,11 @@ def _extract_refs_from_args(
             case algopy.Application() if ref_type is algopy.Application:
                 refs.append(arg)
             case (
-                algopy.Bytes() | algopy.String() | algopy.BigUInt() | algopy.UInt64() | int()
+                algopy.Bytes()
+                | algopy.String()
+                | algopy.BigUInt()
+                | algopy.UInt64()
+                | int()
             ) if ref_type is algopy.Bytes:
                 refs.append(_extract_bytes(arg))
             case _:
@@ -133,7 +137,7 @@ def abimethod(  # noqa: PLR0913
             from algopy_testing import get_test_context
 
             context = get_test_context()
-            if context is None or context.active_transaction_index is not None:
+            if context is None or context._active_transaction_index is not None:
                 return fn(*args, **kwargs)
 
             _extract_and_append_txn_to_context(context, args, kwargs)

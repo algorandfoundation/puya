@@ -14,6 +14,8 @@ from algopy_testing.models import (
 from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 from algopy_testing.state import GlobalState, LocalState
 
+from . import arc4, gtxn, itxn, op
+
 __all__ = [
     "ARC4Contract",
     "Account",
@@ -33,4 +35,8 @@ __all__ = [
     "Txn",
     "UInt64",
     "subroutine",
+    "gtxn",
+    "itxn",
+    "arc4",
+    "op",
 ]

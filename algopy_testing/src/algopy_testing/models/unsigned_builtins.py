@@ -11,5 +11,5 @@ class urange:  # noqa: N801
         pass
 
 
-def uenumerate(_iterable: typing.Any) -> typing.Any:  # noqa: ANN401
+def uenumerate(_iterable: typing.Any) -> typing.Any:
     pass

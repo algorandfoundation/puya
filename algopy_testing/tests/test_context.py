@@ -1,15 +1,17 @@
 import algosdk
 import pytest
-from algopy import Bytes, UInt64
+from algopy import Bytes, TransactionType, UInt64
 from algopy_testing.context import AlgopyTestContext, algopy_testing_context, get_test_context
 from algopy_testing.itxn import PaymentInnerTransaction
+
+from tests.artifacts.Arc4InnerTxns.contract import Arc4InnerTxnsContract
 
 
 def test_patch_global_fields() -> None:
     with algopy_testing_context() as context:
         context.patch_global_fields(min_txn_fee=UInt64(100), min_balance=UInt64(10))
-        assert context.global_fields["min_txn_fee"] == 100
-        assert context.global_fields["min_balance"] == 10
+        assert context._global_fields["min_txn_fee"] == 100
+        assert context._global_fields["min_balance"] == 10
 
         with pytest.raises(AttributeError, match="InvalidField"):
             context.patch_global_fields(InvalidField=123)  # type: ignore   # noqa: PGH003
@@ -19,8 +21,8 @@ def test_patch_txn_fields() -> None:
     with algopy_testing_context() as context:
         dummy_account = algosdk.account.generate_account()[1]
         context.patch_txn_fields(sender=dummy_account, fee=UInt64(1000))
-        assert context.txn_fields["sender"] == dummy_account
-        assert context.txn_fields["fee"] == 1000
+        assert context._txn_fields["sender"] == dummy_account
+        assert context._txn_fields["fee"] == 1000
 
         with pytest.raises(AttributeError, match="InvalidField"):
             context.patch_txn_fields(InvalidField=123)  # type: ignore   # noqa: PGH003
@@ -92,24 +94,25 @@ def test_inner_transaction_management() -> None:
             receiver=context.default_creator,
             amount=UInt64(1000),
         )
-        context.append_inner_transaction_group([itxn])
-        assert len(context.inner_transaction_groups) == 1
+        context._append_inner_transaction_group([itxn])
+        assert len(context.get_last_inner_transaction_group()) == 1
 
         context.clear_inner_transaction_groups()
-        assert len(context.inner_transaction_groups) == 0
+        with pytest.raises(ValueError, match="No inner transaction groups submitted yet!"):
+            context.get_last_inner_transaction_group()
 
 
 def test_last_itxn_access() -> None:
     with algopy_testing_context() as context:
-        dummy_account = context.any_account()
-        itxn = PaymentInnerTransaction(
-            sender=dummy_account,
-            receiver=dummy_account,
-            amount=UInt64(1000),
-        )
-        context.append_inner_transaction_group([itxn])
-        assert len(context.inner_transaction_groups) == 1
-        assert context.get_last_inner_transaction_group()[0].sender == dummy_account
+        contract = Arc4InnerTxnsContract()
+        dummy_asset = context.any_asset()
+        contract.opt_in_dummy_asset(dummy_asset)
+        assert len(context.get_last_inner_transaction_group()) == 1
+        itxn = context.get_last_submitted_inner_transaction()
+        assert itxn.asset_sender == context.default_application.address
+        assert itxn.asset_receiver == context.default_application.address
+        assert itxn.amount == UInt64(0)
+        assert itxn.type == TransactionType.AssetTransfer
 
 
 def test_context_clearing() -> None:
@@ -121,11 +124,12 @@ def test_context_clearing() -> None:
             clear_state_program=Bytes(b"TestClear"),
         )
         context.clear()
-        assert len(context.account_data) == 0
-        assert len(context.asset_data) == 0
-        assert len(context.application_data) == 0
-        assert len(context.inner_transaction_groups) == 0
-        assert len(context.gtxns) == 0
+        assert len(context._account_data) == 0
+        assert len(context._asset_data) == 0
+        assert len(context._application_data) == 0
+        with pytest.raises(ValueError, match="No inner transaction groups submitted yet!"):
+            context.get_last_inner_transaction_group()
+        assert len(context.get_transaction_group()) == 0
         assert len(context.logs) == 0
 
 
@@ -138,22 +142,23 @@ def test_context_reset() -> None:
             clear_state_program=Bytes(b"TestClear"),
         )
         context.reset()
-        assert len(context.account_data) == 0
-        assert len(context.asset_data) == 0
-        assert len(context.application_data) == 0
-        assert len(context.inner_transaction_groups) == 0
-        assert len(context.gtxns) == 0
+        assert len(context._account_data) == 0
+        assert len(context._asset_data) == 0
+        assert len(context._application_data) == 0
+        with pytest.raises(ValueError, match="No inner transaction groups submitted yet!"):
+            context.get_last_inner_transaction_group()
+        assert len(context.get_transaction_group()) == 0
         assert len(context.logs) == 0
-        assert next(context._asset_id) == 1  # noqa: SLF001
-        assert next(context._app_id) == 1  # noqa: SLF001
+        assert next(context._asset_id) == 1
+        assert next(context._app_id) == 1
 
 
 def test_algopy_testing_context() -> None:
     with algopy_testing_context() as context:
         assert isinstance(context, AlgopyTestContext)
-        assert len(context.account_data) == 1  # reserved for default creator
+        assert len(context.get_account_data()) == 1  # reserved for default creator
         context.any_account(balance=UInt64(1000))
-        assert len(context.account_data) == 2
+        assert len(context.get_account_data()) == 2
 
     # When called outside of a context manager, it should raise an error
     with pytest.raises(LookupError):
@@ -172,7 +177,7 @@ def test_get_last_submitted_inner_transaction() -> None:
             receiver=context.default_creator,
             amount=UInt64(2000),
         )
-        context.append_inner_transaction_group([itxn1, itxn2])
+        context._append_inner_transaction_group([itxn1, itxn2])
         last_itxn = context.get_last_submitted_inner_transaction()
         assert last_itxn.amount == 2000
 
@@ -189,6 +194,7 @@ def test_clear_inner_transaction_groups() -> None:
             receiver=context.default_creator,
             amount=UInt64(2000),
         )
-        context.append_inner_transaction_group([itxn1, itxn2])
+        context._append_inner_transaction_group([itxn1, itxn2])
         context.clear_inner_transaction_groups()
-        assert len(context.inner_transaction_groups) == 0
+        with pytest.raises(ValueError, match="No inner transaction groups submitted yet!"):
+            context.get_last_inner_transaction_group()

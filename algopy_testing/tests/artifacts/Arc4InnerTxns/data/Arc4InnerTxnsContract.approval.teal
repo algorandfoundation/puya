@@ -1,0 +1,78 @@
+#pragma version 10
+
+tests.artifacts.Arc4InnerTxns.contract.Arc4InnerTxnsContract.approval_program:
+    // tests/artifacts/Arc4InnerTxns/contract.py:4
+    // class Arc4InnerTxnsContract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "opt_in_dummy_asset(asset)void"
+    txna ApplicationArgs 0
+    match main_opt_in_dummy_asset_route@2
+    err // reject transaction
+
+main_opt_in_dummy_asset_route@2:
+    // tests/artifacts/Arc4InnerTxns/contract.py:5
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/Arc4InnerTxns/contract.py:4
+    // class Arc4InnerTxnsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    // tests/artifacts/Arc4InnerTxns/contract.py:5
+    // @arc4.abimethod
+    callsub opt_in_dummy_asset
+    int 1
+    return
+
+main_bare_routing@5:
+    // tests/artifacts/Arc4InnerTxns/contract.py:4
+    // class Arc4InnerTxnsContract(ARC4Contract):
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// tests.artifacts.Arc4InnerTxns.contract.Arc4InnerTxnsContract.opt_in_dummy_asset(asset: uint64) -> void:
+opt_in_dummy_asset:
+    // tests/artifacts/Arc4InnerTxns/contract.py:5-6
+    // @arc4.abimethod
+    // def opt_in_dummy_asset(self, asset: Asset) -> None:
+    proto 1 0
+    // tests/artifacts/Arc4InnerTxns/contract.py:7-11
+    // # Submit opt-in transaction: 0 asset transfer to self
+    // itxn.AssetTransfer(
+    //     asset_receiver=Global.current_application_address,
+    //     xfer_asset=asset,
+    // ).submit()
+    itxn_begin
+    // tests/artifacts/Arc4InnerTxns/contract.py:9
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress
+    frame_dig -1
+    itxn_field XferAsset
+    itxn_field AssetReceiver
+    // tests/artifacts/Arc4InnerTxns/contract.py:7-8
+    // # Submit opt-in transaction: 0 asset transfer to self
+    // itxn.AssetTransfer(
+    int axfer
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // tests/artifacts/Arc4InnerTxns/contract.py:7-11
+    // # Submit opt-in transaction: 0 asset transfer to self
+    // itxn.AssetTransfer(
+    //     asset_receiver=Global.current_application_address,
+    //     xfer_asset=asset,
+    // ).submit()
+    itxn_submit
+    retsub

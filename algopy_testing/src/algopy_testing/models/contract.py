@@ -25,7 +25,7 @@ class _ContractMeta(type):
         instance = super().__call__(*args, **kwargs)
 
         if context and isinstance(instance, Contract):
-            context.add_contract(instance)
+            context._add_contract(instance)
 
         return instance
 

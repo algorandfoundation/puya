@@ -50,8 +50,8 @@ class Account:
         from algopy_testing import get_test_context
 
         context = get_test_context()
-        opted_apps = context.account_data[str(self)].opted_apps
-        opted_asset_balances = context.account_data[str(self)].opted_asset_balances
+        opted_apps = context._account_data[str(self)].opted_apps
+        opted_asset_balances = context._account_data[str(self)].opted_asset_balances
 
         if not context:
             raise ValueError(
@@ -89,14 +89,14 @@ class Account:
                 "the context manager."
             )
 
-        if str(self) not in context.account_data:
+        if str(self) not in context._account_data:
             raise ValueError(
                 "`algopy.Account` is not present in the test context! "
                 "Use `context.add_account()` or `context.any_account()` to add the account "
                 "to your test setup."
             )
 
-        return_value = context.account_data[str(self)].fields.get(name)
+        return_value = context._account_data[str(self)].fields.get(name)
         if return_value is None:
             raise AttributeError(
                 f"The value for '{name}' in the test context is None. "

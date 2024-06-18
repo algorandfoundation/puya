@@ -80,7 +80,7 @@ class AssetTransferTransaction(TransactionBase):
         """Updates inner transaction parameter values"""
         self._fields.update(kwargs)
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in AssetTransferFields.__annotations__:
             return self._fields.get(name)
 
@@ -101,7 +101,7 @@ class PaymentTransaction(TransactionBase):
             }
         )
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in PaymentFields.__annotations__:
             return self._fields.get(name)
 
@@ -124,7 +124,7 @@ class ApplicationCallTransaction(TransactionBase):
             }
         )
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in ApplicationCallFields.__annotations__:
             return self._fields.get(name)
 
@@ -146,7 +146,7 @@ class KeyRegistrationTransaction(TransactionBase):
             }
         )
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in KeyRegistrationFields.__annotations__:
             return self._fields.get(name)
 
@@ -169,7 +169,7 @@ class AssetConfigTransaction(TransactionBase):
             }
         )
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in AssetConfigFields.__annotations__:
             return self._fields.get(name)
 
@@ -194,7 +194,7 @@ class AssetFreezeTransaction(TransactionBase):
             }
         )
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in AssetFreezeFields.__annotations__:
             return self._fields.get(name)
 
@@ -214,7 +214,7 @@ class Transaction(TransactionBase):
         super().__init__(group_index=group_index)
         self._fields.update(kwargs)
 
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
         if name in TransactionFields.__annotations__:
             return self._fields.get(name)
 
