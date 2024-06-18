@@ -24,8 +24,8 @@ from puya.awst_build.eb.interface import (
     CallableBuilder,
     InstanceBuilder,
     Iteration,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.errors import CodeError, InternalError
 
@@ -34,7 +34,6 @@ if typing.TYPE_CHECKING:
 
 __all__ = [
     "FunctionBuilder",
-    "TypeBuilder",
     "GenericTypeBuilder",
     "InstanceExpressionBuilder",
     "NotIterableInstanceExpressionBuilder",
@@ -65,35 +64,6 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
     @typing.final
     def member_access(self, name: str, location: SourceLocation) -> typing.Never:
         raise CodeError("function attribute access is not supported", location)
-
-
-class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
-    # TODO: better error messages for rvalue/lvalue/delete
-
-    def __init__(self, pytype: _TPyType_co, location: SourceLocation):
-        super().__init__(location)
-        self._pytype = pytype
-
-    @typing.final
-    @typing.override
-    @property
-    def pytype(self) -> pytypes.TypeType:
-        return pytypes.TypeType(self._pytype)
-
-    @typing.final
-    def produces(self) -> _TPyType_co:
-        return self._pytype
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puya.awst_build.eb._utils import bool_eval_to_constant
-
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
 class GenericTypeBuilder(CallableBuilder, abc.ABC):
@@ -135,7 +105,7 @@ class InstanceExpressionBuilder(
         return self._pytype
 
     @typing.override
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         return self
 
     @typing.override

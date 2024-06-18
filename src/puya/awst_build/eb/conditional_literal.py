@@ -11,8 +11,8 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -52,7 +52,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         true_b = converter.convert_literal(
             literal=self._true_literal, location=converter.source_location
         )

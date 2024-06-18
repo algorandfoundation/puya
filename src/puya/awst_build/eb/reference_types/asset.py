@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -14,43 +13,34 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import (
-    InstanceBuilder,
-    LiteralBuilder,
-    LiteralConverter,
-    NodeBuilder,
-)
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.parse import SourceLocation
-
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class AssetTypeBuilder(TypeBuilder, LiteralConverter):
+class AssetTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AssetType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.IntLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case int(int_value):
+                if int_value < 0:  # TODO: should this be 256?
+                    logger.error("invalid asset ID", location=literal.source_location)
+                const = UInt64Constant(value=int_value, source_location=location)
+                expr = ReinterpretCast(
+                    expr=const, wtype=self.produces().wtype, source_location=location
+                )
+                return AssetExpressionBuilder(expr)
+        return None
 
     @typing.override
     def call(
@@ -61,10 +51,10 @@ class AssetTypeBuilder(TypeBuilder, LiteralConverter):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
+            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+                return arg.resolve_literal(AssetTypeBuilder(location))
             case []:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [LiteralBuilder(value=int(int_value))]:
-                uint64_expr = UInt64Constant(value=int_value, source_location=location)
             case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
                 uint64_expr = eb.resolve()
             case _:
@@ -72,7 +62,7 @@ class AssetTypeBuilder(TypeBuilder, LiteralConverter):
                 # dummy value to continue with
                 uint64_expr = UInt64Constant(value=0, source_location=location)
         asset_expr = ReinterpretCast(
-            source_location=location, wtype=wtypes.asset_wtype, expr=uint64_expr
+            source_location=location, wtype=self.produces().wtype, expr=uint64_expr
         )
         return AssetExpressionBuilder(asset_expr)
 

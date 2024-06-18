@@ -1,8 +1,8 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -23,7 +23,6 @@ from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
     NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
@@ -33,6 +32,7 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
+    TypeBuilder,
 )
 from puya.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
@@ -40,17 +40,9 @@ from puya.awst_build.eb.storage._storage import (
     extract_key_override,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.utils import (
-    get_arg_mapping,
-)
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 class GlobalStateTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):

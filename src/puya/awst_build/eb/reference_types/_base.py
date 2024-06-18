@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 import abc
 import typing
+from collections.abc import Callable, Mapping
 
 from immutabledict import immutabledict
 
@@ -16,23 +15,16 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
-
-if typing.TYPE_CHECKING:
-
-    from collections.abc import Mapping
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
@@ -81,7 +73,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
         expr: Expression,
         *,
         typ: pytypes.PyType,
-        typ_literal_converter: type[LiteralConverter],
+        typ_literal_converter: Callable[[SourceLocation], TypeBuilder],
         native_access_member: str,
         field_mapping: Mapping[str, tuple[str, pytypes.PyType]],
         field_op_code: str,

@@ -1,6 +1,7 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -16,13 +17,9 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.constants import TransactionType
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    NotIterableInstanceExpressionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.string import StringTypeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
@@ -33,13 +30,7 @@ from puya.awst_build.utils import (
     require_instance_builder,
 )
 from puya.errors import CodeError, InternalError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 _parameter_mapping: typing.Final = {
     get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype))

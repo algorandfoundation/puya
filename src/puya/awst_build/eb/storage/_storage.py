@@ -21,9 +21,9 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
     StorageProxyConstructorResult,
+    TypeBuilder,
 )
 from puya.errors import CodeError
 
@@ -81,7 +81,7 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(self.source_location)
 
     @typing.override
-    def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
+    def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         return self
 
     @typing.override

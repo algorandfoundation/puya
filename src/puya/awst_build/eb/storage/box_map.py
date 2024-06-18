@@ -13,15 +13,11 @@ from puya.awst.nodes import (
     StateGetEx,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    GenericTypeBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.storage._common import BoxValueExpressionBuilder
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked

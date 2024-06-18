@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 import operator
 import typing
+from collections.abc import Sequence
 from functools import reduce
 
 import attrs
@@ -28,10 +27,8 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
@@ -40,7 +37,7 @@ from puya.awst_build.eb.arc4._utils import (
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
@@ -52,13 +49,7 @@ from puya.awst_build.utils import (
     resolve_method_from_type_info,
 )
 from puya.errors import CodeError, InternalError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from puya.awst_build.context import ASTConversionModuleContext
-    from puya.parse import SourceLocation
-
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 _APP_TRANSACTION_FIELDS = {

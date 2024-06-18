@@ -1,9 +1,9 @@
-from __future__ import annotations
-
 import base64
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
 from puya import log
 from puya.awst import wtypes
@@ -25,11 +25,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.constants import CLS_BYTES_ALIAS
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    InstanceExpressionBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._utils import compare_bytes, resolve_negative_literal_index
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -39,46 +35,32 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     Iteration,
     LiteralBuilder,
-    LiteralConverter,
     NodeBuilder,
+    TypeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import (
-    expect_operand_type,
-    require_instance_builder_of_type,
-)
+from puya.awst_build.utils import expect_operand_type, require_instance_builder_of_type
 from puya.errors import CodeError, InternalError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class BytesTypeBuilder(TypeBuilder, LiteralConverter):
+class BytesTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.BytesType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.BytesLiteralType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder | None:
         match literal.value:
-            case bytes(literal_value):
+            case bytes(literal_value):  # TODO: validation
                 expr = BytesConstant(
                     value=literal_value, encoding=BytesEncoding.unknown, source_location=location
                 )
                 return BytesExpressionBuilder(expr)
-        raise CodeError(f"can't covert literal {literal.value!r} to {self.produces()}", location)
+        return None
 
     @typing.override
     def call(
@@ -89,13 +71,11 @@ class BytesTypeBuilder(TypeBuilder, LiteralConverter):
         location: SourceLocation,
     ) -> InstanceBuilder:
         match args:
+            case [InstanceBuilder(pytype=pytypes.BytesLiteralType) as arg]:
+                return arg.resolve_literal(BytesTypeBuilder(location))
             case []:
                 value: Expression = BytesConstant(
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
-                )
-            case [LiteralBuilder(value=bytes(literal_value))]:
-                value = BytesConstant(
-                    value=literal_value, encoding=BytesEncoding.unknown, source_location=location
                 )
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)

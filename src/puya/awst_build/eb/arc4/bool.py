@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -11,37 +10,32 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import compare_bytes
-from puya.awst_build.eb.arc4.base import (
-    ARC4TypeBuilder,
-    arc4_bool_bytes,
-)
+from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, LiteralConverter
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+)
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-
-    from puya.awst_build.eb.interface import BuilderComparisonOp, NodeBuilder
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class ARC4BoolTypeBuilder(ARC4TypeBuilder, LiteralConverter):
+class ARC4BoolTypeBuilder(ARC4TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4BoolType, location)
 
     @typing.override
-    @property
-    def convertable_literal_types(self) -> Collection[pytypes.PyType]:
-        return (pytypes.BoolType,)
-
-    @typing.override
-    def convert_literal(
+    def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder:
-        return self.call([literal], [mypy.nodes.ARG_POS], [None], location)  # TODO: fixme
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case bool():  # TODO: fixme
+                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+        return None
 
     @typing.override
     def call(

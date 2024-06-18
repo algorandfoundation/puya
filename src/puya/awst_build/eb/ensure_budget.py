@@ -1,30 +1,19 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    CallArg,
-    FreeSubroutineTarget,
-    SubroutineCallExpression,
-    UInt64Constant,
-)
+from puya.awst.nodes import CallArg, FreeSubroutineTarget, SubroutineCallExpression, UInt64Constant
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import FunctionBuilder, TypeBuilder
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_type, get_arg_mapping
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 class EnsureBudgetBuilder(FunctionBuilder):
