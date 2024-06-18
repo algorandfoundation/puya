@@ -37,11 +37,7 @@ def _extract_refs_from_args(
             case algopy.Application() if ref_type is algopy.Application:
                 refs.append(arg)
             case (
-                algopy.Bytes()
-                | algopy.String()
-                | algopy.BigUInt()
-                | algopy.UInt64()
-                | int()
+                algopy.Bytes() | algopy.String() | algopy.BigUInt() | algopy.UInt64() | int()
             ) if ref_type is algopy.Bytes:
                 refs.append(_extract_bytes(arg))
             case _:
@@ -89,8 +85,7 @@ def _extract_and_append_txn_to_context(
 
 
 @typing.overload
-def abimethod(fn: typing.Callable[_P, _R], /) -> typing.Callable[_P, _R]:
-    ...
+def abimethod(fn: typing.Callable[_P, _R], /) -> typing.Callable[_P, _R]: ...
 
 
 @typing.overload
@@ -111,8 +106,7 @@ def abimethod(
     ] = ("NoOp",),
     readonly: bool = False,
     default_args: typing.Mapping[str, str | object] = {},
-) -> typing.Callable[[typing.Callable[_P, _R]], typing.Callable[_P, _R]]:
-    ...
+) -> typing.Callable[[typing.Callable[_P, _R]], typing.Callable[_P, _R]]: ...
 
 
 def abimethod(  # noqa: PLR0913
