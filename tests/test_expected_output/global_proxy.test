@@ -1,0 +1,40 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+## case: test_global_state
+from algopy import ARC4Contract, GlobalState, Txn, UInt64
+
+
+class StateProxyContract(ARC4Contract):
+    def __init__(self) -> None:
+        global3 = (
+            GlobalState(UInt64(42), key="global3") # TODO: this should error
+            if Txn.num_app_args
+            else GlobalState(UInt64(43), key="global3")
+        )
+        self.global3 = ( ## E: unsupported reference to non-function member 'global3'
+            GlobalState(UInt64(42), key="global3")  # TODO: this should error
+            if Txn.num_app_args
+            else GlobalState(UInt64(43), key="global3")
+        )
+
+
+class StateProxyContract2(ARC4Contract):
+    def __init__(self) -> None:
+        self.global2 = GlobalState(UInt64(123))
+        self.global_two = self.global2 ## E: unsupported reference to non-function member 'global_two'
+
+
+class StateProxyContract3(ARC4Contract):
+    def __init__(self) -> None:
+        global3 = GlobalState(UInt64, key="global3")
+        self.global_three = global3 ## E: unsupported reference to non-function member 'global_three'
+
+
+class StateProxyContract4(ARC4Contract):
+    def __init__(self) -> None:
+        self.global3 = ( ## E: unsupported reference to non-function member 'global3'
+            GlobalState(UInt64, key="global3")
+            if Txn.num_app_args
+            else GlobalState(UInt64, key="global3")
+        )
