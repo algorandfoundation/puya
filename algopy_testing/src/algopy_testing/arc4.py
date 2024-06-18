@@ -4,31 +4,16 @@ import decimal
 import types
 import typing
 
-import algopy_testing.primitives as algopy
 from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
+from algopy_testing.decorators.abimethod import abimethod
 from algopy_testing.utils import as_bytes, as_int, as_int64, as_int512, as_string, int_to_bytes
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Callable
+    import algopy
 
-_P = typing.ParamSpec("_P")
-_R = typing.TypeVar("_R")
 
 _ABI_LENGTH_SIZE = 2
-
-
-def abimethod(
-    fn: Callable[_P, _R],
-) -> Callable[_P, _R]:
-    return fn
-
-
-class ARC4Contract:
-    pass
-
-
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
-_RETURN_PREFIX = algopy.Bytes(ARC4_RETURN_PREFIX)
 
 
 class _ABIEncoded(typing.Protocol):
@@ -55,9 +40,11 @@ class String(_ABIEncoded):
     _value: bytes
 
     def __init__(self, value: algopy.String | str = "", /) -> None:
+        from algopy import String
+
         match value:
-            case algopy.String():
-                bytes_value = value.bytes.value
+            case String():
+                bytes_value = as_bytes(value.bytes)
             case str(value):
                 bytes_value = value.encode("utf-8")
             case _:
@@ -70,7 +57,9 @@ class String(_ABIEncoded):
     @property
     def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
-        return algopy.String.from_bytes(self._value[_ABI_LENGTH_SIZE:])
+        from algopy import String
+
+        return String.from_bytes(self._value[_ABI_LENGTH_SIZE:])
 
     def __add__(self, other: String | str) -> String:
         return String(self.native + as_string(other))
@@ -89,19 +78,23 @@ class String(_ABIEncoded):
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         result = cls()
-        result._value = as_bytes(value)  # noqa: SLF001
+        result._value = as_bytes(value)
         return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self._value)
+        from algopy import Bytes
+
+        return Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        from algopy import Bytes
+
+        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -183,21 +176,26 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
+
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self._value)
+        from algopy import Bytes
+
+        return Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        from algopy import Bytes
+
+        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -212,7 +210,9 @@ class UIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     @property
     def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        return algopy.UInt64(int.from_bytes(self._value))
+        from algopy import UInt64
+
+        return UInt64(int.from_bytes(self._value))
 
     def __eq__(self, other: object) -> bool:
         return as_int64(self.native) == as_int(other, max=None)
@@ -246,7 +246,9 @@ class BigUIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     @property
     def native(self) -> algopy.BigUInt:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        return algopy.BigUInt.from_bytes(self._value)
+        from algopy import BigUInt
+
+        return BigUInt.from_bytes(self._value)
 
     def __eq__(self, other: object) -> bool:
         return as_int512(self.native) == as_int(other, max=None)
@@ -350,19 +352,23 @@ class _UFixedNxM(
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self._value)
+        from algopy import Bytes
+
+        return Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        from algopy import Bytes
+
+        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -435,18 +441,35 @@ class Bool(_ABIEncoded):
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         result = cls()
-        result._value = as_bytes(value)  # noqa: SLF001
+        result._value = as_bytes(value)
         return result
 
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        return algopy.Bytes(self._value)
+        from algopy import Bytes
+
+        return Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        from algopy import Bytes
+
+        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
+
+
+__all__ = [
+    "Bool",
+    "UInt8",
+    "UInt16",
+    "UInt32",
+    "UInt64",
+    "UInt128",
+    "UInt256",
+    "UInt512",
+    "abimethod",
+]

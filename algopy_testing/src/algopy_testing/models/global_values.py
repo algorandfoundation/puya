@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import time
 import typing
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypedDict, TypeVar
+from typing import TypedDict, TypeVar
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
     import algopy
@@ -35,7 +36,9 @@ class GlobalFields(TypedDict, total=False):
 
 @dataclass
 class _Global:
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def __getattr__(self, name: str) -> typing.Any:
+        from algopy import UInt64
+
         from algopy_testing.context import get_test_context
 
         context = get_test_context()
@@ -44,14 +47,21 @@ class _Global:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if name not in context.global_fields:
+
+        if name == "latest_timestamp" and context._global_fields.get(name) is None:
+            return UInt64(int(time.time()))
+
+        if name == "group_size" and context._global_fields.get(name) is None:
+            return UInt64(len(context.get_transaction_group()))
+
+        if name not in context._global_fields:
             raise AttributeError(
                 f"'algopy.Global' object has no value set for attribute named '{name}'. "
                 f"Use `context.patch_global_fields({name}=your_value)` to set the value "
                 "in your test setup."
             )
 
-        return context.global_fields[name]  # type: ignore[literal-required]
+        return context._global_fields[name]  # type: ignore[literal-required]
 
 
 Global = _Global()

@@ -18,7 +18,8 @@ from ecdsa import (  # type: ignore  # noqa: PGH003
 
 from algopy_testing.constants import BITS_IN_BYTE, MAX_BYTES_SIZE, MAX_UINT64
 from algopy_testing.enums import ECDSA, Base64, VrfVerify
-from algopy_testing.models.global_state import Global
+from algopy_testing.models.global_values import Global
+from algopy_testing.models.gtxn import GTxn
 from algopy_testing.models.itxn import ITxn
 from algopy_testing.models.txn import Txn
 from algopy_testing.primitives.biguint import BigUInt
@@ -74,10 +75,10 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
         ) from e
 
     # TODO: Decide on whether to pick clear or approval depending on OnComplete state
-    if not ctx.txn_fields:
+    if not ctx._txn_fields:
         raise RuntimeError("`txn_fields` must be set in the context")
 
-    program_bytes = as_bytes(ctx.txn_fields.get("approval_program", None))
+    program_bytes = as_bytes(ctx._txn_fields.get("approval_program", None))
     if not program_bytes:
         raise RuntimeError("`program_bytes` must be set in the context")
 
@@ -580,51 +581,35 @@ class _MultiKeyDict(dict[Any, Any]):
         ]
         self._items = items
 
-    def items(self) -> Any:  # noqa: ANN401
+    def items(self) -> Any:
         return self._items
 
 
 __all__ = [
-    "sha256",
-    "sha3_256",
-    "keccak256",
-    "sha512_256",
-    "ed25519verify",
-    "ed25519verify_bare",
-    "ecdsa_verify",
-    "ecdsa_pk_recover",
-    "ecdsa_pk_decompress",
-    "vrf_verify",
-    "ECDSA",
-    "VrfVerify",
-    "Global",
-    "Txn",
     "Base64",
-    "JsonRef",
     "BigUInt",
+    "ECDSA",
+    "Global",
+    "GTxn",
+    "ITxn",
+    "JsonRef",
+    "Txn",
     "UInt64",
-    "select_bytes",
-    "select_uint64",
-    "setbit_bytes",
-    "setbit_uint64",
-    "setbyte",
-    "shl",
-    "shr",
-    "sqrt",
-    "substring",
-    "concat",
-    "getbyte",
-    "itob",
-    "mulw",
-    "replace",
+    "VrfVerify",
     "addw",
     "base64_decode",
     "bitlen",
     "bsqrt",
     "btoi",
     "bzero",
+    "concat",
     "divmodw",
     "divw",
+    "ecdsa_pk_decompress",
+    "ecdsa_pk_recover",
+    "ecdsa_verify",
+    "ed25519verify",
+    "ed25519verify_bare",
     "err",
     "exp",
     "expw",
@@ -633,5 +618,22 @@ __all__ = [
     "extract_uint32",
     "extract_uint64",
     "getbit",
-    "ITxn",
+    "getbyte",
+    "itob",
+    "keccak256",
+    "mulw",
+    "replace",
+    "select_bytes",
+    "select_uint64",
+    "setbit_bytes",
+    "setbit_uint64",
+    "setbyte",
+    "sha256",
+    "sha3_256",
+    "sha512_256",
+    "shl",
+    "shr",
+    "sqrt",
+    "substring",
+    "vrf_verify",
 ]

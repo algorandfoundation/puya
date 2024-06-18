@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, TypedDict, TypeVar
 if TYPE_CHECKING:
     import algopy
 
-    from algopy_testing.primitives.uint64 import UInt64
 
 T = TypeVar("T")
 
@@ -71,7 +70,7 @@ class TxnFields(TypedDict, total=False):
     created_application_id: algopy.Application
     last_log: algopy.Bytes
     state_proof_pk: algopy.Bytes
-    num_approval_program_pages: UInt64
+    num_approval_program_pages: algopy.UInt64
     num_clear_state_program_pages: algopy.UInt64
     application_args: tuple[algopy.Bytes, ...]
     accounts: tuple[algopy.Account, ...]
@@ -83,7 +82,11 @@ class TxnFields(TypedDict, total=False):
 
 
 class _Txn:
-    def __getattr__(self, name: str) -> typing.Any:  # noqa: ANN401
+    def _map_fields(self, name: str) -> str:
+        field_mapping = {"type": "type_bytes", "type_enum": "type", "application_args": "app_args"}
+        return field_mapping.get(name, name)
+
+    def __getattr__(self, name: str) -> typing.Any:
         from algopy_testing.context import get_test_context
 
         context = get_test_context()
@@ -92,14 +95,17 @@ class _Txn:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if name not in context.txn_fields:
+        active_txn = context.get_active_transaction()
+        if name in context._txn_fields and context._txn_fields[name] is not None:  # type: ignore[literal-required]
+            return context._txn_fields[name]  # type: ignore[literal-required]
+        elif active_txn:
+            return getattr(active_txn, self._map_fields(name))
+        else:
             raise AttributeError(
                 f"'Txn' object has no value set for attribute named '{name}'. "
                 f"Use `context.patch_txn_fields({name}=your_value)` to set the value "
                 "in your test setup."
             )
-
-        return context.txn_fields[name]  # type: ignore[literal-required]
 
 
 Txn = _Txn()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
@@ -33,7 +34,7 @@ class Application:
 
         self.id = application_id if isinstance(application_id, UInt64) else UInt64(application_id)
 
-    def __getattr__(self, name: str) -> object:
+    def __getattr__(self, name: str) -> typing.Any:
         from algopy_testing.context import get_test_context
 
         context = get_test_context()
@@ -42,14 +43,14 @@ class Application:
                 "Test context is not initialized! Use `with algopy_testing_context()` to access "
                 "the context manager."
             )
-        if int(self.id) not in context.application_data:
+        if int(self.id) not in context._application_data:
             raise ValueError(
                 "`algopy.Application` is not present in the test context! "
                 "Use `context.add_application()` or `context.any_application()` to add the "
                 "application to your test setup."
             )
 
-        return_value = context.application_data[int(self.id)].get(name)
+        return_value = context._application_data[int(self.id)].get(name)
         if return_value is None:
             raise AttributeError(
                 f"The value for '{name}' in the test context is None. "

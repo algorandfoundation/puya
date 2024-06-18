@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class OnCompleteAction(Enum):
@@ -10,7 +10,7 @@ class OnCompleteAction(Enum):
     DeleteApplication = 5
 
 
-class TransactionType(Enum):
+class TransactionType(IntEnum):
     Payment = 0
     KeyRegistration = 1
     AssetConfig = 2

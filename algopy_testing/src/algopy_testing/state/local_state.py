@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 _T = typing.TypeVar("_T")
 
 
-# TODO: Refine further, currently simplified to limit the scope of state management abstractions PR
 class LocalState(typing.Generic[_T]):
     def __init__(
         self,

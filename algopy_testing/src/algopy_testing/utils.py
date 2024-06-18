@@ -1,7 +1,18 @@
 from __future__ import annotations
 
+import enum
+import functools
+import secrets
+from typing import TYPE_CHECKING
+
+import algosdk
+import algosdk.transaction
+
 from algopy_testing import arc4
 from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT8, MAX_UINT64, MAX_UINT512
+
+if TYPE_CHECKING:
+    import algopy
 
 
 def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
@@ -90,3 +101,52 @@ def int_to_bytes(x: int, pad_to: int | None = None) -> bytes:
     ) + result
 
     return result
+
+
+def dummy_transaction_id() -> bytes:
+    private_key, address = algosdk.account.generate_account()
+
+    suggested_params = algosdk.transaction.SuggestedParams(fee=1000, first=0, last=1, gh="")
+    txn = algosdk.transaction.PaymentTxn(
+        sender=address,
+        receiver=address,
+        amt=1000,
+        sp=suggested_params,
+        note=secrets.token_bytes(8),
+    )
+
+    signed_txn = txn.sign(private_key)
+    txn_id = str(signed_txn.transaction.get_txid()).encode("utf-8")
+    return txn_id
+
+
+class _TransactionStrType(enum.StrEnum):
+    PAYMENT = algosdk.constants.PAYMENT_TXN
+    KEYREG = algosdk.constants.KEYREG_TXN
+    ASSETCONFIG = algosdk.constants.ASSETCONFIG_TXN
+    ASSETTRANSFER = algosdk.constants.ASSETTRANSFER_TXN
+    ASSETFREEZE = algosdk.constants.ASSETFREEZE_TXN
+    APPCALL = algosdk.constants.APPCALL_TXN
+
+
+@functools.cache
+def txn_type_to_bytes(txn_type: int) -> algopy.Bytes:
+    import algopy
+
+    match txn_type:
+        case algopy.TransactionType.Payment:
+            result = _TransactionStrType.PAYMENT
+        case algopy.TransactionType.KeyRegistration:
+            result = _TransactionStrType.KEYREG
+        case algopy.TransactionType.AssetConfig:
+            result = _TransactionStrType.ASSETCONFIG
+        case algopy.TransactionType.AssetTransfer:
+            result = _TransactionStrType.ASSETTRANSFER
+        case algopy.TransactionType.AssetFreeze:
+            result = _TransactionStrType.ASSETFREEZE
+        case algopy.TransactionType.ApplicationCall:
+            result = _TransactionStrType.APPCALL
+        case _:
+            raise ValueError(f"invalid transaction type: {txn_type}")
+
+    return algopy.Bytes(bytes(result, encoding="utf-8"))
