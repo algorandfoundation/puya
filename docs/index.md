@@ -59,4 +59,5 @@ language-guide
 principles
 api
 compiler
+algopy-testing
 ```
