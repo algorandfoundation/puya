@@ -114,7 +114,7 @@ class BigUInt:
     def from_bytes(cls, value: Bytes | bytes) -> BigUInt:
         """Construct an instance from the underlying bytes (no validation)"""
         result = cls()
-        result.__value = as_bytes(value)  # noqa: SLF001
+        result.__value = as_bytes(value)
         return result
 
     @property

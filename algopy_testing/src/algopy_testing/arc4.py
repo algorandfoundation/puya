@@ -78,7 +78,7 @@ class String(_ABIEncoded):
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         result = cls()
-        result._value = as_bytes(value)  # noqa: SLF001
+        result._value = as_bytes(value)
         return result
 
     @property
@@ -179,7 +179,7 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
 
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
@@ -352,7 +352,7 @@ class _UFixedNxM(
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
@@ -441,7 +441,7 @@ class Bool(_ABIEncoded):
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes (no validation)"""
         result = cls()
-        result._value = as_bytes(value)  # noqa: SLF001
+        result._value = as_bytes(value)
         return result
 
     @property

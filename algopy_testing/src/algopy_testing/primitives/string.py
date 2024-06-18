@@ -54,7 +54,7 @@ class String:
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-        result._value = bytes(value)  # noqa: SLF001
+        result._value = bytes(value)
         return result
 
     @property
