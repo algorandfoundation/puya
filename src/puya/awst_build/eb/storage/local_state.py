@@ -137,9 +137,7 @@ class LocalStateExpressionBuilder(
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
-        index_expr = index.resolve_literal(
-            converter=UInt64TypeBuilder(index.source_location)
-        ).resolve()
+        index_expr = index.resolve_literal(UInt64TypeBuilder(index.source_location)).resolve()
         match index_expr:
             case IntegerConstant(value=account_offset):
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability

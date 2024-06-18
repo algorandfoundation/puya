@@ -979,10 +979,7 @@ def build_awst_data(
     yield "import typing"
     yield "from collections.abc import Mapping, Sequence"
     yield "from puya.awst_build import pytypes"
-    yield (
-        "from puya.awst_build.intrinsic_models import"
-        " FunctionOpMapping, ImmediateArgMapping, PropertyOpMapping"
-    )
+    yield "from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping"
     yield "ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict("
     for enum_name in enums:
         yield f"{get_python_enum_class(enum_name)}=dict("

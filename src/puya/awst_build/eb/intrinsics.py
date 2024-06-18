@@ -118,11 +118,7 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         arg_mapping = get_arg_mapping(
             func_arg_names, args=zip(arg_names, args_, strict=False), location=location
         )
-        intrinsic_expr = _map_call(
-            self._mappings,
-            args=arg_mapping,
-            location=location
-        )
+        intrinsic_expr = _map_call(self._mappings, args=arg_mapping, location=location)
         return intrinsic_expr
 
 
@@ -166,7 +162,7 @@ def _map_call(
                 if arg_in is None:
                     logger.error(f"missing expected argument {arg_name!r}", location=location)
                 elif not (
-                    isinstance(arg_in, LiteralBuilder) # see note in _best_op_mapping
+                    isinstance(arg_in, LiteralBuilder)  # see note in _best_op_mapping
                     and isinstance(arg_value := arg_in.value, literal_type)
                 ):
                     logger.error(
@@ -186,7 +182,7 @@ def _map_call(
             for allowed_type in allowed_pytypes:
                 type_builder = builder_for_type(allowed_type, arg_in.source_location)
                 if isinstance(type_builder, TypeBuilder):
-                    assert isinstance(arg_in, LiteralBuilder) # TODO: fixme
+                    assert isinstance(arg_in, LiteralBuilder)  # TODO: fixme
                     converted = type_builder.try_convert_literal(arg_in, arg_in.source_location)
                     if converted is not None:
                         stack_args.append(converted)

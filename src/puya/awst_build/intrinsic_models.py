@@ -14,14 +14,6 @@ from puya.errors import InternalError
 
 
 @attrs.frozen
-class ImmediateArgMapping:
-    arg_name: str
-    """Name of algopy argument to obtain value from"""
-    literal_type: type[str | int]
-    """Literal type for the argument"""
-
-
-@attrs.frozen
 class PropertyOpMapping:
     op_code: str
     immediate: str

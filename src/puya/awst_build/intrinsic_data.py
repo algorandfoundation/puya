@@ -2,10 +2,7 @@ import typing
 from collections.abc import Mapping, Sequence
 
 from puya.awst_build import pytypes
-from puya.awst_build.intrinsic_models import (
-    FunctionOpMapping,
-    PropertyOpMapping,
-)
+from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 
 ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
     EC=dict(

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import typing
 
 from puya.awst import wtypes
@@ -26,10 +24,7 @@ from puya.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 @typing.final
