@@ -14,7 +14,7 @@ from puya.awst import (
 from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import require_instance_builder, maybe_resolve_literal
+from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:

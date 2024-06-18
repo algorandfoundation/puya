@@ -81,5 +81,5 @@ class Uint64Contract(Contract):
 
     def clear_state_program(self) -> bool:
         assert UInt64() == 0
-        assert UInt64(False) == 0  # noqa: FBT003
+        assert UInt64(False) == 0
         return True
