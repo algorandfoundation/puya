@@ -1,0 +1,88 @@
+name: Continuous Delivery of Algorand Python Testing package
+
+on:
+  push:
+    branches:
+      - feat/unit-testing-cicd
+  workflow_dispatch:
+    inputs:
+      publish_pypi:
+        description: "Publish to PyPi?"
+        type: boolean
+        required: true
+        default: false
+      run_checks:
+        description: "Run checks?"
+        type: boolean
+        required: true
+        default: true
+      dry_run:
+        description: "Dry Run? If true, won't commit or publish anything"
+        type: boolean
+        required: true
+        default: false
+
+concurrency: release
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  release:
+    name: Release `algorand-python-testing` package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: algopy_testing
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+      contents: write
+      packages: read
+    env:
+      DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+
+      - name: Install hatch
+        run: pipx install hatch
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Start LocalNet
+        run: hatch run cicd:localnet_start
+
+      - name: Check pre-commits
+        run: hatch run check
+
+      - name: Check pre-commits (examples)
+        run: hatch run examples:check
+
+      - name: Check wheels can be built
+        run: hatch build
+
+      - name: Run tests (codebase)
+        run: hatch run tests
+
+      - name: Run tests (examples)
+        run: hatch run examples:tests
+
+      - name: Create Unit Testing Wheel
+        run: hatch build
+
+      - uses: actions/upload-artifact@v4 # upload artifacts so they are retained on the job
+        with:
+          path: algopy_testing/dist
+
+      - name: Publish to PyPI - Unit Testing
+        if: !inputs.dry_run && inputs.publish_pypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: algopy_testing/dist
