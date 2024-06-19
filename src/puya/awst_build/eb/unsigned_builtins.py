@@ -130,10 +130,6 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
 
 
 class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
-    @typing.override
-    @property
-    def pytype(self) -> typing.Never:
-        raise NotImplementedError("TODO")  # TODO
 
     @typing.override
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
@@ -226,6 +222,11 @@ class _RangeIterBuilder(_IterableOnlyBuilder):
         self._step = step
 
     @typing.override
+    @property
+    def pytype(self) -> pytypes.PyType:
+        return pytypes.urangeType
+
+    @typing.override
     def iterate(self) -> Iteration:
         return Range(
             start=self._start.resolve(),
@@ -250,6 +251,12 @@ class _EnumerateIterBuilder(_IterableOnlyBuilder):
         self._sequence = sequence
 
     @typing.override
+    @property
+    def pytype(self) -> pytypes.PyType:
+        # TODO: this should be parametrised using the sequence item pytype
+        return pytypes.uenumerateGenericType
+
+    @typing.override
     def iterate(self) -> Iteration:
         return Enumeration(expr=self._sequence.iterate(), source_location=self.source_location)
 
@@ -262,6 +269,12 @@ class _ReversedIterBuilder(_IterableOnlyBuilder):
     def __init__(self, sequence: InstanceBuilder, source_location: SourceLocation):
         super().__init__(source_location)
         self._sequence = sequence
+
+    @typing.override
+    @property
+    def pytype(self) -> pytypes.PyType:
+        # TODO: this should be parametrised using the sequence item pytype
+        return pytypes.reversedGenericType
 
     @typing.override
     def iterate(self) -> Iteration:
