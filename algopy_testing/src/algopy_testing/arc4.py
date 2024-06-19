@@ -6,11 +6,11 @@ import types
 import typing
 from collections.abc import Iterable, Reversible
 
-from algopy_testing.decorators.abimethod import abimethod
 import algosdk
 
 import algopy_testing.primitives as algopy
 from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
+from algopy_testing.decorators.abimethod import abimethod
 from algopy_testing.models import Account
 from algopy_testing.utils import (
     as_bytes,
@@ -21,10 +21,6 @@ from algopy_testing.utils import (
     as_string,
     int_to_bytes,
 )
-
-if typing.TYPE_CHECKING:
-    import algopy
-
 
 _ABI_LENGTH_SIZE = 2
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
@@ -508,7 +504,7 @@ class _TypeInfo:
     def __init__(self, value: type, child_types: list[_TypeInfo] | None = None):
         self.value = value
         self.child_types = child_types or (
-            value._child_types if hasattr(value, "_child_types") else child_types  # noqa: SLF001
+            value._child_types if hasattr(value, "_child_types") else child_types
         )
 
 
@@ -540,7 +536,7 @@ class StaticArray(
     def _get_type_info(self, item: _TArrayItem) -> _TypeInfo:
         return _TypeInfo(
             self._array_item_t,
-            item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
+            item._child_types if hasattr(item, "_child_types") else None,
         )
 
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
@@ -607,7 +603,7 @@ class StaticArray(
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
@@ -619,7 +615,9 @@ class StaticArray(
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        import algopy
+
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -715,7 +713,7 @@ class DynamicArray(
     def _get_type_info(self, item: _TArrayItem) -> _TypeInfo:
         return _TypeInfo(
             self._array_item_t,
-            item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
+            item._child_types if hasattr(item, "_child_types") else None,
         )
 
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
@@ -807,7 +805,7 @@ class DynamicArray(
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
@@ -819,7 +817,9 @@ class DynamicArray(
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        import algopy
+
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -903,10 +903,10 @@ class Tuple(
         # to avoid sharing state between instances created by copy operation
         self._child_types = self._child_types or [] if hasattr(self, "_child_types") else []
 
-    def _get_type_info(self, item: typing.Any) -> _TypeInfo:  # noqa: ANN401
+    def _get_type_info(self, item: typing.Any) -> _TypeInfo:
         return _TypeInfo(
             type(item),
-            item._child_types if hasattr(item, "_child_types") else None,  # noqa: SLF001
+            item._child_types if hasattr(item, "_child_types") else None,
         )
 
     def __len__(self) -> int:
@@ -935,7 +935,7 @@ class Tuple(
         """Construct an instance from the underlying bytes (no validation)"""
         value = as_bytes(value)
         result = cls()
-        result._value = value  # noqa: SLF001
+        result._value = value
         return result
 
     @property
@@ -947,7 +947,9 @@ class Tuple(
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        if log[:4] == _RETURN_PREFIX:
+        import algopy
+
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -1054,7 +1056,7 @@ def _get_max_bytes_len(type_info: _TypeInfo) -> int:
     else:
         value = type_info.value()
         if hasattr(value, "_max_bytes_len"):
-            size = typing.cast(int, value._max_bytes_len)  # noqa: SLF001
+            size = typing.cast(int, value._max_bytes_len)
 
     return size
 
@@ -1188,9 +1190,10 @@ def _decode(  # noqa: PLR0912, C901
     values = []
     for i, child_type in enumerate(child_types):
         val = child_type.value.from_bytes(value_partitions[i])  # type: ignore[attr-defined]
-        val._child_types = child_type.child_types  # noqa: SLF001
+        val._child_types = child_type.child_types
         values.append(val)
     return values
+
 
 __all__ = [
     "Bool",
