@@ -5,16 +5,27 @@ contract test_cases.stubs.biguint.BigUIntContract:
                 test_cases.stubs.biguint.compare_biguints(1b, 2b)
                 test_cases.stubs.biguint.compare_biguint_vs_uint64(1b, 2u)
                 test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2b)
-                let tmp%0#0: biguint = (bsqrt 9b)
-                let tmp%1#0: biguint = (bsqrt 10b)
-                let tmp%2#0: bool = (b== tmp%0#0 tmp%1#0)
-                (assert tmp%2#0)
-                let tmp%3#0: bool = (b== 1b 1b)
+                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%0#0 ? block@1 : block@2
+            block@1: // ternary_true_L10
+                let ternary_result%0#0: biguint = 1b
+                goto block@3
+            block@2: // ternary_false_L10
+                let ternary_result%0#0: biguint = 5b
+                goto block@3
+            block@3: // ternary_merge_L10
+                let tmp%0#0: bool = (b== ternary_result%0#0 5b)
+                (assert tmp%0#0) // constructor expressions supported
+                let tmp%1#0: biguint = (bsqrt 9b)
+                let tmp%2#0: biguint = (bsqrt 10b)
+                let tmp%3#0: bool = (b== tmp%1#0 tmp%2#0)
                 (assert tmp%3#0)
+                let tmp%4#0: bool = (b== 1b 1b)
+                (assert tmp%4#0)
                 return 1u
         
         subroutine test_cases.stubs.biguint.compare_biguints(one: biguint, two: biguint) -> void:
-            block@0: // L19
+            block@0: // L20
                 let tmp%0#0: bool = (b< one#0 two#0)
                 (assert tmp%0#0)
                 let tmp%1#0: bool = (b<= one#0 two#0)
@@ -30,7 +41,7 @@ contract test_cases.stubs.biguint.BigUIntContract:
                 return 
         
         subroutine test_cases.stubs.biguint.compare_biguint_vs_uint64(one: biguint, two: uint64) -> void:
-            block@0: // L29
+            block@0: // L30
                 let tmp%0#0: biguint = (itob two#0)
                 let tmp%1#0: bool = (b< one#0 tmp%0#0)
                 (assert tmp%1#0)
@@ -51,7 +62,7 @@ contract test_cases.stubs.biguint.BigUIntContract:
                 return 
         
         subroutine test_cases.stubs.biguint.compare_uint64_vs_biguint(one: uint64, two: biguint) -> void:
-            block@0: // L39
+            block@0: // L40
                 let tmp%0#0: biguint = (itob one#0)
                 let tmp%1#0: bool = (b> two#0 tmp%0#0)
                 (assert tmp%1#0)
@@ -73,7 +84,7 @@ contract test_cases.stubs.biguint.BigUIntContract:
     
     program clear-state:
         subroutine test_cases.stubs.biguint.BigUIntContract.clear_state_program() -> bool:
-            block@0: // L14
+            block@0: // L15
                 let tmp%0#0: bool = (b== 0b 0b)
                 (assert tmp%0#0)
                 return 1u

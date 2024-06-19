@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya import log
+from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoolConstant,
@@ -54,7 +54,17 @@ class StringTypeBuilder(BytesBackedTypeBuilder):
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
         match literal.value:
-            case str(value):  # TODO: validation
+            case str(value):
+                try:
+                    bytes_value = value.encode("utf8")
+                except UnicodeEncodeError as ex:
+                    raise CodeError(
+                        f"invalid UTF-8 string (encoding error: {ex})", self.source_location
+                    ) from None
+                if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
+                    raise CodeError(
+                        "string constant exceeds max byte array length", self.source_location
+                    )
                 expr = StringConstant(value=value, source_location=location)
                 return StringExpressionBuilder(expr)
         return None

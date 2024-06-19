@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, UInt64, log, subroutine
+from algopy import Bytes, Contract, Txn, UInt64, log, subroutine
 
 
 class BytesContract(Contract):
@@ -67,6 +67,10 @@ class BytesContract(Contract):
 
         check_slicing_with_uint64(abc)
         check_end_before_start_slicing(abc)
+
+        assert (
+            Bytes(b"args" if Txn.num_app_args else b"no args") == b"no args"
+        ), "constructor expressions supported"
 
         return UInt64(1)
 

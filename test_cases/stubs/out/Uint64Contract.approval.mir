@@ -1,9 +1,32 @@
-// Op      // Stack (out)    Source code      Source line
+// Op                                                 //                                                         Op Description            Stack (out)                  Live (out)            X stack                                                                               Source code                                                                           Source line
 
 #pragma version 10
 
 // test_cases.stubs.uint64.Uint64Contract.approval_program() -> uint64:
 main_block@0:
-    int 1  // 1              UInt64(1)        stubs/uint64.py:80
-    return //                return UInt64(1) stubs/uint64.py:80
+    txn NumAppArgs                                    //                                                                                   {txn}                                                                                                                                    Txn.num_app_args                                                                      stubs/uint64.py:80
+    //                                                virtual: store reinterpret_bool%10#0 to l-stack (no copy)  reinterpret_bool%10#0                                                        Txn.num_app_args                                                                      stubs/uint64.py:80
+    //                                                virtual: load reinterpret_bool%10#0 from l-stack (no copy) reinterpret_bool%10#0                                                        1 if Txn.num_app_args else 5                                                          stubs/uint64.py:80
+    bz main_ternary_false@26                          //                                                                                                                                                                                                                            1 if Txn.num_app_args else 5                                                          stubs/uint64.py:80
+    // Implicit fall through to main_ternary_true@25  //                                                                                                                                                                                                                            1 if Txn.num_app_args else 5                                                          stubs/uint64.py:80
+
+main_ternary_true@25:
+    int 1                                             //                                                                                   1                                                                                                                                        UInt64(1 if Txn.num_app_args else 5)                                                  stubs/uint64.py:80
+    //                                                virtual: store ternary_result%8#0 to x-stack (no copy)     (𝕏) ternary_result%8#0 |                                                     1 if Txn.num_app_args else 5                                                          stubs/uint64.py:80
+    b main_ternary_merge@27                           //                                                                                   (𝕏) ternary_result%8#0 |                           ternary_result%8#0
+
+main_ternary_false@26:
+    int 5                                             //                                                                                   5                                                                                                                                        UInt64(1 if Txn.num_app_args else 5)                                                  stubs/uint64.py:80
+    //                                                virtual: store ternary_result%8#0 to x-stack (no copy)     (𝕏) ternary_result%8#0 |                                                     1 if Txn.num_app_args else 5                                                          stubs/uint64.py:80
+    // Implicit fall through to main_ternary_merge@27 //                                                                                   (𝕏) ternary_result%8#0 |                           ternary_result%8#0
+
+main_ternary_merge@27:
+    //                                                virtual: load ternary_result%8#0 from x-stack              ternary_result%8#0                                     ternary_result%8#0    1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"               stubs/uint64.py:80
+    int 5                                             //                                                                                   ternary_result%8#0,5                                                                                                                     5                                                                                     stubs/uint64.py:80
+    ==                                                //                                                                                   {==}                                                                                                                                     1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"               stubs/uint64.py:80
+    //                                                virtual: store tmp%48#0 to l-stack (no copy)               tmp%48#0                                                                     1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"               stubs/uint64.py:80
+    //                                                virtual: load tmp%48#0 from l-stack (no copy)              tmp%48#0                                                                     assert UInt64(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported" stubs/uint64.py:80
+    assert // constructor expressions supported       //                                                                                                                                                                                                                            assert UInt64(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported" stubs/uint64.py:80
+    int 1                                             //                                                                                   1                                                                                                                                        UInt64(1)                                                                             stubs/uint64.py:82
+    return                                            //                                                                                                                                                                                                                            return UInt64(1)                                                                      stubs/uint64.py:82
 

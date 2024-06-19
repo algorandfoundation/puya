@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, op
+from algopy import Contract, Txn, UInt64, op
 
 
 class Uint64Contract(Contract):
@@ -76,6 +76,8 @@ class Uint64Contract(Contract):
         assert op.sqrt(UInt64(17)) == op.sqrt(16)
 
         assert one == +one
+
+        assert UInt64(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"
 
         return UInt64(1)
 

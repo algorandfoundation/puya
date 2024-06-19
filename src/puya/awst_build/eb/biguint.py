@@ -5,7 +5,7 @@ import attrs
 import mypy.nodes
 import mypy.types
 
-from puya import log
+from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BigUIntAugmentedAssignment,
@@ -47,7 +47,10 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder):
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
         match literal.value:
-            case int(int_value):  # TODO: validation
+            case int(int_value):
+                pytype = self.produces()
+                if int_value < 0 or int_value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
+                    logger.error(f"invalid {pytype} value", location=literal.source_location)
                 expr = BigUIntConstant(value=int(int_value), source_location=location)
                 return BigUIntExpressionBuilder(expr)
         return None

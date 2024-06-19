@@ -5,7 +5,7 @@ from collections.abc import Sequence
 import mypy.nodes
 import mypy.types
 
-from puya import log
+from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesAugmentedAssignment,
@@ -55,7 +55,10 @@ class BytesTypeBuilder(TypeBuilder):
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
         match literal.value:
-            case bytes(literal_value):  # TODO: validation
+            case bytes(literal_value):
+                if len(literal_value) > algo_constants.MAX_BYTES_LENGTH:
+                    raise CodeError("bytes constant exceeds max length", self.source_location)
+
                 expr = BytesConstant(
                     value=literal_value, encoding=BytesEncoding.unknown, source_location=location
                 )

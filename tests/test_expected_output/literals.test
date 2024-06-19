@@ -1,0 +1,116 @@
+# fmt: off
+# ruff: noqa
+## case: test_uint64_literals
+
+from algopy import UInt64, subroutine
+
+
+@subroutine
+def negative() -> UInt64:
+    return UInt64(-1) ## E: invalid algopy.UInt64 value
+
+@subroutine
+def too_large() -> UInt64:
+    return UInt64(2**64) ## E: invalid algopy.UInt64 value
+
+@subroutine
+def wrong_type() -> UInt64:
+    return UInt64("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+
+## case: test_biguint_literals
+
+from algopy import BigUInt, subroutine
+
+
+@subroutine
+def negative() -> BigUInt:
+    return BigUInt(-1) ## E: invalid algopy.BigUInt value
+
+@subroutine
+def too_large() -> BigUInt:
+    return BigUInt(2**512) ## E: invalid algopy.BigUInt value
+
+@subroutine
+def wrong_type() -> BigUInt:
+    return BigUInt("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+
+## case: test_byte_literals
+
+from algopy import Bytes, subroutine
+
+@subroutine
+def too_large() -> Bytes:
+    return Bytes(b"0" * 4097) ## E: bytes constant exceeds max length
+
+@subroutine
+def wrong_type() -> Bytes:
+    return Bytes("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+
+## case: test_string_literals
+
+from algopy import String, subroutine
+
+@subroutine
+def too_large() -> String:
+    return String("0" * 4097) ## E: string constant exceeds max byte array length
+
+@subroutine
+def invalid_utf8() -> String:
+    return String('\ud861\udd37') ## E: invalid UTF-8 string (encoding error: 'utf-8' codec can't encode characters in position 0-1: surrogates not allowed)
+
+@subroutine
+def wrong_type() -> String:
+    return String(b"1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+
+## case: test_decimal_literals
+import typing
+from algopy import arc4, subroutine
+
+UInt64_2 = arc4.UFixedNxM[typing.Literal[64], typing.Literal[2]]
+UInt512_2 = arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]]
+
+@subroutine
+def invalid_64() -> UInt64_2:
+    return UInt64_2("abc") ## E: invalid decimal literal
+
+@subroutine
+def negative_64() -> UInt64_2:
+    return UInt64_2("-0") ## E: invalid decimal constant (value is negative)
+
+@subroutine
+def too_many_bits_64() -> UInt64_2:
+    return UInt64_2("18446744073709551616") ## E: invalid decimal constant (too many bits)
+
+@subroutine
+def too_many_decimals_64() -> UInt64_2:
+    return UInt64_2("12.345") ## E: invalid decimal constant (wrong precision)
+
+@subroutine
+def wrong_type_64() -> UInt64_2:
+    return UInt64_2(12) # type: ignore[arg-type] ## E: invalid/unhandled arguments
+
+
+@subroutine
+def invalid_512() -> UInt512_2:
+    return UInt512_2("abc") ## E: invalid decimal literal
+
+
+@subroutine
+def negative_512() -> UInt512_2:
+    return UInt512_2("-0") ## E: invalid decimal constant (value is negative)
+
+@subroutine
+def too_many_bits_512() -> UInt512_2:
+    return UInt512_2("2" * 155) ## E: invalid decimal constant (too many bits)
+
+@subroutine
+def too_many_decimals_512() -> UInt512_2:
+    return UInt512_2("12.345") ## E: invalid decimal constant (wrong precision)
+
+@subroutine
+def wrong_type_512() -> UInt512_2:
+    return UInt512_2(12) # type: ignore[arg-type] ## E: invalid/unhandled arguments

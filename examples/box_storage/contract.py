@@ -43,6 +43,7 @@ class BoxContract(arc4.ARC4Contract):
         assert self.box_d.value[-1] == b.native[-1]
         assert self.box_d.value[:-1] == b.native[:-1]
         assert self.box_d.value[:5] == b.native[:5]
+        assert self.box_d.value[: UInt64(2)] == b.native[: UInt64(2)]
 
     @arc4.abimethod
     def check_keys(self) -> None:

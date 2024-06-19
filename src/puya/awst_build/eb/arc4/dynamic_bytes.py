@@ -32,8 +32,11 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
         match literal.value:
-            case bytes():  # TODO: fixme
-                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+            case bytes(bytes_literal):
+                bytes_expr = BytesConstant(
+                    value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location
+                )
+                return self._from_bytes_expr(bytes_expr, location)
         return None
 
     @typing.override
@@ -44,26 +47,31 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        typ = self.produces()
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4DynamicArray)
         match args:
+            case [InstanceBuilder(pytype=pytypes.BytesLiteralType) as lit]:
+                return lit.resolve_literal(self)
             case []:
                 bytes_expr: Expression = BytesConstant(
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
-                )
-            case [LiteralBuilder(value=bytes(bytes_literal))]:
-                bytes_expr = BytesConstant(
-                    value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location
                 )
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 bytes_expr = eb.resolve()
             case _:
                 non_literal_args = tuple(_coerce_to_byte(a) for a in args)
                 return DynamicBytesExpressionBuilder(
-                    NewArray(values=non_literal_args, wtype=wtype, source_location=location)
+                    NewArray(values=non_literal_args, wtype=self._arc4_type, source_location=location)
                 )
-        encode_expr = ARC4Encode(value=bytes_expr, wtype=wtype, source_location=location)
+        return self._from_bytes_expr(bytes_expr, location)
+
+    @property
+    def _arc4_type(self) -> wtypes.ARC4DynamicArray:
+        typ = self.produces()
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ARC4DynamicArray)
+        return wtype
+
+    def _from_bytes_expr(self, expr: Expression, location: SourceLocation) -> InstanceBuilder:
+        encode_expr = ARC4Encode(value=expr, wtype=self._arc4_type, source_location=location)
         return DynamicBytesExpressionBuilder(encode_expr)
 
 

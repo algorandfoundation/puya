@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64
+from algopy import Bytes, Contract, Txn, UInt64
 from algopy.arc4 import (
     Byte,
     DynamicBytes,
@@ -38,6 +38,11 @@ class Arc4DynamicBytesContract(Contract):
         assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
         assert dynamic_bytes3.native == b"\x03\x04abc"
 
+        dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+        assert dynamic_bytes.native == Bytes.from_hex("030301")
+
+        dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
+        assert dynamic_bytes.native == b"3"
         return True
 
     def clear_state_program(self) -> bool:
