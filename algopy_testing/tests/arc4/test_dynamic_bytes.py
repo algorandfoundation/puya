@@ -1,14 +1,13 @@
 import copy
 import typing
 
-import algopy
+import algosdk
 import pytest
-from algopy_testing import arc4
-from algosdk import abi
+from algopy_testing import Bytes, arc4
 
 from tests.util import int_to_bytes
 
-_abi_dynamic_bytes_type = abi.ABIType.from_string("byte[]")
+_abi_dynamic_bytes_type = algosdk.abi.ABIType.from_string("byte[]")
 _abi_int_array_values = [0, 1, 8, 16, 32, 64, 128, 255, 20, 30, 40, 50, 111]
 _abi_bytes_value = b"".join([int_to_bytes(value) for value in _abi_int_array_values])
 
@@ -24,7 +23,7 @@ _arc4_bytes_bytes: arc4.DynamicBytes = arc4.DynamicBytes(*_arc4_bytes_array_valu
 _arc4_native_bytes_value = b"".join([int_to_bytes(value) for value in _abi_int_array_values])
 _arc4_native_bytes_bytes: arc4.DynamicBytes = arc4.DynamicBytes(_arc4_native_bytes_value)
 
-_arc4_algopy_bytes_value = algopy.Bytes(
+_arc4_algopy_bytes_value = Bytes(
     b"".join([int_to_bytes(value) for value in _abi_int_array_values])
 )
 _arc4_algopy_bytes_bytes: arc4.DynamicBytes = arc4.DynamicBytes(_arc4_algopy_bytes_value)

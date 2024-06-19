@@ -22,7 +22,7 @@ from algopy_testing.utils import (
 )
 
 if typing.TYPE_CHECKING:
-    import algopy  # noqa: TCH004
+    import algopy
 
 _ABI_LENGTH_SIZE = 2
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
@@ -847,6 +847,8 @@ class DynamicBytes(DynamicArray[Byte]):
         self,
         *value: algopy.Bytes | bytes | Byte | UInt8 | int,
     ):
+        import algopy
+
         items = []
         for x in value:
             if isinstance(x, int):
