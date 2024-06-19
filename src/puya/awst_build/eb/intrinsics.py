@@ -188,7 +188,7 @@ def _map_call(
                     if isinstance(type_builder, TypeBuilder):
                         try:
                             converted = arg_in.resolve_literal(type_builder)
-                        except CodeError: # TODO: fixme, need a try version or something here
+                        except CodeError:  # TODO: fixme, need a try version or something here
                             pass
                         else:
                             stack_args.append(converted)

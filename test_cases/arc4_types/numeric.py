@@ -1,7 +1,7 @@
 import typing
 import typing as t
 
-from algopy import BigUInt, Bytes, Contract, UInt64, op
+from algopy import BigUInt, Bytes, Contract, Txn, UInt64, op
 from algopy.arc4 import (
     BigUFixedNxM,
     BigUIntN,
@@ -39,6 +39,8 @@ class Arc4NumericTypesContract(Contract):
         assert UInt16.from_bytes(test_bytes[:2]).native == 2**16 - 1 - 2**15
         assert UInt32.from_bytes(test_bytes[:4]).native == 2**32 - 1 - 2**31
         assert ARC4UInt64.from_bytes(test_bytes[:8]).native == 2**64 - 1 - 2**63
+        assert UInt8(1 if Txn.num_app_args else 2) == 2
+        assert UInt512(1 if Txn.num_app_args else 2) == 2
 
         decimals = Decimal("145.6853943940")
 
@@ -84,6 +86,8 @@ class Arc4NumericTypesContract(Contract):
         really_big_decimal = BigUFixedNxM[t.Literal[512], t.Literal[2]].from_bytes(
             BigUInt(sixty_four_byte_num).bytes
         )
+
+        assert Decimal("1844674407.3709551615" if Txn.num_app_args else "0.0") == Decimal()
 
         biguint = BigUInt(1)
         arc4_biguint_const = ARC4BigUInt(1)

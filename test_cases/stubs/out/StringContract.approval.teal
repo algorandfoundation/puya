@@ -15,6 +15,28 @@ test_cases.stubs.string.StringContract.approval_program:
     !
     assert
     // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    txn NumAppArgs
+    bz main_ternary_false@38
+    byte "args"
+    b main_ternary_merge@39
+
+main_ternary_false@38:
+    // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    byte "no args"
+
+main_ternary_merge@39:
+    // stubs/string.py:49
+    // String("args" if Txn.num_app_args else "no args") == "no args"
+    byte "no args"
+    ==
+    // stubs/string.py:48-50
+    // assert (
+    //     String("args" if Txn.num_app_args else "no args") == "no args"
+    // ), "constructor expressions supported"
+    assert // constructor expressions supported
+    // stubs/string.py:52
     // return True
     int 1
     return

@@ -1,7 +1,61 @@
 #pragma version 10
 
 test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
-    // arc4_types/numeric.py:98
+    // arc4_types/numeric.py:42
+    // assert UInt8(1 if Txn.num_app_args else 2) == 2
+    txn NumAppArgs
+    bz main_ternary_false@2
+    byte 0x01
+    b main_ternary_merge@3
+
+main_ternary_false@2:
+    // arc4_types/numeric.py:42
+    // assert UInt8(1 if Txn.num_app_args else 2) == 2
+    byte 0x02
+
+main_ternary_merge@3:
+    // arc4_types/numeric.py:42
+    // assert UInt8(1 if Txn.num_app_args else 2) == 2
+    byte 0x02
+    b==
+    assert
+    // arc4_types/numeric.py:43
+    // assert UInt512(1 if Txn.num_app_args else 2) == 2
+    txn NumAppArgs
+    bz main_ternary_false@5
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+    b main_ternary_merge@6
+
+main_ternary_false@5:
+    // arc4_types/numeric.py:43
+    // assert UInt512(1 if Txn.num_app_args else 2) == 2
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+
+main_ternary_merge@6:
+    // arc4_types/numeric.py:43
+    // assert UInt512(1 if Txn.num_app_args else 2) == 2
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    b==
+    assert
+    // arc4_types/numeric.py:90
+    // assert Decimal("1844674407.3709551615" if Txn.num_app_args else "0.0") == Decimal()
+    txn NumAppArgs
+    bz main_ternary_false@8
+    byte 0xffffffffffffffff
+    b main_ternary_merge@9
+
+main_ternary_false@8:
+    // arc4_types/numeric.py:90
+    // assert Decimal("1844674407.3709551615" if Txn.num_app_args else "0.0") == Decimal()
+    byte 0x0000000000000000
+
+main_ternary_merge@9:
+    // arc4_types/numeric.py:90
+    // assert Decimal("1844674407.3709551615" if Txn.num_app_args else "0.0") == Decimal()
+    byte 0x0000000000000000
+    ==
+    assert
+    // arc4_types/numeric.py:102
     // return True
     int 1
     return
