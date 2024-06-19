@@ -4,6 +4,7 @@ import copy
 import decimal
 import types
 import typing
+from collections import ChainMap
 from collections.abc import Iterable, Reversible
 
 import algosdk
@@ -966,6 +967,62 @@ class Tuple(
         if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
+
+
+@typing.dataclass_transform(
+    eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
+)
+class _StructMeta(type):
+    def __new__(
+        cls,
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, object],
+    ) -> _StructMeta:
+        return super().__new__(cls, name, bases, namespace)
+
+
+class Struct(metaclass=_StructMeta):
+    """Base class for ARC4 Struct types"""
+
+    def __init__(self, *args: typing.Any):
+        self._value = Tuple(args)
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        annotations = _all_annotations(cls)
+
+        result = cls()
+        tuple_value = Tuple[tuple(v for k, v in annotations.items())].from_bytes(value)  # type: ignore[misc, attr-defined]
+        result._value = tuple_value
+
+        return result
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying bytes[]"""
+        return self._value.bytes
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        import algopy
+
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
+
+    def copy(self) -> typing.Self:
+        """Create a copy of this struct"""
+        return copy.deepcopy(self)
+
+
+# https://stackoverflow.com/a/72037059
+def _all_annotations(cls: type) -> ChainMap[str, type]:
+    """Returns a dictionary-like ChainMap that includes annotations for all
+    attributes defined in cls or inherited from superclasses."""
+    return ChainMap(*(c.__annotations__ for c in cls.__mro__ if "__annotations__" in c.__dict__))
 
 
 def _is_arc4_dynamic(value: object) -> bool:
