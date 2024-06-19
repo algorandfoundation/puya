@@ -8,7 +8,6 @@ from collections.abc import Iterable, Reversible
 
 import algosdk
 
-import algopy_testing.primitives as algopy
 from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
 from algopy_testing.decorators.abimethod import abimethod
 from algopy_testing.models import Account
@@ -21,6 +20,9 @@ from algopy_testing.utils import (
     as_string,
     int_to_bytes,
 )
+
+if typing.TYPE_CHECKING:
+    import algopy  # noqa: TCH004
 
 _ABI_LENGTH_SIZE = 2
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
@@ -50,10 +52,10 @@ class String(_ABIEncoded):
     _value: bytes
 
     def __init__(self, value: algopy.String | str = "", /) -> None:
-        from algopy import String
+        import algopy
 
         match value:
-            case String():
+            case algopy.String():
                 bytes_value = as_bytes(value.bytes)
             case str(value):
                 bytes_value = value.encode("utf-8")
@@ -67,9 +69,9 @@ class String(_ABIEncoded):
     @property
     def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
-        from algopy import String
+        import algopy
 
-        return String.from_bytes(self._value[_ABI_LENGTH_SIZE:])
+        return algopy.String.from_bytes(self._value[_ABI_LENGTH_SIZE:])
 
     def __add__(self, other: String | str) -> String:
         return String(self.native + as_string(other))
@@ -94,17 +96,17 @@ class String(_ABIEncoded):
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        from algopy import Bytes
+        import algopy
 
-        return Bytes(self._value)
+        return algopy.Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        from algopy import Bytes
+        import algopy
 
-        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -195,17 +197,17 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize], metaclass=_UIntNMeta):
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        from algopy import Bytes
+        import algopy
 
-        return Bytes(self._value)
+        return algopy.Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        from algopy import Bytes
+        import algopy
 
-        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -220,9 +222,9 @@ class UIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     @property
     def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        from algopy import UInt64
+        import algopy
 
-        return UInt64(int.from_bytes(self._value))
+        return algopy.UInt64(int.from_bytes(self._value))
 
     def __eq__(self, other: object) -> bool:
         return as_int64(self.native) == as_int(other, max=None)
@@ -256,9 +258,9 @@ class BigUIntN(_UIntN[_TBitSize], typing.Generic[_TBitSize]):
     @property
     def native(self) -> algopy.BigUInt:
         """Return the UInt64 representation of the value after ARC4 decoding"""
-        from algopy import BigUInt
+        import algopy
 
-        return BigUInt.from_bytes(self._value)
+        return algopy.BigUInt.from_bytes(self._value)
 
     def __eq__(self, other: object) -> bool:
         return as_int512(self.native) == as_int(other, max=None)
@@ -368,17 +370,17 @@ class _UFixedNxM(
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        from algopy import Bytes
+        import algopy
 
-        return Bytes(self._value)
+        return algopy.Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        from algopy import Bytes
+        import algopy
 
-        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -457,17 +459,17 @@ class Bool(_ABIEncoded):
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
-        from algopy import Bytes
+        import algopy
 
-        return Bytes(self._value)
+        return algopy.Bytes(self._value)
 
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
-        from algopy import Bytes
+        import algopy
 
-        if log[:4] == Bytes(ARC4_RETURN_PREFIX):
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
             return cls.from_bytes(log[4:])
         raise ValueError("ABI return prefix not found")
 
@@ -550,6 +552,8 @@ class StaticArray(
     @property
     def length(self) -> algopy.UInt64:
         # """Returns the current length of the array"""
+        import algopy
+
         return algopy.UInt64(len(self._list()))
 
     @typing.overload
@@ -609,6 +613,8 @@ class StaticArray(
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
+        import algopy
+
         return algopy.Bytes(self._value)
 
     @classmethod
@@ -727,6 +733,8 @@ class DynamicArray(
     @property
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
+        import algopy
+
         return algopy.UInt64(len(self._list()))
 
     @typing.overload
@@ -811,6 +819,8 @@ class DynamicArray(
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
+        import algopy
+
         return algopy.Bytes(self._value)
 
     @classmethod
@@ -941,6 +951,8 @@ class Tuple(
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying Bytes"""
+        import algopy
+
         return algopy.Bytes(self._value)
 
     @classmethod
