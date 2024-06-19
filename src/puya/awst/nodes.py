@@ -443,17 +443,6 @@ class StringConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.string_wtype, init=False)
     value: str = attrs.field()
 
-    @value.validator
-    def _validate_value(self, _attribute: object, value: str) -> None:
-        try:
-            bytes_value = value.encode("utf8")
-        except UnicodeEncodeError as ex:
-            raise CodeError(
-                "invalid UTF-8 string (encoding error: {ex})", self.source_location
-            ) from ex
-        if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError("string constant exceeds max byte array length", self.source_location)
-
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)
 
