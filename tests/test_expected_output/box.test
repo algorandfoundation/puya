@@ -30,6 +30,18 @@ def wrong_get_arg_type() -> None:
 
 
 @subroutine
+def bad_slice_literal_type() -> None:
+    box = Box(Bytes, key=b"box")
+    bad_slice = box.value[:"3"]  # type: ignore[misc] ## E: Invalid literal for slicing: '3'
+
+
+@subroutine
+def no_stride() -> None:
+    box = Box(Bytes, key=b"box")
+    bad = box.value[:3:2]  ## E: Stride is not supported when slicing boxes
+
+
+@subroutine
 def wrong_maybe_arg() -> None:
     box = Box(UInt64, key=b"box")
     box.maybe(UInt64())  # type: ignore[call-arg] ## E: Invalid/unexpected args
