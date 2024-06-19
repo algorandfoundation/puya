@@ -856,15 +856,11 @@ def test_set_item(
 
 
 def _compare_abi_and_arc4_values(
-    arc4_value: typing.Any,  # noqa: ANN401
-    abi_value: typing.Any,  # noqa: ANN401
+    arc4_value: typing.Any,
+    abi_value: typing.Any,
 ) -> None:
     if hasattr(arc4_value, "_list") or isinstance(arc4_value, tuple):
-        x = (
-            list(arc4_value)
-            if isinstance(arc4_value, tuple)
-            else arc4_value._list()  # noqa: SLF001
-        )
+        x = list(arc4_value) if isinstance(arc4_value, tuple) else arc4_value._list()
         j = 0
         while j < len(x):
             _compare_abi_and_arc4_values(x[j], abi_value[j])
