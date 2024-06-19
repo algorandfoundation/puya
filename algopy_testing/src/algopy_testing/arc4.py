@@ -1267,13 +1267,20 @@ def _decode(  # noqa: PLR0912, C901
 
 
 __all__ = [
-    "Bool",
-    "UInt8",
-    "UInt16",
+    "UFixedNxM",
+    "UIntN",
+    "BigUFixedNxM",
+    "BigUIntN",
     "UInt32",
     "UInt64",
     "UInt128",
     "UInt256",
     "UInt512",
     "abimethod",
+    "Struct",
+    "Tuple",
+    "DynamicArray",
+    "StaticArray",
+    "Bool",
+    "String",
 ]
