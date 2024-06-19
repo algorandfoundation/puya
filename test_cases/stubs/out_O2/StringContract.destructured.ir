@@ -7,6 +7,17 @@ contract test_cases.stubs.string.StringContract:
                 let tmp%10#0: bool = algopy_lib_bytes.is_substring("red fox", "The quick brown fox jumped over the lazy dog")
                 let tmp%11#0: bool = (! tmp%10#0)
                 (assert tmp%11#0)
+                let reinterpret_bool%2#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%2#0 ? block@37 : block@38
+            block@37: // ternary_true_L49
+                let ternary_result%12#0: bytes = "args"
+                goto block@39
+            block@38: // ternary_false_L49
+                let ternary_result%12#0: bytes = "no args"
+                goto block@39
+            block@39: // ternary_merge_L49
+                let tmp%121#0: bool = (== ternary_result%12#0 "no args")
+                (assert tmp%121#0) // constructor expressions supported
                 return 1u
         
         subroutine algopy_lib_bytes.is_substring(item: bytes, sequence: bytes) -> bool:
@@ -33,5 +44,5 @@ contract test_cases.stubs.string.StringContract:
     
     program clear-state:
         subroutine test_cases.stubs.string.StringContract.clear_state_program() -> bool:
-            block@0: // L51
+            block@0: // L54
                 return 1u

@@ -34,6 +34,7 @@ contract BoxContract
     assert(box_extract('box_d', box_len('box_d')[0] - 1u, 1u) == arc4_decode(b, bytes)[len(arc4_decode(b, bytes)) - 1u])
     assert(box_extract('box_d', 0u, SINGLE_EVAL(id=2, source=box_len('box_d')[0]) - select(SINGLE_EVAL(id=2, source=box_len('box_d')[0]), 1u, 1u < SINGLE_EVAL(id=2, source=box_len('box_d')[0])) - 0u) == arc4_decode(b, bytes)[:-1])
     assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=3, source=box_len('box_d')[0]), 5u, 5u < SINGLE_EVAL(id=3, source=box_len('box_d')[0])) - 0u) == arc4_decode(b, bytes)[:5])
+    assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=4, source=box_len('box_d')[0]), 2u, 2u < SINGLE_EVAL(id=4, source=box_len('box_d')[0])) - 0u) == arc4_decode(b, bytes)[:2u])
   }
   
   abimethod check_keys(): void
@@ -70,9 +71,9 @@ contract BoxContract
   {
     box_0: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('0'))
     Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
-    assert(box_extract(box_0, select(SINGLE_EVAL(id=4, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=4, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=4, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=4, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=4, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=4, source=box_len(box_0)[0]))) == hex<"54657374696E67">)
+    assert(box_extract(box_0, select(SINGLE_EVAL(id=5, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=5, source=box_len(box_0)[0])), select(SINGLE_EVAL(id=5, source=box_len(box_0)[0]), 7u, 7u < SINGLE_EVAL(id=5, source=box_len(box_0)[0])) - select(SINGLE_EVAL(id=5, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=5, source=box_len(box_0)[0]))) == hex<"54657374696E67">)
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
-    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=5, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=5, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=5, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=5, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=5, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=5, source=box_len(hex<"424F585F43">)[0]))) == hex<"48656C6C6F">)
+    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0])), select(SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0]), 10u, 10u < SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0])) - select(SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0]))) == hex<"48656C6C6F">)
   }
   
   abimethod arc4_box(): void

@@ -18,10 +18,22 @@ contract test_cases.stubs.bytes.BytesContract:
                 (assert tmp%24#0)
                 test_cases.stubs.bytes.check_slicing_with_uint64(0x616263)
                 test_cases.stubs.bytes.check_end_before_start_slicing(0x616263)
+                let reinterpret_bool%11#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%11#0 ? block@28 : block@29
+            block@28: // ternary_true_L72
+                let ternary_result%9#0: bytes = 0x61726773
+                goto block@30
+            block@29: // ternary_false_L72
+                let ternary_result%9#1: bytes = 0x6e6f2061726773
+                goto block@30
+            block@30: // ternary_merge_L72
+                let ternary_result%9#2: bytes = φ(ternary_result%9#0 <- block@28, ternary_result%9#1 <- block@29)
+                let tmp%42#0: bool = (== ternary_result%9#2 0x6e6f2061726773)
+                (assert tmp%42#0) // constructor expressions supported
                 return 1u
         
         subroutine test_cases.stubs.bytes.check_slicing_with_uint64(abc: bytes) -> void:
-            block@0: // L77
+            block@0: // L81
                 let length%0#0: uint64 = (len abc#0)
                 let is_out_of_bounds%0#0: bool = (>= 1u length%0#0)
                 let bounded_index%0#0: uint64 = (select 1u length%0#0 is_out_of_bounds%0#0)
@@ -54,12 +66,12 @@ contract test_cases.stubs.bytes.BytesContract:
                 return 
         
         subroutine test_cases.stubs.bytes.one_to_seven() -> bytes:
-            block@0: // L97
+            block@0: // L101
                 (log "one_to_seven called")
                 return 0x31323334353637
         
         subroutine test_cases.stubs.bytes.check_end_before_start_slicing(abc: bytes) -> void:
-            block@0: // L88
+            block@0: // L92
                 let length%0#0: uint64 = (len abc#0)
                 let is_out_of_bounds%0#0: bool = (>= 10u length%0#0)
                 let bounded_index%0#0: uint64 = (select 10u length%0#0 is_out_of_bounds%0#0)
@@ -83,5 +95,5 @@ contract test_cases.stubs.bytes.BytesContract:
     
     program clear-state:
         subroutine test_cases.stubs.bytes.BytesContract.clear_state_program() -> bool:
-            block@0: // L73
+            block@0: // L77
                 return 1u
