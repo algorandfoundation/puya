@@ -429,11 +429,6 @@ class BytesConstant(Expression):
     value: bytes = attrs.field()
     encoding: BytesEncoding = attrs.field()
 
-    @value.validator
-    def _validate_value(self, _attribute: object, value: bytes) -> None:
-        if len(value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError("bytes constant exceeds max length", self.source_location)
-
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
 
