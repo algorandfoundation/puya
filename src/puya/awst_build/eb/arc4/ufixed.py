@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import DecimalConstant, Expression
 from puya.awst_build import pytypes
@@ -17,13 +18,14 @@ from puya.awst_build.eb.interface import (
     LiteralBuilder,
     NodeBuilder,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 __all__ = [
     "UFixedNxMTypeBuilder",
     "UFixedNxMExpressionBuilder",
 ]
+
+logger = log.get_logger(__name__)
 
 
 class UFixedNxMTypeBuilder(ARC4TypeBuilder):
@@ -32,8 +34,9 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
         match literal.value:
-            case str():  # TODO: fixme
-                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+            case str(literal_value):
+                result = self._str_to_decimal_constant(literal_value, location)
+                return UFixedNxMExpressionBuilder(result, self.produces())
         return None
 
     @typing.override
@@ -44,17 +47,23 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        typ = self.produces()
-        fixed_wtype = typ.wtype
-        assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
-        loc = location
         match args:
+            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+                return arg.resolve_literal(converter=self)
             case []:
-                literal_value = "0.0"
-            case [LiteralBuilder(value=str(literal_value))]:
                 pass
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("invalid/unhandled arguments", location=location)
+
+        result = self._str_to_decimal_constant("0.0", location)
+        return UFixedNxMExpressionBuilder(result, self.produces())
+
+    def _str_to_decimal_constant(
+        self, literal_value: str, location: SourceLocation
+    ) -> DecimalConstant:
+        fixed_wtype = self.produces().wtype
+        assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
+
         with decimal.localcontext(
             decimal.Context(
                 prec=160,
@@ -68,16 +77,27 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
         ):
             try:
                 d = decimal.Decimal(literal_value)
-            except ArithmeticError as ex:
-                raise CodeError(f"Invalid decimal literal: {literal_value}", loc) from ex
-            if d < 0:
-                raise CodeError("Negative numbers not allowed", loc)
+            except ArithmeticError:
+                logger.error("invalid decimal literal", location=location)  # noqa: TRY400
+                d = decimal.Decimal()
             try:
                 q = d.quantize(decimal.Decimal(f"1e-{fixed_wtype.m}"))
-            except ArithmeticError as ex:
-                raise CodeError(f"Too many decimals, expected max of {fixed_wtype.m}", loc) from ex
-        result = DecimalConstant(value=q, wtype=fixed_wtype, source_location=loc)
-        return UFixedNxMExpressionBuilder(result, typ)
+            except ArithmeticError:
+                logger.error(  # noqa: TRY400
+                    "invalid decimal constant (wrong precision)", location=location
+                )
+                q = decimal.Decimal("0." + "0" * fixed_wtype.m)
+
+            sign, digits, exponent = q.as_tuple()
+            if sign != 0:  # is negative
+                logger.error("invalid decimal constant (value is negative)", location=location)
+            if not isinstance(exponent, int):  # is infinite
+                logger.error("invalid decimal constant (value is infinite)", location=location)
+            adjusted_int = int("".join(map(str, digits)))
+            if adjusted_int.bit_length() > fixed_wtype.n:
+                logger.error("invalid decimal constant (too many bits)", location=location)
+            result = DecimalConstant(value=q, wtype=fixed_wtype, source_location=location)
+            return result
 
 
 class UFixedNxMExpressionBuilder(

@@ -11,7 +11,6 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
-from puya import algo_constants
 from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
@@ -334,22 +333,6 @@ class IntegerConstant(Expression):
 class DecimalConstant(Expression):
     wtype: wtypes.ARC4UFixedNxM
     value: decimal.Decimal = attrs.field()
-
-    @value.validator
-    def _validate_value(self, _attribute: object, value: decimal.Decimal) -> None:
-        sign, digits, exponent = value.as_tuple()
-        type_bits = self.wtype.n
-        type_precision = self.wtype.m
-        if sign != 0:  # is negative
-            raise CodeError("invalid decimal constant (value is negative)", self.source_location)
-        if not isinstance(exponent, int):  # is infinite
-            raise CodeError("invalid decimal constant (value is infinite)", self.source_location)
-        # note: input is expected to be quantized correctly already
-        if -exponent != type_precision:  # wrong precision
-            raise CodeError("invalid decimal constant (wrong precision)", self.source_location)
-        adjusted_int = int("".join(map(str, digits)))
-        if adjusted_int.bit_length() > type_bits:
-            raise CodeError("invalid decimal constant (too many bits)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_decimal_constant(self)
