@@ -23,6 +23,7 @@ from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuild
 from puya.awst_build.eb.string import StringTypeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
+from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
@@ -48,18 +49,15 @@ def get_field_expr(arg_name: str, arg: InstanceBuilder) -> tuple[TxnField, Expre
     elif field.is_array:
         match arg:
             case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
-                field.valid_type(t.wtype)
-                for t in tuple_item_types  # TODO: revisit this re serialize
+                field.valid_type(t.wtype) for t in tuple_item_types
             ):
                 expr = arg.resolve()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    elif (  # TODO: can we remove this hack?
-        field_pytype == pytypes.BytesType
-        and arg.pytype == pytypes.StrLiteralType
-        and wtypes.string_wtype in field.additional_input_wtypes
-    ):
-        field_expr = arg.resolve_literal(StringTypeBuilder(arg.source_location)).resolve()
+    # TODO(first): pull the below out, and reuse above inside tuples, allowing literals in tuples
+    elif field_pytype == pytypes.BytesType:
+        # this handles the overlapping case of allowing Bytes && String to a single field
+        field_expr = arg.to_bytes(arg.source_location)
     else:
         arg = maybe_resolve_literal(arg, field_pytype)
         arg_typ = arg.pytype
@@ -86,7 +84,7 @@ def _maybe_transform_program_field_expr(
 
     match eb:
         case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
-            t == pytypes.BytesType for t in tuple_item_types  # TODO: revisit this re serialize
+            t == pytypes.BytesType for t in tuple_item_types
         ):
             expr = eb.resolve()
         case _:

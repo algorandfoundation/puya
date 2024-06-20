@@ -933,7 +933,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             lhs = lhs.single_eval()
             # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
-            # TODO: this is a bit convoluted in terms of NodeBuilder <-> Expression
             condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).resolve()
             expr_result = ConditionalExpression(
                 source_location=location,
@@ -994,7 +993,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         expr_pytype = true_b.pytype
 
         if isinstance(expr_pytype, pytypes.LiteralOnlyType):
-            assert isinstance(true_b, LiteralBuilder)  # TODO: fixme
+            assert isinstance(true_b, LiteralBuilder)  # TODO(frist): fixme
             assert isinstance(false_b, LiteralBuilder)
             return ConditionalLiteralBuilder(
                 true_literal=true_b,
@@ -1046,7 +1045,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 right=curr,
             )
             prev = curr
-        # TODO: PyType known as bool (at least with our current stubs)
         return BoolExpressionBuilder(result)
 
     def _build_compare(

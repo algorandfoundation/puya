@@ -33,7 +33,7 @@ def implicit_operand_conversion(
     operand = maybe_resolve_literal(operand, target_type)
     if operand.pytype == target_type:
         return operand
-    # TODO: this is a bit of a hack, the target_type in case we get this far is most likely
+    # TODO(first): this is a bit of a hack, the target_type in case we get this far is most likely
     #       derived from a call to _implicit_arc4_conversion
     if target_type == _implicit_arc4_conversion(operand.pytype, operand.source_location):
         target_type_builder = builder_for_type(target_type, operand.source_location)

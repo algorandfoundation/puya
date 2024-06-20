@@ -17,7 +17,7 @@ class Literals(Contract):
         assert bool(x) == condition
         assert x == -(-1 if condition else 0)  # test unary op propagation
         y = x + ((1 if condition else 2) - 1)  # test binary op with literal & non-literal
-        # TODO: test reverse
+        # TODO(frist): test reverse
         assert y == 1
         maybe = (1 if condition else 0) < y  # test comparison with non-literal
         assert maybe == (not condition)

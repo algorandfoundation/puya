@@ -128,7 +128,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        # TODO: semantic compatibility issue, here and potentially elsewhere: ignores evaluation
+        # TODO(frist): semantic compatibility issue, here and potentially elsewhere: ignores evaluation
         return bool_eval_to_constant(value=bool(self._items), location=location, negate=negate)
 
     @typing.override

@@ -12,7 +12,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class VoidTypeExpressionBuilder(TypeBuilder):  # TODO: rename to None
+class VoidTypeExpressionBuilder(TypeBuilder):  # TODO(frist): rename to None
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.NoneType, location)
 
@@ -28,7 +28,7 @@ class VoidTypeExpressionBuilder(TypeBuilder):  # TODO: rename to None
         raise CodeError("None is not usable as a value", location)
 
 
-class VoidExpressionBuilder(NotIterableInstanceExpressionBuilder):  # TODO: rename to None
+class VoidExpressionBuilder(NotIterableInstanceExpressionBuilder):  # TODO(frist): rename to None
     def __init__(self, expr: Expression):
         super().__init__(pytypes.NoneType, expr)
 
