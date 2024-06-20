@@ -411,8 +411,11 @@ class ToCodeVisitor(
         return f"update_inner_transaction({expr.itxn.accept(self)},{', '.join(fields)})"
 
     def visit_submit_inner_transaction(self, call: nodes.SubmitInnerTransaction) -> str:
-        itxns = [p.accept(self) for p in call.itxns]
-        return f"submit_txn({', '.join(itxns)})"
+        if isinstance(call.group, tuple):
+            group = f'{", ".join(itxn.accept(self) for itxn in call.itxns)}'
+        else:
+            group = call.group.accept(self)
+        return f"submit_txn({group})"
 
     def visit_inner_transaction_field(self, itxn_field: nodes.InnerTransactionField) -> str:
         txn = itxn_field.itxn.accept(self)
