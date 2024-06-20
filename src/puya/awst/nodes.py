@@ -1,7 +1,6 @@
 import decimal
 import enum
 import itertools
-import types
 import typing
 import typing as t
 from abc import ABC, abstractmethod
@@ -28,95 +27,6 @@ ConstantValue: t.TypeAlias = int | str | bytes | bool
 @attrs.frozen
 class Node:
     source_location: SourceLocation
-
-    def __attrs_post_init__(self) -> None:
-        def format_type_name(obj: object) -> str:
-            if isinstance(obj, type):
-                the_type = obj
-            else:
-                the_type = type(obj)
-            return repr(".".join((the_type.__module__, the_type.__qualname__)))
-
-        typ = attrs.resolve_types(type(self))
-        for field in attrs.fields(typ):
-            field_value = getattr(self, field.name)
-            if not field.init:
-                continue
-            if not isinstance(field.type, types.GenericAlias):
-                field_type = field.type
-                if not isinstance(field_value, field_type):
-                    raise InternalError(
-                        f"Bad type for {field.name!r}"
-                        f" on {format_type_name(typ)}:"
-                        f" expected {format_type_name(field_type)},"
-                        f" got {format_type_name(field_value)}",
-                        self.source_location,
-                    )
-            else:
-                field_type = field.type.__origin__
-                if field_type == Mapping:
-                    if not isinstance(field_value, Mapping):
-                        raise InternalError(
-                            f"Bad type for {field.name!r}"
-                            f" on {format_type_name(typ)}:"
-                            f" expected {format_type_name(field_type)},"
-                            f" got {format_type_name(field_value)}",
-                            self.source_location,
-                        )
-                    key_type, value_type = field.type.__args__
-                    for k, v in field_value.items():
-                        if not isinstance(k, key_type):
-                            raise InternalError(
-                                f"Bad type for key data of {field.name!r}"
-                                f" on {format_type_name(typ)}:"
-                                f" expected {format_type_name(key_type)},"
-                                f" got {format_type_name(k)}",
-                                self.source_location,
-                            )
-                        if not isinstance(v, value_type):
-                            raise InternalError(
-                                f"Bad type for value data of {field.name!r}"
-                                f" on {format_type_name(typ)}:"
-                                f" expected {format_type_name(value_type)},"
-                                f" got {format_type_name(v)}",
-                                self.source_location,
-                            )
-                elif field_type in (Sequence, StableSet):
-                    if not isinstance(field_value, field_type):
-                        raise InternalError(
-                            f"Bad type for {field.name!r}"
-                            f" on {format_type_name(typ)}:"
-                            f" expected {format_type_name(field_type)},"
-                            f" got {format_type_name(field_value)}",
-                            self.source_location,
-                        )
-                    (item_type,) = field.type.__args__
-                    for it in field_value:
-                        if not isinstance(it, item_type):
-                            raise InternalError(
-                                f"Bad type for item data of {field.name!r}"
-                                f" on {format_type_name(typ)}:"
-                                f" expected {format_type_name(item_type)},"
-                                f" got {format_type_name(it)}",
-                                self.source_location,
-                            )
-                elif (
-                    field_type == tuple
-                    and len(field.type.__args__) == 2
-                    and field.type.__args__[1] == Ellipsis
-                ):
-                    item_type, _ = field.type.__args__
-                    for it in field_value:
-                        if not isinstance(it, item_type):
-                            raise InternalError(
-                                f"Bad type for item data of {field.name!r}"
-                                f" on {format_type_name(typ)}:"
-                                f" expected {format_type_name(item_type)},"
-                                f" got {format_type_name(it)}",
-                                self.source_location,
-                            )
-                else:
-                    raise InternalError(f"Can't validate generic type {field.type}")
 
 
 @attrs.frozen
@@ -1126,7 +1036,6 @@ class AssignmentStatement(Statement):
     value: Expression
 
     def __attrs_post_init__(self) -> None:
-        super().__attrs_post_init__()
         if self.value.wtype != self.target.wtype:
             raise CodeError(
                 "assignment target type differs from expression value type",
@@ -1218,7 +1127,6 @@ class NumericComparisonExpression(Expression):
     rhs: Expression = attrs.field(validator=[numeric_comparable])
 
     def __attrs_post_init__(self) -> None:
-        super().__attrs_post_init__()
         if self.lhs.wtype != self.rhs.wtype:
             raise InternalError(
                 "numeric comparison between different wtypes:"
@@ -1247,7 +1155,6 @@ class BytesComparisonExpression(Expression):
     rhs: Expression = attrs.field(validator=[bytes_comparable])
 
     def __attrs_post_init__(self) -> None:
-        super().__attrs_post_init__()
         if self.lhs.wtype != self.rhs.wtype:
             raise InternalError(
                 "bytes comparison between different wtypes:"
@@ -1461,7 +1368,6 @@ class Contains(Expression):
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
 
     def __attrs_post_init__(self) -> None:
-        super().__attrs_post_init__()
         if self.sequence.wtype == wtypes.bytes_wtype:
             raise InternalError(
                 "Use IsSubstring for 'in' or 'not in' checks with Bytes", self.source_location
