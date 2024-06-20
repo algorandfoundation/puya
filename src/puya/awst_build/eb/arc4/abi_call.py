@@ -50,6 +50,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
+
 _APP_TRANSACTION_FIELDS = {
     get_field_python_name(field): field
     for field in (
@@ -136,7 +137,7 @@ class ABICallGenericTypeBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _abi_call(args, arg_kinds, arg_names, location, abi_return_type=None)
+        return _abi_call(args, arg_names, location, abi_return_type=None)
 
 
 class ABICallTypeBuilder(FunctionBuilder):
@@ -153,35 +154,33 @@ class ABICallTypeBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _abi_call(
-            args, arg_kinds, arg_names, location, abi_return_type=self.abi_return_type
-        )
-
-
-@attrs.frozen
-class _ABICallExpr:
-    method: NodeBuilder
-    abi_args: Sequence[InstanceBuilder]
-    transaction_kwargs: dict[str, NodeBuilder]
-    abi_arg_typs: Sequence[pytypes.PyType]
+        return _abi_call(args, arg_names, location, abi_return_type=self.abi_return_type)
 
 
 def _abi_call(
     args: Sequence[NodeBuilder],
-    arg_kinds: list[mypy.nodes.ArgKind],
     arg_names: list[str | None],
     location: SourceLocation,
     *,
     abi_return_type: pytypes.PyType | None,
 ) -> InstanceBuilder:
-    abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
-    method = abi_call_expr.method
+    method: NodeBuilder | None = None
+    abi_args = list[InstanceBuilder]()
+    transaction_kwargs = dict[str, InstanceBuilder]()
+    for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
+        if arg_name is None:
+            if idx == 0:
+                method = arg
+            else:
+                abi_args.append(require_instance_builder(arg))
+        else:
+            transaction_kwargs[arg_name] = require_instance_builder(arg)
 
     match method:
+        case None:
+            raise CodeError("missing required positional argument 'method'", location)
         case LiteralBuilder(value=str(method_str)):
-            arc4_args, signature = get_arc4_args_and_signature(
-                method_str, abi_call_expr.abi_args, location
-            )
+            arc4_args, signature = get_arc4_args_and_signature(method_str, abi_args, location)
             if abi_return_type is not None:
                 # this will be validated against signature below, by comparing
                 # the generated method_selector against the supplied method_str
@@ -202,10 +201,19 @@ def _abi_call(
             #       like we do for function body evaluation, and then these types should make the
             #       resulting metadata (decorator args, function signature) available on them,
             #       instead of shunting the context object around
+            explicit_abi_return_type = abi_return_type
             signature, abi_return_type = _get_arc4_signature_and_return_pytype(
                 context, node, location
             )
-            num_args = len(abi_call_expr.abi_args)
+            if (
+                explicit_abi_return_type is not None
+                and abi_return_type != explicit_abi_return_type
+            ):
+                logger.error(
+                    "mismatch between return type of method and generic parameter",
+                    location=location,
+                )
+            num_args = len(abi_args)
             num_types = len(signature.arg_types)
             if num_types != num_args:
                 raise CodeError(
@@ -214,7 +222,7 @@ def _abi_call(
                 )
             arc4_args = [
                 implicit_operand_conversion(arg, pt)
-                for arg, pt in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
+                for arg, pt in zip(abi_args, signature.arg_types, strict=True)
             ]
         case _:
             raise CodeError(
@@ -223,11 +231,7 @@ def _abi_call(
             )
 
     return _create_abi_call_expr(
-        signature,
-        arc4_args,
-        abi_return_type,
-        abi_call_expr.transaction_kwargs,
-        location,
+        signature, arc4_args, abi_return_type, transaction_kwargs, location
     )
 
 
@@ -252,99 +256,84 @@ def _get_arc4_signature_and_return_pytype(
     raise CodeError(f"{func_or_dec.fullname!r} is not a valid ARC4 method", location)
 
 
-def _is_typed(typ: pytypes.PyType | None) -> typing.TypeGuard[pytypes.PyType]:
-    return typ not in (None, pytypes.NoneType)
-
-
 def _create_abi_call_expr(
     signature: ARC4Signature,
     abi_args: Sequence[InstanceBuilder],
     declared_result_pytype: pytypes.PyType | None,
-    transaction_kwargs: dict[str, NodeBuilder],
+    transaction_kwargs: dict[str, InstanceBuilder],
     location: SourceLocation,
 ) -> InstanceBuilder:
     if signature.return_type is None:
         raise InternalError("Expected ARC4Signature.return_type to be defined", location)
-    abi_arg_exprs: list[Expression] = [
-        MethodConstant(
-            value=signature.method_selector,
-            source_location=location,
-        )
-    ]
-    asset_exprs = list[Expression]()
-    account_exprs = list[Expression]()
-    application_exprs = list[Expression]()
 
-    def append_ref_arg(ref_list: list[Expression], arg: InstanceBuilder) -> None:
-        # asset refs start at 0, account and application start at 1
-        implicit_offset = 0 if ref_list is asset_exprs else 1
+    array_fields: dict[TxnField, list[Expression]] = {
+        TxnFields.app_args: [
+            MethodConstant(value=signature.method_selector, source_location=location)
+        ],
+        TxnFields.accounts: [],
+        TxnFields.apps: [],
+        TxnFields.assets: [],
+    }
+
+    def ref_to_arg(ref_field: TxnField, arg: InstanceBuilder) -> Expression:
         # TODO: what about references that are used more than once?
+        implicit_offset = 1 if ref_field in (TxnFields.accounts, TxnFields.apps) else 0
+        ref_list = array_fields[ref_field]
         ref_index = len(ref_list)
         ref_list.append(arg.resolve())
-        abi_arg_exprs.append(
-            BytesConstant(
-                value=(ref_index + implicit_offset).to_bytes(length=1),
-                encoding=BytesEncoding.base16,
-                source_location=arg.source_location,
-            )
+        return BytesConstant(
+            value=(ref_index + implicit_offset).to_bytes(length=1),
+            encoding=BytesEncoding.base16,
+            source_location=arg.source_location,
         )
 
     for arg_b in abi_args:
-        match arg_b.pytype.wtype:
-            case wtypes.ARC4Type():
-                abi_arg_exprs.append(arg_b.resolve())
-            case wtypes.asset_wtype:
-                append_ref_arg(asset_exprs, arg_b)
-            case wtypes.account_wtype:
-                append_ref_arg(account_exprs, arg_b)
-            case wtypes.application_wtype:
-                append_ref_arg(application_exprs, arg_b)
-            case wtypes.WGroupTransaction():
+        match arg_b.pytype:
+            case pytypes.AssetType:
+                arg_expr = ref_to_arg(TxnFields.assets, arg_b)
+            case pytypes.AccountType:
+                arg_expr = ref_to_arg(TxnFields.accounts, arg_b)
+            case pytypes.ApplicationType:
+                arg_expr = ref_to_arg(TxnFields.apps, arg_b)
+            case pytypes.TransactionRelatedType():
                 raise CodeError(
                     "transaction arguments are not supported for contract to contract calls",
                     arg_b.source_location,
                 )
             case _:
-                raise CodeError("invalid argument type", arg_b.source_location)
+                arg_expr = arg_b.resolve()
+        array_fields[TxnFields.app_args].append(arg_expr)
 
+    txn_type_appl = constants.TransactionType.appl
     fields: dict[TxnField, Expression] = {
-        TxnFields.fee: UInt64Constant(
-            value=0,
-            source_location=location,
-        ),
+        TxnFields.fee: UInt64Constant(value=0, source_location=location),
         TxnFields.type: UInt64Constant(
-            value=constants.TransactionType.appl.value,
-            teal_alias=constants.TransactionType.appl.name,
-            source_location=location,
+            value=txn_type_appl.value, teal_alias=txn_type_appl.name, source_location=location
         ),
     }
-    max_args = 15
-    if len(abi_arg_exprs) > max_args:
-        args_to_pack = abi_arg_exprs[max_args:]
-        abi_arg_exprs[max_args:] = [
-            arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
-        ]
-
-    _add_array_exprs(fields, TxnFields.app_args, abi_arg_exprs)
-    _add_array_exprs(fields, TxnFields.accounts, account_exprs)
-    _add_array_exprs(fields, TxnFields.apps, application_exprs)
-    _add_array_exprs(fields, TxnFields.assets, asset_exprs)
+    for arr_field, arr_field_values in array_fields.items():
+        if arr_field_values:
+            if arr_field == TxnFields.app_args and len(arr_field_values) > 15:
+                args_to_pack = arr_field_values[15:]
+                arr_field_values[15:] = [
+                    arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
+                ]
+            fields[arr_field] = TupleExpression.from_items(
+                arr_field_values, _combine_locs(arr_field_values)
+            )
     for field_python_name, field in _APP_TRANSACTION_FIELDS.items():
-        try:
-            value = transaction_kwargs.pop(field_python_name)
-        except KeyError:
-            continue
-        field, field_expr = get_field_expr(field_python_name, require_instance_builder(value))
-        fields[field] = field_expr
+        if value := transaction_kwargs.pop(field_python_name, None):
+            field, field_expr = get_field_expr(field_python_name, value)
+            fields[field] = field_expr
 
     if transaction_kwargs:
         bad_args = "', '".join(transaction_kwargs)
-        raise CodeError(f"Unknown arguments: '{bad_args}'", location)
+        raise CodeError(f"unexpected keyword arguments: '{bad_args}'", location)
 
-    itxn_result_pytype = pytypes.InnerTransactionResultTypes[constants.TransactionType.appl]
+    itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
     create_itxn = CreateInnerTransaction(
         fields=fields,
-        wtype=wtypes.WInnerTransactionFields.from_type(constants.TransactionType.appl),
+        wtype=wtypes.WInnerTransactionFields.from_type(txn_type_appl),
         source_location=location,
     )
     itxn_builder = InnerTransactionExpressionBuilder(
@@ -356,7 +345,7 @@ def _create_abi_call_expr(
         itxn_result_pytype,
     )
 
-    if not _is_typed(declared_result_pytype):
+    if declared_result_pytype is None or declared_result_pytype == pytypes.NoneType:
         return itxn_builder
     itxn_tmp = itxn_builder.single_eval()
     assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)
@@ -365,63 +354,13 @@ def _create_abi_call_expr(
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
     if declared_result_pytype != signature.return_type:
-        if (
-            wtypes.has_arc4_equivalent_type(declared_result_pytype.wtype)
-            and wtypes.avm_to_arc4_equivalent_type(declared_result_pytype.wtype)
-            == signature.return_type.wtype
-        ):
-            abi_result = ARC4Decode(
-                value=abi_result,
-                wtype=declared_result_pytype.wtype,
-                source_location=location,
-            )
-        else:
-            raise InternalError("Return type does not match signature type", location)
+        abi_result = ARC4Decode(
+            value=abi_result, wtype=declared_result_pytype.wtype, source_location=location
+        )
 
     abi_result_builder = builder_for_instance(declared_result_pytype, abi_result)
     return TupleLiteralBuilder((abi_result_builder, itxn_tmp), location)
 
 
-def _add_array_exprs(
-    fields: dict[TxnField, Expression], field: TxnField, exprs: list[Expression]
-) -> None:
-    if exprs:
-        fields[field] = TupleExpression.from_items(exprs, _combine_locs(exprs))
-
-
 def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
     return reduce(operator.add, (a.source_location for a in exprs))
-
-
-def _extract_abi_call_args(
-    args: Sequence[NodeBuilder],
-    arg_kinds: list[mypy.nodes.ArgKind],
-    arg_names: list[str | None],
-    location: SourceLocation,
-) -> _ABICallExpr:
-    method: NodeBuilder | None = None
-    abi_args = list[InstanceBuilder]()
-    kwargs = dict[str, NodeBuilder]()
-    abi_arg_typs = []
-    for i in range(len(args)):
-        arg_kind = arg_kinds[i]
-        arg_name = arg_names[i]
-        arg = args[i]
-
-        if arg_kind == mypy.nodes.ArgKind.ARG_POS and i == 0:
-            method = arg
-        elif arg_kind == mypy.nodes.ArgKind.ARG_POS:
-            arg_inst = require_instance_builder(arg)
-            abi_args.append(arg_inst)
-            abi_arg_typs.append(arg_inst.pytype)
-        elif arg_kind == mypy.nodes.ArgKind.ARG_NAMED:
-            if arg_name is None:
-                raise InternalError(f"Expected named argument at pos {i}", location)
-            kwargs[arg_name] = arg
-        else:
-            raise CodeError(f"Unexpected argument kind for '{arg_name}'", location)
-    if method is None:
-        raise CodeError("Missing required method positional argument", location)
-    return _ABICallExpr(
-        method=method, abi_args=abi_args, transaction_kwargs=kwargs, abi_arg_typs=abi_arg_typs
-    )
