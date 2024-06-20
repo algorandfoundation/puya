@@ -42,7 +42,7 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
             case int(int_value):
                 if int_value < 0:
                     logger.error(
-                        "transaction group index should be between non-negative",
+                        "transaction group index should be non-negative",
                         location=literal.source_location,
                     )
                 elif int_value >= algo_constants.MAX_TRANSACTION_GROUP_SIZE:

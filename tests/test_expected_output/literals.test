@@ -17,6 +17,68 @@ def too_large() -> UInt64:
 def wrong_type() -> UInt64:
     return UInt64("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
 
+## case: test_asset_literals
+
+from algopy import Asset, subroutine
+
+@subroutine
+def negative() -> Asset:
+    return Asset(-1) ## E: invalid asset ID
+
+@subroutine
+def too_large() -> Asset:
+    return Asset(2**64) ## E: invalid asset ID
+
+@subroutine
+def wrong_type() -> Asset:
+    return Asset("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+## case: test_application_literals
+
+from algopy import Application, subroutine
+
+@subroutine
+def negative() -> Application:
+    return Application(-1) ## E: invalid application ID
+
+@subroutine
+def too_large() -> Application:
+    return Application(2**64) ## E: invalid application ID
+
+@subroutine
+def wrong_type() -> Application:
+    return Application("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+
+## case: test_account_literals
+
+from algopy import Account, subroutine
+
+@subroutine
+def invalid() -> Account:
+    return Account("notanaddress") ## E: Invalid address value. Address literals should be 58 characters and not include base32 padding
+
+@subroutine
+def wrong_type() -> Account:
+    return Account(1) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
+
+## case: test_group_transaction
+
+from algopy import gtxn, subroutine
+
+@subroutine
+def negative() -> gtxn.PaymentTransaction:
+    return gtxn.PaymentTransaction(-1) ## E: transaction group index should be non-negative
+
+@subroutine
+def too_large() -> gtxn.PaymentTransaction:
+    return gtxn.PaymentTransaction(16) ## E: transaction group index should be less than 16
+
+@subroutine
+def wrong_type() -> gtxn.PaymentTransaction:
+    return gtxn.PaymentTransaction("") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+
 
 ## case: test_biguint_literals
 
@@ -114,3 +176,27 @@ def too_many_decimals_512() -> UInt512_2:
 @subroutine
 def wrong_type_512() -> UInt512_2:
     return UInt512_2(12) # type: ignore[arg-type] ## E: invalid/unhandled arguments
+
+
+## case: test_string
+from algopy import arc4, subroutine
+
+@subroutine
+def wrong_type() -> arc4.String:
+    return arc4.String(b"bad")  # type: ignore[arg-type] ## E: invalid/unhandled arguments
+
+@subroutine
+def too_long() -> arc4.String:
+    return arc4.String("a" * 4096) ## E: encoded string exceeds max byte array length
+
+
+## case: test_dynamic_bytes
+from algopy import arc4, subroutine
+
+@subroutine
+def wrong_type() -> None:
+    bad = arc4.DynamicBytes("bad")  # type: ignore[call-overload, misc] ## E: can't covert literal to algopy.arc4.Byte
+
+@subroutine
+def too_long() -> arc4.DynamicBytes:
+    return arc4.DynamicBytes(b"a" * 4096) ## E: encoded bytes exceed max length
