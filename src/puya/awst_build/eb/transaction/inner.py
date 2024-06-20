@@ -94,7 +94,7 @@ def _get_transaction_type_from_arg(builder: InstanceBuilder) -> TransactionType 
         and builder.pytype in pytypes.InnerTransactionFieldsetTypes.values()
     ):
         return builder.pytype.transaction_type
-    raise CodeError("Expected an InnerTxnParams argument", builder.source_location)
+    raise CodeError("expected an InnerTxnParams argument", builder.source_location)
 
 
 class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
@@ -106,20 +106,18 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if len(args) > 1:
-            arg_exprs = []
-            result_types = []
-            for arg in args:
-                arg_inst = require_instance_builder(arg)
-                arg_exprs.append(arg_inst.resolve())
-                arg_txn_type = _get_transaction_type_from_arg(arg_inst)
-                arg_result_type = pytypes.InnerTransactionResultTypes[arg_txn_type]
-                result_types.append(arg_result_type)
-            result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
-            return TupleExpressionBuilder(
-                SubmitInnerTransaction(
-                    itxns=tuple(arg_exprs), wtype=result_typ.wtype, source_location=location
-                ),
-                result_typ,
-            )
-        raise CodeError("submit_txns must be called with 2 or more parameters")
+        if len(args) < 2:
+            raise CodeError(f"expected at least 2 arguments, got {len(args)}", location)
+        arg_exprs = []
+        result_types = []
+        for arg in args:
+            arg_inst = require_instance_builder(arg)
+            arg_exprs.append(arg_inst.resolve())
+            arg_txn_type = _get_transaction_type_from_arg(arg_inst)
+            arg_result_type = pytypes.InnerTransactionResultTypes[arg_txn_type]
+            result_types.append(arg_result_type)
+        result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
+        return TupleExpressionBuilder(
+            SubmitInnerTransaction(group=tuple(arg_exprs), source_location=location),
+            result_typ,
+        )

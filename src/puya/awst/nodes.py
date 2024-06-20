@@ -905,29 +905,27 @@ class InnerTransactionField(Expression):
 
 @attrs.define
 class SubmitInnerTransaction(Expression):
-    wtype: WType = attrs.field()
-    itxns: tuple[Expression, ...] = attrs.field(
-        validator=attrs.validators.deep_iterable(
-            member_validator=expression_has_wtype(wtypes.WInnerTransactionFields)
-        )
-    )
+    group: Expression | tuple[Expression, ...] = attrs.field()
+    wtype: WType = attrs.field(init=False)
 
-    @wtype.validator
-    def _validate_wtype(self, _attribute: object, value: WType) -> None:
-        match value:
-            case wtypes.WTuple(types=types):
-                if any(not isinstance(t, wtypes.WInnerTransaction) for t in types) or len(
-                    types
-                ) != len(self.itxns):
-                    raise InternalError(f"Expected a tuple[WInnerTransaction, ...] got: {value}")
-            case wtypes.WInnerTransaction():
-                num_params = len(self.itxns)
-                if num_params != 1:
-                    raise InternalError(
-                        f"Expected a tuple[WInnerTransaction, ...] of length: {num_params}"
-                    )
-            case _:
-                raise InternalError(f"Expected a WTuple or single WInnerTransaction, got: {value}")
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        if isinstance(self.group, tuple):
+            txn_types = []
+            for expr in self.group:
+                if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
+                    raise CodeError("invalid expression type for submit", expr.source_location)
+                txn_types.append(wtypes.WInnerTransaction.from_type(expr.wtype.transaction_type))
+            return wtypes.WTuple(txn_types, self.source_location)
+        if not isinstance(self.group.wtype, wtypes.WInnerTransactionFields):
+            raise CodeError("invalid expression type for submit", self.group.source_location)
+        return wtypes.WInnerTransaction.from_type(self.group.wtype.transaction_type)
+
+    @property
+    def itxns(self) -> tuple[Expression, ...]:
+        if isinstance(self.group, tuple):
+            return self.group
+        return (self.group,)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_submit_inner_transaction(self)
