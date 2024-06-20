@@ -7,7 +7,31 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     byte 0x00
     callsub test_stuff
     pop
-    // arc4_types/bool.py:41
+    // arc4_types/bool.py:15
+    // False if Txn.num_app_args else True  # noqa: SIM211
+    txn NumAppArgs
+    bz main_ternary_false@2
+    int 0
+    b main_ternary_merge@3
+
+main_ternary_false@2:
+    // arc4_types/bool.py:15
+    // False if Txn.num_app_args else True  # noqa: SIM211
+    int 1
+
+main_ternary_merge@3:
+    // arc4_types/bool.py:14-16
+    // assert ARC4Bool(
+    //     False if Txn.num_app_args else True  # noqa: SIM211
+    // ).native, "conditional expr"
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert // conditional expr
+    // arc4_types/bool.py:44
     // return True
     int 1
     return
@@ -15,18 +39,18 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> uint64:
 test_stuff:
-    // arc4_types/bool.py:46-47
+    // arc4_types/bool.py:49-50
     // @subroutine
     // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
     proto 2 1
-    // arc4_types/bool.py:48
+    // arc4_types/bool.py:51
     // assert true.native
     frame_dig -2
     int 0
     getbit
     dup
     assert
-    // arc4_types/bool.py:50
+    // arc4_types/bool.py:53
     // assert not false.native
     frame_dig -1
     int 0
@@ -34,7 +58,7 @@ test_stuff:
     dup
     !
     assert
-    // arc4_types/bool.py:52
+    // arc4_types/bool.py:55
     // assert true == ARC4Bool(true.native)
     byte 0x00
     int 0
@@ -43,7 +67,7 @@ test_stuff:
     frame_dig -2
     ==
     assert
-    // arc4_types/bool.py:53
+    // arc4_types/bool.py:56
     // assert false == ARC4Bool(false.native)
     byte 0x00
     int 0
@@ -52,6 +76,6 @@ test_stuff:
     frame_dig -1
     ==
     assert
-    // arc4_types/bool.py:55
+    // arc4_types/bool.py:58
     // return true.native
     retsub

@@ -33,7 +33,7 @@ class AssetTypeBuilder(TypeBuilder):
     ) -> InstanceBuilder | None:
         match literal.value:
             case int(int_value):
-                if int_value < 0:  # TODO: should this be 256?
+                if int_value < 0 or int_value.bit_length() > 64:  # TODO: should this be 256?
                     logger.error("invalid asset ID", location=literal.source_location)
                 const = UInt64Constant(value=int_value, source_location=location)
                 expr = ReinterpretCast(

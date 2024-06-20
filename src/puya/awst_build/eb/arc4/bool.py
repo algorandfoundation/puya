@@ -33,8 +33,14 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
         match literal.value:
-            case bool():  # TODO: fixme
-                return self.call([literal], [mypy.nodes.ARG_POS], [None], location)
+            case bool(bool_literal):
+                return ARC4BoolExpressionBuilder(
+                    ARC4Encode(
+                        value=BoolConstant(value=bool_literal, source_location=location),
+                        wtype=self._arc4_wtype,
+                        source_location=location,
+                    )
+                )
         return None
 
     @typing.override
@@ -54,11 +60,15 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
                 )
+        return ARC4BoolExpressionBuilder(
+            ARC4Encode(value=native_bool, wtype=self._arc4_wtype, source_location=location)
+        )
+
+    @property
+    def _arc4_wtype(self) -> wtypes.ARC4Type:
         wtype = self.produces().wtype
         assert isinstance(wtype, wtypes.ARC4Type)
-        return ARC4BoolExpressionBuilder(
-            ARC4Encode(value=native_bool, wtype=wtype, source_location=location)
-        )
+        return wtype
 
 
 class ARC4BoolExpressionBuilder(
