@@ -83,5 +83,38 @@ main_after_for@12:
     int 20
     ==
     assert // Total should now include sum of dynamic_bytes3 items
+    txn NumAppArgs
+    bz main_ternary_false@14
+    byte 0x02
+    b main_ternary_merge@15
+
+main_ternary_false@14:
+    byte 0x03
+
+main_ternary_merge@15:
+    byte 0x03
+    concat
+    byte 0x01
+    concat
+    byte 0x0003
+    swap
+    concat
+    extract 2 0
+    byte 0x030301
+    ==
+    assert
+    txn NumAppArgs
+    bz main_ternary_false@17
+    byte 0x000132
+    b main_ternary_merge@18
+
+main_ternary_false@17:
+    byte 0x000133
+
+main_ternary_merge@18:
+    extract 2 0
+    byte 0x33
+    ==
+    assert
     int 1
     return
