@@ -185,12 +185,7 @@ class _Submit(FunctionBuilder):
             raise CodeError(f"Unexpected arguments for {self.expr}", location)
         result_typ = pytypes.InnerTransactionResultTypes[self._txn_type]
         return InnerTransactionExpressionBuilder(
-            SubmitInnerTransaction(
-                itxns=(self.expr,),
-                wtype=result_typ.wtype,
-                source_location=location,
-            ),
-            result_typ,
+            SubmitInnerTransaction(group=self.expr, source_location=location), result_typ
         )
 
 

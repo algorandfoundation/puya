@@ -337,12 +337,7 @@ def _create_abi_call_expr(
         source_location=location,
     )
     itxn_builder = InnerTransactionExpressionBuilder(
-        SubmitInnerTransaction(
-            itxns=(create_itxn,),
-            wtype=itxn_result_pytype.wtype,
-            source_location=location,
-        ),
-        itxn_result_pytype,
+        SubmitInnerTransaction(group=create_itxn, source_location=location), itxn_result_pytype
     )
 
     if declared_result_pytype is None or declared_result_pytype == pytypes.NoneType:
