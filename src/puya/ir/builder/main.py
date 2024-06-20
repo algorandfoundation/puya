@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import puya.awst.visitors
 import puya.ir.builder.storage
-from puya import log
+from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -194,21 +194,25 @@ class FunctionIRBuilder(
     def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> TExpression:
         match expr.wtype:
             case wtypes.uint64_wtype:
+                if expr.value < 0 or expr.value.bit_length() > 64:
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
                 return UInt64Constant(
                     value=expr.value,
                     source_location=expr.source_location,
                     teal_alias=expr.teal_alias,
                 )
             case wtypes.biguint_wtype:
+                if expr.value < 0 or expr.value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
                 return BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
                 num_bytes = bit_size // 8
                 try:
                     arc4_result = expr.value.to_bytes(num_bytes, "big", signed=False)
                 except OverflowError:
-                    raise CodeError(
-                        f"invalid literal value for {expr.wtype}", expr.source_location
-                    ) from None
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location) from None
                 return BytesConstant(
                     value=arc4_result,
                     encoding=AVMBytesEncoding.base16,
@@ -222,10 +226,17 @@ class FunctionIRBuilder(
 
     def visit_decimal_constant(self, expr: awst_nodes.DecimalConstant) -> TExpression:
         match expr.wtype:
-            case wtypes.ARC4UFixedNxM(n=bit_size):
+            case wtypes.ARC4UFixedNxM(n=bit_size, m=precision):
                 num_bytes = bit_size // 8
-                _, digits, _ = expr.value.as_tuple()
+                sign, digits, exponent = expr.value.as_tuple()
                 adjusted_int = int("".join(map(str, digits)))
+                if (
+                    sign != 0  # negative
+                    or not isinstance(exponent, int)  # infinite
+                    or -exponent > precision  # too precise
+                    or adjusted_int.bit_length() > bit_size  # too big
+                ):
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
                 return BytesConstant(
                     source_location=expr.source_location,
                     encoding=AVMBytesEncoding.base16,
@@ -243,6 +254,8 @@ class FunctionIRBuilder(
         )
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
+        if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
@@ -251,8 +264,15 @@ class FunctionIRBuilder(
         )
 
     def visit_string_constant(self, expr: awst_nodes.StringConstant) -> BytesConstant:
+        try:
+            value = expr.value.encode("utf8")
+        except UnicodeError:
+            value = None
+        if value is None or len(value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
         return BytesConstant(
-            value=expr.value.encode("utf8"),
+            value=value,
             encoding=AVMBytesEncoding.utf8,
             source_location=expr.source_location,
         )
