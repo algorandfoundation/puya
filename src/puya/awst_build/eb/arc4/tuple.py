@@ -1,19 +1,16 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpression
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    GenericTypeBuilder,
-)
+from puya.awst_build.eb._base import GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
-from puya.awst_build.eb.arc4.base import (
-    ARC4TypeBuilder,
-)
+from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, expect_exactly_one_arg
+from puya.awst_build.eb.arc4.base import ARC4TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -24,13 +21,7 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -44,15 +35,19 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.TupleType(items=items)) as eb]:
+        arg = expect_exactly_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(
+                pytype=pytypes.TupleType(items=items, generic=pytypes.GenericTupleType)
+            ):
                 typ = pytypes.GenericARC4TupleType.parameterise(items, location)
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=eb.resolve(), wtype=wtype, source_location=location), typ
+                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
                 )
-        raise CodeError("Invalid/unhandled arguments", location)
+        # TODO: dummy value
+        raise CodeError("unexpected argument type", arg.source_location)
 
 
 class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
@@ -69,9 +64,11 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-
-        match args:
-            case [InstanceBuilder(pytype=pytypes.TupleType() as tuple_type) as eb]:
+        arg = expect_exactly_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(
+                pytype=pytypes.TupleType(generic=pytypes.GenericTupleType) as tuple_type
+            ):
                 typ = self.produces()
                 if typ.items != tuple_type.items:
                     expected_type = pytypes.GenericTupleType.parameterise(typ.items, location)
@@ -82,11 +79,11 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=eb.resolve(), wtype=wtype, source_location=location),
-                    self.produces(),
+                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location),
+                    typ,
                 )
-
-        raise CodeError("Invalid/unhandled arguments", location)
+        # TODO: dummy value
+        raise CodeError("unexpected argument type", arg.source_location)
 
 
 class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType]):

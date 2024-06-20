@@ -1,39 +1,19 @@
-from __future__ import annotations
-
 import abc
 import typing
+from collections.abc import Sequence
 
+import mypy.nodes
 import typing_extensions
 
 from puya import log
-from puya.awst.nodes import (
-    BytesConstant,
-    BytesEncoding,
-    CheckedMaybe,
-    Copy,
-    Expression,
-    SingleEvaluation,
-)
+from puya.awst.nodes import BytesConstant, BytesEncoding, CheckedMaybe, Copy, Expression
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes
+from puya.awst_build.eb._utils import compare_expr_bytes, expect_exactly_one_arg, expect_no_args
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    NodeBuilder,
-)
-from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -59,9 +39,9 @@ class ARC4FromLogBuilder(FunctionBuilder):
 
     @classmethod
     def abi_expr_from_log(
-        cls, typ: pytypes.PyType, value: Expression, location: SourceLocation
+        cls, typ: pytypes.PyType, value: InstanceBuilder, location: SourceLocation
     ) -> Expression:
-        tmp_value = SingleEvaluation(value)
+        tmp_value = value.single_eval().resolve()
         arc4_value = intrinsic_factory.extract(
             tmp_value, start=4, loc=location, result_type=typ.wtype
         )
@@ -91,18 +71,15 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder() as eb]:
-                result_expr = self.abi_expr_from_log(self.typ, eb.resolve(), location)
-                return builder_for_instance(self.typ, result_expr)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+        arg = expect_exactly_one_arg(args, location)
+        result_expr = self.abi_expr_from_log(self.typ, arg, location)
+        return builder_for_instance(self.typ, result_expr)
 
 
 class CopyBuilder(FunctionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
-        self._typ = typ
         super().__init__(location)
+        self._typ = typ
         self.expr = expr
 
     @typing.override
@@ -113,13 +90,9 @@ class CopyBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case []:
-                expr_result = Copy(
-                    value=self.expr, wtype=self.expr.wtype, source_location=location
-                )
-                return builder_for_instance(self._typ, expr_result)
-        raise CodeError("Invalid/Unexpected arguments", location)
+        expect_no_args(args, location)
+        expr_result = Copy(value=self.expr, source_location=location)
+        return builder_for_instance(self._typ, expr_result)
 
 
 def arc4_bool_bytes(

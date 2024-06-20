@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 import re
 import typing
+from collections.abc import Sequence
 
 import attrs
 import mypy.nodes
@@ -9,42 +8,48 @@ import mypy.nodes
 from puya import arc4_util, log
 from puya.awst import (
     nodes as awst_nodes,
-    wtypes,
 )
 from puya.awst_build import arc4_utils, pytypes
+from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
-from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from puya.parse import SourceLocation
+from puya.errors import CodeError, InternalError
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
+
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
-def implicit_operand_conversion(
-    operand: NodeBuilder, target_type: pytypes.PyType
-) -> InstanceBuilder:
+def implicit_arc4_conversion(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+    from puya.awst.wtypes import ARC4Type
+
     operand = require_instance_builder(operand)
     operand = maybe_resolve_literal(operand, target_type)
     if operand.pytype == target_type:
         return operand
-    # TODO(first): this is a bit of a hack, the target_type in case we get this far is most likely
-    #       derived from a call to _implicit_arc4_conversion
-    if target_type == _implicit_arc4_conversion(operand.pytype, operand.source_location):
-        target_type_builder = builder_for_type(target_type, operand.source_location)
-        return target_type_builder.call(
-            args=[operand],
-            arg_names=[None],
-            arg_kinds=[mypy.nodes.ARG_POS],
-            location=operand.source_location,
+    target_wtype = target_type.wtype
+    if not isinstance(target_wtype, ARC4Type):
+        raise InternalError(
+            "implicit_operand_conversion expected target_type to be an ARC-4 type,"
+            f" got {target_type}",
+            operand.source_location,
         )
-    raise CodeError(
-        f"Expected type {target_type}, got type {operand.pytype}", operand.source_location
+    if isinstance(operand.pytype.wtype, ARC4Type):
+        raise CodeError(
+            f"expected type {target_type}, got type {operand.pytype}", operand.source_location
+        )
+    if operand.pytype.wtype not in target_wtype.encodeable_types:
+        raise CodeError(
+            f"cannot encode {operand.pytype} to {target_type}", operand.source_location
+        )
+    target_type_builder = builder_for_type(target_type, operand.source_location)
+    return target_type_builder.call(
+        args=[operand],
+        arg_names=[None],
+        arg_kinds=[mypy.nodes.ARG_POS],
+        location=operand.source_location,
     )
 
 
@@ -68,7 +73,7 @@ def get_arc4_args_and_signature(
 ) -> tuple[list[InstanceBuilder], ARC4Signature]:
     method_name, arg_types, return_type = _parse_method_signature(method_sig, loc)
     if arg_types is None:
-        arg_types = [_implicit_arc4_conversion(na.pytype, loc) for na in native_args]
+        arg_types = [_implicit_arc4_type_conversion(na.pytype, loc) for na in native_args]
     else:
         num_args = len(native_args)
         sig_num_args = len(arg_types)
@@ -78,35 +83,27 @@ def get_arc4_args_and_signature(
             )
 
     arc4_args = [
-        implicit_operand_conversion(arg, pt)
-        for arg, pt in zip(native_args, arg_types, strict=True)
+        implicit_arc4_conversion(arg, pt) for arg, pt in zip(native_args, arg_types, strict=True)
     ]
     return arc4_args, ARC4Signature(method_name, arg_types, return_type)
 
 
-def _implicit_arc4_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
+def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
     match typ:
-        case pytypes.StrLiteralType | pytypes.StringType:
+        case pytypes.StrLiteralType:
             return pytypes.ARC4StringType
-        case pytypes.BoolType:
-            return pytypes.ARC4BoolType
-        case pytypes.BytesLiteralType | pytypes.BytesType:
+        case pytypes.BytesLiteralType:
             return pytypes.ARC4DynamicBytesType
-        case pytypes.IntLiteralType | pytypes.UInt64Type:
+        case pytypes.IntLiteralType:
             return pytypes.ARC4UIntN_Aliases[64]
-        case pytypes.BigUIntType:
-            return pytypes.ARC4UIntN_Aliases[512]
-        case pytypes.TupleType(items=tuple_items):
-            return pytypes.GenericARC4TupleType.parameterise(
-                [_implicit_arc4_conversion(ti, loc) for ti in tuple_items], loc
-            )
-        case arc4_pytype if isinstance(arc4_pytype.wtype, wtypes.ARC4Type):
-            return arc4_pytype
-        case invalid_pytype:
-            raise CodeError(
-                f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
-                loc,
-            )
+
+    def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
+        raise CodeError(
+            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
+            loc,
+        )
+
+    return pytype_to_arc4_pytype(typ, on_error)
 
 
 def arc4_tuple_from_items(

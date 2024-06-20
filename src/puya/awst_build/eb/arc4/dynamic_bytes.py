@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya import algo_constants
+from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Decode,
@@ -23,6 +23,8 @@ from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
+logger = log.get_logger(__name__)
+
 
 class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
@@ -35,7 +37,9 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         match literal.value:
             case bytes(bytes_literal):
                 if len(bytes_literal) > (algo_constants.MAX_BYTES_LENGTH - 2):
-                    raise CodeError("encoded bytes exceed max length", self.source_location)
+                    logger.error(
+                        "encoded bytes exceed max length", location=literal.source_location
+                    )
 
                 bytes_expr = BytesConstant(
                     value=bytes_literal, encoding=BytesEncoding.unknown, source_location=location

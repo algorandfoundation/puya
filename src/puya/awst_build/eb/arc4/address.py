@@ -17,7 +17,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes
+from puya.awst_build.eb._utils import compare_expr_bytes, expect_at_most_one_arg
 from puya.awst_build.eb.arc4.arrays import StaticArrayExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -65,16 +65,17 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        arg = expect_at_most_one_arg(args, location)
         wtype = self.produces().wtype
-        match args:
-            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+        match arg:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=AddressTypeBuilder(location))
-            case []:
+            case None:
                 result: Expression = intrinsic_factory.zero_address(location, as_type=wtype)
-            case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
-                result = _address_from_native(eb)
-            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                address_bytes_temp = eb.single_eval().resolve()
+            case InstanceBuilder(pytype=pytypes.AccountType):
+                result = _address_from_native(arg)
+            case InstanceBuilder(pytype=pytypes.BytesType):
+                address_bytes_temp = arg.single_eval().resolve()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
@@ -92,11 +93,7 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
                     comment="Address length is 32 bytes",
                 )
             case _:
-                raise CodeError(
-                    "Address constructor expects a single argument of type"
-                    f" {wtypes.account_wtype} or {wtypes.bytes_wtype}, or a string literal",
-                    location=location,
-                )
+                raise CodeError("unexpected argument type", arg.source_location)
         return AddressExpressionBuilder(result)
 
 

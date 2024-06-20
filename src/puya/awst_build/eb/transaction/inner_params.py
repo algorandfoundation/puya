@@ -18,13 +18,13 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb._utils import bool_eval_to_constant, expect_no_args
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
-from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
+    get_arg_mapping,
     maybe_resolve_literal,
     require_instance_builder,
 )
@@ -99,28 +99,27 @@ class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        typ = self.produces()
         transaction_fields: dict[TxnField, Expression] = {
             TxnFields.fee: UInt64Constant(
                 source_location=self.source_location,
                 value=0,
             )
         }
-        transaction_type = self.produces().transaction_type
+        transaction_type = typ.transaction_type
         if transaction_type:
             transaction_fields[TxnFields.type] = UInt64Constant(
-                source_location=self.source_location,
                 value=transaction_type.value,
                 teal_alias=transaction_type.name,
+                source_location=self.source_location,
             )
-        for arg_name, arg in zip(arg_names, args, strict=True):
-            if arg_name is None:
-                raise CodeError(
-                    f"Positional arguments are not supported for {self.produces()}",
-                    location,
-                )
-            field, expression = get_field_expr(arg_name, require_instance_builder(arg))
+
+        named_args = get_arg_mapping(
+            [], zip(arg_names, map(require_instance_builder, args), strict=True), location
+        )
+        for arg_name, arg in named_args.items():
+            field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
-        typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WInnerTransactionFields)
         return InnerTxnParamsExpressionBuilder(
@@ -177,8 +176,7 @@ class _Submit(FunctionBuilder):
     ) -> InstanceBuilder:
         from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 
-        if args:
-            raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        expect_no_args(args, location)
         result_typ = pytypes.InnerTransactionResultTypes[self._txn_type]
         return InnerTransactionExpressionBuilder(
             SubmitInnerTransaction(group=self.expr, source_location=location), result_typ
@@ -191,8 +189,6 @@ class _Copy(FunctionBuilder):
     ) -> None:
         super().__init__(location)
         self._typ = typ
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
-        assert typ.wtype == self.wtype
         self.expr = expr
 
     @typing.override
@@ -203,15 +199,9 @@ class _Copy(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if args:
-            raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        expect_no_args(args, location)
         return InnerTxnParamsExpressionBuilder(
-            Copy(
-                wtype=self.wtype,
-                value=self.expr,
-                source_location=location,
-            ),
-            self._typ,
+            Copy(value=self.expr, source_location=location), self._typ
         )
 
 

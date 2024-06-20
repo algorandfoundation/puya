@@ -44,11 +44,11 @@ def abi_call_tuple_ok() -> None:
 
 @subroutine
 def abi_call_wrong_return() -> None:
-    event, txn = arc4.abi_call[Event]("foo()(string,uint64)") ## E: Method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
+    event, txn = arc4.abi_call[Event]("foo()(string,uint64)") ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
 
 @subroutine
 def wrong_arg_type1() -> None:
-    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: Expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.UIntN[typing.Literal[8]]
+    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.UIntN[typing.Literal[8]]
 
 @subroutine
 def wrong_arg_type2() -> None:
@@ -64,7 +64,7 @@ def wrong_arg_type4() -> None:
 
 @subroutine
 def wrong_arg_type5() -> None:
-    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: Expected type algopy.arc4.String, got type test_emit_errors.Event2
+    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type algopy.arc4.String, got type test_emit_errors.Event2
 
 @subroutine
 def wrong_number_args() -> None:
@@ -84,15 +84,15 @@ def invalid_signature3() -> None:
 
 @subroutine
 def invalid_signature4() -> None:
-    arc4.emit("Event(string,uint8)void", arc4.String("a"), arc4.UInt8(1)) ## E: Invalid event signature, type specified after args 'void'
+    arc4.emit("Event(string,uint8)void", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
 
 @subroutine
 def invalid_signature5() -> None:
-    arc4.emit("Event(string,uint8)uint64", arc4.String("a"), arc4.UInt8(1)) ## E: Invalid event signature, type specified after args 'uint64'
+    arc4.emit("Event(string,uint8)uint64", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
 
 @subroutine
 def invalid_signature6() -> None:
-    arc4.emit("Event(string,uint8)(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: Invalid event signature, type specified after args '(string,uint64)'
+    arc4.emit("Event(string,uint8)(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
 
 
 ## case: test_bad_uint_sizes
@@ -206,7 +206,7 @@ class Arc4CopyContract(arc4.ARC4Contract):
         # Can't create copies by iterating
         valid_array_of_arrays = arc4.DynamicArray(local_array.copy())
 
-        for an_array in valid_array_of_arrays: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+        for an_array in valid_array_of_arrays: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
             assert an_array.length
 
 ## case: copy_arc4_struct
