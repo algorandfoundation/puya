@@ -59,7 +59,9 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
             case _:
                 non_literal_args = tuple(_coerce_to_byte(a) for a in args)
                 return DynamicBytesExpressionBuilder(
-                    NewArray(values=non_literal_args, wtype=self._arc4_type, source_location=location)
+                    NewArray(
+                        values=non_literal_args, wtype=self._arc4_type, source_location=location
+                    )
                 )
         return self._from_bytes_expr(bytes_expr, location)
 

@@ -1,14 +1,13 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, FieldExpression, NewStruct
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
@@ -17,19 +16,9 @@ from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
 from puya.awst_build.eb.arc4.base import CopyBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import (
-    get_arg_mapping,
-    require_instance_builder,
-)
+from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
-
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -65,7 +54,7 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
                 raise CodeError("invalid argument type", field_value.source_location)
             values[field_name] = field_value.resolve()
         if field_mapping:
-            raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
+            raise CodeError(f"unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         return ARC4StructExpressionBuilder(
