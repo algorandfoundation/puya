@@ -37,10 +37,7 @@ logger = log.get_logger(__name__)
 class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
-        # assert pytypes.ARC4StructBaseType in typ.mro TODO?
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4Struct)
-        self._wtype = wtype
+        assert pytypes.ARC4StructBaseType in typ.mro
         super().__init__(typ, location)
 
     @typing.override
@@ -51,28 +48,28 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        wtype = self._wtype
-        ordered_field_names = wtype.names
+        pytype = self.produces()
+        inst_args = [require_instance_builder(arg) for arg in args]
         field_mapping = get_arg_mapping(
-            positional_arg_names=ordered_field_names,
-            args=zip(arg_names, args, strict=True),
+            positional_arg_names=list(pytype.fields),
+            args=zip(arg_names, inst_args, strict=True),
             location=location,
         )
 
         values = dict[str, Expression]()
-        for field_name, field_type in wtype.fields.items():
+        for field_name, field_type in pytype.fields.items():
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
-                raise CodeError(f"Missing required argument {field_name}", location)
-            field_expr = require_instance_builder(field_value).resolve()
-            if field_expr.wtype != field_type:
-                raise CodeError("Invalid type for field", field_expr.source_location)
-            values[field_name] = field_expr
+                raise CodeError(f"missing required argument {field_name!r}", location)
+            if field_value.pytype != field_type:
+                raise CodeError("invalid argument type", field_value.source_location)
+            values[field_name] = field_value.resolve()
         if field_mapping:
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
+        assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         return ARC4StructExpressionBuilder(
-            NewStruct(wtype=wtype, values=values, source_location=location), self.produces()
+            NewStruct(wtype=pytype.wtype, values=values, source_location=location), pytype
         )
 
 
@@ -86,7 +83,7 @@ class ARC4StructExpressionBuilder(
 
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
-            case field_name if self.pytype and (field := self.pytype.fields.get(field_name)):
+            case field_name if field := self.pytype.fields.get(field_name):
                 result_expr = FieldExpression(
                     base=self.resolve(),
                     name=field_name,
