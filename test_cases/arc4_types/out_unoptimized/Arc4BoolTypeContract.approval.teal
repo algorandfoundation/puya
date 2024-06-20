@@ -13,89 +13,113 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     setbit
     callsub test_stuff
     pop
-    // arc4_types/bool.py:16
-    // ARC4Bool(True),
+    // arc4_types/bool.py:15
+    // False if Txn.num_app_args else True  # noqa: SIM211
+    txn NumAppArgs
+    bz main_ternary_false@2
+    int 0
+    b main_ternary_merge@3
+
+main_ternary_false@2:
+    // arc4_types/bool.py:15
+    // False if Txn.num_app_args else True  # noqa: SIM211
+    int 1
+
+main_ternary_merge@3:
+    // arc4_types/bool.py:14-16
+    // assert ARC4Bool(
+    //     False if Txn.num_app_args else True  # noqa: SIM211
+    // ).native, "conditional expr"
     byte 0x00
     int 0
-    int 1
+    uncover 2
     setbit
-    // arc4_types/bool.py:17
-    // ARC4Bool(True),
-    byte 0x00
     int 0
-    int 1
-    setbit
-    // arc4_types/bool.py:18
-    // ARC4Bool(True),
-    byte 0x00
-    int 0
-    int 1
-    setbit
-    cover 2
+    getbit
+    assert // conditional expr
     // arc4_types/bool.py:19
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 3
     // arc4_types/bool.py:20
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 4
     // arc4_types/bool.py:21
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 5
+    cover 2
     // arc4_types/bool.py:22
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 6
+    cover 3
     // arc4_types/bool.py:23
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 7
+    cover 4
     // arc4_types/bool.py:24
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 8
+    cover 5
     // arc4_types/bool.py:25
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 8
+    cover 6
     // arc4_types/bool.py:26
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
-    cover 10
+    cover 7
     // arc4_types/bool.py:27
     // ARC4Bool(True),
     byte 0x00
     int 0
     int 1
     setbit
+    cover 8
+    // arc4_types/bool.py:28
+    // ARC4Bool(True),
+    byte 0x00
+    int 0
+    int 1
+    setbit
+    cover 8
+    // arc4_types/bool.py:29
+    // ARC4Bool(True),
+    byte 0x00
+    int 0
+    int 1
+    setbit
+    cover 10
+    // arc4_types/bool.py:30
+    // ARC4Bool(True),
+    byte 0x00
+    int 0
+    int 1
+    setbit
     cover 11
-    // arc4_types/bool.py:15-28
+    // arc4_types/bool.py:18-31
     // static_boolean_array = StaticArray[ARC4Bool, t.Literal[12]](
     //     ARC4Bool(True),
     //     ARC4Bool(True),
@@ -188,13 +212,13 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     byte 0x
     uncover 1
     concat
-    // arc4_types/bool.py:30
+    // arc4_types/bool.py:33
     // assert static_boolean_array.bytes == Bytes.from_hex("FFF0")
     dup
     byte 0xfff0
     ==
     assert
-    // arc4_types/bool.py:32
+    // arc4_types/bool.py:35
     // assert static_boolean_array[0] == ARC4Bool(True), "Single boolean can be unpacked"
     dup
     int 0
@@ -209,7 +233,7 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     setbit
     ==
     assert // Single boolean can be unpacked
-    // arc4_types/bool.py:33
+    // arc4_types/bool.py:36
     // assert static_boolean_array[-1] == ARC4Bool(True), "Single boolean can be unpacked"
     int 12
     int 1
@@ -229,7 +253,7 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     setbit
     ==
     assert // Single boolean can be unpacked
-    // arc4_types/bool.py:36
+    // arc4_types/bool.py:39
     // ARC4Bool(True), ARC4Bool(False), ARC4Bool(True)
     byte 0x00
     int 0
@@ -244,7 +268,7 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     int 1
     setbit
     cover 2
-    // arc4_types/bool.py:35-37
+    // arc4_types/bool.py:38-40
     // dynamic_boolean_array = DynamicArray[ARC4Bool](
     //     ARC4Bool(True), ARC4Bool(False), ARC4Bool(True)
     // )
@@ -268,12 +292,12 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     byte 0x0003
     uncover 1
     concat
-    // arc4_types/bool.py:39
+    // arc4_types/bool.py:42
     // assert dynamic_boolean_array.bytes == Bytes.from_hex("0003A0")
     byte 0x0003a0
     ==
     assert
-    // arc4_types/bool.py:41
+    // arc4_types/bool.py:44
     // return True
     int 1
     return
@@ -281,24 +305,24 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> uint64:
 test_stuff:
-    // arc4_types/bool.py:46-47
+    // arc4_types/bool.py:49-50
     // @subroutine
     // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
     proto 2 1
-    // arc4_types/bool.py:48
+    // arc4_types/bool.py:51
     // assert true.native
     frame_dig -2
     int 0
     getbit
     assert
-    // arc4_types/bool.py:50
+    // arc4_types/bool.py:53
     // assert not false.native
     frame_dig -1
     int 0
     getbit
     !
     assert
-    // arc4_types/bool.py:52
+    // arc4_types/bool.py:55
     // assert true == ARC4Bool(true.native)
     frame_dig -2
     int 0
@@ -311,7 +335,7 @@ test_stuff:
     uncover 1
     ==
     assert
-    // arc4_types/bool.py:53
+    // arc4_types/bool.py:56
     // assert false == ARC4Bool(false.native)
     frame_dig -1
     int 0
@@ -324,7 +348,7 @@ test_stuff:
     uncover 1
     ==
     assert
-    // arc4_types/bool.py:55
+    // arc4_types/bool.py:58
     // return true.native
     frame_dig -2
     int 0

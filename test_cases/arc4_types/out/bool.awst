@@ -3,6 +3,7 @@ contract Arc4BoolTypeContract
   approval_program(): bool
   {
     this::test_stuff(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
+    assert(arc4_decode(arc4_encode((reinterpret_cast<bool>(txn<NumAppArgs>())) ? (false) : (true), arc4.bool), bool), comment="conditional expr")
     static_boolean_array: arc4.static_array<arc4.bool, 12> = new arc4.static_array<arc4.bool, 12>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
     assert(reinterpret_cast<bytes>(static_boolean_array) == hex<"FFF0">)
     assert(static_boolean_array[0u] == arc4_encode(true, arc4.bool), comment="Single boolean can be unpacked")
