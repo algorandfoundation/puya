@@ -195,7 +195,7 @@ class FunctionIRBuilder(
         match expr.wtype:
             case wtypes.uint64_wtype:
                 if expr.value < 0 or expr.value.bit_length() > 64:
-                    logger.error(f"invalid {expr.wtype} value", location=expr.source_location)
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
 
                 return UInt64Constant(
                     value=expr.value,
@@ -204,7 +204,7 @@ class FunctionIRBuilder(
                 )
             case wtypes.biguint_wtype:
                 if expr.value < 0 or expr.value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
-                    logger.error(f"invalid {expr.wtype} value", location=expr.source_location)
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
 
                 return BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
@@ -236,7 +236,7 @@ class FunctionIRBuilder(
                     or -exponent > precision  # too precise
                     or adjusted_int.bit_length() > bit_size  # too big
                 ):
-                    raise CodeError("invalid decimal value", location=expr.source_location)
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
                 return BytesConstant(
                     source_location=expr.source_location,
                     encoding=AVMBytesEncoding.base16,
@@ -254,6 +254,8 @@ class FunctionIRBuilder(
         )
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
+        if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
@@ -262,8 +264,15 @@ class FunctionIRBuilder(
         )
 
     def visit_string_constant(self, expr: awst_nodes.StringConstant) -> BytesConstant:
+        try:
+            value = expr.value.encode("utf8")
+        except UnicodeError:
+            value = None
+        if value is None or len(value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
         return BytesConstant(
-            value=expr.value.encode("utf8"),
+            value=value,
             encoding=AVMBytesEncoding.utf8,
             source_location=expr.source_location,
         )

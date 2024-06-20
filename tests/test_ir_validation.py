@@ -5,6 +5,7 @@ from puya.awst import (
     nodes as awst,
     wtypes,
 )
+from puya.awst.nodes import BytesEncoding
 from puya.ir import models as ir
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
@@ -54,6 +55,23 @@ def test_decimal_validation(value: Decimal) -> None:
         source_location=_location,
     )
     assert _build_ir_and_return_errors(expr) == ["invalid decimal value"]
+
+
+def test_bytes_validation() -> None:
+    expr = awst.BytesConstant(
+        value=b"0" * 4097, encoding=BytesEncoding.base16, source_location=_location
+    )
+    assert _build_ir_and_return_errors(expr) == ["invalid bytes value"]
+
+
+def test_string_validation() -> None:
+    expr = awst.StringConstant(value="0" * 4097, source_location=_location)
+    assert _build_ir_and_return_errors(expr) == ["invalid string value"]
+
+
+def test_address_validation() -> None:
+    expr = awst.AddressConstant(value="bad_address", source_location=_location)
+    assert _build_ir_and_return_errors(expr) == ["invalid Algorand address"]
 
 
 def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
