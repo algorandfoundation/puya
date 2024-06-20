@@ -103,7 +103,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
-        """TODO: docstring"""
+        """TODO(frist): docstring"""
 
     @abc.abstractmethod
     def resolve_lvalue(self) -> Lvalue:
@@ -191,7 +191,7 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
         """Handle self.name"""
 
 
-# TODO: separate interface from implementation? particularly bool_eval and member_access impls
+# TODO(frist): separate interface from implementation? particularly bool_eval and member_access impls
 class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):
         super().__init__(location)

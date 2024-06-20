@@ -9,7 +9,7 @@ from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_bytes
+from puya.awst_build.eb._utils import compare_bytes, expect_at_most_one_arg
 from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -18,7 +18,6 @@ from puya.awst_build.eb.interface import (
     LiteralBuilder,
     NodeBuilder,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -37,7 +36,7 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
                 return ARC4BoolExpressionBuilder(
                     ARC4Encode(
                         value=BoolConstant(value=bool_literal, source_location=location),
-                        wtype=self._arc4_wtype,
+                        wtype=wtypes.arc4_bool_wtype,
                         source_location=location,
                     )
                 )
@@ -51,24 +50,19 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case []:
-                native_bool: Expression = BoolConstant(value=False, source_location=location)
-            case [InstanceBuilder(pytype=pytypes.BoolType) as eb]:
-                native_bool = eb.resolve()
+        arg = expect_at_most_one_arg(args, location)
+        default_value: Expression = BoolConstant(value=False, source_location=location)
+        match arg:
+            case None:
+                native_bool = default_value
+            case InstanceBuilder(pytype=pytypes.BoolType):
+                native_bool = arg.resolve()
             case _:
-                raise CodeError(
-                    f"arc4.Bool expects exactly one parameter of type {pytypes.BoolType}"
-                )
+                logger.error("unexpected argument type", location=arg.source_location)
+                native_bool = default_value
         return ARC4BoolExpressionBuilder(
-            ARC4Encode(value=native_bool, wtype=self._arc4_wtype, source_location=location)
+            ARC4Encode(value=native_bool, wtype=wtypes.arc4_bool_wtype, source_location=location)
         )
-
-    @property
-    def _arc4_wtype(self) -> wtypes.ARC4Type:
-        wtype = self.produces().wtype
-        assert isinstance(wtype, wtypes.ARC4Type)
-        return wtype
 
 
 class ARC4BoolExpressionBuilder(
@@ -98,5 +92,5 @@ class ARC4BoolExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        # TODO: support comparisons with native bool
+        # TODO(first): support comparisons with native bool
         return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)

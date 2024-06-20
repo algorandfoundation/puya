@@ -5,7 +5,14 @@ import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, FieldExpression, NewStruct
+from puya.awst.nodes import (
+    BytesConstant,
+    BytesEncoding,
+    Expression,
+    FieldExpression,
+    NewStruct,
+    ReinterpretCast,
+)
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import (
@@ -17,7 +24,6 @@ from puya.awst_build.eb.arc4.base import CopyBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import get_arg_mapping, require_instance_builder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -49,17 +55,31 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
         for field_name, field_type in pytype.fields.items():
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
-                raise CodeError(f"missing required argument {field_name!r}", location)
-            if field_value.pytype != field_type:
-                raise CodeError("invalid argument type", field_value.source_location)
-            values[field_name] = field_value.resolve()
+                logger.error(f"missing required argument {field_name!r}", location=location)
+            elif field_value.pytype != field_type:
+                logger.error("unexpected argument type", location=field_value.source_location)
+            else:
+                values[field_name] = field_value.resolve()
         if field_mapping:
-            raise CodeError(f"unexpected keyword arguments: {' '.join(field_mapping)}", location)
+            logger.error(
+                f"unexpected keyword arguments: {' '.join(field_mapping)}", location=location
+            )
 
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
-        return ARC4StructExpressionBuilder(
-            NewStruct(wtype=pytype.wtype, values=values, source_location=location), pytype
-        )
+        if values.keys() == pytype.fields.keys():
+            expr: Expression = NewStruct(
+                wtype=pytype.wtype, values=values, source_location=location
+            )
+        else:
+            expr = ReinterpretCast(
+                expr=BytesConstant(
+                    value=b"", encoding=BytesEncoding.unknown, source_location=location
+                ),
+                wtype=pytype.wtype,
+                source_location=location,
+            )
+
+        return ARC4StructExpressionBuilder(expr, pytype)
 
 
 class ARC4StructExpressionBuilder(

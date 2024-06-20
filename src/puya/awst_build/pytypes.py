@@ -27,9 +27,6 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-# TODO: handle (somewhere) not allowing things like Box and BoxMap in tuples, arrays, etc
-
-
 @attrs.frozen(kw_only=True, str=False)
 class PyType(abc.ABC):
     name: str
@@ -308,7 +305,7 @@ class StructType(PyType):
         source_location: SourceLocation | None,
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
-        # TODO: this is a bit of a kludge
+        # TODO(frist): this is a bit of a kludge
         wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct

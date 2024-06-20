@@ -388,6 +388,11 @@ class Copy(Expression):
     """
 
     value: Expression
+    wtype: WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> WType:
+        return self.value.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_copy(self)

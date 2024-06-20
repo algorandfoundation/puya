@@ -247,7 +247,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         reverse: bool,
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
-        # TODO: missing type check
+        # TODO(frist): missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
         lhs = self.resolve()
         rhs = other.resolve()
@@ -263,7 +263,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         rhs = rhs.resolve_literal(converter=BytesTypeBuilder(rhs.source_location))
-        # TODO: missing type check
+        # TODO(frist): missing type check
         bytes_op = _translate_binary_bytes_operator(op, location)
         target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
