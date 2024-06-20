@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import puya.awst.visitors
 import puya.ir.builder.storage
-from puya import log
+from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -194,21 +194,25 @@ class FunctionIRBuilder(
     def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> TExpression:
         match expr.wtype:
             case wtypes.uint64_wtype:
+                if expr.value < 0 or expr.value.bit_length() > 64:
+                    logger.error(f"invalid {expr.wtype} value", location=expr.source_location)
+
                 return UInt64Constant(
                     value=expr.value,
                     source_location=expr.source_location,
                     teal_alias=expr.teal_alias,
                 )
             case wtypes.biguint_wtype:
+                if expr.value < 0 or expr.value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
+                    logger.error(f"invalid {expr.wtype} value", location=expr.source_location)
+
                 return BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
                 num_bytes = bit_size // 8
                 try:
                     arc4_result = expr.value.to_bytes(num_bytes, "big", signed=False)
                 except OverflowError:
-                    raise CodeError(
-                        f"invalid literal value for {expr.wtype}", expr.source_location
-                    ) from None
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location) from None
                 return BytesConstant(
                     value=arc4_result,
                     encoding=AVMBytesEncoding.base16,
