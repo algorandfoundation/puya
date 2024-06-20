@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from puya.awst import (
     nodes as awst,
@@ -34,6 +36,24 @@ def test_arc4_uintn_validation(value: int) -> None:
         value=value, wtype=wtypes.arc4_byte_alias, source_location=_location
     )
     assert _build_ir_and_return_errors(expr) == ["invalid arc4.uint8 value"]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        Decimal("-1.00"),
+        Decimal("2.56"),
+        Decimal("0.111"),
+        Decimal("inf"),
+    ],
+)
+def test_decimal_validation(value: Decimal) -> None:
+    expr = awst.DecimalConstant(
+        value=value,
+        wtype=wtypes.ARC4UFixedNxM(bits=8, precision=2, source_location=None),
+        source_location=_location,
+    )
+    assert _build_ir_and_return_errors(expr) == ["invalid decimal value"]
 
 
 def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:

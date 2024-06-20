@@ -226,10 +226,17 @@ class FunctionIRBuilder(
 
     def visit_decimal_constant(self, expr: awst_nodes.DecimalConstant) -> TExpression:
         match expr.wtype:
-            case wtypes.ARC4UFixedNxM(n=bit_size):
+            case wtypes.ARC4UFixedNxM(n=bit_size, m=precision):
                 num_bytes = bit_size // 8
-                _, digits, _ = expr.value.as_tuple()
+                sign, digits, exponent = expr.value.as_tuple()
                 adjusted_int = int("".join(map(str, digits)))
+                if (
+                    sign != 0  # negative
+                    or not isinstance(exponent, int)  # infinite
+                    or -exponent > precision  # too precise
+                    or adjusted_int.bit_length() > bit_size  # too big
+                ):
+                    raise CodeError("invalid decimal value", location=expr.source_location)
                 return BytesConstant(
                     source_location=expr.source_location,
                     encoding=AVMBytesEncoding.base16,
