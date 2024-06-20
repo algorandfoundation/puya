@@ -431,3 +431,16 @@ class MyContract(ARC4Contract):
     @arc4.baremethod # type: ignore[arg-type] ## E: bare methods should have no arguments or return values
     def f(self) -> UInt64:
         return UInt64(0)
+
+
+## case: test_bad_string
+from algopy import Bytes, arc4, subroutine
+
+@subroutine
+def invalid_string_args() -> arc4.String:
+    return arc4.String(b"bad")  # type: ignore[arg-type] ## E: invalid/unhandled arguments
+
+@subroutine
+def invalid_aug_operator() -> None:
+    a = arc4.String()
+    a -= arc4.String()  # type: ignore[operator] ## E: unsupported operator

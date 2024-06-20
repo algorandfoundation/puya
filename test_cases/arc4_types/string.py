@@ -1,4 +1,4 @@
-from algopy import Contract, String, arc4
+from algopy import Contract, String, Txn, arc4
 
 HELLO_WORLD = b"Hello World!"
 
@@ -36,6 +36,9 @@ class Arc4StringTypesContract(Contract):
         assert arc4.String("abcdefg") == value
 
         assert arc4.String().native == ""
+        assert arc4.String("hello") == String("hello")
+
+        assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
         return True
 
     def clear_state_program(self) -> bool:
