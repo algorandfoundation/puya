@@ -1,7 +1,8 @@
-from __future__ import annotations
-
 import typing
 from abc import ABC
+from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
@@ -27,6 +28,9 @@ from puya.awst_build.eb._bytes_backed import (
 from puya.awst_build.eb._utils import (
     bool_eval_to_constant,
     compare_bytes,
+    expect_exactly_n_args,
+    expect_exactly_one_arg,
+    expect_no_args,
     resolve_negative_literal_index,
 )
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_bool_bytes
@@ -40,18 +44,9 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import (
-    require_instance_builder,
-    require_instance_builder_of_type,
-)
+from puya.awst_build.utils import require_instance_builder, require_instance_builder_of_type
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -66,7 +61,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         if not args:
-            raise CodeError("Empty arrays require a type annotation to be instantiated", location)
+            raise CodeError("empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [require_instance_builder(a) for a in args]
         element_type = non_literal_args[0].pytype
 
@@ -121,7 +116,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         if not args:
-            raise CodeError("Empty arrays require a type annotation to be instantiated", location)
+            raise CodeError("empty arrays require a type annotation to be instantiated", location)
         non_literal_args = [require_instance_builder(a) for a in args]
         element_type = non_literal_args[0].pytype
         array_size = len(non_literal_args)
@@ -149,6 +144,7 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4StaticArrayType
         assert typ.size is not None
+        self._size = typ.size
         super().__init__(typ, location)
 
     @typing.override
@@ -160,9 +156,8 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(require_instance_builder_of_type(a, typ.items).resolve() for a in args)
-        if typ.size != len(values):
-            raise CodeError(f"{typ} should be initialized with {typ.size} values", location)
+        n_args = expect_exactly_n_args(args, location, self._size)
+        values = tuple(require_instance_builder_of_type(a, typ.items).resolve() for a in n_args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
 
@@ -173,14 +168,13 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
 
 class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.ArrayType], ABC):
     def __init__(self, expr: Expression, typ: pytypes.ArrayType):
-        self.pytyp = typ
         super().__init__(typ, expr)
 
     @typing.override
     def iterate(self) -> Iteration:
         if not self.pytype.items.wtype.immutable:
             logger.error(
-                "Cannot directly iterate an ARC4 array of mutable objects,"
+                "cannot directly iterate an ARC4 array of mutable objects,"
                 " construct a for-loop over the indexes via urange(<array>.length) instead",
                 location=self.source_location,
             )
@@ -198,13 +192,13 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
             wtype=self.pytype.items.wtype,
             source_location=location,
         )
-        return builder_for_instance(self.pytyp.items, result_expr)
+        return builder_for_instance(self.pytype.items, result_expr)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "copy":
-                return CopyBuilder(self.resolve(), location, self.pytyp)
+                return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
                 return super().member_access(name, location)
 
@@ -252,11 +246,11 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                     )
                 )
             case "append":
-                return _Append(self.resolve(), self.pytyp, location)
+                return _Append(self.resolve(), self.pytype, location)
             case "extend":
-                return _Extend(self.resolve(), self.pytyp, location)
+                return _Extend(self.resolve(), self.pytype, location)
             case "pop":
-                return _Pop(self.resolve(), self.pytyp, location)
+                return _Pop(self.resolve(), self.pytype, location)
             case _:
                 return super().member_access(name, location)
 
@@ -269,13 +263,9 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                 return ExpressionStatement(
                     expr=ArrayExtend(
                         base=self.resolve(),
-                        other=match_array_concat_arg(
-                            (rhs,),
-                            self.pytype.items.wtype,
-                            source_location=location,
-                            msg="Array concat expects array or tuple of the same element type. "
-                            f"Element type: {self.pytype.items}",
-                        ),
+                        other=_match_array_concat_arg(
+                            rhs, self.pytype, source_location=location
+                        ).resolve(),
                         source_location=location,
                         wtype=wtypes.arc4_string_alias,
                     )
@@ -295,13 +285,9 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.resolve()
-                rhs = match_array_concat_arg(
-                    (other,),
-                    self.pytype.items.wtype,
-                    source_location=location,
-                    msg="Array concat expects array or tuple of the same element type. "
-                    f"Element type: {self.pytype.items}",
-                )
+                rhs = _match_array_concat_arg(
+                    other, self.pytype, source_location=location
+                ).resolve()
 
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
@@ -310,9 +296,9 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
                         left=lhs,
                         right=rhs,
                         source_location=location,
-                        wtype=self.pytyp.wtype,
+                        wtype=self.pytype.wtype,
                     ),
-                    self.pytyp,
+                    self.pytype,
                 )
 
             case _:
@@ -368,14 +354,11 @@ class _Pop(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case []:
-                result_expr = ArrayPop(
-                    base=self.expr, source_location=location, wtype=self.typ.items.wtype
-                )
-                return builder_for_instance(self.typ.items, result_expr)
-            case _:
-                raise CodeError("Invalid/Unhandled arguments", location)
+        expect_no_args(args, location)
+        result_expr = ArrayPop(
+            base=self.expr, source_location=location, wtype=self.typ.items.wtype
+        )
+        return builder_for_instance(self.typ.items, result_expr)
 
 
 class _Extend(FunctionBuilder):
@@ -392,13 +375,8 @@ class _Extend(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        other = match_array_concat_arg(
-            args,
-            self.typ.items.wtype,
-            source_location=location,
-            msg="Extend expects an arc4.StaticArray or arc4.DynamicArray of the same element "
-            f"type. Expected array or tuple of {self.typ.items}",
-        )
+        arg = expect_exactly_one_arg(args, location)
+        other = _match_array_concat_arg(arg, self.typ, source_location=location).resolve()
         return VoidExpressionBuilder(
             ArrayExtend(
                 base=self.expr,
@@ -409,24 +387,20 @@ class _Extend(FunctionBuilder):
         )
 
 
-def match_array_concat_arg(
-    args: Sequence[NodeBuilder],
-    element_type: wtypes.WType,
+def _match_array_concat_arg(
+    arg: InstanceBuilder,
+    arr_type: pytypes.ArrayType,
     *,
     source_location: SourceLocation,
-    msg: str,
-) -> Expression:
-    match args:
-        case (InstanceBuilder() as eb,):
-            expr = eb.resolve()
-            match expr:
-                case Expression(wtype=wtypes.ARC4Array() as array_wtype) as array_ex:
-                    if array_wtype.element_type == element_type:
-                        return array_ex
-                case Expression(wtype=wtypes.WTuple() as tuple_wtype) as tuple_ex:
-                    if all(et == element_type for et in tuple_wtype.types):
-                        return tuple_ex
-    raise CodeError(msg, source_location)
+) -> InstanceBuilder:
+    match arg:
+        case InstanceBuilder(pytype=pytypes.ArrayType(items=arr_type.items)):
+            return arg
+        case InstanceBuilder(pytype=pytypes.TupleType(items=tup_items)) if all(
+            ti == arr_type.items for ti in tup_items
+        ):
+            return arg
+    raise CodeError("expected an array or tuple of the same element type", source_location)
 
 
 class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):

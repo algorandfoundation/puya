@@ -69,7 +69,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
 class GenericTypeBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @property
-    def pytype(self) -> None:  # TODO: ??
+    def pytype(self) -> None:  # TODO(frist): ??
         return None
 
     @typing.override

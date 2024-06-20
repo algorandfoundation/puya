@@ -27,13 +27,9 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._base import FunctionBuilder
-from puya.awst_build.eb.arc4._utils import (
-    ARC4Signature,
-    arc4_tuple_from_items,
-    get_arc4_args_and_signature,
-    implicit_operand_conversion,
-)
+from puya.awst_build.eb.arc4._utils import ARC4Signature, arc4_tuple_from_items, get_arc4_signature
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
@@ -82,6 +78,7 @@ class ARC4ClientTypeBuilder(TypeBuilder):
         source_location: SourceLocation,
         type_info: mypy.nodes.TypeInfo,
     ):
+        assert pytypes.ARC4ClientBaseType in typ.bases
         super().__init__(typ, source_location)
         self.context = context
         self.type_info = type_info
@@ -100,7 +97,7 @@ class ARC4ClientTypeBuilder(TypeBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
         if func_or_dec is None:
-            raise CodeError(f"Unknown member {name!r} of {self.type_info.fullname!r}", location)
+            raise CodeError(f"unknown member {name!r} of {self.type_info.fullname!r}", location)
         return ARC4ClientMethodExpressionBuilder(self.context, func_or_dec, location)
 
 
@@ -124,7 +121,7 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError(
-            f"Can't invoke client methods directly, use {constants.CLS_ARC4_ABI_CALL}", location
+            f"can't invoke client methods directly, use {constants.CLS_ARC4_ABI_CALL}", location
         )
 
 
@@ -137,13 +134,13 @@ class ABICallGenericTypeBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _abi_call(args, arg_names, location, abi_return_type=None)
+        return _abi_call(args, arg_names, location, return_type_annotation=None)
 
 
 class ABICallTypeBuilder(FunctionBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.PseudoGenericFunctionType)
-        self.abi_return_type = typ.return_type
+        self._return_type_annotation = typ.return_type
         super().__init__(location)
 
     @typing.override
@@ -154,7 +151,9 @@ class ABICallTypeBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _abi_call(args, arg_names, location, abi_return_type=self.abi_return_type)
+        return _abi_call(
+            args, arg_names, location, return_type_annotation=self._return_type_annotation
+        )
 
 
 def _abi_call(
@@ -162,7 +161,7 @@ def _abi_call(
     arg_names: list[str | None],
     location: SourceLocation,
     *,
-    abi_return_type: pytypes.PyType | None,
+    return_type_annotation: pytypes.PyType | None,
 ) -> InstanceBuilder:
     method: NodeBuilder | None = None
     abi_args = list[InstanceBuilder]()
@@ -180,19 +179,24 @@ def _abi_call(
         case None:
             raise CodeError("missing required positional argument 'method'", location)
         case LiteralBuilder(value=str(method_str)):
-            arc4_args, signature = get_arc4_args_and_signature(method_str, abi_args, location)
-            if abi_return_type is not None:
+            signature = get_arc4_signature(method_str, abi_args, location)
+            declared_result_type = return_type_annotation
+            if declared_result_type is not None:
                 # this will be validated against signature below, by comparing
                 # the generated method_selector against the supplied method_str
-                signature = attrs.evolve(signature, return_type=abi_return_type)
+                signature = attrs.evolve(signature, return_type=declared_result_type)
             elif signature.return_type is None:
                 signature = attrs.evolve(signature, return_type=pytypes.NoneType)
             if not signature.method_selector.startswith(method_str):
-                raise CodeError(
-                    f"Method selector from args '{signature.method_selector}' "
+                logger.error(
+                    f"method selector from args '{signature.method_selector}' "
                     f"does not match provided method selector: '{method_str}'",
-                    method.source_location,
+                    location=method.source_location,
                 )
+        case InstanceBuilder(pytype=pytypes.StrLiteralType):
+            raise CodeError(
+                "method selector strings must be simple literals", method.source_location
+            )
         case ARC4ClientMethodExpressionBuilder(
             context=context, node=node
         ) | BaseClassSubroutineInvokerExpressionBuilder(context=context, node=node):
@@ -201,37 +205,32 @@ def _abi_call(
             #       like we do for function body evaluation, and then these types should make the
             #       resulting metadata (decorator args, function signature) available on them,
             #       instead of shunting the context object around
-            explicit_abi_return_type = abi_return_type
-            signature, abi_return_type = _get_arc4_signature_and_return_pytype(
+            signature, declared_result_type = _get_arc4_signature_and_return_pytype(
                 context, node, location
             )
             if (
-                explicit_abi_return_type is not None
-                and abi_return_type != explicit_abi_return_type
+                return_type_annotation is not None
+                and return_type_annotation != declared_result_type
             ):
                 logger.error(
                     "mismatch between return type of method and generic parameter",
                     location=location,
                 )
-            num_args = len(abi_args)
-            num_types = len(signature.arg_types)
-            if num_types != num_args:
-                raise CodeError(
-                    f"number of arguments ({num_args}) does not match signature ({num_types})",
-                    location,
-                )
-            arc4_args = [
-                implicit_operand_conversion(arg, pt)
-                for arg, pt in zip(abi_args, signature.arg_types, strict=True)
-            ]
         case _:
-            raise CodeError(
-                "First argument must be a `str` value of an ARC4 method name/selector",
-                location,
-            )
+            raise CodeError("unexpected argument type", method.source_location)
+
+    if signature.return_type is None:
+        raise InternalError("expected ARC4Signature.return_type to be defined", location)
+
+    arc4_args = signature.convert_args(abi_args, location)
 
     return _create_abi_call_expr(
-        signature, arc4_args, abi_return_type, transaction_kwargs, location
+        method_selector=signature.method_selector,
+        signature_return_type=signature.return_type,
+        abi_args=arc4_args,
+        declared_result_type=declared_result_type,
+        transaction_kwargs=transaction_kwargs,
+        location=location,
     )
 
 
@@ -257,19 +256,17 @@ def _get_arc4_signature_and_return_pytype(
 
 
 def _create_abi_call_expr(
-    signature: ARC4Signature,
+    *,
+    method_selector: str,
+    signature_return_type: pytypes.PyType,
     abi_args: Sequence[InstanceBuilder],
-    declared_result_pytype: pytypes.PyType | None,
+    declared_result_type: pytypes.PyType | None,
     transaction_kwargs: dict[str, InstanceBuilder],
     location: SourceLocation,
 ) -> InstanceBuilder:
-    if signature.return_type is None:
-        raise InternalError("Expected ARC4Signature.return_type to be defined", location)
 
     array_fields: dict[TxnField, list[Expression]] = {
-        TxnFields.app_args: [
-            MethodConstant(value=signature.method_selector, source_location=location)
-        ],
+        TxnFields.app_args: [MethodConstant(value=method_selector, source_location=location)],
         TxnFields.accounts: [],
         TxnFields.apps: [],
         TxnFields.assets: [],
@@ -340,20 +337,20 @@ def _create_abi_call_expr(
         SubmitInnerTransaction(group=create_itxn, source_location=location), itxn_result_pytype
     )
 
-    if declared_result_pytype is None or declared_result_pytype == pytypes.NoneType:
+    if declared_result_type is None or declared_result_type == pytypes.NoneType:
         return itxn_builder
     itxn_tmp = itxn_builder.single_eval()
     assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)
-    last_log = itxn_tmp.get_field_value(TxnFields.last_log, location)
-    abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location)
+    last_log = BytesExpressionBuilder(itxn_tmp.get_field_value(TxnFields.last_log, location))
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature_return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
-    if declared_result_pytype != signature.return_type:
+    if declared_result_type != signature_return_type:
         abi_result = ARC4Decode(
-            value=abi_result, wtype=declared_result_pytype.wtype, source_location=location
+            value=abi_result, wtype=declared_result_type.wtype, source_location=location
         )
 
-    abi_result_builder = builder_for_instance(declared_result_pytype, abi_result)
+    abi_result_builder = builder_for_instance(declared_result_type, abi_result)
     return TupleLiteralBuilder((abi_result_builder, itxn_tmp), location)
 
 

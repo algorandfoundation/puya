@@ -10,7 +10,7 @@ from puya.awst.nodes import DecimalConstant, Expression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_bytes
+from puya.awst_build.eb._utils import compare_bytes, expect_at_most_one_arg
 from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -35,7 +35,9 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
     ) -> InstanceBuilder | None:
         match literal.value:
             case str(literal_value):
-                result = self._str_to_decimal_constant(literal_value, location)
+                result = self._str_to_decimal_constant(
+                    literal_value, error_location=literal.source_location, location=location
+                )
                 return UFixedNxMExpressionBuilder(result, self.produces())
         return None
 
@@ -47,20 +49,26 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
-                return arg.resolve_literal(converter=self)
-            case []:
+        arg = expect_at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
+                return arg.resolve_literal(UFixedNxMTypeBuilder(self.produces(), location))
+            case None:
                 pass
             case _:
-                logger.error("invalid/unhandled arguments", location=location)
+                logger.error("unexpected argument type", location=arg.source_location)
 
-        result = self._str_to_decimal_constant("0.0", location)
+        result = self._str_to_decimal_constant("0.0", location=location)
         return UFixedNxMExpressionBuilder(result, self.produces())
 
     def _str_to_decimal_constant(
-        self, literal_value: str, location: SourceLocation
+        self,
+        literal_value: str,
+        *,
+        location: SourceLocation,
+        error_location: SourceLocation | None = None,
     ) -> DecimalConstant:
+        error_location = location or error_location
         fixed_wtype = self.produces().wtype
         assert isinstance(fixed_wtype, wtypes.ARC4UFixedNxM)
 
@@ -78,24 +86,28 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
             try:
                 d = decimal.Decimal(literal_value)
             except ArithmeticError:
-                logger.error("invalid decimal literal", location=location)  # noqa: TRY400
+                logger.error("invalid decimal literal", location=error_location)  # noqa: TRY400
                 d = decimal.Decimal()
             try:
                 q = d.quantize(decimal.Decimal(f"1e-{fixed_wtype.m}"))
             except ArithmeticError:
                 logger.error(  # noqa: TRY400
-                    "invalid decimal constant (wrong precision)", location=location
+                    "invalid decimal constant (wrong precision)", location=error_location
                 )
                 q = decimal.Decimal("0." + "0" * fixed_wtype.m)
 
             sign, digits, exponent = q.as_tuple()
             if sign != 0:  # is negative
-                logger.error("invalid decimal constant (value is negative)", location=location)
+                logger.error(
+                    "invalid decimal constant (value is negative)", location=error_location
+                )
             if not isinstance(exponent, int):  # is infinite
-                logger.error("invalid decimal constant (value is infinite)", location=location)
+                logger.error(
+                    "invalid decimal constant (value is infinite)", location=error_location
+                )
             adjusted_int = int("".join(map(str, digits)))
             if adjusted_int.bit_length() > fixed_wtype.n:
-                logger.error("invalid decimal constant (too many bits)", location=location)
+                logger.error("invalid decimal constant (too many bits)", location=error_location)
             result = DecimalConstant(value=q, wtype=fixed_wtype, source_location=location)
             return result
 

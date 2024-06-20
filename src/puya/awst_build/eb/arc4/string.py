@@ -48,13 +48,16 @@ class StringTypeBuilder(ARC4TypeBuilder):
                 try:
                     bytes_value = literal_value.encode("utf8")
                 except UnicodeEncodeError as ex:
-                    raise CodeError(
-                        f"invalid UTF-8 string (encoding error: {ex})", self.source_location
-                    ) from None
-                if len(bytes_value) > (algo_constants.MAX_BYTES_LENGTH - 2):
-                    raise CodeError(
-                        "encoded string exceeds max byte array length", self.source_location
+                    logger.error(  # noqa: TRY400
+                        f"invalid UTF-8 string (encoding error: {ex})",
+                        location=literal.source_location,
                     )
+                else:
+                    if len(bytes_value) > (algo_constants.MAX_BYTES_LENGTH - 2):
+                        logger.error(
+                            "encoded string exceeds max byte array length",
+                            location=literal.source_location,
+                        )
                 return StringExpressionBuilder(_arc4_encode_str_literal(literal_value, location))
         return None
 
@@ -66,14 +69,18 @@ class StringTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as eb]:
+        if not args:
+            return StringExpressionBuilder(_arc4_encode_str_literal("", location))
+        if len(args) > 1:
+            logger.error(f"expected at most 1 argument, got {len(args)}", location)
+        eb = require_instance_builder(args[0])
+        match eb:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return eb.resolve_literal(StringTypeBuilder(location))
-            case [InstanceBuilder(pytype=pytypes.StringType)]:
-                return _expect_string(args[0], location)
-            case []:
-                return StringExpressionBuilder(_arc4_encode_str_literal("", location))
-        raise CodeError("invalid/unhandled arguments", location)
+            case InstanceBuilder(pytype=pytypes.StringType):
+                return _expect_string(eb, location)
+            case _:
+                raise CodeError("unexpected argument type", eb.source_location)
 
 
 def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression:
@@ -85,21 +92,21 @@ def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression
 
 
 def _expect_string(expr: NodeBuilder, location: SourceLocation) -> InstanceBuilder:
-    expr = require_instance_builder(expr)
-    match expr:
-        case InstanceBuilder(pytype=pytypes.StrLiteralType) as eb:
+    eb = require_instance_builder(expr)
+    match eb:
+        case InstanceBuilder(pytype=pytypes.StrLiteralType):
             return eb.resolve_literal(StringTypeBuilder(location))
-        case InstanceBuilder(pytype=pytypes.StringType) as eb:
+        case InstanceBuilder(pytype=pytypes.StringType):
             string_expr = eb.resolve()
             return StringExpressionBuilder(
                 ARC4Encode(
                     value=string_expr, wtype=wtypes.arc4_string_alias, source_location=location
                 )
             )
-        case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
+        case InstanceBuilder(pytype=pytypes.ARC4StringType):
             return eb
         case _:
-            raise CodeError("invalid/unhandled arguments", location)
+            raise CodeError("unexpected argument type", eb.source_location)
 
 
 class StringExpressionBuilder(

@@ -26,7 +26,7 @@ class FunctionOpMapping:
     op_code: str
     immediates: Sequence[str | int | type[str | int]] = attrs.field(
         default=(), converter=tuple[str | int | type[str | int], ...]
-    )  # TODO: field validation
+    )  # TODO(frist): field validation
     args: Sequence[Sequence[pytypes.PyType] | int] = attrs.field(
         default=(), converter=tuple[Sequence[pytypes.PyType] | int, ...]
     )
@@ -65,7 +65,7 @@ class FunctionOpMapping:
 
 @attrs.frozen(kw_only=True)
 class OpMappingWithOverloads:
-    # TODO: validate arity matches up with all overloads
+    # TODO(frist): validate arity matches up with all overloads
     arity: int = attrs.field(validator=attrs.validators.ge(0))
     result: pytypes.PyType = pytypes.NoneType
     """Types output by TEAL op"""

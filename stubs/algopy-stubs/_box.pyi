@@ -161,7 +161,6 @@ class BoxMap(typing.Generic[_TKey, _TValue]):
     `boxes` property of the Transaction.
     """
 
-    # TODO: ensure default key_prefix works, ensure str/String work
     def __init__(
         self,
         key_type: type[_TKey],

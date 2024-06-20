@@ -17,6 +17,7 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import expect_at_most_one_arg
 from puya.awst_build.eb.arc4.base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -66,24 +67,21 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        arg = expect_at_most_one_arg(args, location)
         typ = self.produces()
         wtype = typ.wtype
-        match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as int_literal_builder]:
-                return int_literal_builder.resolve_literal(UIntNTypeBuilder(typ, location))
-            case []:
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
+                return arg.resolve_literal(UIntNTypeBuilder(typ, location))
+            case None:
                 expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
-            case [
-                InstanceBuilder(
-                    pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)
-                ) as eb
-            ]:
-                expr = ARC4Encode(value=eb.resolve(), wtype=wtype, source_location=location)
+            case InstanceBuilder(
+                pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)
+            ):
+                expr = ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location)
             case _:
-                raise CodeError(
-                    "Invalid/unhandled arguments",
-                    location,
-                )
+                # TODO: dummy value
+                raise CodeError("unexpected argument type", arg.source_location)
         return UIntNExpressionBuilder(expr, typ)
 
 

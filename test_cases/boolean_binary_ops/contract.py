@@ -27,7 +27,7 @@ def test_boolean_binary_ops(*, true: bool, false: bool) -> None:
 
 @subroutine
 def bool_to_bytes(x: bool) -> Bytes:
-    return Bytes(b"true") if x else Bytes(b"false")  # TODO: allow Bytes() outside ternary instead
+    return Bytes(b"true" if x else b"false")
 
 
 @subroutine
