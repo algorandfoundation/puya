@@ -49,7 +49,7 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     ) -> InstanceBuilder:
         match args:
             case [InstanceBuilder(pytype=pytypes.BytesLiteralType) as lit]:
-                return lit.resolve_literal(self)
+                return lit.resolve_literal(DynamicBytesTypeBuilder(location))
             case []:
                 bytes_expr: Expression = BytesConstant(
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
@@ -59,7 +59,9 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
             case _:
                 non_literal_args = tuple(_coerce_to_byte(a) for a in args)
                 return DynamicBytesExpressionBuilder(
-                    NewArray(values=non_literal_args, wtype=self._arc4_type, source_location=location)
+                    NewArray(
+                        values=non_literal_args, wtype=self._arc4_type, source_location=location
+                    )
                 )
         return self._from_bytes_expr(bytes_expr, location)
 

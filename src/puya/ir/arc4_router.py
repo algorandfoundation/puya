@@ -7,7 +7,26 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.wtypes import ARC4Type, WGroupTransaction
+from puya.awst.wtypes import (
+    ARC4DynamicArray,
+    ARC4Tuple,
+    ARC4Type,
+    ARC4UIntN,
+    WGroupTransaction,
+    WTuple,
+    WType,
+    account_wtype,
+    application_wtype,
+    arc4_bool_wtype,
+    arc4_byte_alias,
+    arc4_string_alias,
+    asset_wtype,
+    biguint_wtype,
+    bool_wtype,
+    bytes_wtype,
+    string_wtype,
+    uint64_wtype,
+)
 from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
@@ -188,7 +207,7 @@ def log_arc4_compatible_result(
     location: SourceLocation, result_expression: awst_nodes.Expression
 ) -> awst_nodes.ExpressionStatement:
     arc4_encoded = _arc4_encode(
-        result_expression, wtypes.avm_to_arc4_equivalent_type(result_expression.wtype), location
+        result_expression, _avm_to_arc4_equivalent_type(result_expression.wtype), location
     )
     return log_arc4_result(location, arc4_encoded)
 
@@ -408,9 +427,9 @@ def map_abi_args(
     if len(non_transaction_args) > 15:
 
         def map_param_wtype_to_arc4_tuple_type(wtype: wtypes.WType) -> wtypes.WType:
-            if wtypes.has_arc4_equivalent_type(wtype):
-                return wtypes.avm_to_arc4_equivalent_type(wtype)
-            elif wtypes.is_reference_type(wtype):
+            if _has_arc4_equivalent_type(wtype):
+                return _avm_to_arc4_equivalent_type(wtype)
+            elif _is_reference_type(wtype):
                 return wtypes.arc4_byte_alias
             else:
                 return wtype
@@ -461,8 +480,8 @@ def map_abi_args(
                 )
                 yield check_transaction_type(transaction_index, txn_wtype, location)
                 transaction_arg_offset -= 1
-            case _ if wtypes.has_arc4_equivalent_type(arg.wtype):
-                abi_arg = get_arg(abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype))
+            case _ if _has_arc4_equivalent_type(arg.wtype):
+                abi_arg = get_arg(abi_arg_index, _avm_to_arc4_equivalent_type(arg.wtype))
                 decoded_abi_arg = _arc4_decode(
                     bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
                 )
@@ -491,7 +510,7 @@ def route_abi_methods(
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
             case _ if isinstance(method.return_type, ARC4Type):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
-            case _ if wtypes.has_arc4_equivalent_type(method.return_type):
+            case _ if _has_arc4_equivalent_type(method.return_type):
                 call_and_maybe_log = log_arc4_compatible_result(abi_loc, method_result)
             case _:
                 raise CodeError(
@@ -780,7 +799,7 @@ def _maybe_arc4_encode(
     """Encode as arc4 if wtype is not already an arc4 encoded type"""
     if isinstance(wtype, ARC4Type):
         return item
-    return _arc4_encode(item, wtypes.avm_to_arc4_equivalent_type(wtype), location)
+    return _arc4_encode(item, _avm_to_arc4_equivalent_type(wtype), location)
 
 
 def _arc4_decode(
@@ -879,3 +898,48 @@ def _wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> st
             return f"({item_types})"
         case _:
             raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
+
+
+def _is_reference_type(wtype: WType) -> bool:
+    return wtype in (asset_wtype, account_wtype, application_wtype)
+
+
+def _has_arc4_equivalent_type(wtype: WType) -> bool:
+    """
+    Checks if a non-arc4 encoded type has an arc4 equivalent
+    """
+    if wtype in (bool_wtype, uint64_wtype, bytes_wtype, biguint_wtype, string_wtype):
+        return True
+
+    match wtype:
+        case WTuple(types=types):
+            return all(
+                (_has_arc4_equivalent_type(t) or isinstance(t, ARC4Type))
+                and not isinstance(t, WTuple)
+                for t in types
+            )
+    return False
+
+
+def _avm_to_arc4_equivalent_type(wtype: WType) -> ARC4Type:
+    if wtype is bool_wtype:
+        return arc4_bool_wtype
+    if wtype is uint64_wtype:
+        return ARC4UIntN(64, decode_type=wtype, source_location=None)
+    if wtype is biguint_wtype:
+        return ARC4UIntN(512, decode_type=wtype, source_location=None)
+    if wtype is bytes_wtype:
+        return ARC4DynamicArray(
+            element_type=arc4_byte_alias, native_type=wtype, source_location=None
+        )
+    if wtype is string_wtype:
+        return arc4_string_alias
+    if isinstance(wtype, WTuple):
+        return ARC4Tuple(
+            types=(
+                t if isinstance(t, ARC4Type) else _avm_to_arc4_equivalent_type(t)
+                for t in wtype.types
+            ),
+            source_location=None,
+        )
+    raise InternalError(f"{wtype} does not have an arc4 equivalent type")
