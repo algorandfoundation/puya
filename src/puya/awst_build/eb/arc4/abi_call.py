@@ -16,9 +16,7 @@ from puya.awst.nodes import (
     BytesEncoding,
     CreateInnerTransaction,
     Expression,
-    InnerTransactionField,
     MethodConstant,
-    SingleEvaluation,
     SubmitInnerTransaction,
     TupleExpression,
     TxnField,
@@ -320,10 +318,10 @@ def _create_abi_call_expr(
             source_location=location,
         ),
     }
-    if len(abi_arg_exprs) > 15:
-        packed_arg_slice = slice(15, None)
-        args_to_pack = abi_arg_exprs[packed_arg_slice]
-        abi_arg_exprs[packed_arg_slice] = [
+    max_args = 15
+    if len(abi_arg_exprs) > max_args:
+        args_to_pack = abi_arg_exprs[max_args:]
+        abi_arg_exprs[max_args:] = [
             arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
         ]
 
@@ -349,21 +347,20 @@ def _create_abi_call_expr(
         wtype=wtypes.WInnerTransactionFields.from_type(constants.TransactionType.appl),
         source_location=location,
     )
-    itxn = SubmitInnerTransaction(
-        itxns=(create_itxn,),
-        source_location=location,
-        wtype=itxn_result_pytype.wtype,
+    itxn_builder = InnerTransactionExpressionBuilder(
+        SubmitInnerTransaction(
+            itxns=(create_itxn,),
+            wtype=itxn_result_pytype.wtype,
+            source_location=location,
+        ),
+        itxn_result_pytype,
     )
 
     if not _is_typed(declared_result_pytype):
-        return InnerTransactionExpressionBuilder(itxn, itxn_result_pytype)
-    itxn_tmp = SingleEvaluation(itxn)
-    last_log = InnerTransactionField(
-        source_location=location,
-        itxn=itxn_tmp,
-        field=TxnFields.last_log,
-        wtype=TxnFields.last_log.wtype,
-    )
+        return itxn_builder
+    itxn_tmp = itxn_builder.single_eval()
+    assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)
+    last_log = itxn_tmp.get_field_value(TxnFields.last_log, location)
     abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
@@ -382,8 +379,7 @@ def _create_abi_call_expr(
             raise InternalError("Return type does not match signature type", location)
 
     abi_result_builder = builder_for_instance(declared_result_pytype, abi_result)
-    itxn_tmp_builder = builder_for_instance(itxn_result_pytype, itxn_tmp)
-    return TupleLiteralBuilder((abi_result_builder, itxn_tmp_builder), location)
+    return TupleLiteralBuilder((abi_result_builder, itxn_tmp), location)
 
 
 def _add_array_exprs(
