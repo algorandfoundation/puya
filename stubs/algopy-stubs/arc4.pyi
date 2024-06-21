@@ -376,7 +376,7 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 
     def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
     def append(self, item: _TArrayItem, /) -> None:
-        """Append items to this array"""
+        """Append an item to this array"""
 
     def extend(self, other: Iterable[_TArrayItem], /) -> None:
         """Extend this array with the contents of another array"""

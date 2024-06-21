@@ -8,8 +8,10 @@ import mypy.nodes
 from puya import arc4_util, log
 from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_type
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -50,9 +52,18 @@ class ARC4Signature:
 
 
 def get_arc4_signature(
-    method_sig: str, native_args: Sequence[InstanceBuilder], loc: SourceLocation
-) -> ARC4Signature:
-    method_name, maybe_args, maybe_returns = _split_signature(method_sig, loc)
+    method: NodeBuilder, native_args: Sequence[InstanceBuilder], loc: SourceLocation
+) -> tuple[str, ARC4Signature]:
+    method = expect.argument_of_type_else_die(method, pytypes.StrLiteralType)
+    match method:
+        case LiteralBuilder(value=str(method_sig)):
+            pass
+        case _:
+            raise CodeError(
+                "method selector strings must be simple literals", method.source_location
+            )
+
+    method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:
         arg_types = [_implicit_arc4_type_conversion(na.pytype, loc) for na in native_args]
     elif maybe_args:
@@ -62,7 +73,7 @@ def get_arc4_signature(
     else:  # args are specified but empty
         arg_types = []
     return_type = arc4_utils.arc4_to_pytype(maybe_returns, loc) if maybe_returns else None
-    return ARC4Signature(method_name, arg_types, return_type)
+    return method_sig, ARC4Signature(method_name, arg_types, return_type)
 
 
 def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
@@ -76,8 +87,7 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
 
     def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
         raise CodeError(
-            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
-            loc,
+            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible", loc
         )
 
     return pytype_to_arc4_pytype(typ, on_error)
@@ -101,13 +111,16 @@ def _implicit_arc4_conversion(
             operand.source_location,
         )
     if isinstance(operand.pytype.wtype, ARC4Type):
-        raise CodeError(
-            f"expected type {target_type}, got type {operand.pytype}", operand.source_location
+        logger.error(
+            f"expected type {target_type}, got type {operand.pytype}",
+            location=operand.source_location,
         )
+        return dummy_value(target_type, operand.source_location)
     if operand.pytype.wtype not in target_wtype.encodeable_types:
-        raise CodeError(
-            f"cannot encode {operand.pytype} to {target_type}", operand.source_location
+        logger.error(
+            f"cannot encode {operand.pytype} to {target_type}", location=operand.source_location
         )
+        return dummy_value(target_type, operand.source_location)
     target_type_builder = builder_for_type(target_type, operand.source_location)
     return target_type_builder.call(
         args=[operand],
@@ -118,7 +131,7 @@ def _implicit_arc4_conversion(
 
 
 def _split_signature(
-    signature: str, location: SourceLocation | None
+    signature: str, location: SourceLocation
 ) -> tuple[str, str | None, str | None]:
     """Splits signature into name, args and returns"""
     level = 0
@@ -148,17 +161,21 @@ def _split_signature(
                 name = remaining
             elif not args:
                 raise CodeError(
-                    f"Invalid signature, args not well defined: {name=}, {remaining=}",
-                    location,
+                    f"invalid signature, args not well defined: {name=}, {remaining=}", location
                 )
             elif returns:
                 raise CodeError(
-                    f"Invalid signature, text after returns:"
+                    f"invalid signature, text after returns:"
                     f" {name=}, {args=}, {returns=}, {remaining=}",
                     location,
                 )
             else:
                 returns = remaining
     if not name or not _VALID_NAME_PATTERN.match(name):
-        raise CodeError(f"Invalid signature: {name=}", location)
+        logger.error(f"invalid signature: {name=}", location=location)
     return name, args, returns
+
+
+def no_literal_items(array_type: pytypes.ArrayType, location: SourceLocation) -> None:
+    if isinstance(array_type.items, pytypes.LiteralOnlyType):
+        raise CodeError("arrays of literals are not supported", location)

@@ -19,8 +19,9 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.constants import TransactionType
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant, expect_no_args
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
@@ -200,7 +201,7 @@ class _Submit(FunctionBuilder):
     ) -> InstanceBuilder:
         from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 
-        expect_no_args(args, location)
+        expect.no_args(args, location)
         result_typ = pytypes.InnerTransactionResultTypes[self._txn_type]
         return InnerTransactionExpressionBuilder(
             SubmitInnerTransaction(group=self.expr, source_location=location), result_typ
@@ -223,7 +224,7 @@ class _Copy(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expect_no_args(args, location)
+        expect.no_args(args, location)
         return InnerTxnParamsExpressionBuilder(
             Copy(value=self.expr, source_location=location), self._typ
         )

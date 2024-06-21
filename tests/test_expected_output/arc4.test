@@ -72,16 +72,10 @@ def wrong_number_args() -> None:
     arc4.emit("Event(string,uint8)", "a", 1, 2) ## E: expected 2 ABI arguments, got 3
 
 @subroutine
-def invalid_signature1() -> None:
-    arc4.emit("(string,uint8)", "a", 1) ## E: Invalid signature: name=''
-
-@subroutine
-def invalid_signature2() -> None:
-    arc4.emit("string,uint8", "a", 1) ## E: Invalid signature: name='string,uint8'
-
-@subroutine
-def invalid_signature3() -> None:
-    arc4.emit("9bad_name(string,uint8)", "a", 1) ## E: Invalid signature: name='9bad_name'
+def invalid_signature() -> None:
+    arc4.emit("(string,uint8)", "a", 1) ## E: invalid signature: name=''
+    arc4.emit("string,uint8", "a", 1) ## E: invalid signature: name='string,uint8'
+    arc4.emit("9bad_name(string,uint8)", "a", 1) ## E: invalid signature: name='9bad_name'
 
 @subroutine
 def invalid_signature4() -> None:
@@ -440,4 +434,4 @@ from algopy import arc4, subroutine
 @subroutine
 def invalid_aug_operator() -> None:
     a = arc4.String()
-    a -= arc4.String()  # type: ignore[operator] ## E: unsupported operator
+    a -= arc4.String()  # type: ignore[operator] ## E: unsupported operator for type: '-'
