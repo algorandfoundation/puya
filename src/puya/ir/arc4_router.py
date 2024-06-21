@@ -1,7 +1,6 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
-from puya import arc4_util
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -434,7 +433,7 @@ def map_abi_args(
             else:
                 return wtype
 
-        args_overflow_wtype = arc4_util.make_tuple_wtype(
+        args_overflow_wtype = wtypes.ARC4Tuple(
             [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]],
             location,
         )

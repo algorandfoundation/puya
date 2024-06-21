@@ -291,7 +291,7 @@ class ARC4Tuple(ARC4Type):
         for typ_idx, typ in enumerate(types):
             if not isinstance(typ, ARC4Type):
                 raise CodeError(
-                    f"Invalid ARC4 Tuple type:"
+                    f"invalid ARC4 Tuple type:"
                     f" type at index {typ_idx} is not an ARC4 encoded type",
                     source_location,
                 )

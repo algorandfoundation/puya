@@ -7,7 +7,7 @@ import attrs
 import mypy.nodes
 import mypy.types
 
-from puya import arc4_util, log
+from puya import log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -367,6 +367,6 @@ def _arc4_tuple_from_items(
     args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
     return awst_nodes.ARC4Encode(
         value=args_tuple,
-        wtype=arc4_util.make_tuple_wtype(args_tuple.wtype.types, source_location),
+        wtype=wtypes.ARC4Tuple(args_tuple.wtype.types, source_location),
         source_location=source_location,
     )
