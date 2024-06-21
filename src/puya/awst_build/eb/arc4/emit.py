@@ -12,10 +12,9 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._utils import expect_at_least_one_arg
 from puya.awst_build.eb.arc4._utils import get_arc4_signature
 from puya.awst_build.eb.arc4.tuple import ARC4TupleGenericTypeBuilder
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -40,8 +39,8 @@ class EmitBuilder(FunctionBuilder):
                     logger.error(
                         "unexpected additional arguments", location=rest[0].source_location
                     )
-            case LiteralBuilder(value=str(event_str)):
-                signature = get_arc4_signature(event_str, rest, location)
+            case _:
+                _, signature = get_arc4_signature(first, rest, location)
                 if signature.return_type is not None:
                     logger.error(
                         "event signatures cannot include return types",
@@ -55,12 +54,6 @@ class EmitBuilder(FunctionBuilder):
                     arg_kinds=[mypy.nodes.ARG_POS],
                     location=location,
                 )
-            case InstanceBuilder(pytype=pytypes.StrLiteralType):
-                raise CodeError(
-                    "method selector strings must be simple literals", first.source_location
-                )
-            case _:
-                raise CodeError("unexpected argument type", first.source_location)
         event_sig = f"{event_name}{pytype_to_arc4(event_arg_eb.pytype, location)}"
         log_value = intrinsic_factory.concat(
             MethodConstant(value=event_sig, source_location=location),

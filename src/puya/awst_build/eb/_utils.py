@@ -146,6 +146,20 @@ def expect_exactly_one_arg(
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     return eb
 
+def expect_exactly_one_arg_of_type(
+    args: Sequence[NodeBuilder], pytype: pytypes.PyType, location: SourceLocation
+) -> InstanceBuilder:
+    if not args:
+        logger.error("expected 1 argument, got 0", location=location)
+        return dummy_value(pytype, location)
+    first, *rest = args
+    if rest:
+        logger.error(f"expected 1 argument, got {len(args)}", location=location)
+    if isinstance(first, InstanceBuilder) and first.pytype == pytype:
+        return first
+    logger.error("unexpected argument type", location=first.source_location)
+    return dummy_value(pytype, first.source_location)
+
 
 def expect_no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> None:
     if args:

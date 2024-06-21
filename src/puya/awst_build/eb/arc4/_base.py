@@ -24,7 +24,8 @@ from puya.awst_build.eb._bytes_backed import (
 from puya.awst_build.eb._utils import (
     compare_bytes,
     compare_expr_bytes,
-    expect_exactly_one_arg,
+    dummy_value,
+    expect_exactly_one_arg_of_type,
     expect_no_args,
     resolve_negative_literal_index,
 )
@@ -95,7 +96,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location)
+        arg = expect_exactly_one_arg_of_type(args, pytypes.BytesType, location)
         result_expr = self.abi_expr_from_log(self.typ, arg, location)
         return builder_for_instance(self.typ, result_expr)
 
@@ -178,7 +179,8 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     @typing.override
     @typing.final
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        raise CodeError("item containment with ARC4 arrays is currently unsupported", location)
+        logger.error("item containment with ARC4 arrays is currently unsupported", location=location)
+        return dummy_value(pytypes.BoolType, location)
 
     @typing.override
     @typing.final

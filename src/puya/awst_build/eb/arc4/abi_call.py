@@ -34,7 +34,7 @@ from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
@@ -178,28 +178,10 @@ def _abi_call(
         else:
             transaction_kwargs[arg_name] = require_instance_builder(arg)
 
+    declared_result_type: pytypes.PyType | None
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
-        case LiteralBuilder(value=str(method_str)):
-            signature = get_arc4_signature(method_str, abi_args, location)
-            declared_result_type = return_type_annotation
-            if declared_result_type is not None:
-                # this will be validated against signature below, by comparing
-                # the generated method_selector against the supplied method_str
-                signature = attrs.evolve(signature, return_type=declared_result_type)
-            elif signature.return_type is None:
-                signature = attrs.evolve(signature, return_type=pytypes.NoneType)
-            if not signature.method_selector.startswith(method_str):
-                logger.error(
-                    f"method selector from args '{signature.method_selector}' "
-                    f"does not match provided method selector: '{method_str}'",
-                    location=method.source_location,
-                )
-        case InstanceBuilder(pytype=pytypes.StrLiteralType):
-            raise CodeError(
-                "method selector strings must be simple literals", method.source_location
-            )
         case ARC4ClientMethodExpressionBuilder(
             context=context, node=node
         ) | BaseClassSubroutineInvokerExpressionBuilder(context=context, node=node):
@@ -220,7 +202,20 @@ def _abi_call(
                     location=location,
                 )
         case _:
-            raise CodeError("unexpected argument type", method.source_location)
+            method_str, signature = get_arc4_signature(method, abi_args, location)
+            declared_result_type = return_type_annotation
+            if declared_result_type is not None:
+                # this will be validated against signature below, by comparing
+                # the generated method_selector against the supplied method_str
+                signature = attrs.evolve(signature, return_type=declared_result_type)
+            elif signature.return_type is None:
+                signature = attrs.evolve(signature, return_type=pytypes.NoneType)
+            if not signature.method_selector.startswith(method_str):
+                logger.error(
+                    f"method selector from args '{signature.method_selector}' "
+                    f"does not match provided method selector: '{method_str}'",
+                    location=method.source_location,
+                )
 
     if signature.return_type is None:
         raise InternalError("expected ARC4Signature.return_type to be defined", location)
@@ -255,7 +250,7 @@ def _get_arc4_signature_and_return_pytype(
                 ARC4Signature(name, arc4_arg_types, arc4_return_type),
                 arc4_method_data.return_type,
             )
-    raise CodeError(f"{func_or_dec.fullname!r} is not a valid ARC4 method", location)
+    raise CodeError("not a valid ARC4 method", location)
 
 
 def _create_abi_call_expr(
@@ -289,17 +284,18 @@ def _create_abi_call_expr(
 
     for arg_b in abi_args:
         match arg_b.pytype:
+            case pytypes.TransactionRelatedType():
+                logger.error(
+                    "transaction arguments are not supported for contract to contract calls",
+                    location=arg_b.source_location,
+                )
+                continue
             case pytypes.AssetType:
                 arg_expr = ref_to_arg(TxnFields.assets, arg_b)
             case pytypes.AccountType:
                 arg_expr = ref_to_arg(TxnFields.accounts, arg_b)
             case pytypes.ApplicationType:
                 arg_expr = ref_to_arg(TxnFields.apps, arg_b)
-            case pytypes.TransactionRelatedType():
-                raise CodeError(
-                    "transaction arguments are not supported for contract to contract calls",
-                    arg_b.source_location,
-                )
             case _:
                 arg_expr = arg_b.resolve()
         array_fields[TxnFields.app_args].append(arg_expr)
@@ -328,7 +324,7 @@ def _create_abi_call_expr(
 
     if transaction_kwargs:
         bad_args = "', '".join(transaction_kwargs)
-        raise CodeError(f"unexpected keyword arguments: '{bad_args}'", location)
+        logger.error(f"unexpected keyword arguments: '{bad_args}'", location=location)
 
     itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
     create_itxn = CreateInnerTransaction(
