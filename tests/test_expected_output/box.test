@@ -10,23 +10,23 @@ def test_key_types() -> None:
     box = Box(UInt64, key=b"1")
     box = Box(UInt64, key=String("1"))
     box = Box(UInt64, key=Bytes(b"1"))
-    box = Box(UInt64, key=2)  # type: ignore[arg-type] ## E: invalid type for key argument
+    box = Box(UInt64, key=2)  # type: ignore[arg-type] ## E: unexpected argument type
 
 @subroutine
 def wrong_arg() -> None:
-    Box("oops", key=b"box")  # type: ignore[arg-type] ## E: First argument must be a type reference
+    Box("oops", key=b"box")  # type: ignore[arg-type] ## E: first argument must be a type reference
 
 
 @subroutine
 def wrong_get_arg() -> None:
     box = Box(UInt64, key=b"box")
-    box.get()  # type: ignore[call-arg] ## E: Expected 1 argument, got 0
+    x = box.get()  # type: ignore[call-arg] ## E: expected 1 argument, got 0
 
 
 @subroutine
 def wrong_get_arg_type() -> None:
     box = Box(UInt64, key=b"box")
-    box.get(default=String())  # type: ignore[arg-type] ## E: default argument should have same type as box value
+    x = box.get(default=String())  # type: ignore[arg-type] ## E: unexpected argument type
 
 
 @subroutine
@@ -38,29 +38,29 @@ def bad_slice_literal_type() -> None:
 @subroutine
 def no_stride() -> None:
     box = Box(Bytes, key=b"box")
-    bad = box.value[:3:2]  ## E: Stride is not supported when slicing boxes
+    bad = box.value[:3:2] ## E: stride is not supported when slicing boxes
 
 
 @subroutine
 def wrong_maybe_arg() -> None:
     box = Box(UInt64, key=b"box")
-    box.maybe(UInt64())  # type: ignore[call-arg] ## E: Invalid/unexpected args
+    x = box.maybe(UInt64())  # type: ignore[call-arg] ## E: expected 0 arguments, got 1
 
 
 @subroutine
 def non_pos() -> None:
-    Box(type="oops", key=b"box")  # type: ignore[call-arg] ## E: Required positional argument missing
+    Box(type="oops", key=b"box")  # type: ignore[call-arg] ## E: required positional argument missing
 
 
 @subroutine
 def bad_kwarg() -> None:
-    Box(String, bad_key=b"box")  # type: ignore[call-arg] ## E: Unrecognised keyword argument(s): bad_key
-
+    x = Box(String, bad_key=b"box")  # type: ignore[call-arg] ## E: unrecognised keyword argument(s): bad_key \
+                                                              ## E: algopy.Box[algopy.String] with inferred key must be assigned to an instance variable before being used
 
 @subroutine
 def type_mismatch() -> None:
     box = Box[UInt64](UInt64, key="box")  # ok
-    Box[String](UInt64, key=b"Box")  # type: ignore[arg-type] ## E: algopy.Box explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
+    x = Box[String](UInt64, key=b"Box")  # type: ignore[arg-type] ## E: algopy.Box explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
 
 
 ## case: box_ref
@@ -78,7 +78,7 @@ class BoxRefContract(ARC4Contract):
         box_ref = BoxRef(key=b"1")
         box_ref = BoxRef(key=String("1"))
         box_ref = BoxRef(key=Bytes(b"1"))
-        box_ref = BoxRef(key=2)  # type: ignore[arg-type] ## E: invalid type for key argument
+        box_ref = BoxRef(key=2)  # type: ignore[arg-type] ## E: unexpected argument type
 
     @arc4.abimethod()
     def wrong_key(self) -> None:
@@ -115,7 +115,7 @@ class BoxMapContract(ARC4Contract):
     def __init__(self) -> None:
         self.ok = BoxMap(UInt64, String)
         self.ok2 = BoxMap[UInt64, String](UInt64, String)
-        self.non_constant_box_key = BoxMap(UInt64, String, key_prefix=Bytes()) ## E: assigning algopy.BoxMap[algopy.UInt64, algopy.String] to a member variable requires a constant value for key
+        self.non_constant_box_key = BoxMap(UInt64, String, key_prefix=Bytes())
 
     @arc4.abimethod()
     def test_prefix_types(self) -> None:
@@ -123,7 +123,7 @@ class BoxMapContract(ARC4Contract):
         box_map = BoxMap(UInt64, String, key_prefix=b"1")
         box_map = BoxMap(UInt64, String, key_prefix=Bytes(b"1"))
         box_map = BoxMap(UInt64, String, key_prefix=String("1"))
-        bad_box_map = BoxMap(UInt64, String, key_prefix=2)  # type: ignore[arg-type] ## E: invalid type for key_prefix argument
+        bad_box_map = BoxMap(UInt64, String, key_prefix=2)  # type: ignore[arg-type] ## E: unexpected argument type
 
     @arc4.abimethod()
     def collection_bool(self) -> None:
@@ -135,23 +135,26 @@ class BoxMapContract(ARC4Contract):
 
     @arc4.abimethod()
     def non_pos(self) -> None:
-        bad: BoxMap[UInt64, String] = BoxMap(key_typ="oops", value_typ="oops", key_prefix="bad")  # type: ignore[call-arg] ## E: Required positional argument missing
+        bad: BoxMap[UInt64, String] = BoxMap(key_typ="oops", value_typ="oops", key_prefix="bad")  # type: ignore[call-arg] ## E: required positional argument missing
 
     @arc4.abimethod()
     def wrong_keyword(self) -> None:
-        bad = BoxMap(UInt64, String, oops="bad")  # type: ignore[call-arg] ## E: Unrecognised keyword argument(s): oops
+        bad = BoxMap(UInt64, String, oops="bad")  # type: ignore[call-arg] ## E: unrecognised keyword argument(s): oops \
+                                                                           ## E: algopy.BoxMap[algopy.UInt64, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used
 
     @arc4.abimethod()
     def wrong_type(self) -> None:
-        bad: BoxMap[UInt64, String] = BoxMap("oops", "oops", key_prefix="bad")  # type: ignore[arg-type] ## E: First and second arguments must be type references
+        bad: BoxMap[UInt64, String] = BoxMap("oops", "oops", key_prefix="bad")  # type: ignore[arg-type] ## E: first and second arguments must be type references
 
     @arc4.abimethod()
     def mismatch_key(self) -> None:
-        bad = BoxMap[String, String](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required
+        bad = BoxMap[String, String](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required \
+                                                                               ## E: algopy.BoxMap[algopy.String, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used
 
     @arc4.abimethod()
     def mismatch_value(self) -> None:
-        bad = BoxMap[UInt64, UInt64](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required
+        bad = BoxMap[UInt64, UInt64](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required \
+                                                                               ## E: algopy.BoxMap[algopy.UInt64, algopy.UInt64] with inferred key_prefix must be assigned to an instance variable before being used
 
     @arc4.abimethod()
     def slice(self) -> None:
@@ -159,7 +162,7 @@ class BoxMapContract(ARC4Contract):
 
     @arc4.abimethod()
     def length(self) -> None:
-        bad = self.ok.length(bad=UInt64(2)) # type: ignore[call-arg] ## E: Invalid/unexpected args
+        bad = self.ok.length(bad=UInt64(2)) # type: ignore[call-arg]
 
     @arc4.abimethod()
     def get(self) -> None:
