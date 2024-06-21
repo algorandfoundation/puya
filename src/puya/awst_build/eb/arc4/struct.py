@@ -65,8 +65,8 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
                 f"unexpected keyword arguments: {' '.join(field_mapping)}", location=location
             )
 
-        assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         if values.keys() == pytype.fields.keys():
+            assert isinstance(pytype.wtype, wtypes.ARC4Struct)
             expr: Expression = NewStruct(
                 wtype=pytype.wtype, values=values, source_location=location
             )

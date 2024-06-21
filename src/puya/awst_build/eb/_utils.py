@@ -7,7 +7,10 @@ from puya.awst.nodes import (
     EqualityComparison,
     Expression,
     ReinterpretCast,
+    VarExpression,
 )
+from puya.awst_build import pytypes
+from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -22,6 +25,15 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
+
+
+def dummy_value(pytype: pytypes.PyType, location: SourceLocation) -> InstanceBuilder:
+    expr = VarExpression(
+        name="",
+        wtype=pytype.wtype,
+        source_location=location
+    )
+    return builder_for_instance(pytype, expr)
 
 
 def resolve_negative_literal_index(
