@@ -133,6 +133,17 @@ def argument_of_type_else_dummy(
     return dummy_value(target_type, builder.source_location)
 
 
+def kw_argument_of_type_else_dummy(
+    builder: NodeBuilder | None, target_type: pytypes.PyType, location: SourceLocation
+) -> InstanceBuilder:
+    assert not isinstance(target_type, pytypes.LiteralOnlyType)
+
+    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
+        return builder
+    logger.error("unexpected argument type", location=location)
+    return dummy_value(target_type, location)
+
+
 def argument_of_type_else_die(
     builder: NodeBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
