@@ -26,15 +26,30 @@ class FunctionOpMapping:
     op_code: str
     immediates: Sequence[str | int | type[str | int]] = attrs.field(
         default=(), converter=tuple[str | int | type[str | int], ...]
-    )  # TODO(frist): field validation
+    )
+    """A list of immediate literals, or expected type"""
     args: Sequence[Sequence[pytypes.PyType] | int] = attrs.field(
         default=(), converter=tuple[Sequence[pytypes.PyType] | int, ...]
     )
-    """Mapping of stack argument names to valid types for the argument,
-     in descending priority for literal conversions
-     OR
-        TODO
-    """
+    """A list of allowed argument types, or an index into the immediates sequence"""
+
+    @immediates.validator
+    def _immediate_types_are_indexed(
+        self, _attribute: object, immediates: Sequence[str | int | type[str | int]]
+    ) -> None:
+        for idx, imm in enumerate(immediates):
+            if isinstance(imm, type) and idx not in self.args:
+                raise InternalError("expected immediate type to be reference by arg index")
+
+    @args.validator
+    def _arg_indexes_are_valid(
+        self, _attribute: object, args: Sequence[Sequence[pytypes.PyType] | int]
+    ) -> None:
+        for arg in args:
+            if isinstance(arg, int):
+                immediate = self.immediates[arg]
+                if not isinstance(immediate, type):
+                    raise InternalError("expected immediate index to resolve to a type")
 
     @cached_property
     def literal_arg_positions(self) -> Set[int]:
@@ -65,10 +80,14 @@ class FunctionOpMapping:
 
 @attrs.frozen(kw_only=True)
 class OpMappingWithOverloads:
-    # TODO(frist): validate arity matches up with all overloads
     arity: int = attrs.field(validator=attrs.validators.ge(0))
     result: pytypes.PyType = pytypes.NoneType
     """Types output by TEAL op"""
     overloads: Sequence[FunctionOpMapping] = attrs.field(
         validator=attrs.validators.min_len(1), converter=tuple[FunctionOpMapping, ...]
     )
+
+    @arity.validator
+    def _arity_matches(self, _attribute: object, arity: int) -> None:
+        if any(len(o.args) != arity for o in self.overloads):
+            raise InternalError("arity does not match all overloads")
