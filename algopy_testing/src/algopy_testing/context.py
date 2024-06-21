@@ -7,7 +7,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 
 # Define the union type
-from typing import TYPE_CHECKING, Any, TypeVar, Unpack, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Unpack, cast, overload
 
 import algosdk
 
@@ -84,17 +84,17 @@ class ContractContextData:
     app_id: algopy.UInt64
 
 
-@dataclass
-class InnerTxnLoader:
+class ITxnLoader:
     """
     Stores inner transaction references.
     """
 
-    def __init__(self, inner_txn_group: Sequence[InnerTransactionResultType]):
-        self.inner_txn_group = inner_txn_group
+    def __init__(self, inner_txn: InnerTransactionResultType):
+        self._inner_txn = inner_txn
 
-    def _get_inner_transaction(self, txn_type: type[T]) -> T:
-        txn = self.inner_txn_group[-1]
+    def _get_itxn(self, txn_type: type[T]) -> T:
+        txn = self._inner_txn
+
         if not isinstance(txn, txn_type):
             raise TypeError(f"Last transaction is not of type {txn_type.__name__}!")
 
@@ -102,54 +102,123 @@ class InnerTxnLoader:
 
     @property
     def payment(self) -> algopy.itxn.PaymentInnerTransaction:
-        """Retrieve the last PaymentInnerTransaction. Raises ValueError if not found."""
+        """Retrieve the last PaymentInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.PaymentInnerTransaction)
+        return self._get_itxn(algopy.itxn.PaymentInnerTransaction)
 
     @property
     def asset_config(self) -> algopy.itxn.AssetConfigInnerTransaction:
-        """Retrieve the last AssetConfigInnerTransaction. Raises ValueError if not found."""
+        """Retrieve the last AssetConfigInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.AssetConfigInnerTransaction)
+        return self._get_itxn(algopy.itxn.AssetConfigInnerTransaction)
 
     @property
     def asset_transfer(self) -> algopy.itxn.AssetTransferInnerTransaction:
-        """Retrieve the last AssetTransferInnerTransaction. Raises ValueError if not found."""
+        """Retrieve the last AssetTransferInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.AssetTransferInnerTransaction)
+        return self._get_itxn(algopy.itxn.AssetTransferInnerTransaction)
 
     @property
     def asset_freeze(self) -> algopy.itxn.AssetFreezeInnerTransaction:
-        """Retrieve the last AssetFreezeInnerTransaction. Raises ValueError if not found."""
+        """Retrieve the last AssetFreezeInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.AssetFreezeInnerTransaction)
+        return self._get_itxn(algopy.itxn.AssetFreezeInnerTransaction)
 
     @property
     def application_call(self) -> algopy.itxn.ApplicationCallInnerTransaction:
-        """Retrieve the last ApplicationCallInnerTransaction. Raises ValueError if not found."""
+        """Retrieve the last ApplicationCallInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.ApplicationCallInnerTransaction)
+        return self._get_itxn(algopy.itxn.ApplicationCallInnerTransaction)
 
     @property
     def key_registration(self) -> algopy.itxn.KeyRegistrationInnerTransaction:
-        """Retrieve the last KeyRegistrationInnerTransaction. Raises ValueError if not found."""
+        """Retrieve the last KeyRegistrationInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.KeyRegistrationInnerTransaction)
+        return self._get_itxn(algopy.itxn.KeyRegistrationInnerTransaction)
 
     @property
     def transaction(self) -> algopy.itxn.InnerTransactionResult:
-        """Retrieve the last InnerTransactionResult. Raises ValueError if not found."""
+        """Retrieve the last InnerTransactionResult. Raises ValueError if not found or if the transaction is not of the expected type."""
         import algopy
 
-        return self._get_inner_transaction(algopy.itxn.InnerTransactionResult)
+        return self._get_itxn(algopy.itxn.InnerTransactionResult)
 
 
+class ITxnGroupLoader:
+    @overload
+    def __getitem__(self, index: int) -> ITxnLoader: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> list[ITxnLoader]: ...
+
+    def __getitem__(self, index: int | slice) -> ITxnLoader | list[ITxnLoader]:
+        if isinstance(index, int):
+            return ITxnLoader(self._inner_txn_group[index])
+        elif isinstance(index, slice):
+            return [ITxnLoader(self._inner_txn_group[i]) for i in range(*index.indices(len(self)))]
+        else:
+            raise TypeError("Index must be int or slice")
+
+    def __len__(self) -> int:
+        return len(self._inner_txn_group)
+
+    def __init__(self, inner_txn_group: Sequence[InnerTransactionResultType]):
+        self._inner_txn_group = inner_txn_group
+
+    def _get_itxn(self, index: int, txn_type: type[T]) -> T:
+        try:
+            txn = self._inner_txn_group[index]
+        except IndexError as err:
+            raise ValueError(f"No inner transaction available at index {index}!") from err
+
+        if not isinstance(txn, txn_type):
+            raise TypeError(f"Last transaction is not of type {txn_type.__name__}!")
+
+        return txn
+
+    def payment(self, index: int) -> algopy.itxn.PaymentInnerTransaction:
+        import algopy
+
+        return ITxnLoader(self._get_itxn(index, algopy.itxn.PaymentInnerTransaction)).payment
+
+    def asset_config(self, index: int) -> algopy.itxn.AssetConfigInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.AssetConfigInnerTransaction)
+
+    def asset_transfer(self, index: int) -> algopy.itxn.AssetTransferInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.AssetTransferInnerTransaction)
+
+    def asset_freeze(self, index: int) -> algopy.itxn.AssetFreezeInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.AssetFreezeInnerTransaction)
+
+    def application_call(self, index: int) -> algopy.itxn.ApplicationCallInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.ApplicationCallInnerTransaction)
+
+    def key_registration(self, index: int) -> algopy.itxn.KeyRegistrationInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.KeyRegistrationInnerTransaction)
+
+    def transaction(self, index: int) -> algopy.itxn.InnerTransactionResult:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.InnerTransactionResult)
+
+
+@dataclass
 class AlgopyTestContext:
     def __init__(
         self,
@@ -433,7 +502,16 @@ class AlgopyTestContext:
 
         self._inner_transaction_groups.append(cast(list[algopy.itxn.InnerTransactionResult], itxn))
 
-    def get_itxn_group(self, index: int) -> Sequence[InnerTransactionResultType]:
+    def get_submitted_itxn_groups(self) -> list[Sequence[InnerTransactionResultType]]:
+        """
+        Retrieve the number of inner transaction groups.
+
+        Returns:
+            int: The number of inner transaction groups.
+        """
+        return self._inner_transaction_groups
+
+    def get_submitted_itxn_group(self, index: int) -> ITxnGroupLoader:
         """
         Retrieve the last group of inner transactions.
 
@@ -446,28 +524,33 @@ class AlgopyTestContext:
 
         if not self._inner_transaction_groups:
             raise ValueError("No inner transaction groups submitted yet!")
-        return self._inner_transaction_groups[index]
 
-    def get_last_itxn_group(self) -> Sequence[InnerTransactionResultType]:
-        return self.get_itxn_group(-1)
+        try:
+            return ITxnGroupLoader(self._inner_transaction_groups[index])
+        except IndexError as err:
+            raise ValueError(f"No inner transaction group available at index {index}!") from err
 
     @property
-    def last_submitted_inner_transaction(self) -> InnerTxnLoader:
+    def last_submitted_itxn(self) -> ITxnLoader:
         """
         Retrieve the last submitted inner transaction from the
         last inner transaction group (if both exist).
 
         Returns:
-            InnerTxnLoader: The last submitted inner transaction loader.
+            ITxnLoader: The last submitted inner transaction loader.
 
         Raises:
             ValueError: If no inner transactions exist in the last inner transaction group.
         """
 
-        inner_transaction_group = self.get_last_itxn_group()
-        if not inner_transaction_group:
+        if not self._inner_transaction_groups or not self._inner_transaction_groups[-1]:
             raise ValueError("No inner transactions in the last inner transaction group!")
-        return InnerTxnLoader(inner_transaction_group)
+
+        try:
+            last_itxn = self._inner_transaction_groups[-1][-1]
+            return ITxnLoader(last_itxn)
+        except IndexError as err:
+            raise ValueError("No inner transactions in the last inner transaction group!") from err
 
     def any_account(
         self,

@@ -25,7 +25,7 @@ def test_opt_into_asset(context: AlgopyTestContext) -> None:
 
     # Assert
     assert contract.asa.id == asset.id
-    inner_txn = context.last_submitted_inner_transaction.asset_transfer
+    inner_txn = context.last_submitted_itxn.asset_transfer
     assert (
         inner_txn.asset_receiver == context.default_application.address
     ), "Asset receiver does not match"
@@ -106,7 +106,8 @@ def test_claim_bids(
 
     # Assert
     expected_payment = claimable_amount - previous_bid
-    last_inner_txn = context.last_submitted_inner_transaction.payment
+    last_inner_txn = context.last_submitted_itxn.payment
+
     assert last_inner_txn.amount == expected_payment
     assert last_inner_txn.receiver == account
     assert contract.claimable_amount[account] == claimable_amount - expected_payment
@@ -128,7 +129,7 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     contract.claim_asset(asset)
 
     # Assert
-    last_inner_txn = context.last_submitted_inner_transaction.asset_transfer
+    last_inner_txn = context.last_submitted_itxn.asset_transfer
     assert last_inner_txn.xfer_asset == asset
     assert last_inner_txn.asset_close_to == account
     assert last_inner_txn.asset_receiver == account
@@ -147,7 +148,7 @@ def test_delete_application(
     contract.delete_application()
 
     # Assert
-    inner_transactions = context.last_submitted_inner_transaction.payment
+    inner_transactions = context.last_submitted_itxn.payment
     assert inner_transactions
     assert inner_transactions.type == algopy.TransactionType.Payment
     assert inner_transactions.receiver == account

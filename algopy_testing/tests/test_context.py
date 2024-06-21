@@ -106,7 +106,7 @@ def test_last_itxn_access() -> None:
         dummy_asset = context.any_asset()
         contract.opt_in_dummy_asset(dummy_asset)
         assert len(context.get_last_itxn_group()) == 1
-        itxn = context.last_submitted_inner_transaction.asset_transfer
+        itxn = context.last_submitted_itxn.asset_transfer
         assert itxn.asset_sender == context.default_application.address
         assert itxn.asset_receiver == context.default_application.address
         assert itxn.amount == UInt64(0)
@@ -176,7 +176,7 @@ def test_get_last_submitted_itxn_loader() -> None:
             amount=UInt64(2000),
         )
         context._append_inner_transaction_group([itxn1, itxn2])
-        last_itxn = context.last_submitted_inner_transaction.payment
+        last_itxn = context.last_submitted_itxn.payment
         assert last_itxn.amount == 2000
 
 

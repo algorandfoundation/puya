@@ -32,7 +32,7 @@ def test_add_address_to_whitelist(context: AlgopyTestContext) -> None:
     result = contract.add_address_to_whitelist(address, proof)
 
     # Assert
-    assert result == algopy.String("")
+    assert result == algopy.arc4.String("")
     assert contract.whitelist[context.default_creator]
 
 
