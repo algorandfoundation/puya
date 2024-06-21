@@ -12,6 +12,7 @@ from puya.awst_build.eb._base import GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
+from puya.awst_build.eb.arc4._utils import no_literal_items
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import require_instance_builder
@@ -39,12 +40,13 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = require_instance_builder(args[0]).pytype
-        values = tuple(expect.argument_of_type(a, element_type).resolve() for a in args)
-        array_size = len(values)
+        array_size = len(args)
         typ = pytypes.GenericARC4StaticArrayType.parameterise(
             [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],
             location,
         )
+        no_literal_items(typ, location)
+        values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return StaticArrayExpressionBuilder(
@@ -69,7 +71,8 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        n_args = expect.exactly_n_args_of_type(args, typ.items, location, self._size)
+        no_literal_items(typ, location)
+        n_args = expect.exactly_n_args_of_type_else_dummy(args, typ.items, location, self._size)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return StaticArrayExpressionBuilder(

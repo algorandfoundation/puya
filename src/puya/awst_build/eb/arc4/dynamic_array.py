@@ -27,6 +27,7 @@ from puya.awst_build.eb._utils import (
     dummy_value,
 )
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
+from puya.awst_build.eb.arc4._utils import no_literal_items
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
@@ -56,8 +57,9 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = require_instance_builder(args[0]).pytype
-        values = tuple(expect.argument_of_type(a, element_type).resolve() for a in args)
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
+        no_literal_items(typ, location)
+        values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
@@ -81,7 +83,8 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(expect.argument_of_type(a, typ.items).resolve() for a in args)
+        no_literal_items(typ, location)
+        values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
@@ -184,7 +187,9 @@ class _Append(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.exactly_one_arg_of_type(args, self.typ.items, location)
+        arg = expect.exactly_one_arg_of_type(
+            args, self.typ.items, location, default=expect.default_dummy_value(self.typ.items)
+        )
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(

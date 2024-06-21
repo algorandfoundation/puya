@@ -47,8 +47,8 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
             case str(str_value):
                 if not wtypes.valid_address(str_value):
                     logger.error(
-                        f"Invalid address value. Address literals should be"
-                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
+                        "invalid address value - should have length"
+                        f" {ENCODED_ADDRESS_LENGTH} and not include base32 padding",
                         location=literal.source_location,
                     )
                 expr = AddressConstant(
@@ -73,7 +73,8 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
                 return arg.resolve_literal(converter=AccountTypeBuilder(location))
             case None:
                 value: Expression = intrinsic_factory.zero_address(location)
-            case InstanceBuilder(pytype=pytypes.BytesType):
+            case _:
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.BytesType)
                 address_bytes_temp = arg.single_eval().resolve()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
@@ -91,9 +92,6 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
                     source_location=location,
                     comment="Address length is 32 bytes",
                 )
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(self.produces(), arg.source_location)
         return AccountExpressionBuilder(value)
 
 

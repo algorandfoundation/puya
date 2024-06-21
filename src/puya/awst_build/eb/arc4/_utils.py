@@ -8,6 +8,7 @@ import mypy.nodes
 from puya import arc4_util, log
 from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
@@ -53,15 +54,14 @@ class ARC4Signature:
 def get_arc4_signature(
     method: NodeBuilder, native_args: Sequence[InstanceBuilder], loc: SourceLocation
 ) -> tuple[str, ARC4Signature]:
+    method = expect.argument_of_type_else_die(method, pytypes.StrLiteralType)
     match method:
         case LiteralBuilder(value=str(method_sig)):
             pass
-        case InstanceBuilder(pytype=pytypes.StrLiteralType):
+        case _:
             raise CodeError(
                 "method selector strings must be simple literals", method.source_location
             )
-        case _:
-            raise CodeError("unexpected argument type", method.source_location)
 
     method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:
@@ -174,3 +174,8 @@ def _split_signature(
     if not name or not _VALID_NAME_PATTERN.match(name):
         logger.error(f"invalid signature: {name=}", location=location)
     return name, args, returns
+
+
+def no_literal_items(array_type: pytypes.ArrayType, location: SourceLocation) -> None:
+    if isinstance(array_type.items, pytypes.LiteralOnlyType):
+        raise CodeError("arrays of literals are not supported", location)

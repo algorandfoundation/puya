@@ -18,7 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes, dummy_value
+from puya.awst_build.eb._utils import compare_expr_bytes
 from puya.awst_build.eb.arc4.static_array import StaticArrayExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -72,7 +72,8 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
                 result = _zero_address(location)
             case InstanceBuilder(pytype=pytypes.AccountType):
                 result = _address_from_native(arg)
-            case InstanceBuilder(pytype=pytypes.BytesType):
+            case _:
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.BytesType)
                 arg = arg.single_eval()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
@@ -86,9 +87,6 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
                     source_location=location,
                     comment="Address length is 32 bytes",
                 )
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(self.produces(), arg.source_location)
         return AddressExpressionBuilder(result)
 
 

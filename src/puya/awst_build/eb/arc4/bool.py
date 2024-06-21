@@ -10,7 +10,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_bytes, dummy_value
+from puya.awst_build.eb._utils import compare_bytes
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -56,11 +56,9 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         match arg:
             case None:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)
-            case InstanceBuilder(pytype=pytypes.BoolType):
-                native_bool = arg.resolve()
             case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(self.produces(), arg.source_location)
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.BoolType)
+                native_bool = arg.resolve()
         return ARC4BoolExpressionBuilder(
             ARC4Encode(value=native_bool, wtype=wtypes.arc4_bool_wtype, source_location=location)
         )

@@ -405,7 +405,7 @@ class ARC4UIntNType(PyType):
 
 
 def _require_int_literal(
-    generic: _GenericType,
+    generic: _GenericType[_TPyType],
     type_arg: PyType,
     source_location: SourceLocation | None,
     *,
@@ -633,9 +633,9 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
 
 def _make_fixed_array_parameterise(
     typ: Callable[[wtypes.WType, int, SourceLocation | None], wtypes.WType]
-) -> _Parameterise:
+) -> _Parameterise[ArrayType]:
     def parameterise(
-        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
+        self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
     ) -> ArrayType:
         try:
             items, size_t = args
