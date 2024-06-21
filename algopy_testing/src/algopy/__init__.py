@@ -13,7 +13,8 @@ from algopy_testing.models import (
     log,
     urange,
 )
-from algopy_testing.primitives import BigUInt, Bytes, BytesBacked, String, UInt64
+from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.state import GlobalState, LocalState
 
 from . import arc4, gtxn, itxn, op

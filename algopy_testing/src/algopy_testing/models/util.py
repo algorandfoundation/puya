@@ -1,6 +1,6 @@
 from algopy_testing.primitives.bytes import Bytes
-from algopy_testing.primitives.string import BytesBacked
 from algopy_testing.primitives.uint64 import UInt64
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import int_to_bytes
 
 

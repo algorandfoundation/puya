@@ -15,7 +15,7 @@ from algopy_testing.models import (
     uenumerate,
     urange,
 )
-from algopy_testing.primitives import BigUInt, Bytes, BytesBacked, String, UInt64
+from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 from algopy_testing.state import GlobalState, LocalState
 
 __all__ = [
@@ -25,7 +25,6 @@ __all__ = [
     "Asset",
     "BigUInt",
     "Bytes",
-    "BytesBacked",
     "Contract",
     "Global",
     "GlobalState",

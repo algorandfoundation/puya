@@ -19,6 +19,7 @@ from algopy_testing.constants import (
 )
 from algopy_testing.decorators.abimethod import abimethod
 from algopy_testing.models import Account
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import (
     as_bytes,
     as_int,
@@ -36,17 +37,7 @@ _ABI_LENGTH_SIZE = 2
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
 
-class _ABIEncoded(typing.Protocol):
-    @classmethod
-    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
-        """Construct an instance from the underlying bytes (no validation)"""
-        ...
-
-    @property
-    def bytes(self) -> algopy.Bytes:
-        """Get the underlying Bytes"""
-        ...
-
+class _ABIEncoded(BytesBacked, typing.Protocol):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
