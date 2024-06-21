@@ -103,7 +103,7 @@ def exactly_one_arg_of_type(
 
 def no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> None:
     if args:
-        logger.error(f"expected 0 arguments, got {len(args)}", location)
+        logger.error(f"expected 0 arguments, got {len(args)}", location=location)
 
 
 def exactly_n_args_of_type_else_dummy(
