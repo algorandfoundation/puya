@@ -74,7 +74,7 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.ARC4ByteType: functools.partial(arc4.UIntNTypeBuilder, pytypes.ARC4ByteType),
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayGenericTypeBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayGenericTypeBuilder,
-    pytypes.ARC4StringType: arc4.StringTypeBuilder,
+    pytypes.ARC4StringType: arc4.ARC4StringTypeBuilder,
     pytypes.GenericARC4TupleType: arc4.ARC4TupleGenericTypeBuilder,
     pytypes.ARC4DynamicBytesType: arc4.DynamicBytesTypeBuilder,
     pytypes.AccountType: account.AccountTypeBuilder,
@@ -149,7 +149,7 @@ PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSo
 
 PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]] = {
     pytypes.ARC4BoolType: arc4.ARC4BoolExpressionBuilder,
-    pytypes.ARC4StringType: arc4.StringExpressionBuilder,
+    pytypes.ARC4StringType: arc4.ARC4StringExpressionBuilder,
     pytypes.ARC4DynamicBytesType: arc4.DynamicBytesExpressionBuilder,
     pytypes.ARC4ByteType: functools.partial(arc4.UIntNExpressionBuilder, typ=pytypes.ARC4ByteType),
     pytypes.ARC4AddressType: arc4.AddressExpressionBuilder,
