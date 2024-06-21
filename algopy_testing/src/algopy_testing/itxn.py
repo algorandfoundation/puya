@@ -480,11 +480,15 @@ class _BaseInnerTransactionResult:
                 elif isinstance(value, tuple):
                     # Convert each element in the tuple to algopy.Bytes
                     self.fields[name] = tuple(
-                        algopy.Bytes(item)
-                        if isinstance(item, bytes)
-                        else algopy.Bytes(item.encode("utf-8"))
-                        if isinstance(item, str)
-                        else item
+                        (
+                            algopy.Bytes(item)
+                            if isinstance(item, bytes)
+                            else (
+                                algopy.Bytes(item.encode("utf-8"))
+                                if isinstance(item, str)
+                                else item
+                            )
+                        )
                         for item in value
                     )
                 elif isinstance(value, tuple) and all(
