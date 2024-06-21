@@ -11,6 +11,7 @@ from algopy_testing.models import (
     ITxn,
     Txn,
     log,
+    urange,
 )
 from algopy_testing.primitives import BigUInt, Bytes, BytesBacked, String, UInt64
 from algopy_testing.state import GlobalState, LocalState
@@ -41,5 +42,6 @@ __all__ = [
     "itxn",
     "arc4",
     "op",
+    "urange",
     "log",
 ]
