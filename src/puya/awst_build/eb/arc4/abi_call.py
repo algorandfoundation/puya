@@ -7,8 +7,11 @@ import attrs
 import mypy.nodes
 import mypy.types
 
-from puya import log
-from puya.awst import wtypes
+from puya import arc4_util, log
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.awst.nodes import (
     TXN_FIELDS_BY_IMMEDIATE,
     ARC4Decode,
@@ -27,7 +30,7 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._base import FunctionBuilder
-from puya.awst_build.eb.arc4._utils import ARC4Signature, arc4_tuple_from_items, get_arc4_signature
+from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -313,7 +316,7 @@ def _create_abi_call_expr(
             if arr_field == TxnFields.app_args and len(arr_field_values) > 15:
                 args_to_pack = arr_field_values[15:]
                 arr_field_values[15:] = [
-                    arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
+                    _arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
                 ]
             fields[arr_field] = TupleExpression.from_items(
                 arr_field_values, _combine_locs(arr_field_values)
@@ -356,3 +359,14 @@ def _create_abi_call_expr(
 
 def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
     return reduce(operator.add, (a.source_location for a in exprs))
+
+
+def _arc4_tuple_from_items(
+    items: Sequence[awst_nodes.Expression], source_location: SourceLocation
+) -> awst_nodes.ARC4Encode:
+    args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
+    return awst_nodes.ARC4Encode(
+        value=args_tuple,
+        wtype=arc4_util.make_tuple_wtype(args_tuple.wtype.types, source_location),
+        source_location=source_location,
+    )
