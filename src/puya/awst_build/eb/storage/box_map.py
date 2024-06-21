@@ -4,6 +4,7 @@ from collections.abc import Callable, Sequence
 
 import mypy.nodes
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
@@ -13,6 +14,7 @@ from puya.awst.nodes import (
     StateGetEx,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -26,6 +28,8 @@ from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+logger = log.get_logger(__name__)
 
 
 class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
@@ -75,32 +79,32 @@ def _init(
         key_type_arg = arg_mapping.pop(key_type_arg_name)
         value_type_arg = arg_mapping.pop(value_type_arg_name)
     except KeyError as ex:
-        raise CodeError("Required positional argument missing", location) from ex
-
-    key_prefix_arg = arg_mapping.pop("key_prefix", None)
-    if arg_mapping:
-        raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
-
+        raise CodeError("required positional argument missing", location) from ex
     match key_type_arg.pytype, value_type_arg.pytype:
         case pytypes.TypeType(typ=key), pytypes.TypeType(typ=content):
             pass
         case _:
-            raise CodeError("First and second arguments must be type references", location)
+            raise CodeError("first and second arguments must be type references", location)
+
+    key_prefix_arg = arg_mapping.pop("key_prefix", None)
+    if arg_mapping:
+        logger.error(
+            f"unrecognised keyword argument(s): {", ".join(arg_mapping)}", location=location
+        )
+
     if result_type is None:
         result_type = pytypes.GenericBoxMapType.parameterise([key, content], location)
     elif not (result_type.key == key and result_type.content == content):
-        raise CodeError(
+        logger.error(
             f"{result_type.generic} explicit type annotation"
             f" does not match type arguments - suggest to remove the explicit type annotation,"
             " it shouldn't be required",
-            location,
+            location=location,
         )
     # the type of the key is not retained in the AWST, so to
     wtypes.validate_persistable(key.wtype, location)
 
-    key_prefix_override = extract_key_override(
-        key_prefix_arg, location, typ=wtypes.box_key, is_prefix=True
-    )
+    key_prefix_override = extract_key_override(key_prefix_arg, location, typ=wtypes.box_key)
     if key_prefix_override is None:
         return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
     return _BoxMapProxyExpressionBuilderFromConstructor(
@@ -212,11 +216,12 @@ class _Length(_MethodBase):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
-        item_key = args_map.pop("key", None)
-        if item_key is None or args_map:
-            raise CodeError("Invalid/unexpected args", location)
-        item_key_inst = require_instance_builder(item_key)
+        item_key_inst = expect.exactly_one_arg_of_type(
+            args,
+            self.box_type.key,
+            location,
+            default=expect.default_dummy_value(self.box_type.key),
+        )
         return UInt64ExpressionBuilder(
             box_length_checked(self.build_box_value(item_key_inst, location), location)
         )

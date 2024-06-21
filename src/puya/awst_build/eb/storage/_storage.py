@@ -1,5 +1,8 @@
 import typing
 
+import attrs
+
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
@@ -25,6 +28,8 @@ from puya.awst_build.eb.interface import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+logger = log.get_logger(__name__)
 
 
 @typing.final
@@ -163,38 +168,31 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 
 
 def extract_key_override(
-    key_arg: NodeBuilder | None, location: SourceLocation, *, typ: wtypes.WType, is_prefix: bool
+    key_arg: NodeBuilder | None, location: SourceLocation, *, typ: wtypes.WType
 ) -> Expression | None:
     key_override: Expression | None
+    eb: InstanceBuilder
     match key_arg:
         case None:
-            key_override = None
-        case LiteralBuilder(value=bytes(bytes_value), source_location=key_lit_loc):
-            key_override = BytesConstant(
-                value=bytes_value,
-                encoding=BytesEncoding.unknown,
-                wtype=typ,
-                source_location=key_lit_loc,
-            )
-        case LiteralBuilder(value=str(str_value), source_location=key_lit_loc):
-            key_override = BytesConstant(
-                value=str_value.encode("utf8"),
-                encoding=BytesEncoding.utf8,
-                wtype=typ,
-                source_location=key_lit_loc,
-            )
-        case InstanceBuilder(pytype=pytypes.BytesType) as eb:
-            key_override = ReinterpretCast(expr=eb.resolve(), wtype=typ, source_location=location)
-        case InstanceBuilder(pytype=pytypes.StringType) as eb:
-            key_override = ReinterpretCast(
-                expr=eb.to_bytes(location), wtype=typ, source_location=location
-            )
+            return None
+        case InstanceBuilder(
+            pytype=pytypes.StringType
+            | pytypes.StrLiteralType
+            | pytypes.BytesType
+            | pytypes.BytesLiteralType
+        ) as eb:
+            key_override = eb.to_bytes(eb.source_location)
         case _:
-            raise CodeError(
-                f"invalid type for key{'_prefix' if is_prefix else ''} argument",
-                key_arg.source_location,
+            logger.error("unexpected argument type", location=key_arg.source_location)
+            key_override = BytesConstant(
+                value=b"0",
+                wtype=wtypes.bytes_wtype,
+                encoding=BytesEncoding.unknown,
+                source_location=key_arg.source_location,
             )
-    return key_override
+    if isinstance(key_override, BytesConstant):
+        return attrs.evolve(key_override, wtype=typ)
+    return ReinterpretCast(expr=key_override, wtype=typ, source_location=location)
 
 
 def extract_description(descr_arg: NodeBuilder | None) -> str | None:
@@ -204,4 +202,7 @@ def extract_description(descr_arg: NodeBuilder | None) -> str | None:
         case LiteralBuilder(value=str(str_value)):
             return str_value
         case _:
-            raise CodeError("description should be a str literal", descr_arg.source_location)
+            logger.error(
+                "description must be a simple str literal", location=descr_arg.source_location
+            )
+            return None

@@ -4,8 +4,10 @@ from collections.abc import Sequence
 import mypy.nodes
 
 from puya import log
+from puya.awst import wtypes
 from puya.awst.nodes import Expression, ReinterpretCast, UInt64Constant
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
 from puya.parse import SourceLocation
@@ -27,7 +29,7 @@ class ApplicationTypeBuilder(TypeBuilder):
                     logger.error("invalid application ID", location=literal.source_location)
                 const = UInt64Constant(value=int_value, source_location=location)
                 expr = ReinterpretCast(
-                    expr=const, wtype=self.produces().wtype, source_location=location
+                    expr=const, wtype=wtypes.application_wtype, source_location=location
                 )
                 return ApplicationExpressionBuilder(expr)
         return None
@@ -40,21 +42,17 @@ class ApplicationTypeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
                 return arg.resolve_literal(ApplicationTypeBuilder(location))
-            case []:
+            case None:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [LiteralBuilder(value=int(int_value), source_location=loc)]:
-                uint64_expr = UInt64Constant(value=int_value, source_location=loc)
-            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
-                uint64_expr = eb.resolve()
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                uint64_expr = UInt64Constant(value=0, source_location=location)
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
+                uint64_expr = arg.resolve()
         app_expr = ReinterpretCast(
-            source_location=location, wtype=self.produces().wtype, expr=uint64_expr
+            source_location=location, wtype=wtypes.application_wtype, expr=uint64_expr
         )
         return ApplicationExpressionBuilder(app_expr)
 
