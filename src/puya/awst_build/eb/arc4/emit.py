@@ -67,4 +67,5 @@ class EmitBuilder(FunctionBuilder):
             event_arg_eb.resolve(),
             location,
         )
-        return VoidExpressionBuilder(intrinsic_factory.log(log_value, location))
+        log_expr = intrinsic_factory.log(log_value, location)
+        return VoidExpressionBuilder(log_expr)

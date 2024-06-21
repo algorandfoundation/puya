@@ -18,7 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes
+from puya.awst_build.eb._utils import compare_expr_bytes, expect_at_most_one_arg
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -28,7 +28,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.string import StringExpressionBuilder as NativeStringExpressionBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -58,7 +57,7 @@ class StringTypeBuilder(ARC4TypeBuilder):
                             "encoded string exceeds max byte array length",
                             location=literal.source_location,
                         )
-                return StringExpressionBuilder(_arc4_encode_str_literal(literal_value, location))
+                return _arc4_encode_str_literal(literal_value, location)
         return None
 
     @typing.override
@@ -69,44 +68,16 @@ class StringTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
-            return StringExpressionBuilder(_arc4_encode_str_literal("", location))
-        if len(args) > 1:
-            logger.error(f"expected at most 1 argument, got {len(args)}", location)
-        eb = require_instance_builder(args[0])
-        match eb:
+        arg = expect_at_most_one_arg(args, location)
+        match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
-                return eb.resolve_literal(StringTypeBuilder(location))
+                return arg.resolve_literal(StringTypeBuilder(location))
+            case None:
+                return _arc4_encode_str_literal("", location)
             case InstanceBuilder(pytype=pytypes.StringType):
-                return _expect_string(eb, location)
+                return _from_native(arg, location)
             case _:
-                raise CodeError("unexpected argument type", eb.source_location)
-
-
-def _arc4_encode_str_literal(value: str, location: SourceLocation) -> Expression:
-    return ARC4Encode(
-        value=StringConstant(value=value, source_location=location),
-        wtype=wtypes.arc4_string_alias,
-        source_location=location,
-    )
-
-
-def _expect_string(expr: NodeBuilder, location: SourceLocation) -> InstanceBuilder:
-    eb = require_instance_builder(expr)
-    match eb:
-        case InstanceBuilder(pytype=pytypes.StrLiteralType):
-            return eb.resolve_literal(StringTypeBuilder(location))
-        case InstanceBuilder(pytype=pytypes.StringType):
-            string_expr = eb.resolve()
-            return StringExpressionBuilder(
-                ARC4Encode(
-                    value=string_expr, wtype=wtypes.arc4_string_alias, source_location=location
-                )
-            )
-        case InstanceBuilder(pytype=pytypes.ARC4StringType):
-            return eb
-        case _:
-            raise CodeError("unexpected argument type", eb.source_location)
+                raise CodeError("unexpected argument type", arg.source_location)
 
 
 class StringExpressionBuilder(
@@ -119,18 +90,25 @@ class StringExpressionBuilder(
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        match op:
-            case BuilderBinaryOp.add:
-                return ExpressionStatement(
-                    expr=ArrayExtend(
-                        base=self.resolve(),
-                        other=_expect_string(rhs, rhs.source_location).resolve(),
-                        source_location=location,
-                        wtype=wtypes.arc4_string_alias,
-                    )
-                )
-            case _:
-                raise CodeError("unsupported operator", location)
+        if op != BuilderBinaryOp.add:
+            raise CodeError(f"unsupported operator for type: {op.value!r}", location)
+
+        rhs = rhs.resolve_literal(StringTypeBuilder(rhs.source_location))
+        if rhs.pytype == self.pytype:
+            value = rhs.resolve()
+        elif rhs.pytype == pytypes.StringType:
+            value = _from_native(rhs, rhs.source_location).resolve()
+        else:
+            raise CodeError("unexpected argument type", rhs.source_location)
+
+        return ExpressionStatement(
+            ArrayExtend(
+                base=self.resolve(),
+                other=value,
+                wtype=wtypes.arc4_string_alias,
+                source_location=location,
+            )
+        )
 
     @typing.override
     def binary_op(
@@ -141,48 +119,59 @@ class StringExpressionBuilder(
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        match op:
-            case BuilderBinaryOp.add:
-                lhs = self.resolve()
-                rhs = _expect_string(other, other.source_location).resolve()
-                if reverse:
-                    (lhs, rhs) = (rhs, lhs)
-                return StringExpressionBuilder(
-                    ArrayConcat(
-                        left=lhs,
-                        right=rhs,
-                        source_location=location,
-                        wtype=wtypes.arc4_string_alias,
-                    )
-                )
+        if op != BuilderBinaryOp.add:
+            return NotImplemented
 
-            case _:
-                return super().binary_op(other, op, location, reverse=reverse)
+        other = other.resolve_literal(StringTypeBuilder(other.source_location))
+        if other.pytype == self.pytype:
+            other_expr = other.resolve()
+        elif other.pytype == pytypes.StringType:
+            other_expr = _from_native(other, other.source_location).resolve()
+        else:
+            return NotImplemented
+
+        lhs = self.resolve()
+        rhs = other_expr
+        if reverse:
+            (lhs, rhs) = (rhs, lhs)
+
+        return StringExpressionBuilder(
+            ArrayConcat(
+                left=lhs,
+                right=rhs,
+                wtype=wtypes.arc4_string_alias,
+                source_location=location,
+            )
+        )
 
     @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
+        other = other.resolve_literal(StringTypeBuilder(other.source_location))
         match other:
-            case LiteralBuilder(pytype=pytypes.StrLiteralType) as rhs_eb:
+            case InstanceBuilder(pytype=pytypes.ARC4StringType):
                 lhs: InstanceBuilder = self
-                rhs = rhs_eb.resolve_literal(StringTypeBuilder(location))
-            case InstanceBuilder(pytype=pytypes.StringType) as eb:
-                lhs = _string_to_native(self, location)
-                rhs = eb
-            case InstanceBuilder(pytype=pytypes.ARC4StringType) as eb:
-                lhs = self
-                rhs = eb
+            case InstanceBuilder(pytype=pytypes.StringType):
+                # when comparing arc4 to native, easier to convert by stripping length prefix
+                lhs = _string_to_native(self, self.source_location)
             case _:
                 return NotImplemented
-
         return compare_expr_bytes(
-            lhs=lhs.resolve(), op=op, rhs=rhs.resolve(), source_location=location
+            lhs=lhs.resolve(),
+            op=op,
+            rhs=other.resolve(),
+            source_location=location,
         )
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(self, false_bytes=b"\x00\x00", location=location, negate=negate)
+        return arc4_bool_bytes(
+            self,
+            false_bytes=b"\x00\x00",
+            negate=negate,
+            location=location,
+        )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
@@ -201,6 +190,27 @@ def _string_to_native(
         ARC4Decode(
             value=builder.resolve(),
             wtype=pytypes.StringType.wtype,
+            source_location=location,
+        )
+    )
+
+
+def _arc4_encode_str_literal(value: str, location: SourceLocation) -> InstanceBuilder:
+    return StringExpressionBuilder(
+        ARC4Encode(
+            value=StringConstant(value=value, source_location=location),
+            wtype=wtypes.arc4_string_alias,
+            source_location=location,
+        )
+    )
+
+
+def _from_native(eb: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+    assert eb.pytype == pytypes.StringType
+    return StringExpressionBuilder(
+        ARC4Encode(
+            value=eb.resolve(),
+            wtype=wtypes.arc4_string_alias,
             source_location=location,
         )
     )
