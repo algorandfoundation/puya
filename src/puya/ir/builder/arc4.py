@@ -276,7 +276,7 @@ def handle_arc4_assign(
     value: ValueProvider,
     source_location: SourceLocation,
     *,
-    is_recursive_assign: bool = False,
+    is_mutation: bool = False,
 ) -> Value:
     result: Value
     match target:
@@ -298,7 +298,7 @@ def handle_arc4_assign(
                     source_location=source_location,
                 ),
                 source_location=source_location,
-                is_recursive_assign=True,
+                is_mutation=True,
             )
         case awst_nodes.FieldExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
@@ -316,7 +316,7 @@ def handle_arc4_assign(
                     source_location=source_location,
                 ),
                 source_location=source_location,
-                is_recursive_assign=True,
+                is_mutation=True,
             )
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
@@ -334,8 +334,11 @@ def handle_arc4_assign(
                     source_location=source_location,
                 ),
                 source_location=source_location,
-                is_recursive_assign=True,
+                is_mutation=True,
             )
+        # this function is sometimes invoked outside an assignment expr/stmt, which
+        # is how a non l-value expression can be possible
+        # TODO: refactor this so that this special case is handled where it originates
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
             index=index_value,
@@ -347,25 +350,15 @@ def handle_arc4_assign(
                 source_location=source_location,
             )
             return result
-        case (
-            awst_nodes.VarExpression()
-            | awst_nodes.FieldExpression()
-            | awst_nodes.IndexExpression()
-            | awst_nodes.TupleExpression()
-            | awst_nodes.AppStateExpression()
-            | awst_nodes.AppAccountStateExpression()
-            | awst_nodes.BoxValueExpression()
-        ) as target:
+        case _:
             (result,) = handle_assignment(
                 context,
                 target,
                 value=value,
                 assignment_location=source_location,
-                is_recursive_assign=is_recursive_assign,
+                is_mutation=is_mutation,
             )
             return result
-        case _:
-            raise CodeError(f"Invalid assignment target {target}", source_location)
 
 
 def concat_values(

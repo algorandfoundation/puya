@@ -171,3 +171,11 @@ class BoxMapContract(ARC4Contract):
     @arc4.abimethod()
     def maybe(self) -> None:
         bad = self.ok.maybe(bad=UInt64(2)) # type: ignore[call-arg] ## E: invalid/unexpected args
+
+## case: test_empty_key
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    def __init__(self) -> None:
+        self.my_box = Box(bool, key="")
+        assert not self.my_box.length, "length op fails because the key is empty"  ## E: AVM does not support empty box keys

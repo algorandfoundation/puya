@@ -116,6 +116,9 @@ main_entrypoint@2:
     // )
     callsub slicing
     // tuple_support/tuple_support.py:54
+    // bin_ops()
+    callsub bin_ops
+    // tuple_support/tuple_support.py:55
     // return a + b
     int 3
     return
@@ -123,12 +126,12 @@ main_entrypoint@2:
 
 // test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
 add_three_values:
-    // tuple_support/tuple_support.py:76-77
+    // tuple_support/tuple_support.py:90-91
     // @subroutine
     // def add_three_values(values: tuple[UInt64, UInt64, UInt64]) -> UInt64:
     proto 3 1
     byte ""
-    // tuple_support/tuple_support.py:78
+    // tuple_support/tuple_support.py:92
     // total = UInt64(0)
     int 0
     frame_dig -3
@@ -145,7 +148,7 @@ add_three_values_for_header_2@3:
     frame_dig 0
 
 add_three_values_for_body@4:
-    // tuple_support/tuple_support.py:80
+    // tuple_support/tuple_support.py:94
     // total += value
     frame_dig 1
     uncover 2
@@ -157,10 +160,10 @@ add_three_values_for_body@4:
     int 1
     +
     frame_bury 0
-    // tuple_support/tuple_support.py:79
+    // tuple_support/tuple_support.py:93
     // for value in values:
     switch add_three_values_for_header_1@2 add_three_values_for_header_2@3
-    // tuple_support/tuple_support.py:82
+    // tuple_support/tuple_support.py:96
     // return total
     frame_bury 0
     retsub
@@ -168,51 +171,51 @@ add_three_values_for_body@4:
 
 // test_cases.tuple_support.tuple_support.bytes_combine(arg.0: bytes, arg.1: bytes) -> bytes:
 bytes_combine:
-    // tuple_support/tuple_support.py:60-61
+    // tuple_support/tuple_support.py:74-75
     // @subroutine
     // def bytes_combine(arg: tuple[Bytes, Bytes]) -> Bytes:
     proto 2 1
-    // tuple_support/tuple_support.py:63
+    // tuple_support/tuple_support.py:77
     // result = a + b
     frame_dig -2
     frame_dig -1
     concat
-    // tuple_support/tuple_support.py:64
+    // tuple_support/tuple_support.py:78
     // return result
     retsub
 
 
 // test_cases.tuple_support.tuple_support.addw2(a.0: uint64, a.1: uint64, b.0: uint64, b.1: uint64) -> uint64, uint64, uint64:
 addw2:
-    // tuple_support/tuple_support.py:85-86
+    // tuple_support/tuple_support.py:99-100
     // @subroutine
     // def addw2(a: tuple[UInt64, UInt64], b: tuple[UInt64, UInt64]) -> tuple[UInt64, UInt64, UInt64]:
     proto 4 3
-    // tuple_support/tuple_support.py:89
+    // tuple_support/tuple_support.py:103
     // lo_carry, c_lo = op.addw(a_lo, b_lo)
     frame_dig -3
     frame_dig -1
     addw
     swap
-    // tuple_support/tuple_support.py:90
+    // tuple_support/tuple_support.py:104
     // hi_carry1, c_mid = op.addw(a_hi, b_hi)
     frame_dig -4
     frame_dig -2
     addw
-    // tuple_support/tuple_support.py:91
+    // tuple_support/tuple_support.py:105
     // hi_carry2, c_mid = op.addw(c_mid, lo_carry)
     uncover 2
     addw
     cover 2
-    // tuple_support/tuple_support.py:92
+    // tuple_support/tuple_support.py:106
     // did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
     addw
     swap
-    // tuple_support/tuple_support.py:93
+    // tuple_support/tuple_support.py:107
     // assert not did_overflow, "is such a thing even possible? 👽"
     !
     assert // is such a thing even possible? 👽
-    // tuple_support/tuple_support.py:94
+    // tuple_support/tuple_support.py:108
     // return c_hi, c_mid, c_lo
     swap
     uncover 2
@@ -221,31 +224,31 @@ addw2:
 
 // test_cases.tuple_support.tuple_support.bytes_multiply(arg.0: bytes, arg.1: uint64) -> bytes:
 bytes_multiply:
-    // tuple_support/tuple_support.py:67-68
+    // tuple_support/tuple_support.py:81-82
     // @subroutine
     // def bytes_multiply(arg: tuple[Bytes, UInt64]) -> Bytes:
     proto 2 1
-    // tuple_support/tuple_support.py:70
+    // tuple_support/tuple_support.py:84
     // result = Bytes()
     byte 0x
-    // tuple_support/tuple_support.py:71
+    // tuple_support/tuple_support.py:85
     // for _i in urange(count):
     int 0
 
 bytes_multiply_for_header@1:
-    // tuple_support/tuple_support.py:71
+    // tuple_support/tuple_support.py:85
     // for _i in urange(count):
     frame_dig 1
     frame_dig -1
     <
     bz bytes_multiply_after_for@5
-    // tuple_support/tuple_support.py:72
+    // tuple_support/tuple_support.py:86
     // result += b
     frame_dig 0
     frame_dig -2
     concat
     frame_bury 0
-    // tuple_support/tuple_support.py:71
+    // tuple_support/tuple_support.py:85
     // for _i in urange(count):
     frame_dig 1
     int 1
@@ -254,33 +257,33 @@ bytes_multiply_for_header@1:
     b bytes_multiply_for_header@1
 
 bytes_multiply_after_for@5:
-    // tuple_support/tuple_support.py:73
+    // tuple_support/tuple_support.py:87
     // return result
     retsub
 
 
 // test_cases.tuple_support.tuple_support.test_tuple_swap(zero: uint64) -> void:
 test_tuple_swap:
-    // tuple_support/tuple_support.py:97-98
+    // tuple_support/tuple_support.py:111-112
     // @subroutine
     // def test_tuple_swap(zero: UInt64) -> None:
     proto 1 0
-    // tuple_support/tuple_support.py:99
+    // tuple_support/tuple_support.py:113
     // a = zero + 1
     frame_dig -1
     int 1
     +
-    // tuple_support/tuple_support.py:100
+    // tuple_support/tuple_support.py:114
     // b = zero + 2
     frame_dig -1
     int 2
     +
-    // tuple_support/tuple_support.py:102
+    // tuple_support/tuple_support.py:116
     // assert a == 2, "a should be two"
     int 2
     ==
     assert // a should be two
-    // tuple_support/tuple_support.py:103
+    // tuple_support/tuple_support.py:117
     // assert b == 1, "b should be one"
     int 1
     ==
@@ -290,11 +293,11 @@ test_tuple_swap:
 
 // test_cases.tuple_support.tuple_support.slicing(values.0: uint64, values.1: uint64, values.2: uint64, values.3: uint64, values.4: uint64, values.5: uint64, values.6: uint64, values.7: uint64) -> void:
 slicing:
-    // tuple_support/tuple_support.py:106-107
+    // tuple_support/tuple_support.py:120-121
     // @subroutine
     // def slicing(values: tuple[UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64]) -> None:
     proto 8 0
-    // tuple_support/tuple_support.py:109
+    // tuple_support/tuple_support.py:123
     // assert add_three_values(one_to_three) == values[0] + values[1] + values[2]
     frame_dig -8
     frame_dig -7
@@ -307,6 +310,15 @@ slicing:
     +
     ==
     assert
+    retsub
+
+
+// test_cases.tuple_support.tuple_support.bin_ops() -> void:
+bin_ops:
+    // tuple_support/tuple_support.py:61-62
+    // @subroutine
+    // def bin_ops() -> None:
+    proto 0 0
     retsub
 
 

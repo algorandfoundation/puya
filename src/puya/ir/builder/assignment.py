@@ -37,18 +37,39 @@ def handle_assignment_expr(
 
 def handle_assignment(
     context: IRFunctionBuildContext,
+    target: awst_nodes.Expression,
+    value: ValueProvider,
+    assignment_location: SourceLocation,
+    *,
+    is_mutation: bool = False,
+) -> Sequence[Value]:
+    # separating out the target LValue check allows the _handle_assignment to statically assert
+    # all LValue types are covered
+    if not isinstance(target, awst_nodes.Lvalue):  # type: ignore[arg-type]
+        raise CodeError("expression is not valid as an assignment target", target.source_location)
+    return _handle_assignment(
+        context,
+        typing.cast(awst_nodes.Lvalue, target),
+        value,
+        assignment_location,
+        is_mutation=is_mutation,
+    )
+
+
+def _handle_assignment(
+    context: IRFunctionBuildContext,
     target: awst_nodes.Lvalue,
     value: ValueProvider,
     assignment_location: SourceLocation,
     *,
-    is_recursive_assign: bool = False,  # TODO: why is this needed
+    is_mutation: bool,
 ) -> Sequence[Value]:
     match target:
         case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
-            if (
-                var_name in (p.name for p in context.subroutine.parameters if p.implicit_return)
-                and not is_recursive_assign
-            ):
+            is_implicit_return = var_name in (
+                p.name for p in context.subroutine.parameters if p.implicit_return
+            )
+            if is_implicit_return and not is_mutation:
                 raise CodeError(
                     f"Cannot reassign mutable parameter {var_name!r}"
                     " which is being passed by reference",
