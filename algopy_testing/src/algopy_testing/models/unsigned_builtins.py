@@ -5,7 +5,7 @@ import typing
 from algopy_testing.utils import as_int64
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator, Reversible
 
     import algopy
 
@@ -27,5 +27,10 @@ class urange:  # noqa: N801
         return map(algopy.UInt64, reversed(self._value))
 
 
-def uenumerate(_iterable: typing.Any) -> typing.Any:
-    pass
+_T = typing.TypeVar("_T")
+
+
+def uenumerate(iterable: Iterable[_T]) -> Reversible[tuple[algopy.UInt64, _T]]:
+    import algopy
+
+    return [(algopy.UInt64(i), v) for i, v in enumerate(iterable)]
