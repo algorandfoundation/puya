@@ -41,7 +41,7 @@ def handle_assignment(
     value: ValueProvider,
     assignment_location: SourceLocation,
     *,
-    is_recursive_assign: bool = False,
+    is_recursive_assign: bool = False,  # TODO: why is this needed
 ) -> Sequence[Value]:
     match target:
         case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
