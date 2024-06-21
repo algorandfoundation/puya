@@ -120,7 +120,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         extend = ArrayExtend(
             base=self.resolve(),
             other=rhs.resolve(),
-            wtype=wtypes.arc4_string_alias,
+            wtype=wtypes.void_wtype,
             source_location=location,
         )
         return ExpressionStatement(expr=extend)
