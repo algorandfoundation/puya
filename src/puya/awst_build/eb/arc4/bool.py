@@ -52,7 +52,7 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_at_most_one_arg(args, location)
+        arg = expect.at_most_one_arg(args, location)
         match arg:
             case None:
                 native_bool: Expression = BoolConstant(value=False, source_location=location)

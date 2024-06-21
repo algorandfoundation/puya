@@ -201,7 +201,7 @@ class _Submit(FunctionBuilder):
     ) -> InstanceBuilder:
         from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 
-        expect.expect_no_args(args, location)
+        expect.no_args(args, location)
         result_typ = pytypes.InnerTransactionResultTypes[self._txn_type]
         return InnerTransactionExpressionBuilder(
             SubmitInnerTransaction(group=self.expr, source_location=location), result_typ
@@ -224,7 +224,7 @@ class _Copy(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expect.expect_no_args(args, location)
+        expect.no_args(args, location)
         return InnerTxnParamsExpressionBuilder(
             Copy(value=self.expr, source_location=location), self._typ
         )

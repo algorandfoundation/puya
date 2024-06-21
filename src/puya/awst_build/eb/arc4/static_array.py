@@ -39,7 +39,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = require_instance_builder(args[0]).pytype
-        values = tuple(expect.expect_argument_of_type(a, element_type).resolve() for a in args)
+        values = tuple(expect.argument_of_type(a, element_type).resolve() for a in args)
         array_size = len(values)
         typ = pytypes.GenericARC4StaticArrayType.parameterise(
             [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],
@@ -69,7 +69,7 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        n_args = expect.expect_exactly_n_args_of_type(args, typ.items, location, self._size)
+        n_args = expect.exactly_n_args_of_type(args, typ.items, location, self._size)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return StaticArrayExpressionBuilder(

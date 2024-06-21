@@ -74,7 +74,7 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_at_most_one_arg(args, location)
+        arg = expect.at_most_one_arg(args, location)
         match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(ARC4StringTypeBuilder(location))
@@ -104,7 +104,7 @@ class ARC4StringExpressionBuilder(
         if rhs.pytype == pytypes.StringType:
             value = _from_native(rhs, rhs.source_location).resolve()
         else:
-            value = expect.expect_argument_of_type(rhs, self.pytype).resolve()
+            value = expect.argument_of_type(rhs, self.pytype).resolve()
 
         return ExpressionStatement(
             ArrayExtend(

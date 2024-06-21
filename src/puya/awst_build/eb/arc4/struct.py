@@ -50,9 +50,7 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
             if field_value is None:
                 logger.error(f"missing required argument {field_name!r}", location=location)
             else:
-                values[field_name] = expect.expect_argument_of_type(
-                    field_value, field_type
-                ).resolve()
+                values[field_name] = expect.argument_of_type(field_value, field_type).resolve()
         if field_mapping:
             logger.error(
                 f"unexpected keyword arguments: {' '.join(field_mapping)}", location=location

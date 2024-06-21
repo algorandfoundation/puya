@@ -67,7 +67,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_at_most_one_arg(args, location)
+        arg = expect.at_most_one_arg(args, location)
         typ = self.produces()
         wtype = typ.wtype
         match arg:

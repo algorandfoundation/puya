@@ -50,7 +50,7 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_at_most_one_arg(args, location)
+        arg = expect.at_most_one_arg(args, location)
         match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(UFixedNxMTypeBuilder(self.produces(), location))

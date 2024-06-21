@@ -14,7 +14,7 @@ _T = typing.TypeVar("_T")
 logger = log.get_logger(__name__)
 
 
-def expect_at_most_one_arg(
+def at_most_one_arg(
     args: Sequence[NodeBuilder], location: SourceLocation
 ) -> InstanceBuilder | None:
     if not args:
@@ -25,17 +25,17 @@ def expect_at_most_one_arg(
     return eb
 
 
-def default_expect_raise(msg: str, location: SourceLocation) -> typing.Never:
+def default_raise(msg: str, location: SourceLocation) -> typing.Never:
     from puya.errors import CodeError
 
     raise CodeError(msg, location)
 
 
-def default_expect_none(msg: str, location: SourceLocation) -> None:  # noqa: ARG001
+def default_none(msg: str, location: SourceLocation) -> None:  # noqa: ARG001
     return None
 
 
-def expect_at_least_one_arg(
+def at_least_one_arg(
     args: Sequence[NodeBuilder],
     location: SourceLocation,
     *,
@@ -50,7 +50,7 @@ def expect_at_least_one_arg(
     return first, rest
 
 
-def expect_exactly_one_arg(
+def exactly_one_arg(
     args: Sequence[NodeBuilder],
     location: SourceLocation,
     *,
@@ -67,7 +67,7 @@ def expect_exactly_one_arg(
     return eb
 
 
-def expect_exactly_one_arg_of_type(
+def exactly_one_arg_of_type(
     args: Sequence[NodeBuilder], pytype: pytypes.PyType, location: SourceLocation
 ) -> InstanceBuilder:
     if not args:
@@ -82,12 +82,12 @@ def expect_exactly_one_arg_of_type(
     return dummy_value(pytype, first.source_location)
 
 
-def expect_no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> None:
+def no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> None:
     if args:
         logger.error(f"expected 0 arguments, got {len(args)}", location)
 
 
-def expect_exactly_n_args_of_type(
+def exactly_n_args_of_type(
     args: Sequence[NodeBuilder], pytype: pytypes.PyType, location: SourceLocation, num_args: int
 ) -> Sequence[InstanceBuilder]:
     if len(args) != num_args:
@@ -97,11 +97,11 @@ def expect_exactly_n_args_of_type(
         )
         dummy_args = [dummy_value(pytype, location)] * num_args
         args = [arg or default for arg, default in zip_longest(args, dummy_args)]
-    arg_ebs = [expect_argument_of_type(arg, pytype) for arg in args]
+    arg_ebs = [argument_of_type(arg, pytype) for arg in args]
     return arg_ebs[:num_args]
 
 
-def expect_argument_of_type(builder: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+def argument_of_type(builder: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
     if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
         return builder
     logger.error("unexpected argument type", location=builder.source_location)

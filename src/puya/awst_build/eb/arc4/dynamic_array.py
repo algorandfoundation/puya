@@ -56,7 +56,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = require_instance_builder(args[0]).pytype
-        values = tuple(expect.expect_argument_of_type(a, element_type).resolve() for a in args)
+        values = tuple(expect.argument_of_type(a, element_type).resolve() for a in args)
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
@@ -81,7 +81,7 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(expect.expect_argument_of_type(a, typ.items).resolve() for a in args)
+        values = tuple(expect.argument_of_type(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
@@ -184,7 +184,7 @@ class _Append(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_exactly_one_arg_of_type(args, self.typ.items, location)
+        arg = expect.exactly_one_arg_of_type(args, self.typ.items, location)
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(
@@ -203,7 +203,7 @@ class _Pop(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expect.expect_no_args(args, location)
+        expect.no_args(args, location)
         result_expr = ArrayPop(
             base=self.expr, wtype=self.typ.items.wtype, source_location=location
         )
@@ -219,7 +219,7 @@ class _Extend(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_exactly_one_arg(args, location, default=expect.default_expect_none)
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
         if arg is None:
             other = dummy_value(self.typ, location)
         else:

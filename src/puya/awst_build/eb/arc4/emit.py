@@ -29,9 +29,7 @@ class EmitBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        first, rest = expect.expect_at_least_one_arg(
-            args, location, default=expect.default_expect_raise
-        )
+        first, rest = expect.at_least_one_arg(args, location, default=expect.default_raise)
         match first:
             case InstanceBuilder(
                 pytype=pytypes.StructType() as struct_type

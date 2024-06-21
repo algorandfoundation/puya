@@ -67,7 +67,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_at_most_one_arg(args, location)
+        arg = expect.at_most_one_arg(args, location)
         match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=AccountTypeBuilder(location))
@@ -167,7 +167,7 @@ class _IsOptedIn(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.expect_exactly_one_arg(args, location, default=expect.default_expect_none)
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
         match arg:
             case None:
                 pass  # fall through to dummy
