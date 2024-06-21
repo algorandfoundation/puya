@@ -1025,6 +1025,9 @@ class Struct(metaclass=_StructMeta):
         return copy.deepcopy(self)
 
 
+class ARC4Client(typing.Protocol): ...
+
+
 if typing.TYPE_CHECKING:
     _TABIArg: typing.TypeAlias = (
         algopy.String
@@ -1438,6 +1441,7 @@ __all__ = [
     "UInt512",
     "abimethod",
     "Struct",
+    "ARC4Client",
     "Tuple",
     "DynamicArray",
     "DynamicBytes",
