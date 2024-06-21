@@ -54,7 +54,7 @@ def test_decimal_validation(value: Decimal) -> None:
         wtype=wtypes.ARC4UFixedNxM(bits=8, precision=2, source_location=None),
         source_location=_location,
     )
-    assert _build_ir_and_return_errors(expr) == ["invalid decimal value"]
+    assert _build_ir_and_return_errors(expr) == ["invalid arc4.ufixed8x2 value"]
 
 
 def test_bytes_validation() -> None:
