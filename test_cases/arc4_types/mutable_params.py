@@ -79,11 +79,8 @@ class Arc4MutableParamsContract(Contract):
         self.other_routine_2(my_array_copy_2)
         assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
 
-        # This is commented out because mutable params do not work with tuples
-        # self.other_routine_3((my_array, my_array_copy_2, my_array_copy_2))
-        #
-        # assert my_array[0] == my_array_copy_2[0] == my_array_copy[0] == UInt8(99), \
-        #     "All arrays should be mutated"
+        # tuples of mutable types only work with a .copy()
+        self.other_routine_3((my_array.copy(), my_array_copy_2.copy(), my_array_copy_2.copy()))
 
         # Nested array items should still require a copy
         nested = StructWithArray(test_array=my_array.copy())
@@ -103,11 +100,10 @@ class Arc4MutableParamsContract(Contract):
 
     @subroutine
     def other_routine_3(self, arrays: tuple[TestArray, TestArray, TestArray]) -> None:
-        # This doesn't mutate the params
+        # this modifies the local copy
         for array in arrays:
             array[0] = UInt8(99)
 
-        # This also doesn't work
         arrays[0][0] = UInt8(99)
         arrays[1][0] = UInt8(99)
         arrays[2][0] = UInt8(99)

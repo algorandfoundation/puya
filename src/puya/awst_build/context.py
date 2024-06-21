@@ -190,6 +190,7 @@ class ASTConversionModuleContext(ASTConversionContext):
         *,
         source_location: SourceLocation | mypy.nodes.Context,
         in_type_args: bool = False,
+        in_func_sig: bool = False,
     ) -> pytypes.PyType:
         loc = self._maybe_convert_location(source_location)
         proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
@@ -198,7 +199,10 @@ class ASTConversionModuleContext(ASTConversionContext):
         else:
             proper_type_or_alias = mypy.types.get_proper_type(mypy_type)
         recurse = functools.partial(
-            self.type_to_pytype, source_location=loc, in_type_args=in_type_args
+            self.type_to_pytype,
+            source_location=loc,
+            in_type_args=in_type_args,
+            in_func_sig=in_func_sig,
         )
         match proper_type_or_alias:
             case mypy.types.TypeAliasType(alias=alias, args=args):
@@ -218,9 +222,9 @@ class ASTConversionModuleContext(ASTConversionContext):
                     raise InternalError(
                         f"mypy tuple type as instance had unrecognised args: {args}", loc
                     ) from None
-                return pytypes.VariadicTupleType(
-                    items=recurse(arg)
-                )  # TODO(frist): only in function args
+                if not in_func_sig:
+                    raise CodeError("variadic tuples are not supported", loc)
+                return pytypes.VariadicTupleType(items=recurse(arg))
             case mypy.types.Instance(args=args) as inst:
                 fullname = inst.type.fullname
                 result = self._pytypes.get(fullname)
@@ -291,7 +295,12 @@ class ASTConversionModuleContext(ASTConversionContext):
                         func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
                     ):
                         try:
-                            pt = recurse(at)
+                            pt = self.type_to_pytype(
+                                at,
+                                source_location=loc,
+                                in_type_args=in_type_args,
+                                in_func_sig=True,
+                            )
                         except TypeUnionError as union:
                             pts = union.types
                         else:
@@ -301,7 +310,16 @@ class ASTConversionModuleContext(ASTConversionContext):
                         logger.debug(
                             "None contained in bound args for function reference", location=loc
                         )
-                    bound_args = [recurse(ba) for ba in func_like.bound_args if ba is not None]
+                    bound_args = [
+                        self.type_to_pytype(
+                            ba,
+                            source_location=loc,
+                            in_type_args=in_type_args,
+                            in_func_sig=True,
+                        )
+                        for ba in func_like.bound_args
+                        if ba is not None
+                    ]
                     if func_like.definition is not None:
                         name = func_like.definition.fullname
                     else:

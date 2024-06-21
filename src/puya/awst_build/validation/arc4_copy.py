@@ -1,5 +1,7 @@
 from collections.abc import Iterator
 
+import attrs
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
@@ -21,9 +23,15 @@ class ARC4CopyValidator(AWSTTraverser):
         super().__init__()
         self._for_items: awst_nodes.Lvalue | None = None
 
+    # for nodes that can't modify the input don't need to check for copies unless an assignment
+    # expression is being used
     def visit_submit_inner_transaction(self, call: awst_nodes.SubmitInnerTransaction) -> None:
-        # values passed to an inner transaction do not need to be copied
-        pass
+        if _HasAssignmentVisitor.check(call):
+            super().visit_submit_inner_transaction(call)
+
+    def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> None:
+        if _HasAssignmentVisitor.check(call):
+            super().visit_intrinsic_call(call)
 
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         _check_assignment(statement.target, statement.value)
@@ -138,3 +146,17 @@ def _is_arc4_mutable(wtype: wtypes.WType) -> bool:
         case wtypes.WTuple(types=types):
             return any(_is_arc4_mutable(t) for t in types)
     return False
+
+
+@attrs.define
+class _HasAssignmentVisitor(AWSTTraverser):
+    has_assignment: bool = False
+
+    @classmethod
+    def check(cls, expr: awst_nodes.Expression) -> bool:
+        visitor = _HasAssignmentVisitor()
+        expr.accept(visitor)
+        return visitor.has_assignment
+
+    def visit_assignment_expression(self, _: awst_nodes.AssignmentExpression) -> None:
+        self.has_assignment = True
