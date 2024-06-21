@@ -80,7 +80,9 @@ def _init(
 
     key_arg = arg_mapping.pop("key", None)
     if arg_mapping:
-        logger.error(f"unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
+        logger.error(
+            f"unrecognised keyword argument(s): {", ".join(arg_mapping)}", location=location
+        )
 
     if result_type is None:
         result_type = pytypes.GenericBoxType.parameterise([content], location)

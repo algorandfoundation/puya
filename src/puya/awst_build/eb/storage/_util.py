@@ -140,7 +140,7 @@ def _eval_slice_component(
 
     int_lit = val.value
     if not isinstance(int_lit, int):
-        logger.error(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
+        logger.error(f"Invalid literal for slicing: {int_lit!r}", location=val.source_location)
         int_lit = 0
 
     # take the min of abs(int_lit) and len(self.expr)
