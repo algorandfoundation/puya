@@ -6,7 +6,6 @@ import attrs
 import mypy.nodes
 
 from puya import arc4_util, log
-from puya.awst import nodes as awst_nodes
 from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puya.awst_build.eb.factories import builder_for_type
@@ -51,13 +50,18 @@ class ARC4Signature:
 
 
 def get_arc4_signature(
-    method_sig: str,
-    native_args: Sequence[InstanceBuilder],
-    loc: SourceLocation,
+    method_sig: str, native_args: Sequence[InstanceBuilder], loc: SourceLocation
 ) -> ARC4Signature:
-    method_name, arg_types, return_type = _parse_method_signature(method_sig, loc)
-    if arg_types is None:
+    method_name, maybe_args, maybe_returns = _split_signature(method_sig, loc)
+    if maybe_args is None:
         arg_types = [_implicit_arc4_type_conversion(na.pytype, loc) for na in native_args]
+    elif maybe_args:
+        arg_types = [
+            arc4_utils.arc4_to_pytype(a, loc) for a in arc4_util.split_tuple_types(maybe_args)
+        ]
+    else:  # args are specified but empty
+        arg_types = []
+    return_type = arc4_utils.arc4_to_pytype(maybe_returns, loc) if maybe_returns else None
     return ARC4Signature(method_name, arg_types, return_type)
 
 
@@ -113,17 +117,6 @@ def _implicit_arc4_conversion(
     )
 
 
-def arc4_tuple_from_items(
-    items: Sequence[awst_nodes.Expression], source_location: SourceLocation
-) -> awst_nodes.ARC4Encode:
-    args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
-    return awst_nodes.ARC4Encode(
-        value=args_tuple,
-        wtype=arc4_util.make_tuple_wtype(args_tuple.wtype.types, source_location),
-        source_location=source_location,
-    )
-
-
 def _split_signature(
     signature: str, location: SourceLocation | None
 ) -> tuple[str, str | None, str | None]:
@@ -168,17 +161,4 @@ def _split_signature(
                 returns = remaining
     if not name or not _VALID_NAME_PATTERN.match(name):
         raise CodeError(f"Invalid signature: {name=}", location)
-    return name, args, returns
-
-
-def _parse_method_signature(
-    signature: str, location: SourceLocation
-) -> tuple[str, list[pytypes.PyType] | None, pytypes.PyType | None]:
-    name, maybe_args, maybe_returns = _split_signature(signature, location)
-    args = (
-        [arc4_utils.arc4_to_pytype(a, location) for a in arc4_util.split_tuple_types(maybe_args)]
-        if maybe_args
-        else None
-    )
-    returns = arc4_utils.arc4_to_pytype(maybe_returns, location) if maybe_returns else None
     return name, args, returns
