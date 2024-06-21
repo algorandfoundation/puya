@@ -27,12 +27,7 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._base import FunctionBuilder
-from puya.awst_build.eb.arc4._utils import (
-    ARC4Signature,
-    arc4_tuple_from_items,
-    get_arc4_args_and_signature,
-    implicit_arc4_conversion,
-)
+from puya.awst_build.eb.arc4._utils import ARC4Signature, arc4_tuple_from_items, get_arc4_signature
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -184,18 +179,19 @@ def _abi_call(
         case None:
             raise CodeError("missing required positional argument 'method'", location)
         case LiteralBuilder(value=str(method_str)):
-            arc4_args, signature = get_arc4_args_and_signature(method_str, abi_args, location)
-            if return_type_annotation is not None:
+            signature = get_arc4_signature(method_str, abi_args, location)
+            declared_result_type = return_type_annotation
+            if declared_result_type is not None:
                 # this will be validated against signature below, by comparing
                 # the generated method_selector against the supplied method_str
-                signature = attrs.evolve(signature, return_type=return_type_annotation)
+                signature = attrs.evolve(signature, return_type=declared_result_type)
             elif signature.return_type is None:
                 signature = attrs.evolve(signature, return_type=pytypes.NoneType)
             if not signature.method_selector.startswith(method_str):
-                raise CodeError(
+                logger.error(
                     f"method selector from args '{signature.method_selector}' "
                     f"does not match provided method selector: '{method_str}'",
-                    method.source_location,
+                    location=method.source_location,
                 )
         case InstanceBuilder(pytype=pytypes.StrLiteralType):
             raise CodeError(
@@ -209,42 +205,30 @@ def _abi_call(
             #       like we do for function body evaluation, and then these types should make the
             #       resulting metadata (decorator args, function signature) available on them,
             #       instead of shunting the context object around
-            explicit_abi_return_type = return_type_annotation
-            signature, return_type_annotation = _get_arc4_signature_and_return_pytype(
+            signature, declared_result_type = _get_arc4_signature_and_return_pytype(
                 context, node, location
             )
             if (
-                explicit_abi_return_type is not None
-                and return_type_annotation != explicit_abi_return_type
+                return_type_annotation is not None
+                and return_type_annotation != declared_result_type
             ):
                 logger.error(
                     "mismatch between return type of method and generic parameter",
                     location=location,
                 )
-            num_args = len(abi_args)
-            num_sig_args = len(signature.arg_types)
-            if num_sig_args != num_args:
-                msg = (
-                    f"expected {num_sig_args} positional argument{'' if num_args == 1 else 's'},"
-                    f" got {num_args}"
-                )
-                if num_args > num_sig_args:
-                    logger.error(msg, location=location)
-                else:
-                    raise CodeError(msg, location)
-            arc4_args = [
-                implicit_arc4_conversion(arg, pt)
-                for arg, pt in zip(abi_args, signature.arg_types, strict=False)
-            ]
         case _:
             raise CodeError("unexpected argument type", method.source_location)
+
     if signature.return_type is None:
         raise InternalError("expected ARC4Signature.return_type to be defined", location)
+
+    arc4_args = signature.convert_args(abi_args, location)
+
     return _create_abi_call_expr(
         method_selector=signature.method_selector,
         signature_return_type=signature.return_type,
         abi_args=arc4_args,
-        declared_result_type=return_type_annotation,
+        declared_result_type=declared_result_type,
         transaction_kwargs=transaction_kwargs,
         location=location,
     )

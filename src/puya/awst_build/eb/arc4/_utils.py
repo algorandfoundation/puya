@@ -6,9 +6,7 @@ import attrs
 import mypy.nodes
 
 from puya import arc4_util, log
-from puya.awst import (
-    nodes as awst_nodes,
-)
+from puya.awst import nodes as awst_nodes
 from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puya.awst_build.eb.factories import builder_for_type
@@ -22,7 +20,68 @@ logger = log.get_logger(__name__)
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
-def implicit_arc4_conversion(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+@attrs.frozen
+class ARC4Signature:
+    method_name: str
+    arg_types: Sequence[pytypes.PyType] = attrs.field(converter=tuple[pytypes.PyType, ...])
+    return_type: pytypes.PyType | None
+
+    @property
+    def method_selector(self) -> str:
+        args = ",".join(map(arc4_utils.pytype_to_arc4, self.arg_types))
+        return_type = arc4_utils.pytype_to_arc4(self.return_type or pytypes.NoneType)
+        return f"{self.method_name}({args}){return_type}"
+
+    def convert_args(
+        self, native_args: Sequence[InstanceBuilder], location: SourceLocation
+    ) -> Sequence[InstanceBuilder]:
+        num_args = len(native_args)
+        num_sig_args = len(self.arg_types)
+        if num_sig_args != num_args:
+            logger.error(
+                f"expected {num_sig_args} ABI argument{'' if num_sig_args == 1 else 's'},"
+                f" got {num_args}",
+                location=location,
+            )
+        arc4_args = [
+            _implicit_arc4_conversion(arg, pt)
+            for arg, pt in zip(native_args, self.arg_types, strict=False)
+        ]
+        return arc4_args
+
+
+def get_arc4_signature(
+    method_sig: str,
+    native_args: Sequence[InstanceBuilder],
+    loc: SourceLocation,
+) -> ARC4Signature:
+    method_name, arg_types, return_type = _parse_method_signature(method_sig, loc)
+    if arg_types is None:
+        arg_types = [_implicit_arc4_type_conversion(na.pytype, loc) for na in native_args]
+    return ARC4Signature(method_name, arg_types, return_type)
+
+
+def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
+    match typ:
+        case pytypes.StrLiteralType:
+            return pytypes.ARC4StringType
+        case pytypes.BytesLiteralType:
+            return pytypes.ARC4DynamicBytesType
+        case pytypes.IntLiteralType:
+            return pytypes.ARC4UIntN_Aliases[64]
+
+    def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
+        raise CodeError(
+            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
+            loc,
+        )
+
+    return pytype_to_arc4_pytype(typ, on_error)
+
+
+def _implicit_arc4_conversion(
+    operand: NodeBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
     from puya.awst.wtypes import ARC4Type
 
     operand = require_instance_builder(operand)
@@ -51,59 +110,6 @@ def implicit_arc4_conversion(operand: NodeBuilder, target_type: pytypes.PyType) 
         arg_kinds=[mypy.nodes.ARG_POS],
         location=operand.source_location,
     )
-
-
-@attrs.frozen
-class ARC4Signature:
-    method_name: str
-    arg_types: Sequence[pytypes.PyType] = attrs.field(converter=tuple[pytypes.PyType, ...])
-    return_type: pytypes.PyType | None
-
-    @property
-    def method_selector(self) -> str:
-        args = ",".join(map(arc4_utils.pytype_to_arc4, self.arg_types))
-        return_type = self.return_type or pytypes.NoneType
-        return f"{self.method_name}({args}){arc4_utils.pytype_to_arc4(return_type)}"
-
-
-def get_arc4_args_and_signature(
-    method_sig: str,
-    native_args: Sequence[InstanceBuilder],
-    loc: SourceLocation,
-) -> tuple[list[InstanceBuilder], ARC4Signature]:
-    method_name, arg_types, return_type = _parse_method_signature(method_sig, loc)
-    if arg_types is None:
-        arg_types = [_implicit_arc4_type_conversion(na.pytype, loc) for na in native_args]
-    else:
-        num_args = len(native_args)
-        sig_num_args = len(arg_types)
-        if sig_num_args != num_args:
-            raise CodeError(
-                f"number of arguments ({num_args}) does not match signature ({sig_num_args})", loc
-            )
-
-    arc4_args = [
-        implicit_arc4_conversion(arg, pt) for arg, pt in zip(native_args, arg_types, strict=True)
-    ]
-    return arc4_args, ARC4Signature(method_name, arg_types, return_type)
-
-
-def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
-    match typ:
-        case pytypes.StrLiteralType:
-            return pytypes.ARC4StringType
-        case pytypes.BytesLiteralType:
-            return pytypes.ARC4DynamicBytesType
-        case pytypes.IntLiteralType:
-            return pytypes.ARC4UIntN_Aliases[64]
-
-    def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
-        raise CodeError(
-            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
-            loc,
-        )
-
-    return pytype_to_arc4_pytype(typ, on_error)
 
 
 def arc4_tuple_from_items(
