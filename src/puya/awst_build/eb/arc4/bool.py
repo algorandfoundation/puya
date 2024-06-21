@@ -9,7 +9,7 @@ from puya.awst.nodes import ARC4Decode, ARC4Encode, BoolConstant, Expression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_bytes, expect_at_most_one_arg
+from puya.awst_build.eb._utils import compare_bytes, dummy_value, expect_at_most_one_arg
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -52,15 +52,14 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect_at_most_one_arg(args, location)
-        default_value: Expression = BoolConstant(value=False, source_location=location)
         match arg:
             case None:
-                native_bool = default_value
+                native_bool: Expression = BoolConstant(value=False, source_location=location)
             case InstanceBuilder(pytype=pytypes.BoolType):
                 native_bool = arg.resolve()
             case _:
                 logger.error("unexpected argument type", location=arg.source_location)
-                native_bool = default_value
+                return dummy_value(self.produces(), arg.source_location)
         return ARC4BoolExpressionBuilder(
             ARC4Encode(value=native_bool, wtype=wtypes.arc4_bool_wtype, source_location=location)
         )
@@ -74,7 +73,12 @@ class ARC4BoolExpressionBuilder(
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(self, false_bytes=b"\x00", location=location, negate=negate)
+        return arc4_bool_bytes(
+            self,
+            false_bytes=b"\x00",
+            negate=negate,
+            location=location,
+        )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

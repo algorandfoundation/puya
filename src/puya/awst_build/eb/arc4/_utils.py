@@ -112,7 +112,8 @@ def _implicit_arc4_conversion(
         )
     if isinstance(operand.pytype.wtype, ARC4Type):
         logger.error(
-            f"expected type {target_type}, got type {operand.pytype}", location=operand.source_location
+            f"expected type {target_type}, got type {operand.pytype}",
+            location=operand.source_location,
         )
         return dummy_value(target_type, operand.source_location)
     if operand.pytype.wtype not in target_wtype.encodeable_types:

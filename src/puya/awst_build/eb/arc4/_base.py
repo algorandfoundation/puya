@@ -179,7 +179,9 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     @typing.override
     @typing.final
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        logger.error("item containment with ARC4 arrays is currently unsupported", location=location)
+        logger.error(
+            "item containment with ARC4 arrays is currently unsupported", location=location
+        )
         return dummy_value(pytypes.BoolType, location)
 
     @typing.override
