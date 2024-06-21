@@ -2,8 +2,11 @@ from algopy import (
     ARC4Contract,
     Bytes,
     OnCompleteAction,
+    String,
+    UInt64,
     arc4,
     itxn,
+    op,
 )
 
 LOG_1ST_ARG_AND_APPROVE = (
@@ -26,7 +29,15 @@ class FieldTupleContract(ARC4Contract):
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 on_completion=OnCompleteAction.DeleteApplication,
-                app_args=(Bytes(b"1a"), Bytes(b"2a")),
+                app_args=(
+                    Bytes(b"1a"),
+                    Bytes(b"2a"),
+                    b"hello",
+                    "world",
+                    String("!"),
+                    UInt64(42),
+                    True,
+                ),
             ),
             itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
@@ -40,6 +51,11 @@ class FieldTupleContract(ARC4Contract):
 
         assert txn_1.app_args(0) == b"1a"
         assert txn_1.app_args(1) == b"2a"
+        assert txn_1.app_args(2) == b"hello"
+        assert txn_1.app_args(3) == b"world"
+        assert txn_1.app_args(4) == b"!"
+        assert txn_1.app_args(5) == op.itob(42)
+        assert txn_1.app_args(6) == op.itob(1)
         assert txn_2.app_args(0) == b"3a"
         assert txn_2.app_args(1) == b"4a"
         assert txn_2.app_args(2) == b"5a"

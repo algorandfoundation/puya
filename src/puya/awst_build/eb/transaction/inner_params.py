@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     INNER_PARAM_TXN_FIELDS,
@@ -10,6 +11,7 @@ from puya.awst.nodes import (
     CreateInnerTransaction,
     Expression,
     SubmitInnerTransaction,
+    TupleExpression,
     TxnField,
     TxnFields,
     UInt64Constant,
@@ -21,6 +23,7 @@ from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpress
 from puya.awst_build.eb._utils import bool_eval_to_constant, expect_no_args
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
+from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
@@ -31,6 +34,7 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
+logger = log.get_logger(__name__)
 _parameter_mapping: typing.Final = {
     get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype))
     for f in INNER_PARAM_TXN_FIELDS
@@ -46,13 +50,33 @@ def get_field_expr(arg_name: str, arg: InstanceBuilder) -> tuple[TxnField, Expre
         return remapped_field
     elif field.is_array:
         match arg:
+            case TupleLiteralBuilder(
+                items=items,
+                source_location=tup_loc,
+            ) if field == TxnFields.app_args:
+                for item in items:
+                    if item.pytype == pytypes.AccountType:
+                        logger.warning(
+                            f"{item.pytype} will not be added to foreign array,"
+                            f" use .bytes to suppress this warning",
+                            location=item.source_location,
+                        )
+                    elif item.pytype in (pytypes.AssetType, pytypes.ApplicationType):
+                        logger.warning(
+                            f"{item.pytype} will not be added to foreign array,"
+                            f" use .id to suppress this warning",
+                            location=item.source_location,
+                        )
+                expr: Expression = TupleExpression.from_items(
+                    [item.to_bytes(item.source_location) for item in items], tup_loc
+                )
+                return field, expr
             case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
                 field.valid_type(t.wtype) for t in tuple_item_types
             ):
                 expr = arg.resolve()
                 return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
-    # TODO(first): pull the below out, and reuse above inside tuples, allowing literals in tuples
     elif field_pytype == pytypes.BytesType:
         # this handles the overlapping case of allowing Bytes && String to a single field
         field_expr = arg.to_bytes(arg.source_location)
