@@ -22,10 +22,12 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import (
+    default_expect_none,
     dummy_statement,
     dummy_value,
     expect_argument_of_type,
     expect_exactly_one_arg,
+    expect_exactly_one_arg_of_type,
     expect_no_args,
 )
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
@@ -33,7 +35,7 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import require_instance_builder, require_instance_builder_of_type
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -186,8 +188,8 @@ class _Append(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location)
-        args_expr = require_instance_builder_of_type(arg, self.typ.items).resolve()
+        arg = expect_exactly_one_arg_of_type(args, self.typ.items, location)
+        args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(
             ArrayExtend(
@@ -221,11 +223,17 @@ class _Extend(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location)
-        other = _match_array_concat_arg(arg, self.typ).resolve()
+        arg = expect_exactly_one_arg(args, location, default=default_expect_none)
+        if arg is None:
+            other = dummy_value(self.typ, location)
+        else:
+            other = _match_array_concat_arg(arg, self.typ)
         return VoidExpressionBuilder(
             ArrayExtend(
-                base=self.expr, other=other, wtype=wtypes.void_wtype, source_location=location
+                base=self.expr,
+                other=other.resolve(),
+                wtype=wtypes.void_wtype,
+                source_location=location,
             )
         )
 

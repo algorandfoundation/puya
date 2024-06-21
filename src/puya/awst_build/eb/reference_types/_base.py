@@ -56,11 +56,11 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
         if name in self.field_mapping:
             immediate, typ = self.field_mapping[name]
             acct_params_get = IntrinsicCall(
-                source_location=location,
-                wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
                 op_code=self.field_op_code,
                 immediates=[immediate],
                 stack_args=[self.resolve()],
+                wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
+                source_location=location,
             )
             checked_maybe = CheckedMaybe(acct_params_get, comment=self.field_bool_comment)
             return builder_for_instance(typ, checked_maybe)

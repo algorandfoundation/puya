@@ -20,7 +20,15 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes, compare_expr_bytes
+from puya.awst_build.eb._utils import (
+    cast_to_bytes,
+    compare_bytes,
+    compare_expr_bytes,
+    default_expect_none,
+    dummy_value,
+    expect_at_most_one_arg,
+    expect_exactly_one_arg,
+)
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -29,7 +37,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.reference_types._base import ReferenceValueExpressionBuilder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -43,7 +50,6 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
-        pytype = self.produces()
         match literal.value:
             case str(str_value):
                 if not wtypes.valid_address(str_value):
@@ -54,7 +60,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
                     )
                 expr = AddressConstant(
                     value=str_value,
-                    wtype=pytype.wtype,
+                    wtype=wtypes.account_wtype,
                     source_location=location,
                 )
                 return AccountExpressionBuilder(expr)
@@ -68,13 +74,14 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+        arg = expect_at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=AccountTypeBuilder(location))
-            case []:
+            case None:
                 value: Expression = intrinsic_factory.zero_address(location)
-            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                address_bytes_temp = eb.single_eval().resolve()
+            case InstanceBuilder(pytype=pytypes.BytesType):
+                address_bytes_temp = arg.single_eval().resolve()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
@@ -92,9 +99,8 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
                     comment="Address length is 32 bytes",
                 )
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                value = intrinsic_factory.zero_address(location)
+                logger.error("unexpected argument type", location=arg.source_location)
+                return dummy_value(self.produces(), arg.source_location)
         return AccountExpressionBuilder(value)
 
 
@@ -141,10 +147,10 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return compare_expr_bytes(
-            source_location=location,
             lhs=self.resolve(),
             op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
             rhs=intrinsic_factory.zero_address(location),
+            source_location=location,
         )
 
     @typing.override
@@ -168,14 +174,17 @@ class _IsOptedIn(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.AssetType) as asset]:
+        arg = expect_exactly_one_arg(args, location, default=default_expect_none)
+        match arg:
+            case None:
+                pass  # fall through to dummy
+            case InstanceBuilder(pytype=pytypes.AssetType):
                 return BoolExpressionBuilder(
                     TupleItemExpression(
                         base=IntrinsicCall(
                             op_code="asset_holding_get",
                             immediates=["AssetBalance"],
-                            stack_args=[self.expr, asset.resolve()],
+                            stack_args=[self.expr, arg.resolve()],
                             wtype=wtypes.WTuple(
                                 (wtypes.uint64_wtype, wtypes.bool_wtype), location
                             ),
@@ -185,13 +194,15 @@ class _IsOptedIn(FunctionBuilder):
                         source_location=location,
                     )
                 )
-            case [InstanceBuilder(pytype=pytypes.ApplicationType) as app]:
+            case InstanceBuilder(pytype=pytypes.ApplicationType):
                 return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",
-                        stack_args=[self.expr, app.resolve()],
+                        stack_args=[self.expr, arg.resolve()],
                         source_location=location,
                         wtype=wtypes.bool_wtype,
                     )
                 )
-        raise CodeError("Unexpected argument", location)
+            case _:
+                logger.error("unexpected argument type", location=arg.source_location)
+        return dummy_value(pytypes.BoolType, location)

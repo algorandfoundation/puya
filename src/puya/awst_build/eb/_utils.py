@@ -1,4 +1,5 @@
-from collections.abc import Sequence
+import typing
+from collections.abc import Callable, Sequence
 from itertools import zip_longest
 
 from puya import log
@@ -24,8 +25,9 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 from puya.awst_build.utils import require_instance_builder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+_T = typing.TypeVar("_T")
 
 logger = log.get_logger(__name__)
 
@@ -136,20 +138,42 @@ def expect_at_most_one_arg(
     return eb
 
 
+def default_expect_raise(msg: str, location: SourceLocation) -> typing.Never:
+    from puya.errors import CodeError
+
+    raise CodeError(msg, location)
+
+
+def default_expect_none(msg: str, location: SourceLocation) -> None:  # noqa: ARG001
+    return None
+
+
 def expect_at_least_one_arg(
-    args: Sequence[NodeBuilder], location: SourceLocation
-) -> tuple[InstanceBuilder, Sequence[InstanceBuilder]]:
+    args: Sequence[NodeBuilder],
+    location: SourceLocation,
+    *,
+    default: Callable[[str, SourceLocation], _T],
+) -> tuple[InstanceBuilder | _T, Sequence[InstanceBuilder]]:
     if not args:
-        raise CodeError("expected at least 1 argument, got 0", location)
+        msg = "expected at least 1 argument, got 0"
+        result = default(msg, location)
+        logger.error(msg, location=location)
+        return result, []
     first, *rest = map(require_instance_builder, args)
     return first, rest
 
 
 def expect_exactly_one_arg(
-    args: Sequence[NodeBuilder], location: SourceLocation
-) -> InstanceBuilder:
+    args: Sequence[NodeBuilder],
+    location: SourceLocation,
+    *,
+    default: Callable[[str, SourceLocation], _T],
+) -> InstanceBuilder | _T:
     if not args:
-        raise CodeError("expected 1 argument, got 0", location)
+        msg = "expected 1 argument, got 0"
+        result = default(msg, location)
+        logger.error(msg, location=location)
+        return result
     eb, *extra = map(require_instance_builder, args)
     if extra:
         logger.error(f"expected 1 argument, got {len(args)}", location=location)

@@ -12,6 +12,7 @@ from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilde
 from puya.awst_build.eb._utils import (
     bool_eval_to_constant,
     compare_bytes,
+    default_expect_raise,
     dummy_value,
     expect_exactly_one_arg,
     expect_exactly_one_arg_of_type,
@@ -41,7 +42,7 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location)
+        arg = expect_exactly_one_arg(args, location, default=default_expect_raise)
         match arg:
             case InstanceBuilder(
                 pytype=pytypes.TupleType(items=items, generic=pytypes.GenericTupleType)
