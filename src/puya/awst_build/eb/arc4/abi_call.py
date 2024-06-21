@@ -313,7 +313,7 @@ def _create_abi_call_expr(
     }
     for arr_field, arr_field_values in array_fields.items():
         if arr_field_values:
-            if arr_field == TxnFields.app_args and len(arr_field_values) > 15:
+            if arr_field == TxnFields.app_args and len(arr_field_values) > 16:
                 args_to_pack = arr_field_values[15:]
                 arr_field_values[15:] = [
                     _arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
