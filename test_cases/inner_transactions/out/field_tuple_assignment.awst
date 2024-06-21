@@ -5,10 +5,15 @@ contract FieldTupleContract
 {
   abimethod test_assign_tuple(): void
   {
-    create_txns: tuple<inner_transaction_fields_appl,inner_transaction_fields_appl> = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3161">, hex<"3261">)), create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3361">, hex<"3461">, hex<"3561">), Note=hex<"646966666572656E7420706172616D20736574">))
+    create_txns: tuple<inner_transaction_fields_appl,inner_transaction_fields_appl> = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3161">, hex<"3261">, hex<"68656C6C6F">, 'world', reinterpret_cast<bytes>('!'), itob(42u), itob(true))), create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3361">, hex<"3461">, hex<"3561">), Note=hex<"646966666572656E7420706172616D20736574">))
     (txn_1, txn_2): tuple<inner_transaction_appl,inner_transaction_appl> = submit_txn(create_txns[0], create_txns[1])
     assert(txn_1.ApplicationArgs[0u] == hex<"3161">)
     assert(txn_1.ApplicationArgs[1u] == hex<"3261">)
+    assert(txn_1.ApplicationArgs[2u] == hex<"68656C6C6F">)
+    assert(txn_1.ApplicationArgs[3u] == hex<"776F726C64">)
+    assert(txn_1.ApplicationArgs[4u] == hex<"21">)
+    assert(txn_1.ApplicationArgs[5u] == itob(42u))
+    assert(txn_1.ApplicationArgs[6u] == itob(1u))
     assert(txn_2.ApplicationArgs[0u] == hex<"3361">)
     assert(txn_2.ApplicationArgs[1u] == hex<"3461">)
     assert(txn_2.ApplicationArgs[2u] == hex<"3561">)

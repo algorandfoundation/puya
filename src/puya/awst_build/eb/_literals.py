@@ -10,7 +10,7 @@ from puya.awst.nodes import (
     Lvalue,
     Statement,
 )
-from puya.awst_build import pytypes
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -79,6 +79,8 @@ class LiteralBuilderImpl(LiteralBuilder):
                 return BytesConstant(
                     value=bytes_value, encoding=BytesEncoding.unknown, source_location=location
                 )
+            case bool():
+                return intrinsic_factory.itob(self.resolve(), location)
         raise CodeError(f"cannot serialize literal of type {self.pytype}", location)
 
     @typing.override
