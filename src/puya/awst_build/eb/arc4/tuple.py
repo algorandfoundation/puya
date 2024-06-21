@@ -10,7 +10,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb._base import GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, expect_exactly_one_arg
-from puya.awst_build.eb.arc4.base import ARC4TypeBuilder
+from puya.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,

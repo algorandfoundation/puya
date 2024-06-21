@@ -15,7 +15,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder
+from puya.awst_build.eb.arc4.dynamic_array import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder

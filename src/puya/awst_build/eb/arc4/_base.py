@@ -1,18 +1,42 @@
 import abc
 import typing
+from abc import ABC
 from collections.abc import Sequence
 
 import mypy.nodes
 import typing_extensions
 
 from puya import log
-from puya.awst.nodes import BytesConstant, BytesEncoding, CheckedMaybe, Copy, Expression
+from puya.awst.nodes import (
+    BytesConstant,
+    BytesEncoding,
+    CheckedMaybe,
+    Copy,
+    Expression,
+    IndexExpression,
+)
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import FunctionBuilder
-from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes, expect_exactly_one_arg, expect_no_args
+from puya.awst_build.eb._bytes_backed import (
+    BytesBackedInstanceExpressionBuilder,
+    BytesBackedTypeBuilder,
+)
+from puya.awst_build.eb._utils import (
+    compare_bytes,
+    compare_expr_bytes,
+    expect_exactly_one_arg,
+    expect_no_args,
+    resolve_negative_literal_index,
+)
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    Iteration,
+    NodeBuilder,
+)
+from puya.awst_build.utils import require_instance_builder
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -110,3 +134,59 @@ def arc4_bool_bytes(
         rhs=false_value,
         source_location=location,
     )
+
+
+class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.ArrayType], ABC):
+    @typing.override
+    def iterate(self) -> Iteration:
+        if not self.pytype.items.wtype.immutable:
+            logger.error(
+                "cannot directly iterate an ARC4 array of mutable objects,"
+                " construct a for-loop over the indexes via urange(<array>.length) instead",
+                location=self.source_location,
+            )
+        return self.resolve()
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        array_length = require_instance_builder(
+            self.member_access("length", index.source_location)
+        )
+        index = resolve_negative_literal_index(index, array_length, location)
+        result_expr = IndexExpression(
+            base=self.resolve(),
+            index=index.resolve(),
+            wtype=self.pytype.items.wtype,
+            source_location=location,
+        )
+        return builder_for_instance(self.pytype.items, result_expr)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        match name:
+            case "copy":
+                return CopyBuilder(self.resolve(), location, self.pytype)
+            case _:
+                return super().member_access(name, location)
+
+    @typing.override
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+
+    @typing.override
+    @typing.final
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        raise CodeError("item containment with ARC4 arrays is currently unsupported", location)
+
+    @typing.override
+    @typing.final
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        raise CodeError("slicing ARC4 arrays is currently unsupported", location)

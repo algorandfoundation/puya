@@ -20,7 +20,7 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedTypeBuilder,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
-from puya.awst_build.eb.arc4.base import CopyBuilder
+from puya.awst_build.eb.arc4._base import CopyBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import get_arg_mapping, require_instance_builder

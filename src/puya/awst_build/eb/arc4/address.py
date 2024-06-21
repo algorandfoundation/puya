@@ -18,7 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import compare_expr_bytes, expect_at_most_one_arg
-from puya.awst_build.eb.arc4.arrays import StaticArrayExpressionBuilder
+from puya.awst_build.eb.arc4.static_array import StaticArrayExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
