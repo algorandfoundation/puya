@@ -1,13 +1,13 @@
 contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract:
     program approval:
         subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.approval_program() -> bool:
-            block@0: // L21
+            block@0: // L24
                 let tmp%0#0: bool = (txn NumAppArgs)
                 goto tmp%0#0 ? block@1 : block@6
-            block@1: // abi_routing_L21
+            block@1: // abi_routing_L24
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%1#0 {method "test_assign_tuple()void" => block@2, method "test_assign_tuple_mixed()void" => block@3, * => fail // reject transaction}
-            block@2: // test_assign_tuple_route_L22
+            block@2: // test_assign_tuple_route_L25
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: bool = (! tmp%2#0)
                 (assert tmp%3#0) // OnCompletion is NoOp
@@ -15,7 +15,7 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 (assert tmp%4#0) // is not creating
                 test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple()
                 return 1u
-            block@3: // test_assign_tuple_mixed_route_L69
+            block@3: // test_assign_tuple_mixed_route_L85
                 let tmp%5#0: uint64 = (txn OnCompletion)
                 let tmp%6#0: bool = (! tmp%5#0)
                 (assert tmp%6#0) // OnCompletion is NoOp
@@ -23,7 +23,7 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 (assert tmp%7#0) // is not creating
                 test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed()
                 return 1u
-            block@6: // bare_routing_L21
+            block@6: // bare_routing_L24
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let not%tmp%8#0: bool = (! tmp%8#0)
                 (assert not%tmp%8#0) // reject transaction
@@ -33,10 +33,17 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 return 1u
         
         subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
-            block@0: // L22
+            block@0: // L25
+                let tmp%0#0: bytes = (itob 42u)
+                let tmp%1#0: bytes = (itob 1u)
                 itxn_begin
                 ((itxn_field ApplicationArgs) 0x3161)
                 ((itxn_field ApplicationArgs) 0x3261)
+                ((itxn_field ApplicationArgs) 0x68656c6c6f)
+                ((itxn_field ApplicationArgs) "world")
+                ((itxn_field ApplicationArgs) "!")
+                ((itxn_field ApplicationArgs) tmp%0#0)
+                ((itxn_field ApplicationArgs) tmp%1#0)
                 ((itxn_field OnCompletion) DeleteApplication)
                 ((itxn_field ClearStateProgramPages) 0x098101)
                 ((itxn_field ApprovalProgramPages) 0x098101)
@@ -53,21 +60,37 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let tmp%0#0: bytes = (gitxna 0 ApplicationArgs 0)
-                let tmp%1#0: bool = (== tmp%0#0 0x3161)
-                (assert tmp%1#0)
-                let tmp%2#0: bytes = (gitxna 0 ApplicationArgs 1)
-                let tmp%3#0: bool = (== tmp%2#0 0x3261)
+                let tmp%2#0: bytes = (gitxna 0 ApplicationArgs 0)
+                let tmp%3#0: bool = (== tmp%2#0 0x3161)
                 (assert tmp%3#0)
-                let tmp%4#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%5#0: bool = (== tmp%4#0 0x3361)
+                let tmp%4#0: bytes = (gitxna 0 ApplicationArgs 1)
+                let tmp%5#0: bool = (== tmp%4#0 0x3261)
                 (assert tmp%5#0)
-                let tmp%6#0: bytes = (itxna ApplicationArgs 1)
-                let tmp%7#0: bool = (== tmp%6#0 0x3461)
+                let tmp%6#0: bytes = (gitxna 0 ApplicationArgs 2)
+                let tmp%7#0: bool = (== tmp%6#0 0x68656c6c6f)
                 (assert tmp%7#0)
-                let tmp%8#0: bytes = (itxna ApplicationArgs 2)
-                let tmp%9#0: bool = (== tmp%8#0 0x3561)
+                let tmp%8#0: bytes = (gitxna 0 ApplicationArgs 3)
+                let tmp%9#0: bool = (== tmp%8#0 0x776f726c64)
                 (assert tmp%9#0)
+                let tmp%10#0: bytes = (gitxna 0 ApplicationArgs 4)
+                let tmp%11#0: bool = (== tmp%10#0 0x21)
+                (assert tmp%11#0)
+                let tmp%12#0: bytes = (gitxna 0 ApplicationArgs 5)
+                let tmp%14#0: bool = (== tmp%12#0 tmp%0#0)
+                (assert tmp%14#0)
+                let tmp%15#0: bytes = (gitxna 0 ApplicationArgs 6)
+                let tmp%16#0: bytes = (itob 1u)
+                let tmp%17#0: bool = (== tmp%15#0 tmp%16#0)
+                (assert tmp%17#0)
+                let tmp%18#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%19#0: bool = (== tmp%18#0 0x3361)
+                (assert tmp%19#0)
+                let tmp%20#0: bytes = (itxna ApplicationArgs 1)
+                let tmp%21#0: bool = (== tmp%20#0 0x3461)
+                (assert tmp%21#0)
+                let tmp%22#0: bytes = (itxna ApplicationArgs 2)
+                let tmp%23#0: bool = (== tmp%22#0 0x3561)
+                (assert tmp%23#0)
                 itxn_begin
                 ((itxn_field Note) 0x646966666572656e7420706172616d20736574)
                 ((itxn_field ApplicationArgs) 0x3362)
@@ -81,30 +104,34 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 itxn_next
                 ((itxn_field ApplicationArgs) 0x3162)
                 ((itxn_field ApplicationArgs) 0x3262)
+                goto block@5
+            block@5: // next_field_L66
                 ((itxn_field OnCompletion) DeleteApplication)
                 ((itxn_field ClearStateProgramPages) 0x098101)
                 ((itxn_field ApprovalProgramPages) 0x098101)
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let tmp%10#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%11#0: bool = (== tmp%10#0 0x3162)
-                (assert tmp%11#0)
-                let tmp%12#0: bytes = (itxna ApplicationArgs 1)
-                let tmp%13#0: bool = (== tmp%12#0 0x3262)
-                (assert tmp%13#0)
-                let tmp%14#0: bytes = (gitxna 0 ApplicationArgs 0)
-                let tmp%15#0: bool = (== tmp%14#0 0x3362)
-                (assert tmp%15#0)
-                let tmp%16#0: bytes = (gitxna 0 ApplicationArgs 1)
-                let tmp%17#0: bool = (== tmp%16#0 0x3462)
-                (assert tmp%17#0)
-                let tmp%18#0: bytes = (gitxna 0 ApplicationArgs 2)
-                let tmp%19#0: bool = (== tmp%18#0 0x3562)
-                (assert tmp%19#0)
+                let tmp%24#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%25#0: bool = (== tmp%24#0 0x3162)
+                (assert tmp%25#0)
+                let tmp%26#0: bytes = (itxna ApplicationArgs 1)
+                let tmp%27#0: bool = (== tmp%26#0 0x3262)
+                (assert tmp%27#0)
+                let tmp%28#0: bytes = (gitxna 0 ApplicationArgs 0)
+                let tmp%29#0: bool = (== tmp%28#0 0x3362)
+                (assert tmp%29#0)
+                let tmp%30#0: bytes = (gitxna 0 ApplicationArgs 1)
+                let tmp%31#0: bool = (== tmp%30#0 0x3462)
+                (assert tmp%31#0)
+                let tmp%32#0: bytes = (gitxna 0 ApplicationArgs 2)
+                let tmp%33#0: bool = (== tmp%32#0 0x3562)
+                (assert tmp%33#0)
                 itxn_begin
                 ((itxn_field ApplicationArgs) 0x3163)
                 ((itxn_field ApplicationArgs) 0x3263)
+                goto block@8
+            block@8: // next_field_L77
                 ((itxn_field OnCompletion) DeleteApplication)
                 ((itxn_field ClearStateProgramPages) 0x098101)
                 ((itxn_field ApprovalProgramPages) 0x098101)
@@ -121,25 +148,25 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let tmp%20#0: bytes = (gitxna 0 ApplicationArgs 0)
-                let tmp%21#0: bool = (== tmp%20#0 0x3163)
-                (assert tmp%21#0)
-                let tmp%22#0: bytes = (gitxna 0 ApplicationArgs 1)
-                let tmp%23#0: bool = (== tmp%22#0 0x3263)
-                (assert tmp%23#0)
-                let tmp%24#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%25#0: bool = (== tmp%24#0 0x3363)
-                (assert tmp%25#0)
-                let tmp%26#0: bytes = (itxna ApplicationArgs 1)
-                let tmp%27#0: bool = (== tmp%26#0 0x3463)
-                (assert tmp%27#0)
-                let tmp%28#0: bytes = (itxna ApplicationArgs 2)
-                let tmp%29#0: bool = (== tmp%28#0 0x3563)
-                (assert tmp%29#0)
+                let tmp%34#0: bytes = (gitxna 0 ApplicationArgs 0)
+                let tmp%35#0: bool = (== tmp%34#0 0x3163)
+                (assert tmp%35#0)
+                let tmp%36#0: bytes = (gitxna 0 ApplicationArgs 1)
+                let tmp%37#0: bool = (== tmp%36#0 0x3263)
+                (assert tmp%37#0)
+                let tmp%38#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%39#0: bool = (== tmp%38#0 0x3363)
+                (assert tmp%39#0)
+                let tmp%40#0: bytes = (itxna ApplicationArgs 1)
+                let tmp%41#0: bool = (== tmp%40#0 0x3463)
+                (assert tmp%41#0)
+                let tmp%42#0: bytes = (itxna ApplicationArgs 2)
+                let tmp%43#0: bool = (== tmp%42#0 0x3563)
+                (assert tmp%43#0)
                 return 
         
         subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
-            block@0: // L69
+            block@0: // L85
                 itxn_begin
                 ((itxn_field ApplicationArgs) 0x3161)
                 ((itxn_field ApplicationArgs) 0x3261)
@@ -159,5 +186,5 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
     
     program clear-state:
         subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.clear_state_program() -> bool:
-            block@0: // L21
+            block@0: // L24
                 return 1u
