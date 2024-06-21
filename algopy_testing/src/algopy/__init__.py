@@ -9,10 +9,13 @@ from algopy_testing.models import (
     Global,
     GTxn,
     ITxn,
+    TemplateVar,
     Txn,
 )
 from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.state import GlobalState, LocalState
+from algopy_testing.utilities import OpUpFeeSource, ensure_budget
 
 from . import arc4, gtxn, itxn, op
 
@@ -23,6 +26,7 @@ __all__ = [
     "Asset",
     "BigUInt",
     "Bytes",
+    "BytesBacked",
     "Contract",
     "Global",
     "GlobalState",
@@ -33,10 +37,13 @@ __all__ = [
     "String",
     "TransactionType",
     "Txn",
+    "TemplateVar",
     "UInt64",
     "subroutine",
     "gtxn",
     "itxn",
     "arc4",
     "op",
+    "ensure_budget",
+    "OpUpFeeSource",
 ]

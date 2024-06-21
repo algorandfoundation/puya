@@ -7,10 +7,13 @@ import typing
 from collections.abc import Iterable, Reversible
 
 import algosdk
+from Cryptodome.Hash import SHA512
 
 from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
 from algopy_testing.decorators.abimethod import abimethod
+from algopy_testing.decorators.baremethod import baremethod
 from algopy_testing.models import Account
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import (
     as_bytes,
     as_int,
@@ -28,22 +31,22 @@ _ABI_LENGTH_SIZE = 2
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
 
-class _ABIEncoded(typing.Protocol):
-    @classmethod
-    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
-        """Construct an instance from the underlying bytes (no validation)"""
-        ...
-
-    @property
-    def bytes(self) -> algopy.Bytes:
-        """Get the underlying Bytes"""
-        ...
-
+class _ABIEncoded(BytesBacked, typing.Protocol):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
         ...
+
+
+def arc4_signature(signature: str, /) -> algopy.Bytes:
+    """Convert a signature to ARC4 bytes"""
+    import algopy
+
+    hashed_signature = SHA512.new(truncate="256")
+    hashed_signature.update(signature.encode("utf-8"))
+    return_value = hashed_signature.digest()[:4]
+    return algopy.Bytes(return_value)
 
 
 class String(_ABIEncoded):
@@ -1210,7 +1213,14 @@ def _decode(  # noqa: PLR0912, C901
 
 
 __all__ = [
+    "Address",
     "Bool",
+    "Byte",
+    "String",
+    "StaticArray",
+    "DynamicArray",
+    "DynamicBytes",
+    "Tuple",
     "UInt8",
     "UInt16",
     "UInt32",
@@ -1219,4 +1229,6 @@ __all__ = [
     "UInt256",
     "UInt512",
     "abimethod",
+    "baremethod",
+    "arc4_signature",
 ]

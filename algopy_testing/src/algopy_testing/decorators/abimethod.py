@@ -3,6 +3,8 @@ from __future__ import annotations
 import functools
 import typing
 
+import algosdk
+
 from algopy_testing.constants import UINT64_SIZE
 from algopy_testing.utils import int_to_bytes
 
@@ -18,6 +20,71 @@ if typing.TYPE_CHECKING:
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
+
+
+def _map_algopy_type_to_string(arg: typing.Any) -> str:  # noqa: PLR0911, C901, PLR0912
+    import algopy
+
+    if isinstance(arg, algopy.Bytes):
+        return "byte[]"
+    if isinstance(arg, algopy.arc4.Byte):
+        return "byte"
+    if isinstance(arg, algopy.arc4.Address):
+        return "address"
+    if isinstance(arg, algopy.arc4.Bool):
+        return "bool"
+    if isinstance(arg, algopy.String | algopy.arc4.String):
+        return "string"
+    if isinstance(arg, algopy.UInt64 | algopy.arc4.UInt64):
+        return "uint64"
+    if isinstance(arg, algopy.arc4.UInt16):
+        return "uint16"
+    if isinstance(arg, algopy.arc4.UInt32):
+        return "uint32"
+    if isinstance(arg, algopy.arc4.UInt64):
+        return "uint64"
+    if isinstance(arg, algopy.arc4.UInt128):
+        return "uint128"
+    if isinstance(arg, algopy.arc4.UInt256):
+        return "uint256"
+    if isinstance(arg, algopy.arc4.UInt512):
+        return "uint512"
+    if isinstance(arg, algopy.Account):
+        return "address"
+    if isinstance(arg, algopy.Asset):
+        return "asset"
+    if isinstance(arg, algopy.Application):
+        return "application"
+    if isinstance(arg, int):
+        return "uint64"
+    if isinstance(arg, algopy.arc4.StaticArray):
+        item_type = arg._array_item_t
+        if item_type is algopy.arc4.Byte:
+            size = typing.get_args(arg.__class__)[1]
+            return f"byte[{size}]"
+    if isinstance(arg, algopy.arc4.DynamicArray | algopy.arc4.StaticArray):
+        return f"byte[{arg.length}][]"  # TODO: fix size calculation
+    if arg is None:
+        return "void"
+    raise ValueError(f"Unsupported type: {type(arg).__name__}")
+
+
+def _generate_arc4_signature(
+    fn: typing.Callable[_P, _R], args: tuple[typing.Any, ...]
+) -> algopy.Bytes:
+    import algopy
+
+    args_without_txns = [
+        arg
+        for arg in args
+        if not isinstance(arg, algopy.gtxn.TransactionBase)  # type: ignore[arg-type, unused-ignore]
+    ]
+    arg_types = [
+        algosdk.abi.Argument(_map_algopy_type_to_string(arg)) for arg in args_without_txns
+    ]
+    return_type = algosdk.abi.Returns(_map_algopy_type_to_string(fn.__annotations__.get("return")))
+    method = algosdk.abi.Method(name=fn.__name__, args=arg_types, returns=return_type)
+    return algopy.Bytes(method.get_selector())
 
 
 def _extract_refs_from_args(
@@ -58,30 +125,33 @@ def _extract_bytes(value: object) -> algopy.Bytes:
 
 
 def _extract_and_append_txn_to_context(
-    context: AlgopyTestContext, args: tuple[typing.Any, ...], kwargs: dict[str, typing.Any]
+    context: AlgopyTestContext,
+    args: tuple[typing.Any, ...],
+    kwargs: dict[str, typing.Any],
+    fn: typing.Callable[_P, _R],
 ) -> None:
     import algopy
 
     context.add_transactions(_extract_refs_from_args(args, kwargs, algopy.gtxn.TransactionBase))
-    existing_indexes = {int(txn.group_index) for txn in context.get_transaction_group()}
-    new_group_txn_index = max(existing_indexes, default=-1) + 1
 
     context.add_transactions(
         [
-            context.any_app_call_txn(
-                group_index=1,
+            context.any_appl_txn(
                 sender=context.default_creator,
                 app_id=context.default_application,
                 accounts=_extract_refs_from_args(args, kwargs, algopy.Account),
                 assets=_extract_refs_from_args(args, kwargs, algopy.Asset),
                 apps=_extract_refs_from_args(args, kwargs, algopy.Application),
-                app_args=_extract_refs_from_args(args, kwargs, algopy.Bytes),
+                app_args=[
+                    _generate_arc4_signature(fn, args),
+                    *_extract_refs_from_args(args, kwargs, algopy.Bytes),
+                ],
                 approval_program_pages=_extract_refs_from_args(args, kwargs, algopy.Bytes),
                 clear_state_program_pages=_extract_refs_from_args(args, kwargs, algopy.Bytes),
             ),
         ]
     )
-    context.set_active_transaction_index(new_group_txn_index)
+    context.set_active_transaction_index(len(context.get_transaction_group()) - 1)
 
 
 @typing.overload
@@ -136,7 +206,7 @@ def abimethod(  # noqa: PLR0913
             if context is None or context._active_transaction_index is not None:
                 return fn(*args, **kwargs)
 
-            _extract_and_append_txn_to_context(context, args, kwargs)
+            _extract_and_append_txn_to_context(context, args[1:], kwargs, fn)
             return fn(*args, **kwargs)
 
         return wrapper

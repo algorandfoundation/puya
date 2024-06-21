@@ -69,13 +69,11 @@ def test_application_management() -> None:
 def test_transaction_group_management() -> None:
     with algopy_testing_context() as context:
         txn1 = context.any_pay_txn(
-            group_index=0,
             sender=context.default_creator,
             receiver=context.default_creator,
             amount=UInt64(1000),
         )
         txn2 = context.any_pay_txn(
-            group_index=1,
             sender=context.default_creator,
             receiver=context.default_creator,
             amount=UInt64(2000),
@@ -108,7 +106,7 @@ def test_last_itxn_access() -> None:
         dummy_asset = context.any_asset()
         contract.opt_in_dummy_asset(dummy_asset)
         assert len(context.get_last_inner_transaction_group()) == 1
-        itxn = context.get_last_submitted_inner_transaction()
+        itxn = context.get_last_submitted_itxn_loader().asset_transfer()
         assert itxn.asset_sender == context.default_application.address
         assert itxn.asset_receiver == context.default_application.address
         assert itxn.amount == UInt64(0)
@@ -165,7 +163,7 @@ def test_algopy_testing_context() -> None:
         get_test_context()
 
 
-def test_get_last_submitted_inner_transaction() -> None:
+def test_get_last_submitted_itxn_loader() -> None:
     with algopy_testing_context() as context:
         itxn1 = PaymentInnerTransaction(
             sender=context.default_creator,
@@ -178,7 +176,7 @@ def test_get_last_submitted_inner_transaction() -> None:
             amount=UInt64(2000),
         )
         context._append_inner_transaction_group([itxn1, itxn2])
-        last_itxn = context.get_last_submitted_inner_transaction()
+        last_itxn = context.get_last_submitted_itxn_loader().payment()
         assert last_itxn.amount == 2000
 
 

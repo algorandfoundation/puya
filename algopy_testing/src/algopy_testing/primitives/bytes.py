@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+
 from itertools import zip_longest
 
 from algopy_testing.constants import MAX_BYTES_SIZE

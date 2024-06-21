@@ -11,6 +11,8 @@ from algopy_testing.models import (
     Global,
     GTxn,
     ITxn,
+    StateTotals,
+    TemplateVar,
     uenumerate,
     urange,
 )
@@ -32,7 +34,9 @@ __all__ = [
     "LocalState",
     "OnCompleteAction",
     "String",
+    "StateTotals",
     "TransactionType",
+    "TemplateVar",
     "UInt64",
     "Account",
     "algopy_testing_context",

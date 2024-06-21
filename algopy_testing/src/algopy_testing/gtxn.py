@@ -24,12 +24,17 @@ from algopy_testing.utils import txn_type_to_bytes
 if TYPE_CHECKING:
     import algopy
 
+# NOTE: The actual access by group_index is not used, its there to comply with stubs
+# but user has no need to deal with that as we can reason on the index based
+# on position in gtxn group
+NULL_GTXN_GROUP_INDEX = -1
+
 
 @dataclass
 class _GroupTransaction:
     _fields: dict[str, typing.Any] = field(default_factory=dict)
 
-    group_index: algopy.UInt64 | int = field(default=0)
+    group_index: algopy.UInt64 | int = field(default=NULL_GTXN_GROUP_INDEX)
 
     def __init__(self, group_index: algopy.UInt64 | int) -> None:
         self.group_index = group_index
@@ -62,10 +67,16 @@ class TransactionBase(_GroupTransaction):
         self._fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        if name in _TransactionBaseFields.__annotations__:
-            return self._fields.get(name)
+        from algopy_testing import get_test_context
 
-        raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
+        if name not in _TransactionBaseFields.__annotations__:
+            raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
+
+        if name == "group_index":
+            context = get_test_context()
+            return context.get_transaction_group().index(self)
+
+        return self._fields.get(name)
 
 
 @dataclass
@@ -236,4 +247,5 @@ __all__ = [
     "KeyRegistrationFields",
     "AssetConfigFields",
     "AssetFreezeFields",
+    "NULL_GTXN_GROUP_INDEX",
 ]

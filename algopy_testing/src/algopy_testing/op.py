@@ -568,6 +568,47 @@ class JsonRef:
         return Bytes(result_string.encode())
 
 
+class Scratch:
+    @staticmethod
+    def load_bytes(a: UInt64 | int, /) -> Bytes:
+        from algopy_testing import get_test_context
+
+        context = get_test_context()
+        slot_content = context._scratch_space[a]
+        match slot_content:
+            case Bytes():
+                return slot_content
+            case bytes():
+                return Bytes(slot_content)
+            case UInt64() | int():
+                return itob(slot_content)
+
+        raise ValueError(f"Invalid scratch space type: {type(context._scratch_space[a])}")
+
+    @staticmethod
+    def load_uint64(a: UInt64 | int, /) -> UInt64:
+        from algopy_testing import get_test_context
+
+        context = get_test_context()
+        slot_content = context._scratch_space[a]
+        match slot_content:
+            case Bytes() | bytes():
+                return btoi(slot_content)
+            case UInt64():
+                return slot_content
+            case int():
+                return UInt64(slot_content)
+
+        raise ValueError(f"Invalid scratch space type: {type(slot_content)}")
+
+    @staticmethod
+    def store(a: UInt64 | int, b: Bytes | UInt64 | bytes | int, /) -> None:
+        from algopy_testing import get_test_context
+
+        context = get_test_context()
+        context._scratch_space[a] = b
+
+
 class _MultiKeyDict(dict[Any, Any]):
     def __init__(self, items: list[Any]):
         self[""] = ""
