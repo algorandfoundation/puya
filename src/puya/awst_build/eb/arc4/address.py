@@ -40,7 +40,6 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder | None:
-        pytype = self.produces()
         match literal.value:
             case str(str_value):
                 if not wtypes.valid_address(str_value):
@@ -51,7 +50,7 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
                     )
                 expr = AddressConstant(
                     value=str_value,
-                    wtype=pytype.wtype,
+                    wtype=wtypes.arc4_address_alias,
                     source_location=location,
                 )
                 return AddressExpressionBuilder(expr)
@@ -66,28 +65,23 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect_at_most_one_arg(args, location)
-        wtype = self.produces().wtype
         match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=AddressTypeBuilder(location))
             case None:
-                result: Expression = intrinsic_factory.zero_address(location, as_type=wtype)
+                result = _zero_address(location)
             case InstanceBuilder(pytype=pytypes.AccountType):
                 result = _address_from_native(arg)
             case InstanceBuilder(pytype=pytypes.BytesType):
-                address_bytes_temp = arg.single_eval().resolve()
+                arg = arg.single_eval()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
                     lhs=UInt64Constant(value=32, source_location=location),
-                    rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
+                    rhs=intrinsic_factory.bytes_len(arg.resolve(), location),
                 )
                 result = CheckedMaybe.from_tuple_items(
-                    expr=ReinterpretCast(
-                        expr=address_bytes_temp,
-                        wtype=wtype,
-                        source_location=address_bytes_temp.source_location,
-                    ),
+                    expr=_address_from_native(arg),
                     check=is_correct_length,
                     source_location=location,
                     comment="Address length is 32 bytes",
@@ -106,7 +100,7 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
         return compare_expr_bytes(
             lhs=self.resolve(),
             op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
-            rhs=intrinsic_factory.zero_address(location, as_type=self.pytype.wtype),
+            rhs=_zero_address(location),
             source_location=location,
         )
 
@@ -115,10 +109,8 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         match other:
-            case LiteralBuilder(value=str(str_value), source_location=literal_loc):
-                rhs: Expression = AddressConstant(
-                    value=str_value, wtype=self.pytype.wtype, source_location=literal_loc
-                )
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
+                rhs = other.resolve_literal(AddressTypeBuilder(other.source_location)).resolve()
             case InstanceBuilder(pytype=pytypes.AccountType):
                 rhs = _address_from_native(other)
             case InstanceBuilder(pytype=pytypes.ARC4AddressType):
@@ -136,15 +128,21 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
                 return super().member_access(name, location)
 
 
+def _zero_address(location: SourceLocation) -> Expression:
+    return intrinsic_factory.zero_address(location, as_type=wtypes.arc4_address_alias)
+
+
 def _address_to_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype == pytypes.ARC4AddressType
     return ReinterpretCast(
-        expr=builder.resolve(), wtype=wtypes.account_wtype, source_location=builder.source_location
+        expr=builder.resolve(),
+        wtype=wtypes.account_wtype,
+        source_location=builder.source_location,
     )
 
 
 def _address_from_native(builder: InstanceBuilder) -> Expression:
-    assert builder.pytype == pytypes.AccountType
+    assert builder.pytype in (pytypes.AccountType, pytypes.BytesType)
     return ReinterpretCast(
         expr=builder.resolve(),
         wtype=wtypes.arc4_address_alias,

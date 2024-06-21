@@ -364,6 +364,7 @@ def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
 def _arc4_tuple_from_items(
     items: Sequence[awst_nodes.Expression], source_location: SourceLocation
 ) -> awst_nodes.ARC4Encode:
+    # TODO: should we just allow TuplExpression to have an ARCTuple wtype?
     args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
     return awst_nodes.ARC4Encode(
         value=args_tuple,
