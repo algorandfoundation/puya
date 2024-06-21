@@ -18,6 +18,7 @@ from puya.awst_build.eb.interface import (
     LiteralBuilder,
     NodeBuilder,
 )
+from puya.awst_build.utils import require_instance_builder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -92,5 +93,11 @@ class ARC4BoolExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        # TODO(first): support comparisons with native bool
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        match other:
+            case InstanceBuilder(pytype=pytypes.BoolType):
+                lhs = require_instance_builder(self.member_access("native", location))
+                return lhs.compare(other, op, location)
+            case InstanceBuilder(pytype=pytypes.ARC4BoolType):
+                return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+            case _:
+                return NotImplemented

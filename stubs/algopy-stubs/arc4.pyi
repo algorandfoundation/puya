@@ -224,6 +224,8 @@ class Bool(_ABIEncoded):
     """An ARC4 encoded bool"""
 
     def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001, FBT002
+    def __eq__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
+    def __ne__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
     @property
     def native(self) -> bool:
         """Return the bool representation of the value after ARC4 decoding"""

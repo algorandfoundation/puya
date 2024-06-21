@@ -41,6 +41,11 @@ class Arc4BoolTypeContract(Contract):
 
         assert dynamic_boolean_array.bytes == Bytes.from_hex("0003A0")
 
+        assert ARC4Bool(True) == True  # noqa: E712
+        assert ARC4Bool(False) != True  # noqa: E712
+        assert False == ARC4Bool(False)  # noqa: E712, SIM300
+        assert False != ARC4Bool(True)  # noqa: E712, SIM300
+
         return True
 
     def clear_state_program(self) -> bool:
