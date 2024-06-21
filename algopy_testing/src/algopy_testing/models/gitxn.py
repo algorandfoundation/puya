@@ -39,4 +39,4 @@ class _GITxn:
         return value
 
 
-ITxn = _GITxn()
+GITxn = _GITxn()

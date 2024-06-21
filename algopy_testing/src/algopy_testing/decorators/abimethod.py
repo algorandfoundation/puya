@@ -63,7 +63,7 @@ def _map_algopy_type_to_string(arg: typing.Any) -> str:  # noqa: PLR0911, C901, 
             size = typing.get_args(arg.__class__)[1]
             return f"byte[{size}]"
     if isinstance(arg, algopy.arc4.DynamicArray | algopy.arc4.StaticArray):
-        return f"byte[{arg.length}][]"  # TODO: fix size calculation
+        return f"byte[{arg.bytes.length}][]"  # TODO: fix size calculation
     if arg is None:
         return "void"
     raise ValueError(f"Unsupported type: {type(arg).__name__}")
@@ -136,7 +136,7 @@ def _extract_and_append_txn_to_context(
 
     context.add_transactions(
         [
-            context.any_appl_txn(
+            context.any_application_call_transaction(
                 sender=context.default_creator,
                 app_id=context.default_application,
                 accounts=_extract_refs_from_args(args, kwargs, algopy.Account),

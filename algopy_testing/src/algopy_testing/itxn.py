@@ -477,12 +477,16 @@ class _BaseInnerTransactionResult:
                     self.fields[name] = algopy.Bytes(value)
                 elif isinstance(value, str):
                     self.fields[name] = algopy.Bytes(value.encode("utf-8"))
-                elif isinstance(value, tuple) and all(isinstance(v, bytes) for v in value):
+                elif isinstance(value, tuple):
                     # Convert each element in the tuple to algopy.Bytes
-                    self.fields[name] = tuple(algopy.Bytes(v) for v in value)
-                elif isinstance(value, tuple) and all(isinstance(v, str) for v in value):
-                    # Convert each element in the tuple to algopy.Bytes
-                    self.fields[name] = tuple(algopy.Bytes(v.encode("utf-8")) for v in value)
+                    self.fields[name] = tuple(
+                        algopy.Bytes(item)
+                        if isinstance(item, bytes)
+                        else algopy.Bytes(item.encode("utf-8"))
+                        if isinstance(item, str)
+                        else item
+                        for item in value
+                    )
                 elif isinstance(value, tuple) and all(
                     isinstance(
                         v,
@@ -612,4 +616,5 @@ __all__ = [
     "AssetFreezeInnerTransaction",
     "ApplicationCallInnerTransaction",
     "InnerTransactionResult",
+    "submit_txns",
 ]

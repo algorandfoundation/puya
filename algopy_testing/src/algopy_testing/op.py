@@ -574,7 +574,11 @@ class Scratch:
         from algopy_testing import get_test_context
 
         context = get_test_context()
-        slot_content = context._scratch_space[a]
+        active_txn = context.get_active_transaction()
+        if not active_txn:
+            raise ValueError("No active transaction found to reference scratch space")
+
+        slot_content = context._scratch_spaces[active_txn.txn_id][a]
         match slot_content:
             case Bytes():
                 return slot_content
@@ -582,15 +586,19 @@ class Scratch:
                 return Bytes(slot_content)
             case UInt64() | int():
                 return itob(slot_content)
-
-        raise ValueError(f"Invalid scratch space type: {type(context._scratch_space[a])}")
+            case _:
+                raise ValueError(f"Invalid scratch space type: {type(slot_content)}")
 
     @staticmethod
     def load_uint64(a: UInt64 | int, /) -> UInt64:
         from algopy_testing import get_test_context
 
         context = get_test_context()
-        slot_content = context._scratch_space[a]
+        active_txn = context.get_active_transaction()
+        if not active_txn:
+            raise ValueError("No active transaction found to reference scratch space")
+
+        slot_content = context._scratch_spaces[active_txn.txn_id][a]
         match slot_content:
             case Bytes() | bytes():
                 return btoi(slot_content)
@@ -598,15 +606,19 @@ class Scratch:
                 return slot_content
             case int():
                 return UInt64(slot_content)
-
-        raise ValueError(f"Invalid scratch space type: {type(slot_content)}")
+            case _:
+                raise ValueError(f"Invalid scratch space type: {type(slot_content)}")
 
     @staticmethod
     def store(a: UInt64 | int, b: Bytes | UInt64 | bytes | int, /) -> None:
         from algopy_testing import get_test_context
 
         context = get_test_context()
-        context._scratch_space[a] = b
+        active_txn = context.get_active_transaction()
+        if not active_txn:
+            raise ValueError("No active transaction found to reference scratch space")
+
+        context._scratch_spaces[active_txn.txn_id][a] = b
 
 
 class _MultiKeyDict(dict[Any, Any]):

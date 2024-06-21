@@ -13,7 +13,6 @@ import algosdk
 
 from algopy_testing.constants import (
     DEFAULT_GLOBAL_GENESIS_HASH,
-    DEFAULT_TEST_CTX_OPCODE_BUDGET,
     MAX_BYTES_SIZE,
     MAX_UINT64,
 )
@@ -95,55 +94,55 @@ class InnerTxnLoader:
         self.inner_txn_group = inner_txn_group
 
     def _get_inner_transaction(self, txn_type: type[T]) -> T:
-        txn = next(
-            (
-                txn
-                for txn in reversed(self.inner_txn_group)
-                if isinstance(txn, txn_type)  # type: ignore[arg-type, unused-ignore]
-            ),
-            None,
-        )
-        if txn is None:
-            raise ValueError(f"{txn_type.__name__} not found in inner transaction group!")
+        txn = self.inner_txn_group[-1]
+        if not isinstance(txn, txn_type):
+            raise TypeError(f"Last transaction is not of type {txn_type.__name__}!")
 
         return txn
 
+    @property
     def payment(self) -> algopy.itxn.PaymentInnerTransaction:
         """Retrieve the last PaymentInnerTransaction. Raises ValueError if not found."""
         import algopy
 
         return self._get_inner_transaction(algopy.itxn.PaymentInnerTransaction)
 
+    @property
     def asset_config(self) -> algopy.itxn.AssetConfigInnerTransaction:
         """Retrieve the last AssetConfigInnerTransaction. Raises ValueError if not found."""
         import algopy
 
         return self._get_inner_transaction(algopy.itxn.AssetConfigInnerTransaction)
 
+    @property
     def asset_transfer(self) -> algopy.itxn.AssetTransferInnerTransaction:
         """Retrieve the last AssetTransferInnerTransaction. Raises ValueError if not found."""
         import algopy
 
         return self._get_inner_transaction(algopy.itxn.AssetTransferInnerTransaction)
 
+    @property
     def asset_freeze(self) -> algopy.itxn.AssetFreezeInnerTransaction:
         """Retrieve the last AssetFreezeInnerTransaction. Raises ValueError if not found."""
         import algopy
 
         return self._get_inner_transaction(algopy.itxn.AssetFreezeInnerTransaction)
 
+    @property
     def application_call(self) -> algopy.itxn.ApplicationCallInnerTransaction:
         """Retrieve the last ApplicationCallInnerTransaction. Raises ValueError if not found."""
         import algopy
 
         return self._get_inner_transaction(algopy.itxn.ApplicationCallInnerTransaction)
 
+    @property
     def key_registration(self) -> algopy.itxn.KeyRegistrationInnerTransaction:
         """Retrieve the last KeyRegistrationInnerTransaction. Raises ValueError if not found."""
         import algopy
 
         return self._get_inner_transaction(algopy.itxn.KeyRegistrationInnerTransaction)
 
+    @property
     def transaction(self) -> algopy.itxn.InnerTransactionResult:
         """Retrieve the last InnerTransactionResult. Raises ValueError if not found."""
         import algopy
@@ -157,7 +156,6 @@ class AlgopyTestContext:
         *,
         default_creator: algopy.Account | None = None,
         default_application: algopy.Application | None = None,
-        default_opcode_budget: int | None = None,
         template_vars: dict[str, Any] | None = None,
     ) -> None:
         import algopy
@@ -174,8 +172,7 @@ class AlgopyTestContext:
         self._application_data: dict[int, ApplicationFields] = {}
         self._asset_data: dict[int, AssetFields] = {}
         self._inner_transaction_groups: list[Sequence[InnerTransactionResultType]] = []
-        self._scratch_space: list[algopy.Bytes | algopy.UInt64 | bytes | int] = [0] * 256
-        self._op_code_budgets: dict[algopy.Contract | algopy.ARC4Contract, int] = {}
+        self._scratch_spaces: dict[str, list[algopy.Bytes | algopy.UInt64 | bytes | int]] = {}
         self._template_vars: dict[str, Any] = template_vars or {}
 
         default_application_address = (
@@ -202,7 +199,6 @@ class AlgopyTestContext:
         self.default_application = default_application or self.any_application(
             address=default_application_address
         )
-        self.default_opcode_budget = default_opcode_budget or DEFAULT_TEST_CTX_OPCODE_BUDGET
 
     def patch_global_fields(self, **global_fields: Unpack[GlobalFields]) -> None:
         """
@@ -240,6 +236,16 @@ class AlgopyTestContext:
             )
 
         self._txn_fields.update(txn_fields)
+
+    def set_scratch_space(
+        self, txn: str, scratch_space: dict[int, algopy.Bytes | algopy.UInt64 | bytes | int]
+    ) -> None:
+        new_scratch_space: list[algopy.Bytes | algopy.UInt64 | bytes | int] = [0] * 256
+        # insert values to list at specific indexes, use key as index and value as value to set
+        for index, value in scratch_space.items():
+            new_scratch_space[index] = value
+
+        self._scratch_spaces[str(txn)] = new_scratch_space
 
     def set_template_var(self, name: str, value: Any) -> None:
         self._template_vars[name] = value
@@ -412,7 +418,6 @@ class AlgopyTestContext:
             contract (algopy.Contract | algopy.ARC4Contract): The contract to add.
         """
         self._contracts.append(contract)
-        self._op_code_budgets[contract] = self.default_opcode_budget
 
     def _append_inner_transaction_group(
         self,
@@ -428,7 +433,7 @@ class AlgopyTestContext:
 
         self._inner_transaction_groups.append(cast(list[algopy.itxn.InnerTransactionResult], itxn))
 
-    def get_last_inner_transaction_group(self) -> Sequence[InnerTransactionResultType]:
+    def get_itxn_group(self, index: int) -> Sequence[InnerTransactionResultType]:
         """
         Retrieve the last group of inner transactions.
 
@@ -441,12 +446,16 @@ class AlgopyTestContext:
 
         if not self._inner_transaction_groups:
             raise ValueError("No inner transaction groups submitted yet!")
-        return self._inner_transaction_groups[-1]
+        return self._inner_transaction_groups[index]
 
-    def get_last_submitted_itxn_loader(self) -> InnerTxnLoader:
+    def get_last_itxn_group(self) -> Sequence[InnerTransactionResultType]:
+        return self.get_itxn_group(-1)
+
+    @property
+    def last_submitted_inner_transaction(self) -> InnerTxnLoader:
         """
-        Retrieve the last submitted inner transaction loader which can be used to obtain
-        last submitted inner transactions of a specific type.
+        Retrieve the last submitted inner transaction from the
+        last inner transaction group (if both exist).
 
         Returns:
             InnerTxnLoader: The last submitted inner transaction loader.
@@ -455,7 +464,7 @@ class AlgopyTestContext:
             ValueError: If no inner transactions exist in the last inner transaction group.
         """
 
-        inner_transaction_group = self.get_last_inner_transaction_group()
+        inner_transaction_group = self.get_last_itxn_group()
         if not inner_transaction_group:
             raise ValueError("No inner transactions in the last inner transaction group!")
         return InnerTxnLoader(inner_transaction_group)
@@ -663,7 +672,7 @@ class AlgopyTestContext:
             "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length))
         )
 
-    def any_appl_txn(  # noqa: PLR0913
+    def any_application_call_transaction(  # noqa: PLR0913
         self,
         app_args: Sequence[algopy.Bytes] = [],
         accounts: Sequence[algopy.Account] = [],
@@ -671,6 +680,7 @@ class AlgopyTestContext:
         apps: Sequence[algopy.Application] = [],
         approval_program_pages: Sequence[algopy.Bytes] = [],
         clear_state_program_pages: Sequence[algopy.Bytes] = [],
+        scratch_space: dict[int, algopy.Bytes | algopy.UInt64 | int | bytes] | None = None,
         **kwargs: Unpack[_ApplicationCallFields],
     ) -> algopy.gtxn.ApplicationCallTransaction:
         """
@@ -698,9 +708,11 @@ class AlgopyTestContext:
         for key, value in {**kwargs, **callable_params}.items():
             setattr(new_txn, key, value)
 
+        self.set_scratch_space(new_txn.txn_id, scratch_space or {})
+
         return new_txn
 
-    def any_axfer_txn(
+    def any_asset_transfer_transaction(
         self, **kwargs: Unpack[AssetTransferFields]
     ) -> algopy.gtxn.AssetTransferTransaction:
         """
@@ -721,7 +733,9 @@ class AlgopyTestContext:
 
         return new_txn
 
-    def any_pay_txn(self, **kwargs: Unpack[PaymentFields]) -> algopy.gtxn.PaymentTransaction:
+    def any_payment_transaction(
+        self, **kwargs: Unpack[PaymentFields]
+    ) -> algopy.gtxn.PaymentTransaction:
         """
         Generate a new payment transaction with specified fields.
 
@@ -740,7 +754,7 @@ class AlgopyTestContext:
 
         return new_txn
 
-    def any_acfg_txn(
+    def any_asset_config_transaction(
         self, **kwargs: Unpack[AssetConfigFields]
     ) -> algopy.gtxn.AssetConfigTransaction:
         """
@@ -755,7 +769,7 @@ class AlgopyTestContext:
 
         return new_txn
 
-    def any_keyreg_transaction(
+    def any_key_registration_transaction(
         self, **kwargs: Unpack[KeyRegistrationFields]
     ) -> algopy.gtxn.KeyRegistrationTransaction:
         """
@@ -770,7 +784,7 @@ class AlgopyTestContext:
 
         return new_txn
 
-    def any_afrz_transaction(
+    def any_asset_freeze_transaction(
         self, **kwargs: Unpack[AssetFreezeFields]
     ) -> algopy.gtxn.AssetFreezeTransaction:
         """
@@ -808,14 +822,6 @@ class AlgopyTestContext:
             setattr(new_txn, key, value)
 
         return new_txn
-
-    def set_op_code_budget(
-        self, contract: algopy.Contract | algopy.ARC4Contract, budget: int
-    ) -> None:
-        """
-        Set the opcode budget for a contract.
-        """
-        self._op_code_budgets[contract] = budget
 
     def clear_inner_transaction_groups(self) -> None:
         """

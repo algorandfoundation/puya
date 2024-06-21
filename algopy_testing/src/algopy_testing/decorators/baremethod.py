@@ -18,7 +18,7 @@ def _append_bare_txn_to_context(
 ) -> None:
     context.add_transactions(
         [
-            context.any_appl_txn(
+            context.any_application_call_transaction(
                 sender=context.default_creator,
                 app_id=context.default_application,
             ),

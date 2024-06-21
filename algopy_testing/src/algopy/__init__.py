@@ -11,6 +11,8 @@ from algopy_testing.models import (
     ITxn,
     TemplateVar,
     Txn,
+    uenumerate,
+    urange,
 )
 from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 from algopy_testing.protocols import BytesBacked
@@ -44,6 +46,8 @@ __all__ = [
     "itxn",
     "arc4",
     "op",
+    "urange",
+    "uenumerate",
     "ensure_budget",
     "OpUpFeeSource",
 ]
