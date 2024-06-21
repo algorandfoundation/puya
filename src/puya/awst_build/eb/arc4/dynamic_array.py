@@ -136,20 +136,31 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     ) -> InstanceBuilder:
         if op != BuilderBinaryOp.add:
             return NotImplemented
+        if not _check_array_concat_arg(other, self.pytype):
+            return NotImplemented
 
-        lhs = self.resolve()
-        rhs = _match_array_concat_arg(other, self.pytype).resolve()
-
+        lhs: InstanceBuilder = self
+        rhs = other
         if reverse:
             (lhs, rhs) = (rhs, lhs)
         return DynamicArrayExpressionBuilder(
-            ArrayConcat(left=lhs, right=rhs, source_location=location, wtype=self.pytype.wtype),
+            ArrayConcat(
+                left=lhs.resolve(),
+                right=rhs.resolve(),
+                wtype=self.pytype.wtype,
+                source_location=location,
+            ),
             self.pytype,
         )
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(self, false_bytes=b"\x00\x00", location=location, negate=negate)
+        return arc4_bool_bytes(
+            self,
+            false_bytes=b"\x00\x00",
+            negate=negate,
+            location=location,
+        )
 
 
 class _ArrayFunc(FunctionBuilder, abc.ABC):
@@ -212,12 +223,18 @@ class _Extend(_ArrayFunc):
         )
 
 
-def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
+def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> bool:
     match arg:
         case InstanceBuilder(pytype=pytypes.ArrayType(items=arr_type.items)):
-            return arg
+            return True
         case InstanceBuilder(pytype=pytypes.TupleType(items=tup_items)) if all(
             ti == arr_type.items for ti in tup_items
         ):
-            return arg
+            return True
+    return False
+
+
+def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
+    if _check_array_concat_arg(arg, arr_type):
+        return arg
     raise CodeError("expected an array or tuple of the same element type", arg.source_location)
