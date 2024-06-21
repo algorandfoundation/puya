@@ -1089,24 +1089,24 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
 
     context = get_test_context()
     if isinstance(event, str):
-        arg_types = "(" + ",".join(_abi_type_name_for_event_arg(arg) for arg in args) + ")"
+        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in args) + ")"
 
         if event.find("(") == -1:
             event += arg_types
         elif event.find(arg_types) == -1:
             raise ValueError(f"Event signature {event} does not match args {args}")
 
-        args_tuple = tuple(_cast_event_arg(arg) for arg in args)
+        args_tuple = tuple(_cast_arg_as_arc4(arg) for arg in args)
         event_hash = algopy.Bytes(SHA512.new(event.encode(), truncate="256").digest())
         context.logs.append((event_hash[:4] + Struct(*args_tuple).bytes).value)
     elif isinstance(event, Struct):
-        arg_types = "(" + ",".join(_abi_type_name_for_event_arg(arg) for arg in event._value) + ")"
+        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in event._value) + ")"
         event_str = event.__class__.__name__ + arg_types
         event_hash = algopy.Bytes(SHA512.new(event_str.encode(), truncate="256").digest())
         context.logs.append((event_hash[:4] + event.bytes).value)
 
 
-def _cast_event_arg(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
+def _cast_arg_as_arc4(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
     import algopy
 
     if isinstance(arg, bool):
@@ -1136,7 +1136,7 @@ def _cast_event_arg(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
     raise ValueError(f"Unsupported type {type(arg)} for ABI event")
 
 
-def _abi_type_name_for_event_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
+def _abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
     import algopy
 
     if isinstance(arg, String | algopy.String | str):
@@ -1166,11 +1166,11 @@ def _abi_type_name_for_event_arg(arg: object) -> str:  # noqa: PLR0912, C901, PL
     if isinstance(arg, BigUFixedNxM):
         return f"ufixed{arg._n}x{arg._m}"
     if isinstance(arg, StaticArray):
-        return f"{_abi_type_name_for_event_arg(arg[0])}[{arg.length.value}]"
+        return f"{_abi_type_name_for_arg(arg[0])}[{arg.length.value}]"
     if isinstance(arg, DynamicArray):
-        return f"{_abi_type_name_for_event_arg(arg[0])}[]"
+        return f"{_abi_type_name_for_arg(arg[0])}[]"
     if isinstance(arg, Tuple):
-        return f"({','.join(_abi_type_name_for_event_arg(a) for a in arg)})"
+        return f"({','.join(_abi_type_name_for_arg(a) for a in arg)})"
     raise ValueError(f"Unsupported type {type(arg)} for ABI event")
 
 
