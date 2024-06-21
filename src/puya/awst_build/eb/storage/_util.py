@@ -1,17 +1,18 @@
 import abc
 import typing
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxValueExpression,
     BytesConstant,
+    BytesEncoding,
     CheckedMaybe,
     ContractReference,
     Expression,
     IntrinsicCall,
     NumericComparison,
     NumericComparisonExpression,
-    SingleEvaluation,
     TupleItemExpression,
     UInt64BinaryOperation,
     UInt64BinaryOperator,
@@ -19,6 +20,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._utils import resolve_negative_literal_index
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -29,9 +31,9 @@ from puya.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import require_instance_builder_of_type
-from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+logger = log.get_logger(__name__)
 
 
 def index_box_bytes(
@@ -39,7 +41,7 @@ def index_box_bytes(
     index: InstanceBuilder,
     location: SourceLocation,
 ) -> InstanceBuilder:
-    box_length = UInt64ExpressionBuilder(box_length_unchecked(box, location))
+    box_length = box_length_unchecked(box, location)
     begin_index = resolve_negative_literal_index(index, box_length, location)
     return BytesExpressionBuilder(
         IntrinsicCall(
@@ -63,8 +65,8 @@ def slice_box_bytes(
     location: SourceLocation,
 ) -> InstanceBuilder:
     if stride:
-        raise CodeError("Stride is not supported when slicing boxes", location)
-    len_expr = SingleEvaluation(box_length_unchecked(box, location))
+        logger.error("stride is not supported when slicing boxes", location=location)
+    len_expr = box_length_unchecked(box, location).single_eval().resolve()
 
     begin_index_expr = _eval_slice_component(len_expr, begin_index, location) or UInt64Constant(
         value=0, source_location=location
@@ -88,14 +90,14 @@ def slice_box_bytes(
     )
 
 
-def box_length_unchecked(box: BoxValueExpression, location: SourceLocation) -> Expression:
+def box_length_unchecked(box: BoxValueExpression, location: SourceLocation) -> InstanceBuilder:
     box_len_expr = _box_len(box.key, location)
     box_length = TupleItemExpression(
         base=box_len_expr,
         index=0,
         source_location=location,
     )
-    return box_length
+    return UInt64ExpressionBuilder(box_length)
 
 
 def box_length_checked(box: BoxValueExpression, location: SourceLocation) -> Expression:
@@ -122,7 +124,7 @@ def _eval_slice_component(
     if not isinstance(val, LiteralBuilder):
         # no negatives to deal with here, easy
         temp_index = (
-            require_instance_builder_of_type(val, pytypes.UInt64Type).single_eval().resolve()
+            expect.argument_of_type_else_dummy(val, pytypes.UInt64Type).single_eval().resolve()
         )
         return intrinsic_factory.select(
             false=len_expr,
@@ -138,7 +140,9 @@ def _eval_slice_component(
 
     int_lit = val.value
     if not isinstance(int_lit, int):
-        raise CodeError(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
+        logger.error(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
+        int_lit = 0
+
     # take the min of abs(int_lit) and len(self.expr)
     abs_lit_expr = UInt64Constant(value=abs(int_lit), source_location=val.source_location)
     trunc_value_expr = intrinsic_factory.select(
@@ -180,9 +184,15 @@ class BoxProxyConstructorResult(StorageProxyConstructorResult, abc.ABC):
     ) -> AppStorageDeclaration:
         key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
-            raise CodeError(
+            logger.error(
                 f"assigning {typ} to a member variable requires a constant value for key",
-                location,
+                location=location,
+            )
+            key_override = BytesConstant(
+                value=b"0",
+                wtype=wtypes.box_key,
+                encoding=BytesEncoding.unknown,
+                source_location=key_override.source_location,
             )
         return AppStorageDeclaration(
             description=None,

@@ -13,11 +13,11 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -50,19 +50,17 @@ class AssetTypeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
                 return arg.resolve_literal(AssetTypeBuilder(location))
-            case []:
+            case None:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
-                uint64_expr = eb.resolve()
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                uint64_expr = UInt64Constant(value=0, source_location=location)
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
+                uint64_expr = arg.resolve()
         asset_expr = ReinterpretCast(
-            source_location=location, wtype=self.produces().wtype, expr=uint64_expr
+            expr=uint64_expr, wtype=wtypes.asset_wtype, source_location=location
         )
         return AssetExpressionBuilder(asset_expr)
 
@@ -87,22 +85,24 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.AccountType) as eb]:
-                account_expr = eb.resolve()
-                immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
-                asset_params_get = IntrinsicCall(
-                    source_location=location,
-                    wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
-                    op_code="asset_holding_get",
-                    immediates=[immediate],
-                    stack_args=[account_expr, self.asset],
-                )
-                return builder_for_instance(
-                    typ, CheckedMaybe(asset_params_get, comment="account opted into asset")
-                )
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+        arg = expect.exactly_one_arg_of_type(
+            args,
+            pytypes.AccountType,
+            location,
+            default=expect.default_dummy_value(pytypes.AccountType),
+        )
+        account_expr = arg.resolve()
+        immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
+        asset_params_get = IntrinsicCall(
+            source_location=location,
+            wtype=wtypes.WTuple((typ.wtype, wtypes.bool_wtype), location),
+            op_code="asset_holding_get",
+            immediates=[immediate],
+            stack_args=[account_expr, self.asset],
+        )
+        return builder_for_instance(
+            typ, CheckedMaybe(asset_params_get, comment="account opted into asset")
+        )
 
 
 class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):

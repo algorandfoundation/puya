@@ -59,9 +59,7 @@ def get_arc4_signature(
         case LiteralBuilder(value=str(method_sig)):
             pass
         case _:
-            raise CodeError(
-                "method selector strings must be simple literals", method.source_location
-            )
+            raise CodeError("method selector must be a simple str literal", method.source_location)
 
     method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:

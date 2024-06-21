@@ -18,7 +18,6 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -80,8 +79,8 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
             ):
                 expr = ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location)
             case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(typ, arg.source_location)
+                # use a type we've already matched
+                return expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
         return UIntNExpressionBuilder(expr, typ)
 
 

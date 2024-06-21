@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import BoxValueExpression, Expression, Not, StateExists
 from puya.awst_build import pytypes
@@ -21,6 +22,8 @@ from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+logger = log.get_logger(__name__)
 
 
 class BoxTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
@@ -68,28 +71,28 @@ def _init(
     try:
         type_arg = arg_mapping.pop(type_arg_name)
     except KeyError as ex:
-        raise CodeError("Required positional argument missing", location) from ex
-
-    key_arg = arg_mapping.pop("key", None)
-    if arg_mapping:
-        raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
-
+        raise CodeError("required positional argument missing", location) from ex
     match type_arg.pytype:
         case pytypes.TypeType(typ=content):
             pass
         case _:
-            raise CodeError("First argument must be a type reference", location)
+            raise CodeError("first argument must be a type reference", location)
+
+    key_arg = arg_mapping.pop("key", None)
+    if arg_mapping:
+        logger.error(f"unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
+
     if result_type is None:
         result_type = pytypes.GenericBoxType.parameterise([content], location)
     elif result_type.content != content:
-        raise CodeError(
+        logger.error(
             f"{result_type.generic} explicit type annotation"
             f" does not match first argument - suggest to remove the explicit type annotation,"
             " it shouldn't be required",
-            location,
+            location=location,
         )
 
-    key_override = extract_key_override(key_arg, location, typ=wtypes.box_key, is_prefix=False)
+    key_override = extract_key_override(key_arg, location, typ=wtypes.box_key)
     if key_override is None:
         return StorageProxyDefinitionBuilder(result_type, location=location, description=None)
     return _BoxProxyExpressionBuilderFromConstructor(key_override=key_override, typ=result_type)
