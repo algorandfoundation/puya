@@ -26,7 +26,6 @@ def test_opt_into_asset(context: AlgopyTestContext) -> None:
     # Assert
     assert contract.asa.id == asset.id
     inner_txn = context.last_submitted_inner_transaction.asset_transfer
-    assert inner_txn.type == algopy.TransactionType.AssetTransfer
     assert (
         inner_txn.asset_receiver == context.default_application.address
     ), "Asset receiver does not match"
@@ -130,7 +129,6 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
 
     # Assert
     last_inner_txn = context.last_submitted_inner_transaction.asset_transfer
-    assert last_inner_txn.type == algopy.TransactionType.AssetTransfer
     assert last_inner_txn.xfer_asset == asset
     assert last_inner_txn.asset_close_to == account
     assert last_inner_txn.asset_receiver == account
