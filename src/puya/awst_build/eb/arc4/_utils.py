@@ -10,7 +10,7 @@ from puya.awst_build import arc4_utils, pytypes
 from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_type
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, LiteralBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation

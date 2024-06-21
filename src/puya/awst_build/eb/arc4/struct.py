@@ -5,25 +5,23 @@ import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    BytesConstant,
-    BytesEncoding,
-    Expression,
-    FieldExpression,
-    NewStruct,
-    ReinterpretCast,
-)
+from puya.awst.nodes import Expression, FieldExpression, NewStruct
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes
+from puya.awst_build.eb._utils import (
+    bool_eval_to_constant,
+    compare_bytes,
+    dummy_value,
+    expect_argument_of_type,
+)
 from puya.awst_build.eb.arc4._base import CopyBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import get_arg_mapping, require_instance_builder
+from puya.awst_build.utils import get_arg_mapping
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -44,10 +42,9 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         pytype = self.produces()
-        inst_args = [require_instance_builder(arg) for arg in args]
         field_mapping = get_arg_mapping(
             positional_arg_names=list(pytype.fields),
-            args=zip(arg_names, inst_args, strict=True),
+            args=zip(arg_names, args, strict=True),
             location=location,
         )
 
@@ -56,29 +53,17 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
                 logger.error(f"missing required argument {field_name!r}", location=location)
-            elif field_value.pytype != field_type:
-                logger.error("unexpected argument type", location=field_value.source_location)
             else:
-                values[field_name] = field_value.resolve()
+                values[field_name] = expect_argument_of_type(field_value, field_type).resolve()
         if field_mapping:
             logger.error(
                 f"unexpected keyword arguments: {' '.join(field_mapping)}", location=location
             )
 
-        if values.keys() == pytype.fields.keys():
-            assert isinstance(pytype.wtype, wtypes.ARC4Struct)
-            expr: Expression = NewStruct(
-                wtype=pytype.wtype, values=values, source_location=location
-            )
-        else:
-            expr = ReinterpretCast(
-                expr=BytesConstant(
-                    value=b"", encoding=BytesEncoding.unknown, source_location=location
-                ),
-                wtype=pytype.wtype,
-                source_location=location,
-            )
-
+        if values.keys() != pytype.fields.keys():
+            return dummy_value(pytype, location)
+        assert isinstance(pytype.wtype, wtypes.ARC4Struct)
+        expr: Expression = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
         return ARC4StructExpressionBuilder(expr, pytype)
 
 

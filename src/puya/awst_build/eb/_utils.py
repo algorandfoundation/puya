@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from itertools import zip_longest
 
 from puya import log
 from puya.awst import wtypes
@@ -6,7 +7,9 @@ from puya.awst.nodes import (
     BytesComparisonExpression,
     EqualityComparison,
     Expression,
+    ExpressionStatement,
     ReinterpretCast,
+    Statement,
     VarExpression,
 )
 from puya.awst_build import pytypes
@@ -28,12 +31,18 @@ logger = log.get_logger(__name__)
 
 
 def dummy_value(pytype: pytypes.PyType, location: SourceLocation) -> InstanceBuilder:
-    expr = VarExpression(
-        name="",
-        wtype=pytype.wtype,
-        source_location=location
-    )
+    expr = VarExpression(name="", wtype=pytype.wtype, source_location=location)
     return builder_for_instance(pytype, expr)
+
+
+def dummy_statement(location: SourceLocation) -> Statement:
+    return ExpressionStatement(
+        VarExpression(
+            name="",
+            wtype=wtypes.void_wtype,
+            source_location=location,
+        )
+    )
 
 
 def resolve_negative_literal_index(
@@ -146,6 +155,7 @@ def expect_exactly_one_arg(
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     return eb
 
+
 def expect_exactly_one_arg_of_type(
     args: Sequence[NodeBuilder], pytype: pytypes.PyType, location: SourceLocation
 ) -> InstanceBuilder:
@@ -166,13 +176,22 @@ def expect_no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> Non
         logger.error(f"expected 0 arguments, got {len(args)}", location)
 
 
-def expect_exactly_n_args(
-    args: Sequence[NodeBuilder], location: SourceLocation, num_args: int
+def expect_exactly_n_args_of_type(
+    args: Sequence[NodeBuilder], pytype: pytypes.PyType, location: SourceLocation, num_args: int
 ) -> Sequence[InstanceBuilder]:
     if len(args) != num_args:
-        msg = f"expected {num_args} argument{'' if num_args == 1 else 's'}, got {len(args)}"
-        if len(args) < num_args:
-            raise CodeError(msg, location)
-        logger.error(msg, location=location)
-    arg_ebs = list(map(require_instance_builder, args))
+        logger.error(
+            f"expected {num_args} argument{'' if num_args == 1 else 's'}, got {len(args)}",
+            location=location,
+        )
+        dummy_args = [dummy_value(pytype, location)] * num_args
+        args = [arg or default for arg, default in zip_longest(args, dummy_args)]
+    arg_ebs = [expect_argument_of_type(arg, pytype) for arg in args]
     return arg_ebs[:num_args]
+
+
+def expect_argument_of_type(builder: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
+        return builder
+    logger.error("unexpected argument type", location=builder.source_location)
+    return dummy_value(target_type, builder.source_location)

@@ -18,7 +18,12 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes, expect_at_most_one_arg
+from puya.awst_build.eb._utils import (
+    compare_expr_bytes,
+    dummy_value,
+    expect_argument_of_type,
+    expect_at_most_one_arg,
+)
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -82,7 +87,8 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder):
             case InstanceBuilder(pytype=pytypes.StringType):
                 return _from_native(arg, location)
             case _:
-                raise CodeError("unexpected argument type", arg.source_location)
+                logger.error("unexpected argument type", location=arg.source_location)
+                return dummy_value(self.produces(), arg.source_location)
 
 
 class ARC4StringExpressionBuilder(
@@ -99,12 +105,10 @@ class ARC4StringExpressionBuilder(
             raise CodeError(f"unsupported operator for type: {op.value!r}", location)
 
         rhs = rhs.resolve_literal(ARC4StringTypeBuilder(rhs.source_location))
-        if rhs.pytype == self.pytype:
-            value = rhs.resolve()
-        elif rhs.pytype == pytypes.StringType:
+        if rhs.pytype == pytypes.StringType:
             value = _from_native(rhs, rhs.source_location).resolve()
         else:
-            raise CodeError("unexpected argument type", rhs.source_location)
+            value = expect_argument_of_type(rhs, self.pytype).resolve()
 
         return ExpressionStatement(
             ArrayExtend(

@@ -1,10 +1,9 @@
-from __future__ import annotations
-
 import abc
 import typing
 
 import typing_extensions
 
+from puya import log
 from puya.awst.nodes import (
     CompileTimeConstantExpression,
     Expression,
@@ -28,9 +27,7 @@ from puya.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puya.errors import CodeError, InternalError
-
-if typing.TYPE_CHECKING:
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 __all__ = [
     "FunctionBuilder",
@@ -45,6 +42,8 @@ _TPyType_co = typing_extensions.TypeVar(
 _TExpression_co = typing_extensions.TypeVar(
     "_TExpression_co", bound=Expression, default=Expression, covariant=True
 )
+
+logger = log.get_logger(__name__)
 
 
 class FunctionBuilder(CallableBuilder, abc.ABC):
@@ -120,7 +119,10 @@ class InstanceExpressionBuilder(
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        raise CodeError(f"{self.pytype} is not valid as del target", location)
+        from puya.awst_build.eb._utils import dummy_statement
+
+        logger.error(f"{self.pytype} is not valid as del target", location=location)
+        return dummy_statement(location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
@@ -151,7 +153,10 @@ class InstanceExpressionBuilder(
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        raise CodeError(f"{self.pytype} does not support augmented assignment", location)
+        from puya.awst_build.eb._utils import dummy_statement
+
+        logger.error(f"{self.pytype} does not support augmented assignment", location=location)
+        return dummy_statement(location)
 
     @typing.override
     def single_eval(self) -> InstanceBuilder:

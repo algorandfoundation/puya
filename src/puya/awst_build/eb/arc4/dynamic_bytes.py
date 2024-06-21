@@ -15,12 +15,12 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.arc4.dynamic_array import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puya.awst_build.utils import require_instance_builder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -65,7 +65,7 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
             case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
                 bytes_expr = eb.resolve()
             case _:
-                non_literal_args = tuple(_coerce_to_byte(a) for a in args)
+                non_literal_args = tuple(_coerce_to_byte(a).resolve() for a in args)
                 return DynamicBytesExpressionBuilder(
                     NewArray(
                         values=non_literal_args, wtype=self._arc4_type, source_location=location
@@ -85,14 +85,15 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         return DynamicBytesExpressionBuilder(encode_expr)
 
 
-def _coerce_to_byte(arg: NodeBuilder) -> Expression:
+def _coerce_to_byte(arg: NodeBuilder) -> InstanceBuilder:
     arg = require_instance_builder(arg)
     arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
     match arg:
         case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
-            return arg.resolve()
+            return arg
         case _:
-            raise CodeError("invalid argument type", arg.source_location)
+            logger.error("invalid argument type", location=arg.source_location)
+            return dummy_value(pytypes.ARC4ByteType, arg.source_location)
 
 
 class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):

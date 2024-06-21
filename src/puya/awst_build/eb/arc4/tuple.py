@@ -14,6 +14,7 @@ from puya.awst_build.eb._utils import (
     compare_bytes,
     dummy_value,
     expect_exactly_one_arg,
+    expect_exactly_one_arg_of_type,
 )
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -70,20 +71,14 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location)
         typ = self.produces()
-        match arg:
-            case InstanceBuilder(
-                pytype=pytypes.TupleType(generic=pytypes.GenericTupleType, items=typ.items)
-            ):
-                wtype = typ.wtype
-                assert isinstance(wtype, wtypes.ARC4Tuple)
-                return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
-                )
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(typ, arg.source_location)
+        native_type = pytypes.GenericTupleType.parameterise(typ.items, location)
+        arg = expect_exactly_one_arg_of_type(args, native_type, location)
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ARC4Tuple)
+        return ARC4TupleExpressionBuilder(
+            ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
+        )
 
 
 class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType]):
@@ -139,7 +134,10 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        raise CodeError("item containment with ARC4 tuples is currently unsupported", location)
+        logger.error(
+            "item containment with ARC4 tuples is currently unsupported", location=location
+        )
+        return dummy_value(pytypes.BoolType, location)
 
     @typing.override
     def iterate(self) -> Iteration:

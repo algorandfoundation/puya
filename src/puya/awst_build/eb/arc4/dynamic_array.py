@@ -21,7 +21,13 @@ from puya.awst.nodes import (
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import expect_exactly_one_arg, expect_no_args
+from puya.awst_build.eb._utils import (
+    dummy_statement,
+    dummy_value,
+    expect_argument_of_type,
+    expect_exactly_one_arg,
+    expect_no_args,
+)
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
@@ -52,7 +58,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = require_instance_builder(args[0]).pytype
-        values = tuple(require_instance_builder_of_type(a, element_type).resolve() for a in args)
+        values = tuple(expect_argument_of_type(a, element_type).resolve() for a in args)
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
@@ -77,7 +83,7 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(require_instance_builder_of_type(a, typ.items).resolve() for a in args)
+        values = tuple(expect_argument_of_type(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
@@ -115,7 +121,8 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         if op != BuilderBinaryOp.add:
-            raise CodeError(f"unsupported operator for type: {op.value!r}", location)
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
         rhs = _match_array_concat_arg(rhs, self.pytype)
         extend = ArrayExtend(
             base=self.resolve(),
@@ -237,4 +244,7 @@ def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -
 def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
     if _check_array_concat_arg(arg, arr_type):
         return arg
-    raise CodeError("expected an array or tuple of the same element type", arg.source_location)
+    logger.error(
+        "expected an array or tuple of the same element type", location=arg.source_location
+    )
+    return dummy_value(arr_type, arg.source_location)

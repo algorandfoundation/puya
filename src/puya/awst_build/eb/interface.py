@@ -22,6 +22,7 @@ Iteration: typing.TypeAlias = Expression | Range
 
 logger = log.get_logger(__name__)
 
+
 @enum.unique
 class BuilderComparisonOp(enum.StrEnum):
     eq = "=="
@@ -145,7 +146,10 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
     @abc.abstractmethod
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         """Handle item in self"""
-        raise CodeError("expression is not iterable", self.source_location)
+        from puya.awst_build.eb._utils import dummy_value
+
+        logger.error("expression is not iterable", location=self.source_location)
+        return dummy_value(pytypes.BoolType, location)
 
     @abc.abstractmethod
     def iterate(self) -> Iteration:
@@ -219,7 +223,9 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
         result = self.try_convert_literal(literal, location)
         if result is not None:
             return result
-        logger.error(f"can't covert literal to {self.produces()}", location=literal.source_location)
+        logger.error(
+            f"can't covert literal to {self.produces()}", location=literal.source_location
+        )
         return dummy_value(self.produces(), location)
 
     def try_convert_literal(
