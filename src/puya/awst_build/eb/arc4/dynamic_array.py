@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Sequence
 
@@ -93,17 +94,13 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
-                return UInt64ExpressionBuilder(
-                    IntrinsicCall(
-                        op_code="extract_uint16",
-                        stack_args=[
-                            self.resolve(),
-                            UInt64Constant(value=0, source_location=location),
-                        ],
-                        source_location=location,
-                        wtype=wtypes.uint64_wtype,
-                    )
+                length = IntrinsicCall(
+                    op_code="extract_uint16",
+                    stack_args=[self.resolve(), UInt64Constant(value=0, source_location=location)],
+                    wtype=wtypes.uint64_wtype,
+                    source_location=location,
                 )
+                return UInt64ExpressionBuilder(length)
             case "append":
                 return _Append(self.resolve(), self.pytype, location)
             case "extend":
@@ -117,20 +114,16 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        match op:
-            case BuilderBinaryOp.add:
-                return ExpressionStatement(
-                    expr=ArrayExtend(
-                        base=self.resolve(),
-                        other=_match_array_concat_arg(
-                            rhs, self.pytype, source_location=location
-                        ).resolve(),
-                        source_location=location,
-                        wtype=wtypes.arc4_string_alias,
-                    )
-                )
-            case _:
-                return super().augmented_assignment(op, rhs, location)
+        if op != BuilderBinaryOp.add:
+            raise CodeError(f"unsupported operator for type: {op.value!r}", location)
+        rhs = _match_array_concat_arg(rhs, self.pytype)
+        extend = ArrayExtend(
+            base=self.resolve(),
+            other=rhs.resolve(),
+            wtype=wtypes.arc4_string_alias,
+            source_location=location,
+        )
+        return ExpressionStatement(expr=extend)
 
     @typing.override
     def binary_op(
@@ -141,44 +134,32 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        match op:
-            case BuilderBinaryOp.add:
-                lhs = self.resolve()
-                rhs = _match_array_concat_arg(
-                    other, self.pytype, source_location=location
-                ).resolve()
+        if op != BuilderBinaryOp.add:
+            return NotImplemented
 
-                if reverse:
-                    (lhs, rhs) = (rhs, lhs)
-                return DynamicArrayExpressionBuilder(
-                    ArrayConcat(
-                        left=lhs,
-                        right=rhs,
-                        source_location=location,
-                        wtype=self.pytype.wtype,
-                    ),
-                    self.pytype,
-                )
+        lhs = self.resolve()
+        rhs = _match_array_concat_arg(other, self.pytype).resolve()
 
-            case _:
-                return super().binary_op(other, op, location, reverse=reverse)
+        if reverse:
+            (lhs, rhs) = (rhs, lhs)
+        return DynamicArrayExpressionBuilder(
+            ArrayConcat(left=lhs, right=rhs, source_location=location, wtype=self.pytype.wtype),
+            self.pytype,
+        )
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return arc4_bool_bytes(
-            self,
-            false_bytes=b"\x00\x00",
-            location=location,
-            negate=negate,
-        )
+        return arc4_bool_bytes(self, false_bytes=b"\x00\x00", location=location, negate=negate)
 
 
-class _Append(FunctionBuilder):
+class _ArrayFunc(FunctionBuilder, abc.ABC):
     def __init__(self, expr: Expression, typ: pytypes.ArrayType, location: SourceLocation):
         super().__init__(location)
         self.expr = expr
         self.typ = typ
 
+
+class _Append(_ArrayFunc):
     @typing.override
     def call(
         self,
@@ -192,20 +173,12 @@ class _Append(FunctionBuilder):
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(
             ArrayExtend(
-                base=self.expr,
-                other=args_tuple,
-                source_location=location,
-                wtype=wtypes.void_wtype,
+                base=self.expr, other=args_tuple, wtype=wtypes.void_wtype, source_location=location
             )
         )
 
 
-class _Pop(FunctionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.ArrayType, location: SourceLocation):
-        super().__init__(location)
-        self.expr = expr
-        self.typ = typ
-
+class _Pop(_ArrayFunc):
     @typing.override
     def call(
         self,
@@ -216,17 +189,12 @@ class _Pop(FunctionBuilder):
     ) -> InstanceBuilder:
         expect_no_args(args, location)
         result_expr = ArrayPop(
-            base=self.expr, source_location=location, wtype=self.typ.items.wtype
+            base=self.expr, wtype=self.typ.items.wtype, source_location=location
         )
         return builder_for_instance(self.typ.items, result_expr)
 
 
-class _Extend(FunctionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.ArrayType, location: SourceLocation):
-        super().__init__(location)
-        self.expr = expr
-        self.typ = typ
-
+class _Extend(_ArrayFunc):
     @typing.override
     def call(
         self,
@@ -236,23 +204,15 @@ class _Extend(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect_exactly_one_arg(args, location)
-        other = _match_array_concat_arg(arg, self.typ, source_location=location).resolve()
+        other = _match_array_concat_arg(arg, self.typ).resolve()
         return VoidExpressionBuilder(
             ArrayExtend(
-                base=self.expr,
-                other=other,
-                source_location=location,
-                wtype=wtypes.void_wtype,
+                base=self.expr, other=other, wtype=wtypes.void_wtype, source_location=location
             )
         )
 
 
-def _match_array_concat_arg(
-    arg: InstanceBuilder,
-    arr_type: pytypes.ArrayType,
-    *,
-    source_location: SourceLocation,
-) -> InstanceBuilder:
+def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
     match arg:
         case InstanceBuilder(pytype=pytypes.ArrayType(items=arr_type.items)):
             return arg
@@ -260,4 +220,4 @@ def _match_array_concat_arg(
             ti == arr_type.items for ti in tup_items
         ):
             return arg
-    raise CodeError("expected an array or tuple of the same element type", source_location)
+    raise CodeError("expected an array or tuple of the same element type", arg.source_location)

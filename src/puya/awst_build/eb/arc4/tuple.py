@@ -73,14 +73,12 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
                 if typ.items != tuple_type.items:
                     expected_type = pytypes.GenericTupleType.parameterise(typ.items, location)
                     raise CodeError(
-                        f"Invalid arg type: expected {expected_type}, got {tuple_type}",
-                        location,
+                        f"Invalid arg type: expected {expected_type}, got {tuple_type}", location
                     )
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)
                 return ARC4TupleExpressionBuilder(
-                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location),
-                    typ,
+                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
                 )
         # TODO: dummy value
         raise CodeError("unexpected argument type", arg.source_location)

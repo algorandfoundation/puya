@@ -76,8 +76,7 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
 
     def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
         raise CodeError(
-            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible",
-            loc,
+            f"{invalid_pytype} is not an ARC4 type and no implicit ARC4 conversion possible", loc
         )
 
     return pytype_to_arc4_pytype(typ, on_error)
@@ -148,8 +147,7 @@ def _split_signature(
                 name = remaining
             elif not args:
                 raise CodeError(
-                    f"Invalid signature, args not well defined: {name=}, {remaining=}",
-                    location,
+                    f"Invalid signature, args not well defined: {name=}, {remaining=}", location
                 )
             elif returns:
                 raise CodeError(
