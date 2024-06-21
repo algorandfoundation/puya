@@ -2,9 +2,7 @@ from collections.abc import Iterable, Sequence
 from itertools import zip_longest
 
 from puya.awst import wtypes
-from puya.awst.wtypes import ARC4Type
-from puya.errors import CodeError, InternalError
-from puya.parse import SourceLocation
+from puya.errors import InternalError
 from puya.utils import round_bits_to_nearest_bytes
 
 
@@ -49,18 +47,6 @@ def determine_arc4_tuple_head_size(
         if t == wtypes.arc4_bool_wtype and next_t != t and (round_end_result or next_t):
             bit_size = round_bits_to_nearest_bytes(bit_size)
     return bit_size
-
-
-def make_tuple_wtype(
-    types: Iterable[wtypes.WType], location: SourceLocation | None
-) -> wtypes.ARC4Tuple:
-    arc4_types = list[wtypes.ARC4Type]()
-    for typ in types:
-        if isinstance(typ, ARC4Type):
-            arc4_types.append(typ)
-        else:
-            raise CodeError(f"Invalid type for arc4.Tuple element: {typ}", location)
-    return wtypes.ARC4Tuple(arc4_types, location)
 
 
 def split_tuple_types(types: str) -> Iterable[str]:

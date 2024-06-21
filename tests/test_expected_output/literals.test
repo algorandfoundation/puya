@@ -56,11 +56,11 @@ from algopy import Account, subroutine
 
 @subroutine
 def invalid() -> Account:
-    return Account("notanaddress") ## E: Invalid address value. Address literals should be 58 characters and not include base32 padding
+    return Account("notanaddress") ## E: invalid address value - should have length 58 and not include base32 padding
 
 @subroutine
 def wrong_type() -> Account:
-    return Account(1) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    return Account(1) # type: ignore[arg-type] ## E: unexpected argument type
 
 
 ## case: test_group_transaction
@@ -195,7 +195,8 @@ from algopy import arc4, subroutine
 
 @subroutine
 def wrong_type() -> None:
-    bad = arc4.DynamicBytes("bad")  # type: ignore[call-overload, misc] ## E: can't covert literal to algopy.arc4.Byte
+    bad = arc4.DynamicBytes("bad")  # type: ignore[call-overload, misc] ## E: can't covert literal to algopy.arc4.Byte \
+                                                                        ## E: Any type is not supported
 
 @subroutine
 def too_long() -> arc4.DynamicBytes:
