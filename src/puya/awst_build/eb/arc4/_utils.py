@@ -90,6 +90,7 @@ def _implicit_arc4_conversion(
         return operand
     target_wtype = target_type.wtype
     if not isinstance(target_wtype, ARC4Type):
+        # TODO(frist): handle reference / txn types
         raise InternalError(
             "implicit_operand_conversion expected target_type to be an ARC-4 type,"
             f" got {target_type}",
