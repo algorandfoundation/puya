@@ -4,6 +4,7 @@ import functools
 
 from algopy_testing.constants import UINT64_BYTES_LENGTH
 from algopy_testing.primitives.bytes import Bytes
+from algopy_testing.primitives.string import BytesBacked
 from algopy_testing.primitives.uint64 import UInt64
 from algopy_testing.utils import as_bytes, as_int, as_int512, int_to_bytes
 
@@ -12,7 +13,7 @@ from algopy_testing.utils import as_bytes, as_int, as_int512, int_to_bytes
 
 
 @functools.total_ordering
-class BigUInt:
+class BigUInt(BytesBacked):
     """
     A python implementation of an TEAL bigint type represented by AVM []byte type
     """

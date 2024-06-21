@@ -1,10 +1,24 @@
 from __future__ import annotations
 
+import typing
+
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.utils import as_bytes, as_string
 
 
-class String:
+class BytesBacked(typing.Protocol):
+    """Represents a type that is a single bytes value"""
+
+    @classmethod
+    def from_bytes(cls, value: Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes (no validation)"""
+
+    @property
+    def bytes(self) -> Bytes:
+        """Get the underlying Bytes"""
+
+
+class String(BytesBacked):
     """
     Represents a UTF-8 encoded string backed by Bytes, accessible via .bytes.
 

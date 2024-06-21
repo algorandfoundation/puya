@@ -1,4 +1,6 @@
-from algopy import ARC4Contract, BigUInt, Bytes, String, UInt64, arc4, op
+import typing
+
+from algopy import ARC4Contract, BigUInt, Bytes, String, UInt64, arc4, log, op
 
 
 class PrimitiveOpsContract(ARC4Contract):
@@ -345,3 +347,26 @@ class PrimitiveOpsContract(ARC4Contract):
     def verify_string_join(self, a: String, b: String) -> String:
         result = String(", ").join((a, b))
         return result
+
+    @arc4.abimethod
+    def verify_log(  # noqa: PLR0913
+        self,
+        a: String,
+        b: UInt64,
+        c: Bytes,
+        d: Bytes,
+        e: arc4.Bool,
+        f: arc4.String,
+        g: arc4.UIntN[typing.Literal[64]],
+        h: arc4.BigUIntN[typing.Literal[256]],
+        i: arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]],
+        j: arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]],
+        k: Bytes,
+        m: Bytes,
+        n: Bytes,
+    ) -> None:
+        d_biguint = BigUInt.from_bytes(d)
+        arc4_k = arc4.StaticArray[arc4.UInt8, typing.Literal[3]].from_bytes(k)
+        arc4_m = arc4.DynamicArray[arc4.UInt16].from_bytes(m)
+        arc4_n = arc4.Tuple[arc4.UInt32, arc4.UInt64, arc4.String].from_bytes(n)
+        log(a, b, c, d_biguint, e, f, g, h, i, j, arc4_k, arc4_m, arc4_n, sep="-")
