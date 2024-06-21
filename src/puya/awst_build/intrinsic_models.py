@@ -33,49 +33,37 @@ class FunctionOpMapping:
     )
     """A list of allowed argument types, or an index into the immediates sequence"""
 
-    @immediates.validator
-    def _immediate_types_are_indexed(
-        self, _attribute: object, immediates: Sequence[str | int | type[str | int]]
-    ) -> None:
-        for idx, imm in enumerate(immediates):
-            if isinstance(imm, type) and idx not in self.args:
-                raise InternalError("expected immediate type to be reference by arg index")
-
-    @args.validator
-    def _arg_indexes_are_valid(
-        self, _attribute: object, args: Sequence[Sequence[pytypes.PyType] | int]
-    ) -> None:
-        for arg in args:
-            if isinstance(arg, int):
-                immediate = self.immediates[arg]
-                if not isinstance(immediate, type):
-                    raise InternalError("expected immediate index to resolve to a type")
-
     @cached_property
     def literal_arg_positions(self) -> Set[int]:
         return {idx for idx, arg in enumerate(self.args) if isinstance(arg, int)}
 
     def __attrs_post_init__(self) -> None:
+        for idx, imm in enumerate(self.immediates):
+            if isinstance(imm, type) and idx not in self.args:
+                raise InternalError("expected immediate type to be reference by arg index")
+
         for idx, arg in enumerate(self.args):
             if isinstance(arg, int):
                 try:
-                    should_be_type = self.immediates[arg]
+                    immediate = self.immediates[arg]
                 except IndexError:
                     raise InternalError(
                         f"intrinsic {self.op_code!r} argument {idx}: immediates index out of range"
                     ) from None
-                else:
-                    if should_be_type not in (str, int):
-                        raise InternalError(
-                            f"intrinsic {self.op_code!r}: immediate from args should have type"
-                        )
+                if immediate not in (str, int):
+                    raise InternalError(
+                        f"intrinsic {self.op_code!r} argument {idx}:"
+                        " immediate index does not point to a type"
+                    )
             else:
                 if not arg:
                     raise InternalError(
-                        f"intrinsic {self.op_code!r}: no stack input types provided"
+                        f"intrinsic {self.op_code!r} argument {idx}: no stack input types provided"
                     )
                 if pytypes.BigUIntType in arg and pytypes.UInt64Type in arg:
-                    raise InternalError(f"intrinsic {self.op_code!r}: overlap in integer types")
+                    raise InternalError(
+                        f"intrinsic {self.op_code!r} argument {idx}: overlap in integer types"
+                    )
 
 
 @attrs.frozen(kw_only=True)
