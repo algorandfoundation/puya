@@ -129,8 +129,8 @@ class UFixedNxMExpressionBuilder(
         return arc4_bool_bytes(
             self,
             false_bytes=b"\x00" * (self.pytype.bits // 8),
-            location=location,
             negate=negate,
+            location=location,
         )
 
     @typing.override
