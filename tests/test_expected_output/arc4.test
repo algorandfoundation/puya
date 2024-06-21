@@ -435,3 +435,75 @@ from algopy import arc4, subroutine
 def invalid_aug_operator() -> None:
     a = arc4.String()
     a -= arc4.String()  # type: ignore[operator] ## E: unsupported operator for type: '-'
+
+
+## case: test_abi_call_literal
+import typing
+from algopy import *
+
+class Logger(ARC4Contract):
+
+    @arc4.abimethod
+    def primitive_types(self, a: UInt64, b: BigUInt, c: Bytes, d: String, e: arc4.UInt64, f: arc4.Bool) -> None:
+        log(a, b, c, d, e, f)
+
+    @arc4.abimethod
+    def dynamic_bytes(self, a: Bytes) -> None:
+        log(a)
+
+    @arc4.abimethod
+    def static_bytes(self, a: arc4.StaticArray[arc4.Byte, typing.Literal[2]]) -> None:
+        log(a)
+
+    @arc4.abimethod
+    def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
+        log(asset.name, account.bytes, app.address)
+
+    @arc4.abimethod
+    def acfg_arg(self, acfg: gtxn.AssetConfigTransaction) -> None:
+        pass
+
+@subroutine
+def test_ref_types_with_literal() -> None:
+    arc4.abi_call(
+        Logger.log_asset_account_app,
+        1234,
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+        4567,
+        app_id=4242,
+    )
+
+@subroutine
+def test_txn_arg_with_literal() -> None:
+    arc4.abi_call(
+        Logger.acfg_arg,
+        1, ## E: transaction arguments are not supported for contract to contract calls
+    )
+
+@subroutine
+def test_txn_arg_with_wrong_literal_type() -> None:
+    arc4.abi_call(
+        Logger.acfg_arg,
+        "", ## E: can't covert literal to algopy.gtxn.AssetConfigTransaction
+    )
+
+@subroutine
+def test_primitive_types() -> None:
+    arc4.abi_call(
+        Logger.primitive_types,
+        1, 2, b"3", "4", 5, True,
+    )
+
+@subroutine
+def test_dynamic_bytes_bad_literal() -> None:
+    arc4.abi_call(
+        Logger.dynamic_bytes,
+        1, ## E: can't covert literal to algopy.arc4.DynamicBytes
+    )
+
+@subroutine
+def test_static_bytes_bad_literal() -> None:
+    arc4.abi_call(
+        Logger.static_bytes,
+        2, ## E: can't covert literal to algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]]
+    )
