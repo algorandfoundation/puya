@@ -16,8 +16,9 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes, dummy_value, expect_at_most_one_arg
+from puya.awst_build.eb._utils import compare_expr_bytes, dummy_value
 from puya.awst_build.eb.arc4.static_array import StaticArrayExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -63,7 +64,7 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_at_most_one_arg(args, location)
+        arg = expect.expect_at_most_one_arg(args, location)
         match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=AddressTypeBuilder(location))

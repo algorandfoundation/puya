@@ -15,9 +15,10 @@ from puya.awst.nodes import (
     ReinterpretCast,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import dummy_value, expect_at_most_one_arg
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -66,7 +67,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_at_most_one_arg(args, location)
+        arg = expect.expect_at_most_one_arg(args, location)
         typ = self.produces()
         wtype = typ.wtype
         match arg:

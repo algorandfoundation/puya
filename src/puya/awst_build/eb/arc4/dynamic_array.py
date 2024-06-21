@@ -19,16 +19,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import (
-    default_expect_none,
     dummy_statement,
     dummy_value,
-    expect_argument_of_type,
-    expect_exactly_one_arg,
-    expect_exactly_one_arg_of_type,
-    expect_no_args,
 )
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
 from puya.awst_build.eb.factories import builder_for_instance
@@ -60,7 +56,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = require_instance_builder(args[0]).pytype
-        values = tuple(expect_argument_of_type(a, element_type).resolve() for a in args)
+        values = tuple(expect.expect_argument_of_type(a, element_type).resolve() for a in args)
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
@@ -85,7 +81,7 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(expect_argument_of_type(a, typ.items).resolve() for a in args)
+        values = tuple(expect.expect_argument_of_type(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
@@ -188,7 +184,7 @@ class _Append(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg_of_type(args, self.typ.items, location)
+        arg = expect.expect_exactly_one_arg_of_type(args, self.typ.items, location)
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(
@@ -207,7 +203,7 @@ class _Pop(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expect_no_args(args, location)
+        expect.expect_no_args(args, location)
         result_expr = ArrayPop(
             base=self.expr, wtype=self.typ.items.wtype, source_location=location
         )
@@ -223,7 +219,7 @@ class _Extend(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location, default=default_expect_none)
+        arg = expect.expect_exactly_one_arg(args, location, default=expect.default_expect_none)
         if arg is None:
             other = dummy_value(self.typ, location)
         else:

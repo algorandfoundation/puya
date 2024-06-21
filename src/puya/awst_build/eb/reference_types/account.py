@@ -18,17 +18,10 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puya.awst_build.eb._utils import (
-    cast_to_bytes,
-    compare_bytes,
-    compare_expr_bytes,
-    default_expect_none,
-    dummy_value,
-    expect_at_most_one_arg,
-    expect_exactly_one_arg,
-)
+from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes, compare_expr_bytes, dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -74,7 +67,7 @@ class AccountTypeBuilder(BytesBackedTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_at_most_one_arg(args, location)
+        arg = expect.expect_at_most_one_arg(args, location)
         match arg:
             case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=AccountTypeBuilder(location))
@@ -174,7 +167,7 @@ class _IsOptedIn(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location, default=default_expect_none)
+        arg = expect.expect_exactly_one_arg(args, location, default=expect.default_expect_none)
         match arg:
             case None:
                 pass  # fall through to dummy

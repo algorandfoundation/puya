@@ -7,17 +7,13 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, FieldExpression, NewStruct
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import (
-    bool_eval_to_constant,
-    compare_bytes,
-    dummy_value,
-    expect_argument_of_type,
-)
+from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, dummy_value
 from puya.awst_build.eb.arc4._base import CopyBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
@@ -54,7 +50,9 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
             if field_value is None:
                 logger.error(f"missing required argument {field_name!r}", location=location)
             else:
-                values[field_name] = expect_argument_of_type(field_value, field_type).resolve()
+                values[field_name] = expect.expect_argument_of_type(
+                    field_value, field_type
+                ).resolve()
         if field_mapping:
             logger.error(
                 f"unexpected keyword arguments: {' '.join(field_mapping)}", location=location

@@ -16,6 +16,7 @@ from puya.awst.nodes import (
     IndexExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
@@ -25,8 +26,6 @@ from puya.awst_build.eb._utils import (
     compare_bytes,
     compare_expr_bytes,
     dummy_value,
-    expect_exactly_one_arg_of_type,
-    expect_no_args,
     resolve_negative_literal_index,
 )
 from puya.awst_build.eb.factories import builder_for_instance
@@ -96,7 +95,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg_of_type(args, pytypes.BytesType, location)
+        arg = expect.expect_exactly_one_arg_of_type(args, pytypes.BytesType, location)
         result_expr = self.abi_expr_from_log(self.typ, arg, location)
         return builder_for_instance(self.typ, result_expr)
 
@@ -115,7 +114,7 @@ class CopyBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expect_no_args(args, location)
+        expect.expect_no_args(args, location)
         expr_result = Copy(value=self.expr, source_location=location)
         return builder_for_instance(self._typ, expr_result)
 

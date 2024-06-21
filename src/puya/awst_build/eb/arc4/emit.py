@@ -8,8 +8,8 @@ from puya import log
 from puya.awst.nodes import MethodConstant
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.arc4_utils import pytype_to_arc4
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
-from puya.awst_build.eb._utils import default_expect_raise, expect_at_least_one_arg
 from puya.awst_build.eb.arc4._utils import get_arc4_signature
 from puya.awst_build.eb.arc4.tuple import ARC4TupleGenericTypeBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
@@ -29,7 +29,9 @@ class EmitBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        first, rest = expect_at_least_one_arg(args, location, default=default_expect_raise)
+        first, rest = expect.expect_at_least_one_arg(
+            args, location, default=expect.default_expect_raise
+        )
         match first:
             case InstanceBuilder(
                 pytype=pytypes.StructType() as struct_type

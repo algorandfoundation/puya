@@ -7,16 +7,10 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpression
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import (
-    bool_eval_to_constant,
-    compare_bytes,
-    default_expect_raise,
-    dummy_value,
-    expect_exactly_one_arg,
-    expect_exactly_one_arg_of_type,
-)
+from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, dummy_value
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -42,7 +36,7 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect_exactly_one_arg(args, location, default=default_expect_raise)
+        arg = expect.expect_exactly_one_arg(args, location, default=expect.default_expect_raise)
         match arg:
             case InstanceBuilder(
                 pytype=pytypes.TupleType(items=items, generic=pytypes.GenericTupleType)
@@ -74,7 +68,7 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
     ) -> InstanceBuilder:
         typ = self.produces()
         native_type = pytypes.GenericTupleType.parameterise(typ.items, location)
-        arg = expect_exactly_one_arg_of_type(args, native_type, location)
+        arg = expect.expect_exactly_one_arg_of_type(args, native_type, location)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4Tuple)
         return ARC4TupleExpressionBuilder(
