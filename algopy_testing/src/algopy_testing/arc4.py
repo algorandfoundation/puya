@@ -1136,7 +1136,7 @@ def _cast_arg_as_arc4(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
         UIntN | BigUIntN | UFixedNxM | BigUFixedNxM | Bool | StaticArray | DynamicArray | Tuple,
     ):
         return arg
-    raise ValueError(f"Unsupported type {type(arg)} for ABI event")
+    raise ValueError(f"Unsupported type {type(arg)}")
 
 
 def _abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
@@ -1174,7 +1174,7 @@ def _abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
         return f"{_abi_type_name_for_arg(arg[0])}[]"
     if isinstance(arg, Tuple):
         return f"({','.join(_abi_type_name_for_arg(a) for a in arg)})"
-    raise ValueError(f"Unsupported type {type(arg)} for ABI event")
+    raise ValueError(f"Unsupported type {type(arg)}")
 
 
 # https://stackoverflow.com/a/72037059
