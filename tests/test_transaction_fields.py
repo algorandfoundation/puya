@@ -222,6 +222,7 @@ def _arg_to_field_type(typ: mypy.types.ProperType | None, arg_name: str) -> Fiel
 
 _TYPES_TO_WTYPES: dict[str, Sequence[wtypes.WType | type[wtypes.WType]]] = {
     "builtins.bool": (wtypes.bool_wtype,),
+    "builtins.object": (wtypes.bytes_wtype,),  # app args
     constants.CLS_BYTES: (wtypes.bytes_wtype,),
     constants.CLS_BYTES_BACKED: (wtypes.account_wtype, wtypes.biguint_wtype, wtypes.ARC4Type),
     constants.CLS_UINT64: (wtypes.uint64_wtype,),
