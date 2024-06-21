@@ -6,7 +6,7 @@ import algopy
 import pytest
 from algopy_testing import AlgopyTestContext, algopy_testing_context, arc4
 from algopy_testing.constants import MAX_UINT64, MAX_UINT512
-from algopy_testing.models.util import log
+from algopy_testing.utilities.log import log
 
 from tests.common import AVMInvoker
 

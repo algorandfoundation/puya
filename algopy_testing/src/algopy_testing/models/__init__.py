@@ -7,7 +7,6 @@ from algopy_testing.models.gtxn import GTxn
 from algopy_testing.models.itxn import ITxn
 from algopy_testing.models.txn import Txn
 from algopy_testing.models.unsigned_builtins import uenumerate, urange
-from algopy_testing.models.util import log
 
 __all__ = [
     "ARC4Contract",
@@ -21,5 +20,4 @@ __all__ = [
     "Txn",
     "uenumerate",
     "urange",
-    "log",
 ]

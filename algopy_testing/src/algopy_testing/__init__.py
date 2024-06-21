@@ -11,7 +11,6 @@ from algopy_testing.models import (
     Global,
     GTxn,
     ITxn,
-    log,
     uenumerate,
     urange,
 )
@@ -45,5 +44,4 @@ __all__ = [
     "subroutine",
     "uenumerate",
     "urange",
-    "log",
 ]
