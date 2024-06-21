@@ -21,6 +21,10 @@ class ARC4CopyValidator(AWSTTraverser):
         super().__init__()
         self._for_items: awst_nodes.Lvalue | None = None
 
+    def visit_submit_inner_transaction(self, call: awst_nodes.SubmitInnerTransaction) -> None:
+        # values passed to an inner transaction do not need to be copied
+        pass
+
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         _check_assignment(statement.target, statement.value)
         statement.value.accept(self)
