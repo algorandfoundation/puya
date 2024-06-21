@@ -328,8 +328,9 @@ class _Append(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        args_expr = [require_instance_builder_of_type(a, self.typ.items).resolve() for a in args]
-        args_tuple = TupleExpression.from_items(args_expr, location)
+        arg = expect_exactly_one_arg(args, location)
+        args_expr = require_instance_builder_of_type(arg, self.typ.items).resolve()
+        args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(
             ArrayExtend(
                 base=self.expr,
