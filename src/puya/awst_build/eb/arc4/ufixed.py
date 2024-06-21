@@ -51,16 +51,12 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect.at_most_one_arg(args, location)
-        match arg:
-            case InstanceBuilder(pytype=pytypes.StrLiteralType):
-                return arg.resolve_literal(UFixedNxMTypeBuilder(self.produces(), location))
-            case None:
-                pass
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
+        if arg is None:
+            result = self._str_to_decimal_constant("0.0", location=location)
+            return UFixedNxMExpressionBuilder(result, self.produces())
 
-        result = self._str_to_decimal_constant("0.0", location=location)
-        return UFixedNxMExpressionBuilder(result, self.produces())
+        arg = expect.argument_of_type_else_die(arg, pytypes.StrLiteralType)
+        return arg.resolve_literal(UFixedNxMTypeBuilder(self.produces(), location))
 
     def _str_to_decimal_constant(
         self,

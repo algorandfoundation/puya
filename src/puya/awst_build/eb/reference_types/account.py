@@ -168,7 +168,7 @@ class _IsOptedIn(FunctionBuilder):
         arg = expect.exactly_one_arg(args, location, default=expect.default_none)
         match arg:
             case None:
-                pass  # fall through to dummy
+                return dummy_value(pytypes.BoolType, location)
             case InstanceBuilder(pytype=pytypes.AssetType):
                 return BoolExpressionBuilder(
                     TupleItemExpression(
@@ -185,7 +185,8 @@ class _IsOptedIn(FunctionBuilder):
                         source_location=location,
                     )
                 )
-            case InstanceBuilder(pytype=pytypes.ApplicationType):
+            case _:
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.ApplicationType)
                 return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",
@@ -194,6 +195,3 @@ class _IsOptedIn(FunctionBuilder):
                         wtype=wtypes.bool_wtype,
                     )
                 )
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-        return dummy_value(pytypes.BoolType, location)
