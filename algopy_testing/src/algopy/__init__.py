@@ -18,6 +18,7 @@ from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 from algopy_testing.protocols import BytesBacked
 from algopy_testing.state import GlobalState, LocalState
 from algopy_testing.utilities import OpUpFeeSource, ensure_budget
+from algopy_testing.utilities import log
 
 from . import arc4, gtxn, itxn, op
 
@@ -50,4 +51,5 @@ __all__ = [
     "uenumerate",
     "ensure_budget",
     "OpUpFeeSource",
+    "log",
 ]

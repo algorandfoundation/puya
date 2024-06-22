@@ -4,12 +4,19 @@ import copy
 import decimal
 import types
 import typing
+from collections import ChainMap
 from collections.abc import Iterable, Reversible
 
 import algosdk
 from Cryptodome.Hash import SHA512
 
-from algopy_testing.constants import ARC4_RETURN_PREFIX, BITS_IN_BYTE, UINT64_SIZE, UINT512_SIZE
+from algopy_testing.constants import (
+    ARC4_RETURN_PREFIX,
+    BITS_IN_BYTE,
+    MAX_UINT64,
+    UINT64_SIZE,
+    UINT512_SIZE,
+)
 from algopy_testing.decorators.abimethod import abimethod
 from algopy_testing.decorators.baremethod import baremethod
 from algopy_testing.models import Account
@@ -971,6 +978,214 @@ class Tuple(
         raise ValueError("ABI return prefix not found")
 
 
+@typing.dataclass_transform(
+    eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
+)
+class _StructMeta(type):
+    def __new__(
+        cls,
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, object],
+    ) -> _StructMeta:
+        return super().__new__(cls, name, bases, namespace)
+
+
+class Struct(metaclass=_StructMeta):
+    """Base class for ARC4 Struct types"""
+
+    def __init__(self, *args: typing.Any):
+        self._value = Tuple(args)
+
+    @classmethod
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
+        annotations = _all_annotations(cls)
+
+        result = cls()
+        tuple_value = Tuple[tuple(v for k, v in annotations.items())].from_bytes(value)  # type: ignore[misc, attr-defined]
+        result._value = tuple_value
+
+        return result
+
+    @property
+    def bytes(self) -> algopy.Bytes:
+        """Get the underlying bytes[]"""
+        return self._value.bytes
+
+    @classmethod
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
+        """Load an ABI type from application logs,
+        checking for the ABI return prefix `0x151f7c75`"""
+        import algopy
+
+        if log[:4] == algopy.Bytes(ARC4_RETURN_PREFIX):
+            return cls.from_bytes(log[4:])
+        raise ValueError("ABI return prefix not found")
+
+    def copy(self) -> typing.Self:
+        """Create a copy of this struct"""
+        return copy.deepcopy(self)
+
+
+class ARC4Client(typing.Protocol): ...
+
+
+if typing.TYPE_CHECKING:
+    _TABIArg: typing.TypeAlias = (
+        algopy.String
+        | algopy.BigUInt
+        | algopy.UInt64
+        | algopy.Bytes
+        | algopy.Asset
+        | algopy.Account
+        | algopy.Application
+        | UIntN[typing.Any]
+        | BigUIntN[typing.Any]
+        | UFixedNxM[typing.Any, typing.Any]
+        | BigUFixedNxM[typing.Any, typing.Any]
+        | Bool
+        | String
+        | StaticArray[typing.Any, typing.Any]
+        | DynamicArray[typing.Any]
+        | Tuple  # type: ignore[type-arg]
+        | int
+        | bool
+        | bytes
+        | str
+    )
+
+
+@typing.overload
+def emit(event: Struct, /) -> None: ...
+@typing.overload
+def emit(event: str, /, *args: _TABIArg) -> None: ...
+def emit(event: str | Struct, /, *args: _TABIArg) -> None:
+    """Emit an ARC-28 event for the provided event signature or name, and provided args.
+
+    :param event: Either an ARC4 Struct, an event name, or event signature.
+        * If event is an ARC4 Struct, the event signature will be determined from the Struct name and fields
+        * If event is a signature, then the following args will be typed checked to ensure they match.
+        * If event is just a name, the event signature will be inferred from the name and following arguments
+
+    :param args: When event is a signature or name, args will be used as the event data.
+    They will all be encoded as single ARC4 Tuple
+
+    Example:
+    ```
+    from algopy import ARC4Contract, arc4
+
+
+    class Swapped(arc4.Struct):
+        a: arc4.UInt64
+        b: arc4.UInt64
+
+
+    class EventEmitter(ARC4Contract):
+        @arc4.abimethod
+        def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+            arc4.emit(Swapped(b, a))
+            arc4.emit("Swapped(uint64,uint64)", b, a)
+            arc4.emit("Swapped", b, a)
+    ```
+    """  # noqa: E501
+    import algopy
+
+    from algopy_testing.context import get_test_context
+
+    context = get_test_context()
+    if isinstance(event, str):
+        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in args) + ")"
+
+        if event.find("(") == -1:
+            event += arg_types
+        elif event.find(arg_types) == -1:
+            raise ValueError(f"Event signature {event} does not match args {args}")
+
+        args_tuple = tuple(_cast_arg_as_arc4(arg) for arg in args)
+        event_hash = algopy.Bytes(SHA512.new(event.encode(), truncate="256").digest())
+        context.logs.append((event_hash[:4] + Struct(*args_tuple).bytes).value)
+    elif isinstance(event, Struct):
+        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in event._value) + ")"
+        event_str = event.__class__.__name__ + arg_types
+        event_hash = algopy.Bytes(SHA512.new(event_str.encode(), truncate="256").digest())
+        context.logs.append((event_hash[:4] + event.bytes).value)
+
+
+def _cast_arg_as_arc4(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
+    import algopy
+
+    if isinstance(arg, bool):
+        return Bool(arg)
+    if isinstance(arg, algopy.UInt64):
+        return UInt64(arg)
+    if isinstance(arg, algopy.BigUInt):
+        return UInt512(arg)
+    if isinstance(arg, int):
+        return UInt64(arg) if arg <= MAX_UINT64 else UInt512(arg)
+    if isinstance(arg, algopy.Bytes | bytes):
+        return DynamicBytes(arg)
+    if isinstance(arg, algopy.String | str):
+        return String(arg)
+    if isinstance(arg, algopy.Asset):
+        return UInt64(arg.id)
+    if isinstance(arg, algopy.Account):
+        return Address(arg)
+    if isinstance(arg, algopy.Application):
+        return UInt64(arg.id)
+
+    if isinstance(
+        arg,
+        UIntN | BigUIntN | UFixedNxM | BigUFixedNxM | Bool | StaticArray | DynamicArray | Tuple,
+    ):
+        return arg
+    raise ValueError(f"Unsupported type {type(arg)}")
+
+
+def _abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
+    import algopy
+
+    if isinstance(arg, String | algopy.String | str):
+        return "string"
+    if isinstance(arg, Bool | bool):
+        return "bool"
+    if isinstance(arg, algopy.BigUInt):
+        return "uint512"
+    if isinstance(arg, algopy.UInt64):
+        return "uint64"
+    if isinstance(arg, int):
+        return "uint64" if arg <= MAX_UINT64 else "uint512"
+    if isinstance(arg, algopy.Bytes | bytes):
+        return "byte[]"
+    if isinstance(arg, algopy.Asset):
+        return "uint64"
+    if isinstance(arg, algopy.Account):
+        return "address"
+    if isinstance(arg, algopy.Application):
+        return "uint64"
+    if isinstance(arg, UIntN):
+        return "uint" + str(arg._bit_size)
+    if isinstance(arg, BigUIntN):
+        return "uint" + str(arg._bit_size)
+    if isinstance(arg, UFixedNxM):
+        return f"ufixed{arg._n}x{arg._m}"
+    if isinstance(arg, BigUFixedNxM):
+        return f"ufixed{arg._n}x{arg._m}"
+    if isinstance(arg, StaticArray):
+        return f"{_abi_type_name_for_arg(arg[0])}[{arg.length.value}]"
+    if isinstance(arg, DynamicArray):
+        return f"{_abi_type_name_for_arg(arg[0])}[]"
+    if isinstance(arg, Tuple):
+        return f"({','.join(_abi_type_name_for_arg(a) for a in arg)})"
+    raise ValueError(f"Unsupported type {type(arg)}")
+
+
+# https://stackoverflow.com/a/72037059
+def _all_annotations(cls: type) -> ChainMap[str, type]:
+    """Returns a dictionary-like ChainMap that includes annotations for all
+    attributes defined in cls or inherited from superclasses."""
+    return ChainMap(*(c.__annotations__ for c in cls.__mro__ if "__annotations__" in c.__dict__))
+
+
 def _is_arc4_dynamic(value: object) -> bool:
     if isinstance(value, DynamicArray):
         return True
@@ -1091,7 +1306,7 @@ def _encode(
     tails = []
     is_dynamic_index = []
     i = 0
-    values_length = len(values) if isinstance(values, tuple | list) else values.length.value
+    values_length = len(values) if hasattr(values, "__len__") else values.length.value
     values_length_bytes = (
         int_to_bytes(values_length, _ABI_LENGTH_SIZE) if isinstance(values, DynamicArray) else b""
     )
@@ -1235,4 +1450,7 @@ __all__ = [
     "abimethod",
     "baremethod",
     "arc4_signature",
+    "emit",
+    "Struct",
+    "ARC4Client",
 ]

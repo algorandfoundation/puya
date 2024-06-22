@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from algopy_testing.primitives.bytes import Bytes
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import as_bytes, as_string
 
 
-class String:
+class String(BytesBacked):
     """
     Represents a UTF-8 encoded string backed by Bytes, accessible via .bytes.
 
