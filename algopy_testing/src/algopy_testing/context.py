@@ -113,7 +113,7 @@ class AlgopyTestContext:
             "genesis_hash": algopy.Bytes(DEFAULT_GLOBAL_GENESIS_HASH),
         }
 
-        self.logs: list[str] = []
+        self.logs: list[bytes] = []
         self.default_creator = default_application_creator
         self.default_application = default_application or self.any_application(
             address=default_application_address

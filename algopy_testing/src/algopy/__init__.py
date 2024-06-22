@@ -10,9 +10,12 @@ from algopy_testing.models import (
     GTxn,
     ITxn,
     Txn,
+    urange,
 )
 from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
+from algopy_testing.protocols import BytesBacked
 from algopy_testing.state import GlobalState, LocalState
+from algopy_testing.utilities import log
 
 from . import arc4, gtxn, itxn, op
 
@@ -23,6 +26,7 @@ __all__ = [
     "Asset",
     "BigUInt",
     "Bytes",
+    "BytesBacked",
     "Contract",
     "Global",
     "GlobalState",
@@ -39,4 +43,6 @@ __all__ = [
     "itxn",
     "arc4",
     "op",
+    "urange",
+    "log",
 ]

@@ -26,6 +26,8 @@ class AVMInvoker:
         if response.decode_error:
             raise ValueError(response.decode_error)
         result = response.return_value
+        if result is None:
+            return response.tx_info.get("logs", None)
         if isinstance(result, list) and all(
             isinstance(i, int) and i >= 0 and i <= 255 for i in result
         ):
