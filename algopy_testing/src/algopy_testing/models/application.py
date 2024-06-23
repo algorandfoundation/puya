@@ -4,7 +4,7 @@ import typing
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict, TypeVar
 
-from algopy_testing.utils import as_string
+from algopy_testing.utils import as_int64
 
 if TYPE_CHECKING:
     import algopy
@@ -63,7 +63,7 @@ class Application:
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Application):
             return self.id == other.id
-        return self.id == as_string(other)
+        return self.id == as_int64(other)
 
     def __bool__(self) -> bool:
         return self.id != 0

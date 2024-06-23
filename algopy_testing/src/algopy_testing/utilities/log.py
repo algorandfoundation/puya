@@ -4,7 +4,7 @@ from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import int_to_bytes
 
 
-def log(
+def log(  # noqa: C901, PLR0912
     *args: UInt64 | Bytes | BytesBacked | str | bytes | int,
     sep: Bytes | bytes | str = b"",
 ) -> None:
@@ -13,6 +13,7 @@ def log(
     UInt64 args are converted to bytes and each argument is separated by `sep`.
     Literal `str` values will be encoded as UTF8.
     """
+    import algopy
 
     from algopy_testing.context import get_test_context
 
@@ -41,4 +42,14 @@ def log(
     else:
         separator = sep
 
-    context.logs.append(separator.join(logs))
+    active_txn = context.get_active_transaction()
+    if not active_txn:
+        raise ValueError("Cannot emit events outside of application call context!")
+    if active_txn.type != algopy.TransactionType.ApplicationCall:
+        raise ValueError("Cannot emit events outside of application call context!")
+    if not active_txn.app_id:
+        raise ValueError("Cannot emit event: missing `app_id` in associated call transaction!")
+    context.add_application_logs(
+        app_id=active_txn.app_id(),
+        logs=separator.join(logs),
+    )

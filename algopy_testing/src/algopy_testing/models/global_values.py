@@ -22,7 +22,7 @@ class GlobalFields(TypedDict, total=False):
     logic_sig_version: algopy.UInt64
     round: algopy.UInt64
     latest_timestamp: algopy.UInt64
-    current_application_id: algopy.UInt64
+    current_application_id: algopy.Application
     creator_address: algopy.Account
     current_application_address: algopy.Account
     group_id: algopy.Bytes

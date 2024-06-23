@@ -64,16 +64,7 @@ class Contract(metaclass=_ContractMeta):
         if callable(attr):
 
             def wrapper(*args: Any, **kwargs: dict[str, Any]) -> Any:
-                from algopy_testing.context import get_test_context
-
-                context = get_test_context()
-                if context:
-                    context._active_contract = self
-                try:
-                    return attr(*args, **kwargs)
-                finally:
-                    if context:
-                        context._active_contract = None
+                return attr(*args, **kwargs)
 
             return wrapper
         return attr

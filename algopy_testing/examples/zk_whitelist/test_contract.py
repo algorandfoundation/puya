@@ -15,7 +15,6 @@ def context() -> Generator[AlgopyTestContext, None, None]:
         ctx.reset()
 
 
-@pytest.mark.usefixtures("context")
 def test_add_address_to_whitelist(context: AlgopyTestContext) -> None:
     # Arrange
     contract = ZkWhitelistContract()
@@ -27,6 +26,13 @@ def test_add_address_to_whitelist(context: AlgopyTestContext) -> None:
             *[algopy.arc4.Byte(0) for _ in range(32)]
         )
     )
+    dummy_verifier_app = context.any_application()
+    context.set_template_var("VERIFIER_APP_ID", dummy_verifier_app.id)
+    context.add_application_logs(
+        app_id=dummy_verifier_app.id,
+        logs=b"\x80",
+        prepend_arc4_prefix=True,
+    )
 
     # Act
     result = contract.add_address_to_whitelist(address, proof)
@@ -36,48 +42,59 @@ def test_add_address_to_whitelist(context: AlgopyTestContext) -> None:
     assert contract.whitelist[context.default_creator]
 
 
-# @pytest.mark.usefixtures("context")
-# def test_add_address_to_whitelist_invalid_proof(context: AlgopyTestContext) -> None:
-#     # Arrange
-#     contract = ZkWhitelistContract()
-#     address = context.default_creator.bytes
-#     proof = algopy.DynamicArray([Bytes32.from_bytes(b"\x00" * 32)])
+def test_add_address_to_whitelist_invalid_proof(context: AlgopyTestContext) -> None:
+    # Arrange
+    contract = ZkWhitelistContract()
+    address = algopy.arc4.Address(context.default_creator)
+    proof = algopy.arc4.DynamicArray[
+        algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]
+    ](
+        algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]](
+            *[algopy.arc4.Byte(0) for _ in range(32)]
+        )
+    )
+    dummy_verifier_app = context.any_application()
+    context.set_template_var("VERIFIER_APP_ID", dummy_verifier_app.id)
+    context.add_application_logs(
+        app_id=dummy_verifier_app.id,
+        logs=b"",
+        prepend_arc4_prefix=True,
+    )
 
-#     # Mock the verify_proof subroutine to always return False
-#     contract.verify_proof = lambda app_id, proof, public_inputs: algopy.Bool(False)
+    # Act
+    result = contract.add_address_to_whitelist(address, proof)
 
-#     # Act
-#     result = contract.add_address_to_whitelist(address, proof)
-
-#     # Assert
-#     assert result == algopy.String("Proof verification failed")
-#     assert contract.whitelist.get(context.default_creator, algopy.Bool(False)) == algopy.Bool(
-#         False
-#     )
-
-
-# @pytest.mark.usefixtures("context")
-# def test_is_on_whitelist(context: AlgopyTestContext) -> None:
-#     # Arrange
-#     contract = ZkWhitelistContract()
-#     address = context.default_creator
-#     contract.whitelist[address] = algopy.Bool(True)
-
-#     # Act
-#     result = contract.is_on_whitelist(address)
-
-#     # Assert
-#     assert result == algopy.Bool(True)
+    # Assert
+    assert result == algopy.arc4.String("Proof verification failed")
 
 
-# @pytest.mark.usefixtures("context")
-# def test_is_not_on_whitelist(context: AlgopyTestContext) -> None:
-#     # Arrange
-#     contract = ZkWhitelistContract()
-#     address = context.default_creator
+@pytest.mark.usefixtures("context")
+def test_is_on_whitelist(context: AlgopyTestContext) -> None:
+    # Arrange
+    contract = ZkWhitelistContract()
+    dummy_account = context.any_account(
+        opted_apps={context.default_application.id: context.default_application}
+    )
+    contract.whitelist[dummy_account] = True
 
-#     # Act
-#     result = contract.is_on_whitelist(address)
+    # Act
+    result = contract.is_on_whitelist(algopy.arc4.Address(dummy_account))
 
-#     # Assert
-#     assert result == algopy.Bool(False)
+    # Assert
+    assert result.native
+
+
+@pytest.mark.usefixtures("context")
+def test_is_not_on_whitelist(context: AlgopyTestContext) -> None:
+    # Arrange
+    contract = ZkWhitelistContract()
+    dummy_account = context.any_account(
+        opted_apps={context.default_application.id: context.default_application}
+    )
+    contract.whitelist[dummy_account] = False
+
+    # Act
+    result = contract.is_on_whitelist(algopy.arc4.Address(dummy_account))
+
+    # Assert
+    assert not result.native

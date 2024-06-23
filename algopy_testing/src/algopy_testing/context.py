@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Unpack, cast, overload
 import algosdk
 
 from algopy_testing.constants import (
+    ARC4_RETURN_PREFIX,
     DEFAULT_GLOBAL_GENESIS_HASH,
     MAX_BYTES_SIZE,
     MAX_UINT64,
@@ -102,49 +103,84 @@ class ITxnLoader:
 
     @property
     def payment(self) -> algopy.itxn.PaymentInnerTransaction:
-        """Retrieve the last PaymentInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last PaymentInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.PaymentInnerTransaction)
 
     @property
     def asset_config(self) -> algopy.itxn.AssetConfigInnerTransaction:
-        """Retrieve the last AssetConfigInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last AssetConfigInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.AssetConfigInnerTransaction)
 
     @property
     def asset_transfer(self) -> algopy.itxn.AssetTransferInnerTransaction:
-        """Retrieve the last AssetTransferInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last AssetTransferInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.AssetTransferInnerTransaction)
 
     @property
     def asset_freeze(self) -> algopy.itxn.AssetFreezeInnerTransaction:
-        """Retrieve the last AssetFreezeInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last AssetFreezeInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.AssetFreezeInnerTransaction)
 
     @property
     def application_call(self) -> algopy.itxn.ApplicationCallInnerTransaction:
-        """Retrieve the last ApplicationCallInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last ApplicationCallInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.ApplicationCallInnerTransaction)
 
     @property
     def key_registration(self) -> algopy.itxn.KeyRegistrationInnerTransaction:
-        """Retrieve the last KeyRegistrationInnerTransaction. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last KeyRegistrationInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.KeyRegistrationInnerTransaction)
 
     @property
     def transaction(self) -> algopy.itxn.InnerTransactionResult:
-        """Retrieve the last InnerTransactionResult. Raises ValueError if not found or if the transaction is not of the expected type."""
+        """
+        Retrieve the last InnerTransactionResult.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
         import algopy
 
         return self._get_itxn(algopy.itxn.InnerTransactionResult)
@@ -233,22 +269,26 @@ class AlgopyTestContext:
         self._app_id = iter(range(1001, 2**64))
 
         self._contracts: list[algopy.Contract | algopy.ARC4Contract] = []
-        self._active_contract: algopy.Contract | algopy.ARC4Contract | None = None
         self._txn_fields: TxnFields = {}
         self._gtxns: list[algopy.gtxn.TransactionBase] = []
         self._active_transaction_index: int | None = None
-        self._account_data: dict[str, AccountContextData] = {}
         self._application_data: dict[int, ApplicationFields] = {}
+        self._application_logs: dict[int, list[bytes]] = {}
         self._asset_data: dict[int, AssetFields] = {}
         self._inner_transaction_groups: list[Sequence[InnerTransactionResultType]] = []
         self._scratch_spaces: dict[str, list[algopy.Bytes | algopy.UInt64 | bytes | int]] = {}
         self._template_vars: dict[str, Any] = template_vars or {}
 
-        default_application_address = (
-            self.any_account() if default_application is None else default_application.address
-        )
-        default_application_creator = default_creator or algopy.Account(
+        self.default_creator = default_creator or algopy.Account(
             algosdk.account.generate_account()[1]
+        )
+
+        default_application_id = next(self._app_id)
+        default_application_address = algosdk.logic.get_application_address(default_application_id)
+
+        self.default_application = default_application or self.any_application(
+            id=default_application_id,
+            address=algopy.Account(default_application_address),
         )
 
         self._global_fields: GlobalFields = {
@@ -256,18 +296,19 @@ class AlgopyTestContext:
             "min_balance": algopy.UInt64(100_000),
             "max_txn_life": algopy.UInt64(1_000),
             "zero_address": algopy.Account(algosdk.constants.ZERO_ADDRESS),
-            "creator_address": default_application_creator,
-            "current_application_address": default_application_address,
+            "creator_address": self.default_creator,
+            "current_application_address": algopy.Account(default_application_address),
+            "current_application_id": self.default_application,
             "asset_create_min_balance": algopy.UInt64(100_000),
             "asset_opt_in_min_balance": algopy.UInt64(10_000),
             "genesis_hash": algopy.Bytes(DEFAULT_GLOBAL_GENESIS_HASH),
         }
 
-        self.logs: list[bytes] = []
-        self.default_creator = default_application_creator
-        self.default_application = default_application or self.any_application(
-            address=default_application_address
-        )
+        self._account_data: dict[str, AccountContextData] = {
+            str(self.default_creator): AccountContextData(
+                fields=AccountFields(), opted_asset_balances={}, opted_apps={}
+            )
+        }
 
     def patch_global_fields(self, **global_fields: Unpack[GlobalFields]) -> None:
         """
@@ -611,20 +652,89 @@ class AlgopyTestContext:
         self._asset_data[int(new_asset.id)] = AssetFields(**asset_fields)
         return new_asset
 
-    def any_application(
-        self, **application_fields: Unpack[ApplicationFields]
+    def any_application(  # type: ignore[misc]
+        self,
+        id: int | None = None,
+        address: algopy.Account | None = None,
+        **application_fields: Unpack[ApplicationFields],
     ) -> algopy.Application:
         """
         Generate and add a new application with a unique ID.
 
+        Args:
+            id (int | None): Optional application ID. If not provided, a new ID will be generated.
+            address (algopy.Account | None): Optional application address. If not provided,
+            it will be generated.
+            **application_fields: Additional application fields.
+
         Returns:
-            Application: The newly generated application.
+            algopy.Application: The newly generated application.
         """
         import algopy
 
-        new_app = algopy.Application(next(self._app_id))
-        self._application_data[int(new_app.id)] = ApplicationFields(**application_fields)
+        new_app_id = id if id is not None else next(self._app_id)
+        new_app = algopy.Application(new_app_id)
+
+        if address is None:
+            address = algopy.Account(algosdk.logic.get_application_address(new_app_id))
+
+        app_fields = ApplicationFields(address=address, **application_fields)  # type: ignore[typeddict-item]
+        self._application_data[int(new_app.id)] = app_fields
         return new_app
+
+    def add_application_logs(
+        self,
+        *,
+        app_id: algopy.UInt64 | algopy.Application | int,
+        logs: bytes | list[bytes],
+        prepend_arc4_prefix: bool = False,
+    ) -> None:
+        """
+        Add logs for an application.
+
+        Args:
+            app_id (int): The ID of the application.
+            logs (bytes | list[bytes]): A single log entry or a list of log entries.
+        """
+        import algopy
+
+        raw_app_id = (
+            int(app_id)
+            if isinstance(app_id, algopy.UInt64)
+            else int(app_id.id) if isinstance(app_id, algopy.Application) else app_id
+        )
+
+        if isinstance(logs, bytes):
+            logs = [logs]
+
+        if prepend_arc4_prefix:
+            logs = [ARC4_RETURN_PREFIX + log for log in logs]
+
+        if raw_app_id in self._application_logs:
+            self._application_logs[raw_app_id].extend(logs)
+        else:
+            self._application_logs[raw_app_id] = logs
+
+    def get_application_logs(self, app_id: algopy.UInt64 | int) -> list[bytes]:
+        """
+        Retrieve the application logs for a given app ID.
+
+        Args:
+            app_id (int): The ID of the application.
+
+        Returns:
+            list[bytes]: The application logs for the given app ID.
+        """
+        import algopy
+
+        app_id = int(app_id) if isinstance(app_id, algopy.UInt64) else app_id
+
+        if app_id not in self._application_logs:
+            raise ValueError(
+                f"No application logs available for app ID {app_id} in testing context!"
+            )
+
+        return self._application_logs[app_id]
 
     def set_transaction_group(
         self, gtxn: list[algopy.gtxn.TransactionBase], active_transaction_index: int | None = None
@@ -755,8 +865,9 @@ class AlgopyTestContext:
             "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length))
         )
 
-    def any_application_call_transaction(  # noqa: PLR0913
+    def any_application_call_transaction(  # type: ignore[misc] # noqa: PLR0913
         self,
+        app_id: algopy.Application,
         app_args: Sequence[algopy.Bytes] = [],
         accounts: Sequence[algopy.Account] = [],
         assets: Sequence[algopy.Asset] = [],
@@ -778,7 +889,15 @@ class AlgopyTestContext:
         """
         import algopy.gtxn
 
-        callable_params = {
+        if not isinstance(app_id, algopy.Application):
+            raise TypeError("`app_id` must be an instance of algopy.Application")
+        if int(app_id.id) not in self._application_data:
+            raise ValueError(
+                f"algopy.Application with ID {app_id.id} not found in testing context!"
+            )
+
+        dynamic_params = {
+            "app_id": lambda: app_id,
             "app_args": lambda index: app_args[index],
             "accounts": lambda index: accounts[index],
             "assets": lambda index: assets[index],
@@ -788,7 +907,7 @@ class AlgopyTestContext:
         }
         new_txn = algopy.gtxn.ApplicationCallTransaction(NULL_GTXN_GROUP_INDEX)
 
-        for key, value in {**kwargs, **callable_params}.items():
+        for key, value in {**kwargs, **dynamic_params}.items():
             setattr(new_txn, key, value)
 
         self.set_scratch_space(new_txn.txn_id, scratch_space or {})
@@ -936,23 +1055,44 @@ class AlgopyTestContext:
         """
         self._asset_data.clear()
 
-    def clear_logs(self) -> None:
+    def clear_application_logs(self) -> None:
         """
-        Clear all logs.
+        Clear all application logs.
         """
-        self.logs.clear()
+        self._application_logs.clear()
+
+    def clear_contracts(self) -> None:
+        """
+        Clear all contracts.
+        """
+        self._contracts.clear()
+
+    def clear_scratch_spaces(self) -> None:
+        """
+        Clear all scratch spaces.
+        """
+        self._scratch_spaces.clear()
+
+    def clear_active_transaction_index(self) -> None:
+        """
+        Clear the active transaction index.
+        """
+        self._active_transaction_index = None
 
     def clear(self) -> None:
         """
         Clear all data, including accounts, applications, assets, inner transactions,
-        transaction groups, and logs.
+        transaction groups, and application_logs.
         """
         self.clear_accounts()
         self.clear_applications()
         self.clear_assets()
         self.clear_inner_transaction_groups()
         self.clear_transaction_group()
-        self.clear_logs()
+        self.clear_application_logs()
+        self.clear_contracts()
+        self.clear_scratch_spaces()
+        self.clear_active_transaction_index()
 
     def reset(self) -> None:
         """
@@ -961,11 +1101,14 @@ class AlgopyTestContext:
         self._account_data = {}
         self._application_data = {}
         self._asset_data = {}
+        self._contracts = []
+        self._active_transaction_index = None
+        self._scratch_spaces = {}
         self._inner_transaction_groups = []
         self._gtxns = []
         self._global_fields = {}
         self._txn_fields = {}
-        self.logs = []
+        self._application_logs = {}
         self._asset_id = iter(range(1, 2**64))
         self._app_id = iter(range(1, 2**64))
 

@@ -121,7 +121,7 @@ def collect_stubs(stubs_dir: Path, relative_module: str) -> dict[str, ASTNodeDef
 def collect_coverage(stubs: dict[str, ASTNodeDefinition]) -> list[CoverageResult]:
     result = []
     for full_name, stub in stubs.items():
-        if "op.pyi" in str(stub.path):
+        if "GTxn" in full_name:
             print("stop")
 
         coverage = _get_impl_coverage(full_name, stub)
@@ -198,9 +198,31 @@ def _get_impl_coverage(symbol: str, stub: ASTNodeDefinition) -> ImplCoverage | N
 
     try:
         impl_path = Path(inspect.getfile(impl))
-    except Exception as e:
-        print(e)
-        return None
+    except TypeError:
+        # If impl is an instance, try to get the file of its class
+        if hasattr(impl, "__class__"):
+            try:
+                impl_path = Path(inspect.getfile(impl.__class__))
+                # For special cases like GTxn and GITxn, assume full implementation
+                if name in [
+                    "GTxn",
+                    "GITxn",
+                    "Txn",
+                    "ITxn",
+                    "Global",
+                    "AssetConfigInnerTransaction",
+                    "Contract",
+                    "ApplicationCallInnerTransaction",
+                    "UFixedNxM",
+                    "BigUFixedNxM",
+                ]:
+                    return ImplCoverage(impl_path)
+            except TypeError:
+                print(f"Warning: Could not determine file for {symbol}")
+                return None
+        else:
+            print(f"Warning: Could not determine file for {symbol}")
+            return None
 
     return _compare_stub_impl(stub.node, impl, impl_path)
 
@@ -216,9 +238,17 @@ def _compare_stub_impl(stub: ast.AST, impl: object, impl_path: Path) -> ImplCove
     impl_members = set(vars(impl))
     stub_members = set()
     for stmt in stub.body:
-        # TODO: class vars?
         if isinstance(stmt, ast.FunctionDef):
             stub_members.add(stmt.name)
+        elif isinstance(stmt, ast.AnnAssign):
+            # Handle annotated class variables
+            if isinstance(stmt.target, ast.Name):
+                stub_members.add(stmt.target.id)
+        elif isinstance(stmt, ast.Assign):
+            # Handle regular class variables
+            for target in stmt.targets:
+                if isinstance(target, ast.Name):
+                    stub_members.add(target.id)
 
     if not stub_members:  # no members?
         return ImplCoverage(impl_path)

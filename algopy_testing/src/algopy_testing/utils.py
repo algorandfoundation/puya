@@ -3,7 +3,9 @@ from __future__ import annotations
 import enum
 import functools
 import secrets
-from typing import TYPE_CHECKING
+import typing
+from types import UnionType
+from typing import TYPE_CHECKING, get_args
 
 import algosdk
 import algosdk.transaction
@@ -154,3 +156,78 @@ def txn_type_to_bytes(txn_type: int) -> algopy.Bytes:
             raise ValueError(f"invalid transaction type: {txn_type}")
 
     return algopy.Bytes(bytes(result, encoding="utf-8"))
+
+
+def is_instance(obj: object, class_or_tuple: type | UnionType) -> bool:
+    if isinstance(obj, typing._ProtocolMeta):  # type: ignore[type-check, unused-ignore]
+        return (
+            (
+                any(
+                    f"{obj.__module__}.{obj.__name__}"
+                    == f"{class_or_tuple.__module__}.{class_or_tuple.__name__}"  # type: ignore[union-attr, unused-ignore]
+                    for class_or_tuple in get_args(class_or_tuple)
+                )
+            )
+            if isinstance(class_or_tuple, UnionType)
+            else (
+                f"{obj.__module__}.{obj.__name__}"
+                == f"{class_or_tuple.__module__}.{class_or_tuple.__name__}"  # type: ignore[union-attr, unused-ignore]
+            )
+        )
+    return isinstance(obj, class_or_tuple)
+
+
+def abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
+    """
+    Returns the ABI type name for the given argument. Especially convenient for use with
+    algosdk to generate method signatures
+    """
+    import algopy
+
+    if is_instance(arg, algopy.arc4.String | algopy.String | str):
+        return "string"
+    if is_instance(arg, algopy.arc4.Bool | bool):
+        return "bool"
+    if isinstance(arg, algopy.BigUInt):
+        return "uint512"
+    if isinstance(arg, algopy.UInt64):
+        return "uint64"
+    if isinstance(arg, int):
+        return "uint64" if arg <= MAX_UINT64 else "uint512"
+    if isinstance(arg, algopy.Bytes | bytes):
+        return "byte[]"
+    if isinstance(arg, algopy.Asset):
+        return "uint64"
+    if is_instance(arg, algopy.Account | algopy.arc4.Address):
+        return "address"
+    if isinstance(arg, algopy.Application):
+        return "uint64"
+    if is_instance(arg, algopy.arc4.UIntN):
+        return "uint" + str(arg._bit_size)  # type: ignore[attr-defined]
+    if is_instance(arg, algopy.arc4.BigUIntN):
+        return "uint" + str(arg._bit_size)  # type: ignore[attr-defined]
+    if is_instance(arg, algopy.arc4.UFixedNxM):
+        return f"ufixed{arg._n}x{arg._m}"  # type: ignore[attr-defined]
+    if is_instance(arg, algopy.arc4.BigUFixedNxM):
+        return f"ufixed{arg._n}x{arg._m}"  # type: ignore[attr-defined]
+    if is_instance(arg, algopy.arc4.StaticArray):
+        return f"{abi_type_name_for_arg(arg[0])}[{arg.length.value}]"  # type: ignore[attr-defined, index]
+    if is_instance(arg, algopy.arc4.DynamicArray):
+        return f"{abi_type_name_for_arg(arg[0])}[]"  # type: ignore[index]
+    if isinstance(arg, tuple):
+        return f"({','.join(abi_type_name_for_arg(a) for a in arg)})"
+    raise ValueError(f"Unsupported type {type(arg)}")
+
+
+def abi_return_type_annotation_for_arg(arg: object) -> str:
+    """
+    Returns the ABI type name for the given argument. Especially convenient for use with
+    algosdk to generate method signatures
+    """
+
+    try:
+        return abi_type_name_for_arg(arg)
+    except ValueError:
+        if arg is None:
+            return "void"
+        raise

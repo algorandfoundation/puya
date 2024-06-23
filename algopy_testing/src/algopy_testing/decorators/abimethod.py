@@ -6,7 +6,11 @@ import typing
 import algosdk
 
 from algopy_testing.constants import UINT64_SIZE
-from algopy_testing.utils import int_to_bytes
+from algopy_testing.utils import (
+    abi_return_type_annotation_for_arg,
+    abi_type_name_for_arg,
+    int_to_bytes,
+)
 
 if typing.TYPE_CHECKING:
     import algopy
@@ -22,53 +26,6 @@ _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
 
-def _map_algopy_type_to_string(arg: typing.Any) -> str:  # noqa: PLR0911, C901, PLR0912
-    import algopy
-
-    if isinstance(arg, algopy.Bytes):
-        return "byte[]"
-    if isinstance(arg, algopy.arc4.Byte):
-        return "byte"
-    if isinstance(arg, algopy.arc4.Address):
-        return "address"
-    if isinstance(arg, algopy.arc4.Bool):
-        return "bool"
-    if isinstance(arg, algopy.String | algopy.arc4.String):
-        return "string"
-    if isinstance(arg, algopy.UInt64 | algopy.arc4.UInt64):
-        return "uint64"
-    if isinstance(arg, algopy.arc4.UInt16):
-        return "uint16"
-    if isinstance(arg, algopy.arc4.UInt32):
-        return "uint32"
-    if isinstance(arg, algopy.arc4.UInt64):
-        return "uint64"
-    if isinstance(arg, algopy.arc4.UInt128):
-        return "uint128"
-    if isinstance(arg, algopy.arc4.UInt256):
-        return "uint256"
-    if isinstance(arg, algopy.arc4.UInt512):
-        return "uint512"
-    if isinstance(arg, algopy.Account):
-        return "address"
-    if isinstance(arg, algopy.Asset):
-        return "asset"
-    if isinstance(arg, algopy.Application):
-        return "application"
-    if isinstance(arg, int):
-        return "uint64"
-    if isinstance(arg, algopy.arc4.StaticArray):
-        item_type = arg._array_item_t
-        if item_type is algopy.arc4.Byte:
-            size = typing.get_args(arg.__class__)[1]
-            return f"byte[{size}]"
-    if isinstance(arg, algopy.arc4.DynamicArray | algopy.arc4.StaticArray):
-        return f"byte[{arg.bytes.length}][]"  # TODO: fix size calculation
-    if arg is None:
-        return "void"
-    raise ValueError(f"Unsupported type: {type(arg).__name__}")
-
-
 def _generate_arc4_signature(
     fn: typing.Callable[_P, _R], args: tuple[typing.Any, ...]
 ) -> algopy.Bytes:
@@ -79,10 +36,10 @@ def _generate_arc4_signature(
         for arg in args
         if not isinstance(arg, algopy.gtxn.TransactionBase)  # type: ignore[arg-type, unused-ignore]
     ]
-    arg_types = [
-        algosdk.abi.Argument(_map_algopy_type_to_string(arg)) for arg in args_without_txns
-    ]
-    return_type = algosdk.abi.Returns(_map_algopy_type_to_string(fn.__annotations__.get("return")))
+    arg_types = [algosdk.abi.Argument(abi_type_name_for_arg(arg)) for arg in args_without_txns]
+    return_type = algosdk.abi.Returns(
+        abi_return_type_annotation_for_arg(fn.__annotations__.get("return"))
+    )
     method = algosdk.abi.Method(name=fn.__name__, args=arg_types, returns=return_type)
     return algopy.Bytes(method.get_selector())
 

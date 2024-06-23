@@ -182,6 +182,9 @@ class UInt64:
         """
         return UInt64(+self.value)
 
+    def __hash__(self) -> int:
+        return hash(self.value)
+
 
 def _as_maybe_uint64(value: object) -> int | None:
     """Returns int value if `value` is an int or UInt64, otherwise None"""

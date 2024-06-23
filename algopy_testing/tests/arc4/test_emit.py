@@ -92,6 +92,11 @@ def test_emit(get_avm_result: AVMInvoker, context: AlgopyTestContext) -> None:
         "greetings",
     )
 
+    dummy_app = context.any_application()
+    context.set_transaction_group(
+        [context.any_application_call_transaction(app_id=dummy_app)], active_transaction_index=0
+    )
+
     _test_data_arc4 = SwappedArc4(
         arc4.UIntN[typing.Literal[64]](42),
         arc4.BigUIntN[typing.Literal[256]](512),
@@ -162,5 +167,7 @@ def test_emit(get_avm_result: AVMInvoker, context: AlgopyTestContext) -> None:
         _test_data_arc4.t,
     )
 
-    arc4_result = [base64.b64encode(log).decode() for log in context.logs]
+    arc4_result = [
+        base64.b64encode(log).decode() for log in context.get_application_logs(dummy_app.id)
+    ]
     assert avm_result == arc4_result

@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import base64
 import hashlib
 import json
 import math
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import algosdk
 import coincurve
@@ -26,6 +28,9 @@ from algopy_testing.primitives.biguint import BigUInt
 from algopy_testing.primitives.bytes import Bytes
 from algopy_testing.primitives.uint64 import UInt64
 from algopy_testing.utils import as_bytes, as_int, as_int8, as_int64, as_int512, int_to_bytes
+
+if TYPE_CHECKING:
+    import algopy
 
 
 def sha256(a: Bytes | bytes, /) -> Bytes:
@@ -578,7 +583,7 @@ class Scratch:
         if not active_txn:
             raise ValueError("No active transaction found to reference scratch space")
 
-        slot_content = context._scratch_spaces[active_txn.txn_id][a]
+        slot_content = context._scratch_spaces[str(active_txn.txn_id)][a]
         match slot_content:
             case Bytes():
                 return slot_content
@@ -598,7 +603,7 @@ class Scratch:
         if not active_txn:
             raise ValueError("No active transaction found to reference scratch space")
 
-        slot_content = context._scratch_spaces[active_txn.txn_id][a]
+        slot_content = context._scratch_spaces[str(active_txn.txn_id)][a]
         match slot_content:
             case Bytes() | bytes():
                 return btoi(slot_content)
@@ -618,7 +623,7 @@ class Scratch:
         if not active_txn:
             raise ValueError("No active transaction found to reference scratch space")
 
-        context._scratch_spaces[active_txn.txn_id][a] = b
+        context._scratch_spaces[str(active_txn.txn_id)][a] = b
 
 
 class _MultiKeyDict(dict[Any, Any]):
@@ -638,11 +643,85 @@ class _MultiKeyDict(dict[Any, Any]):
         return self._items
 
 
+def gload_uint64(a: UInt64 | int, b: UInt64 | int, /) -> UInt64:
+    from algopy_testing import get_test_context
+
+    context = get_test_context()
+    txn_group = context.get_transaction_group()
+    if not txn_group:
+        raise ValueError("No transaction group found to reference scratch space")
+    if a >= len(txn_group):
+        raise ValueError(f"Index {a} out of range for transaction group")
+    txn = txn_group[a]
+    slot_content = context._scratch_spaces[str(txn.txn_id)][int(b)]
+    match slot_content:
+        case Bytes() | bytes():
+            return btoi(slot_content)
+        case int():
+            return UInt64(slot_content)
+        case UInt64():
+            return slot_content
+        case _:
+            raise ValueError(f"Invalid scratch space type: {type(slot_content)}")
+
+
+def gload_bytes(a: algopy.UInt64 | int, b: algopy.UInt64 | int, /) -> algopy.Bytes:
+    import algopy
+
+    from algopy_testing import get_test_context
+
+    context = get_test_context()
+    txn_group = context.get_transaction_group()
+    if not txn_group:
+        raise ValueError("No transaction group found to reference scratch space")
+    if a >= len(txn_group):
+        raise ValueError(f"Index {a} out of range for transaction group")
+    txn = txn_group[a]
+    slot_content = context._scratch_spaces[str(txn.txn_id)][int(b)]
+    match slot_content:
+        case algopy.Bytes():
+            return slot_content
+        case bytes():
+            return algopy.Bytes(slot_content)
+        case int() | algopy.UInt64():
+            return itob(slot_content)
+        case _:
+            raise ValueError(f"Invalid scratch space type: {type(slot_content)}")
+
+
+def gaid(a: UInt64 | int, /) -> algopy.Application:
+    import algopy
+
+    from algopy_testing import get_test_context
+
+    context = get_test_context()
+    txn_group = context.get_transaction_group()
+
+    if not txn_group:
+        raise ValueError("No transaction group found to reference gaid")
+
+    a = int(a)
+    if a >= len(txn_group):
+        raise ValueError(f"Index {a} out of range for transaction group")
+
+    txn = txn_group[a]
+
+    if not txn.type == algopy.TransactionType.ApplicationCall:
+        raise TypeError(f"Transaction at index {a} is not an ApplicationCallTransaction")
+
+    app_id = txn.created_application_id
+    if app_id is None:
+        raise ValueError(f"Transaction at index {a} did not create an application")
+
+    return context.get_application(cast(int, app_id))
+
+
 __all__ = [
     "Base64",
     "BigUInt",
     "ECDSA",
     "Global",
+    "Scratch",
     "GTxn",
     "ITxn",
     "JsonRef",
@@ -688,5 +767,7 @@ __all__ = [
     "shr",
     "sqrt",
     "substring",
+    "gload_uint64",
+    "gload_bytes",
     "vrf_verify",
 ]

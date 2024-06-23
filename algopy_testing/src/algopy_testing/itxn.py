@@ -563,6 +563,15 @@ class ApplicationCallInnerTransaction(_BaseInnerTransactionResult):
         super().__init__(algopy.TransactionType.ApplicationCall, **kwargs)
 
     def __getattr__(self, name: str) -> object:
+        from algopy_testing import get_test_context
+
+        context = get_test_context()
+
+        if name == "last_log" and context:
+            return context.get_application_logs(self.get_field(_ApplicationCallFields, "app_id"))[
+                -1
+            ]
+
         return self.get_field(_ApplicationCallFields, name)
 
 
