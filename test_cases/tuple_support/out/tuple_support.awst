@@ -77,10 +77,23 @@ subroutine bin_ops(): void
   assert(a[0] == 1u)
   assert(a[1] == 1u)
   assert(a[2] == 1u)
-  b: tuple<uint64,bytes,uint64> = (1u, hex<"32">, 3u)
+  tup: tuple<uint64,uint64> = (1u, 2u)
+  b: tuple<uint64,uint64,uint64,uint64,uint64,uint64> = (tup[0], tup[1], tup[0], tup[1], tup[0], tup[1])
   assert(b[0] == 1u)
-  assert(b[1] == hex<"32">)
-  assert(b[2] == 3u)
+  assert(b[1] == 2u)
+  assert(b[2] == 1u)
+  assert(b[3] == 2u)
+  assert(b[4] == 1u)
+  assert(b[5] == 2u)
+  c: tuple<uint64,bytes,uint64> = (1u, hex<"32">, 3u)
+  assert(c[0] == 1u)
+  assert(c[1] == hex<"32">)
+  assert(c[2] == 3u)
+  d: tuple<uint64,uint64,uint64,uint64> = (tup[0], tup[1], tup[0], tup[1])
+  assert(d[0] == 1u)
+  assert(d[1] == 2u)
+  assert(d[2] == 1u)
+  assert(d[3] == 2u)
 }
 
 subroutine bytes_combine(arg: tuple<bytes,bytes>): bytes
@@ -135,4 +148,5 @@ subroutine slicing(values: tuple<uint64,uint64,uint64,uint64,uint64,uint64,uint6
   one_to_three: tuple<uint64,uint64,uint64> = values[0u:3u]
   assert(test_cases.tuple_support.tuple_support::add_three_values(one_to_three) == values[0] + values[1] + values[2])
   assert(one_to_three[1u:2u][0] == one_to_three[1])
+  assert(&&(&&(one_to_three[0] == SINGLE_EVAL(id=4, source=one_to_three[:])[0], one_to_three[1] == SINGLE_EVAL(id=4, source=one_to_three[:])[1]), one_to_three[2] == SINGLE_EVAL(id=4, source=one_to_three[:])[2]))
 }
