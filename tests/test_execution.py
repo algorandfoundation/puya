@@ -11,7 +11,6 @@ from tempfile import TemporaryDirectory
 from textwrap import dedent
 
 import algokit_utils
-import algosdk.transaction
 import attrs
 import prettytable
 import puya.errors
@@ -23,7 +22,13 @@ from algokit_utils import (
     execute_atc_with_logic_error,
 )
 from algosdk import constants, transaction
-from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk.atomic_transaction_composer import (
+    AtomicTransactionComposer,
+    SimulateAtomicTransactionResponse,
+    TransactionWithSigner,
+)
+from algosdk.encoding import decode_address
+from algosdk.logic import get_application_address
 from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComplete, StateSchema
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
@@ -150,7 +155,7 @@ class AppCallResult:
 
     @property
     def app_address(self) -> str:
-        return algosdk.logic.get_application_address(self.app_id)
+        return get_application_address(self.app_id)
 
     def decode_logs(self, log_format: str) -> list[str | bytes | int]:
         """
@@ -235,7 +240,7 @@ class ATCRunner:
             TransactionWithSigner(
                 txn=transaction.PaymentTxn(
                     sender=self.sender,
-                    receiver=algosdk.logic.get_application_address(app_id),
+                    receiver=get_application_address(app_id),
                     amt=micro_algos,
                     sp=self.sp,
                 ),
@@ -313,7 +318,7 @@ class ATCRunner:
 
     def _write_trace_to_file(
         self,
-        simulate_response: algosdk.atomic_transaction_composer.SimulateAtomicTransactionResponse,
+        simulate_response: SimulateAtomicTransactionResponse,
         output_path: Path,
     ) -> None:
         def map_stack_addition(value: dict[str, typing.Any]) -> int | str:
@@ -746,7 +751,7 @@ def test_simplish(harness: _TestHarness) -> None:
 
 def test_address(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "constants" / "address_constant.py")
-    sender_bytes = algosdk.encoding.decode_address(harness.sender)
+    sender_bytes = decode_address(harness.sender)
     assert result.decode_logs("b") == [sender_bytes]
 
 
@@ -1350,10 +1355,6 @@ def test_tuple_element_mutation(harness: _TestHarness) -> None:
     harness.deploy_from_closure(test)
 
 
-@pytest.mark.xfail(
-    reason="Known issue, see https://github.com/algorandfoundation/puya/issues/152",
-    raises=puya.errors.CodeError,
-)
 def test_arc4_tuple_element_mutation(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Contract, arc4

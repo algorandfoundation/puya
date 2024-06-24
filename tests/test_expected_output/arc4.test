@@ -231,8 +231,13 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
 
     @arc4.abimethod
     def test(self) -> None:
+        # **INIT**
         var_inner = InnerStruct(number=arc4.UInt64(4))
         var_outer = OuterStruct(number=arc4.UInt64(5), inner=InnerStruct(number=arc4.UInt64(6)))
+
+        number = arc4.UInt64(42)
+        bad_outer_from_locals = OuterStruct(number, var_inner) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a struct constructor
+        ok_outer_from_locals = OuterStruct(number, var_inner.copy())
 
         # **FUNCTION LOCALS**
 
@@ -312,14 +317,14 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
         # (...) = t
         # (...) = (...)
 
-        tup = (var_inner, var_outer) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression \
-                                     ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a tuple expression
+        tup = (var_inner, var_outer) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a tuple expression \
+                                     ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression
         tup = (var_inner.copy(), var_outer.copy())
         tup = (new_inner(), new_outer())
         tup2 = tup ## E: tuple[copy_arc4_struct.InnerStruct, copy_arc4_struct.OuterStruct] must be copied using .copy() when being assigned to another variable
         (a, b) = tup ## E: Tuple cannot be destructured as it contains an item of type copy_arc4_struct.InnerStruct which requires copying. Use index access instead
-        (a, b) = (var_inner, var_outer) ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a tuple expression \
-                                        ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression
+        (a, b) = (var_inner, var_outer) ## E: copy_arc4_struct.InnerStruct must be copied using .copy() when being passed to a tuple expression \
+                                        ## E: copy_arc4_struct.OuterStruct must be copied using .copy() when being passed to a tuple expression
         (a, b) = (new_inner(), new_outer())
 
         # **TUPLE INDEXING**

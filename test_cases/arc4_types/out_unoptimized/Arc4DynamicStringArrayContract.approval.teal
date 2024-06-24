@@ -23,7 +23,7 @@ main_xyz_route@2:
     assert // is not creating
     callsub xyz
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -40,7 +40,7 @@ main_xyz_raw_route@3:
     assert // is not creating
     callsub xyz_raw
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -56,7 +56,7 @@ main_bare_routing@6:
     // class Arc4DynamicStringArrayContract(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@7
     b main_reject_bare_on_completion@8
 
@@ -81,6 +81,32 @@ xyz:
     // @arc4.abimethod
     // def xyz(self) -> arc4.DynamicArray[arc4.String]:
     proto 0 1
+    // arc4_types/dynamic_string_array.py:8
+    // arc4.String("X"),
+    byte "X"
+    len
+    itob
+    extract 6 2
+    byte "X"
+    concat
+    // arc4_types/dynamic_string_array.py:9
+    // arc4.String("Y"),
+    byte "Y"
+    len
+    itob
+    extract 6 2
+    byte "Y"
+    concat
+    cover 1
+    // arc4_types/dynamic_string_array.py:10
+    // arc4.String("Z"),
+    byte "Z"
+    len
+    itob
+    extract 6 2
+    byte "Z"
+    concat
+    cover 2
     // arc4_types/dynamic_string_array.py:7-11
     // return arc4.DynamicArray(
     //     arc4.String("X"),
@@ -90,72 +116,35 @@ xyz:
     int 6
     itob
     extract 6 2
-    byte 0x0003
-    swap
+    byte 0x
+    uncover 1
     concat
-    // arc4_types/dynamic_string_array.py:8
-    // arc4.String("X"),
-    byte "\x00\x01X"
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    dig 1
     len
     int 6
-    swap
+    uncover 1
     +
     dup
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
-    // arc4_types/dynamic_string_array.py:9
-    // arc4.String("Y"),
-    byte "\x00\x01Y"
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    cover 1
+    dig 3
     len
     +
     itob
     extract 6 2
     concat
-    // arc4_types/dynamic_string_array.py:8
-    // arc4.String("X"),
-    byte "\x00\x01X"
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    uncover 1
     concat
-    // arc4_types/dynamic_string_array.py:9
-    // arc4.String("Y"),
-    byte "\x00\x01Y"
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    uncover 1
     concat
-    // arc4_types/dynamic_string_array.py:10
-    // arc4.String("Z"),
-    byte "\x00\x01Z"
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    uncover 1
+    concat
+    byte 0x0003
+    uncover 1
     concat
     retsub
 
@@ -168,19 +157,28 @@ xyz_raw:
     proto 0 1
     // arc4_types/dynamic_string_array.py:16
     // arc4.DynamicArray(arc4.Byte(88)),
-    byte 0x0001
+    byte 0x
     byte 0x58
+    concat
+    byte 0x0001
+    uncover 1
     concat
     // arc4_types/dynamic_string_array.py:17
     // arc4.DynamicArray(arc4.Byte(89)),
-    byte 0x0001
+    byte 0x
     byte 0x59
     concat
-    swap
+    byte 0x0001
+    uncover 1
+    concat
+    cover 1
     // arc4_types/dynamic_string_array.py:18
     // arc4.DynamicArray(arc4.Byte(90)),
-    byte 0x0001
+    byte 0x
     byte 0x5a
+    concat
+    byte 0x0001
+    uncover 1
     concat
     cover 2
     // arc4_types/dynamic_string_array.py:15-19
@@ -192,32 +190,35 @@ xyz_raw:
     int 6
     itob
     extract 6 2
-    byte 0x0003
-    swap
+    byte 0x
+    uncover 1
     concat
     dig 1
     len
     int 6
-    swap
+    uncover 1
     +
     dup
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     dig 3
     len
     +
     itob
     extract 6 2
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
+    concat
+    byte 0x0003
+    uncover 1
     concat
     // arc4_types/dynamic_string_array.py:20
     // return arc4.DynamicArray[arc4.String].from_bytes(raw.bytes)

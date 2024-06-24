@@ -32,7 +32,7 @@ main_register_route@2:
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
     int 1
-    swap
+    uncover 1
     shl
     int 3
     &
@@ -59,7 +59,7 @@ main_say_hello_route@3:
     assert // is not creating
     callsub say_hello
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -82,7 +82,7 @@ main_calculate_route@4:
     // @abimethod
     callsub calculate
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -166,7 +166,7 @@ remember_creator:
     // self.creator = op.Txn.sender
     txn Sender
     byte "creator"
-    swap
+    uncover 1
     app_global_put
     retsub
 
@@ -192,7 +192,7 @@ register:
     int 0
     byte "name"
     app_local_get_ex
-    swap
+    cover 1
     pop
     // everything/contract.py:52
     // if not sender_name_existed:
@@ -206,7 +206,7 @@ register:
     callsub multiplicative_identity
     +
     byte "counter"
-    swap
+    uncover 1
     app_global_put
 
 register_after_if_else@3:
@@ -253,14 +253,24 @@ say_hello:
     bnz say_hello_after_if_else@2
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    byte "\x00\x0fHowdy stranger!"
-    swap
+    byte "Howdy stranger!"
+    len
+    itob
+    extract 6 2
+    byte "Howdy stranger!"
+    concat
+    uncover 1
     retsub
 
 say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    byte "\x00\x07Hello, "
+    byte "Hello, "
+    len
+    itob
+    extract 6 2
+    byte "Hello, "
+    concat
     extract 2 0
     frame_dig 0
     extract 2 0
@@ -268,20 +278,25 @@ say_hello_after_if_else@2:
     dup
     len
     itob
-    extract 6 0
-    swap
+    extract 6 2
+    uncover 1
     concat
     extract 2 0
-    byte "\x00\x01!"
+    byte "!"
+    len
+    itob
+    extract 6 2
+    byte "!"
+    concat
     extract 2 0
     concat
     dup
     len
     itob
-    extract 6 0
-    swap
+    extract 6 2
+    uncover 1
     concat
-    swap
+    uncover 1
     retsub
 
 
@@ -350,7 +365,7 @@ _remove_sender:
     callsub positive_one
     -
     byte "counter"
-    swap
+    uncover 1
     app_global_put
     retsub
 

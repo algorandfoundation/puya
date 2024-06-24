@@ -25,14 +25,14 @@ main_new_game_route@1:
     dup
     int 0
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     int 8
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     btoi
-    swap
+    cover 1
     btoi
     // tictactoe/tictactoe.py:20
     // @arc4.abimethod(create="allow")
@@ -55,14 +55,14 @@ main_join_game_route@2:
     dup
     int 0
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     int 8
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     btoi
-    swap
+    cover 1
     btoi
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
@@ -81,7 +81,7 @@ main_whose_turn_route@3:
     assert // is not creating
     callsub whose_turn
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -102,14 +102,14 @@ main_play_route@4:
     dup
     int 0
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     int 8
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     btoi
-    swap
+    cover 1
     btoi
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
@@ -142,7 +142,7 @@ new_game:
     int 0
     byte "challenger"
     app_global_get_ex
-    swap
+    cover 1
     pop
     bz new_game_after_if_else@3
     // tictactoe/tictactoe.py:26
@@ -150,7 +150,7 @@ new_game:
     int 0
     byte "winner"
     app_global_get_ex
-    swap
+    cover 1
     pop
     assert // Game isn't over
 
@@ -170,14 +170,14 @@ new_game_after_if_else@4:
     // self.host = Txn.sender
     txn Sender
     byte "host"
-    swap
+    uncover 1
     app_global_put
     // tictactoe/tictactoe.py:31
     // self.game = Game.from_bytes(op.bzero(9))
     int 9
     bzero
     byte "game"
-    swap
+    uncover 1
     app_global_put
     // tictactoe/tictactoe.py:32
     // column, row = move
@@ -213,16 +213,11 @@ new_game_bool_merge@8:
     assert // check game exists
     frame_dig 1
     dup
-    int 3
-    <
-    assert // Index access is out of bounds
-    dup
+    cover 2
     int 3
     *
-    uncover 2
-    swap
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig 0
     dup
     int 3
@@ -235,7 +230,7 @@ new_game_bool_merge@8:
     int 0
     byte "game"
     app_global_get_ex
-    swap
+    cover 1
     cover 2
     assert // check game exists
     dig 2
@@ -246,11 +241,11 @@ new_game_bool_merge@8:
     int 3
     *
     uncover 2
-    swap
+    uncover 1
     uncover 2
     replace3
     byte "game"
-    swap
+    uncover 1
     app_global_put
     // tictactoe/tictactoe.py:35
     // self.turns = UInt64(0)
@@ -271,7 +266,7 @@ join_game:
     int 0
     byte "challenger"
     app_global_get_ex
-    swap
+    cover 1
     pop
     !
     assert // Host already has a challenger
@@ -279,7 +274,7 @@ join_game:
     // self.challenger.value = Txn.sender
     txn Sender
     byte "challenger"
-    swap
+    uncover 1
     app_global_put
     // tictactoe/tictactoe.py:41
     // self.make_move(arc4.UInt8(CHALLENGER), move)
@@ -300,9 +295,9 @@ make_move:
     // column, row = move
     frame_dig -2
     dup
-    swap
+    cover 1
     frame_dig -1
-    swap
+    cover 1
     // tictactoe/tictactoe.py:63
     // assert column < 3 and row < 3, "Move must be in range"
     int 3
@@ -330,28 +325,18 @@ make_move_bool_merge@4:
     assert // check game exists
     frame_dig 1
     dup
-    int 3
-    <
-    assert // Index access is out of bounds
-    dup
+    cover 2
     int 3
     *
-    uncover 2
-    swap
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig 0
     dup
-    int 3
-    <
-    assert // Index access is out of bounds
-    dup
+    cover 3
     int 1
     *
-    uncover 2
-    swap
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     byte 0x00
     b==
     assert // Square is already taken
@@ -361,22 +346,18 @@ make_move_bool_merge@4:
     byte "game"
     app_global_get_ex
     assert // check game exists
-    dig 2
-    int 3
-    <
-    assert // Index access is out of bounds
-    dig 2
+    dig 1
     int 3
     *
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig -3
-    swap
-    dig 2
+    cover 1
+    dig 3
     int 3
     <
     assert // Index access is out of bounds
-    dig 2
+    dig 3
     int 1
     *
     uncover 2
@@ -384,22 +365,22 @@ make_move_bool_merge@4:
     int 0
     byte "game"
     app_global_get_ex
-    swap
+    cover 1
     cover 2
     assert // check game exists
-    dig 3
+    dig 2
     int 3
     <
     assert // Index access is out of bounds
-    dig 3
+    dig 2
     int 3
     *
     uncover 2
-    swap
+    uncover 1
     uncover 2
     replace3
     byte "game"
-    swap
+    uncover 1
     app_global_put
     // tictactoe/tictactoe.py:66
     // self.turns += 1
@@ -410,12 +391,12 @@ make_move_bool_merge@4:
     int 1
     +
     byte "turns"
-    swap
+    uncover 1
     app_global_put
     // tictactoe/tictactoe.py:67
     // if self.did_win(player, column=column, row=row):
     frame_dig -3
-    swap
+    uncover 2
     uncover 2
     callsub did_win
     bz make_move_else_body@6
@@ -462,61 +443,47 @@ did_win:
     app_global_get_ex
     assert // check game exists
     dup
-    swap
+    cover 1
     // tictactoe/tictactoe.py:76
     // if g[row][0] == g[row][1] == g[row][2]:
-    frame_dig -1
-    int 3
-    <
-    assert // Index access is out of bounds
+    dup
     frame_dig -1
     int 3
     *
-    dig 1
-    swap
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     int 0
     int 1
     *
     int 1
-    extract3
-    swap
-    frame_dig -1
-    int 3
-    <
-    assert // Index access is out of bounds
+    extract3 // on error: Index access is out of bounds
+    cover 1
     frame_dig -1
     int 3
     *
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     int 1
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     dup
     cover 2
     b==
     bz did_win_after_if_else@3
     frame_dig 2
-    frame_dig -1
-    int 3
-    <
-    assert // Index access is out of bounds
+    frame_dig 1
     frame_dig -1
     int 3
     *
-    frame_dig 1
-    swap
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     int 2
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@3
     // tictactoe/tictactoe.py:77
@@ -528,60 +495,45 @@ did_win:
 did_win_after_if_else@3:
     // tictactoe/tictactoe.py:79
     // if g[0][column] == g[1][column] == g[2][column]:
+    frame_dig 1
+    dup
     int 0
     int 3
     *
-    frame_dig 1
-    dup
-    cover 2
-    swap
     int 3
-    extract3
-    frame_dig -2
-    int 3
-    <
-    assert // Index access is out of bounds
+    extract3 // on error: Index access is out of bounds
     frame_dig -2
     int 1
     *
     int 1
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     int 1
     int 3
     *
     int 3
-    extract3
-    frame_dig -2
-    int 3
-    <
-    assert // Index access is out of bounds
+    extract3 // on error: Index access is out of bounds
     frame_dig -2
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     dup
     frame_bury 0
     b==
     bz did_win_after_if_else@6
     frame_dig 0
+    frame_dig 1
     int 2
     int 3
     *
-    frame_dig 1
-    swap
     int 3
-    extract3
-    frame_dig -2
-    int 3
-    <
-    assert // Index access is out of bounds
+    extract3 // on error: Index access is out of bounds
     frame_dig -2
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@6
     // tictactoe/tictactoe.py:80
@@ -595,50 +547,47 @@ did_win_after_if_else@6:
     // # if player owns center, check diagonals
     // if player == g[1][1]:
     frame_dig -3
-    int 1
-    int 3
-    *
     frame_dig 1
-    swap
+    int 1
     int 3
-    extract3
+    *
+    int 3
+    extract3 // on error: Index access is out of bounds
     int 1
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@14
     // tictactoe/tictactoe.py:84
     // if g[0][0] == player == g[2][2]:
-    int 0
-    int 3
-    *
     frame_dig 1
-    swap
+    int 0
     int 3
-    extract3
+    *
+    int 3
+    extract3 // on error: Index access is out of bounds
     int 0
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@10
     frame_dig -3
-    int 2
-    int 3
-    *
     frame_dig 1
-    swap
+    int 2
     int 3
-    extract3
+    *
+    int 3
+    extract3 // on error: Index access is out of bounds
     int 2
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@10
     // tictactoe/tictactoe.py:85
@@ -650,34 +599,32 @@ did_win_after_if_else@6:
 did_win_after_if_else@10:
     // tictactoe/tictactoe.py:86
     // if g[0][2] == player == g[2][0]:
+    frame_dig 1
     int 0
     int 3
     *
-    frame_dig 1
-    swap
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     int 2
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig -3
     b==
     bz did_win_after_if_else@13
     frame_dig -3
+    frame_dig 1
     int 2
     int 3
     *
-    frame_dig 1
-    swap
     int 3
-    extract3
+    extract3 // on error: Index access is out of bounds
     int 0
     int 1
     *
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     b==
     bz did_win_after_if_else@13
     // tictactoe/tictactoe.py:87
@@ -736,7 +683,7 @@ play:
     int 0
     byte "winner"
     app_global_get_ex
-    swap
+    cover 1
     pop
     !
     assert // Game is already finished
@@ -779,9 +726,9 @@ play_else_body@2:
     //     default=Account()
     // ), "It is the challenger's turn"
     app_global_get_ex
-    swap
+    cover 1
     uncover 2
-    swap
+    uncover 1
     uncover 2
     select
     ==

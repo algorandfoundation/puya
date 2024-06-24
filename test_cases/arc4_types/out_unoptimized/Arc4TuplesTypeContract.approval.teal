@@ -3,6 +3,19 @@
 test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     // arc4_types/tuples.py:15
     // my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
+    byte "hello"
+    len
+    itob
+    extract 6 2
+    byte "hello"
+    concat
+    byte "world"
+    len
+    itob
+    extract 6 2
+    byte "world"
+    concat
+    cover 1
     byte 0x
     byte 0x01
     concat
@@ -12,22 +25,22 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     itob
     extract 6 2
     concat
-    byte "\x00\x05hello"
+    dig 1
     len
     int 7
-    swap
+    uncover 1
     +
     itob
     extract 6 2
     concat
     byte 0xff
     concat
-    byte "\x00\x05hello"
+    uncover 1
     concat
-    byte "\x00\x05world"
+    uncover 1
     concat
     dup
-    swap
+    cover 1
     // arc4_types/tuples.py:18
     // Bytes.from_hex("01020007000EFF000568656C6C6F0005776F726C64")
     byte 0x01020007000eff000568656c6c6f0005776f726c64
@@ -137,56 +150,56 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 9
     uncover 2
     setbit
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 10
     uncover 2
     setbit
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 11
     uncover 2
     setbit
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 12
     uncover 2
     setbit
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 13
     uncover 2
     setbit
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 14
     uncover 2
     setbit
-    swap
+    uncover 1
     int 0
     getbit
-    swap
+    uncover 1
     int 15
     uncover 2
     setbit
-    swap
+    uncover 1
     concat
     // arc4_types/tuples.py:32
     // UInt8(16),
@@ -209,7 +222,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     // )
     concat
     dup
-    swap
+    cover 1
     // arc4_types/tuples.py:35
     // assert boolean_packing.bytes == Bytes.from_hex("04BD8010")
     dup
@@ -221,8 +234,8 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     dup
     int 0
     int 1
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     dup
     int 8
     getbit
@@ -230,7 +243,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 9
     getbit
@@ -238,7 +251,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 10
     getbit
@@ -246,7 +259,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 11
     getbit
@@ -254,7 +267,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 12
     getbit
@@ -262,7 +275,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 13
     getbit
@@ -270,7 +283,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 14
     getbit
@@ -278,7 +291,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 15
     getbit
@@ -286,7 +299,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 16
     getbit
@@ -294,19 +307,17 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 3
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     uncover 11
     cover 4
     uncover 11
     dup
-    cover 7
-    cover 12
-    uncover 5
     cover 6
+    cover 12
     uncover 3
     cover 5
     uncover 2
@@ -315,11 +326,11 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     cover 4
     // arc4_types/tuples.py:37
     // assert boolean_packing[10] == k
-    swap
+    uncover 1
     int 3
     int 1
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    uncover 1
     b==
     assert
     // arc4_types/tuples.py:38
@@ -440,8 +451,8 @@ main_ternary_merge@21:
     dup
     int 0
     int 1
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     dup
     int 8
     getbit
@@ -449,7 +460,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 9
     getbit
@@ -457,7 +468,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    swap
+    cover 1
     dup
     int 10
     getbit
@@ -465,7 +476,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 2
+    cover 1
     dup
     int 11
     getbit
@@ -473,7 +484,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 3
+    cover 1
     dup
     int 12
     getbit
@@ -481,7 +492,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 4
+    cover 1
     dup
     int 13
     getbit
@@ -489,7 +500,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 5
+    cover 1
     dup
     int 14
     getbit
@@ -497,7 +508,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 6
+    cover 1
     dup
     int 15
     getbit
@@ -505,7 +516,7 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 7
+    cover 1
     dup
     int 16
     getbit
@@ -513,69 +524,68 @@ main_ternary_merge@21:
     int 0
     uncover 2
     setbit
-    cover 8
+    cover 1
     dup
     int 3
     int 1
-    extract3
-    cover 7
+    extract3 // on error: Index access is out of bounds
     byte 0x
     uncover 12
     concat
     uncover 11
     concat
-    uncover 2
+    uncover 10
     int 0
     getbit
-    swap
+    uncover 1
     int 9
     uncover 2
     setbit
-    uncover 2
+    uncover 9
     int 0
     getbit
-    swap
+    uncover 1
     int 10
     uncover 2
     setbit
-    uncover 2
+    uncover 8
     int 0
     getbit
-    swap
+    uncover 1
     int 11
     uncover 2
     setbit
-    uncover 2
+    uncover 7
     int 0
     getbit
-    swap
+    uncover 1
     int 12
     uncover 2
     setbit
-    uncover 2
+    uncover 6
     int 0
     getbit
-    swap
+    uncover 1
     int 13
     uncover 2
     setbit
-    uncover 2
+    uncover 5
     int 0
     getbit
-    swap
+    uncover 1
     int 14
     uncover 2
     setbit
-    uncover 3
+    uncover 4
     int 0
     getbit
-    swap
+    uncover 1
     int 15
     uncover 2
     setbit
     uncover 3
     concat
-    uncover 2
+    uncover 1
     concat
     ==
     assert
@@ -611,52 +621,47 @@ test_stuff:
     frame_dig -1
     int 0
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig -1
     int 1
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig -1
     int 2
     extract_uint16
-    frame_dig -1
-    dig 1
-    extract_uint16
-    int 2
-    +
-    frame_dig -1
-    uncover 2
-    uncover 2
-    extract3
     frame_dig -1
     int 4
     extract_uint16
     frame_dig -1
-    dig 1
+    uncover 2
+    uncover 2
+    substring3
+    frame_dig -1
+    int 4
     extract_uint16
-    int 2
-    +
+    frame_dig -1
+    len
     frame_dig -1
     uncover 2
     uncover 2
-    extract3
+    substring3
     frame_dig -1
     int 6
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     uncover 4
     cover 2
     uncover 3
     cover 4
-    swap
+    uncover 1
     cover 2
-    swap
+    cover 1
     // arc4_types/tuples.py:58
     // assert test_tuple[-0] == a
     frame_dig -1
     int 0
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     dig 1
     b==
     assert
@@ -665,7 +670,7 @@ test_stuff:
     frame_dig -1
     int 6
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     dig 2
     b==
     assert
@@ -675,14 +680,11 @@ test_stuff:
     int 4
     extract_uint16
     frame_dig -1
-    dig 1
-    extract_uint16
-    int 2
-    +
+    len
     frame_dig -1
     uncover 2
     uncover 2
-    extract3
+    substring3
     dig 3
     ==
     assert
@@ -692,7 +694,7 @@ test_stuff:
     uncover 3
     btoi
     +
-    swap
+    uncover 1
     btoi
     +
     // arc4_types/tuples.py:63
@@ -710,6 +712,6 @@ test_stuff:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     retsub

@@ -7,7 +7,7 @@ from puya.teal.optimize.constant_stack_shuffling import (
     perform_constant_stack_shuffling,
 )
 from puya.teal.optimize.peephole import peephole
-from puya.teal.optimize.repeated_rotations import simplify_repeated_rotation_ops
+from puya.teal.optimize.repeated_rotations import simplify_repeated_rotation_ops, simplify_swap_ops
 from puya.teal.optimize.repeated_rotations_search import repeated_rotation_ops_search
 
 
@@ -27,6 +27,9 @@ def optimize_block(block: models.TealBlock, *, level: int) -> None:
         # this is a brute-force search which can be slow at times,
         # so it's only done once and only at higher optimisation levels
         block.ops = repeated_rotation_ops_search(block.ops)
+
+    # simplifying uncover/cover 1 to swap is easier to do after other rotation optimizations
+    simplify_swap_ops(block)
 
 
 def optimize_teal_program(

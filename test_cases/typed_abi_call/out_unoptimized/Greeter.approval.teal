@@ -254,7 +254,7 @@ main_bare_routing@15:
     // class Greeter(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@16
     b main_reject_bare_on_completion@17
 
@@ -282,6 +282,12 @@ test_method_selector_kinds:
     // typed_abi_call/typed_c2c.py:20
     // result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
     itxn_begin
+    byte "test1"
+    len
+    itob
+    extract 6 2
+    byte "test1"
+    concat
     // typed_abi_call/typed_c2c.py:19
     // def test_method_selector_kinds(self, app: Application) -> None:
     frame_dig -1
@@ -290,7 +296,6 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x05test1"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -300,19 +305,30 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:21
     // assert result == "echo: test1"
-    byte "\x00\x0becho: test1"
+    byte "echo: test1"
+    len
+    itob
+    extract 6 2
+    byte "echo: test1"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:22
     // result, _txn = arc4.abi_call(LoggerClient.echo, "test2", app_id=app)
     itxn_begin
+    byte "test2"
+    len
+    itob
+    extract 6 2
+    byte "test2"
+    concat
     // typed_abi_call/typed_c2c.py:19
     // def test_method_selector_kinds(self, app: Application) -> None:
     frame_dig -1
@@ -321,7 +337,6 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call(LoggerClient.echo, "test2", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x05test2"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -331,19 +346,30 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:23
     // assert result == "echo: test2"
-    byte "\x00\x0becho: test2"
+    byte "echo: test2"
+    len
+    itob
+    extract 6 2
+    byte "echo: test2"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:24
     // result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
     itxn_begin
+    byte "test3"
+    len
+    itob
+    extract 6 2
+    byte "test3"
+    concat
     // typed_abi_call/typed_c2c.py:19
     // def test_method_selector_kinds(self, app: Application) -> None:
     frame_dig -1
@@ -352,7 +378,6 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x05test3"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -362,19 +387,30 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:25
     // assert result == "echo: test3"
-    byte "\x00\x0becho: test3"
+    byte "echo: test3"
+    len
+    itob
+    extract 6 2
+    byte "echo: test3"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:26
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)", "test4", app_id=app)
     itxn_begin
+    byte "test4"
+    len
+    itob
+    extract 6 2
+    byte "test4"
+    concat
     // typed_abi_call/typed_c2c.py:19
     // def test_method_selector_kinds(self, app: Application) -> None:
     frame_dig -1
@@ -383,7 +419,6 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)", "test4", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x05test4"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -393,19 +428,30 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:27
     // assert result == "echo: test4"
-    byte "\x00\x0becho: test4"
+    byte "echo: test4"
+    len
+    itob
+    extract 6 2
+    byte "echo: test4"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:28
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)string", "test5", app_id=app)
     itxn_begin
+    byte "test5"
+    len
+    itob
+    extract 6 2
+    byte "test5"
+    concat
     // typed_abi_call/typed_c2c.py:19
     // def test_method_selector_kinds(self, app: Application) -> None:
     frame_dig -1
@@ -414,7 +460,6 @@ test_method_selector_kinds:
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)string", "test5", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x05test5"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -424,14 +469,19 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // typed_abi_call/typed_c2c.py:29
     // assert result == "echo: test5"
-    byte "\x00\x0becho: test5"
+    byte "echo: test5"
+    len
+    itob
+    extract 6 2
+    byte "echo: test5"
+    concat
     ==
     assert
     retsub
@@ -446,6 +496,12 @@ test_method_overload:
     // typed_abi_call/typed_c2c.py:33
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
     itxn_begin
+    byte "typed + ignore"
+    len
+    itob
+    extract 6 2
+    byte "typed + ignore"
+    concat
     // typed_abi_call/typed_c2c.py:32
     // def test_method_overload(self, app: Application) -> None:
     frame_dig -1
@@ -454,7 +510,6 @@ test_method_overload:
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x0etyped + ignore"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -471,17 +526,28 @@ test_method_overload:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    byte "\x00\x14echo: typed + ignore"
+    byte "echo: typed + ignore"
+    len
+    itob
+    extract 6 2
+    byte "echo: typed + ignore"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:36
     // arc4.abi_call("echo(string)string", "untyped + ignore", app_id=app)
     itxn_begin
+    byte "untyped + ignore"
+    len
+    itob
+    extract 6 2
+    byte "untyped + ignore"
+    concat
     // typed_abi_call/typed_c2c.py:32
     // def test_method_overload(self, app: Application) -> None:
     frame_dig -1
@@ -490,7 +556,6 @@ test_method_overload:
     // arc4.abi_call("echo(string)string", "untyped + ignore", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x10untyped + ignore"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -502,17 +567,28 @@ test_method_overload:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    byte "\x00\x16echo: untyped + ignore"
+    byte "echo: untyped + ignore"
+    len
+    itob
+    extract 6 2
+    byte "echo: untyped + ignore"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:39
     // result = arc4.abi_call[arc4.String]("echo(string)string", "tuple", app_id=app)
     itxn_begin
+    byte "tuple"
+    len
+    itob
+    extract 6 2
+    byte "tuple"
+    concat
     // typed_abi_call/typed_c2c.py:32
     // def test_method_overload(self, app: Application) -> None:
     frame_dig -1
@@ -521,7 +597,6 @@ test_method_overload:
     // result = arc4.abi_call[arc4.String]("echo(string)string", "tuple", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x05tuple"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -531,33 +606,49 @@ test_method_overload:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     itxn LastLog
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:40
     // assert result[0] == "echo: tuple"
-    byte "\x00\x0becho: tuple"
+    byte "echo: tuple"
+    len
+    itob
+    extract 6 2
+    byte "echo: tuple"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:41
     // assert arc4.String.from_log(result[1].last_log) == "echo: tuple"
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    byte "\x00\x0becho: tuple"
+    byte "echo: tuple"
+    len
+    itob
+    extract 6 2
+    byte "echo: tuple"
+    concat
     ==
     assert
     // typed_abi_call/typed_c2c.py:43
     // txn_result = arc4.abi_call("echo(string)string", "untyped", app_id=app)
     itxn_begin
+    byte "untyped"
+    len
+    itob
+    extract 6 2
+    byte "untyped"
+    concat
     // typed_abi_call/typed_c2c.py:32
     // def test_method_overload(self, app: Application) -> None:
     frame_dig -1
@@ -566,7 +657,6 @@ test_method_overload:
     // txn_result = arc4.abi_call("echo(string)string", "untyped", app_id=app)
     method "echo(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x07untyped"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -578,12 +668,17 @@ test_method_overload:
     // assert arc4.String.from_log(txn_result.last_log) == "echo: untyped"
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    byte "\x00\recho: untyped"
+    byte "echo: untyped"
+    len
+    itob
+    extract 6 2
+    byte "echo: untyped"
+    concat
     ==
     assert
     retsub
@@ -598,6 +693,12 @@ test_arg_conversion:
     // typed_abi_call/typed_c2c.py:48
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
     itxn_begin
+    byte "converted1"
+    len
+    itob
+    extract 6 2
+    byte "converted1"
+    concat
     // typed_abi_call/typed_c2c.py:47
     // def test_arg_conversion(self, app: Application) -> None:
     frame_dig -1
@@ -606,7 +707,6 @@ test_arg_conversion:
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
     method "log_string(string)void"
     itxn_field ApplicationArgs
-    byte "\x00\nconverted1"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -675,6 +775,12 @@ test_arg_conversion:
     // typed_abi_call/typed_c2c.py:57
     // txn = arc4.abi_call(Logger.log_bytes, b"4", app_id=app)
     itxn_begin
+    byte 0x34
+    len
+    itob
+    extract 6 2
+    byte 0x34
+    concat
     // typed_abi_call/typed_c2c.py:47
     // def test_arg_conversion(self, app: Application) -> None:
     frame_dig -1
@@ -683,7 +789,6 @@ test_arg_conversion:
     // txn = arc4.abi_call(Logger.log_bytes, b"4", app_id=app)
     method "log_bytes(byte[])void"
     itxn_field ApplicationArgs
-    byte 0x000134
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -821,7 +926,7 @@ test_15plus_args:
     // arc4.Tuple((arc4.UInt8(0xDE), arc4.UInt8(0xAD), arc4.UInt8(0xBE), arc4.UInt8(0xEF))),
     // 20,
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:86
     // 20,
@@ -955,7 +1060,7 @@ test_15plus_args:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -978,6 +1083,12 @@ test_void:
     // typed_abi_call/typed_c2c.py:93
     // txn = arc4.abi_call("log_string(string)void", "World1", app_id=app)
     itxn_begin
+    byte "World1"
+    len
+    itob
+    extract 6 2
+    byte "World1"
+    concat
     // typed_abi_call/typed_c2c.py:92
     // def test_void(self, app: Application) -> None:
     frame_dig -1
@@ -986,7 +1097,6 @@ test_void:
     // txn = arc4.abi_call("log_string(string)void", "World1", app_id=app)
     method "log_string(string)void"
     itxn_field ApplicationArgs
-    byte "\x00\x06World1"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1002,6 +1112,12 @@ test_void:
     // typed_abi_call/typed_c2c.py:96
     // txn = arc4.abi_call("log_string(string)", "World2", app_id=app)
     itxn_begin
+    byte "World2"
+    len
+    itob
+    extract 6 2
+    byte "World2"
+    concat
     // typed_abi_call/typed_c2c.py:92
     // def test_void(self, app: Application) -> None:
     frame_dig -1
@@ -1010,7 +1126,6 @@ test_void:
     // txn = arc4.abi_call("log_string(string)", "World2", app_id=app)
     method "log_string(string)void"
     itxn_field ApplicationArgs
-    byte "\x00\x06World2"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1026,6 +1141,12 @@ test_void:
     // typed_abi_call/typed_c2c.py:99
     // txn = arc4.abi_call("log_string", arc4.String("World3"), app_id=app)
     itxn_begin
+    byte "World3"
+    len
+    itob
+    extract 6 2
+    byte "World3"
+    concat
     // typed_abi_call/typed_c2c.py:92
     // def test_void(self, app: Application) -> None:
     frame_dig -1
@@ -1034,7 +1155,6 @@ test_void:
     // txn = arc4.abi_call("log_string", arc4.String("World3"), app_id=app)
     method "log_string(string)void"
     itxn_field ApplicationArgs
-    byte "\x00\x06World3"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1050,6 +1170,12 @@ test_void:
     // typed_abi_call/typed_c2c.py:102
     // txn = arc4.abi_call(Logger.log_string, "World4", app_id=app)
     itxn_begin
+    byte "World4"
+    len
+    itob
+    extract 6 2
+    byte "World4"
+    concat
     // typed_abi_call/typed_c2c.py:92
     // def test_void(self, app: Application) -> None:
     frame_dig -1
@@ -1058,7 +1184,6 @@ test_void:
     // txn = arc4.abi_call(Logger.log_string, "World4", app_id=app)
     method "log_string(string)void"
     itxn_field ApplicationArgs
-    byte "\x00\x06World4"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1171,6 +1296,12 @@ test_native_string:
     // typed_abi_call/typed_c2c.py:121
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
     itxn_begin
+    byte "s"
+    len
+    itob
+    extract 6 2
+    byte "s"
+    concat
     // typed_abi_call/typed_c2c.py:120
     // def test_native_string(self, app: Application) -> None:
     frame_dig -1
@@ -1179,7 +1310,6 @@ test_native_string:
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
     method "echo_native_string(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x01s"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1189,7 +1319,7 @@ test_native_string:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1228,7 +1358,7 @@ test_native_string:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1242,6 +1372,12 @@ test_native_string:
     // typed_abi_call/typed_c2c.py:127
     // result3, _txn = arc4.abi_call(Logger.echo_native_string, arc4.String("s"), app_id=app)
     itxn_begin
+    byte "s"
+    len
+    itob
+    extract 6 2
+    byte "s"
+    concat
     // typed_abi_call/typed_c2c.py:120
     // def test_native_string(self, app: Application) -> None:
     frame_dig -1
@@ -1250,7 +1386,6 @@ test_native_string:
     // result3, _txn = arc4.abi_call(Logger.echo_native_string, arc4.String("s"), app_id=app)
     method "echo_native_string(string)string"
     itxn_field ApplicationArgs
-    byte "\x00\x01s"
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1260,7 +1395,7 @@ test_native_string:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1284,6 +1419,12 @@ test_native_bytes:
     // typed_abi_call/typed_c2c.py:132
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
     itxn_begin
+    byte 0x62
+    len
+    itob
+    extract 6 2
+    byte 0x62
+    concat
     // typed_abi_call/typed_c2c.py:131
     // def test_native_bytes(self, app: Application) -> None:
     frame_dig -1
@@ -1292,7 +1433,6 @@ test_native_bytes:
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
     method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    byte 0x000162
     itxn_field ApplicationArgs
     int appl
     itxn_field TypeEnum
@@ -1302,7 +1442,7 @@ test_native_bytes:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1341,7 +1481,7 @@ test_native_bytes:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1357,6 +1497,14 @@ test_native_bytes:
     //     Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
     // )
     itxn_begin
+    // typed_abi_call/typed_c2c.py:139
+    // Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
+    byte 0x62
+    len
+    itob
+    extract 6 2
+    byte 0x62
+    concat
     // typed_abi_call/typed_c2c.py:131
     // def test_native_bytes(self, app: Application) -> None:
     frame_dig -1
@@ -1367,14 +1515,7 @@ test_native_bytes:
     // )
     method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:139
-    // Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
-    byte 0x000162
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:138-140
-    // result3, _txn = arc4.abi_call(
-    //     Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
-    // )
     int appl
     itxn_field TypeEnum
     int 0
@@ -1383,7 +1524,7 @@ test_native_bytes:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1425,7 +1566,7 @@ test_native_uint64:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1460,7 +1601,7 @@ test_native_uint64:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1492,7 +1633,7 @@ test_native_uint64:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1534,7 +1675,7 @@ test_native_biguint:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1557,7 +1698,7 @@ test_native_biguint:
     int 64
     bzero
     byte 0x02
-    swap
+    uncover 1
     b|
     // typed_abi_call/typed_c2c.py:155
     // def test_native_biguint(self, app: Application) -> None:
@@ -1576,7 +1717,7 @@ test_native_biguint:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1607,7 +1748,7 @@ test_native_biguint:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1638,6 +1779,23 @@ test_native_tuple:
     //     app_id=app,
     // )
     itxn_begin
+    // typed_abi_call/typed_c2c.py:172
+    // "s1",
+    byte "s1"
+    len
+    itob
+    extract 6 2
+    byte "s1"
+    concat
+    // typed_abi_call/typed_c2c.py:173
+    // b"b1",
+    byte 0x6231
+    len
+    itob
+    extract 6 2
+    byte 0x6231
+    concat
+    cover 1
     // typed_abi_call/typed_c2c.py:166
     // def test_native_tuple(self, app: Application) -> None:
     frame_dig -1
@@ -1654,13 +1812,7 @@ test_native_tuple:
     // )
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:172
-    // "s1",
-    byte "\x00\x02s1"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:173
-    // b"b1",
-    byte 0x00026231
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:174
     // 1,
@@ -1692,7 +1844,7 @@ test_native_tuple:
     // )
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1704,39 +1856,37 @@ test_native_tuple:
     dup
     int 0
     extract_uint16
-    dig 1
-    dig 1
-    extract_uint16
-    int 2
-    +
-    dig 2
-    uncover 2
-    uncover 2
-    extract3
-    swap
+    cover 1
     dup
     int 2
     extract_uint16
     dig 1
-    dig 1
-    extract_uint16
+    uncover 3
+    uncover 2
+    substring3
+    cover 1
+    dup
     int 2
-    +
-    dig 2
-    uncover 2
-    uncover 2
-    extract3
-    swap
+    extract_uint16
+    cover 1
+    dup
+    len
+    cover 1
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    cover 1
     dup
     int 4
     int 8
-    extract3
-    swap
+    extract3 // on error: Index access is out of bounds
+    cover 1
     int 12
     int 64
-    extract3
+    extract3 // on error: Index access is out of bounds
     uncover 3
-    swap
+    cover 1
     uncover 2
     cover 3
     cover 3
@@ -1804,12 +1954,12 @@ test_native_tuple:
     int 64
     bzero
     byte 0x02
-    swap
+    uncover 1
     b|
     // typed_abi_call/typed_c2c.py:190
     // String("s1"),
     uncover 3
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:191
     // Bytes(b"b1"),
     uncover 3
@@ -1849,7 +1999,7 @@ test_native_tuple:
     // )
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1857,7 +2007,7 @@ test_native_tuple:
     // typed_abi_call/typed_c2c.py:199
     // assert result1 == result2
     frame_dig 0
-    swap
+    uncover 1
     ==
     assert
     // typed_abi_call/typed_c2c.py:201-209
@@ -1871,6 +2021,23 @@ test_native_tuple:
     //     app_id=app,
     // )
     itxn_begin
+    // typed_abi_call/typed_c2c.py:204
+    // arc4.String("s1"),
+    byte "s1"
+    len
+    itob
+    extract 6 2
+    byte "s1"
+    concat
+    // typed_abi_call/typed_c2c.py:205
+    // arc4.DynamicBytes(b"b1"),
+    byte 0x6231
+    len
+    itob
+    extract 6 2
+    byte 0x6231
+    concat
+    cover 1
     // typed_abi_call/typed_c2c.py:166
     // def test_native_tuple(self, app: Application) -> None:
     frame_dig -1
@@ -1887,13 +2054,7 @@ test_native_tuple:
     // )
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:204
-    // arc4.String("s1"),
-    byte "\x00\x02s1"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:205
-    // arc4.DynamicBytes(b"b1"),
-    byte 0x00026231
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:206
     // arc4.UInt64(1),
@@ -1925,7 +2086,7 @@ test_native_tuple:
     // )
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     byte 0x151f7c75
     ==
@@ -1933,7 +2094,7 @@ test_native_tuple:
     // typed_abi_call/typed_c2c.py:213
     // assert result1 == result3
     frame_dig 0
-    swap
+    uncover 1
     ==
     assert
     retsub

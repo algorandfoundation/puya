@@ -73,7 +73,7 @@ main_bootstrap_route@5:
     callsub bootstrap
     itob
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -242,7 +242,7 @@ main_bare_routing@11:
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@12
     b main_reject_bare_on_completion@13
 
@@ -357,7 +357,7 @@ bootstrap:
     // self.pool_token = self._create_pool_token()
     callsub _create_pool_token
     byte "pool_token"
-    swap
+    uncover 1
     app_global_put
     // amm/contract.py:77
     // self._do_opt_in(self.asset_a)
@@ -408,7 +408,7 @@ _create_pool_token:
     asset_params_get AssetUnitName
     assert // asset exists
     byte "DPT-"
-    swap
+    uncover 1
     concat
     byte "-"
     concat
@@ -581,7 +581,7 @@ mint:
     app_global_get_ex
     assert // check pool_token exists
     frame_dig -3
-    swap
+    uncover 1
     ==
     assert // asset pool incorrect
     // amm/contract.py:115
@@ -591,7 +591,7 @@ mint:
     app_global_get_ex
     assert // check asset_a exists
     frame_dig -2
-    swap
+    uncover 1
     ==
     assert // asset a incorrect
     // amm/contract.py:116
@@ -601,7 +601,7 @@ mint:
     app_global_get_ex
     assert // check asset_b exists
     frame_dig -1
-    swap
+    uncover 1
     ==
     assert // asset b incorrect
     // amm/contract.py:117
@@ -880,7 +880,7 @@ tokens_to_mint_after_if_else@6:
     // amm/contract.py:338
     // return a_ratio * issued // SCALE
     frame_dig 0
-    swap
+    uncover 1
     *
     int 1000
     /
@@ -891,7 +891,7 @@ tokens_to_mint_else_body@8:
     // amm/contract.py:340
     // return b_ratio * issued // SCALE
     frame_dig 1
-    swap
+    uncover 1
     *
     int 1000
     /
@@ -911,15 +911,15 @@ _update_ratio:
     // amm/contract.py:258
     // b_balance = self._current_b_balance()
     callsub _current_b_balance
-    swap
+    cover 1
     // amm/contract.py:260
     // self.ratio = a_balance * SCALE // b_balance
     int 1000
     *
-    swap
+    uncover 1
     /
     byte "ratio"
-    swap
+    uncover 1
     app_global_put
     retsub
 
@@ -952,7 +952,7 @@ burn:
     app_global_get_ex
     assert // check pool_token exists
     frame_dig -3
-    swap
+    uncover 1
     ==
     assert // asset pool incorrect
     // amm/contract.py:173
@@ -962,7 +962,7 @@ burn:
     app_global_get_ex
     assert // check asset_a exists
     frame_dig -2
-    swap
+    uncover 1
     ==
     assert // asset a incorrect
     // amm/contract.py:174
@@ -972,7 +972,7 @@ burn:
     app_global_get_ex
     assert // check asset_b exists
     frame_dig -1
-    swap
+    uncover 1
     ==
     assert // asset b incorrect
     // amm/contract.py:177
@@ -1032,7 +1032,7 @@ burn:
     uncover 2
     uncover 2
     callsub tokens_to_burn
-    swap
+    cover 1
     // amm/contract.py:193
     // supply=self._current_b_balance(),
     callsub _current_b_balance
@@ -1050,7 +1050,7 @@ burn:
     uncover 2
     uncover 2
     callsub tokens_to_burn
-    swap
+    cover 1
     // amm/contract.py:197-198
     // # Send back commensurate amt of a
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
@@ -1095,7 +1095,7 @@ tokens_to_burn:
     frame_dig -2
     frame_dig -1
     *
-    swap
+    uncover 1
     /
     retsub
 
@@ -1128,7 +1128,7 @@ swap:
     app_global_get_ex
     assert // check asset_a exists
     frame_dig -2
-    swap
+    uncover 1
     ==
     assert // asset a incorrect
     // amm/contract.py:226
@@ -1138,7 +1138,7 @@ swap:
     app_global_get_ex
     assert // check asset_b exists
     frame_dig -1
-    swap
+    uncover 1
     ==
     assert // asset b incorrect
     // amm/contract.py:228
@@ -1272,7 +1272,7 @@ tokens_to_swap:
     frame_dig -3
     -
     int 1000
-    swap
+    uncover 1
     *
     frame_dig -3
     int 995
@@ -1287,7 +1287,7 @@ tokens_to_swap:
     *
     // amm/contract.py:353
     // return out_total // in_total
-    swap
+    uncover 1
     /
     retsub
 
@@ -1314,7 +1314,7 @@ __init__:
     // self.governor = Txn.sender
     txn Sender
     byte "governor"
-    swap
+    uncover 1
     app_global_put
     // amm/contract.py:38-39
     // # The asset id of the Pool Token, used to track share of pool the holder may recover

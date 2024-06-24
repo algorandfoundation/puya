@@ -1,4 +1,18 @@
 # CHANGELOG
+## v2.0.2 (2024-06-10)
+
+### Fix
+
+* resolve issues with reading and writing ARC4 types ([`23f9bd2`](https://github.com/algorandfoundation/puya/commit/23f9bd2dd0589b3ce4caa2763f8808cf71936e04))
+
+  Reading and writing dynamic ARC4 types in an array Modifying ARC4 tuple items (https://github.com/algorandfoundation/puya/issues/152) Require ARC4 struct initialisation to have unaliased values to maintain reference semantics
+
+* fix inner transaction validation to handle some cases that were accidentally missed (#233) ([`cd42f02`](https://github.com/algorandfoundation/puya/commit/cd42f020f97695549add0f92cf541fca25fc8b77))
+
+### Documentation
+
+* Add example of struct in a box (#243) ([`b0530c1`](https://github.com/algorandfoundation/puya/commit/b0530c1579b05392ea57de02d8c76ff6acbac897))
+
 ## v2.0.1 (2024-05-21)
 
 ### Fix

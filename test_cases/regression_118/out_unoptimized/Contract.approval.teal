@@ -7,7 +7,7 @@ test_cases.regression_118.contract.Contract.approval_program:
     bz main_bare_routing@5
     txna ApplicationArgs 0
     method "verify(uint256[])(bool,string)"
-    swap
+    uncover 1
     match main_verify_route@2
     b main_switch_case_default@3
 
@@ -27,7 +27,7 @@ main_verify_route@2:
     // @abimethod
     callsub verify
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -43,7 +43,7 @@ main_bare_routing@5:
     // class Contract(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@6
     b main_reject_bare_on_completion@7
 
@@ -89,27 +89,39 @@ verify:
     bz verify_after_if_else@2
     // regression_118/contract.py:12
     // return Tuple((val1, String("")))
+    byte ""
+    len
+    itob
+    extract 6 2
+    byte ""
+    concat
     byte 0x
-    swap
+    uncover 2
     concat
     int 3
     itob
     extract 6 2
     concat
-    byte "\x00\x00"
+    uncover 1
     concat
     retsub
 
 verify_after_if_else@2:
     // regression_118/contract.py:13
     // return Tuple((val1, String("")))
+    byte ""
+    len
+    itob
+    extract 6 2
+    byte ""
+    concat
     byte 0x
-    swap
+    uncover 2
     concat
     int 3
     itob
     extract 6 2
     concat
-    byte "\x00\x00"
+    uncover 1
     concat
     retsub

@@ -7,7 +7,7 @@ import algokit_utils.config
 import algosdk
 import pytest
 from algokit_utils import LogicError
-from algosdk import constants, transaction
+from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
     AtomicTransactionComposer,
     TransactionWithSigner,
@@ -1093,3 +1093,193 @@ def _get_tic_tac_toe_game_status(
         winner_index  # type: ignore[index]
     ]
     return board, winner
+
+
+@pytest.fixture(scope="module")
+def dynamic_app_client(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> algokit_utils.ApplicationClient:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "arc4_dynamic_arrays")
+        ),
+        signer=account,
+    )
+    app_client.create()
+    return app_client
+
+
+def test_dynamic_arrays_static_element(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    static_struct_t = abi.ABIType.from_string("(uint64,byte[2])")
+    static_arr_t = abi.ArrayDynamicType(static_struct_t)
+    static_struct0 = (3, bytes((4, 5)))
+    static_struct1 = (2**42, bytes((42, 255)))
+
+    static_result = dynamic_app_client.call("test_static_elements")
+    (static_arr_bytes, static_0_bytes, static_1_bytes) = decode_logs(
+        static_result.tx_info["logs"], "bbb"
+    )
+
+    assert static_arr_bytes == static_arr_t.encode([static_struct0, static_struct1])
+    assert static_0_bytes == static_struct_t.encode(static_struct0)
+    assert static_1_bytes == static_struct_t.encode(static_struct1)
+
+
+def test_dynamic_arrays_dynamic_element(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    dynamic_struct_t = abi.ABIType.from_string("(string,string)")
+    dynamic_arr_t = abi.ABIType.from_string("(string,string)[]")
+    dynamic_struct0 = ("a", "bee")
+    dynamic_struct1 = ("Hello World", "a")
+
+    dynamic_result = dynamic_app_client.call("test_dynamic_elements")
+    (
+        dynamic_arr_bytes,
+        dynamic_0_bytes,
+        dynamic_1_bytes,
+        dynamic_2_bytes,
+        dynamic_arr_bytes_01,
+        dynamic_arr_bytes_0,
+        empty_arr,
+    ) = decode_logs(dynamic_result.tx_info["logs"], "b" * 7)
+
+    assert dynamic_arr_bytes == dynamic_arr_t.encode(
+        [dynamic_struct0, dynamic_struct1, dynamic_struct0]
+    )
+    assert dynamic_0_bytes == dynamic_struct_t.encode(dynamic_struct0)
+    assert dynamic_1_bytes == dynamic_struct_t.encode(dynamic_struct1)
+    assert dynamic_2_bytes == dynamic_struct_t.encode(dynamic_struct0)
+    assert dynamic_arr_bytes_01 == dynamic_arr_t.encode([dynamic_struct0, dynamic_struct1])
+    assert dynamic_arr_bytes_0 == dynamic_arr_t.encode([dynamic_struct0])
+    assert empty_arr == dynamic_arr_t.encode([])
+
+
+def test_dynamic_arrays_mixed_single_dynamic(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    mixed1_struct_t = abi.ABIType.from_string("(uint64,string,uint64)")
+    mixed1_arr_t = abi.ArrayDynamicType(mixed1_struct_t)
+    mixed1_struct0 = (3, "a", 2**42)
+    mixed1_struct1 = (2**42, "bee", 3)
+
+    mixed_single_result = dynamic_app_client.call("test_mixed_single_dynamic_elements")
+    (mixed1_arr_bytes, mixed1_0_bytes, mixed1_1_bytes) = decode_logs(
+        mixed_single_result.tx_info["logs"], "bbb"
+    )
+
+    assert mixed1_arr_bytes == mixed1_arr_t.encode([mixed1_struct0, mixed1_struct1])
+    assert mixed1_0_bytes == mixed1_struct_t.encode(mixed1_struct0)
+    assert mixed1_1_bytes == mixed1_struct_t.encode(mixed1_struct1)
+
+
+def test_dynamic_arrays_mixed_multiple_dynamic(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    mixed2_struct_t = abi.ABIType.from_string("(uint64,string,uint64,uint16[],uint64)")
+    mixed2_arr_t = abi.ArrayDynamicType(mixed2_struct_t)
+    mixed2_struct0 = (3, "a", 2**42, (2**16 - 1, 0, 42), 3)
+    mixed2_struct1 = (2**42, "bee", 3, (1, 2, 3, 4), 2**42)
+
+    mixed_multiple_result = dynamic_app_client.call("test_mixed_multiple_dynamic_elements")
+    (mixed2_arr_bytes, mixed2_0_bytes, mixed2_1_bytes) = decode_logs(
+        mixed_multiple_result.tx_info["logs"], "bbb"
+    )
+
+    assert mixed2_arr_bytes == mixed2_arr_t.encode([mixed2_struct0, mixed2_struct1])
+    assert mixed2_0_bytes == mixed2_struct_t.encode(mixed2_struct0)
+    assert mixed2_1_bytes == mixed2_struct_t.encode(mixed2_struct1)
+
+
+def test_nested_struct(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    dynamic_app_client.call("test_nested_struct_replacement")
+
+
+def test_nested_tuple(
+    dynamic_app_client: algokit_utils.ApplicationClient,
+) -> None:
+    dynamic_app_client.call("test_nested_tuple_modification")
+
+
+def test_struct_in_box(
+    algod_client: AlgodClient, account: algokit_utils.Account, asset_a: int
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(EXAMPLES_DIR / "struct_in_box" / "contract.py")
+    )
+    client = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+    )
+
+    # Create the application
+    client.create()
+
+    # Fund the application (so it can have boxes)
+    algokit_utils.transfer(
+        algod_client,
+        algokit_utils.TransferParameters(
+            to_address=client.app_address, from_account=account, micro_algos=10_000_000
+        ),
+    )
+
+    user_1 = {"id": 1, "name": "Bob", "asset": 0}
+    user_2 = {"id": 2, "name": "Jane", "asset": 0}
+
+    client.call(
+        "add_user",
+        user=user_1,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (1).to_bytes(8)),
+            ]
+        ),
+    )
+
+    client.call(
+        "add_user",
+        user=user_2,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (2).to_bytes(8)),
+            ]
+        ),
+    )
+
+    client.call(
+        "attach_asset_to_user",
+        user_id=user_1["id"],
+        asset=asset_a,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (1).to_bytes(8)),
+            ]
+        ),
+    )
+
+    user_1_result = client.call(
+        "get_user",
+        user_id=1,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (1).to_bytes(8)),
+            ]
+        ),
+    )
+    assert user_1_result.return_value == ["Bob", 1, asset_a]
+    user_2_result = client.call(
+        "get_user",
+        user_id=2,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, (2).to_bytes(8)),
+            ]
+        ),
+    )
+    assert user_2_result.return_value == ["Jane", 2, 0]

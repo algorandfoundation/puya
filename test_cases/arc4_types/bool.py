@@ -44,10 +44,12 @@ class Arc4BoolTypeContract(Contract):
         return True
 
     @subroutine
-    def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> None:
+    def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
         assert true.native
 
         assert not false.native
 
         assert true == ARC4Bool(true.native)
         assert false == ARC4Bool(false.native)
+
+        return true.native

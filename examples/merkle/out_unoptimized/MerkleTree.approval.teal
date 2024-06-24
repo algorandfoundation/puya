@@ -50,7 +50,7 @@ main_verify_route@2:
     uncover 2
     setbit
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -125,21 +125,14 @@ compute_root_hash_for_header@1:
     // merkle/contract.py:23
     // computed = hash_pair(computed, proof[idx].bytes)
     frame_dig -2
-    int 0
-    extract_uint16
-    dig 1
-    swap
-    <
-    assert // Index access is out of bounds
-    frame_dig -2
     extract 2 0
-    swap
+    cover 1
     int 32
     *
     int 32
-    extract3
+    extract3 // on error: Index access is out of bounds
     frame_dig 0
-    swap
+    uncover 1
     callsub hash_pair
     frame_bury 0
     // merkle/contract.py:22

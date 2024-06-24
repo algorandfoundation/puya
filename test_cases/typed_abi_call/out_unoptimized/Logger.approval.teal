@@ -39,7 +39,7 @@ main_echo_route@2:
     // @arc4.abimethod
     callsub echo
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -65,10 +65,10 @@ main_echo_native_string_route@3:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -94,10 +94,10 @@ main_echo_native_bytes_route@4:
     len
     itob
     substring 6 8
-    swap
+    uncover 1
     concat
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -121,7 +121,7 @@ main_echo_native_uint64_route@5:
     callsub echo_native_uint64
     itob
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -151,7 +151,7 @@ main_echo_native_biguint_route@6:
     bzero
     b|
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -184,19 +184,19 @@ main_echo_native_tuple_route@7:
     callsub echo_native_tuple
     cover 3
     cover 2
-    swap
+    cover 1
     dup
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     cover 3
     dup
     len
     itob
     substring 6 8
-    swap
+    uncover 1
     concat
     cover 3
     itob
@@ -213,26 +213,26 @@ main_echo_native_tuple_route@7:
     itob
     extract 6 2
     byte 0x
-    swap
+    uncover 1
     concat
     dig 2
     len
     int 76
-    swap
+    uncover 1
     +
     itob
     extract 6 2
     concat
     uncover 3
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -385,27 +385,27 @@ main_return_args_after_14th_route@14:
     txna ApplicationArgs 15
     int 0
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 1
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 2
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 3
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 4
     int 4
-    extract3
+    extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     int 8
     int 1
-    extract3
+    extract3 // on error: Index access is out of bounds
     // typed_abi_call/logger.py:69
     // @arc4.abimethod
     uncover 19
@@ -430,7 +430,7 @@ main_return_args_after_14th_route@14:
     uncover 19
     callsub return_args_after_14th
     byte 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     int 1
@@ -446,7 +446,7 @@ main_bare_routing@17:
     // class Logger(ARC4Contract):
     txn OnCompletion
     int 0
-    swap
+    uncover 1
     match main_create@18
     b main_reject_bare_on_completion@19
 
@@ -473,7 +473,12 @@ echo:
     proto 1 1
     // typed_abi_call/logger.py:21
     // return "echo: " + value
-    byte "\x00\x06echo: "
+    byte "echo: "
+    len
+    itob
+    extract 6 2
+    byte "echo: "
+    concat
     extract 2 0
     frame_dig -1
     extract 2 0
@@ -481,8 +486,8 @@ echo:
     dup
     len
     itob
-    extract 6 0
-    swap
+    extract 6 2
+    uncover 1
     concat
     retsub
 
@@ -733,6 +738,6 @@ return_args_after_14th:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     retsub

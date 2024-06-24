@@ -1,0 +1,62 @@
+contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
+    program approval:
+        subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program() -> bool:
+            block@0: // L10
+                let total#0: uint64 = 0u
+                let item_index_internal%0#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L16
+                let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
+                let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@2)
+                let continue_looping%0#0: bool = (< item_index_internal%0#1 3u)
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L16
+                let uint8_item#0: bytes = (extract3 0x020301 item_index_internal%0#1 1u) // on error: Index access is out of bounds
+                let tmp%3#0: uint64 = (btoi uint8_item#0)
+                let total#2: uint64 = (+ total#1 tmp%3#0)
+                let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
+                goto block@1
+            block@4: // after_for_L16
+                let tmp%4#0: bool = (== total#1 6u)
+                (assert tmp%4#0) // Total should be of dynamic_bytes items
+                let item_index_internal%1#0: uint64 = 0u
+                goto block@5
+            block@5: // for_header_L25
+                let item_index_internal%1#1: uint64 = φ(item_index_internal%1#0 <- block@4, item_index_internal%1#2 <- block@6)
+                let total#3: uint64 = φ(total#1 <- block@4, total#4 <- block@6)
+                let continue_looping%1#0: bool = (< item_index_internal%1#1 2u)
+                goto continue_looping%1#0 ? block@6 : block@8
+            block@6: // for_body_L25
+                let uint8_item#1: bytes = (extract3 0x0304 item_index_internal%1#1 1u) // on error: Index access is out of bounds
+                let tmp%8#0: uint64 = (btoi uint8_item#1)
+                let total#4: uint64 = (+ total#3 tmp%8#0)
+                let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
+                goto block@5
+            block@8: // after_for_L25
+                let item_index_internal%2#0: uint64 = 0u
+                goto block@9
+            block@9: // for_header_L32
+                let item_index_internal%2#1: uint64 = φ(item_index_internal%2#0 <- block@8, item_index_internal%2#2 <- block@10)
+                let total#5: uint64 = φ(total#3 <- block@8, total#6 <- block@10)
+                let continue_looping%2#0: bool = (< item_index_internal%2#1 2u)
+                goto continue_looping%2#0 ? block@10 : block@12
+            block@10: // for_body_L32
+                let uint8_item#2: bytes = (extract3 0x0304 item_index_internal%2#1 1u) // on error: Index access is out of bounds
+                let tmp%13#0: uint64 = (btoi uint8_item#2)
+                let total#6: uint64 = (+ total#5 tmp%13#0)
+                let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
+                goto block@9
+            block@12: // after_for_L32
+                let tmp%14#0: bool = (== total#5 20u)
+                (assert tmp%14#0) // Total should now include sum of dynamic_bytes3 items
+                let tmp%15#0: bool = 1u
+                (assert tmp%15#0)
+                let tmp%16#0: bytes = 0x0304616263
+                let tmp%17#0: bool = (== tmp%16#0 "\x03\x04abc")
+                (assert tmp%17#0)
+                return 1u
+    
+    program clear-state:
+        subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program() -> bool:
+            block@0: // L43
+                return 1u
