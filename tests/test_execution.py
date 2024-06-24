@@ -559,13 +559,18 @@ def test_ssa(harness: _TestHarness) -> None:
 
 def test_tuple_support(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_support.py")
-    total, msg, hi, mid, lo, batman = result.decode_logs("iuiiiu")
-    assert total == 306
-    assert msg == "Hello, world!"
-    assert hi == 0
-    assert mid == 2
-    assert lo == 1
-    assert batman == "nanananana"
+    assert result.decode_logs("iuiiiuuuuu") == [
+        306,
+        "Hello, world!",
+        0,
+        2,
+        1,
+        "nanananana",
+        "non_empty_tuple called",
+        "not empty",
+        "get_uint_with_side_effect called",
+        "not empty2",
+    ]
 
 
 def test_tuple_comparisons(harness: _TestHarness) -> None:
