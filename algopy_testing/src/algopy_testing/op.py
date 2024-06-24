@@ -990,33 +990,53 @@ class AcctParamsGet:
         )
 
 
+def arg(a: UInt64 | int, /) -> Bytes:
+    from algopy_testing.context import get_test_context
+
+    context = get_test_context()
+    if not context:
+        raise ValueError("Test context is not initialized!")
+
+    return context._active_lsig_args[int(a)]
+
+
+class EllipticCurve:
+    def __getattribute__(self, __name: str) -> Any:
+        raise NotImplementedError(
+            f"EllipticCurve.{__name} is currently not available as a native "
+            "`algorand-python-testing` type. Use your own preferred testing "
+            "framework of choice to mock the behaviour."
+        )
+
+
 __all__ = [
-    "AppParamsGet",
-    "AppLocal",
-    "AppGlobal",
     "AcctParamsGet",
-    "AssetParamsGet",
+    "AppGlobal",
+    "AppLocal",
+    "AppParamsGet",
     "AssetHoldingGet",
+    "AssetParamsGet",
     "Base64",
-    "Block",
     "BigUInt",
+    "Block",
     "Box",
+    "EC",
     "ECDSA",
-    "Global",
-    "Scratch",
-    "GTxn",
     "GITxn",
+    "GTxn",
+    "Global",
     "ITxn",
     "ITxnCreate",
     "JsonRef",
+    "Scratch",
     "Txn",
     "UInt64",
     "VrfVerify",
     "addw",
+    "arg",
     "app_opted_in",
-    "EC",
-    "base64_decode",
     "balance",
+    "base64_decode",
     "bitlen",
     "bsqrt",
     "btoi",
@@ -1024,26 +1044,28 @@ __all__ = [
     "concat",
     "divmodw",
     "divw",
-    "gaid",
     "ecdsa_pk_decompress",
     "ecdsa_pk_recover",
     "ecdsa_verify",
     "ed25519verify",
     "ed25519verify_bare",
     "err",
-    "exp",
     "exit",
+    "exp",
     "expw",
     "extract",
     "extract_uint16",
     "extract_uint32",
     "extract_uint64",
+    "gaid",
     "getbit",
     "getbyte",
+    "gload_bytes",
+    "gload_uint64",
     "itob",
     "keccak256",
-    "mulw",
     "min_balance",
+    "mulw",
     "replace",
     "select_bytes",
     "select_uint64",
@@ -1057,7 +1079,5 @@ __all__ = [
     "shr",
     "sqrt",
     "substring",
-    "gload_uint64",
-    "gload_bytes",
     "vrf_verify",
 ]

@@ -560,10 +560,12 @@ class AssetConfigInnerTransaction(_BaseInnerTransactionResult):
     def created_asset(self) -> algopy.Asset:
         # forward xfer asset that is auto set by submit()
         # for the asset config itxn type
+        import algopy
+
         created_asset = self.fields["xfer_asset"]
         if not created_asset:
             raise ValueError("No created asset found")
-        return created_asset  # type: ignore[no-any-return]
+        return typing.cast(algopy.Asset, created_asset)
 
 
 class AssetTransferInnerTransaction(_BaseInnerTransactionResult):
@@ -643,21 +645,21 @@ def submit_txns(transactions: list[_BaseInnerTransaction]) -> tuple[InnerTransac
 
 
 __all__ = [
+    "ApplicationCall",
+    "ApplicationCallInnerTransaction",
+    "AssetConfig",
+    "AssetConfigInnerTransaction",
+    "AssetFreeze",
+    "AssetFreezeInnerTransaction",
+    "AssetTransfer",
+    "AssetTransferInnerTransaction",
+    "InnerTransaction",
+    "InnerTransactionResult",
+    "KeyRegistration",
+    "KeyRegistrationInnerTransaction",
+    "Payment",
+    "PaymentInnerTransaction",
     "_BaseInnerTransaction",
     "_InnerTransactionsType",
-    "InnerTransaction",
-    "Payment",
-    "KeyRegistration",
-    "AssetConfig",
-    "AssetTransfer",
-    "AssetFreeze",
-    "ApplicationCall",
-    "PaymentInnerTransaction",
-    "KeyRegistrationInnerTransaction",
-    "AssetConfigInnerTransaction",
-    "AssetTransferInnerTransaction",
-    "AssetFreezeInnerTransaction",
-    "ApplicationCallInnerTransaction",
-    "InnerTransactionResult",
     "submit_txns",
 ]

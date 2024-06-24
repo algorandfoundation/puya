@@ -6,18 +6,14 @@ class ProofOfAttendance(algopy.ARC4Contract):
         self.max_attendees = algopy.UInt64(30)
         self.asset_url = algopy.String("ipfs://QmW5vERkgeJJtSY1YQdcWU6gsHCZCyLFtM1oT9uyy2WGm8")
         self.total_attendees = algopy.UInt64(0)
-        self.initialized = algopy.UInt64(0)
 
     @algopy.arc4.abimethod(create="require")
     def init(self, max_attendees: algopy.UInt64) -> None:
-        assert not self.initialized, "Already initialized"
         assert algopy.Txn.sender == algopy.Global.creator_address, "Only creator can initialize"
-        self.initialized = algopy.UInt64(1)
         self.max_attendees = max_attendees
 
     @algopy.arc4.abimethod()
     def confirm_attendance(self) -> None:
-        assert self.initialized, "Contract not initialized"
         assert self.total_attendees < self.max_attendees, "Max attendees reached"
 
         minted_asset = self._mint_poa(algopy.Txn.sender)
@@ -57,7 +53,7 @@ class ProofOfAttendance(algopy.ARC4Contract):
     def _mint_poa(self, claimer: algopy.Account) -> algopy.Asset:
         algopy.ensure_budget(algopy.UInt64(10000), algopy.OpUpFeeSource.AppAccount)
         asset_name = b"AlgoKit POA #" + algopy.op.itob(self.total_attendees)
-        return (  # type: ignore[no-any-return, unused-ignore]
+        return (
             algopy.itxn.AssetConfig(
                 asset_name=asset_name,
                 unit_name=algopy.String("POA"),

@@ -29,7 +29,7 @@ from algopy_testing.models.global_values import GlobalFields
 from algopy_testing.models.txn import TxnFields
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Sequence
+    from collections.abc import Callable, Generator, Sequence
 
     import algopy
 
@@ -286,6 +286,8 @@ class AlgopyTestContext:
         self._template_vars: dict[str, Any] = template_vars or {}
         self._blocks: dict[int, dict[str, int]] = {}
         self._boxes: dict[bytes, algopy.Bytes] = {}
+        self._lsigs: dict[algopy.LogicSig, Callable[[], algopy.UInt64 | bool]] = {}
+        self._active_lsig_args: Sequence[algopy.Bytes] = []
 
         self.default_creator = default_creator or algopy.Account(
             algosdk.account.generate_account()[1]
@@ -1059,6 +1061,15 @@ class AlgopyTestContext:
         name_bytes = name if isinstance(name, bytes) else name.value
         content_bytes = content if isinstance(content, bytes) else content.value
         self._boxes[name_bytes] = algopy.Bytes(content_bytes)
+
+    def execute_logicsig(
+        self, lsig: algopy.LogicSig, lsig_args: Sequence[algopy.Bytes] | None = None
+    ) -> bool | algopy.UInt64:
+        self._active_lsig_args = lsig_args or []
+        # TODO: refine LogicSig class to handle injects into context
+        if lsig not in self._lsigs:
+            self._lsigs[lsig] = lsig.func
+        return lsig.func()
 
     def clear_box(self, name: algopy.Bytes | bytes) -> None:
         """Clear the content of a box."""

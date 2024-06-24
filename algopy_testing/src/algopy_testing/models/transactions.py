@@ -139,6 +139,12 @@ class KeyRegistrationFields(_TransactionBaseFields, _KeyRegistrationBaseFields, 
 
 
 __all__ = [
+    "ApplicationCallFields",
+    "AssetConfigFields",
+    "AssetFreezeFields",
+    "AssetTransferFields",
+    "KeyRegistrationFields",
+    "PaymentFields",
     "_ApplicationCallBaseFields",
     "_ApplicationCallFields",
     "_AssetConfigBaseFields",
@@ -149,10 +155,4 @@ __all__ = [
     "_TransactionBaseFields",
     "_TransactionCoreFields",
     "_TransactionFields",
-    "ApplicationCallFields",
-    "AssetConfigFields",
-    "AssetFreezeFields",
-    "AssetTransferFields",
-    "KeyRegistrationFields",
-    "PaymentFields",
 ]

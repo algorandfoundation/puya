@@ -24,7 +24,6 @@ def test_init(context: AlgopyTestContext) -> None:
     contract.init(max_attendees)
 
     # Assert
-    assert contract.initialized
     assert contract.max_attendees == max_attendees
 
 
@@ -33,14 +32,12 @@ def test_confirm_attendance(
 ) -> None:
     # Arrange
     contract = ProofOfAttendance()
-    contract.initialized = algopy.UInt64(1)
     contract.max_attendees = context.any_uint64(1, 100)
 
     # Act
     contract.confirm_attendance()
 
     # Assert
-    assert contract.initialized
     assert context.get_box(context.default_creator.bytes) == algopy.op.itob(1)
 
 
