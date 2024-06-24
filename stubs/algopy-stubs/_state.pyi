@@ -106,7 +106,8 @@ class GlobalState(typing.Generic[_TState]):
         self: GlobalState[_TState],
         initial_value: _TState,
         /,
-        key: str | bytes = ...,
+        *,
+        key: bytes | str = ...,
         description: str = "",
     ) -> None:
         """Declare the global state key and initialize its value"""
