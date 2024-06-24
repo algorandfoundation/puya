@@ -1,72 +1,47 @@
 # Algorand Python Testing
 
-`algorand-python-testing` is a supplementary package to [`algorand-python`](https://github.com/algorandfoundation/puya) that allows unit testing of smart contract code directly. It offers offline, fast, and reliable unit testing capabilities, providing a familiar _pythonic_ testing experience.
+Algorand Python Testing is a companion package to [Algorand Python](https://github.com/algorandfoundation/puya) that enables efficient unit testing of Algorand Python smart contracts in an offline environment. It emulates key AVM behaviors without requiring a network connection, offering fast and reliable testing capabilities with a familiar Pythonic interface.
 
-### Purpose and Benefits
+[Documentation](https://algorandfoundation.github.io/algopy_testing/index.html) | [Algorand Python Documentation](https://algorandfoundation.github.io/puya/)
 
--   **Fast and Reliable**: Test your `Algorand Python` smart contracts offline, ensuring quick and dependable results without the need for blockchain deployment.
--   **Granular Testing**: Testing individual contract methods, mock and patch contract state, pinpoint and verify contract behavior.
--   **Property Testing**: Verify the contract's correctness under a variety of randomized inputs and constraints.
--   **Comprehensive**: Supports a wide range of testing scenarios and use cases.
+## Quick start
 
-[Documentation](TODO) | [Algorand Python Documentation](https://algorandfoundation.github.io/puya/) | [Algorand Python Language guide](https://algorandfoundation.github.io/puya/language-guide.html)
+The easiest way to use Algorand Python Testing is to instantiate a template with AlgoKit via `algokit init -t python`. This will give you a full development environment with testing capabilities built-in.
 
-## 1. Quick start
+Alternatively, if you want to start from scratch:
 
-### Installation
+1. Ensure you have Python 3.12+
+2. Install [AlgoKit CLI](https://github.com/algorandfoundation/algokit-cli?tab=readme-ov-file#install)
+3. Install Algorand Python Testing into your project:
+    ```bash
+    pip install algopy-testing-python
+    ```
+4. Create a test file (e.g., `test_contract.py`):
 
-To get started with unit testing your `Algorand Python` smart contracts, install the package with pip:
+    ```python
+    from algopy_testing import algopy_testing_context
+    from your_contract import YourContract
 
-```bash
-pip install algopy-testing-python
-```
-
-### Testing your first contract
-
-Let's write a simple "Hello World" contract and test it using the `algopy-testing-python` framework.
-
-Assume the following starter contract available on all `AlgoKit Python` templates out of the box (create via `algokit init -t python`):
-
-```python
-from algopy import ARC4Contract, arc4
-
-class HelloWorld(ARC4Contract):
-    @arc4.abimethod()
-    def hello(self, name: arc4.String) -> arc4.String:
-        return "Hello, " + name
-```
-
-Now, let's create a test file `test_hello_world.py`:
-
-```python
-from algopy_testing import algopy_testing_context
-from contracts.hello_world import HelloWorld
-
-def test_hello_world():
+    def test_your_contract():
     with algopy_testing_context() as ctx:
-        # Arrange
-        input_size = 10
-        random_input = ctx.any_string(input_size)
-        contract = HelloWorld()
+    contract = YourContract() # Your test code here
+    ```
 
-        # Act
-        result = contract.hello(random_input)
+5. Run your tests using your preferred Python testing framework (e.g., pytest, unittest)
 
-        # Assert
-        assert result == f"Hello, {random_input}"
-```
+For more detailed information, check out the [full documentation](https://algorandfoundation.github.io/algopy_testing).
 
-The `algopy_testing_context` context manager simulates blockchain interactions, manages state, and executes transactions. Contracts subclassed from `ARC4Contract` or `Contract` are automatically prepared for testing. The `any_*` methods generate random values of specified `algopy` types with size constraints.
+## Features
 
-The package can be used with various Python testing frameworks like [`pytest`](https://docs.pytest.org/en/latest/), [`unittest`](https://docs.python.org/3/library/unittest.html), and integrates with [`hypothesis`](https://hypothesis.readthedocs.io/en/latest/) for property-based testing using custom strategies.
+-   Offline testing environment simulating core AVM functionality
+-   Compatible with popular Python testing frameworks
+-   Supports testing of ARC4 contracts, smart signatures, and more
+-   Provides tools for mocking blockchain state and transactions
 
-## Documentation
+## Examples
 
-To access in-depth documentation and examples on unit testing Algorand Python smart contracts, refer to the following resources:
-
--   [`algorand-python-testing` documentation](https://algorandfoundation.github.io/puya/algopy_testing) - Main package documentation.
--   [AlgoKit python project template](https://github.com/algorandfoundation/algokit-python-template) - A starter template showcasing `algorand-python-testing` usage as well providing a starting point for successfully testing your smart contracts.
+For detailed examples showcasing various testing scenarios, refer to the [examples section](https://algorandfoundation.github.io/algopy_testing/examples.html) in the documentation.
 
 ## Contributing
 
-We welcome contributions to this project! Read the [contributing guide](CONTRIBUTING.md) to get started.
+We welcome contributions to this project! Please read our [contributing guide](CONTRIBUTING.md) to get started.
