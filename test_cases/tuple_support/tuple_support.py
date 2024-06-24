@@ -154,3 +154,5 @@ def slicing(values: tuple[UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64
     assert add_three_values(one_to_three) == values[0] + values[1] + values[2]
 
     assert one_to_three[-2:-1][0] == one_to_three[1]
+
+    assert one_to_three == one_to_three[:]
