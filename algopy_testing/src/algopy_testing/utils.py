@@ -177,7 +177,9 @@ def is_instance(obj: object, class_or_tuple: type | UnionType) -> bool:
     return isinstance(obj, class_or_tuple)
 
 
-def abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
+def abi_type_name_for_arg(  # noqa: PLR0912, C901, PLR0911
+    *, arg: object, is_return_type: bool = False
+) -> str:
     """
     Returns the ABI type name for the given argument. Especially convenient for use with
     algosdk to generate method signatures
@@ -199,11 +201,11 @@ def abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
     if is_instance(arg, algopy.arc4.Address):
         return "address"
     if isinstance(arg, algopy.Asset):
-        return "asset"
+        return "uint64" if is_return_type else "asset"
     if isinstance(arg, algopy.Account):
-        return "account"
+        return "uint64" if is_return_type else "account"
     if isinstance(arg, algopy.Application):
-        return "application"
+        return "uint64" if is_return_type else "application"
     if is_instance(arg, algopy.arc4.UIntN):
         return "uint" + str(arg._bit_size)  # type: ignore[attr-defined]
     if is_instance(arg, algopy.arc4.BigUIntN):
@@ -213,11 +215,14 @@ def abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
     if is_instance(arg, algopy.arc4.BigUFixedNxM):
         return f"ufixed{arg._n}x{arg._m}"  # type: ignore[attr-defined]
     if is_instance(arg, algopy.arc4.StaticArray):
-        return f"{abi_type_name_for_arg(arg[0])}[{arg.length.value}]"  # type: ignore[attr-defined, index]
+        return f"{abi_type_name_for_arg(arg=arg[0],    # type: ignore[index]
+                                        is_return_type=is_return_type)}[{arg.length.value}]"  # type: ignore[attr-defined]
     if is_instance(arg, algopy.arc4.DynamicArray):
-        return f"{abi_type_name_for_arg(arg[0])}[]"  # type: ignore[index]
+        return f"{abi_type_name_for_arg(arg=arg[0], # type: ignore[index]
+                                        is_return_type=is_return_type)}[]"
     if isinstance(arg, tuple):
-        return f"({','.join(abi_type_name_for_arg(a) for a in arg)})"
+        return f"({','.join(abi_type_name_for_arg(arg=a,
+                                                  is_return_type=is_return_type) for a in arg)})"
     raise ValueError(f"Unsupported type {type(arg)}")
 
 
@@ -228,7 +233,7 @@ def abi_return_type_annotation_for_arg(arg: object) -> str:
     """
 
     try:
-        return abi_type_name_for_arg(arg)
+        return abi_type_name_for_arg(arg=arg, is_return_type=True)
     except ValueError:
         if arg is None:
             return "void"

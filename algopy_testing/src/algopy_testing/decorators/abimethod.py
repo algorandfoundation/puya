@@ -36,7 +36,7 @@ def _generate_arc4_signature(
         for arg in args
         if not isinstance(arg, algopy.gtxn.TransactionBase)  # type: ignore[arg-type, unused-ignore]
     ]
-    arg_types = [algosdk.abi.Argument(abi_type_name_for_arg(arg)) for arg in args_without_txns]
+    arg_types = [algosdk.abi.Argument(abi_type_name_for_arg(arg=arg)) for arg in args_without_txns]
     return_type = algosdk.abi.Returns(
         abi_return_type_annotation_for_arg(fn.__annotations__.get("return"))
     )

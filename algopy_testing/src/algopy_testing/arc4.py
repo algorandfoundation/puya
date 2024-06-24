@@ -1202,7 +1202,7 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
         raise ValueError("Cannot emit event: missing `app_id` in associated call transaction!")
 
     if isinstance(event, str):
-        arg_types = "(" + ",".join(abi_type_name_for_arg(arg) for arg in args) + ")"
+        arg_types = "(" + ",".join(abi_type_name_for_arg(arg=arg) for arg in args) + ")"
 
         if event.find("(") == -1:
             event += arg_types
@@ -1216,7 +1216,7 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
             logs=(event_hash[:4] + Struct(*args_tuple).bytes).value,
         )
     elif isinstance(event, Struct):
-        arg_types = "(" + ",".join(abi_type_name_for_arg(arg) for arg in event._value) + ")"
+        arg_types = "(" + ",".join(abi_type_name_for_arg(arg=arg) for arg in event._value) + ")"
         event_str = event.__class__.__name__ + arg_types
         event_hash = algopy.Bytes(SHA512.new(event_str.encode(), truncate="256").digest())
         context.add_application_logs(
