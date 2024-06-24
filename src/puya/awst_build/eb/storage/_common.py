@@ -40,11 +40,8 @@ class BoxGetExpressionBuilder(_BoxKeyExpressionIntermediateExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        default_arg_inst = expect.exactly_one_arg_of_type(
-            args,
-            self.content_type,
-            location,
-            default=expect.default_dummy_value(self.content_type),
+        default_arg_inst = expect.exactly_one_arg_of_type_else_dummy(
+            args, self.content_type, location
         )
         default_expr = default_arg_inst.resolve()
         return builder_for_instance(

@@ -82,22 +82,18 @@ def _init(
     result_type: pytypes.StorageProxyType | None,
 ) -> InstanceBuilder:
     type_arg_name = "type_"
-    arg_mapping = get_arg_mapping(
-        positional_arg_names=[type_arg_name],
-        args=zip(arg_names, args, strict=True),
-        location=location,
+    key_arg_name = "key"
+    descr_arg_name = "description"
+    arg_mapping, _ = get_arg_mapping(
+        required_positional_names=[type_arg_name],
+        optional_kw_only=[key_arg_name, descr_arg_name],
+        args=args,
+        arg_names=arg_names,
+        call_location=location,
+        raise_on_missing=True,
     )
-    try:
-        type_arg = arg_mapping.pop(type_arg_name)
-    except KeyError as ex:
-        raise CodeError("Required positional argument missing", location) from ex
 
-    key_arg = arg_mapping.pop("key", None)
-    descr_arg = arg_mapping.pop("description", None)
-    if arg_mapping:
-        raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
-
-    match type_arg.pytype:
+    match arg_mapping[type_arg_name].pytype:
         case pytypes.TypeType(typ=content):
             pass
         case _:
@@ -112,8 +108,12 @@ def _init(
             location,
         )
 
+    key_arg = arg_mapping.get("key")
     key_override = extract_key_override(key_arg, location, typ=wtypes.state_key)
+
+    descr_arg = arg_mapping.get("description")
     description = extract_description(descr_arg)
+
     if key_override is None:
         return StorageProxyDefinitionBuilder(
             result_type, location=location, description=description

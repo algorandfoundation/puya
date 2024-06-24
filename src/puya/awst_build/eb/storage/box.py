@@ -63,26 +63,23 @@ def _init(
     result_type: pytypes.StorageProxyType | None,
 ) -> InstanceBuilder:
     type_arg_name = "type_"
-    arg_mapping = get_arg_mapping(
-        positional_arg_names=[type_arg_name],
-        args=zip(arg_names, args, strict=True),
-        location=location,
+    key_arg_name = "key"
+    arg_mapping, _ = get_arg_mapping(
+        required_positional_names=[type_arg_name],
+        optional_kw_only=[key_arg_name],
+        args=args,
+        arg_names=arg_names,
+        call_location=location,
+        raise_on_missing=True,
     )
-    try:
-        type_arg = arg_mapping.pop(type_arg_name)
-    except KeyError as ex:
-        raise CodeError("required positional argument missing", location) from ex
+    type_arg = arg_mapping[type_arg_name]
     match type_arg.pytype:
         case pytypes.TypeType(typ=content):
             pass
         case _:
             raise CodeError("first argument must be a type reference", location)
 
-    key_arg = arg_mapping.pop("key", None)
-    if arg_mapping:
-        logger.error(
-            f"unrecognised keyword argument(s): {", ".join(arg_mapping)}", location=location
-        )
+    key_arg = arg_mapping.get(key_arg_name)
 
     if result_type is None:
         result_type = pytypes.GenericBoxType.parameterise([content], location)

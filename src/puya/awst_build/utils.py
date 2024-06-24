@@ -3,7 +3,8 @@ import operator
 import re
 import typing
 import warnings
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from itertools import zip_longest
 
 import mypy.build
 import mypy.nodes
@@ -177,13 +178,13 @@ def require_instance_builder(
 
 
 def expect_operand_type(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
-    operand = require_instance_builder(operand)
-    operand = maybe_resolve_literal(operand, target_type)
-    if operand.pytype != target_type:
+    instance = require_instance_builder(operand)
+    instance = maybe_resolve_literal(instance, target_type)
+    if instance.pytype != target_type:
         raise CodeError(
-            f"Expected type {target_type}, got type {operand.pytype}", operand.source_location
+            f"Expected type {target_type}, got type {instance.pytype}", instance.source_location
         )
-    return operand
+    return instance
 
 
 def require_instance_builder_of_type(
@@ -232,31 +233,70 @@ def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:
     return bytes_const
 
 
-T = typing.TypeVar("T")
+TBuilder = typing.TypeVar("TBuilder", bound=NodeBuilder)
 
 
 def get_arg_mapping(
-    positional_arg_names: Sequence[str],
-    args: Iterable[tuple[str | None, T]],
-    location: SourceLocation,
-) -> dict[str, T]:
-    arg_mapping = dict[str, T]()
-    has_too_many_error = False
-    for arg_idx, (supplied_arg_name, arg) in enumerate(args):
-        if supplied_arg_name is not None:
-            arg_name = supplied_arg_name
+    *,
+    required_positional_names: Sequence[str] | None = None,
+    optional_positional_names: Sequence[str] | None = None,
+    required_kw_only: Sequence[str] | None = None,
+    optional_kw_only: Sequence[str] | None = None,
+    args: Sequence[TBuilder],
+    arg_names: Sequence[str | None],
+    call_location: SourceLocation,
+    raise_on_missing: bool,
+) -> tuple[dict[str, TBuilder], bool]:
+    required_positional_names = required_positional_names or []
+    optional_positional_names = optional_positional_names or []
+    required_kw_only = required_kw_only or []
+    optional_kw_only = optional_kw_only or []
+    all_names = [
+        *required_positional_names,
+        *optional_positional_names,
+        *required_kw_only,
+        *optional_kw_only,
+    ]
+    if len(all_names) != len(set(all_names)):
+        raise InternalError("duplicate names", call_location)
+
+    arg_mapping = dict[str, TBuilder]()
+    num_positionals = arg_names.count(None)
+    positional_names = [*required_positional_names, *optional_positional_names]
+    for positional_name, positional_arg in zip_longest(positional_names, args[:num_positionals]):
+        if positional_name is None:
+            logger.error("unexpected positional argument", location=positional_arg.source_location)
+        elif positional_arg is None:
+            break  # positional arguments could be named
         else:
-            try:
-                arg_name = positional_arg_names[arg_idx]
-            except IndexError:
-                if not has_too_many_error:
-                    logger.error(  # noqa: TRY400
-                        "too many positional arguments", location=location
-                    )
-                    has_too_many_error = True
-                continue
-        arg_mapping[arg_name] = arg
-    return arg_mapping
+            arg_mapping[positional_name] = positional_arg
+    for arg_name, kw_arg in zip(arg_names[num_positionals:], args[num_positionals:], strict=True):
+        if arg_name is None:
+            # shouldn't be possible, might happen with type ignore?
+            logger.error(
+                "non-keyword argument appears after keywords", location=kw_arg.source_location
+            )
+        elif arg_name in arg_mapping:
+            # again, shouldn't be possible, but might happen with type ignore?
+            logger.error("duplicate argument name", location=kw_arg.source_location)
+        elif arg_name not in all_names:
+            logger.error("unrecognised keyword argument", location=kw_arg.source_location)
+        else:
+            arg_mapping[arg_name] = kw_arg
+    any_missing = False
+    if missing_args := set(required_positional_names).difference(arg_mapping.keys()):
+        msg = f"missing required positional argument(s): {', '.join(missing_args)}"
+        if raise_on_missing:
+            raise CodeError(msg, call_location)
+        any_missing = True
+        logger.error(msg, location=call_location)
+    elif missing_kwargs := set(required_kw_only).difference(arg_mapping.keys()):
+        msg = f"missing required keyword argument(s): {', '.join(missing_kwargs)}"
+        if raise_on_missing:
+            raise CodeError(msg, call_location)
+        any_missing = True
+        logger.error(msg, location=call_location)
+    return arg_mapping, any_missing
 
 
 def snake_case(s: str) -> str:
@@ -300,10 +340,12 @@ def resolve_method_from_type_info(
 
 
 def maybe_resolve_literal(
-    operand: InstanceBuilder, target_type: pytypes.PyType
-) -> InstanceBuilder:
+    operand: TBuilder, target_type: pytypes.PyType
+) -> TBuilder | InstanceBuilder:
+    if not isinstance(operand, InstanceBuilder):
+        return operand
     if operand.pytype != target_type:
         target_type_builder = builder_for_type(target_type, operand.source_location)
         if isinstance(target_type_builder, TypeBuilder):
-            operand = operand.resolve_literal(target_type_builder)
+            return operand.resolve_literal(target_type_builder)
     return operand

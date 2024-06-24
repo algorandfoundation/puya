@@ -29,7 +29,6 @@ from puya.awst_build.utils import (
     extract_bytes_literal_from_mypy,
     fold_binary_expr,
     fold_unary_expr,
-    get_arg_mapping,
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
@@ -610,7 +609,7 @@ def _process_contract_class_options(
                     if isinstance(name_value, str):
                         name_override = name_value
                     else:
-                        context.error("Invalid type for name=", kw_expr)
+                        context.error("unexpected argument type", kw_expr)
                 case "scratch_slots":
                     if isinstance(kw_expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
                         slot_items = kw_expr.items
@@ -619,37 +618,34 @@ def _process_contract_class_options(
                     for item_expr in slot_items:
                         slots = _map_scratch_space_reservation(context, expr_visitor, item_expr)
                         if not slots:
-                            context.error("Slot range is empty", item_expr)
+                            context.error("range is empty", item_expr)
                         elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
                             context.error(
-                                f"Invalid scratch slot reservation."
-                                f" Reserved range must fall entirely between 0"
-                                f" and {MAX_SCRATCH_SLOT_NUMBER}",
+                                "invalid scratch slot reservation - range must fall"
+                                f" entirely between 0 and {MAX_SCRATCH_SLOT_NUMBER}",
                                 item_expr,
                             )
                         else:
                             scratch_slot_reservations |= slots
                 case "state_totals":
                     if not isinstance(kw_expr, mypy.nodes.CallExpr):
-                        context.error("Invalid value for state_totals", kw_expr)
+                        context.error("unexpected argument type", kw_expr)
                     else:
-                        int_args = list[int]()
-                        for arg in kw_expr.args:
-                            arg_value = arg.accept(expr_visitor)
-                            if not isinstance(arg_value, int):
-                                context.error("Invalid argument type, expected int literal", arg)
+                        arg_map = dict[str, int]()
+                        for arg_name, arg in zip(kw_expr.arg_names, kw_expr.args, strict=True):
+                            if arg_name is None:
+                                context.error("unexpected positional argument", arg)
                             else:
-                                int_args.append(arg_value)
-                        arg_map = get_arg_mapping(
-                            positional_arg_names=[],
-                            args=zip(kw_expr.arg_names, int_args, strict=True),
-                            location=context.node_location(kw_expr),
-                        )
+                                arg_value = arg.accept(expr_visitor)
+                                if not isinstance(arg_value, int):
+                                    context.error("unexpected argument type", arg)
+                                else:
+                                    arg_map[arg_name] = arg_value
                         state_totals = StateTotals(**arg_map)
                 case "metaclass":
                     context.error("metaclass option is unsupported", kw_expr)
                 case _:
-                    context.error("Unrecognised class keyword", kw_expr)
+                    context.error("unrecognised class option", kw_expr)
     for base in cdef.info.bases:
         base_cdef = base.type.defn
         if not base_cdef.info.has_base(constants.CONTRACT_BASE):

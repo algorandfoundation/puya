@@ -38,28 +38,22 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         pytype = self.produces()
-        field_mapping = get_arg_mapping(
-            positional_arg_names=list(pytype.fields),
-            args=zip(arg_names, args, strict=True),
-            location=location,
+        field_mapping, any_missing = get_arg_mapping(
+            required_positional_names=list(pytype.fields),
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
-
-        values = dict[str, Expression]()
-        for field_name, field_type in pytype.fields.items():
-            field_value = field_mapping.pop(field_name, None)
-            if field_value is None:
-                logger.error(f"missing required argument {field_name!r}", location=location)
-            else:
-                values[field_name] = expect.argument_of_type_else_dummy(
-                    field_value, field_type
-                ).resolve()
-        if field_mapping:
-            logger.error(
-                f"unexpected keyword arguments: {' '.join(field_mapping)}", location=location
-            )
-
-        if values.keys() != pytype.fields.keys():
+        if any_missing:
             return dummy_value(pytype, location)
+
+        values = {
+            field_name: expect.argument_of_type_else_dummy(
+                field_mapping[field_name], field_type
+            ).resolve()
+            for field_name, field_type in pytype.fields.items()
+        }
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         expr: Expression = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
         return ARC4StructExpressionBuilder(expr, pytype)

@@ -49,13 +49,14 @@ def wrong_maybe_arg() -> None:
 
 @subroutine
 def non_pos() -> None:
-    Box(type="oops", key=b"box")  # type: ignore[call-arg] ## E: required positional argument missing
+    Box(type="oops", key=b"box")  # type: ignore[call-arg] ## E: unrecognised keyword argument \
+                                                           ## E: missing required positional argument(s): type_
 
 
 @subroutine
 def bad_kwarg() -> None:
-    x = Box(String, bad_key=b"box")  # type: ignore[call-arg] ## E: unrecognised keyword argument(s): bad_key \
-                                                              ## E: algopy.Box[algopy.String] with inferred key must be assigned to an instance variable before being used
+    x = Box(String, bad_key=b"box")  # type: ignore[call-arg] ## E: algopy.Box[algopy.String] with inferred key must be assigned to an instance variable before being used \
+                                                              ## E: unrecognised keyword argument
 
 @subroutine
 def type_mismatch() -> None:
@@ -82,28 +83,30 @@ class BoxRefContract(ARC4Contract):
 
     @arc4.abimethod()
     def wrong_key(self) -> None:
-        box = BoxRef(keyz="")  # type: ignore[call-arg] ## E: Invalid/unhandled arguments
+        box = BoxRef(keyz="")  # type: ignore[call-arg] ## E: algopy.BoxRef with inferred key must be assigned to an instance variable before being used \
+                                                        ## E: unrecognised keyword argument
 
     @arc4.abimethod()
     def missing_key(self) -> None:
         box = BoxRef() ## E: algopy.BoxRef with inferred key must be assigned to an instance variable before being used
     @arc4.abimethod()
     def bad_put_arg(self) -> None:
-        self.ok.put(b"ok", "too many")  # type: ignore[call-arg] ## E: Expected a single argument, got 2
+        self.ok.put(b"ok", "too many")  # type: ignore[call-arg] ## E: expected 1 argument, got 2
 
     @arc4.abimethod()
     def bad_create_arg(self) -> None:
-        self.ok.create(size=32, too_many=42)  # type: ignore[call-arg] ## E: Expected a single argument, got 2
+        self.ok.create(size=32, too_many=42)  # type: ignore[call-arg] ## W: expression result is ignored \
+                                                                       ## E: expected 1 argument, got 2
 
 
     @arc4.abimethod()
     def bad_resize_arg(self) -> None:
-        self.ok.resize(new_size=32, too_many=42)  # type: ignore[call-arg] ## E: Invalid/unexpected args
+        self.ok.resize(new_size=32, too_many=42)  # type: ignore[call-arg] ## E: unrecognised keyword argument
 
 
     @arc4.abimethod()
     def missing_resize_arg(self) -> None:
-        self.ok.resize()  # type: ignore[call-arg] ## E: Missing required arg 'new_size'
+        self.ok.resize()  # type: ignore[call-arg] ## E: missing required positional argument(s): new_size
 
 
 ## case: box_map
@@ -135,12 +138,13 @@ class BoxMapContract(ARC4Contract):
 
     @arc4.abimethod()
     def non_pos(self) -> None:
-        bad: BoxMap[UInt64, String] = BoxMap(key_typ="oops", value_typ="oops", key_prefix="bad")  # type: ignore[call-arg] ## E: required positional argument missing
+        bad: BoxMap[UInt64, String] = BoxMap(key_typ="oops", value_typ="oops", key_prefix="bad")  # type: ignore[call-arg] ## E: unrecognised keyword argument \
+                                                                                                                           ## E: missing required positional argument(s): value_type, key_type
 
     @arc4.abimethod()
     def wrong_keyword(self) -> None:
-        bad = BoxMap(UInt64, String, oops="bad")  # type: ignore[call-arg] ## E: unrecognised keyword argument(s): oops \
-                                                                           ## E: algopy.BoxMap[algopy.UInt64, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used
+        bad = BoxMap(UInt64, String, oops="bad")  # type: ignore[call-arg] ## E: algopy.BoxMap[algopy.UInt64, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used \
+                                                                           ## E: unrecognised keyword argument
 
     @arc4.abimethod()
     def wrong_type(self) -> None:
@@ -162,15 +166,18 @@ class BoxMapContract(ARC4Contract):
 
     @arc4.abimethod()
     def length(self) -> None:
-        bad = self.ok.length(bad=UInt64(2)) # type: ignore[call-arg]
+        bad = self.ok.length(bad=UInt64(2)) # type: ignore[call-arg] ## E: unrecognised keyword argument \
+                                                                     ## E: missing required positional argument(s): key
 
     @arc4.abimethod()
     def get(self) -> None:
-        bad = self.ok.get(bad=UInt64(2)) # type: ignore[call-arg] ## E: invalid/unexpected args
+        bad = self.ok.get(bad=UInt64(2)) # type: ignore[call-arg] ## E: missing required positional argument(s): key \
+                                                                  ## E: unrecognised keyword argument
 
     @arc4.abimethod()
     def maybe(self) -> None:
-        bad = self.ok.maybe(bad=UInt64(2)) # type: ignore[call-arg] ## E: invalid/unexpected args
+        bad = self.ok.maybe(bad=UInt64(2)) # type: ignore[call-arg] ## E: missing required positional argument(s): key \
+                                                                    ## E: unrecognised keyword argument
 
 ## case: test_empty_key
 from algopy import *
