@@ -256,8 +256,6 @@ class FunctionIRBuilder(
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
-        if not expr.value and expr.wtype == wtypes.box_key:
-            raise CodeError("AVM does not support empty box keys", expr.source_location)
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),

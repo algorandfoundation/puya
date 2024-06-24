@@ -3,7 +3,7 @@ import typing
 import attrs
 
 from puya import log
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
@@ -132,6 +132,15 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> None:
         discard_results = intrinsic is self.active_op
+
+        if intrinsic.op.code.startswith("box_"):
+            try:
+                box_key = intrinsic.args[0]
+            except ValueError:
+                raise InternalError("box key arg not found", intrinsic.source_location) from None
+            if isinstance(box_key, ir.BytesConstant) and not box_key.value:
+                raise CodeError("AVM does not support empty box keys", intrinsic.source_location)
+
         for arg in intrinsic.args:
             arg.accept(self)
         produces = len(intrinsic.op_signature.returns)
