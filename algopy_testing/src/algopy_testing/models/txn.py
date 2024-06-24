@@ -99,6 +99,8 @@ class _Txn:
         if name in context._txn_fields and context._txn_fields[name] is not None:  # type: ignore[literal-required]
             return context._txn_fields[name]  # type: ignore[literal-required]
         elif active_txn:
+            if context._active_transaction_index is not None and name == "group_index":
+                return context._active_transaction_index
             return getattr(active_txn, self._map_fields(name))
         else:
             raise AttributeError(

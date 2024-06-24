@@ -35,14 +35,12 @@ def test_vote(context: AlgopyTestContext) -> None:
 
     context.set_transaction_group(
         gtxn=[
-            context.any_app_call_txn(
-                group_index=0,
+            context.any_application_call_transaction(
                 sender=voter,
                 app_id=context.any_application(),
                 app_args=[algopy.Bytes(b"vote"), voter.bytes],
             ),
-            context.any_pay_txn(
-                group_index=1,
+            context.any_payment_transaction(
                 sender=voter,
                 amount=algopy.UInt64(10_000),
             ),
@@ -68,14 +66,12 @@ def test_vote_already_voted(context: AlgopyTestContext) -> None:
 
     context.set_transaction_group(
         gtxn=[
-            context.any_app_call_txn(
-                group_index=0,
+            context.any_application_call_transaction(
                 sender=voter,
                 app_id=context.any_application(),
                 app_args=[algopy.Bytes(b"vote"), voter.bytes],
             ),
-            context.any_pay_txn(
-                group_index=1,
+            context.any_payment_transaction(
                 sender=voter,
                 amount=algopy.UInt64(10_000),
             ),

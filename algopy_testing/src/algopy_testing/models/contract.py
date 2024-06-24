@@ -56,6 +56,19 @@ class Contract(metaclass=_ContractMeta):
     def clear_state_program(self) -> algopy.UInt64 | bool:
         raise NotImplementedError("`clear_state_program` is not implemented.")
 
+    def __hash__(self) -> int:
+        return hash(self._name)
+
+    def __getattribute__(self, name: str) -> Any:
+        attr = super().__getattribute__(name)
+        if callable(attr):
+
+            def wrapper(*args: Any, **kwargs: dict[str, Any]) -> Any:
+                return attr(*args, **kwargs)
+
+            return wrapper
+        return attr
+
 
 class ARC4Contract(Contract):
     @final

@@ -7,11 +7,21 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 
 # Define the union type
-from typing import TYPE_CHECKING, TypeVar, Unpack, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Unpack, cast, overload
 
 import algosdk
 
-from algopy_testing.constants import DEFAULT_GLOBAL_GENESIS_HASH, MAX_BYTES_SIZE, MAX_UINT64
+from algopy_testing.constants import (
+    ARC4_RETURN_PREFIX,
+    DEFAULT_ACCOUNT_MIN_BALANCE,
+    DEFAULT_ASSET_CREATE_MIN_BALANCE,
+    DEFAULT_ASSET_OPT_IN_MIN_BALANCE,
+    DEFAULT_GLOBAL_GENESIS_HASH,
+    DEFAULT_MAX_TXN_LIFE,
+    MAX_BYTES_SIZE,
+    MAX_UINT64,
+)
+from algopy_testing.gtxn import NULL_GTXN_GROUP_INDEX
 from algopy_testing.models.account import AccountFields
 from algopy_testing.models.application import ApplicationFields
 from algopy_testing.models.asset import AssetFields
@@ -19,7 +29,7 @@ from algopy_testing.models.global_values import GlobalFields
 from algopy_testing.models.txn import TxnFields
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Sequence
+    from collections.abc import Callable, Generator, Sequence
 
     import algopy
 
@@ -28,7 +38,12 @@ if TYPE_CHECKING:
         PaymentFields,
         TransactionFields,
     )
-    from algopy_testing.models.transactions import _ApplicationCallFields
+    from algopy_testing.models.transactions import (
+        AssetConfigFields,
+        AssetFreezeFields,
+        KeyRegistrationFields,
+        _ApplicationCallFields,
+    )
 
     InnerTransactionResultType = (
         algopy.itxn.InnerTransactionResult
@@ -74,50 +89,236 @@ class ContractContextData:
     app_id: algopy.UInt64
 
 
+class ITxnLoader:
+    """
+    Stores inner transaction references.
+    """
+
+    def __init__(self, inner_txn: InnerTransactionResultType):
+        self._inner_txn = inner_txn
+
+    def _get_itxn(self, txn_type: type[T]) -> T:
+        txn = self._inner_txn
+
+        if not isinstance(txn, txn_type):
+            raise TypeError(f"Last transaction is not of type {txn_type.__name__}!")
+
+        return txn
+
+    @property
+    def payment(self) -> algopy.itxn.PaymentInnerTransaction:
+        """
+        Retrieve the last PaymentInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.PaymentInnerTransaction)
+
+    @property
+    def asset_config(self) -> algopy.itxn.AssetConfigInnerTransaction:
+        """
+        Retrieve the last AssetConfigInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.AssetConfigInnerTransaction)
+
+    @property
+    def asset_transfer(self) -> algopy.itxn.AssetTransferInnerTransaction:
+        """
+        Retrieve the last AssetTransferInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.AssetTransferInnerTransaction)
+
+    @property
+    def asset_freeze(self) -> algopy.itxn.AssetFreezeInnerTransaction:
+        """
+        Retrieve the last AssetFreezeInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.AssetFreezeInnerTransaction)
+
+    @property
+    def application_call(self) -> algopy.itxn.ApplicationCallInnerTransaction:
+        """
+        Retrieve the last ApplicationCallInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.ApplicationCallInnerTransaction)
+
+    @property
+    def key_registration(self) -> algopy.itxn.KeyRegistrationInnerTransaction:
+        """
+        Retrieve the last KeyRegistrationInnerTransaction.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.KeyRegistrationInnerTransaction)
+
+    @property
+    def transaction(self) -> algopy.itxn.InnerTransactionResult:
+        """
+        Retrieve the last InnerTransactionResult.
+
+        Raises:
+            ValueError: If the transaction is not found or not of the expected type.
+        """
+        import algopy
+
+        return self._get_itxn(algopy.itxn.InnerTransactionResult)
+
+
+class ITxnGroupLoader:
+    @overload
+    def __getitem__(self, index: int) -> ITxnLoader: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> list[ITxnLoader]: ...
+
+    def __getitem__(self, index: int | slice) -> ITxnLoader | list[ITxnLoader]:
+        if isinstance(index, int):
+            return ITxnLoader(self._inner_txn_group[index])
+        elif isinstance(index, slice):
+            return [ITxnLoader(self._inner_txn_group[i]) for i in range(*index.indices(len(self)))]
+        else:
+            raise TypeError("Index must be int or slice")
+
+    def __len__(self) -> int:
+        return len(self._inner_txn_group)
+
+    def __init__(self, inner_txn_group: Sequence[InnerTransactionResultType]):
+        self._inner_txn_group = inner_txn_group
+
+    def _get_itxn(self, index: int, txn_type: type[T]) -> T:
+        try:
+            txn = self._inner_txn_group[index]
+        except IndexError as err:
+            raise ValueError(f"No inner transaction available at index {index}!") from err
+
+        if not isinstance(txn, txn_type):
+            raise TypeError(f"Last transaction is not of type {txn_type.__name__}!")
+
+        return txn
+
+    def payment(self, index: int) -> algopy.itxn.PaymentInnerTransaction:
+        import algopy
+
+        return ITxnLoader(self._get_itxn(index, algopy.itxn.PaymentInnerTransaction)).payment
+
+    def asset_config(self, index: int) -> algopy.itxn.AssetConfigInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.AssetConfigInnerTransaction)
+
+    def asset_transfer(self, index: int) -> algopy.itxn.AssetTransferInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.AssetTransferInnerTransaction)
+
+    def asset_freeze(self, index: int) -> algopy.itxn.AssetFreezeInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.AssetFreezeInnerTransaction)
+
+    def application_call(self, index: int) -> algopy.itxn.ApplicationCallInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.ApplicationCallInnerTransaction)
+
+    def key_registration(self, index: int) -> algopy.itxn.KeyRegistrationInnerTransaction:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.KeyRegistrationInnerTransaction)
+
+    def transaction(self, index: int) -> algopy.itxn.InnerTransactionResult:
+        import algopy
+
+        return self._get_itxn(index, algopy.itxn.InnerTransactionResult)
+
+
+@dataclass
 class AlgopyTestContext:
     def __init__(
         self,
         *,
         default_creator: algopy.Account | None = None,
         default_application: algopy.Application | None = None,
+        template_vars: dict[str, Any] | None = None,
     ) -> None:
         import algopy
 
-        self._asset_id = iter(range(1001, 2**64))
-        self._app_id = iter(range(1001, 2**64))
+        self._asset_id = iter(range(1, 2**64))
+        self._app_id = iter(range(1, 2**64))
 
         self._contracts: list[algopy.Contract | algopy.ARC4Contract] = []
         self._txn_fields: TxnFields = {}
         self._gtxns: list[algopy.gtxn.TransactionBase] = []
         self._active_transaction_index: int | None = None
-        self._account_data: dict[str, AccountContextData] = {}
         self._application_data: dict[int, ApplicationFields] = {}
+        self._application_logs: dict[int, list[bytes]] = {}
         self._asset_data: dict[int, AssetFields] = {}
-        self._inner_transaction_groups: list[Sequence[algopy.itxn.InnerTransactionResult]] = []
+        self._inner_transaction_groups: list[Sequence[InnerTransactionResultType]] = []
+        self._constructing_inner_transaction_group: list[InnerTransactionResultType] = []
+        self._constructing_inner_transaction: InnerTransactionResultType | None = None
+        self._scratch_spaces: dict[str, list[algopy.Bytes | algopy.UInt64 | bytes | int]] = {}
+        self._template_vars: dict[str, Any] = template_vars or {}
+        self._blocks: dict[int, dict[str, int]] = {}
+        self._boxes: dict[bytes, algopy.Bytes] = {}
+        self._lsigs: dict[algopy.LogicSig, Callable[[], algopy.UInt64 | bool]] = {}
+        self._active_lsig_args: Sequence[algopy.Bytes] = []
 
-        default_application_address = (
-            self.any_account() if default_application is None else default_application.address
-        )
-        default_application_creator = default_creator or algopy.Account(
+        self.default_creator = default_creator or algopy.Account(
             algosdk.account.generate_account()[1]
         )
+
+        default_application_id = next(self._app_id)
+        default_application_address = algosdk.logic.get_application_address(default_application_id)
+
+        self.default_application = default_application or self.any_application(
+            id=default_application_id,
+            address=algopy.Account(default_application_address),
+        )
+
         self._global_fields: GlobalFields = {
             "min_txn_fee": algopy.UInt64(algosdk.constants.MIN_TXN_FEE),
-            "min_balance": algopy.UInt64(100_000),
-            "max_txn_life": algopy.UInt64(1_000),
+            "min_balance": algopy.UInt64(DEFAULT_ACCOUNT_MIN_BALANCE),
+            "max_txn_life": algopy.UInt64(DEFAULT_MAX_TXN_LIFE),
             "zero_address": algopy.Account(algosdk.constants.ZERO_ADDRESS),
-            "creator_address": default_application_creator,
-            "current_application_address": default_application_address,
-            "asset_create_min_balance": algopy.UInt64(100_000),
-            "asset_opt_in_min_balance": algopy.UInt64(10_000),
+            "creator_address": self.default_creator,
+            "current_application_address": algopy.Account(default_application_address),
+            "current_application_id": self.default_application,
+            "asset_create_min_balance": algopy.UInt64(DEFAULT_ASSET_CREATE_MIN_BALANCE),
+            "asset_opt_in_min_balance": algopy.UInt64(DEFAULT_ASSET_OPT_IN_MIN_BALANCE),
             "genesis_hash": algopy.Bytes(DEFAULT_GLOBAL_GENESIS_HASH),
         }
 
-        self.logs: list[bytes] = []
-        self.default_creator = default_application_creator
-        self.default_application = default_application or self.any_application(
-            address=default_application_address
-        )
+        self._account_data: dict[str, AccountContextData] = {
+            str(self.default_creator): AccountContextData(
+                fields=AccountFields(), opted_asset_balances={}, opted_apps={}
+            )
+        }
 
     def patch_global_fields(self, **global_fields: Unpack[GlobalFields]) -> None:
         """
@@ -155,6 +356,19 @@ class AlgopyTestContext:
             )
 
         self._txn_fields.update(txn_fields)
+
+    def set_scratch_space(
+        self, txn: str, scratch_space: dict[int, algopy.Bytes | algopy.UInt64 | bytes | int]
+    ) -> None:
+        new_scratch_space: list[algopy.Bytes | algopy.UInt64 | bytes | int] = [0] * 256
+        # insert values to list at specific indexes, use key as index and value as value to set
+        for index, value in scratch_space.items():
+            new_scratch_space[index] = value
+
+        self._scratch_spaces[str(txn)] = new_scratch_space
+
+    def set_template_var(self, name: str, value: Any) -> None:
+        self._template_vars[name] = value
 
     def get_account(self, address: str) -> algopy.Account:
         """
@@ -339,7 +553,16 @@ class AlgopyTestContext:
 
         self._inner_transaction_groups.append(cast(list[algopy.itxn.InnerTransactionResult], itxn))
 
-    def get_last_inner_transaction_group(self) -> Sequence[algopy.itxn.InnerTransactionResult]:
+    def get_submitted_itxn_groups(self) -> list[Sequence[InnerTransactionResultType]]:
+        """
+        Retrieve the number of inner transaction groups.
+
+        Returns:
+            int: The number of inner transaction groups.
+        """
+        return self._inner_transaction_groups
+
+    def get_submitted_itxn_group(self, index: int) -> ITxnGroupLoader:
         """
         Retrieve the last group of inner transactions.
 
@@ -352,23 +575,33 @@ class AlgopyTestContext:
 
         if not self._inner_transaction_groups:
             raise ValueError("No inner transaction groups submitted yet!")
-        return self._inner_transaction_groups[-1]
 
-    def get_last_submitted_inner_transaction(self) -> algopy.itxn.InnerTransactionResult:
+        try:
+            return ITxnGroupLoader(self._inner_transaction_groups[index])
+        except IndexError as err:
+            raise ValueError(f"No inner transaction group available at index {index}!") from err
+
+    @property
+    def last_submitted_itxn(self) -> ITxnLoader:
         """
-        Retrieve the last submitted inner transaction.
+        Retrieve the last submitted inner transaction from the
+        last inner transaction group (if both exist).
 
         Returns:
-            algopy.itxn.InnerTransactionResult: The last submitted inner transaction.
+            ITxnLoader: The last submitted inner transaction loader.
 
         Raises:
             ValueError: If no inner transactions exist in the last inner transaction group.
         """
 
-        inner_transaction_group = self.get_last_inner_transaction_group()
-        if not inner_transaction_group:
+        if not self._inner_transaction_groups or not self._inner_transaction_groups[-1]:
             raise ValueError("No inner transactions in the last inner transaction group!")
-        return inner_transaction_group[-1]
+
+        try:
+            last_itxn = self._inner_transaction_groups[-1][-1]
+            return ITxnLoader(last_itxn)
+        except IndexError as err:
+            raise ValueError("No inner transactions in the last inner transaction group!") from err
 
     def any_account(
         self,
@@ -429,20 +662,97 @@ class AlgopyTestContext:
         self._asset_data[int(new_asset.id)] = AssetFields(**asset_fields)
         return new_asset
 
-    def any_application(
-        self, **application_fields: Unpack[ApplicationFields]
+    def any_application(  # type: ignore[misc]
+        self,
+        id: int | None = None,
+        address: algopy.Account | None = None,
+        **application_fields: Unpack[ApplicationFields],
     ) -> algopy.Application:
         """
         Generate and add a new application with a unique ID.
 
+        Args:
+            id (int | None): Optional application ID. If not provided, a new ID will be generated.
+            address (algopy.Account | None): Optional application address. If not provided,
+            it will be generated.
+            **application_fields: Additional application fields.
+
         Returns:
-            Application: The newly generated application.
+            algopy.Application: The newly generated application.
         """
         import algopy
 
-        new_app = algopy.Application(next(self._app_id))
-        self._application_data[int(new_app.id)] = ApplicationFields(**application_fields)
+        new_app_id = id if id is not None else next(self._app_id)
+        new_app = algopy.Application(new_app_id)
+
+        if address is None:
+            address = algopy.Account(algosdk.logic.get_application_address(new_app_id))
+
+        app_fields = ApplicationFields(address=address, **application_fields)  # type: ignore[typeddict-item]
+        self._application_data[int(new_app.id)] = app_fields
         return new_app
+
+    def add_application_logs(
+        self,
+        *,
+        app_id: algopy.UInt64 | algopy.Application | int,
+        logs: bytes | list[bytes],
+        prepend_arc4_prefix: bool = False,
+    ) -> None:
+        """
+        Add logs for an application.
+
+        Args:
+            app_id (int): The ID of the application.
+            logs (bytes | list[bytes]): A single log entry or a list of log entries.
+        """
+        import algopy
+
+        raw_app_id = (
+            int(app_id)
+            if isinstance(app_id, algopy.UInt64)
+            else int(app_id.id) if isinstance(app_id, algopy.Application) else app_id
+        )
+
+        if isinstance(logs, bytes):
+            logs = [logs]
+
+        if prepend_arc4_prefix:
+            logs = [ARC4_RETURN_PREFIX + log for log in logs]
+
+        if raw_app_id in self._application_logs:
+            self._application_logs[raw_app_id].extend(logs)
+        else:
+            self._application_logs[raw_app_id] = logs
+
+    def get_application_logs(self, app_id: algopy.UInt64 | int) -> list[bytes]:
+        """
+        Retrieve the application logs for a given app ID.
+
+        Args:
+            app_id (int): The ID of the application.
+
+        Returns:
+            list[bytes]: The application logs for the given app ID.
+        """
+        import algopy
+
+        app_id = int(app_id) if isinstance(app_id, algopy.UInt64) else app_id
+
+        if app_id not in self._application_logs:
+            raise ValueError(
+                f"No application logs available for app ID {app_id} in testing context!"
+            )
+
+        return self._application_logs[app_id]
+
+    def set_block(
+        self, index: int, seed: algopy.UInt64 | int, timestamp: algopy.UInt64 | int
+    ) -> None:
+        """
+        Set the block seed and timestamp for block at index `index`.
+        """
+        self._blocks[index] = {"seed": int(seed), "timestamp": int(timestamp)}
 
     def set_transaction_group(
         self, gtxn: list[algopy.gtxn.TransactionBase], active_transaction_index: int | None = None
@@ -487,6 +797,10 @@ class AlgopyTestContext:
             )
 
         self._gtxns.extend(gtxns)
+
+        # iterate and refresh group_index to match the order of transactions
+        for i, txn in enumerate(self._gtxns):
+            txn._fields["group_index"] = i
 
     def get_transaction_group(self) -> list[algopy.gtxn.TransactionBase]:
         """
@@ -573,22 +887,22 @@ class AlgopyTestContext:
             "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length))
         )
 
-    def any_app_call_txn(  # noqa: PLR0913
+    def any_application_call_transaction(  # type: ignore[misc] # noqa: PLR0913
         self,
-        group_index: int,
+        app_id: algopy.Application,
         app_args: Sequence[algopy.Bytes] = [],
         accounts: Sequence[algopy.Account] = [],
         assets: Sequence[algopy.Asset] = [],
         apps: Sequence[algopy.Application] = [],
         approval_program_pages: Sequence[algopy.Bytes] = [],
         clear_state_program_pages: Sequence[algopy.Bytes] = [],
+        scratch_space: dict[int, algopy.Bytes | algopy.UInt64 | int | bytes] | None = None,
         **kwargs: Unpack[_ApplicationCallFields],
     ) -> algopy.gtxn.ApplicationCallTransaction:
         """
         Generate a new application call transaction with specified fields.
 
         Args:
-            group_index (int): Position index in the transaction group.
             **kwargs (Unpack[ApplicationCallFields]): Fields to be set in the transaction.
 
         Returns:
@@ -597,7 +911,15 @@ class AlgopyTestContext:
         """
         import algopy.gtxn
 
-        callable_params = {
+        if not isinstance(app_id, algopy.Application):
+            raise TypeError("`app_id` must be an instance of algopy.Application")
+        if int(app_id.id) not in self._application_data:
+            raise ValueError(
+                f"algopy.Application with ID {app_id.id} not found in testing context!"
+            )
+
+        dynamic_params = {
+            "app_id": lambda: app_id,
             "app_args": lambda index: app_args[index],
             "accounts": lambda index: accounts[index],
             "assets": lambda index: assets[index],
@@ -605,21 +927,22 @@ class AlgopyTestContext:
             "approval_program_pages": lambda index: approval_program_pages[index],
             "clear_state_program_pages": lambda index: clear_state_program_pages[index],
         }
-        new_txn = algopy.gtxn.ApplicationCallTransaction(group_index)
+        new_txn = algopy.gtxn.ApplicationCallTransaction(NULL_GTXN_GROUP_INDEX)
 
-        for key, value in {**kwargs, **callable_params}.items():
+        for key, value in {**kwargs, **dynamic_params}.items():
             setattr(new_txn, key, value)
+
+        self.set_scratch_space(new_txn.txn_id, scratch_space or {})
 
         return new_txn
 
-    def any_axfer_txn(
-        self, group_index: int, **kwargs: Unpack[AssetTransferFields]
+    def any_asset_transfer_transaction(
+        self, **kwargs: Unpack[AssetTransferFields]
     ) -> algopy.gtxn.AssetTransferTransaction:
         """
         Generate a new asset transfer transaction with specified fields.
 
         Args:
-            group_index (int): Position index in the transaction group.
             **kwargs (Unpack[AssetTransferFields]): Fields to be set in the transaction.
 
         Returns:
@@ -627,21 +950,20 @@ class AlgopyTestContext:
         """
         import algopy.gtxn
 
-        new_txn = algopy.gtxn.AssetTransferTransaction(group_index)
+        new_txn = algopy.gtxn.AssetTransferTransaction(NULL_GTXN_GROUP_INDEX)
 
         for key, value in kwargs.items():
             setattr(new_txn, key, value)
 
         return new_txn
 
-    def any_pay_txn(
-        self, group_index: int, **kwargs: Unpack[PaymentFields]
+    def any_payment_transaction(
+        self, **kwargs: Unpack[PaymentFields]
     ) -> algopy.gtxn.PaymentTransaction:
         """
         Generate a new payment transaction with specified fields.
 
         Args:
-            group_index (int): Position index in the transaction group.
             **kwargs (Unpack[PaymentFields]): Fields to be set in the transaction.
 
         Returns:
@@ -649,7 +971,52 @@ class AlgopyTestContext:
         """
         import algopy.gtxn
 
-        new_txn = algopy.gtxn.PaymentTransaction(group_index)
+        new_txn = algopy.gtxn.PaymentTransaction(NULL_GTXN_GROUP_INDEX)
+
+        for key, value in kwargs.items():
+            setattr(new_txn, key, value)
+
+        return new_txn
+
+    def any_asset_config_transaction(
+        self, **kwargs: Unpack[AssetConfigFields]
+    ) -> algopy.gtxn.AssetConfigTransaction:
+        """
+        Generate a new ACFG transaction with specified fields.
+        """
+        import algopy.gtxn
+
+        new_txn = algopy.gtxn.AssetConfigTransaction(NULL_GTXN_GROUP_INDEX)
+
+        for key, value in kwargs.items():
+            setattr(new_txn, key, value)
+
+        return new_txn
+
+    def any_key_registration_transaction(
+        self, **kwargs: Unpack[KeyRegistrationFields]
+    ) -> algopy.gtxn.KeyRegistrationTransaction:
+        """
+        Generate a new key registration transaction with specified fields.
+        """
+        import algopy.gtxn
+
+        new_txn = algopy.gtxn.KeyRegistrationTransaction(NULL_GTXN_GROUP_INDEX)
+
+        for key, value in kwargs.items():
+            setattr(new_txn, key, value)
+
+        return new_txn
+
+    def any_asset_freeze_transaction(
+        self, **kwargs: Unpack[AssetFreezeFields]
+    ) -> algopy.gtxn.AssetFreezeTransaction:
+        """
+        Generate a new asset freeze transaction with specified fields.
+        """
+        import algopy.gtxn
+
+        new_txn = algopy.gtxn.AssetFreezeTransaction(NULL_GTXN_GROUP_INDEX)
 
         for key, value in kwargs.items():
             setattr(new_txn, key, value)
@@ -658,7 +1025,6 @@ class AlgopyTestContext:
 
     def any_transaction(  # type: ignore[misc]
         self,
-        group_index: int,
         type: algopy.TransactionType,  # noqa: A002
         **kwargs: Unpack[TransactionFields],
     ) -> algopy.gtxn.Transaction:
@@ -666,7 +1032,6 @@ class AlgopyTestContext:
         Generate a new transaction with specified fields.
 
         Args:
-            group_index (int): Position index in the transaction group.
             type (algopy.TransactionType): Transaction type.
             **kwargs (Unpack[TransactionFields]): Fields to be set in the transaction.
 
@@ -675,12 +1040,47 @@ class AlgopyTestContext:
         """
         import algopy.gtxn
 
-        new_txn = algopy.gtxn.Transaction(group_index, type=type)  # type: ignore[arg-type, unused-ignore]
+        new_txn = algopy.gtxn.Transaction(NULL_GTXN_GROUP_INDEX, type=type)  # type: ignore[arg-type, unused-ignore]
 
         for key, value in kwargs.items():
             setattr(new_txn, key, value)
 
         return new_txn
+
+    def get_box(self, name: algopy.Bytes | bytes) -> algopy.Bytes:
+        """Get the content of a box."""
+        import algopy
+
+        name_bytes = name if isinstance(name, bytes) else name.value
+        return self._boxes.get(name_bytes, algopy.Bytes(b""))
+
+    def set_box(self, name: algopy.Bytes | bytes, content: algopy.Bytes | bytes) -> None:
+        """Set the content of a box."""
+        import algopy
+
+        name_bytes = name if isinstance(name, bytes) else name.value
+        content_bytes = content if isinstance(content, bytes) else content.value
+        self._boxes[name_bytes] = algopy.Bytes(content_bytes)
+
+    def execute_logicsig(
+        self, lsig: algopy.LogicSig, lsig_args: Sequence[algopy.Bytes] | None = None
+    ) -> bool | algopy.UInt64:
+        self._active_lsig_args = lsig_args or []
+        # TODO: refine LogicSig class to handle injects into context
+        if lsig not in self._lsigs:
+            self._lsigs[lsig] = lsig.func
+        return lsig.func()
+
+    def clear_box(self, name: algopy.Bytes | bytes) -> None:
+        """Clear the content of a box."""
+
+        name_bytes = name if isinstance(name, bytes) else name.value
+        if name_bytes in self._boxes:
+            del self._boxes[name_bytes]
+
+    def clear_all_boxes(self) -> None:
+        """Clear all boxes."""
+        self._boxes.clear()
 
     def clear_inner_transaction_groups(self) -> None:
         """
@@ -712,23 +1112,44 @@ class AlgopyTestContext:
         """
         self._asset_data.clear()
 
-    def clear_logs(self) -> None:
+    def clear_application_logs(self) -> None:
         """
-        Clear all logs.
+        Clear all application logs.
         """
-        self.logs.clear()
+        self._application_logs.clear()
+
+    def clear_contracts(self) -> None:
+        """
+        Clear all contracts.
+        """
+        self._contracts.clear()
+
+    def clear_scratch_spaces(self) -> None:
+        """
+        Clear all scratch spaces.
+        """
+        self._scratch_spaces.clear()
+
+    def clear_active_transaction_index(self) -> None:
+        """
+        Clear the active transaction index.
+        """
+        self._active_transaction_index = None
 
     def clear(self) -> None:
         """
         Clear all data, including accounts, applications, assets, inner transactions,
-        transaction groups, and logs.
+        transaction groups, and application_logs.
         """
         self.clear_accounts()
         self.clear_applications()
         self.clear_assets()
         self.clear_inner_transaction_groups()
         self.clear_transaction_group()
-        self.clear_logs()
+        self.clear_application_logs()
+        self.clear_contracts()
+        self.clear_scratch_spaces()
+        self.clear_active_transaction_index()
 
     def reset(self) -> None:
         """
@@ -737,15 +1158,19 @@ class AlgopyTestContext:
         self._account_data = {}
         self._application_data = {}
         self._asset_data = {}
+        self._contracts = []
+        self._active_transaction_index = None
+        self._scratch_spaces = {}
         self._inner_transaction_groups = []
         self._gtxns = []
         self._global_fields = {}
         self._txn_fields = {}
-        self.logs = []
+        self._application_logs = {}
         self._asset_id = iter(range(1, 2**64))
         self._app_id = iter(range(1, 2**64))
 
 
+#
 _var: ContextVar[AlgopyTestContext] = ContextVar("_var")
 
 

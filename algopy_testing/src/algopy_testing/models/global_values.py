@@ -5,6 +5,8 @@ import typing
 from dataclasses import dataclass
 from typing import TypedDict, TypeVar
 
+import algosdk
+
 if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -22,7 +24,7 @@ class GlobalFields(TypedDict, total=False):
     logic_sig_version: algopy.UInt64
     round: algopy.UInt64
     latest_timestamp: algopy.UInt64
-    current_application_id: algopy.UInt64
+    current_application_id: algopy.Application
     creator_address: algopy.Account
     current_application_address: algopy.Account
     group_id: algopy.Bytes
@@ -37,7 +39,7 @@ class GlobalFields(TypedDict, total=False):
 @dataclass
 class _Global:
     def __getattr__(self, name: str) -> typing.Any:
-        from algopy import UInt64
+        import algopy
 
         from algopy_testing.context import get_test_context
 
@@ -49,10 +51,13 @@ class _Global:
             )
 
         if name == "latest_timestamp" and context._global_fields.get(name) is None:
-            return UInt64(int(time.time()))
+            return algopy.UInt64(int(time.time()))
 
         if name == "group_size" and context._global_fields.get(name) is None:
-            return UInt64(len(context.get_transaction_group()))
+            return algopy.UInt64(len(context.get_transaction_group()))
+
+        if name == "zero_address" and context._global_fields.get(name) is None:
+            return algopy.Account(algosdk.constants.ZERO_ADDRESS)
 
         if name not in context._global_fields:
             raise AttributeError(

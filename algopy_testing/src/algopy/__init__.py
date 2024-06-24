@@ -9,20 +9,23 @@ from algopy_testing.models import (
     Global,
     GTxn,
     ITxn,
+    LogicSig,
+    TemplateVar,
     Txn,
+    logicsig,
     urange,
 )
 from algopy_testing.primitives import BigUInt, Bytes, String, UInt64
 from algopy_testing.protocols import BytesBacked
 from algopy_testing.state import GlobalState, LocalState
-from algopy_testing.utilities import log
+from algopy_testing.utilities import OpUpFeeSource, ensure_budget, log
 
 from . import arc4, gtxn, itxn, op
 
 __all__ = [
-    "ARC4Contract",
     "Account",
     "Application",
+    "ARC4Contract",
     "Asset",
     "BigUInt",
     "Bytes",
@@ -33,16 +36,23 @@ __all__ = [
     "GTxn",
     "ITxn",
     "LocalState",
+    "LogicSig",
     "OnCompleteAction",
+    "OpUpFeeSource",
+    "StateTotals",
     "String",
+    "TemplateVar",
     "TransactionType",
     "Txn",
     "UInt64",
-    "subroutine",
+    "arc4",
+    "ensure_budget",
     "gtxn",
     "itxn",
-    "arc4",
-    "op",
-    "urange",
     "log",
+    "logicsig",
+    "op",
+    "subroutine",
+    "uenumerate",
+    "urange",
 ]

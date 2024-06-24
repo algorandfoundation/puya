@@ -24,10 +24,8 @@ def test_opt_into_asset(context: AlgopyTestContext) -> None:
     contract.opt_into_asset(asset)
 
     # Assert
-    assert len(context.get_transaction_group()) == 1
     assert contract.asa.id == asset.id
-    inner_txn = context.get_last_submitted_inner_transaction()
-    assert inner_txn.type == algopy.TransactionType.AssetTransfer
+    inner_txn = context.last_submitted_itxn.asset_transfer
     assert (
         inner_txn.asset_receiver == context.default_application.address
     ), "Asset receiver does not match"
@@ -43,8 +41,7 @@ def test_start_auction(
     latest_timestamp = context.any_uint64(1, 1000)
     auction_price = context.any_uint64(1, 100)
     auction_duration = context.any_uint64(1000, 3600)
-    axfer_txn = context.any_axfer_txn(
-        group_index=0,
+    axfer_txn = context.any_asset_transfer_transaction(
         asset_receiver=app_account,
         asset_amount=auction_price,
     )
@@ -80,7 +77,7 @@ def test_bid(context: AlgopyTestContext) -> None:
     contract = AuctionContract()
     contract.auction_end = auction_end
     contract.previous_bid = previous_bid
-    pay = context.any_pay_txn(group_index=0, sender=account, amount=pay_amount)
+    pay = context.any_payment_transaction(sender=account, amount=pay_amount)
 
     # Act
     contract.bid(pay=pay)
@@ -109,10 +106,8 @@ def test_claim_bids(
 
     # Assert
     expected_payment = claimable_amount - previous_bid
-    inner_transactions = context.get_last_inner_transaction_group()
-    assert len(inner_transactions) == 1
-    last_inner_txn = inner_transactions[0]
-    assert last_inner_txn.type == algopy.TransactionType.Payment
+    last_inner_txn = context.last_submitted_itxn.payment
+
     assert last_inner_txn.amount == expected_payment
     assert last_inner_txn.receiver == account
     assert contract.claimable_amount[account] == claimable_amount - expected_payment
@@ -124,8 +119,7 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     latest_timestamp = context.any_uint64(1000, 2000)
     context.patch_global_fields(latest_timestamp=latest_timestamp)
     contract = AuctionContract()
-    auction_end = context.any_uint64(1, 100)
-    contract.auction_end = auction_end
+    contract.auction_end = context.any_uint64(1, 100)
     contract.previous_bidder = account
     asa_amount = context.any_uint64(1000, 2000)
     contract.asa_amount = asa_amount
@@ -135,10 +129,7 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     contract.claim_asset(asset)
 
     # Assert
-    inner_transactions = context.get_last_inner_transaction_group()
-    assert len(inner_transactions) == 1
-    last_inner_txn = inner_transactions[0]
-    assert last_inner_txn.type == algopy.TransactionType.AssetTransfer
+    last_inner_txn = context.last_submitted_itxn.asset_transfer
     assert last_inner_txn.xfer_asset == asset
     assert last_inner_txn.asset_close_to == account
     assert last_inner_txn.asset_receiver == account
@@ -157,8 +148,7 @@ def test_delete_application(
     contract.delete_application()
 
     # Assert
-    assert len(context.get_transaction_group()) == 1
-    inner_transactions = context.get_last_submitted_inner_transaction()
+    inner_transactions = context.last_submitted_itxn.payment
     assert inner_transactions
     assert inner_transactions.type == algopy.TransactionType.Payment
     assert inner_transactions.receiver == account

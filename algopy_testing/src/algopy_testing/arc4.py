@@ -18,9 +18,11 @@ from algopy_testing.constants import (
     UINT512_SIZE,
 )
 from algopy_testing.decorators.abimethod import abimethod
+from algopy_testing.decorators.baremethod import baremethod
 from algopy_testing.models import Account
 from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import (
+    abi_type_name_for_arg,
     as_bytes,
     as_int,
     as_int16,
@@ -43,6 +45,16 @@ class _ABIEncoded(BytesBacked, typing.Protocol):
         """Load an ABI type from application logs,
         checking for the ABI return prefix `0x151f7c75`"""
         ...
+
+
+def arc4_signature(signature: str, /) -> algopy.Bytes:
+    """Convert a signature to ARC4 bytes"""
+    import algopy
+
+    hashed_signature = SHA512.new(truncate="256")
+    hashed_signature.update(signature.encode("utf-8"))
+    return_value = hashed_signature.digest()[:4]
+    return algopy.Bytes(return_value)
 
 
 class String(_ABIEncoded):
@@ -441,6 +453,10 @@ class Bool(_ABIEncoded):
 
     def __init__(self, value: bool = False, /) -> None:  # noqa: FBT001, FBT002
         self._value = int_to_bytes(self._true_int_value if value else self._false_int_value, 1)
+
+    def __bool__(self) -> bool:
+        """Allow Bool to be used in boolean contexts"""
+        return self.native
 
     @property
     def native(self) -> bool:
@@ -1044,6 +1060,100 @@ if typing.TYPE_CHECKING:
     )
 
 
+_TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
+
+
+class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
+    def __call__(  # noqa: PLR0913
+        self,
+        method: str,
+        /,
+        *args: _TABIArg,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: algopy.UInt64 | int = 0,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
+
+
+class _ABICallProtocolType(typing.Protocol):
+    @typing.overload
+    def __call__(
+        self,
+        method: typing.Callable[..., None] | str,
+        /,
+        *args: _TABIArg,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: algopy.UInt64 | int = 0,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
+
+    @typing.overload
+    def __call__(  # type: ignore[misc, unused-ignore]
+        self,
+        method: typing.Callable[..., _TABIResult_co],
+        /,
+        *args: _TABIArg,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: algopy.UInt64 | int = 0,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
+
+    def __getitem__(
+        self, _: type[_TABIResult_co]
+    ) -> _ABICallWithReturnProtocol[_TABIResult_co]: ...
+
+
+class _ABICall:
+    def __call__(
+        self,
+        method: typing.Callable[..., typing.Any] | str,
+        /,
+        *args: _TABIArg,
+        **kwargs: typing.Any,
+    ) -> typing.Any:
+        # Implement the actual abi_call logic here
+        raise NotImplementedError("abi_call is not implemented")
+
+    def __getitem__(
+        self, return_type: type[_TABIResult_co]
+    ) -> _ABICallWithReturnProtocol[_TABIResult_co]:
+        return self
+
+
+# TODO: Implement abi_call
+abi_call: _ABICallProtocolType = _ABICall()
+
+
 @typing.overload
 def emit(event: Struct, /) -> None: ...
 @typing.overload
@@ -1082,8 +1192,17 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
     from algopy_testing.context import get_test_context
 
     context = get_test_context()
+    active_txn = context.get_active_transaction()
+
+    if not active_txn:
+        raise ValueError("Cannot emit events outside of application call context!")
+    if active_txn.type != algopy.TransactionType.ApplicationCall:
+        raise ValueError("Cannot emit events outside of application call context!")
+    if not active_txn.app_id:
+        raise ValueError("Cannot emit event: missing `app_id` in associated call transaction!")
+
     if isinstance(event, str):
-        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in args) + ")"
+        arg_types = "(" + ",".join(abi_type_name_for_arg(arg=arg) for arg in args) + ")"
 
         if event.find("(") == -1:
             event += arg_types
@@ -1092,12 +1211,18 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
 
         args_tuple = tuple(_cast_arg_as_arc4(arg) for arg in args)
         event_hash = algopy.Bytes(SHA512.new(event.encode(), truncate="256").digest())
-        context.logs.append((event_hash[:4] + Struct(*args_tuple).bytes).value)
+        context.add_application_logs(
+            app_id=active_txn.app_id(),
+            logs=(event_hash[:4] + Struct(*args_tuple).bytes).value,
+        )
     elif isinstance(event, Struct):
-        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in event._value) + ")"
+        arg_types = "(" + ",".join(abi_type_name_for_arg(arg=arg) for arg in event._value) + ")"
         event_str = event.__class__.__name__ + arg_types
         event_hash = algopy.Bytes(SHA512.new(event_str.encode(), truncate="256").digest())
-        context.logs.append((event_hash[:4] + event.bytes).value)
+        context.add_application_logs(
+            app_id=active_txn.app_id(),
+            logs=(event_hash[:4] + event.bytes).value,
+        )
 
 
 def _cast_arg_as_arc4(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
@@ -1127,44 +1252,6 @@ def _cast_arg_as_arc4(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
         UIntN | BigUIntN | UFixedNxM | BigUFixedNxM | Bool | StaticArray | DynamicArray | Tuple,
     ):
         return arg
-    raise ValueError(f"Unsupported type {type(arg)}")
-
-
-def _abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
-    import algopy
-
-    if isinstance(arg, String | algopy.String | str):
-        return "string"
-    if isinstance(arg, Bool | bool):
-        return "bool"
-    if isinstance(arg, algopy.BigUInt):
-        return "uint512"
-    if isinstance(arg, algopy.UInt64):
-        return "uint64"
-    if isinstance(arg, int):
-        return "uint64" if arg <= MAX_UINT64 else "uint512"
-    if isinstance(arg, algopy.Bytes | bytes):
-        return "byte[]"
-    if isinstance(arg, algopy.Asset):
-        return "uint64"
-    if isinstance(arg, algopy.Account):
-        return "address"
-    if isinstance(arg, algopy.Application):
-        return "uint64"
-    if isinstance(arg, UIntN):
-        return "uint" + str(arg._bit_size)
-    if isinstance(arg, BigUIntN):
-        return "uint" + str(arg._bit_size)
-    if isinstance(arg, UFixedNxM):
-        return f"ufixed{arg._n}x{arg._m}"
-    if isinstance(arg, BigUFixedNxM):
-        return f"ufixed{arg._n}x{arg._m}"
-    if isinstance(arg, StaticArray):
-        return f"{_abi_type_name_for_arg(arg[0])}[{arg.length.value}]"
-    if isinstance(arg, DynamicArray):
-        return f"{_abi_type_name_for_arg(arg[0])}[]"
-    if isinstance(arg, Tuple):
-        return f"({','.join(_abi_type_name_for_arg(a) for a in arg)})"
     raise ValueError(f"Unsupported type {type(arg)}")
 
 
@@ -1417,27 +1504,30 @@ def _decode(  # noqa: PLR0912, C901
 
 
 __all__ = [
+    "ARC4Client",
     "Address",
-    "UFixedNxM",
-    "UIntN",
     "BigUFixedNxM",
     "BigUIntN",
+    "Bool",
     "Byte",
-    "UInt8",
-    "UInt16",
-    "UInt32",
-    "UInt64",
-    "UInt128",
-    "UInt256",
-    "UInt512",
-    "abimethod",
-    "Struct",
-    "ARC4Client",
-    "Tuple",
     "DynamicArray",
     "DynamicBytes",
     "StaticArray",
-    "Bool",
     "String",
+    "Struct",
+    "Tuple",
+    "UFixedNxM",
+    "UInt128",
+    "UInt16",
+    "UInt256",
+    "UInt32",
+    "UInt512",
+    "UInt64",
+    "UInt8",
+    "UIntN",
+    "abi_call",
+    "abimethod",
+    "arc4_signature",
+    "baremethod",
     "emit",
 ]
