@@ -61,7 +61,7 @@ def bad_kwarg() -> None:
 @subroutine
 def type_mismatch() -> None:
     box = Box[UInt64](UInt64, key="box")  # ok
-    x = Box[String](UInt64, key=b"Box")  # type: ignore[arg-type] ## E: algopy.Box explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
+    x = Box[String](UInt64, key=b"Box")  # type: ignore[arg-type] ## E: explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
 
 
 ## case: box_ref
@@ -139,7 +139,7 @@ class BoxMapContract(ARC4Contract):
     @arc4.abimethod()
     def non_pos(self) -> None:
         bad: BoxMap[UInt64, String] = BoxMap(key_typ="oops", value_typ="oops", key_prefix="bad")  # type: ignore[call-arg] ## E: unrecognised keyword argument \
-                                                                                                                           ## E: missing required positional argument(s): value_type, key_type
+                                                                                                                           ## E: missing required positional argument(s): key_type, value_type
 
     @arc4.abimethod()
     def wrong_keyword(self) -> None:
@@ -152,13 +152,13 @@ class BoxMapContract(ARC4Contract):
 
     @arc4.abimethod()
     def mismatch_key(self) -> None:
-        bad = BoxMap[String, String](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required \
-                                                                               ## E: algopy.BoxMap[algopy.String, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used
+        bad = BoxMap[String, String](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap[algopy.String, algopy.String] with inferred key_prefix must be assigned to an instance variable before being used \
+                                                                               ## E: explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
 
     @arc4.abimethod()
     def mismatch_value(self) -> None:
-        bad = BoxMap[UInt64, UInt64](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap explicit type annotation does not match type arguments - suggest to remove the explicit type annotation, it shouldn't be required \
-                                                                               ## E: algopy.BoxMap[algopy.UInt64, algopy.UInt64] with inferred key_prefix must be assigned to an instance variable before being used
+        bad = BoxMap[UInt64, UInt64](UInt64, String)  # type: ignore[arg-type] ## E: algopy.BoxMap[algopy.UInt64, algopy.UInt64] with inferred key_prefix must be assigned to an instance variable before being used \
+                                                                               ## E: explicit type annotation does not match first argument - suggest to remove the explicit type annotation, it shouldn't be required
 
     @arc4.abimethod()
     def slice(self) -> None:

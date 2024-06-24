@@ -285,13 +285,13 @@ def get_arg_mapping(
             arg_mapping[arg_name] = kw_arg
     any_missing = False
     if missing_args := set(required_positional_names).difference(arg_mapping.keys()):
-        msg = f"missing required positional argument(s): {', '.join(missing_args)}"
+        msg = f"missing required positional argument(s): {', '.join(sorted(missing_args))}"
         if raise_on_missing:
             raise CodeError(msg, call_location)
         any_missing = True
         logger.error(msg, location=call_location)
     elif missing_kwargs := set(required_kw_only).difference(arg_mapping.keys()):
-        msg = f"missing required keyword argument(s): {', '.join(missing_kwargs)}"
+        msg = f"missing required keyword argument(s): {', '.join(sorted(missing_kwargs))}"
         if raise_on_missing:
             raise CodeError(msg, call_location)
         any_missing = True
