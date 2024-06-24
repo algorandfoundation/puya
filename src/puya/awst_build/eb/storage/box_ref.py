@@ -6,8 +6,10 @@ import mypy.nodes
 from puya.awst import wtypes
 from puya.awst.nodes import BoxValueExpression, Expression, IntrinsicCall, Not, StateExists
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -16,8 +18,7 @@ from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, e
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, get_arg_mapping
-from puya.errors import CodeError
+from puya.awst_build.utils import get_arg_mapping
 from puya.parse import SourceLocation
 
 
@@ -33,15 +34,15 @@ class BoxRefTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg_mapping = get_arg_mapping(
-            positional_arg_names=(),
-            args=zip(arg_names, args, strict=True),
-            location=location,
+        key_arg_name = "key"
+        arg_mapping, _ = get_arg_mapping(
+            optional_kw_only=[key_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
-        key_arg = arg_mapping.pop("key", None)
-        if arg_mapping:
-            raise CodeError("Invalid/unhandled arguments", location)
-
+        key_arg = arg_mapping.get(key_arg_name)
         key_override = extract_key_override(key_arg, location, typ=wtypes.box_key)
         if key_override is None:
             return StorageProxyDefinitionBuilder(
@@ -91,8 +92,7 @@ class BoxRefProxyExpressionBuilder(
                     location,
                     box_proxy=self.resolve(),
                     op_code="box_del",
-                    arg_types=(),
-                    args=(),
+                    args={},
                     return_type=pytypes.BoolType,
                 )
             case "extract":
@@ -100,8 +100,7 @@ class BoxRefProxyExpressionBuilder(
                     location,
                     box_proxy=self.resolve(),
                     op_code="box_extract",
-                    arg_types=(pytypes.UInt64Type, pytypes.UInt64Type),
-                    args=("start_index", "length"),
+                    args={"start_index": pytypes.UInt64Type, "length": pytypes.UInt64Type},
                     return_type=pytypes.BytesType,
                 )
             case "resize":
@@ -109,8 +108,7 @@ class BoxRefProxyExpressionBuilder(
                     location,
                     box_proxy=self.resolve(),
                     op_code="box_resize",
-                    arg_types=(pytypes.UInt64Type,),
-                    args=("new_size",),
+                    args={"new_size": pytypes.UInt64Type},
                     return_type=pytypes.NoneType,
                 )
             case "replace":
@@ -118,8 +116,7 @@ class BoxRefProxyExpressionBuilder(
                     location,
                     box_proxy=self.resolve(),
                     op_code="box_replace",
-                    arg_types=(pytypes.UInt64Type, pytypes.BytesType),
-                    args=("start_index", "value"),
+                    args={"start_index": pytypes.UInt64Type, "value": pytypes.BytesType},
                     return_type=pytypes.NoneType,
                 )
             case "splice":
@@ -127,8 +124,11 @@ class BoxRefProxyExpressionBuilder(
                     location,
                     box_proxy=self.resolve(),
                     op_code="box_splice",
-                    arg_types=(pytypes.UInt64Type, pytypes.UInt64Type, pytypes.BytesType),
-                    args=("start_index", "length", "value"),
+                    args={
+                        "start_index": pytypes.UInt64Type,
+                        "length": pytypes.UInt64Type,
+                        "value": pytypes.BytesType,
+                    },
                     return_type=pytypes.NoneType,
                 )
 
@@ -163,14 +163,12 @@ class _IntrinsicMethod(FunctionBuilder):
         *,
         box_proxy: Expression,
         op_code: str,
-        arg_types: Sequence[pytypes.PyType],
+        args: dict[str, pytypes.PyType],
         return_type: pytypes.PyType,
-        args: Sequence[str],
     ) -> None:
         super().__init__(location)
         self.box_proxy = box_proxy
         self.op_code = op_code
-        self.arg_types = arg_types
         self.args = args
         self.return_type = return_type
 
@@ -182,16 +180,21 @@ class _IntrinsicMethod(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        args_map = get_arg_mapping(self.args, zip(arg_names, args, strict=True), location)
-        try:
-            stack_args = [
-                expect_operand_type(args_map.pop(arg_name), arg_type).resolve()
-                for arg_name, arg_type in zip(self.args, self.arg_types, strict=True)
-            ]
-        except KeyError as er:
-            raise CodeError(f"Missing required arg '{er.args[0]}'", location) from None
-        if args_map:
-            raise CodeError("Invalid/unexpected args", location)
+        args_map, any_missing = get_arg_mapping(
+            required_positional_names=list(self.args.keys()),
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        if any_missing:
+            return dummy_value(self.return_type, location)
+        stack_args = [
+            expect.argument_of_type_else_dummy(
+                args_map[arg_name], arg_type, resolve_literal=True
+            ).resolve()
+            for arg_name, arg_type in self.args.items()
+        ]
         result_expr = IntrinsicCall(
             op_code=self.op_code,
             stack_args=[self.box_proxy, *stack_args],
@@ -214,17 +217,16 @@ class _Create(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        try:
-            (arg,) = args
-        except ValueError:
-            raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        size = expect_operand_type(arg, pytypes.UInt64Type).resolve()
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args, pytypes.UInt64Type, location, resolve_literal=True
+        )
+        size = arg.resolve()
         return BoolExpressionBuilder(
             IntrinsicCall(
                 op_code="box_create",
                 stack_args=[self.box_proxy, size],
-                source_location=location,
                 wtype=wtypes.bool_wtype,
+                source_location=location,
             )
         )
 
@@ -242,17 +244,15 @@ class _Put(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        try:
-            (arg,) = args
-        except ValueError:
-            raise CodeError(f"Expected a single argument, got {len(args)}", location) from None
-        data = expect_operand_type(arg, pytypes.BytesType).resolve()
-
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args, pytypes.BytesType, location, resolve_literal=True
+        )
+        data = arg.resolve()
         return VoidExpressionBuilder(
             IntrinsicCall(
                 op_code="box_put",
                 stack_args=[self.box_proxy, data],
-                source_location=location,
                 wtype=wtypes.void_wtype,
+                source_location=location,
             )
         )

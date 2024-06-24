@@ -6,9 +6,10 @@ import mypy.nodes
 from puya import log
 from puya.awst.nodes import IntrinsicCall, MethodConstant
 from puya.awst_build import pytypes
-from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance, builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
@@ -17,7 +18,6 @@ from puya.awst_build.intrinsic_models import (
     OpMappingWithOverloads,
     PropertyOpMapping,
 )
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -33,12 +33,10 @@ class Arc4SignatureBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [LiteralBuilder(value=str(str_value))]:
-                pass
-            case _:
-                logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
-                str_value = ""  # dummy value to keep evaluating
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
+        if arg is None:
+            return dummy_value(pytypes.BytesType, location)
+        str_value = expect.simple_string_literal(arg, default=expect.default_fixed_value(""))
         return BytesExpressionBuilder(
             MethodConstant(
                 value=str_value,
@@ -56,14 +54,14 @@ class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise CodeError("Cannot instantiate enumeration type", location)
+        raise CodeError("cannot instantiate enumeration type", location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         produces = self.produces()
         value = produces.members.get(name)
         if value is None:
-            raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
+            return super().member_access(name, location)
         return LiteralBuilderImpl(value=value, source_location=location)
 
 
@@ -76,14 +74,14 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise CodeError("Cannot instantiate namespace type", location)
+        raise CodeError("cannot instantiate namespace type", location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         produces = self.produces()
         mapping = produces.members.get(name)
         if mapping is None:
-            raise CodeError(f"Unknown member {name!r} of '{produces}'", location)
+            return super().member_access(name, location)
         if isinstance(mapping, PropertyOpMapping):
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
@@ -113,23 +111,14 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expected_num_args = self._mapping.arity
-        if len(args) != expected_num_args:
-            logger.error(f"expected {expected_num_args} args, got {len(args)}", location=location)
-            # dummy data to continue with
-            intrinsic_expr = IntrinsicCall(
-                op_code="bad_args",
-                wtype=self._mapping.result.wtype,
-                source_location=location,
-            )
-        else:
-            args_ = [require_instance_builder(a) for a in args]
-            intrinsic_expr = _map_call(self._mapping, args=args_, location=location)
+        if not expect.exactly_n_args(args, location, self._mapping.arity):
+            return dummy_value(self._mapping.result, location)
+        intrinsic_expr = _map_call(self._mapping, args=args, location=location)
         return builder_for_instance(self._mapping.result, intrinsic_expr)
 
 
 def _best_op_mapping(
-    op_mappings: OpMappingWithOverloads, args: Sequence[InstanceBuilder]
+    op_mappings: OpMappingWithOverloads, args: Sequence[NodeBuilder]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
     literal_arg_positions = {
@@ -150,7 +139,7 @@ def _best_op_mapping(
 
 def _map_call(
     ast_mapper: OpMappingWithOverloads,
-    args: Sequence[InstanceBuilder],
+    args: Sequence[NodeBuilder],
     location: SourceLocation,
 ) -> IntrinsicCall:
     if len(ast_mapper.overloads) == 1:
@@ -169,7 +158,7 @@ def _map_call(
                 and isinstance(arg_value := arg_in.value, literal_type)
             ):
                 logger.error(
-                    f"Argument must be a literal {literal_type.__name__} value",
+                    f"argument must be a literal {literal_type.__name__} value",
                     location=arg_in.source_location,
                 )
                 immediates[immediates_index] = literal_type()
@@ -179,13 +168,16 @@ def _map_call(
         else:
             allowed_pytypes = arg_data
             if not isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
-                if arg_in.pytype not in allowed_pytypes:
-                    logger.error("invalid argument type", location=arg_in.source_location)
-                stack_args.append(arg_in)
+                if not (isinstance(arg_in, InstanceBuilder) and arg_in.pytype in allowed_pytypes):
+                    logger.error("unexpected argument type", location=arg_in.source_location)
+                else:
+                    stack_args.append(arg_in)
             else:
                 for allowed_type in allowed_pytypes:
                     type_builder = builder_for_type(allowed_type, arg_in.source_location)
-                    if isinstance(type_builder, TypeBuilder):
+                    if isinstance(arg_in, InstanceBuilder) and isinstance(
+                        type_builder, TypeBuilder
+                    ):
                         try:
                             converted = arg_in.resolve_literal(type_builder)
                         except CodeError:  # TODO: fixme, need a try version or something here
@@ -194,7 +186,7 @@ def _map_call(
                             stack_args.append(converted)
                             break
                 else:
-                    logger.error("invalid argument type", location=arg_in.source_location)
+                    logger.error("unexpected argument type", location=arg_in.source_location)
 
     return IntrinsicCall(
         op_code=op_mapping.op_code,

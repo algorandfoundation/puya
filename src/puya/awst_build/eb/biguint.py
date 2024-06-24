@@ -18,11 +18,13 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
+from puya.awst_build.eb._utils import dummy_statement
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -32,7 +34,6 @@ from puya.awst_build.eb.interface import (
     LiteralBuilder,
     NodeBuilder,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -63,17 +64,15 @@ class BigUIntTypeBuilder(BytesBackedTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
                 return arg.resolve_literal(converter=BigUIntTypeBuilder(location))
-            case []:
+            case None:
                 value: Expression = BigUIntConstant(value=0, source_location=location)
-            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
-                value = _uint64_to_biguint(eb, location)
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                value = BigUIntConstant(value=0, source_location=location)
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
+                value = _uint64_to_biguint(arg, location)
         return BigUIntExpressionBuilder(value)
 
 
@@ -87,7 +86,6 @@ class BigUIntExpressionBuilder(
         cmp_expr = NumericComparisonExpression(
             lhs=self.resolve(),
             operator=NumericComparison.eq if negate else NumericComparison.ne,
-            # TODO: does this source location make sense?
             rhs=BigUIntConstant(value=0, source_location=location),
             source_location=location,
         )
@@ -126,6 +124,9 @@ class BigUIntExpressionBuilder(
         *,
         reverse: bool,
     ) -> InstanceBuilder:
+        biguint_op = _translate_biguint_math_operator(op, location)
+        if biguint_op is None:
+            return NotImplemented
         other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
         if other.pytype == self.pytype:
             other_expr = other.resolve()
@@ -137,7 +138,6 @@ class BigUIntExpressionBuilder(
         rhs = other_expr
         if reverse:
             (lhs, rhs) = (rhs, lhs)
-        biguint_op = _translate_biguint_math_operator(op, location)
         bin_op_expr = BigUIntBinaryOperation(
             source_location=location, left=lhs, op=biguint_op, right=rhs
         )
@@ -146,17 +146,17 @@ class BigUIntExpressionBuilder(
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        rhs = rhs.resolve_literal(converter=BigUIntTypeBuilder(rhs.source_location))
-        if rhs.pytype == self.pytype:
-            value = rhs.resolve()
-        elif rhs.pytype == pytypes.UInt64Type:
+        biguint_op = _translate_biguint_math_operator(op, location)
+        if biguint_op is None:
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
+        if rhs.pytype == pytypes.UInt64Type:
             value = _uint64_to_biguint(rhs, location)
         else:
-            raise CodeError(
-                f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
-            )
+            value = expect.argument_of_type_else_dummy(
+                rhs, self.pytype, resolve_literal=True
+            ).resolve()
         target = self.resolve_lvalue()
-        biguint_op = _translate_biguint_math_operator(op, location)
         return BigUIntAugmentedAssignment(
             source_location=location,
             target=target,
@@ -167,7 +167,7 @@ class BigUIntExpressionBuilder(
 
 def _translate_biguint_math_operator(
     operator: BuilderBinaryOp, loc: SourceLocation
-) -> BigUIntBinaryOperator:
+) -> BigUIntBinaryOperator | None:
     if operator is BuilderBinaryOp.div:
         logger.error(
             (
@@ -180,8 +180,8 @@ def _translate_biguint_math_operator(
         operator = BuilderBinaryOp.floor_div
     try:
         return BigUIntBinaryOperator(operator.value)
-    except ValueError as ex:
-        raise CodeError(f"Unsupported BigUInt math operator {operator.value!r}", loc) from ex
+    except ValueError:
+        return None
 
 
 def _uint64_to_biguint(arg_in: InstanceBuilder, location: SourceLocation) -> Expression:

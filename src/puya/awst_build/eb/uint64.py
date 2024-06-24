@@ -25,6 +25,7 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
 )
+from puya.awst_build.eb._utils import dummy_statement
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -150,6 +151,9 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
+        uint64_op = _translate_uint64_math_operator(op, location)
+        if uint64_op is None:
+            return NotImplemented
         other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
         if other.pytype == self.pytype:
             pass
@@ -159,7 +163,6 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         rhs = other.resolve()
         if reverse:
             (lhs, rhs) = (rhs, lhs)
-        uint64_op = _translate_uint64_math_operator(op, location)
         bin_op_expr = UInt64BinaryOperation(
             left=lhs, op=uint64_op, right=rhs, source_location=location
         )
@@ -169,6 +172,10 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
+        uint64_op = _translate_uint64_math_operator(op, location)
+        if uint64_op is None:
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
         rhs = rhs.resolve_literal(converter=UInt64TypeBuilder(rhs.source_location))
         if rhs.pytype == self.pytype:
             pass
@@ -177,7 +184,6 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
                 f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
             )
         target = self.resolve_lvalue()
-        uint64_op = _translate_uint64_math_operator(op, location)
         return UInt64AugmentedAssignment(
             target=target, op=uint64_op, value=rhs.resolve(), source_location=location
         )
@@ -185,7 +191,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
 def _translate_uint64_math_operator(
     operator: BuilderBinaryOp, loc: SourceLocation
-) -> UInt64BinaryOperator:
+) -> UInt64BinaryOperator | None:
     if operator is BuilderBinaryOp.div:
         logger.error(
             (
@@ -198,5 +204,5 @@ def _translate_uint64_math_operator(
         operator = BuilderBinaryOp.floor_div
     try:
         return UInt64BinaryOperator(operator.value)
-    except ValueError as ex:
-        raise CodeError(f"Unsupported UInt64 math operator {operator.value!r}", loc) from ex
+    except ValueError:
+        return None

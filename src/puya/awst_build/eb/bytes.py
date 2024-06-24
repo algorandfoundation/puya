@@ -24,9 +24,14 @@ from puya.awst.nodes import (
     SubroutineCallExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.constants import CLS_BYTES_ALIAS
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_bytes, resolve_negative_literal_index
+from puya.awst_build.eb._utils import (
+    compare_bytes,
+    dummy_statement,
+    dummy_value,
+    resolve_negative_literal_index,
+)
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -39,8 +44,7 @@ from puya.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_instance_builder_of_type
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -57,7 +61,9 @@ class BytesTypeBuilder(TypeBuilder):
         match literal.value:
             case bytes(literal_value):
                 if len(literal_value) > algo_constants.MAX_BYTES_LENGTH:
-                    raise CodeError("bytes constant exceeds max length", self.source_location)
+                    logger.error(
+                        "bytes constant exceeds max length", location=literal.source_location
+                    )
 
                 expr = BytesConstant(
                     value=literal_value, encoding=BytesEncoding.unknown, source_location=location
@@ -73,39 +79,39 @@ class BytesTypeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.BytesLiteralType) as arg]:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.BytesLiteralType):
                 return arg.resolve_literal(BytesTypeBuilder(location))
-            case []:
-                value: Expression = BytesConstant(
-                    value=b"", encoding=BytesEncoding.unknown, source_location=location
-                )
-            case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
+            case None:
                 value = BytesConstant(
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
                 )
-        return BytesExpressionBuilder(value)
+                return BytesExpressionBuilder(value)
+            case _:
+                logger.error("unexpected argument type", location=arg.source_location)
+                return dummy_value(self.produces(), location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         """Handle self.name"""
         match name:
             case "from_base32":
-                return BytesFromEncodedStrBuilder(location, BytesEncoding.base32)
+                return _FromEncodedStr(location, BytesEncoding.base32)
             case "from_base64":
-                return BytesFromEncodedStrBuilder(location, BytesEncoding.base64)
+                return _FromEncodedStr(location, BytesEncoding.base64)
             case "from_hex":
-                return BytesFromEncodedStrBuilder(location, BytesEncoding.base16)
+                return _FromEncodedStr(location, BytesEncoding.base16)
             case _:
-                raise CodeError(
-                    f"{name} is not a valid class or static method on {CLS_BYTES_ALIAS}", location
-                )
+                return super().member_access(name, location)
 
 
-class BytesFromEncodedStrBuilder(FunctionBuilder):
-    def __init__(self, location: SourceLocation, encoding: BytesEncoding):
+class _FromEncodedStr(FunctionBuilder):
+    def __init__(
+        self,
+        location: SourceLocation,
+        encoding: typing.Literal[BytesEncoding.base16, BytesEncoding.base32, BytesEncoding.base64],
+    ):
         super().__init__(location=location)
         self.encoding = encoding
 
@@ -117,36 +123,39 @@ class BytesFromEncodedStrBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [LiteralBuilder(value=str(encoded_value))]:
-                pass
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        match self.encoding:
-            case BytesEncoding.base64:
-                if not wtypes.valid_base64(encoded_value):
-                    raise CodeError("Invalid base64 value", location)
-                bytes_value = base64.b64decode(encoded_value)
-            case BytesEncoding.base32:
-                if not wtypes.valid_base32(encoded_value):
-                    raise CodeError("Invalid base32 value", location)
-                bytes_value = base64.b32decode(encoded_value)
-            case BytesEncoding.base16:
-                encoded_value = encoded_value.upper()
-                if not wtypes.valid_base16(encoded_value):
-                    raise CodeError("Invalid base16 value", location)
-                bytes_value = base64.b16decode(encoded_value)
-            case _:
-                raise InternalError(
-                    f"Unhandled bytes encoding for constant construction: {self.encoding}",
-                    location,
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
+        if arg is not None:
+            encoded_value = expect.simple_string_literal(arg, default=expect.default_none)
+            if encoded_value is not None:
+                match self.encoding:
+                    case BytesEncoding.base64:
+                        if not wtypes.valid_base64(encoded_value):
+                            logger.error("invalid base64 value", location=arg.source_location)
+                            bytes_value = b""
+                        else:
+                            bytes_value = base64.b64decode(encoded_value)
+                    case BytesEncoding.base32:
+                        if not wtypes.valid_base32(encoded_value):
+                            logger.error("invalid base32 value", location=arg.source_location)
+                            bytes_value = b""
+                        else:
+                            bytes_value = base64.b32decode(encoded_value)
+                    case BytesEncoding.base16:
+                        encoded_value = encoded_value.upper()
+                        if not wtypes.valid_base16(encoded_value):
+                            logger.error("invalid base16 value", location=arg.source_location)
+                            bytes_value = b""
+                        else:
+                            bytes_value = base64.b16decode(encoded_value)
+                    case _:
+                        typing.assert_never(self.encoding)
+                expr = BytesConstant(
+                    source_location=location,
+                    value=bytes_value,
+                    encoding=self.encoding,
                 )
-        expr = BytesConstant(
-            source_location=location,
-            value=bytes_value,
-            encoding=self.encoding,
-        )
-        return BytesExpressionBuilder(expr)
+                return BytesExpressionBuilder(expr)
+        return dummy_value(pytypes.BytesType, location)
 
 
 class BytesExpressionBuilder(InstanceExpressionBuilder):
@@ -170,10 +179,10 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         length = self.member_access("length", location)
         index = resolve_negative_literal_index(index, length, location)
         expr = IndexExpression(
-            source_location=location,
             base=self.resolve(),
             index=index.resolve(),
             wtype=self.pytype.wtype,
+            source_location=location,
         )
         return BytesExpressionBuilder(expr)
 
@@ -186,7 +195,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         if stride is not None:
-            raise CodeError("Stride is not supported", location=stride.source_location)
+            logger.error("stride is not supported", location=stride.source_location)
 
         slice_expr: Expression = IntersectionSliceExpression(
             base=self.resolve(),
@@ -221,7 +230,9 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item_expr = expect_operand_type(item, pytypes.BytesType).resolve()
+        item_expr = expect.argument_of_type_else_dummy(
+            item, pytypes.BytesType, resolve_literal=True
+        ).resolve()
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
@@ -248,7 +259,9 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
         # TODO(frist): missing type check
-        bytes_op = _translate_binary_bytes_operator(op, location)
+        bytes_op = _translate_binary_bytes_operator(op)
+        if bytes_op is None:
+            return NotImplemented
         lhs = self.resolve()
         rhs = other.resolve()
         if reverse:
@@ -264,7 +277,10 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     ) -> Statement:
         rhs = rhs.resolve_literal(converter=BytesTypeBuilder(rhs.source_location))
         # TODO(frist): missing type check
-        bytes_op = _translate_binary_bytes_operator(op, location)
+        bytes_op = _translate_binary_bytes_operator(op)
+        if bytes_op is None:
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
         target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
             target=target,
@@ -274,13 +290,11 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         )
 
 
-def _translate_binary_bytes_operator(
-    operator: BuilderBinaryOp, loc: SourceLocation
-) -> BytesBinaryOperator:
+def _translate_binary_bytes_operator(operator: BuilderBinaryOp) -> BytesBinaryOperator | None:
     try:
         return BytesBinaryOperator(operator.value)
-    except ValueError as ex:
-        raise CodeError(f"Unsupported bytes operator {operator.value}", loc) from ex
+    except ValueError:
+        return None
 
 
 def _eval_slice_component(val: NodeBuilder | None) -> Expression | None | int:
@@ -289,4 +303,4 @@ def _eval_slice_component(val: NodeBuilder | None) -> Expression | None | int:
             return None
         case LiteralBuilder(value=int(int_value)):
             return int_value
-    return require_instance_builder_of_type(val, pytypes.UInt64Type).resolve()
+    return expect.argument_of_type_else_dummy(val, pytypes.UInt64Type).resolve()

@@ -96,34 +96,34 @@ def _implicit_arc4_conversion(
 ) -> InstanceBuilder:
     from puya.awst.wtypes import ARC4Type
 
-    operand = require_instance_builder(operand)
-    operand = maybe_resolve_literal(operand, target_type)
-    if operand.pytype == target_type:
-        return operand
+    instance = require_instance_builder(operand)
+    instance = maybe_resolve_literal(instance, target_type)
+    if instance.pytype == target_type:
+        return instance
     target_wtype = target_type.wtype
     if not isinstance(target_wtype, ARC4Type):
         raise InternalError(
             "implicit_operand_conversion expected target_type to be an ARC-4 type,"
             f" got {target_type}",
-            operand.source_location,
+            instance.source_location,
         )
-    if isinstance(operand.pytype.wtype, ARC4Type):
+    if isinstance(instance.pytype.wtype, ARC4Type):
         logger.error(
-            f"expected type {target_type}, got type {operand.pytype}",
-            location=operand.source_location,
+            f"expected type {target_type}, got type {instance.pytype}",
+            location=instance.source_location,
         )
-        return dummy_value(target_type, operand.source_location)
-    if operand.pytype.wtype not in target_wtype.encodeable_types:
+        return dummy_value(target_type, instance.source_location)
+    if instance.pytype.wtype not in target_wtype.encodeable_types:
         logger.error(
-            f"cannot encode {operand.pytype} to {target_type}", location=operand.source_location
+            f"cannot encode {instance.pytype} to {target_type}", location=instance.source_location
         )
-        return dummy_value(target_type, operand.source_location)
-    target_type_builder = builder_for_type(target_type, operand.source_location)
+        return dummy_value(target_type, instance.source_location)
+    target_type_builder = builder_for_type(target_type, instance.source_location)
     return target_type_builder.call(
-        args=[operand],
+        args=[instance],
         arg_names=[None],
         arg_kinds=[mypy.nodes.ARG_POS],
-        location=operand.source_location,
+        location=instance.source_location,
     )
 
 

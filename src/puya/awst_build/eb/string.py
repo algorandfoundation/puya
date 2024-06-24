@@ -21,12 +21,13 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import compare_bytes
+from puya.awst_build.eb._utils import compare_bytes, dummy_statement, dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -38,7 +39,7 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_instance_builder
+from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -58,13 +59,16 @@ class StringTypeBuilder(BytesBackedTypeBuilder):
                 try:
                     bytes_value = value.encode("utf8")
                 except UnicodeEncodeError as ex:
-                    raise CodeError(
-                        f"invalid UTF-8 string (encoding error: {ex})", self.source_location
-                    ) from None
-                if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
-                    raise CodeError(
-                        "string constant exceeds max byte array length", self.source_location
+                    logger.error(  # noqa: TRY400
+                        f"invalid UTF-8 string (encoding error: {ex})",
+                        location=literal.source_location,
                     )
+                else:
+                    if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
+                        logger.error(
+                            "string constant exceeds max byte array length",
+                            location=literal.source_location,
+                        )
                 expr = StringConstant(value=value, source_location=location)
                 return StringExpressionBuilder(expr)
         return None
@@ -77,17 +81,16 @@ class StringTypeBuilder(BytesBackedTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.StrLiteralType) as arg]:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
                 return arg.resolve_literal(converter=StringTypeBuilder(location))
-            case []:
-                value = ""
+            case None:
+                str_const = StringConstant(value="", source_location=location)
+                return StringExpressionBuilder(str_const)
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                value = ""
-        str_const = StringConstant(value=value, source_location=location)
-        return StringExpressionBuilder(str_const)
+                logger.error("unexpected argument type", location=arg.source_location)
+                return dummy_value(self.produces(), location)
 
 
 class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
@@ -110,19 +113,16 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        match op:
-            case BuilderBinaryOp.add:
-                return BytesAugmentedAssignment(
-                    target=self.resolve_lvalue(),
-                    op=BytesBinaryOperator.add,
-                    value=expect_operand_type(rhs, self.pytype).resolve(),
-                    source_location=location,
-                )
-            case _:
-                raise CodeError(
-                    f"Unsupported augmented assignment operation on {self.pytype}: {op.value}=",
-                    location,
-                )
+        if op != BuilderBinaryOp.add:
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
+        rhs = expect.argument_of_type_else_dummy(rhs, self.pytype, resolve_literal=True)
+        return BytesAugmentedAssignment(
+            target=self.resolve_lvalue(),
+            op=BytesBinaryOperator.add,
+            value=rhs.resolve(),
+            source_location=location,
+        )
 
     @typing.override
     def binary_op(
@@ -133,22 +133,25 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        match op:
-            case BuilderBinaryOp.add:
-                lhs = self.resolve()
-                rhs = expect_operand_type(other, self.pytype).resolve()
-                if reverse:
-                    (lhs, rhs) = (rhs, lhs)
-                return StringExpressionBuilder(
-                    BytesBinaryOperation(
-                        left=lhs,
-                        op=BytesBinaryOperator.add,
-                        right=rhs,
-                        source_location=location,
-                    )
-                )
-            case _:
-                return NotImplemented
+        if op != BuilderBinaryOp.add:
+            return NotImplemented
+
+        other = other.resolve_literal(converter=StringTypeBuilder(other.source_location))
+        if other.pytype != self.pytype:
+            return NotImplemented
+
+        lhs = self.resolve()
+        rhs = other.resolve()
+        if reverse:
+            (lhs, rhs) = (rhs, lhs)
+        return StringExpressionBuilder(
+            BytesBinaryOperation(
+                left=lhs,
+                op=BytesBinaryOperator.add,
+                right=rhs,
+                source_location=location,
+            )
+        )
 
     @typing.override
     def compare(
@@ -165,7 +168,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item = expect_operand_type(item, self.pytype)
+        item = expect.argument_of_type_else_dummy(item, pytypes.StringType, resolve_literal=True)
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[
@@ -217,9 +220,10 @@ class _StringStartsOrEndsWith(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if len(args) != 1:
-            raise CodeError(f"Expected 1 argument, got {len(args)}", location)
-        arg = expect_operand_type(args[0], pytypes.StringType).single_eval()
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args, pytypes.StringType, location, resolve_literal=True
+        )
+        arg = arg.single_eval()
         this = self._base.single_eval()
 
         this_length = require_instance_builder(
@@ -273,21 +277,28 @@ class _StringJoin(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [TupleLiteralBuilder(items=item_builders)]:
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
+        match arg:
+            case TupleLiteralBuilder(items=item_builders):
                 items = [
-                    expect_operand_type(arg, pytypes.StringType).resolve() for arg in item_builders
+                    expect.argument_of_type_else_dummy(
+                        ib, pytypes.StringType, resolve_literal=True
+                    ).resolve()
+                    for ib in item_builders
                 ]
-            case [InstanceBuilder(pytype=pytypes.TupleType(items=item_types)) as eb] if all(
+            case InstanceBuilder(pytype=pytypes.TupleType(items=item_types)) if all(
                 tt == pytypes.StringType for tt in item_types
             ):
-                tuple_arg = eb.single_eval().resolve()
+                tuple_arg = arg.single_eval().resolve()
                 items = [
                     TupleItemExpression(tuple_arg, index=i, source_location=location)
                     for i, _ in enumerate(item_types)
                 ]
-            case _:
-                raise CodeError("expected a single argument with tuple type", location)
+            case other:
+                if other is not None:
+                    logger.error("unexpected argument type", location=other.source_location)
+                return dummy_value(pytypes.StringType, location)
+
         sep = self._base.single_eval().resolve()
         joined_value: Expression | None = None
         for item_expr in items:

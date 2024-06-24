@@ -19,7 +19,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import compare_expr_bytes
+from puya.awst_build.eb._utils import compare_expr_bytes, dummy_statement
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -29,7 +29,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puya.awst_build.eb.string import StringExpressionBuilder
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 __all__ = [
@@ -96,7 +95,8 @@ class ARC4StringExpressionBuilder(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
         if op != BuilderBinaryOp.add:
-            raise CodeError(f"unsupported operator for type: {op.value!r}", location)
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
 
         rhs = rhs.resolve_literal(ARC4StringTypeBuilder(rhs.source_location))
         if rhs.pytype == pytypes.StringType:

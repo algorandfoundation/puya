@@ -6,7 +6,7 @@ from puya import log
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import require_instance_builder
+from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
 from puya.parse import SourceLocation
 
 _T = typing.TypeVar("_T")
@@ -31,8 +31,14 @@ def default_raise(msg: str, location: SourceLocation) -> typing.Never:
     raise CodeError(msg, location)
 
 
-def default_none(msg: str, location: SourceLocation) -> None:  # noqa: ARG001
-    return None
+def default_fixed_value(value: _T) -> Callable[[str, SourceLocation], _T]:
+    def defaulter(msg: str, location: SourceLocation) -> _T:  # noqa: ARG001
+        return value
+
+    return defaulter
+
+
+default_none: typing.Final = default_fixed_value(None)
 
 
 def default_dummy_value(
@@ -84,6 +90,7 @@ def exactly_one_arg_of_type(
     location: SourceLocation,
     *,
     default: Callable[[str, SourceLocation], _T],
+    resolve_literal: bool = False,
 ) -> InstanceBuilder | _T:
     if not args:
         msg = "expected 1 argument, got 0"
@@ -93,12 +100,32 @@ def exactly_one_arg_of_type(
     first, *rest = args
     if rest:
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
+    if resolve_literal:
+        first = maybe_resolve_literal(first, pytype)
     if isinstance(first, InstanceBuilder) and first.pytype == pytype:
         return first
     msg = "unexpected argument type"
     result = default(msg, first.source_location)
     logger.error(msg, location=first.source_location)
     return result
+
+
+def exactly_one_arg_of_type_else_dummy(
+    args: Sequence[NodeBuilder],
+    pytype: pytypes.PyType,
+    location: SourceLocation,
+    *,
+    resolve_literal: bool = False,
+) -> InstanceBuilder:
+    assert not isinstance(pytype, pytypes.LiteralOnlyType)
+
+    return exactly_one_arg_of_type(
+        args,
+        pytype,
+        location,
+        default=default_dummy_value(pytype),
+        resolve_literal=resolve_literal,
+    )
 
 
 def no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> None:
@@ -111,37 +138,38 @@ def exactly_n_args_of_type_else_dummy(
 ) -> Sequence[InstanceBuilder]:
     assert not isinstance(pytype, pytypes.LiteralOnlyType)
 
-    if len(args) != num_args:
-        logger.error(
-            f"expected {num_args} argument{'' if num_args == 1 else 's'}, got {len(args)}",
-            location=location,
-        )
+    if not exactly_n_args(args, location, num_args):
         dummy_args = [dummy_value(pytype, location)] * num_args
         args = [arg or default for arg, default in zip_longest(args, dummy_args)]
     arg_ebs = [argument_of_type_else_dummy(arg, pytype) for arg in args]
     return arg_ebs[:num_args]
 
 
+def exactly_n_args(args: Sequence[NodeBuilder], location: SourceLocation, num_args: int) -> bool:
+    if len(args) == num_args:
+        return True
+    logger.error(
+        f"expected {num_args} argument{'' if num_args == 1 else 's'}, got {len(args)}",
+        location=location,
+    )
+    return False
+
+
 def argument_of_type_else_dummy(
-    builder: NodeBuilder, target_type: pytypes.PyType
+    builder: NodeBuilder,
+    target_type: pytypes.PyType,
+    *,
+    resolve_literal: bool = False,
 ) -> InstanceBuilder:
     assert not isinstance(target_type, pytypes.LiteralOnlyType)
+
+    if resolve_literal:
+        builder = maybe_resolve_literal(builder, target_type)
 
     if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
         return builder
     logger.error("unexpected argument type", location=builder.source_location)
     return dummy_value(target_type, builder.source_location)
-
-
-def kw_argument_of_type_else_dummy(
-    builder: NodeBuilder | None, target_type: pytypes.PyType, location: SourceLocation
-) -> InstanceBuilder:
-    assert not isinstance(target_type, pytypes.LiteralOnlyType)
-
-    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
-        return builder
-    logger.error("unexpected argument type", location=location)
-    return dummy_value(target_type, location)
 
 
 def argument_of_type_else_die(
@@ -152,3 +180,22 @@ def argument_of_type_else_die(
     if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
         return builder
     raise CodeError("unexpected argument type", builder.source_location)
+
+
+def simple_string_literal(
+    builder: NodeBuilder,
+    *,
+    default: Callable[[str, SourceLocation], _T],
+) -> str | _T:
+    from puya.awst_build.eb.interface import LiteralBuilder
+
+    match builder:
+        case LiteralBuilder(value=str(value)):
+            return value
+        case InstanceBuilder(pytype=pytypes.StrLiteralType):
+            msg = "argument must be a simple str literal"
+        case _:
+            msg = "unexpected argument type"
+    result = default(msg, builder.source_location)
+    logger.error(msg, location=builder.source_location)
+    return result

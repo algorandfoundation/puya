@@ -187,9 +187,7 @@ class _Append(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.exactly_one_arg_of_type(
-            args, self.typ.items, location, default=expect.default_dummy_value(self.typ.items)
-        )
+        arg = expect.exactly_one_arg_of_type_else_dummy(args, self.typ.items, location)
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
         return VoidExpressionBuilder(
