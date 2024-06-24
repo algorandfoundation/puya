@@ -99,7 +99,7 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
             fixed_size = len(str_lit)
         case _:
             raise CodeError("unhandled argument type", arg.source_location)
-    indexer = _make_maybe_tuple_indexer(arg, location)
+    indexer = _make_indexer(arg, location)
     return TupleLiteralBuilder(
         items=[indexer(idx) for idx in range(fixed_size)], location=location
     )
@@ -128,9 +128,13 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        # TODO(frist): semantic compatibility issue, here and potentially elsewhere:
-        #              ignores evaluation
-        return bool_eval_to_constant(value=bool(self._items), location=location, negate=negate)
+        op = BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne
+        return _compare(
+            self,
+            TupleLiteralBuilder([], location),
+            op,
+            location,
+        )
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
@@ -258,7 +262,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                 match other:
                     # can't handle non-simple literals here
                     case LiteralBuilder(value=int(mult_literal)):
-                        indexer = _make_maybe_tuple_indexer(self, location)
+                        indexer = _make_indexer(self, location)
                         items = [indexer(idx) for idx in range(len(self.pytype.items))]
                         return TupleLiteralBuilder(items * mult_literal, location)
                     case _:
@@ -352,7 +356,13 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        op = BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne
+        return _compare(
+            self,
+            TupleLiteralBuilder([], location),
+            op,
+            location,
+        )
 
     @typing.override
     def compare(
@@ -383,8 +393,8 @@ def _compare(
             raise CodeError(
                 f"the {op.value!r} operator is not currently supported with tuples", location
             )
-    lhs_indexer = _make_maybe_tuple_indexer(lhs, location)
-    rhs_indexer = _make_maybe_tuple_indexer(rhs, location)
+    lhs_indexer = _make_indexer(lhs, location)
+    rhs_indexer = _make_indexer(rhs, location)
 
     lhs_items = [lhs_indexer(idx) for idx, _ in enumerate(lhs.pytype.items)]
     rhs_items = [rhs_indexer(idx) for idx, _ in enumerate(rhs.pytype.items)]
@@ -445,8 +455,8 @@ def _concat(
     else:
         lhs, rhs = other, this
 
-    lhs_indexer = _make_maybe_tuple_indexer(lhs, location)
-    rhs_indexer = _make_maybe_tuple_indexer(rhs, location)
+    lhs_indexer = _make_indexer(lhs, location)
+    rhs_indexer = _make_indexer(rhs, location)
 
     items = [
         *(lhs_indexer(idx) for idx in range(len(lhs.pytype.items))),
@@ -455,16 +465,20 @@ def _concat(
     return TupleLiteralBuilder(items, location)
 
 
-def _make_maybe_tuple_indexer(
+def _make_indexer(
     builder: InstanceBuilder, location: SourceLocation
 ) -> Callable[[int], InstanceBuilder]:
     """this function should ONLY be used if ALL elements are going to be visited"""
+
     if isinstance(builder, TupleLiteralBuilder):
         # this is why this function exists, going through .index() would evaluate to
         # an expression in the general case, but this way we can support comparisons with
         # literal items in tuples naturally
         captured = builder
         return lambda idx: captured.items[idx]
+
+    # in case the tuple expression has side effects
+    builder = builder.single_eval()
 
     def indexer(idx: int) -> InstanceBuilder:
         index_lit = LiteralBuilderImpl(value=idx, source_location=location)
