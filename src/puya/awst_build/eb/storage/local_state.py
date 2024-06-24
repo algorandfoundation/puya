@@ -4,10 +4,12 @@ from collections.abc import Callable, Sequence
 import mypy.nodes
 import mypy.types
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppAccountStateExpression,
     BytesConstant,
+    BytesEncoding,
     ContractReference,
     Expression,
     IntegerConstant,
@@ -19,10 +21,10 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -37,11 +39,14 @@ from puya.awst_build.eb.storage._storage import (
     extract_description,
     extract_key_override,
 )
+from puya.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 from puya.awst_build.utils import get_arg_mapping, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+logger = log.get_logger(__name__)
 
 
 class LocalStateTypeBuilder(TypeBuilder[pytypes.StorageProxyType]):
@@ -82,38 +87,37 @@ def _init(
     result_type: pytypes.StorageProxyType | None,
 ) -> InstanceBuilder:
     type_arg_name = "type_"
-    arg_mapping = get_arg_mapping(
-        positional_arg_names=[type_arg_name],
-        args=zip(arg_names, args, strict=True),
-        location=location,
+    key_arg_name = "key"
+    descr_arg_name = "description"
+    arg_mapping, _ = get_arg_mapping(
+        required_positional_names=[type_arg_name],
+        optional_kw_only=[key_arg_name, descr_arg_name],
+        args=args,
+        arg_names=arg_names,
+        call_location=location,
+        raise_on_missing=True,
     )
-    try:
-        type_arg = arg_mapping.pop(type_arg_name)
-    except KeyError as ex:
-        raise CodeError("Required positional argument missing", location) from ex
 
-    key_arg = arg_mapping.pop("key", None)
-    descr_arg = arg_mapping.pop("description", None)
-    if arg_mapping:
-        raise CodeError(f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location)
-
-    match type_arg.pytype:
+    match arg_mapping[type_arg_name].pytype:
         case pytypes.TypeType(typ=content):
             pass
         case _:
-            raise CodeError("First argument must be a type reference", location)
+            raise CodeError("first argument must be a type reference", location)
     if result_type is None:
         result_type = pytypes.GenericLocalStateType.parameterise([content], location)
     elif result_type.content != content:
-        raise CodeError(
-            "App account state explicit type annotation does not match first argument"
-            " - suggest to remove the explicit type annotation,"
-            " it shouldn't be required",
-            location,
+        logger.error(
+            "explicit type annotation does not match first argument"
+            " - suggest to remove the explicit type annotation,  it shouldn't be required",
+            location=location,
         )
 
+    key_arg = arg_mapping.get("key")
     key_override = extract_key_override(key_arg, location, typ=wtypes.state_key)
+
+    descr_arg = arg_mapping.get("description")
     description = extract_description(descr_arg)
+
     if key_override is None:
         return StorageProxyDefinitionBuilder(
             result_type, location=location, description=description
@@ -140,24 +144,23 @@ class LocalStateExpressionBuilder(
         # TODO(first): maybe resolve literal should allow functions, so we can validate
         #       constant values inside e.g. conditional expressions, not just plain constants
         #       like we check below with matching on IntegerConstant
-        index_expr = index.resolve_literal(UInt64TypeBuilder(index.source_location)).resolve()
-        match index_expr:
-            case IntegerConstant(value=account_offset):
+        index = index.resolve_literal(UInt64TypeBuilder(index.source_location))
+        match index.pytype:
+            case pytypes.AccountType:
+                index_expr = index.resolve()
+            case _:
+                index_expr = expect.argument_of_type_else_dummy(
+                    index, pytypes.UInt64Type
+                ).resolve()
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
                 # Note that the sender address is implicitly included in the array,
                 # but doesn't count towards the limit of 4, so the <= 4 below is correct
                 # and intended
-                if not (0 <= account_offset <= 4):
-                    raise CodeError(
-                        "Account index should be between 0 and 4 inclusive", index.source_location
+                if isinstance(index_expr, IntegerConstant) and not (0 <= index_expr.value <= 4):
+                    logger.error(
+                        "account index should be between 0 and 4 inclusive",
+                        location=index.source_location,
                     )
-            case Expression(wtype=(wtypes.uint64_wtype | wtypes.account_wtype)):
-                pass
-            case _:
-                raise CodeError(
-                    "Invalid index argument - must be either an Address or a UInt64",
-                    index.source_location,
-                )
         if self._member_name:
             exists_assertion_message = f"check self.{self._member_name} exists for account"
         else:
@@ -207,7 +210,7 @@ class LocalStateExpressionBuilder(
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        raise CodeError("cannot determine if a LocalState is empty or not", location)
 
 
 class _LocalStateExpressionBuilderFromConstructor(
@@ -234,9 +237,15 @@ class _LocalStateExpressionBuilderFromConstructor(
     ) -> AppStorageDeclaration:
         key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
-            raise CodeError(
+            logger.error(
                 f"assigning {typ} to a member variable requires a constant value for key",
-                location,
+                location=location,
+            )
+            key_override = BytesConstant(
+                value=b"",
+                wtype=wtypes.box_key,
+                encoding=BytesEncoding.unknown,
+                source_location=key_override.source_location,
             )
         return AppStorageDeclaration(
             description=self.description,
@@ -267,24 +276,24 @@ class _Get(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if len(args) != 2:
-            raise CodeError(f"Expected 2 arguments, got {len(args)}", location)
-        if arg_names[0] == "default":
-            default_arg, item = args
-        else:
-            item, default_arg = args
-        item = require_instance_builder(item)
-        match default_arg:
-            case InstanceBuilder(pytype=self._content_typ) as eb:
-                default_expr = eb.resolve()
-            case _:
-                raise CodeError("default argument should have same type as state value", location)
-        expr = StateGet(
-            field=self._build_field(item, location),
-            default=default_expr,
-            source_location=location,
+        key_arg_name = "key"
+        default_arg_name = "default"
+        args_map, any_missing = get_arg_mapping(
+            required_positional_names=[key_arg_name, default_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
-
+        if any_missing:
+            return dummy_value(self._content_typ, location)
+        item = require_instance_builder(args_map[key_arg_name])
+        default_arg = expect.argument_of_type_else_dummy(
+            args_map[default_arg_name], self._content_typ
+        )
+        key = self._build_field(item, location)
+        default = default_arg.resolve()
+        expr = StateGet(field=key, default=default, source_location=location)
         return builder_for_instance(self._content_typ, expr)
 
 
@@ -304,17 +313,16 @@ class _Maybe(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [item]:
-                item = require_instance_builder(item)
-                field = self._build_field(item, location)
-                app_local_get_ex = StateGetEx(field=field, source_location=location)
-                result_typ = pytypes.GenericTupleType.parameterise(
-                    [self._content_typ, pytypes.BoolType], location
-                )
-                return TupleExpressionBuilder(app_local_get_ex, result_typ)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+        result_typ = pytypes.GenericTupleType.parameterise(
+            [self._content_typ, pytypes.BoolType], location
+        )
+        arg = expect.exactly_one_arg(args, location, default=expect.default_fixed_value(None))
+        if arg is None:
+            return dummy_value(result_typ, location)
+
+        field = self._build_field(arg, location)
+        app_local_get_ex = StateGetEx(field=field, source_location=location)
+        return TupleExpressionBuilder(app_local_get_ex, result_typ)
 
 
 class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppAccountStateExpression]):

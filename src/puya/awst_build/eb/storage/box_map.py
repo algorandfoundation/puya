@@ -17,6 +17,7 @@ from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder, TypeBuilder
@@ -70,35 +71,32 @@ def _init(
 ) -> InstanceBuilder:
     key_type_arg_name = "key_type"
     value_type_arg_name = "value_type"
-    arg_mapping = get_arg_mapping(
-        positional_arg_names=[key_type_arg_name, value_type_arg_name],
-        args=zip(arg_names, args, strict=True),
-        location=location,
+    key_prefix_arg_name = "key_prefix"
+
+    arg_mapping, _ = get_arg_mapping(
+        required_positional_names=[key_type_arg_name, value_type_arg_name],
+        optional_kw_only=[key_prefix_arg_name],
+        args=args,
+        arg_names=arg_names,
+        call_location=location,
+        raise_on_missing=True,
     )
-    try:
-        key_type_arg = arg_mapping.pop(key_type_arg_name)
-        value_type_arg = arg_mapping.pop(value_type_arg_name)
-    except KeyError as ex:
-        raise CodeError("required positional argument missing", location) from ex
+    key_type_arg = arg_mapping[key_type_arg_name]
+    value_type_arg = arg_mapping[value_type_arg_name]
     match key_type_arg.pytype, value_type_arg.pytype:
         case pytypes.TypeType(typ=key), pytypes.TypeType(typ=content):
             pass
         case _:
             raise CodeError("first and second arguments must be type references", location)
 
-    key_prefix_arg = arg_mapping.pop("key_prefix", None)
-    if arg_mapping:
-        logger.error(
-            f"unrecognised keyword argument(s): {", ".join(arg_mapping)}", location=location
-        )
+    key_prefix_arg = arg_mapping.get(key_prefix_arg_name)
 
     if result_type is None:
         result_type = pytypes.GenericBoxMapType.parameterise([key, content], location)
     elif not (result_type.key == key and result_type.content == content):
         logger.error(
-            f"{result_type.generic} explicit type annotation"
-            f" does not match type arguments - suggest to remove the explicit type annotation,"
-            " it shouldn't be required",
+            "explicit type annotation does not match first argument"
+            " - suggest to remove the explicit type annotation, it shouldn't be required",
             location=location,
         )
     # the type of the key is not retained in the AWST, so to
@@ -216,15 +214,22 @@ class _Length(_MethodBase):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        item_key_inst = expect.exactly_one_arg_of_type(
-            args,
-            self.box_type.key,
-            location,
-            default=expect.default_dummy_value(self.box_type.key),
+        key_arg_name = "key"
+        args_map, any_missing = get_arg_mapping(
+            required_positional_names=[key_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
-        return UInt64ExpressionBuilder(
-            box_length_checked(self.build_box_value(item_key_inst, location), location)
+        if any_missing:
+            return dummy_value(pytypes.UInt64Type, location)
+
+        key_arg = expect.argument_of_type_else_dummy(
+            args_map[key_arg_name], self.box_type.key, resolve_literal=True
         )
+        key = self.build_box_value(key_arg, location)
+        return UInt64ExpressionBuilder(box_length_checked(key, location))
 
 
 class _Get(_MethodBase):
@@ -236,16 +241,22 @@ class _Get(_MethodBase):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
-        match args_map:
-            case {
-                "key": InstanceBuilder(pytype=self.box_type.key) as key_arg,
-                "default": InstanceBuilder(pytype=self.box_type.content) as default_arg,
-                **extras,
-            } if not extras:
-                pass
-            case _:
-                raise CodeError("invalid/unexpected args", location)
+        key_arg_name = "key"
+        default_arg_name = "default"
+        args_map, any_missing = get_arg_mapping(
+            required_positional_names=[key_arg_name],
+            required_kw_only=[default_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        if any_missing:
+            return dummy_value(self.box_type.content, location)
+        key_arg = expect.argument_of_type_else_dummy(args_map[key_arg_name], self.box_type.key)
+        default_arg = expect.argument_of_type_else_dummy(
+            args_map[default_arg_name], self.box_type.content
+        )
         key = self.build_box_value(key_arg, location)
         result_expr = StateGet(default=default_arg.resolve(), field=key, source_location=location)
         return builder_for_instance(self.box_type.content, result_expr)
@@ -260,13 +271,21 @@ class _Maybe(_MethodBase):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        args_map = get_arg_mapping(("key",), zip(arg_names, args, strict=True), location)
-        item_key = args_map.pop("key", None)
-        if args_map or item_key is None:
-            raise CodeError("invalid/unexpected args", location)
-        item_key_inst = require_instance_builder(item_key)
         result_typ = pytypes.GenericTupleType.parameterise(
             [self.box_type.content, pytypes.BoolType], location
+        )
+        key_arg_name = "key"
+        args_map, any_missing = get_arg_mapping(
+            required_positional_names=[key_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        if any_missing:
+            return dummy_value(result_typ, location)
+        item_key_inst = expect.argument_of_type_else_dummy(
+            args_map[key_arg_name], self.box_type.key
         )
         key = self.build_box_value(item_key_inst, location)
         return TupleExpressionBuilder(StateGetEx(field=key, source_location=location), result_typ)

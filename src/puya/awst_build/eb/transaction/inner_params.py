@@ -28,7 +28,6 @@ from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
-    get_arg_mapping,
     maybe_resolve_literal,
     require_instance_builder,
 )
@@ -46,6 +45,7 @@ def get_field_expr(arg_name: str, arg: InstanceBuilder) -> tuple[TxnField, Expre
     try:
         field, field_pytype = _parameter_mapping[arg_name]
     except KeyError as ex:
+        # TODO: non-throwing
         raise CodeError(f"{arg_name} is not a valid keyword argument", arg.source_location) from ex
     if remapped_field := _maybe_transform_program_field_expr(field, arg):
         return remapped_field
@@ -139,12 +139,12 @@ class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
                 source_location=self.source_location,
             )
 
-        named_args = get_arg_mapping(
-            [], zip(arg_names, map(require_instance_builder, args), strict=True), location
-        )
-        for arg_name, arg in named_args.items():
-            field, expression = get_field_expr(arg_name, arg)
-            transaction_fields[field] = expression
+        for arg_name, arg in zip(arg_names, args, strict=True):
+            if arg_name is None:
+                logger.error("unexpected positional argument", location=arg.source_location)
+            else:
+                field, expression = get_field_expr(arg_name, require_instance_builder(arg))
+                transaction_fields[field] = expression
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WInnerTransactionFields)
         return InnerTxnParamsExpressionBuilder(

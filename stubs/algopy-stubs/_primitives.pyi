@@ -262,6 +262,10 @@ class Bytes(Reversible[Bytes]):
     def __invert__(self) -> Bytes:
         """Bytes can be bitwise inverted e.g. `~Bytes(b"FF)`"""
 
+    def __contains__(self, other: Bytes | bytes) -> bool:
+        """Test whether another Bytes is a substring of this one.
+        Note this is expensive due to a lack of AVM support."""
+
 class BytesBacked(typing.Protocol):
     """Represents a type that is a single bytes value"""
 

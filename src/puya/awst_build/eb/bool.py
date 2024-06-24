@@ -1,8 +1,8 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
 from puya import log
 from puya.awst.nodes import (
@@ -13,9 +13,8 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -23,14 +22,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
-from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -57,16 +49,15 @@ class BoolTypeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case []:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case None:
                 false = BoolConstant(value=False, source_location=location)
                 return BoolExpressionBuilder(false)
-            case [InstanceBuilder(pytype=pytypes.BoolType) as already_bool]:
-                return already_bool
-            case [NodeBuilder() as nb]:
-                return nb.bool_eval(location)
+            case InstanceBuilder(pytype=pytypes.BoolType):
+                return arg
             case _:
-                raise CodeError("Too many arguments", location=location)
+                return arg.bool_eval(location)
 
 
 class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):

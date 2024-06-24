@@ -85,12 +85,7 @@ class AssetHoldingExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.exactly_one_arg_of_type(
-            args,
-            pytypes.AccountType,
-            location,
-            default=expect.default_dummy_value(pytypes.AccountType),
-        )
+        arg = expect.exactly_one_arg_of_type_else_dummy(args, pytypes.AccountType, location)
         account_expr = arg.resolve()
         immediate, typ = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
         asset_params_get = IntrinsicCall(
