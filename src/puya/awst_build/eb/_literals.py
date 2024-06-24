@@ -127,7 +127,7 @@ class LiteralBuilderImpl(LiteralBuilder):
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         if not isinstance(item, LiteralBuilder):
-            raise CodeError("cannot perform substring check with non-constant value", location)
+            raise CodeError("cannot perform containment check with non-constant value", location)
         try:
             folded = item.value in self.value  # type: ignore[operator]
         except Exception as ex:

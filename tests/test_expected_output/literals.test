@@ -17,6 +17,22 @@ def too_large() -> UInt64:
 def wrong_type() -> UInt64:
     return UInt64("1") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
 
+@subroutine
+def test_in() -> bool:
+    return 0 in (UInt64(0), UInt64(2)) ## E: a Python literal is not valid at this location
+
+@subroutine
+def test_in2() -> bool:
+    return UInt64(0) in 0 # type: ignore[operator] ## E: cannot perform containment check with non-constant value
+
+@subroutine
+def test_in3() -> bool:
+    return 0 in 0 # type: ignore[operator] ## E: argument of type 'int' is not iterable
+
+@subroutine
+def test_not_in() -> bool:
+    return 0 not in (UInt64(0), UInt64(2)) ## E: a Python literal is not valid at this location
+
 ## case: test_asset_literals
 
 from algopy import Asset, subroutine
@@ -127,6 +143,14 @@ def invalid_utf8() -> String:
 def wrong_type() -> String:
     return String(b"1") # type: ignore[arg-type] ## E: unexpected argument type
 
+@subroutine
+def compare() -> None:
+    b = String("b")
+    assert "a" < b  # type: ignore[operator] ## E: Unsupported comparison '<' between types
+
+@subroutine
+def test_in() -> None:
+    assert String("a") in "abc"  # type: ignore[operator] ## E: cannot perform containment check with non-constant value
 
 ## case: test_decimal_literals
 import typing

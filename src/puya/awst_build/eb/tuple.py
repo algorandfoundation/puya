@@ -19,6 +19,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
 from puya.awst_build.eb._utils import bool_eval_to_constant
@@ -34,7 +35,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -75,12 +75,9 @@ class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
 
 
 def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuilder:
-    if not args:
+    arg = expect.at_most_one_arg(args, location)
+    if arg is None:
         return TupleLiteralBuilder(items=[], location=location)
-    if len(args) != 1:
-        raise CodeError(f"tuple expected at most 1 argument, got {len(args)}", location)
-    (arg,) = args
-    arg = require_instance_builder(arg)
     # TODO: generalise statically-iterable expressions at InstanceBuilder level
     #       e.g. arc4.StaticArray, sequence literals, all should support an "iterate_static"
     #       method that returns a sequence of builders.

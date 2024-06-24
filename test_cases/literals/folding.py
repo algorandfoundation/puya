@@ -26,8 +26,6 @@ def compare_str() -> None:
     assert "a" not in b
     assert not ("a" in b)
     assert "a" in String("abc")
-    # TODO(frist): expected error for "a" < b
-    # TODO(frist): expected error for String("a") in "abc"
 
 
 @subroutine
@@ -71,7 +69,6 @@ def compare_int() -> None:
     assert 0 <= one
     assert not (0 > one)
     assert not (0 >= one)
-    # TODO(frist): expected errors for in / not in
 
 
 @subroutine

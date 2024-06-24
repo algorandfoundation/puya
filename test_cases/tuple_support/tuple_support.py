@@ -81,10 +81,25 @@ def bin_ops() -> None:
     assert a[1] == 1
     assert a[2] == 1
 
-    b = (UInt64(1),) + (Bytes(b"2"), UInt64(3))  # noqa: RUF005
+    tup = (UInt64(1), UInt64(2))
+    b = tup * 3
     assert b[0] == 1
-    assert b[1] == b"2"
-    assert b[2] == 3
+    assert b[1] == 2
+    assert b[2] == 1
+    assert b[3] == 2
+    assert b[4] == 1
+    assert b[5] == 2
+
+    c = (UInt64(1),) + (Bytes(b"2"), UInt64(3))  # noqa: RUF005
+    assert c[0] == 1
+    assert c[1] == b"2"
+    assert c[2] == 3
+
+    d = tup + tup
+    assert d[0] == 1
+    assert d[1] == 2
+    assert d[2] == 1
+    assert d[3] == 2
 
 
 @subroutine
@@ -139,3 +154,5 @@ def slicing(values: tuple[UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64
     assert add_three_values(one_to_three) == values[0] + values[1] + values[2]
 
     assert one_to_three[-2:-1][0] == one_to_three[1]
+
+    assert one_to_three == one_to_three[:]

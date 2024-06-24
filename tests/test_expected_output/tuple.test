@@ -1,0 +1,132 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: test_tuple_errors
+
+from algopy import *
+
+
+class TupleContract(Contract): ## W: Class test_tuple_errors.TupleContract is implicitly abstract
+
+    @subroutine
+    def test_tuple1(self) -> None:
+        tup = (UInt64(), Bytes())
+        tup.count(UInt64(1)) ## E: method is not currently supported
+
+    @subroutine
+    def test_tuple1b(self) -> None:
+        bad = (UInt64(), Bytes()).count(UInt64(1)) ## E: method is not currently supported
+
+    @subroutine
+    def test_tuple1c(self) -> None:
+        bad = (UInt64(), Bytes()).what # type: ignore[attr-defined, misc] ## E: unrecognised member access
+
+    @subroutine
+    def test_tuple1d(self) -> None:
+        tup = (UInt64(), Bytes())
+        bad = tup.what # type: ignore[attr-defined, misc] ## E: unrecognised member access
+
+    @subroutine
+    def test_tuple2(self) -> None:
+        log((UInt64(), Bytes()))  # type: ignore[arg-type] ## E: cannot serialize tuple[algopy.UInt64, algopy.Bytes]
+
+    @subroutine
+    def test_tuple2b(self) -> None:
+        tup = (UInt64(), Bytes())
+        log(tup)  # type: ignore[arg-type] ## E: cannot serialize tuple[algopy.UInt64, algopy.Bytes]
+
+    @subroutine
+    def test_tuple3(self) -> None:
+        tup = UInt64(), Bytes()
+        tup2 = tup * UInt64(2) ## E: can't multiple sequence by non-int-literal
+
+    @subroutine
+    def test_tuple3b(self) -> None:
+        tup = (UInt64(), Bytes()) * UInt64(2) ## E: can't multiple sequence by non-int-literal
+
+
+    @subroutine
+    def test_tuple4(self) -> None:
+        tup = (UInt64(), Bytes())
+        del tup ## E: tuple[algopy.UInt64, algopy.Bytes] is not valid as del target
+
+    @subroutine
+    def test_tuple4b(self) -> None:
+        a, b = UInt64(), Bytes()
+        del (a, b) ## E: cannot delete tuple literal
+    @subroutine
+    def test_tuple5(self) -> None:
+        tup = (UInt64(), Bytes())
+        -tup  # type: ignore[operator] ## E: tuple[algopy.UInt64, algopy.Bytes] does not support unary '-' operator
+
+    @subroutine
+    def test_tuple5b(self) -> None:
+        tup = -(UInt64(), Bytes(),) # type: ignore[operator, misc] ## E: bad operand type for unary -: 'tuple'
+
+    @subroutine
+    def test_tuple6(self) -> None:
+        tup = (UInt64(), Bytes())
+        tup += ( ## E: tuple[algopy.UInt64, algopy.Bytes] does not support augmented assignment
+            UInt64(2),
+        )  # type:ignore[assignment]
+
+    @subroutine
+    def test_tuple7(self) -> None:
+        tup = () ## E: empty tuples are not supported
+
+    @subroutine
+    def test_tuple8(self) -> None:
+        a, b = UInt64(), Bytes()
+        assert (a, b) != (b, a) # type: ignore[comparison-overlap] ## E: items at index 0 do not support comparison with operator '!='
+
+    @subroutine
+    def test_tuple9(self) -> None:
+        a, b = UInt64(), Bytes()
+        abc = (a, b) + Bytes() # type: ignore[operator, misc] ## E: can only concatenate tuple with other tuples
+
+    @subroutine
+    def test_tuple10(self) -> None:
+        a, b = UInt64(), Bytes()
+        abc = (a, b) + Bytes()  # type: ignore[operator, misc] ## E: can only concatenate tuple with other tuples
+
+    @subroutine
+    def test_tuple11(self) -> None:
+        a, b = (UInt64(), UInt64())
+        abc = (a, b) or (b, a)
+
+    @subroutine
+    def test_slice1(self) -> None:
+        tip = UInt64(), Bytes()
+        top = tip[1:1] ## E: empty slices are not supported
+
+    @subroutine
+    def test_slice1b(self) -> None:
+        # this ok, including for coverage
+        top = (UInt64(), Bytes())[:]
+
+
+    @subroutine
+    def test_slice2(self) -> None:
+        tip = UInt64(), Bytes()
+        top = tip[:1]
+
+    @subroutine
+    def test_slice3(self) -> None:
+        tip = UInt64(), Bytes()
+        top = tip[UInt64(1):] ## E: tuples can only be indexed with literal values
+
+    @subroutine
+    def test_slice4(self) -> None:
+        tip = UInt64(), Bytes()
+        top = tip[:1:2] ## E: stride is not supported
+
+    @subroutine
+    def test_index1(self) -> None:
+        tip = UInt64(), Bytes()
+        top = tip[2] # type: ignore[misc] ## E: tuple index out of range
+
+    @subroutine
+    def test_index2(self) -> None:
+        tip = UInt64(), Bytes()
+        top = tip[UInt64(1)] ## E: tuples can only be indexed by int constants
