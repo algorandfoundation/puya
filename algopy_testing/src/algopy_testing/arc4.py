@@ -22,6 +22,7 @@ from algopy_testing.decorators.baremethod import baremethod
 from algopy_testing.models import Account
 from algopy_testing.protocols import BytesBacked
 from algopy_testing.utils import (
+    abi_type_name_for_arg,
     as_bytes,
     as_int,
     as_int16,
@@ -1146,8 +1147,7 @@ class _ABICall:
     def __getitem__(
         self, return_type: type[_TABIResult_co]
     ) -> _ABICallWithReturnProtocol[_TABIResult_co]:
-        # Implement the __getitem__ logic here
-        raise NotImplementedError("abi_call.__getitem__ is not implemented")
+        return self
 
 
 # TODO: Implement abi_call
@@ -1202,7 +1202,7 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
         raise ValueError("Cannot emit event: missing `app_id` in associated call transaction!")
 
     if isinstance(event, str):
-        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in args) + ")"
+        arg_types = "(" + ",".join(abi_type_name_for_arg(arg) for arg in args) + ")"
 
         if event.find("(") == -1:
             event += arg_types
@@ -1216,7 +1216,7 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
             logs=(event_hash[:4] + Struct(*args_tuple).bytes).value,
         )
     elif isinstance(event, Struct):
-        arg_types = "(" + ",".join(_abi_type_name_for_arg(arg) for arg in event._value) + ")"
+        arg_types = "(" + ",".join(abi_type_name_for_arg(arg) for arg in event._value) + ")"
         event_str = event.__class__.__name__ + arg_types
         event_hash = algopy.Bytes(SHA512.new(event_str.encode(), truncate="256").digest())
         context.add_application_logs(
@@ -1252,44 +1252,6 @@ def _cast_arg_as_arc4(arg: object) -> _TABIArg:  # noqa: C901, PLR0911
         UIntN | BigUIntN | UFixedNxM | BigUFixedNxM | Bool | StaticArray | DynamicArray | Tuple,
     ):
         return arg
-    raise ValueError(f"Unsupported type {type(arg)}")
-
-
-def _abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
-    import algopy
-
-    if isinstance(arg, String | algopy.String | str):
-        return "string"
-    if isinstance(arg, Bool | bool):
-        return "bool"
-    if isinstance(arg, algopy.BigUInt):
-        return "uint512"
-    if isinstance(arg, algopy.UInt64):
-        return "uint64"
-    if isinstance(arg, int):
-        return "uint64" if arg <= MAX_UINT64 else "uint512"
-    if isinstance(arg, algopy.Bytes | bytes):
-        return "byte[]"
-    if isinstance(arg, algopy.Asset):
-        return "uint64"
-    if isinstance(arg, algopy.Account):
-        return "address"
-    if isinstance(arg, algopy.Application):
-        return "uint64"
-    if isinstance(arg, UIntN):
-        return "uint" + str(arg._bit_size)
-    if isinstance(arg, BigUIntN):
-        return "uint" + str(arg._bit_size)
-    if isinstance(arg, UFixedNxM):
-        return f"ufixed{arg._n}x{arg._m}"
-    if isinstance(arg, BigUFixedNxM):
-        return f"ufixed{arg._n}x{arg._m}"
-    if isinstance(arg, StaticArray):
-        return f"{_abi_type_name_for_arg(arg[0])}[{arg.length.value}]"
-    if isinstance(arg, DynamicArray):
-        return f"{_abi_type_name_for_arg(arg[0])}[]"
-    if isinstance(arg, Tuple):
-        return f"({','.join(_abi_type_name_for_arg(a) for a in arg)})"
     raise ValueError(f"Unsupported type {type(arg)}")
 
 
