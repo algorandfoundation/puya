@@ -138,15 +138,21 @@ def exactly_n_args_of_type_else_dummy(
 ) -> Sequence[InstanceBuilder]:
     assert not isinstance(pytype, pytypes.LiteralOnlyType)
 
-    if len(args) != num_args:
-        logger.error(
-            f"expected {num_args} argument{'' if num_args == 1 else 's'}, got {len(args)}",
-            location=location,
-        )
+    if not exactly_n_args(args, location, num_args):
         dummy_args = [dummy_value(pytype, location)] * num_args
         args = [arg or default for arg, default in zip_longest(args, dummy_args)]
     arg_ebs = [argument_of_type_else_dummy(arg, pytype) for arg in args]
     return arg_ebs[:num_args]
+
+
+def exactly_n_args(args: Sequence[NodeBuilder], location: SourceLocation, num_args: int) -> bool:
+    if len(args) == num_args:
+        return True
+    logger.error(
+        f"expected {num_args} argument{'' if num_args == 1 else 's'}, got {len(args)}",
+        location=location,
+    )
+    return False
 
 
 def argument_of_type_else_dummy(

@@ -62,7 +62,7 @@ class BytesTypeBuilder(TypeBuilder):
             case bytes(literal_value):
                 if len(literal_value) > algo_constants.MAX_BYTES_LENGTH:
                     logger.error(
-                        "bytes constant exceeds max length", location=self.source_location
+                        "bytes constant exceeds max length", location=literal.source_location
                     )
 
                 expr = BytesConstant(
