@@ -52,10 +52,26 @@ class TupleSupport(Contract):
             )
         )
         bin_ops()
+        if non_empty_tuple():
+            log("not empty")
+        if (get_uint_with_side_effect(),):
+            log("not empty2")
         return a + b
 
     def clear_state_program(self) -> UInt64:
         return UInt64(0)
+
+
+@subroutine
+def get_uint_with_side_effect() -> UInt64:
+    log("get_uint_with_side_effect called")
+    return UInt64(4)
+
+
+@subroutine
+def non_empty_tuple() -> tuple[UInt64, UInt64]:
+    log("non_empty_tuple called")
+    return UInt64(4), UInt64(2)
 
 
 @subroutine

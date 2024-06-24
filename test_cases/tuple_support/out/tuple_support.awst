@@ -44,6 +44,12 @@ contract TupleSupport
     test_cases.tuple_support.tuple_support::test_tuple_swap(zero=0u)
     test_cases.tuple_support.tuple_support::slicing((1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u))
     test_cases.tuple_support.tuple_support::bin_ops()
+    if (||(SINGLE_EVAL(id=0, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[0]) == SINGLE_EVAL(id=0, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[0]), SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[1]) == SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[1]))) {
+      log('not empty')
+    }
+    if (SINGLE_EVAL(id=3, source=test_cases.tuple_support.tuple_support::get_uint_with_side_effect()) == SINGLE_EVAL(id=3, source=test_cases.tuple_support.tuple_support::get_uint_with_side_effect())) {
+      log('not empty2')
+    }
     return a + b
   }
   
@@ -51,6 +57,18 @@ contract TupleSupport
   {
     return 0u
   }
+}
+
+subroutine get_uint_with_side_effect(): uint64
+{
+  log('get_uint_with_side_effect called')
+  return 4u
+}
+
+subroutine non_empty_tuple(): tuple<uint64,uint64>
+{
+  log('non_empty_tuple called')
+  return (4u, 2u)
 }
 
 subroutine bin_ops(): void
