@@ -20,7 +20,6 @@ extensions = [
     "sphinx_copybutton",
     "myst_parser",
     "autodoc2",
-    "sphinxcontrib.mermaid",
 ]
 
 templates_path = ["_templates"]
@@ -64,16 +63,6 @@ autodoc2_packages = [
     {
         "path": "./algopy-stubs",
         "module": "algopy",
-        "auto_mode": False,
-    },
-    {
-        "path": "./algopy_testing/src",
-        "module": "testing_algopy",
-        "auto_mode": False,
-    },
-    {
-        "path": "./algopy_testing/src",
-        "module": "testing_algopy_testing",
         "auto_mode": False,
     },
 ]
