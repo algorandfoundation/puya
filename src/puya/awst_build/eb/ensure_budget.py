@@ -21,7 +21,7 @@ from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import get_arg_mapping, maybe_resolve_literal
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -52,7 +52,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
             required_budget = dummy_value(pytypes.UInt64Type, location)
         else:
             required_budget = expect.argument_of_type_else_dummy(
-                required_budget_arg, pytypes.UInt64Type
+                required_budget_arg, pytypes.UInt64Type, resolve_literal=True
             )
 
         fee_source_arg = arg_mapping.get(fee_source_arg_name)

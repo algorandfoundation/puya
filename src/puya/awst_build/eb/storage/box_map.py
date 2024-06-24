@@ -95,9 +95,8 @@ def _init(
         result_type = pytypes.GenericBoxMapType.parameterise([key, content], location)
     elif not (result_type.key == key and result_type.content == content):
         logger.error(
-            f"{result_type.generic} explicit type annotation"
-            f" does not match type arguments - suggest to remove the explicit type annotation,"
-            " it shouldn't be required",
+            "explicit type annotation does not match first argument"
+            " - suggest to remove the explicit type annotation, it shouldn't be required",
             location=location,
         )
     # the type of the key is not retained in the AWST, so to

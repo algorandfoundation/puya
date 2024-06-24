@@ -15,10 +15,10 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._utils import cast_to_bytes
-from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.storage._util import box_length_checked, index_box_bytes, slice_box_bytes
+from puya.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.parse import SourceLocation

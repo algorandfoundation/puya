@@ -85,9 +85,8 @@ def _init(
         result_type = pytypes.GenericBoxType.parameterise([content], location)
     elif result_type.content != content:
         logger.error(
-            f"{result_type.generic} explicit type annotation"
-            f" does not match first argument - suggest to remove the explicit type annotation,"
-            " it shouldn't be required",
+            "explicit type annotation does not match first argument"
+            " - suggest to remove the explicit type annotation, it shouldn't be required",
             location=location,
         )
 

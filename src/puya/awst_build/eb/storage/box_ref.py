@@ -18,7 +18,7 @@ from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, e
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.void import VoidExpressionBuilder
-from puya.awst_build.utils import get_arg_mapping, maybe_resolve_literal
+from puya.awst_build.utils import get_arg_mapping
 from puya.parse import SourceLocation
 
 

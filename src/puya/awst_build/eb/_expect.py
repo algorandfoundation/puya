@@ -150,7 +150,10 @@ def exactly_n_args_of_type_else_dummy(
 
 
 def argument_of_type_else_dummy(
-    builder: NodeBuilder, target_type: pytypes.PyType, *, resolve_literal: bool = False,
+    builder: NodeBuilder,
+    target_type: pytypes.PyType,
+    *,
+    resolve_literal: bool = False,
 ) -> InstanceBuilder:
     assert not isinstance(target_type, pytypes.LiteralOnlyType)
 

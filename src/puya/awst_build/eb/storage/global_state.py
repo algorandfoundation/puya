@@ -9,6 +9,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
     BytesConstant,
+    BytesEncoding,
     ContractReference,
     Expression,
     Not,
@@ -18,15 +19,15 @@ from puya.awst.nodes import (
     StateGetEx,
     Statement,
 )
-from puya.awst_build import constants, pytypes
+from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
     NotIterableInstanceExpressionBuilder,
 )
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -40,6 +41,7 @@ from puya.awst_build.eb.storage._storage import (
     extract_description,
     extract_key_override,
 )
+from puya.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
@@ -109,11 +111,10 @@ def _init(
     if result_type is None:
         result_type = pytypes.GenericGlobalStateType.parameterise([content], location)
     elif result_type.content != content:
-        raise CodeError(
-            f"{constants.CLS_GLOBAL_STATE_ALIAS} explicit type annotation"
-            f" does not match first argument - suggest to remove the explicit type annotation,"
-            " it shouldn't be required",
-            location,
+        logger.error(
+            "explicit type annotation does not match first argument"
+            " - suggest to remove the explicit type annotation, it shouldn't be required",
+            location=location,
         )
 
     key_arg = arg_mapping.get(key_arg_name)
@@ -220,9 +221,15 @@ class _GlobalStateExpressionBuilderFromConstructor(
     ) -> AppStorageDeclaration:
         key_override = self._key_override
         if not isinstance(key_override, BytesConstant):
-            raise CodeError(
+            logger.error(
                 f"assigning {typ} to a member variable requires a constant value for key",
-                location,
+                location=location,
+            )
+            key_override = BytesConstant(
+                value=b"",
+                wtype=wtypes.box_key,
+                encoding=BytesEncoding.unknown,
+                source_location=key_override.source_location,
             )
         return AppStorageDeclaration(
             description=self.description,
@@ -250,8 +257,7 @@ class _Maybe(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if args:
-            raise CodeError("Unexpected/unhandled arguments", location)
+        expect.no_args(args, location)
         expr = StateGetEx(field=self.field, source_location=location)
         result_typ = pytypes.GenericTupleType.parameterise([self._typ, pytypes.BoolType], location)
         return TupleExpressionBuilder(expr, result_typ)
@@ -273,11 +279,8 @@ class _Get(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=self.content_type) as eb]:
-                default_expr = eb.resolve()
-            case _:
-                raise CodeError("invalid/unexpected args", location)
+        default_arg = expect.exactly_one_arg_of_type_else_dummy(args, self.content_type, location)
+        default_expr = default_arg.resolve()
         expr = StateGet(field=self.field, default=default_expr, source_location=location)
         return builder_for_instance(self.content_type, expr)
 
