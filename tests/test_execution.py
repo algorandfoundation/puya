@@ -772,7 +772,7 @@ def test_address(harness: _TestHarness) -> None:
 
 
 def test_string_ops(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=2))
+    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=4))
 
 
 def test_global_storage(harness: _TestHarness) -> None:
