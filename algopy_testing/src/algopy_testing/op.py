@@ -1013,7 +1013,7 @@ def arg(a: UInt64 | int, /) -> Bytes:
 
 
 class _EllipticCurve:
-    def __getattribute__(self, __name: str) -> Any:
+    def __getattr__(self, __name: str) -> Any:
         raise NotImplementedError(
             f"EllipticCurve.{__name} is currently not available as a native "
             "`algorand-python-testing` type. Use your own preferred testing "
