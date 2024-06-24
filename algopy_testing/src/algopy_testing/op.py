@@ -954,7 +954,7 @@ class AssetHoldingGet:
         return bool(frozen), exists
 
 
-class AppParamsGet:
+class _AppParamsGet:
     def __getattr__(self, name: str) -> Any:
         raise NotImplementedError(
             f"AppParamsGet.{name} is currently not available as a native "
@@ -963,7 +963,10 @@ class AppParamsGet:
         )
 
 
-class AppLocal:
+AppParamsGet = _AppParamsGet()
+
+
+class _AppLocal:
     def __getattr__(self, name: str) -> Any:
         raise NotImplementedError(
             f"AppLocal.{name} is currently not available as a native "
@@ -972,7 +975,10 @@ class AppLocal:
         )
 
 
-class AppGlobal:
+AppLocal = _AppLocal()
+
+
+class _AppGlobal:
     def __getattr__(self, name: str) -> Any:
         raise NotImplementedError(
             f"AppGlobal.{name} is currently not available as a native "
@@ -981,13 +987,19 @@ class AppGlobal:
         )
 
 
-class AcctParamsGet:
+AppGlobal = _AppGlobal()
+
+
+class _AcctParamsGet:
     def __getattr__(self, name: str) -> Any:
         raise NotImplementedError(
             f"AcctParamsGet.{name} is currently not available as a native "
             "`algorand-python-testing` type. Use your own preferred testing "
             "framework of choice to mock the behaviour."
         )
+
+
+AcctParamsGet = _AcctParamsGet()
 
 
 def arg(a: UInt64 | int, /) -> Bytes:
@@ -1000,7 +1012,7 @@ def arg(a: UInt64 | int, /) -> Bytes:
     return context._active_lsig_args[int(a)]
 
 
-class EllipticCurve:
+class _EllipticCurve:
     def __getattribute__(self, __name: str) -> Any:
         raise NotImplementedError(
             f"EllipticCurve.{__name} is currently not available as a native "
@@ -1008,6 +1020,8 @@ class EllipticCurve:
             "framework of choice to mock the behaviour."
         )
 
+
+EllipticCurve = _EllipticCurve()
 
 __all__ = [
     "AcctParamsGet",
@@ -1022,6 +1036,7 @@ __all__ = [
     "Box",
     "EC",
     "ECDSA",
+    "EllipticCurve",
     "GITxn",
     "GTxn",
     "Global",
