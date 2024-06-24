@@ -26,7 +26,7 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import compare_bytes
+from puya.awst_build.eb._utils import compare_bytes, dummy_statement
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -110,19 +110,15 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        match op:
-            case BuilderBinaryOp.add:
-                return BytesAugmentedAssignment(
-                    target=self.resolve_lvalue(),
-                    op=BytesBinaryOperator.add,
-                    value=expect_operand_type(rhs, self.pytype).resolve(),
-                    source_location=location,
-                )
-            case _:
-                raise CodeError(
-                    f"Unsupported augmented assignment operation on {self.pytype}: {op.value}=",
-                    location,
-                )
+        if op != BuilderBinaryOp.add:
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
+        return BytesAugmentedAssignment(
+            target=self.resolve_lvalue(),
+            op=BytesBinaryOperator.add,
+            value=expect_operand_type(rhs, self.pytype).resolve(),
+            source_location=location,
+        )
 
     @typing.override
     def binary_op(

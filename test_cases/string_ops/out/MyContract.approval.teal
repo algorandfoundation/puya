@@ -1,45 +1,36 @@
 #pragma version 10
 
 test_cases.string_ops.contract.MyContract.approval_program:
-    // string_ops/contract.py:7
-    // Bytes(b"brown fox"), Bytes(b"The quick brown fox jumped over the lazy dog")
+    // string_ops/contract.py:6
+    // assert Bytes(b"brown fox") in Bytes(b"The quick brown fox jumped over the lazy dog")
     byte 0x62726f776e20666f78
     byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    // string_ops/contract.py:6-8
-    // assert is_in_str(
-    //     Bytes(b"brown fox"), Bytes(b"The quick brown fox jumped over the lazy dog")
-    // )
-    callsub is_in_str
+    callsub is_substring
     assert
-    // string_ops/contract.py:10
-    // Bytes(b"red fox"), Bytes(b"The quick brown fox jumped over the lazy dog")
+    // string_ops/contract.py:7
+    // assert b"brown fox" in Bytes(b"The quick brown fox jumped over the lazy dog")
+    byte 0x62726f776e20666f78
+    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+    callsub is_substring
+    assert
+    // string_ops/contract.py:8
+    // assert Bytes(b"red fox") not in Bytes(b"The quick brown fox jumped over the lazy dog")
     byte 0x72656420666f78
     byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    // string_ops/contract.py:9-11
-    // assert not is_in_str(
-    //     Bytes(b"red fox"), Bytes(b"The quick brown fox jumped over the lazy dog")
-    // )
-    callsub is_in_str
+    callsub is_substring
     !
     assert
-    // string_ops/contract.py:13
+    // string_ops/contract.py:9
+    // assert b"red fox" not in Bytes(b"The quick brown fox jumped over the lazy dog")
+    byte 0x72656420666f78
+    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+    callsub is_substring
+    !
+    assert
+    // string_ops/contract.py:11
     // return True
     int 1
     return
-
-
-// test_cases.string_ops.contract.is_in_str(a: bytes, b: bytes) -> uint64:
-is_in_str:
-    // string_ops/contract.py:19-20
-    // @subroutine
-    // def is_in_str(a: Bytes, b: Bytes) -> bool:
-    proto 2 1
-    // string_ops/contract.py:21
-    // return a in b
-    frame_dig -2
-    frame_dig -1
-    callsub is_substring
-    retsub
 
 
 // algopy_lib_bytes.is_substring(item: bytes, sequence: bytes) -> uint64:
