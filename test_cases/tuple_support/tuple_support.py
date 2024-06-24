@@ -54,7 +54,7 @@ class TupleSupport(Contract):
         bin_ops()
         if non_empty_tuple():
             log("not empty")
-        if (get_uint_with_side_effect(),):
+        if (get_uint_with_side_effect(),):  # noqa: F634
             log("not empty2")
         return a + b
 
