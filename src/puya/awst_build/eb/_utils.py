@@ -18,7 +18,6 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
 )
-from puya.awst_build.eb.uint64 import UInt64TypeBuilder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -51,6 +50,8 @@ def resolve_negative_literal_index(
                 reverse=False,
             )
         case _:
+            from puya.awst_build.eb.uint64 import UInt64TypeBuilder
+
             return index.resolve_literal(UInt64TypeBuilder(index.source_location))
 
 
