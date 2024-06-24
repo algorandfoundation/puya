@@ -1146,8 +1146,7 @@ class _ABICall:
     def __getitem__(
         self, return_type: type[_TABIResult_co]
     ) -> _ABICallWithReturnProtocol[_TABIResult_co]:
-        # Implement the __getitem__ logic here
-        raise NotImplementedError("abi_call.__getitem__ is not implemented")
+        return self
 
 
 # TODO: Implement abi_call
