@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, StrEnum
 
 
 class OnCompleteAction(Enum):
@@ -33,7 +33,10 @@ class Base64(Enum):
     StdEncoding = 1
 
 
-__all__ = [
-    "OnCompleteAction",
-    "TransactionType",
-]
+class EC(StrEnum):
+    """Available values for the `EC` enum"""
+
+    BN254g1 = "BN254g1"
+    BN254g2 = "BN254g2"
+    BLS12_381g1 = "BLS12_381g1"
+    BLS12_381g2 = "BLS12_381g2"

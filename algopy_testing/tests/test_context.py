@@ -1,10 +1,12 @@
 import algosdk
 import pytest
 from algopy import Bytes, TransactionType, UInt64
+from algopy_testing import arc4
 from algopy_testing.context import AlgopyTestContext, algopy_testing_context, get_test_context
 from algopy_testing.itxn import PaymentInnerTransaction
 
 from tests.artifacts.Arc4InnerTxns.contract import Arc4InnerTxnsContract
+from tests.artifacts.GlobalStateValidator.contract import GlobalStateValidator
 
 
 def test_patch_global_fields() -> None:
@@ -187,3 +189,9 @@ def test_clear_inner_transaction_groups() -> None:
         context.clear_inner_transaction_groups()
         with pytest.raises(ValueError, match="No inner transaction groups submitted yet!"):
             context.get_submitted_itxn_group(0)
+
+
+def test_misc_global_state_access() -> None:
+    with algopy_testing_context() as _:
+        contract = GlobalStateValidator()
+        contract.validate_g_args(arc4.UInt64(1), arc4.String("TestAsset"))

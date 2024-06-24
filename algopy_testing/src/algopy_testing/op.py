@@ -4,6 +4,7 @@ import base64
 import hashlib
 import json
 import math
+import typing
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 import algosdk
@@ -18,11 +19,19 @@ from ecdsa import (  # type: ignore  # noqa: PGH003
     VerifyingKey,
 )
 
-from algopy_testing.constants import BITS_IN_BYTE, MAX_BYTES_SIZE, MAX_UINT64
-from algopy_testing.enums import ECDSA, Base64, VrfVerify
+from algopy_testing.constants import (
+    BITS_IN_BYTE,
+    DEFAULT_ACCOUNT_MIN_BALANCE,
+    MAX_BYTES_SIZE,
+    MAX_UINT64,
+)
+from algopy_testing.enums import EC, ECDSA, Base64, VrfVerify
+from algopy_testing.models.block import Block
+from algopy_testing.models.box import Box
+from algopy_testing.models.gitxn import GITxn
 from algopy_testing.models.global_values import Global
 from algopy_testing.models.gtxn import GTxn
-from algopy_testing.models.itxn import ITxn
+from algopy_testing.models.itxn import ITxn, ITxnCreate
 from algopy_testing.models.txn import Txn
 from algopy_testing.primitives.biguint import BigUInt
 from algopy_testing.primitives.bytes import Bytes
@@ -716,20 +725,298 @@ def gaid(a: UInt64 | int, /) -> algopy.Application:
     return context.get_application(cast(int, app_id))
 
 
+def balance(a: algopy.Account | algopy.UInt64 | int, /) -> algopy.UInt64:
+    import algopy
+
+    from algopy_testing.context import get_test_context
+
+    context = get_test_context()
+    if not context:
+        raise ValueError(
+            "Test context is not initialized! Use `with algopy_testing_context()` to access "
+            "the context manager."
+        )
+
+    active_txn = context.get_active_transaction()
+    if not active_txn:
+        raise ValueError("No active transaction found to reference account")
+
+    if isinstance(a, algopy.Account):
+        account = a
+    elif isinstance(a, (algopy.UInt64 | int)):
+        index = int(a)
+        if index == 0:
+            account = active_txn.sender
+        else:
+            accounts = getattr(active_txn, "accounts", None)
+            if not accounts or index >= len(accounts):
+                raise ValueError(f"Invalid account index: {index}")
+            account = accounts[index]
+    else:
+        raise TypeError("Invalid type for account parameter")
+
+    account_data = context._account_data.get(str(account))
+    if not account_data:
+        raise ValueError(f"Account {account} not found in testing context!")
+
+    balance = account_data.fields.get("balance")
+    if balance is None:
+        raise ValueError(f"Balance not set for account {account}")
+
+    # Deduct the fee for the current transaction
+    if account == active_txn.sender:
+        fee = getattr(active_txn, "fee", algopy.UInt64(0))
+        balance = algopy.UInt64(int(balance) - int(fee))
+
+    return balance
+
+
+def min_balance(a: algopy.Account | algopy.UInt64 | int, /) -> algopy.UInt64:
+    import algopy
+
+    from algopy_testing.context import get_test_context
+
+    context = get_test_context()
+    if not context:
+        raise ValueError("Test context is not initialized!")
+
+    active_txn = context.get_active_transaction()
+    if not active_txn:
+        raise ValueError("No active transaction found to reference account")
+
+    if isinstance(a, algopy.Account):
+        account = a
+    elif isinstance(a, (algopy.UInt64 | int)):
+        index = int(a)
+        if index == 0:
+            account = active_txn.sender
+        else:
+            accounts = getattr(active_txn, "accounts", None)
+            if not accounts or index >= len(accounts):
+                raise ValueError(f"Invalid account index: {index}")
+            account = accounts[index]
+    else:
+        raise TypeError("Invalid type for account parameter")
+
+    account_data = context._account_data.get(str(account))
+    if not account_data:
+        raise ValueError(f"Account {account} not found in testing context!")
+
+    # Return the pre-set min_balance if available, otherwise use a default value
+    return account_data.fields.get("min_balance", UInt64(DEFAULT_ACCOUNT_MIN_BALANCE))
+
+
+def exit(a: UInt64 | int, /) -> typing.Never:  # noqa: A001
+    value = UInt64(a) if isinstance(a, int) else a
+    raise SystemExit(int(value))
+
+
+def app_opted_in(
+    a: algopy.Account | algopy.UInt64 | int, b: algopy.Application | algopy.UInt64 | int, /
+) -> bool:
+    import algopy
+
+    from algopy_testing.context import get_test_context
+
+    context = get_test_context()
+    active_txn = context.get_active_transaction()
+
+    if not active_txn:
+        raise ValueError("No active transaction found to reference account")
+
+    # Resolve account
+    if isinstance(a, (algopy.UInt64 | int)):
+        index = int(a)
+        account = active_txn.sender if index == 0 else active_txn.accounts[index]
+    else:
+        account = a
+
+    # Resolve application
+    if isinstance(b, (algopy.UInt64 | int)):
+        index = int(b)
+        app_id = active_txn.application_id if index == 0 else active_txn.foreign_apps[index]
+    else:
+        app_id = b.id
+
+    # Check if account is opted in to the application
+    account_data = context._account_data.get(str(account))
+    if not account_data:
+        return False
+
+    return app_id in account_data.opted_apps
+
+
+class _AssetParamsGet:
+    def __getattr__(
+        self, name: str
+    ) -> typing.Callable[[algopy.Asset | algopy.UInt64 | int], tuple[typing.Any, bool]]:
+        def get_asset_param(a: algopy.Asset | algopy.UInt64 | int) -> tuple[typing.Any, bool]:
+            import algopy
+
+            from algopy_testing.context import get_test_context
+
+            context = get_test_context()
+            if not context:
+                raise ValueError(
+                    "Test context is not initialized! Use `with algopy_testing_context()` to "
+                    "access the context manager."
+                )
+
+            active_txn = context.get_active_transaction()
+            if not active_txn:
+                raise ValueError("No active transaction found to reference asset")
+
+            asset_id = a.value if isinstance(a, (algopy.Asset)) else int(a)
+            asset_data = active_txn.assets[asset_id]
+
+            if asset_data is None:
+                return None, False
+
+            param = "config_" + name
+            value = getattr(asset_data, param, None)
+            return value, True
+
+        if name.startswith("asset_"):
+            return get_asset_param
+        else:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+
+AssetParamsGet = _AssetParamsGet()
+
+
+class AssetHoldingGet:
+    @staticmethod
+    def _get_asset_holding(
+        account: algopy.Account | algopy.UInt64 | int,
+        asset: algopy.Asset | algopy.UInt64 | int,
+        field: str,
+    ) -> tuple[typing.Any, bool]:
+        import algopy
+
+        from algopy_testing.context import get_test_context
+
+        context = get_test_context()
+        if not context:
+            raise ValueError(
+                "Test context is not initialized! Use `with algopy_testing_context()` to access "
+                "the context manager."
+            )
+
+        active_txn = context.get_active_transaction()
+        if not active_txn:
+            raise ValueError("No active transaction found to reference account or asset")
+
+        # Resolve account
+        if isinstance(account, (algopy.UInt64 | int)):
+            index = int(account)
+            account = active_txn.sender if index == 0 else active_txn.accounts[index]
+
+        # Resolve asset
+        if isinstance(asset, (algopy.UInt64 | int)):
+            index = int(asset)
+            asset_id = active_txn.assets[index]
+        else:
+            asset_id = asset.id
+
+        account_data = context._account_data.get(str(account))
+        if not account_data:
+            return None, False
+
+        asset_balance = account_data.opted_asset_balances.get(asset_id)
+        if asset_balance is None:
+            return None, False
+
+        if field == "balance":
+            return asset_balance, True
+        elif field == "frozen":
+            asset_data = context._asset_data.get(int(asset_id))
+            if not asset_data:
+                return None, False
+            return asset_data["default_frozen"], True
+        else:
+            raise ValueError(f"Invalid asset holding field: {field}")
+
+    @staticmethod
+    def asset_balance(
+        a: algopy.Account | algopy.UInt64 | int, b: algopy.Asset | algopy.UInt64 | int, /
+    ) -> tuple[algopy.UInt64, bool]:
+        import algopy
+
+        balance, exists = AssetHoldingGet._get_asset_holding(a, b, "balance")
+        return algopy.UInt64(balance) if exists else algopy.UInt64(0), exists
+
+    @staticmethod
+    def asset_frozen(
+        a: algopy.Account | algopy.UInt64 | int, b: algopy.Asset | algopy.UInt64 | int, /
+    ) -> tuple[bool, bool]:
+        frozen, exists = AssetHoldingGet._get_asset_holding(a, b, "frozen")
+        return bool(frozen), exists
+
+
+class AppParamsGet:
+    def __getattr__(self, name: str) -> Any:
+        raise NotImplementedError(
+            f"AppParamsGet.{name} is currently not available as a native "
+            "`algorand-python-testing` type. Use your own preferred testing "
+            "framework of choice to mock the behaviour."
+        )
+
+
+class AppLocal:
+    def __getattr__(self, name: str) -> Any:
+        raise NotImplementedError(
+            f"AppLocal.{name} is currently not available as a native "
+            "`algorand-python-testing` type. Use your own preferred testing "
+            "framework of choice to mock the behaviour."
+        )
+
+
+class AppGlobal:
+    def __getattr__(self, name: str) -> Any:
+        raise NotImplementedError(
+            f"AppGlobal.{name} is currently not available as a native "
+            "`algorand-python-testing` type. Use your own preferred testing "
+            "framework of choice to mock the behaviour."
+        )
+
+
+class AcctParamsGet:
+    def __getattr__(self, name: str) -> Any:
+        raise NotImplementedError(
+            f"AcctParamsGet.{name} is currently not available as a native "
+            "`algorand-python-testing` type. Use your own preferred testing "
+            "framework of choice to mock the behaviour."
+        )
+
+
 __all__ = [
+    "AppParamsGet",
+    "AppLocal",
+    "AppGlobal",
+    "AcctParamsGet",
+    "AssetParamsGet",
+    "AssetHoldingGet",
     "Base64",
+    "Block",
     "BigUInt",
+    "Box",
     "ECDSA",
     "Global",
     "Scratch",
     "GTxn",
+    "GITxn",
     "ITxn",
+    "ITxnCreate",
     "JsonRef",
     "Txn",
     "UInt64",
     "VrfVerify",
     "addw",
+    "app_opted_in",
+    "EC",
     "base64_decode",
+    "balance",
     "bitlen",
     "bsqrt",
     "btoi",
@@ -737,6 +1024,7 @@ __all__ = [
     "concat",
     "divmodw",
     "divw",
+    "gaid",
     "ecdsa_pk_decompress",
     "ecdsa_pk_recover",
     "ecdsa_verify",
@@ -744,6 +1032,7 @@ __all__ = [
     "ed25519verify_bare",
     "err",
     "exp",
+    "exit",
     "expw",
     "extract",
     "extract_uint16",
@@ -754,6 +1043,7 @@ __all__ = [
     "itob",
     "keccak256",
     "mulw",
+    "min_balance",
     "replace",
     "select_bytes",
     "select_uint64",

@@ -64,6 +64,8 @@ class _BaseInnerTransaction:
     fields: dict[str, typing.Any]
 
     def submit(self) -> typing.Any:
+        import algopy
+
         context = get_test_context()
 
         if not context:
@@ -73,6 +75,25 @@ class _BaseInnerTransaction:
 
         if not result:
             raise RuntimeError("Invalid inner transaction type")
+
+        # if its an asset config then ensure to create an asset and add to context
+        if isinstance(result, algopy.itxn.AssetConfigInnerTransaction):  # type: ignore[attr-defined, unused-ignore]
+            # TODO: refine
+            created_asset = context.any_asset(
+                total=self.fields.get("total", None),
+                decimals=self.fields.get("decimals", None),
+                default_frozen=self.fields.get("default_frozen", None),
+                unit_name=self.fields.get("unit_name", None),
+                name=self.fields.get("asset_name", None),
+                url=self.fields.get("url", b""),
+                metadata_hash=self.fields.get("metadata_hash", ""),
+                manager=self.fields.get("manager", algosdk.constants.ZERO_ADDRESS),
+                reserve=self.fields.get("reserve", algosdk.constants.ZERO_ADDRESS),
+                freeze=self.fields.get("freeze", algosdk.constants.ZERO_ADDRESS),
+                clawback=self.fields.get("clawback", algosdk.constants.ZERO_ADDRESS),
+                creator=self.fields.get("creator", algosdk.constants.ZERO_ADDRESS),
+            )
+            result.fields["xfer_asset"] = created_asset
 
         context._append_inner_transaction_group([result])
         return result
@@ -534,6 +555,15 @@ class AssetConfigInnerTransaction(_BaseInnerTransactionResult):
 
     def __getattr__(self, name: str) -> object:
         return self.get_field(AssetConfigFields, name)
+
+    @property
+    def created_asset(self) -> algopy.Asset:
+        # forward xfer asset that is auto set by submit()
+        # for the asset config itxn type
+        created_asset = self.fields["xfer_asset"]
+        if not created_asset:
+            raise ValueError("No created asset found")
+        return created_asset  # type: ignore[no-any-return]
 
 
 class AssetTransferInnerTransaction(_BaseInnerTransactionResult):

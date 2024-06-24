@@ -59,22 +59,31 @@ class TransactionBase(_GroupTransaction):
     def __init__(
         self, group_index: algopy.UInt64 | int, **kwargs: typing.Unpack[_TransactionBaseFields]
     ):
-        super().__init__(group_index=group_index)
-        self._fields.update(kwargs)
+        from algopy_testing import get_test_context
+
+        context = get_test_context()
+        try:
+            existing_txn = context._gtxns[group_index]
+        except IndexError:
+            existing_txn = None
+
+        if (
+            existing_txn
+            and isinstance(existing_txn, self.__class__)
+            or self.__class__ == Transaction
+        ):
+            self.__dict__.update(existing_txn.__dict__)
+        else:
+            super().__init__(group_index=group_index)
+            self._fields.update(kwargs)
 
     def set(self, **kwargs: typing.Unpack[_TransactionBaseFields]) -> None:
         """Updates inner transaction parameter values"""
         self._fields.update(kwargs)
 
     def __getattr__(self, name: str) -> object:
-        from algopy_testing import get_test_context
-
         if name not in _TransactionBaseFields.__annotations__:
             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
-
-        if name == "group_index":
-            context = get_test_context()
-            return context.get_transaction_group().index(self)
 
         return self._fields.get(name)
 
@@ -219,11 +228,12 @@ class Transaction(TransactionBase):
         group_index: algopy.UInt64 | int,
         **kwargs: typing.Unpack[TransactionFields],
     ):
-        if "type" not in kwargs:
-            raise ValueError("Transaction 'type' field is required")
-
         super().__init__(group_index=group_index)
         self._fields.update(kwargs)
+        # in case we still got no type after super attempts to load
+        # existing txn fro _gtxns then fail
+        if "type" not in self._fields:
+            raise ValueError("Transaction 'type' field is required")
 
     def __getattr__(self, name: str) -> typing.Any:
         if name in TransactionFields.__annotations__:

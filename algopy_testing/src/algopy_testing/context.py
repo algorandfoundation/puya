@@ -13,7 +13,11 @@ import algosdk
 
 from algopy_testing.constants import (
     ARC4_RETURN_PREFIX,
+    DEFAULT_ACCOUNT_MIN_BALANCE,
+    DEFAULT_ASSET_CREATE_MIN_BALANCE,
+    DEFAULT_ASSET_OPT_IN_MIN_BALANCE,
     DEFAULT_GLOBAL_GENESIS_HASH,
+    DEFAULT_MAX_TXN_LIFE,
     MAX_BYTES_SIZE,
     MAX_UINT64,
 )
@@ -265,8 +269,8 @@ class AlgopyTestContext:
     ) -> None:
         import algopy
 
-        self._asset_id = iter(range(1001, 2**64))
-        self._app_id = iter(range(1001, 2**64))
+        self._asset_id = iter(range(1, 2**64))
+        self._app_id = iter(range(1, 2**64))
 
         self._contracts: list[algopy.Contract | algopy.ARC4Contract] = []
         self._txn_fields: TxnFields = {}
@@ -276,8 +280,12 @@ class AlgopyTestContext:
         self._application_logs: dict[int, list[bytes]] = {}
         self._asset_data: dict[int, AssetFields] = {}
         self._inner_transaction_groups: list[Sequence[InnerTransactionResultType]] = []
+        self._constructing_inner_transaction_group: list[InnerTransactionResultType] = []
+        self._constructing_inner_transaction: InnerTransactionResultType | None = None
         self._scratch_spaces: dict[str, list[algopy.Bytes | algopy.UInt64 | bytes | int]] = {}
         self._template_vars: dict[str, Any] = template_vars or {}
+        self._blocks: dict[int, dict[str, int]] = {}
+        self._boxes: dict[bytes, algopy.Bytes] = {}
 
         self.default_creator = default_creator or algopy.Account(
             algosdk.account.generate_account()[1]
@@ -293,14 +301,14 @@ class AlgopyTestContext:
 
         self._global_fields: GlobalFields = {
             "min_txn_fee": algopy.UInt64(algosdk.constants.MIN_TXN_FEE),
-            "min_balance": algopy.UInt64(100_000),
-            "max_txn_life": algopy.UInt64(1_000),
+            "min_balance": algopy.UInt64(DEFAULT_ACCOUNT_MIN_BALANCE),
+            "max_txn_life": algopy.UInt64(DEFAULT_MAX_TXN_LIFE),
             "zero_address": algopy.Account(algosdk.constants.ZERO_ADDRESS),
             "creator_address": self.default_creator,
             "current_application_address": algopy.Account(default_application_address),
             "current_application_id": self.default_application,
-            "asset_create_min_balance": algopy.UInt64(100_000),
-            "asset_opt_in_min_balance": algopy.UInt64(10_000),
+            "asset_create_min_balance": algopy.UInt64(DEFAULT_ASSET_CREATE_MIN_BALANCE),
+            "asset_opt_in_min_balance": algopy.UInt64(DEFAULT_ASSET_OPT_IN_MIN_BALANCE),
             "genesis_hash": algopy.Bytes(DEFAULT_GLOBAL_GENESIS_HASH),
         }
 
@@ -736,6 +744,14 @@ class AlgopyTestContext:
 
         return self._application_logs[app_id]
 
+    def set_block(
+        self, index: int, seed: algopy.UInt64 | int, timestamp: algopy.UInt64 | int
+    ) -> None:
+        """
+        Set the block seed and timestamp for block at index `index`.
+        """
+        self._blocks[index] = {"seed": int(seed), "timestamp": int(timestamp)}
+
     def set_transaction_group(
         self, gtxn: list[algopy.gtxn.TransactionBase], active_transaction_index: int | None = None
     ) -> None:
@@ -779,6 +795,10 @@ class AlgopyTestContext:
             )
 
         self._gtxns.extend(gtxns)
+
+        # iterate and refresh group_index to match the order of transactions
+        for i, txn in enumerate(self._gtxns):
+            txn._fields["group_index"] = i
 
     def get_transaction_group(self) -> list[algopy.gtxn.TransactionBase]:
         """
@@ -1024,6 +1044,32 @@ class AlgopyTestContext:
             setattr(new_txn, key, value)
 
         return new_txn
+
+    def get_box(self, name: algopy.Bytes | bytes) -> algopy.Bytes:
+        """Get the content of a box."""
+        import algopy
+
+        name_bytes = name if isinstance(name, bytes) else name.value
+        return self._boxes.get(name_bytes, algopy.Bytes(b""))
+
+    def set_box(self, name: algopy.Bytes | bytes, content: algopy.Bytes | bytes) -> None:
+        """Set the content of a box."""
+        import algopy
+
+        name_bytes = name if isinstance(name, bytes) else name.value
+        content_bytes = content if isinstance(content, bytes) else content.value
+        self._boxes[name_bytes] = algopy.Bytes(content_bytes)
+
+    def clear_box(self, name: algopy.Bytes | bytes) -> None:
+        """Clear the content of a box."""
+
+        name_bytes = name if isinstance(name, bytes) else name.value
+        if name_bytes in self._boxes:
+            del self._boxes[name_bytes]
+
+    def clear_all_boxes(self) -> None:
+        """Clear all boxes."""
+        self._boxes.clear()
 
     def clear_inner_transaction_groups(self) -> None:
         """

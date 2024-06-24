@@ -61,7 +61,21 @@ def _extract_refs_from_args(
             case algopy.Application() if ref_type is algopy.Application:
                 refs.append(arg)
             case (
-                algopy.Bytes() | algopy.String() | algopy.BigUInt() | algopy.UInt64() | int()
+                algopy.String()
+                | algopy.BigUInt()
+                | algopy.UInt64()
+                | algopy.BigUInt()
+                | algopy.arc4.Bool()
+                | algopy.arc4.BigUIntN()
+                | algopy.arc4.BigUFixedNxM()
+                | algopy.arc4.StaticArray()
+                | algopy.arc4.DynamicArray()
+                | algopy.arc4.DynamicBytes()
+                | algopy.arc4.Address()
+                | algopy.arc4.String()
+                | algopy.arc4.Byte()
+                | algopy.arc4.UIntN()
+                | int()
             ) if ref_type is algopy.Bytes:
                 refs.append(_extract_bytes(arg))
             case _:
@@ -74,8 +88,24 @@ def _extract_bytes(value: object) -> algopy.Bytes:
 
     if isinstance(value, algopy.Bytes):
         return value
-    if isinstance(value, (algopy.String | algopy.BigUInt)):
-        return value.bytes
+    if isinstance(
+        value,
+        (
+            algopy.String
+            | algopy.BigUInt
+            | algopy.arc4.Bool
+            | algopy.arc4.BigUIntN
+            | algopy.arc4.BigUFixedNxM
+            | algopy.arc4.StaticArray
+            | algopy.arc4.DynamicArray
+            | algopy.arc4.DynamicBytes
+            | algopy.arc4.Address
+            | algopy.arc4.String
+            | algopy.arc4.Byte
+            | algopy.arc4.UIntN
+        ),
+    ):
+        return value.bytes  # type: ignore[union-attr, unused-ignore]
     if isinstance(value, (algopy.UInt64 | int)):
         return algopy.Bytes(int_to_bytes(int(value), UINT64_SIZE))
     raise ValueError(f"Unsupported type: {type(value).__name__}")
@@ -108,7 +138,8 @@ def _extract_and_append_txn_to_context(
             ),
         ]
     )
-    context.set_active_transaction_index(len(context.get_transaction_group()) - 1)
+    new_active_txn_index = len(context.get_transaction_group()) - 1
+    context.set_active_transaction_index(new_active_txn_index if new_active_txn_index > 0 else 0)
 
 
 @typing.overload
