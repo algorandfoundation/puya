@@ -175,6 +175,8 @@ class Arc4CopyContract(arc4.ARC4Contract):
         copy1 = local_array ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         assert (copy2 := local_array).length, "this isn't ok" ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         valid_tuple = (local_array.copy(),)
+
+        valid_tuple_copy: tuple[arc4.DynamicArray[arc4.UInt64]] = tuple(valid_tuple) # type: ignore[assignment] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being passed to a tuple expression
         copy3 = valid_tuple[0] ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         copy4 = self.global_a ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable
         copy5 = self.global_b.value ## E: mutable reference to ARC4-encoded value must be copied using .copy() when being assigned to another variable

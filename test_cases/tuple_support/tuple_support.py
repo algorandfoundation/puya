@@ -51,10 +51,24 @@ class TupleSupport(Contract):
                 UInt64(8),
             )
         )
+        bin_ops()
         return a + b
 
     def clear_state_program(self) -> UInt64:
         return UInt64(0)
+
+
+@subroutine
+def bin_ops() -> None:
+    a = (UInt64(1),) * 3
+    assert a[0] == 1
+    assert a[1] == 1
+    assert a[2] == 1
+
+    b = (UInt64(1),) + (Bytes(b"2"), UInt64(3))  # noqa: RUF005
+    assert b[0] == 1
+    assert b[1] == b"2"
+    assert b[2] == 3
 
 
 @subroutine
