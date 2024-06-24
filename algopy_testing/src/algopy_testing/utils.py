@@ -196,11 +196,11 @@ def abi_type_name_for_arg(arg: object) -> str:  # noqa: PLR0912, C901, PLR0911
         return "uint64" if arg <= MAX_UINT64 else "uint512"
     if isinstance(arg, algopy.Bytes | bytes):
         return "byte[]"
-    if isinstance(arg, algopy.arc4.Address):
+    if is_instance(arg, algopy.arc4.Address):
         return "address"
     if isinstance(arg, algopy.Asset):
         return "asset"
-    if is_instance(arg, algopy.Account):
+    if isinstance(arg, algopy.Account):
         return "account"
     if isinstance(arg, algopy.Application):
         return "application"
