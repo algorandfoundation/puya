@@ -1,19 +1,16 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
+[tool.poetry]
 name = "algorand-python"
 # this version represents the version of the stub API's and should follow semver semantics
 # when updating this value also update src/compile.py:MAX_SUPPORTED_ALGOPY_VERSION_EX if it is a major/minor change
 # also see stubs/README.md#versioning
 version = "1.2.0"
 description = "API for writing Algorand Python Smart contracts"
-authors = [
-  { name = "Algorand Foundation", email = "contact@algorand.foundation" },
-]
+authors = ["Algorand Foundation <contact@algorand.foundation>"]
 readme = "README.md"
-requires-python = ">=3.12"
+packages = [
+    { include = "algopy.py" },
+    { include = "algopy-stubs" },
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -21,16 +18,12 @@ classifiers = [
 ]
 license = "AGPL-3.0-or-later"
 
-[project.urls]
-Documentation = "https://algorandfoundation.github.io/puya"
-Issues = "https://github.com/algorandfoundation/puya/issues"
-Source = "https://github.com/algorandfoundation/puya"
+[tool.poetry.dependencies]
+python = "^3.12"
 
-[tool.hatch.build.targets.wheel]
-packages = ["algopy-stubs"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"algopy.py" = "algopy.py"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 99
