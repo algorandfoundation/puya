@@ -329,6 +329,13 @@ class FunctionIRBuilder(
         return value
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
+        # TODO: remove this once wtypes are available at IR layer and assign can deal with
+        #       single item tuples correctly
+        if isinstance(expr.wtype, wtypes.WTuple) and len(expr.wtype.types) == 1:
+            ir_type = wtype_to_ir_type(expr.wtype.types[0])
+            return self.context.ssa.read_variable(
+                expr.name, ir_type, self.context.block_builder.active_block
+            )
         if isinstance(expr.wtype, wtypes.WTuple):
             return ValueTuple(
                 source_location=expr.source_location,
