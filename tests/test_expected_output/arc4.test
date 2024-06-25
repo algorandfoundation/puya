@@ -514,3 +514,24 @@ def test_static_bytes_bad_literal() -> None:
         Logger.static_bytes,
         2, ## E: can't covert literal to algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]]
     )
+
+
+## case: test_bool_eval
+import typing
+from algopy import *
+
+
+class MyStruct(arc4.Struct):
+    x: arc4.UInt512
+
+@subroutine
+def constant_bool() -> None:
+    assert not arc4.StaticArray[arc4.UInt16, typing.Literal[0]]() ## E: expression is always True
+    assert arc4.StaticArray(arc4.UInt16(0)) ## E: expression is always True
+
+    assert not arc4.StaticArray[arc4.Bool, typing.Literal[0]]() ## E: expression is always True
+    assert arc4.StaticArray(arc4.Bool(False)) ## E: expression is always True
+
+    assert MyStruct(x=arc4.UInt512(0)) ## E: expression is always True
+
+    assert arc4.Tuple((arc4.Bool(False),)) ## E: expression is always True

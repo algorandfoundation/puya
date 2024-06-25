@@ -6,7 +6,7 @@ import mypy.nodes
 from puya.awst.nodes import Expression
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -38,4 +38,4 @@ class NoneExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=False, location=location, negate=negate)
+        return constant_bool_and_error(value=False, location=location, negate=negate)
