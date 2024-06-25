@@ -5,7 +5,6 @@ from algopy import (
     Application,
     Asset,
     Bytes,
-    BytesBacked,
     OnCompleteAction,
     TransactionType,
     UInt64,

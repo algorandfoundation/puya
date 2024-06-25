@@ -28,7 +28,7 @@ from puya.awst_build.eb.subroutine import (
     SubroutineInvokerExpressionBuilder,
 )
 from puya.awst_build.utils import qualified_class_name, resolve_method_from_type_info
-from puya.errors import CodeError, PuyaError, InternalError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -77,7 +77,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         )
 
 
-class ContractSelfExpressionBuilder(NodeBuilder): # TODO: this _is_ an instance, technically
+class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance, technically
     def __init__(
         self,
         context: ASTConversionModuleContext,
@@ -104,7 +104,7 @@ class ContractSelfExpressionBuilder(NodeBuilder): # TODO: this _is_ an instance,
             return _builder_for_storage_access(state_decl, location)
         try:
             pytype = self.context.mypy_expr_node_type(expr)
-        except InternalError: # TODO: fixme
+        except InternalError:  # TODO: fixme
             pass
         else:
             if isinstance(pytype, pytypes.FuncType):

@@ -202,9 +202,14 @@ def simple_string_literal(
 
 
 def _type_match(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
-    return builder.pytype == target_type or (builder.pytype is not None and target_type in builder.pytype.mro)
+    return builder.pytype == target_type or (
+        builder.pytype is not None and target_type in builder.pytype.mro
+    )
 
-def _type_match_and_instance(builder: NodeBuilder, target_type: pytypes.PyType) -> typing.TypeGuard[InstanceBuilder]:
+
+def _type_match_and_instance(
+    builder: NodeBuilder, target_type: pytypes.PyType
+) -> typing.TypeGuard[InstanceBuilder]:
     if isinstance(builder, InstanceBuilder) and _type_match(builder, target_type):
         return True
     return False

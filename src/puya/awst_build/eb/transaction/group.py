@@ -16,6 +16,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -26,8 +27,6 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import expect_operand_type
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -67,17 +66,13 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        group_index = expect.exactly_one_arg_of_type_else_dummy(
+            args, pytypes.UInt64Type, location, resolve_literal=True
+        )
         typ = self.produces()
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
-        match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
-                return arg.resolve_literal(GroupTransactionTypeBuilder(typ, location))
-            case [InstanceBuilder(pytype=pytypes.UInt64Type) as eb]:
-                group_index = eb.resolve()
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        txn = check_transaction_type(group_index, wtype, location)
+        txn = check_transaction_type(group_index.resolve(), wtype, location)
         return GroupTransactionExpressionBuilder(txn, typ)
 
 
@@ -90,11 +85,11 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
 
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
         return IntrinsicCall(  # TODO: use (+rename) InnerTransactionField
-            source_location=location,
-            wtype=field.wtype,
             op_code="gtxns",
             immediates=[field.immediate],
             stack_args=[self.resolve()],
+            wtype=field.wtype,
+            source_location=location,
         )
 
     def get_array_member(
@@ -124,14 +119,16 @@ class _ArrayItem(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if len(args) != 1:
-            raise CodeError(f"Expected 1 argument, got {len(args)}", location)
-        (arg,) = args
-        index_expr = expect_operand_type(arg, pytypes.UInt64Type).resolve()
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args,
+            pytypes.UInt64Type,
+            location,
+            resolve_literal=True,
+        )
         expr = IntrinsicCall(
             op_code="gtxnsas",
             immediates=[self.field.immediate],
-            stack_args=[self.transaction, index_expr],
+            stack_args=[self.transaction, arg.resolve()],
             wtype=self.typ.wtype,
             source_location=location,
         )
