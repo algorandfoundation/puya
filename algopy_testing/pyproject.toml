@@ -65,9 +65,6 @@ dependencies = [
     "hatchling", # used for hatch_build.py
     "mypy==1.10",
 ]
-pre-install-commands = [
-  "pip install -e ../stubs",
-]
 
 [tool.hatch.envs.default.env-vars]
 COVERAGE_CORE = "sysmon"
@@ -77,12 +74,16 @@ refresh_test_artifacts = "python scripts/refresh_test_artifacts.py"
 check_stubs_cov = "python scripts/check_stubs_cov.py"
 pre_commit = [
     "hatch run lint:fix",
-    "mypy ."
+    "mypy_testing",
+    "hatch run examples:pre_commit",
 ]
 check = [
     "hatch run lint:check",
-    "mypy ."
+    "mypy_testing",
+    "hatch run examples:check",
 ]
+# type checks algorand-python-testing code
+mypy_testing = "mypy . --exclude examples"
 tests = "pytest --cov --cov-report xml"
 
 # isolated environments for dev tooling
@@ -249,10 +250,6 @@ untyped_calls_exclude = [
 ]
 files = ["src", "tests", "examples"]
 exclude = ["tests/artifacts"]
-
-[[tool.mypy.overrides]]
-module = "examples.proof_of_attendance.contract"
-disable_error_code = "no-any-return"
 
 [[tool.mypy.overrides]]
 module = [
