@@ -35,7 +35,6 @@ from puya.awst_build.eb.interface import (
     Iteration,
     NodeBuilder,
 )
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -48,12 +47,14 @@ _TPyType_co = typing_extensions.TypeVar(
 
 
 class ARC4TypeBuilder(BytesBackedTypeBuilder[_TPyType_co], abc.ABC):
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "from_log":
                 return ARC4FromLogBuilder(location, self.produces())
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, expr, location)
 
 
 class ARC4FromLogBuilder(FunctionBuilder):
@@ -149,9 +150,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        array_length = require_instance_builder(
-            self.member_access("length", index.source_location)
-        )
+        array_length = self.length(index.source_location)
         index = resolve_negative_literal_index(index, array_length, location)
         result_expr = IndexExpression(
             base=self.resolve(),
@@ -161,13 +160,20 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         )
         return builder_for_instance(self.pytype.items, result_expr)
 
+    @abc.abstractmethod
+    def length(self, location: SourceLocation) -> InstanceBuilder: ...
+
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
+            case "length":
+                return self.length(location)
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, expr, location)
 
     @typing.override
     def compare(

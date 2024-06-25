@@ -177,12 +177,14 @@ class ARC4StringExpressionBuilder(
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "native":
                 return _string_to_native(self, location)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, expr, location)
 
 
 def _string_to_native(

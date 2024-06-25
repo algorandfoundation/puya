@@ -100,7 +100,9 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(expr, pytypes.ARC4DynamicBytesType)
 
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "native":
                 return BytesExpressionBuilder(
@@ -109,4 +111,4 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
                     )
                 )
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, expr, location)

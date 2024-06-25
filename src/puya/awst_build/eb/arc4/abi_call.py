@@ -97,7 +97,9 @@ class ARC4ClientTypeBuilder(TypeBuilder):
         raise CodeError("ARC4Client subclasses cannot be instantiated", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
         if func_or_dec is None:
             raise CodeError(f"unknown member {name!r} of {self.type_info.fullname!r}", location)

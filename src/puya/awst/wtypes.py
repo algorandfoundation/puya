@@ -236,11 +236,17 @@ class ARC4UIntN(ARC4Type):
             raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
         if decode_type == uint64_wtype:
             if n > 64:
-                raise InternalError("TODO", source_location)
+                raise InternalError(
+                    f"ARC-4 UIntN type received decode type {decode_type},"
+                    f" which is smaller than size {n=}",
+                    source_location,
+                )
         elif decode_type == biguint_wtype:
             pass
         else:
-            raise InternalError("TODO", source_location)
+            raise InternalError(
+                f"Unhandled decode_type for ARC-4 UIntN: {decode_type}", source_location
+            )
         default_arc4_name = f"uint{n}"
         arc4_name = alias or default_arc4_name
         self.__attrs_init__(

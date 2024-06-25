@@ -276,6 +276,9 @@ class StaticType(PyType):
         raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
 
 
+ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.object"))
+
+
 @typing.final
 @attrs.frozen(init=False)
 class StructType(PyType):
@@ -305,7 +308,7 @@ class StructType(PyType):
         source_location: SourceLocation | None,
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
-        # TODO(frist): this is a bit of a kludge
+        # TODO: this is a bit of a kludge
         wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct
@@ -783,6 +786,8 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelate
         name=stub_name,
         transaction_type=kind,
         wtype=wtypes.WGroupTransaction.from_type(kind),
+        bases=[GroupTransactionBaseType],
+        mro=[GroupTransactionBaseType],
     )
 
 

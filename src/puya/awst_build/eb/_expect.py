@@ -1,5 +1,6 @@
+# TODO: eliminate usage of require_instance_builder or make non-throwing
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection, Sequence
 from itertools import zip_longest
 
 from puya import log
@@ -23,6 +24,21 @@ def at_most_one_arg(
     if extra:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
     return eb
+
+
+def at_most_one_arg_of_type(
+    args: Sequence[NodeBuilder], valid_types: Collection[pytypes.PyType], location: SourceLocation
+) -> InstanceBuilder | None:
+    if not args:
+        return None
+    first, *rest = args
+    if rest:
+        logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
+    for valid_type in valid_types:
+        if _type_match_and_instance(first, valid_type):
+            return first
+    logger.error("unexpected argument type", location=first.source_location)
+    return None
 
 
 def default_raise(msg: str, location: SourceLocation) -> typing.Never:
@@ -102,7 +118,7 @@ def exactly_one_arg_of_type(
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     if resolve_literal:
         first = maybe_resolve_literal(first, pytype)
-    if isinstance(first, InstanceBuilder) and first.pytype == pytype:
+    if _type_match_and_instance(first, pytype):
         return first
     msg = "unexpected argument type"
     result = default(msg, first.source_location)
@@ -166,7 +182,7 @@ def argument_of_type_else_dummy(
     if resolve_literal:
         builder = maybe_resolve_literal(builder, target_type)
 
-    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
+    if _type_match_and_instance(builder, target_type):
         return builder
     logger.error("unexpected argument type", location=builder.source_location)
     return dummy_value(target_type, builder.source_location)
@@ -177,7 +193,7 @@ def argument_of_type_else_die(
 ) -> InstanceBuilder:
     from puya.errors import CodeError
 
-    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
+    if _type_match_and_instance(builder, target_type):
         return builder
     raise CodeError("unexpected argument type", builder.source_location)
 
@@ -199,3 +215,24 @@ def simple_string_literal(
     result = default(msg, builder.source_location)
     logger.error(msg, location=builder.source_location)
     return result
+
+
+def _type_match(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
+    return builder.pytype == target_type or (
+        builder.pytype is not None and target_type in builder.pytype.mro
+    )
+
+
+def _type_match_and_instance(
+    builder: NodeBuilder, target_type: pytypes.PyType
+) -> typing.TypeGuard[InstanceBuilder]:
+    if isinstance(builder, InstanceBuilder) and _type_match(builder, target_type):
+        return True
+    return False
+
+
+def is_type_or_subtype(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
+    if not _type_match(builder, target_type):
+        logger.error("unexpected argument type", location=builder.source_location)
+        return False
+    return True

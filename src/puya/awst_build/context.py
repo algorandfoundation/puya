@@ -277,6 +277,9 @@ class ASTConversionModuleContext(ASTConversionContext):
             case mypy.types.AnyType(type_of_any=type_of_any):
                 msg = _type_of_any_to_error_message(type_of_any, loc)
                 raise CodeError(msg, loc)
+            case mypy.types.TypeType(item=inner_type):
+                inner_pytype = recurse(inner_type)
+                return pytypes.TypeType(inner_pytype)
             case mypy.types.FunctionLike() as func_like:
                 if func_like.is_type_obj():
                     # note sure if this will always work for overloads, but the only overloaded
