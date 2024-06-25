@@ -110,7 +110,15 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
-        """TODO(frist): docstring"""
+        """For use prior to calling resolve(), when a known type is expected,
+        and implicit conversion is possible without breaking semantic compatibility.
+
+        Primarily, this would be as an argument to an algopy function or class, or as an
+        operand to a binary operator with an algopy-typed object.
+
+        When implementing, this function should return self if there are no literals to convert,
+        or if the literals are not expected to be homogenous (e.g. in the general case of a tuple
+        with literals)"""
 
     @abc.abstractmethod
     def resolve_lvalue(self) -> Lvalue:
@@ -203,8 +211,7 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
         """Handle self.name"""
 
 
-# TODO(frist): separate interface from implementation?
-#              particularly bool_eval and member_access impls
+# TODO: separate interface from implementation
 class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):
         super().__init__(location)

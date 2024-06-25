@@ -308,7 +308,7 @@ class StructType(PyType):
         source_location: SourceLocation | None,
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
-        # TODO(frist): this is a bit of a kludge
+        # TODO: this is a bit of a kludge
         wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
         if base is ARC4StructBaseType:
             wtype_cls = wtypes.ARC4Struct
