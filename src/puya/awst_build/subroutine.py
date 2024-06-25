@@ -992,9 +992,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             self._error("incompatible result types for 'true' and 'false' expressions", expr_loc)
         expr_pytype = true_b.pytype
 
-        if isinstance(expr_pytype, pytypes.LiteralOnlyType):
-            assert isinstance(true_b, LiteralBuilder)  # TODO(frist): fixme
-            assert isinstance(false_b, LiteralBuilder)
+        if (
+            isinstance(expr_pytype, pytypes.LiteralOnlyType)
+            and isinstance(true_b, LiteralBuilder)
+            and isinstance(false_b, LiteralBuilder)
+        ):
             return ConditionalLiteralBuilder(
                 true_literal=true_b,
                 false_literal=false_b,
