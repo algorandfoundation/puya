@@ -205,15 +205,6 @@ class ContinueStatement(Statement):
 
 
 @attrs.frozen
-class AssertStatement(Statement):
-    condition: Expression = attrs.field(validator=[wtype_is_bool])
-    comment: str | None
-
-    def accept(self, visitor: StatementVisitor[T]) -> T:
-        return visitor.visit_assert_statement(self)
-
-
-@attrs.frozen
 class ReturnStatement(Statement):
     value: Expression | None
 

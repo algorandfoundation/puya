@@ -533,13 +533,6 @@ class ToCodeVisitor(
             statement.expr.accept(self),
         ]
 
-    def visit_assert_statement(self, statement: nodes.AssertStatement) -> list[str]:
-        condition = statement.condition.accept(self)
-        if statement.comment is None:
-            return [f"assert({condition})"]
-        else:
-            return [f'assert({condition}, comment="{statement.comment}")']
-
     def visit_uint64_augmented_assignment(
         self, statement: nodes.UInt64AugmentedAssignment
     ) -> list[str]:

@@ -35,9 +35,6 @@ class StatementVisitor(t.Generic[T], ABC):
     def visit_expression_statement(self, statement: puya.awst.nodes.ExpressionStatement) -> T: ...
 
     @abstractmethod
-    def visit_assert_statement(self, statement: puya.awst.nodes.AssertStatement) -> T: ...
-
-    @abstractmethod
     def visit_uint64_augmented_assignment(
         self, statement: puya.awst.nodes.UInt64AugmentedAssignment
     ) -> T: ...

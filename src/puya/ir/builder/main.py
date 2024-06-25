@@ -369,6 +369,26 @@ class FunctionIRBuilder(
                     ProgramExit(source_location=call.source_location, result=exit_value)
                 )
                 return None
+            case "assert":
+                (condition_expr,) = call.stack_args
+                condition_value = self.visit_and_materialise_single(condition_expr)
+                if isinstance(condition_value, UInt64Constant):
+                    if condition_value.value:
+                        logger.warning(
+                            "assertion is always true, ignoring", location=call.source_location
+                        )
+                    else:
+                        self.context.block_builder.terminate(
+                            Fail(source_location=call.source_location, comment=call.comment)
+                        )
+                    return None
+                return Intrinsic(
+                    op=AVMOp(call.op_code),
+                    source_location=call.source_location,
+                    args=[condition_value],
+                    types=wtype_to_ir_types(call.wtype),
+                    comment=call.comment,
+                )
             case _:
                 args = [self.visit_and_materialise_single(arg) for arg in call.stack_args]
                 return Intrinsic(
@@ -848,27 +868,6 @@ class FunctionIRBuilder(
         # If we get a Value (e.g. a Register or some such) it's something that's being
         # discarded effectively.
         # The frontend should have already warned about this
-
-    def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> TStatement:
-        condition_value = self.visit_and_materialise_single(statement.condition)
-        if isinstance(condition_value, UInt64Constant):
-            if condition_value.value:
-                logger.warning(
-                    "assertion is always true, ignoring", location=statement.source_location
-                )
-            else:
-                self.context.block_builder.terminate(
-                    Fail(source_location=statement.source_location, comment=statement.comment)
-                )
-            return
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp("assert"),
-                source_location=statement.source_location,
-                args=[condition_value],
-                comment=statement.comment,
-            )
-        )
 
     def visit_uint64_augmented_assignment(
         self, statement: puya.awst.nodes.UInt64AugmentedAssignment
