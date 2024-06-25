@@ -22,7 +22,6 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
-from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -425,7 +424,7 @@ def _compare(
         result_exprs.append(cmp_builder.resolve())
 
     if not result_exprs:
-        return bool_eval_to_constant(value=result_if_both_empty, location=location)
+        return LiteralBuilderImpl(value=result_if_both_empty, source_location=location)
 
     result = result_exprs[0]
     for result_expr in result_exprs[1:]:

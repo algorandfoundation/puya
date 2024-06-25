@@ -4,7 +4,7 @@ import typing
 from puya.awst.nodes import TXN_FIELDS, Expression, TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
@@ -43,4 +43,4 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        return constant_bool_and_error(value=True, location=location, negate=negate)

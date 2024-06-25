@@ -13,7 +13,7 @@ from puya.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, dummy_value
+from puya.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
 from puya.awst_build.eb.arc4._base import CopyBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
@@ -88,4 +88,4 @@ class ARC4StructExpressionBuilder(
         return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        return constant_bool_and_error(value=True, location=location, negate=negate)
