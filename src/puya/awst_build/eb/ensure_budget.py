@@ -19,8 +19,8 @@ from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -84,7 +84,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
             args=call_args,
             wtype=wtypes.void_wtype,
         )
-        return VoidExpressionBuilder(call_expr)
+        return NoneExpressionBuilder(call_expr)
 
 
 FeeSourceValues = {

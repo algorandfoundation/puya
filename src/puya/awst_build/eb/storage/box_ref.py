@@ -13,11 +13,11 @@ from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.storage._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.parse import SourceLocation
 
@@ -248,7 +248,7 @@ class _Put(FunctionBuilder):
             args, pytypes.BytesType, location, resolve_literal=True
         )
         data = arg.resolve()
-        return VoidExpressionBuilder(
+        return NoneExpressionBuilder(
             IntrinsicCall(
                 op_code="box_put",
                 stack_args=[self.box_proxy, data],

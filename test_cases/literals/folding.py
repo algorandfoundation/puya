@@ -80,6 +80,14 @@ def unary_bool() -> None:
     assert ~True == -2
 
 
+@subroutine
+def tuples() -> None:
+    assert (97, UInt64(98), 99) == tuple(b"abc")  # type: ignore[comparison-overlap]
+    assert ("a", "b", "c") == tuple("abc")
+    assert (97, UInt64(98), 99) == tuple(arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99)))  # type: ignore[comparison-overlap]
+    assert (1, 2) == tuple((1, 2))
+
+
 class LiteralFolding(Contract):
 
     def approval_program(self) -> bool:
@@ -90,6 +98,7 @@ class LiteralFolding(Contract):
         unary_int()
         compare_int()
         unary_bool()
+        tuples()
         return True
 
     def clear_state_program(self) -> bool:
