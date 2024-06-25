@@ -200,15 +200,48 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
 
     @typing.override
     @abc.abstractmethod
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> LiteralBuilder:
-        """Handle {op} self"""
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> LiteralBuilder: ...
 
     @typing.override
     @abc.abstractmethod
     def member_access(
         self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> LiteralBuilder:
-        """Handle self.name"""
+    ) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def binary_op(
+        self,
+        other: InstanceBuilder,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> LiteralBuilder: ...
 
 
 # TODO: separate interface from implementation
