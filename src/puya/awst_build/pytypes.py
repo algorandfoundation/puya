@@ -276,6 +276,9 @@ class StaticType(PyType):
         raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
 
 
+ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.object"))
+
+
 @typing.final
 @attrs.frozen(init=False)
 class StructType(PyType):

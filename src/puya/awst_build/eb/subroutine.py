@@ -14,11 +14,13 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import require_instance_builder
-from puya.errors import CodeError
+from puya.awst_build.utils import get_arg_mapping
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -43,26 +45,81 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        call_args = list[CallArg]()
-        for arg, arg_name, arg_kind in zip(args, arg_names, arg_kinds, strict=True):
-            if arg_kind.is_star():
-                raise CodeError(
-                    "argument unpacking at call site not currently supported", arg.source_location
-                )
-            call_args.append(CallArg(name=arg_name, value=require_instance_builder(arg).resolve()))
+        result_pytyp = self.func_type.ret_type
+        if isinstance(result_pytyp, pytypes.LiteralOnlyType):
+            raise CodeError(
+                f"unsupported return type for user function: {result_pytyp}", location=location
+            )
+        if any(arg_kind.is_star() for arg_kind in arg_kinds):
+            logger.error(
+                "argument unpacking at call site not currently supported", location=location
+            )
+            return dummy_value(result_pytyp, location)
 
-        func_type = self.func_type
-        expected_arg_types = func_type.args
-        # TODO(frist): type check fully, not just num args... requires matching keyword positions
-        if len(args) != len(expected_arg_types):
-            logger.error("incorrect number of arguments to subroutine call", location=location)
-        result_pytyp = func_type.ret_type
+        required_positional_names = list[str]()
+        optional_positional_names = list[str]()
+        required_kw_only = list[str]()
+        optional_kw_only = list[str]()
+        type_arg_map = dict[str, pytypes.FuncArg]()
+        for idx, typ_arg in enumerate(self.func_type.args):
+            if typ_arg.name is None and typ_arg.kind.is_named():
+                raise InternalError("argument marked as named has no name", location)
+            arg_map_name = typ_arg.name or str(idx)
+            match typ_arg.kind:
+                case mypy.nodes.ARG_POS:
+                    required_positional_names.append(arg_map_name)
+                case mypy.nodes.ARG_OPT:
+                    optional_positional_names.append(arg_map_name)
+                case mypy.nodes.ARG_NAMED:
+                    required_kw_only.append(arg_map_name)
+                case mypy.nodes.ARG_NAMED_OPT:
+                    optional_kw_only.append(arg_map_name)
+                case mypy.nodes.ARG_STAR | mypy.nodes.ARG_STAR2:
+                    logger.error(
+                        "functions with variadic arguments are not supported", location=location
+                    )
+                    return dummy_value(result_pytyp, location)
+                case _:
+                    typing.assert_never(typ_arg.kind)
+            type_arg_map[arg_map_name] = typ_arg
+
+        arg_map, any_missing = get_arg_mapping(
+            required_positional_names=required_positional_names,
+            optional_positional_names=optional_positional_names,
+            required_kw_only=required_kw_only,
+            optional_kw_only=optional_kw_only,
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+        )
+        if any_missing:
+            return dummy_value(result_pytyp, location)
+
+        call_args = []
+        for arg_map_name, typ_arg in type_arg_map.items():
+            try:
+                (arg_typ,) = typ_arg.types
+            except ValueError:
+                logger.error(  # noqa: TRY400
+                    "union types are not supported in user functions", location=location
+                )
+                return dummy_value(result_pytyp, location)
+            if isinstance(arg_typ, pytypes.LiteralOnlyType):
+                logger.error(
+                    f"unsupported type for user function argument: {arg_typ}", location=location
+                )
+                return dummy_value(result_pytyp, location)
+
+            arg = expect.argument_of_type_else_dummy(arg_map[arg_map_name], arg_typ)
+            passed_name = arg_map_name if arg_map_name in arg_names else None
+            call_args.append(CallArg(name=passed_name, value=arg.resolve()))
 
         call_expr = SubroutineCallExpression(
-            source_location=location,
             target=self.target,
             args=call_args,
             wtype=result_pytyp.wtype,
+            source_location=location,
         )
         return builder_for_instance(result_pytyp, call_expr)
 
