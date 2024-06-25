@@ -12,6 +12,7 @@ from puya.awst_build.eb import (
     ensure_budget,
     intrinsics,
     log,
+    none,
     storage,
     string,
     struct,
@@ -20,7 +21,6 @@ from puya.awst_build.eb import (
     tuple as tuple_,
     uint64,
     unsigned_builtins,
-    void,
 )
 from puya.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
@@ -53,7 +53,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
 }
 
 PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] = {
-    pytypes.NoneType: void.VoidTypeExpressionBuilder,
+    pytypes.NoneType: none.NoneTypeExpressionBuilder,
     pytypes.BoolType: bool_.BoolTypeBuilder,
     pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
     pytypes.reversedGenericType: functools.partial(
@@ -161,7 +161,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.BytesType: bytes_.BytesExpressionBuilder,
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
-    pytypes.NoneType: void.VoidExpressionBuilder,
+    pytypes.NoneType: none.NoneExpressionBuilder,
     pytypes.BoxRefType: storage.BoxRefProxyExpressionBuilder,
     # bound
     **{

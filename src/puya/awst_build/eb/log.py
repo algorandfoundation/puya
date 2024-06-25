@@ -9,8 +9,8 @@ from puya.awst.nodes import BytesConstant, BytesEncoding, Expression
 from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64TypeBuilder
-from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -67,4 +67,4 @@ class LogBuilder(FunctionBuilder):
                     arg_plus_sep, bytes_expr, bytes_expr.source_location
                 )
         log_expr = intrinsic_factory.log(log_value, location)
-        return VoidExpressionBuilder(log_expr)
+        return NoneExpressionBuilder(log_expr)

@@ -30,8 +30,8 @@ from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool
 from puya.awst_build.eb.arc4._utils import no_literal_items
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -190,7 +190,7 @@ class _Append(_ArrayFunc):
         arg = expect.exactly_one_arg_of_type_else_dummy(args, self.typ.items, location)
         args_expr = arg.resolve()
         args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
-        return VoidExpressionBuilder(
+        return NoneExpressionBuilder(
             ArrayExtend(
                 base=self.expr, other=args_tuple, wtype=wtypes.void_wtype, source_location=location
             )
@@ -227,7 +227,7 @@ class _Extend(_ArrayFunc):
             other = dummy_value(self.typ, location)
         else:
             other = _match_array_concat_arg(arg, self.typ)
-        return VoidExpressionBuilder(
+        return NoneExpressionBuilder(
             ArrayExtend(
                 base=self.expr,
                 other=other.resolve(),

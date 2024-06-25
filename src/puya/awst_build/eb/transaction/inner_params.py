@@ -23,9 +23,9 @@ from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
-from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_type,
     maybe_resolve_literal,
@@ -253,7 +253,7 @@ class _Set(FunctionBuilder):
             assert arg_name is not None
             field, expression = get_field_expr(arg_name, require_instance_builder(arg))
             transaction_fields[field] = expression
-        return VoidExpressionBuilder(
+        return NoneExpressionBuilder(
             UpdateInnerTransaction(
                 itxn=self.expr,
                 fields=transaction_fields,
