@@ -56,10 +56,17 @@ class TupleSupport(Contract):
             log("not empty")
         if (get_uint_with_side_effect(),):  # noqa: F634
             log("not empty2")
+        single_tuple()
         return a + b
 
     def clear_state_program(self) -> UInt64:
         return UInt64(0)
+
+
+@subroutine
+def single_tuple() -> None:
+    tup = (UInt64(1),)
+    assert tup[0] == 1
 
 
 @subroutine
