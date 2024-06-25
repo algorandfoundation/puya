@@ -1,5 +1,7 @@
 import typing
 
+import mypy.nodes
+
 from puya.awst.nodes import ConditionalExpression, Expression, Lvalue, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -95,29 +97,17 @@ class ConditionalLiteralBuilder(InstanceBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
+        other = other.single_eval()
         transformed_true = self._true_literal.compare(other, op, location)
         transformed_false = self._false_literal.compare(other, op, location)
-        if transformed_true is NotImplemented:
-            assert transformed_false is NotImplemented  # TODO: fixme
+        if transformed_true is NotImplemented or transformed_false is NotImplemented:
             return NotImplemented
-        if isinstance(transformed_true, LiteralBuilder):
-            assert isinstance(transformed_false, LiteralBuilder)  # TODO: fixme
-            return ConditionalLiteralBuilder(
-                true_literal=transformed_true,
-                false_literal=transformed_false,
-                condition=self._condition,
-                location=location,
-            )
-        true_expr = transformed_true.resolve()
-        false_expr = transformed_false.resolve()
-        condition_expr = self._condition.resolve()
-        result_expr = ConditionalExpression(
-            condition=condition_expr,
-            true_expr=true_expr,
-            false_expr=false_expr,
-            source_location=location,
+        return ConditionalLiteralBuilder(
+            true_literal=transformed_true,
+            false_literal=transformed_false,
+            condition=self._condition,
+            location=location,
         )
-        return BoolExpressionBuilder(result_expr)
 
     @typing.override
     def binary_op(
@@ -128,31 +118,17 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         *,
         reverse: bool
     ) -> InstanceBuilder:
+        other = other.single_eval()
         transformed_true = self._true_literal.binary_op(other, op, location, reverse=reverse)
         transformed_false = self._false_literal.binary_op(other, op, location, reverse=reverse)
-        if transformed_true is NotImplemented:
-            assert transformed_false is NotImplemented  # TODO: fixme
+        if transformed_true is NotImplemented or transformed_false is NotImplemented:
             return NotImplemented
-        assert transformed_true.pytype == transformed_false.pytype  # TODO: fixme
-        result_pytype = transformed_true.pytype
-        if isinstance(transformed_true, LiteralBuilder):
-            assert isinstance(transformed_false, LiteralBuilder)  # TODO: fixme
-            return ConditionalLiteralBuilder(
-                true_literal=transformed_true,
-                false_literal=transformed_false,
-                condition=self._condition,
-                location=location,
-            )
-        true_expr = transformed_true.resolve()  # TODO: maybe we pass other to resolve..?
-        false_expr = transformed_false.resolve()
-        condition_expr = self._condition.resolve()
-        result_expr = ConditionalExpression(
-            condition=condition_expr,
-            true_expr=true_expr,
-            false_expr=false_expr,
-            source_location=location,
+        return ConditionalLiteralBuilder(
+            true_literal=transformed_true,
+            false_literal=transformed_false,
+            condition=self._condition,
+            location=location,
         )
-        return builder_for_instance(result_pytype, result_expr)
 
     @typing.override
     def augmented_assignment(
@@ -173,9 +149,11 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        transformed_true = self._true_literal.member_access(name, location)
-        transformed_false = self._false_literal.member_access(name, location)
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        transformed_true = self._true_literal.member_access(name, expr, location)
+        transformed_false = self._false_literal.member_access(name, expr, location)
         return ConditionalLiteralBuilder(
             true_literal=transformed_true,
             false_literal=transformed_false,
@@ -199,15 +177,31 @@ class ConditionalLiteralBuilder(InstanceBuilder):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        raise NotImplementedError("TODO")
+        item = item.single_eval()
+        transformed_true = self._true_literal.contains(item, location)
+        transformed_false = self._false_literal.contains(item, location)
+        return ConditionalLiteralBuilder(
+            true_literal=transformed_true,
+            false_literal=transformed_false,
+            condition=self._condition,
+            location=location,
+        )
 
     @typing.override
     def iterate(self) -> Iteration:
-        raise NotImplementedError("TODO")
+        raise CodeError("cannot iterate literal")
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        raise NotImplementedError("TODO")
+        index = index.single_eval()
+        transformed_true = self._true_literal.index(index, location)
+        transformed_false = self._false_literal.index(index, location)
+        return ConditionalLiteralBuilder(
+            true_literal=transformed_true,
+            false_literal=transformed_false,
+            condition=self._condition,
+            location=location,
+        )
 
     @typing.override
     def slice_index(
@@ -217,7 +211,24 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise NotImplementedError("TODO")
+        if begin_index is not None:
+            begin_index = begin_index.single_eval()
+        if end_index is not None:
+            end_index = end_index.single_eval()
+        if stride is not None:
+            stride = stride.single_eval()
+        transformed_true = self._true_literal.slice_index(
+            begin_index=begin_index, end_index=end_index, stride=stride, location=location
+        )
+        transformed_false = self._false_literal.slice_index(
+            begin_index=begin_index, end_index=end_index, stride=stride, location=location
+        )
+        return ConditionalLiteralBuilder(
+            true_literal=transformed_true,
+            false_literal=transformed_false,
+            condition=self._condition,
+            location=location,
+        )
 
     @typing.override
     def single_eval(self) -> InstanceBuilder:

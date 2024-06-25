@@ -5,13 +5,12 @@ import mypy.nodes
 
 from puya.awst.nodes import Expression, InnerTransactionField, SubmitInnerTransaction, TxnField
 from puya.awst_build import pytypes
-from puya.awst_build.constants import TransactionType
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -73,28 +72,17 @@ class _ArrayItem(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [NodeBuilder() as eb]:
-                index_expr = expect_operand_type(eb, pytypes.UInt64Type).resolve()
-                expr = InnerTransactionField(
-                    itxn=self.transaction,
-                    field=self.field,
-                    array_index=index_expr,
-                    wtype=self.typ.wtype,
-                    source_location=location,
-                )
-                return builder_for_instance(self.typ, expr)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-
-
-def _get_transaction_type_from_arg(builder: InstanceBuilder) -> TransactionType | None:
-    if (
-        isinstance(builder.pytype, pytypes.TransactionRelatedType)
-        and builder.pytype in pytypes.InnerTransactionFieldsetTypes.values()
-    ):
-        return builder.pytype.transaction_type
-    raise CodeError("expected an InnerTxnParams argument", builder.source_location)
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args, pytypes.UInt64Type, location, resolve_literal=True
+        )
+        expr = InnerTransactionField(
+            itxn=self.transaction,
+            field=self.field,
+            array_index=arg.resolve(),
+            wtype=self.typ.wtype,
+            source_location=location,
+        )
+        return builder_for_instance(self.typ, expr)
 
 
 class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
@@ -106,15 +94,19 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if len(args) < 2:
-            raise CodeError(f"expected at least 2 arguments, got {len(args)}", location)
         arg_exprs = []
         result_types = []
         for arg in args:
-            arg_inst = require_instance_builder(arg)
-            arg_exprs.append(arg_inst.resolve())
-            arg_txn_type = _get_transaction_type_from_arg(arg_inst)
-            arg_result_type = pytypes.InnerTransactionResultTypes[arg_txn_type]
+            match arg:
+                case InstanceBuilder(
+                    pytype=pytypes.TransactionRelatedType() as arg_pytype
+                ) if arg_pytype in pytypes.InnerTransactionFieldsetTypes.values():
+                    pass
+                case _:
+                    raise CodeError("unexpected argument type", arg.source_location)
+
+            arg_exprs.append(arg.resolve())
+            arg_result_type = pytypes.InnerTransactionResultTypes[arg_pytype.transaction_type]
             result_types.append(arg_result_type)
         result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
         return TupleExpressionBuilder(

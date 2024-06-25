@@ -1,5 +1,7 @@
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.awst.nodes import (
     BoolConstant,
@@ -95,7 +97,7 @@ class LiteralBuilderImpl(LiteralBuilder):
     @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
-    ) -> InstanceBuilder:
+    ) -> LiteralBuilder:
         if not isinstance(other, LiteralBuilder):
             return NotImplemented
         folded = fold_binary_expr(location, op.value, self.value, other.value)
@@ -109,7 +111,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> InstanceBuilder:
+    ) -> LiteralBuilder:
         if not isinstance(other, LiteralBuilder):
             return NotImplemented
         lhs, rhs = self.value, other.value
@@ -125,7 +127,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         raise CodeError("cannot assign to literal", location)
 
     @typing.override
-    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> LiteralBuilder:
         if not isinstance(item, LiteralBuilder):
             raise CodeError("cannot perform containment check with non-constant value", location)
         try:
@@ -139,7 +141,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         raise CodeError("cannot iterate literal")
 
     @typing.override
-    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> LiteralBuilder:
         if not isinstance(index, LiteralBuilder):
             raise CodeError("cannot index literal with non-constant value", location)
         try:
@@ -155,7 +157,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         end_index: InstanceBuilder | None,
         stride: InstanceBuilder | None,
         location: SourceLocation,
-    ) -> InstanceBuilder:
+    ) -> LiteralBuilder:
         def _constant_slice_arg(index: InstanceBuilder | None) -> ConstantValue | None:
             if index is None:
                 return None
@@ -173,7 +175,9 @@ class LiteralBuilderImpl(LiteralBuilder):
         return LiteralBuilderImpl(value=folded, source_location=location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> LiteralBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> LiteralBuilder:
         # TODO: support stuff like int.from_bytes etc
         raise CodeError("unsupported member access from literal", location)
 

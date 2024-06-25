@@ -1,6 +1,7 @@
 import typing
 
 import attrs
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
@@ -123,7 +124,9 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(self.source_location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         return self._assign_first(location)
 
     @typing.override

@@ -22,9 +22,8 @@ from puya.awst.nodes import (
     UInt64UnaryOperator,
 )
 from puya.awst_build import intrinsic_factory, pytypes
-from puya.awst_build.eb._base import (
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import dummy_statement
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.interface import (
@@ -36,7 +35,6 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -68,20 +66,16 @@ class UInt64TypeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [InstanceBuilder(pytype=pytypes.IntLiteralType) as arg]:
+        arg = expect.at_most_one_arg_of_type(
+            args, [pytypes.IntLiteralType, pytypes.BoolType], location
+        )
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
                 return arg.resolve_literal(converter=UInt64TypeBuilder(location))
-            case [InstanceBuilder(pytype=pytypes.BoolType) as arg]:
-                expr: Expression = ReinterpretCast(
-                    expr=arg.resolve(), wtype=wtypes.uint64_wtype, source_location=location
-                )
-            case []:
-                expr = UInt64Constant(value=0, source_location=location)
+            case InstanceBuilder(pytype=pytypes.BoolType):
+                return _upcast_bool(arg, location)
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                expr = UInt64Constant(value=0, source_location=location)
-        return UInt64ExpressionBuilder(expr)
+                return UInt64ExpressionBuilder(UInt64Constant(value=0, source_location=location))
 
 
 class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
@@ -129,10 +123,8 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
-            pass
-        else:
+        other = _resolve_literal_and_upcast_bool(other)
+        if other.pytype != self.pytype:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
@@ -154,11 +146,10 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         uint64_op = _translate_uint64_math_operator(op, location)
         if uint64_op is None:
             return NotImplemented
-        other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
-            pass
-        else:
+        other = _resolve_literal_and_upcast_bool(other)
+        if other.pytype != self.pytype:
             return NotImplemented
+
         lhs = self.resolve()
         rhs = other.resolve()
         if reverse:
@@ -176,13 +167,8 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         if uint64_op is None:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
-        rhs = rhs.resolve_literal(converter=UInt64TypeBuilder(rhs.source_location))
-        if rhs.pytype == self.pytype:
-            pass
-        else:
-            raise CodeError(
-                f"Invalid operand type {rhs.pytype} for {op.value}= with {self.pytype}", location
-            )
+        rhs = _resolve_literal_and_upcast_bool(rhs)
+        rhs = expect.argument_of_type_else_dummy(rhs, self.pytype)
         target = self.resolve_lvalue()
         return UInt64AugmentedAssignment(
             target=target, op=uint64_op, value=rhs.resolve(), source_location=location
@@ -206,3 +192,22 @@ def _translate_uint64_math_operator(
         return UInt64BinaryOperator(operator.value)
     except ValueError:
         return None
+
+
+def _resolve_literal_and_upcast_bool(other: InstanceBuilder) -> InstanceBuilder:
+    other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
+    other = _upcast_bool(other)
+    return other
+
+
+def _upcast_bool(
+    builder: InstanceBuilder, location: SourceLocation | None = None
+) -> InstanceBuilder:
+    if builder.pytype == pytypes.BoolType:
+        expr = ReinterpretCast(
+            expr=builder.resolve(),
+            wtype=wtypes.uint64_wtype,
+            source_location=location or builder.source_location,
+        )
+        return UInt64ExpressionBuilder(expr)
+    return builder

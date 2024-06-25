@@ -69,7 +69,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         for stmt in stmts:
             with context.log_exceptions(fallback_location=stmt):
                 stmt.accept(self)
-        # TODO(second): validation for state proxies being non-conditional
+        # TODO: validation for state proxies being non-conditional
 
         app_state = {
             name: state_decl.definition

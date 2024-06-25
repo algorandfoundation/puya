@@ -626,28 +626,19 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     )
                 if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
                     return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
-            case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
-                if self.contract_method_info is None:
-                    raise InternalError(
-                        "encountered variable marked as is_self in function", expr_loc
-                    )
-                self._precondition(
-                    isinstance(self_var.type, mypy.types.Instance)
-                    and self_var.type.type is self.contract_method_info.type_info,
-                    "type info for self var does not match current class",
-                    expr,
+            case mypy.nodes.NameExpr(
+                node=mypy.nodes.Var(is_self=True, type=mypy.types.Instance() as self_mypy_type)
+            ):
+                contract_type = self.context.type_to_pytype(
+                    self_mypy_type, source_location=expr_loc
                 )
                 return ContractSelfExpressionBuilder(
                     context=self.context,
-                    type_info=self.contract_method_info.type_info,
+                    type_info=self_mypy_type.type,
+                    pytype=contract_type,
                     location=expr_loc,
                 )
-            case mypy.nodes.RefExpr(
-                node=mypy.nodes.Decorator(
-                    decorators=decorators,
-                    type=mypy.types.CallableType() as func_type,
-                )
-            ) if any(
+            case mypy.nodes.RefExpr(node=mypy.nodes.Decorator(decorators=decorators)) if any(
                 get_unaliased_fullname(de) == constants.SUBROUTINE_HINT
                 for de in decorators
                 if isinstance(de, mypy.nodes.RefExpr)  # TODO: why wouldn't this be a RefExpr
@@ -657,11 +648,13 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 self._precondition(
                     bool(module_name), "unqualified name found in call to function", expr_loc
                 )
+                func_type = self.context.mypy_expr_node_type(expr)
+                if not isinstance(func_type, pytypes.FuncType):
+                    raise CodeError("decorated function has non-function type", expr_loc)
                 return SubroutineInvokerExpressionBuilder(
-                    context=self.context,
                     target=FreeSubroutineTarget(module_name=module_name, name=func_name),
-                    location=expr_loc,
                     func_type=func_type,
+                    location=expr_loc,
                 )
             case mypy.nodes.RefExpr(node=mypy.nodes.FuncDef()):
                 raise CodeError(
@@ -776,7 +769,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 )
 
         base = expr.expr.accept(self)
-        return base.member_access(name=expr.name, location=expr_loc)
+        return base.member_access(expr.name, expr, expr_loc)
 
     def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder:
         if call.analyzed is not None:
@@ -1120,27 +1113,23 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 "only the zero-arguments version of super() is supported",
                 self._location(super_expr.call),
             )
+        func_type = self.context.mypy_expr_node_type(super_expr)
+        if not isinstance(func_type, pytypes.FuncType):
+            raise CodeError("super() is only supported for calling functions", super_loc)
         for base in iterate_user_bases(self.contract_method_info.type_info):
             base_method = resolve_method_from_type_info(base, super_expr.name, super_loc)
-            if base_method is None:
-                continue
-            if not isinstance(base_method.type, mypy.types.CallableType):
-                # this shouldn't be hit unless there's typing.overload or weird
-                # decorators going on, both of which we don't allow
-                raise CodeError(f"Unable to retrieve type of {base_method.fullname!r}", super_loc)
-            super_target = BaseClassSubroutineTarget(
-                base_class=qualified_class_name(base), name=super_expr.name
+            if base_method is not None:
+                base_class = qualified_class_name(base)
+                break
+        else:
+            raise CodeError(
+                f"unable to locate method {super_expr.name}"
+                f" in bases of {self.contract_method_info.cref.full_name}",
+                super_loc,
             )
-            return SubroutineInvokerExpressionBuilder(
-                context=self.context,
-                target=super_target,
-                func_type=base_method.type,
-                location=super_loc,
-            )
-        raise CodeError(
-            f"Unable to locate method {super_expr.name}"
-            f" in bases of {self.contract_method_info.cref.full_name}",
-            super_loc,
+        super_target = BaseClassSubroutineTarget(base_class, name=super_expr.name)
+        return SubroutineInvokerExpressionBuilder(
+            target=super_target, func_type=func_type, location=super_loc
         )
 
     # unsupported expressions

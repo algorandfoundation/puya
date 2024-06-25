@@ -69,8 +69,12 @@ class NodeBuilder(abc.ABC):
     def pytype(self) -> pytypes.PyType | None: ...
 
     @abc.abstractmethod
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         """Handle self.name"""
+        # TODO: remove mypy Expression from this signature, only added temporarily
+        #       because of pytype resolution failures
 
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
@@ -106,7 +110,15 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
-        """TODO(frist): docstring"""
+        """For use prior to calling resolve(), when a known type is expected,
+        and implicit conversion is possible without breaking semantic compatibility.
+
+        Primarily, this would be as an argument to an algopy function or class, or as an
+        operand to a binary operator with an algopy-typed object.
+
+        When implementing, this function should return self if there are no literals to convert,
+        or if the literals are not expected to be homogenous (e.g. in the general case of a tuple
+        with literals)"""
 
     @abc.abstractmethod
     def resolve_lvalue(self) -> Lvalue:
@@ -188,17 +200,51 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
 
     @typing.override
     @abc.abstractmethod
-    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> LiteralBuilder:
-        """Handle {op} self"""
+    def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> LiteralBuilder: ...
 
     @typing.override
     @abc.abstractmethod
-    def member_access(self, name: str, location: SourceLocation) -> LiteralBuilder:
-        """Handle self.name"""
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def binary_op(
+        self,
+        other: InstanceBuilder,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> LiteralBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> LiteralBuilder: ...
 
 
-# TODO(frist): separate interface from implementation?
-#              particularly bool_eval and member_access impls
+# TODO: separate interface from implementation
 class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):
         super().__init__(location)
@@ -246,7 +292,9 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
         return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 

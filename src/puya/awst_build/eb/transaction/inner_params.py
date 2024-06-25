@@ -24,13 +24,10 @@ from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpress
 from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.none import NoneExpressionBuilder
-from puya.awst_build.eb.transaction import get_field_python_name
+from puya.awst_build.eb.transaction.fields import get_field_python_name
+from puya.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
-from puya.awst_build.utils import (
-    expect_operand_type,
-    maybe_resolve_literal,
-    require_instance_builder,
-)
+from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -109,10 +106,10 @@ def _maybe_transform_program_field_expr(
         case InstanceBuilder(pytype=pytypes.TupleType(items=tuple_item_types)) if all(
             t == pytypes.BytesType for t in tuple_item_types
         ):
-            expr = eb.resolve()
+            pass
         case _:
-            expr = expect_operand_type(eb, pytypes.BytesType).resolve()
-    return field, expr
+            eb = expect.argument_of_type_else_dummy(eb, pytypes.BytesType, resolve_literal=True)
+    return field, eb.resolve()
 
 
 class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
@@ -169,14 +166,16 @@ class InnerTxnParamsExpressionBuilder(
         raise CodeError("cannot serialize inner transaction fieldset", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         if name == "submit":
             return _Submit(self.resolve(), self.pytype.transaction_type, location)
         elif name == "set":
             return _Set(self.resolve(), location)
         elif name == "copy":
             return _Copy(self.resolve(), self.pytype, location)
-        return super().member_access(name, location)
+        return super().member_access(name, expr, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
@@ -199,8 +198,6 @@ class _Submit(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
-
         expect.no_args(args, location)
         result_typ = pytypes.InnerTransactionResultTypes[self._txn_type]
         return InnerTransactionExpressionBuilder(
@@ -243,16 +240,13 @@ class _Set(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if None in arg_names:
-            raise CodeError(
-                "Positional arguments are not supported when setting transaction parameters",
-                location,
-            )
         transaction_fields = dict[TxnField, Expression]()
         for arg_name, arg in zip(arg_names, args, strict=True):
-            assert arg_name is not None
-            field, expression = get_field_expr(arg_name, require_instance_builder(arg))
-            transaction_fields[field] = expression
+            if arg_name is None:
+                logger.error("unexpected positional argument", location=arg.source_location)
+            else:
+                field, expression = get_field_expr(arg_name, require_instance_builder(arg))
+                transaction_fields[field] = expression
         return NoneExpressionBuilder(
             UpdateInnerTransaction(
                 itxn=self.expr,

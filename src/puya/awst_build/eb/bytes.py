@@ -93,7 +93,9 @@ class BytesTypeBuilder(TypeBuilder):
                 return dummy_value(self.produces(), location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         """Handle self.name"""
         match name:
             case "from_base32":
@@ -103,7 +105,7 @@ class BytesTypeBuilder(TypeBuilder):
             case "from_hex":
                 return _FromEncodedStr(location, BytesEncoding.base16)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, expr, location)
 
 
 class _FromEncodedStr(FunctionBuilder):
@@ -166,17 +168,22 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     def to_bytes(self, location: SourceLocation) -> Expression:
         return self.resolve()
 
+    def length(self, location: SourceLocation) -> InstanceBuilder:
+        len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
+        return UInt64ExpressionBuilder(len_call)
+
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> InstanceBuilder:
         match name:
             case "length":
-                len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
-                return UInt64ExpressionBuilder(len_call)
+                return self.length(location)
         raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        length = self.member_access("length", location)
+        length = self.length(location)
         index = resolve_negative_literal_index(index, length, location)
         expr = IndexExpression(
             base=self.resolve(),
@@ -257,11 +264,14 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
-        # TODO(frist): missing type check
         bytes_op = _translate_binary_bytes_operator(op)
         if bytes_op is None:
             return NotImplemented
+
+        other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
+        if other.pytype != self.pytype:
+            return NotImplemented
+
         lhs = self.resolve()
         rhs = other.resolve()
         if reverse:
@@ -275,12 +285,12 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        rhs = rhs.resolve_literal(converter=BytesTypeBuilder(rhs.source_location))
-        # TODO(frist): missing type check
         bytes_op = _translate_binary_bytes_operator(op)
         if bytes_op is None:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
+
+        rhs = expect.argument_of_type_else_dummy(rhs, self.pytype, resolve_literal=True)
         target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
             target=target,

@@ -17,6 +17,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -27,8 +28,7 @@ from puya.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import expect_operand_type, require_instance_builder
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -46,29 +46,40 @@ class UnsignedRangeBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        uint64_args = [expect_operand_type(in_arg, pytypes.UInt64Type) for in_arg in args]
-        match uint64_args:
-            case [range_start, range_stop, range_step]:
-                if isinstance(range_step, IntegerConstant) and range_step.value == 0:
-                    raise CodeError("urange step size cannot be zero", range_step.source_location)
-            case [range_start, range_stop]:
-                range_step = UInt64ExpressionBuilder(
+        assert set(arg_names) == {None}
+        uint64_args = [
+            expect.argument_of_type_else_dummy(in_arg, pytypes.UInt64Type, resolve_literal=True)
+            for in_arg in args
+        ]
+        first, rest = expect.at_least_one_arg(
+            uint64_args, location, default=expect.default_dummy_value(pytypes.UInt64Type)
+        )
+        match rest:
+            case []:
+                range_stop = first
+                range_start: InstanceBuilder = UInt64ExpressionBuilder(
+                    UInt64Constant(value=0, source_location=location)
+                )
+                range_step: InstanceBuilder = UInt64ExpressionBuilder(
                     UInt64Constant(value=1, source_location=location)
                 )
             case [range_stop]:
-                range_start = UInt64ExpressionBuilder(
-                    UInt64Constant(value=0, source_location=location)
-                )
+                range_start = first
                 range_step = UInt64ExpressionBuilder(
                     UInt64Constant(value=1, source_location=location)
                 )
-            case []:
-                raise CodeError("urange function takes at least one argument", location=location)
+            case [range_stop, range_step, *extra]:
+                range_start = first
+                if isinstance(range_step, IntegerConstant) and range_step.value == 0:
+                    logger.error(
+                        "urange step size cannot be zero", location=range_step.source_location
+                    )
+                if extra:
+                    logger.error(
+                        f"expected at most 3 arguments, got {len(args)}", location=location
+                    )
             case _:
-                raise CodeError(
-                    "too many arguments to urange function, takes at most three arguments",
-                    location=location,
-                )
+                raise InternalError("UH OH SPAGHETTI-O's !!! 🤠🍝🌵️", location)
 
         return _RangeIterBuilder(
             source_location=location,
@@ -90,17 +101,15 @@ class UnsignedEnumerateBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
-            raise CodeError("insufficient arguments", location)
-        try:
-            (arg,) = args
-        except ValueError as ex:
-            raise CodeError(
+        # note: we actually expect exactly 1, but want to provide special error message
+        #       in case of extra params
+        sequence, extra = expect.at_least_one_arg(args, location, default=expect.default_raise)
+        if extra:
+            logger.error(
                 "unlike enumerate(), uenumerate() does not support a start parameter "
                 "(ie, start must always be zero)",
-                location,
-            ) from ex
-        sequence = require_instance_builder(arg)
+                location=location,
+            )
         return _EnumerateIterBuilder(sequence, location)
 
 
@@ -116,21 +125,11 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
-            raise CodeError("insufficient arguments", location)
-        try:
-            (arg,) = args
-        except ValueError as ex:
-            raise CodeError(
-                "reversed expects a single argument",
-                location,
-            ) from ex
-        sequence = require_instance_builder(arg)
+        sequence = expect.exactly_one_arg(args, location, default=expect.default_raise)
         return _ReversedIterBuilder(sequence, location)
 
 
 class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
-
     @typing.override
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         return self
@@ -178,7 +177,9 @@ class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
         return self._iterable_only(location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         return self._iterable_only(location)
 
     @typing.override

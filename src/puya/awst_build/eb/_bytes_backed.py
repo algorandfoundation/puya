@@ -5,14 +5,14 @@ from collections.abc import Sequence
 import mypy.nodes
 import typing_extensions
 
-from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, ReinterpretCast
+from puya.awst.nodes import Expression, ReinterpretCast
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._utils import cast_to_bytes
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
-from puya.errors import CodeError
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.parse import SourceLocation
 
 _TPyType_co = typing_extensions.TypeVar(
@@ -22,16 +22,15 @@ _TPyType_co = typing_extensions.TypeVar(
 
 class BytesBackedTypeBuilder(TypeBuilder[_TPyType_co], abc.ABC):
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         typ = self.produces()
         match name:
             case "from_bytes":
                 return _FromBytes(typ, location)
             case _:
-                raise CodeError(
-                    f"{name} is not a valid class or static method on {typ}",
-                    location,
-                )
+                return super().member_access(name, expr, location)
 
 
 class _FromBytes(FunctionBuilder):
@@ -47,17 +46,11 @@ class _FromBytes(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        match args:
-            case [LiteralBuilder(value=bytes(bytes_val), source_location=literal_loc)]:
-                arg: Expression = BytesConstant(
-                    value=bytes_val, encoding=BytesEncoding.unknown, source_location=literal_loc
-                )
-            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
-                arg = eb.resolve()
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args, pytypes.BytesType, location, resolve_literal=True
+        )
         result_expr = ReinterpretCast(
-            source_location=location, wtype=self.result_type.wtype, expr=arg
+            expr=arg.resolve(), wtype=self.result_type.wtype, source_location=location
         )
         return builder_for_instance(self.result_type, result_expr)
 
@@ -70,11 +63,16 @@ class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
         cls._bytes_member = bytes_member
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         if name == self._bytes_member:
-            return BytesExpressionBuilder(self.to_bytes(location))
+            return self.bytes(location)
         else:
-            return super().member_access(name, location)
+            return super().member_access(name, expr, location)
+
+    def bytes(self, location: SourceLocation) -> BytesExpressionBuilder:
+        return BytesExpressionBuilder(self.to_bytes(location))
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
