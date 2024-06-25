@@ -1,0 +1,42 @@
+name: Check Python Code (algopy_testing)
+
+on:
+  workflow_call:
+  pull_request:
+
+jobs:
+  check-python:
+    runs-on: "ubuntu-latest"
+    defaults:
+      run:
+        working-directory: algopy_testing
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install hatch
+        run: pipx install hatch
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Start LocalNet
+        run: hatch run cicd:localnet_start
+
+      - name: Check pre-commits
+        run: hatch run check
+
+      - name: Check pre-commits (examples)
+        run: hatch run examples:check
+
+      - name: Check wheels can be built
+        run: hatch build
+
+      - name: Run tests (codebase)
+        run: hatch run tests
+
+      - name: Run tests (examples)
+        run: hatch run examples:tests
