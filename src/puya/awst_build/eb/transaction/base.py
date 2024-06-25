@@ -30,10 +30,12 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
         self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
     ) -> NodeBuilder: ...
 
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         field_data = _PYTHON_MEMBER_FIELD_MAP.get(name)
         if field_data is None:
-            return super().member_access(name, location)
+            return super().member_access(name, pytype, location)
         field, typ = field_data
         if field.is_array:
             return self.get_array_member(field, typ, location)

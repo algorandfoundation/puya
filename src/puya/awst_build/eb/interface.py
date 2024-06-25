@@ -69,7 +69,9 @@ class NodeBuilder(abc.ABC):
     def pytype(self) -> pytypes.PyType | None: ...
 
     @abc.abstractmethod
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         """Handle self.name"""
 
     @abc.abstractmethod
@@ -193,7 +195,9 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
 
     @typing.override
     @abc.abstractmethod
-    def member_access(self, name: str, location: SourceLocation) -> LiteralBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> LiteralBuilder:
         """Handle self.name"""
 
 
@@ -246,7 +250,9 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
         return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 

@@ -55,16 +55,24 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise CodeError("Cannot instantiate contract classes", location)
+        raise CodeError("cannot instantiate contract classes", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
+        if not isinstance(pytype, pytypes.FuncType):
+            raise CodeError("static references are only supported for methods", location)
         func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
         if func_or_dec is None:
-            raise CodeError(f"Unknown member {name!r} of {self._type_info.fullname!r}", location)
+            return super().member_access(name, pytype, location)
         target = BaseClassSubroutineTarget(self._cref, name)
         return BaseClassSubroutineInvokerExpressionBuilder(
-            context=self.context, target=target, node=func_or_dec, location=location
+            context=self.context,
+            target=target,
+            func_type=pytype,
+            node=func_or_dec,
+            location=location,
         )
 
 
@@ -85,27 +93,19 @@ class ContractSelfExpressionBuilder(NodeBuilder):
         return None  # TODO ?
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
+        if isinstance(pytype, pytypes.FuncType):
+            return SubroutineInvokerExpressionBuilder(
+                target=InstanceSubroutineTarget(name=name),
+                func_type=pytype,
+                location=location,
+            )
         state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
-        if state_decl is not None:
-            return _builder_for_storage_access(state_decl, location)
-        node = self._type_info.get(name)
-        if node is None:
-            raise CodeError("unrecognised member", location)
-        if node.node is None:
-            raise CodeError("unable to resolve type of member", location)
-        if not isinstance(node.node, mypy.nodes.FuncBase | mypy.nodes.Decorator):
+        if state_decl is None:
             raise CodeError("cannot resolve state member", location)
-        func_type = node.node.type
-        if not isinstance(func_type, mypy.types.CallableType):
-            raise CodeError("unable to resolve function type", location)
-
-        return SubroutineInvokerExpressionBuilder(
-            context=self.context,
-            target=InstanceSubroutineTarget(name=name),
-            location=location,
-            func_type=func_type,
-        )
+        return _builder_for_storage_access(state_decl, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

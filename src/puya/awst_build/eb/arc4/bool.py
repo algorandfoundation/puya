@@ -19,7 +19,6 @@ from puya.awst_build.eb.interface import (
     LiteralBuilder,
     NodeBuilder,
 )
-from puya.awst_build.utils import require_instance_builder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -80,27 +79,28 @@ class ARC4BoolExpressionBuilder(
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "native":
-                result_expr: Expression = ARC4Decode(
-                    value=self.resolve(),
-                    wtype=pytypes.BoolType.wtype,
-                    source_location=location,
-                )
-                return BoolExpressionBuilder(result_expr)
+                return self._native(location)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, pytype, location)
+
+    def _native(self, location: SourceLocation) -> BoolExpressionBuilder:
+        result_expr: Expression = ARC4Decode(
+            value=self.resolve(),
+            wtype=pytypes.BoolType.wtype,
+            source_location=location,
+        )
+        return BoolExpressionBuilder(result_expr)
 
     @typing.override
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        match other:
-            case InstanceBuilder(pytype=pytypes.BoolType):
-                lhs = require_instance_builder(self.member_access("native", location))
-                return lhs.compare(other, op, location)
-            case InstanceBuilder(pytype=pytypes.ARC4BoolType):
-                return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
-            case _:
-                return NotImplemented
+        if other.pytype == pytypes.BoolType:
+            lhs = self._native(self.source_location)
+            return lhs.compare(other, op, location)
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)

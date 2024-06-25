@@ -93,7 +93,9 @@ class BytesTypeBuilder(TypeBuilder):
                 return dummy_value(self.produces(), location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         """Handle self.name"""
         match name:
             case "from_base32":
@@ -103,7 +105,7 @@ class BytesTypeBuilder(TypeBuilder):
             case "from_hex":
                 return _FromEncodedStr(location, BytesEncoding.base16)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, pytype, location)
 
 
 class _FromEncodedStr(FunctionBuilder):
@@ -166,17 +168,22 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     def to_bytes(self, location: SourceLocation) -> Expression:
         return self.resolve()
 
+    def length(self, location: SourceLocation) -> InstanceBuilder:
+        len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
+        return UInt64ExpressionBuilder(len_call)
+
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> InstanceBuilder:
         match name:
             case "length":
-                len_call = intrinsic_factory.bytes_len(expr=self.resolve(), loc=location)
-                return UInt64ExpressionBuilder(len_call)
+                return self.length(location)
         raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        length = self.member_access("length", location)
+        length = self.length(location)
         index = resolve_negative_literal_index(index, length, location)
         expr = IndexExpression(
             base=self.resolve(),

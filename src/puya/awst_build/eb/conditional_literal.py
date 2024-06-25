@@ -173,9 +173,11 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        transformed_true = self._true_literal.member_access(name, location)
-        transformed_false = self._false_literal.member_access(name, location)
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
+        transformed_true = self._true_literal.member_access(name, pytype, location)
+        transformed_false = self._false_literal.member_access(name, pytype, location)
         return ConditionalLiteralBuilder(
             true_literal=transformed_true,
             false_literal=transformed_false,

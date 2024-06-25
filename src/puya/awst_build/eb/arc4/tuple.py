@@ -108,7 +108,9 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
         return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "native":
                 native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
@@ -119,7 +121,7 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
                 )
                 return TupleExpressionBuilder(result_expr, native_pytype)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, pytype, location)
 
     @typing.override
     def compare(

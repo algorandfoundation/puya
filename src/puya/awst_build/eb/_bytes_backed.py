@@ -22,7 +22,9 @@ _TPyType_co = typing_extensions.TypeVar(
 
 class BytesBackedTypeBuilder(TypeBuilder[_TPyType_co], abc.ABC):
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         typ = self.produces()
         match name:
             case "from_bytes":
@@ -70,11 +72,16 @@ class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
         cls._bytes_member = bytes_member
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         if name == self._bytes_member:
-            return BytesExpressionBuilder(self.to_bytes(location))
+            return self.bytes(location)
         else:
-            return super().member_access(name, location)
+            return super().member_access(name, pytype, location)
+
+    def bytes(self, location: SourceLocation) -> BytesExpressionBuilder:
+        return BytesExpressionBuilder(self.to_bytes(location))
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:

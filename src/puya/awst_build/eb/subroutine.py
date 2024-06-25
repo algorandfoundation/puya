@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     InstanceSubroutineTarget,
     SubroutineCallExpression,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
@@ -26,13 +27,11 @@ logger = log.get_logger(__name__)
 class SubroutineInvokerExpressionBuilder(FunctionBuilder):
     def __init__(
         self,
-        context: ASTConversionModuleContext,
         target: InstanceSubroutineTarget | BaseClassSubroutineTarget | FreeSubroutineTarget,
+        func_type: pytypes.FuncType,
         location: SourceLocation,
-        func_type: mypy.types.CallableType,
     ):
         super().__init__(location)
-        self.context = context
         self.target = target
         self.func_type = func_type
 
@@ -53,15 +52,11 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
             call_args.append(CallArg(name=arg_name, value=require_instance_builder(arg).resolve()))
 
         func_type = self.func_type
-        # bit of a kludge, but it works for us for now
-        if isinstance(self.target, FreeSubroutineTarget):
-            expected_arg_types = func_type.arg_types
-        else:
-            expected_arg_types = func_type.arg_types[1:]
-        # TODO: type check fully, not just num args... requires matching keyword positions
+        expected_arg_types = func_type.args
+        # TODO(frist): type check fully, not just num args... requires matching keyword positions
         if len(args) != len(expected_arg_types):
             logger.error("incorrect number of arguments to subroutine call", location=location)
-        result_pytyp = self.context.type_to_pytype(func_type.ret_type, source_location=location)
+        result_pytyp = func_type.ret_type
 
         call_expr = SubroutineCallExpression(
             source_location=location,
@@ -77,28 +72,10 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
         self,
         context: ASTConversionModuleContext,
         target: BaseClassSubroutineTarget,
+        func_type: pytypes.FuncType,
         location: SourceLocation,
         node: mypy.nodes.FuncBase | mypy.nodes.Decorator,
     ):
+        super().__init__(target, func_type, location)
+        self.context = context
         self.node = node
-        func_type = node.type
-        if not isinstance(func_type, mypy.types.CallableType):
-            raise CodeError(f"Couldn't resolve signature of {node.fullname!r}", location)
-        super().__init__(context, target, location, func_type)
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        from puya.awst_build.eb.contracts import ContractSelfExpressionBuilder
-
-        if not args and isinstance(args[0], ContractSelfExpressionBuilder):
-            raise CodeError(
-                "First argument when calling a base class method directly should be self",
-                args[0].source_location,
-            )
-        return super().call(args[1:], arg_kinds[1:], arg_names[1:], location)

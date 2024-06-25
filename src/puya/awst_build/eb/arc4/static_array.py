@@ -94,14 +94,8 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         super().__init__(typ, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        match name:
-            case "length":
-                return UInt64ExpressionBuilder(
-                    UInt64Constant(value=self._size, source_location=location)
-                )
-            case _:
-                return super().member_access(name, location)
+    def length(self, location: SourceLocation) -> InstanceBuilder:
+        return UInt64ExpressionBuilder(UInt64Constant(value=self._size, source_location=location))
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

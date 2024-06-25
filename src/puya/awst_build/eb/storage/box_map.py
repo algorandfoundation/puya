@@ -146,7 +146,9 @@ class BoxMapProxyExpressionBuilder(
         )
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "length":
                 return _Length(location, self._build_box_value, self.pytype)
@@ -155,7 +157,7 @@ class BoxMapProxyExpressionBuilder(
             case "get":
                 return _Get(location, self._build_box_value, self.pytype)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, pytype, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

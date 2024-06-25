@@ -29,6 +29,7 @@ from puya.awst_build.eb._bytes_backed import (
 )
 from puya.awst_build.eb._utils import compare_bytes, dummy_statement, dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -39,7 +40,6 @@ from puya.awst_build.eb.interface import (
 )
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -98,7 +98,9 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         super().__init__(pytypes.StringType, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "startswith":
                 return _StringStartsOrEndsWith(self, location, at_start=True)
@@ -107,7 +109,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
             case "join":
                 return _StringJoin(self, location)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, pytype, location)
 
     @typing.override
     def augmented_assignment(
@@ -226,12 +228,8 @@ class _StringStartsOrEndsWith(FunctionBuilder):
         arg = arg.single_eval()
         this = self._base.single_eval()
 
-        this_length = require_instance_builder(
-            this.member_access("bytes", location).member_access("length", location)
-        )
-        arg_length = require_instance_builder(
-            arg.member_access("bytes", location).member_access("length", location)
-        )
+        this_length = BytesExpressionBuilder(this.to_bytes(location)).length(location)
+        arg_length = BytesExpressionBuilder(arg.to_bytes(location)).length(location)
 
         arg_length_gt_this_length = arg_length.compare(
             this_length, op=BuilderComparisonOp.gt, location=location

@@ -109,8 +109,10 @@ class OpUpFeeSourceTypeBuilder(TypeBuilder):
         raise CodeError("cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         if (value := FeeSourceValues.get(name)) is None:
-            return super().member_access(name, location)
+            return super().member_access(name, pytype, location)
         expr = UInt64Constant(value=value, source_location=location)
         return UInt64ExpressionBuilder(expr)

@@ -93,7 +93,9 @@ class UIntNExpressionBuilder(
         super().__init__(typ, expr)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
             case "native":
                 result_expr = ARC4Decode(
@@ -103,7 +105,7 @@ class UIntNExpressionBuilder(
                 )
                 return builder_for_instance(self.pytype.native_type, result_expr)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, pytype, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

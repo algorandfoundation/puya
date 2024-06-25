@@ -57,11 +57,13 @@ class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
         raise CodeError("cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         produces = self.produces()
         value = produces.members.get(name)
         if value is None:
-            return super().member_access(name, location)
+            return super().member_access(name, pytype, location)
         return LiteralBuilderImpl(value=value, source_location=location)
 
 
@@ -77,11 +79,13 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
         raise CodeError("cannot instantiate namespace type", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+    def member_access(
+        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+    ) -> NodeBuilder:
         produces = self.produces()
         mapping = produces.members.get(name)
         if mapping is None:
-            return super().member_access(name, location)
+            return super().member_access(name, pytype, location)
         if isinstance(mapping, PropertyOpMapping):
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
