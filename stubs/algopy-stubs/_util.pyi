@@ -1,4 +1,4 @@
-from algopy import Bytes, BytesBacked, UInt64
+from algopy import Bytes, BytesBacked, String, UInt64
 
 class OpUpFeeSource(UInt64):
     """Defines the source of fees for the OpUp utility."""
@@ -16,7 +16,7 @@ def ensure_budget(
     """Ensure the available op code budget is greater than or equal to required_budget"""
 
 def log(
-    *args: UInt64 | Bytes | BytesBacked | str | bytes | int, sep: Bytes | bytes | str = b""
+    *args: UInt64 | Bytes | BytesBacked | str | bytes | int, sep: String | str | Bytes | bytes = ""
 ) -> None:
     """Concatenates and logs supplied args as a single bytes value.
 

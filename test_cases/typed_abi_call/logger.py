@@ -14,11 +14,37 @@ from algopy import (
     log,
 )
 
+LOG_METHOD_NAME = "log"
+
 
 class Logger(ARC4Contract):
     @arc4.abimethod
     def echo(self, value: arc4.String) -> arc4.String:
         return "echo: " + value
+
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_uint64(self, value: arc4.UInt64) -> None:
+        log(value)
+
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_uint512(self, value: arc4.UInt512) -> None:
+        log(value)
+
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_string(self, value: arc4.String) -> None:
+        log(value.native)  # decode to remove header
+
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_bool(self, value: arc4.Bool) -> None:
+        log(Bytes(b"True") if value.native else Bytes(b"False"))
+
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_bytes(self, value: arc4.DynamicBytes) -> None:
+        log(value.native)
+
+    @arc4.abimethod(name=LOG_METHOD_NAME)
+    def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
+        log(asset.name, account.bytes, app.address)
 
     @arc4.abimethod
     def echo_native_string(self, value: String) -> String:
@@ -41,30 +67,6 @@ class Logger(ARC4Contract):
         self, s: String, b: Bytes, u: UInt64, bu: BigUInt
     ) -> tuple[String, Bytes, UInt64, BigUInt]:
         return "echo: " + s, b"echo: " + b, u + 1, bu + 1
-
-    @arc4.abimethod
-    def log_uint64(self, value: arc4.UInt64) -> None:
-        log(value)
-
-    @arc4.abimethod
-    def log_uint512(self, value: arc4.UInt512) -> None:
-        log(value)
-
-    @arc4.abimethod
-    def log_string(self, value: arc4.String) -> None:
-        log(value.native)  # decode to remove header
-
-    @arc4.abimethod
-    def log_bool(self, value: arc4.Bool) -> None:
-        log(Bytes(b"True") if value.native else Bytes(b"False"))
-
-    @arc4.abimethod
-    def log_bytes(self, value: arc4.DynamicBytes) -> None:
-        log(value.native)
-
-    @arc4.abimethod
-    def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
-        log(asset.name, account.bytes, app.address)
 
     @arc4.abimethod
     def return_args_after_14th(

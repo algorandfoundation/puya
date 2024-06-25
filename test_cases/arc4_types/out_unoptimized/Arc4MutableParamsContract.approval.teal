@@ -256,6 +256,7 @@ mutating_copies:
     pop
     // arc4_types/mutable_params.py:80
     // assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
+    dup
     int 0
     int 1
     *
@@ -264,13 +265,27 @@ mutating_copies:
     byte 0x0a
     b==
     assert // my_array_copy_2 should have mutated value
-    // arc4_types/mutable_params.py:88-89
+    // arc4_types/mutable_params.py:82-83
+    // # tuples of mutable types only work with a .copy()
+    // self.other_routine_3((my_array.copy(), my_array_copy_2.copy(), my_array_copy_2.copy()))
+    dig 1
+    dig 1
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    uncover 2
+    callsub other_routine_3
+    pop
+    pop
+    pop
+    // arc4_types/mutable_params.py:85-86
     // # Nested array items should still require a copy
     // nested = StructWithArray(test_array=my_array.copy())
     byte 0x
     uncover 1
     concat
-    // arc4_types/mutable_params.py:90
+    // arc4_types/mutable_params.py:87
     // self.other_routine_2(nested.test_array.copy())
     int 0
     int 4
@@ -283,18 +298,18 @@ mutating_copies:
 
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> uint64, uint64, bytes, bytes:
 other_routine:
-    // arc4_types/mutable_params.py:92-93
+    // arc4_types/mutable_params.py:89-90
     // @subroutine
     // def other_routine(self, array: TestArray, struct: TestStruct) -> tuple[bool, bool]:
     proto 2 4
-    // arc4_types/mutable_params.py:94
+    // arc4_types/mutable_params.py:91
     // array[1] = UInt8(5)
     frame_dig -2
     int 1
     byte 0x05
     replace3
     frame_bury -2
-    // arc4_types/mutable_params.py:95
+    // arc4_types/mutable_params.py:92
     // struct.s_val_1 = String("AARRGH!")
     byte "AARRGH!"
     len
@@ -343,7 +358,7 @@ other_routine:
     uncover 2
     replace3
     frame_bury -1
-    // arc4_types/mutable_params.py:96
+    // arc4_types/mutable_params.py:93
     // return True, False
     int 1
     int 0
@@ -354,14 +369,14 @@ other_routine:
 
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> bytes, bytes:
 other_routine_2:
-    // arc4_types/mutable_params.py:98-99
+    // arc4_types/mutable_params.py:95-96
     // @subroutine
     // def other_routine_2(self, array: TestArray) -> TestArray:
     proto 1 2
-    // arc4_types/mutable_params.py:100
+    // arc4_types/mutable_params.py:97
     // copy = array.copy()
     frame_dig -1
-    // arc4_types/mutable_params.py:101
+    // arc4_types/mutable_params.py:98
     // array[0] = UInt8(10)
     frame_dig -1
     int 0
@@ -369,6 +384,66 @@ other_routine_2:
     replace3
     dup
     frame_bury -1
-    // arc4_types/mutable_params.py:102
+    // arc4_types/mutable_params.py:99
     // return copy
+    retsub
+
+
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_3(arrays.0: bytes, arrays.1: bytes, arrays.2: bytes) -> bytes, bytes, bytes:
+other_routine_3:
+    // arc4_types/mutable_params.py:101-102
+    // @subroutine
+    // def other_routine_3(self, arrays: tuple[TestArray, TestArray, TestArray]) -> None:
+    proto 3 3
+    byte ""
+    dup
+    int 0
+    frame_bury 0
+    b other_routine_3_for_body@4
+
+other_routine_3_for_header_1@2:
+    frame_dig 1
+    frame_bury 0
+    b other_routine_3_for_body@4
+
+other_routine_3_for_header_2@3:
+    frame_dig 1
+    frame_bury 0
+
+other_routine_3_for_body@4:
+    frame_dig 0
+    dup
+    int 1
+    +
+    frame_bury 1
+    // arc4_types/mutable_params.py:103-104
+    // # this modifies the local copy
+    // for array in arrays:
+    switch other_routine_3_for_header_1@2 other_routine_3_for_header_2@3
+    // arc4_types/mutable_params.py:107
+    // arrays[0][0] = UInt8(99)
+    frame_dig -3
+    int 0
+    byte 0x63
+    replace3
+    frame_bury -3
+    // arc4_types/mutable_params.py:108
+    // arrays[1][0] = UInt8(99)
+    frame_dig -2
+    int 0
+    byte 0x63
+    replace3
+    frame_bury -2
+    // arc4_types/mutable_params.py:109
+    // arrays[2][0] = UInt8(99)
+    frame_dig -1
+    int 0
+    byte 0x63
+    replace3
+    frame_bury -1
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    uncover 4
+    uncover 4
     retsub

@@ -1,25 +1,25 @@
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.group import (
-    GroupTransactionClassExpressionBuilder,
     GroupTransactionExpressionBuilder,
+    GroupTransactionTypeBuilder,
     check_transaction_type,
 )
 from puya.awst_build.eb.transaction.inner import (
-    InnerTransactionClassExpressionBuilder,
     InnerTransactionExpressionBuilder,
+    InnerTransactionTypeBuilder,
     SubmitInnerTransactionExpressionBuilder,
 )
 from puya.awst_build.eb.transaction.inner_params import (
-    InnerTxnParamsClassExpressionBuilder,
     InnerTxnParamsExpressionBuilder,
+    InnerTxnParamsTypeBuilder,
 )
 
 __all__ = [
-    "GroupTransactionClassExpressionBuilder",
+    "GroupTransactionTypeBuilder",
     "GroupTransactionExpressionBuilder",
-    "InnerTransactionClassExpressionBuilder",
+    "InnerTransactionTypeBuilder",
     "InnerTransactionExpressionBuilder",
-    "InnerTxnParamsClassExpressionBuilder",
+    "InnerTxnParamsTypeBuilder",
     "InnerTxnParamsExpressionBuilder",
     "SubmitInnerTransactionExpressionBuilder",
     "check_transaction_type",

@@ -1,0 +1,83 @@
+contract test_cases.conditional_expressions.literals.Literals:
+    program approval:
+        subroutine test_cases.conditional_expressions.literals.Literals.approval_program() -> bool:
+            block@0: // L5
+                test_cases.conditional_expressions.literals.Literals.with_variable_condition(0u)
+                test_cases.conditional_expressions.literals.Literals.with_variable_condition(1u)
+                return 1u
+        
+        subroutine test_cases.conditional_expressions.literals.Literals.with_variable_condition(condition: bool) -> void:
+            block@0: // L14
+                goto condition#0 ? block@1 : block@2
+            block@1: // ternary_true_L16
+                let ternary_result%0#0: uint64 = 1u
+                goto block@3
+            block@2: // ternary_false_L16
+                let ternary_result%0#1: uint64 = 0u
+                goto block@3
+            block@3: // ternary_merge_L16
+                let x#0: uint64 = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
+                let tmp%0#0: bool = (== x#0 condition#0)
+                (assert tmp%0#0)
+                goto condition#0 ? block@4 : block@5
+            block@4: // ternary_true_L18
+                let ternary_result%1#0: uint64 = 1u
+                goto block@6
+            block@5: // ternary_false_L18
+                let ternary_result%1#1: uint64 = 0u
+                goto block@6
+            block@6: // ternary_merge_L18
+                let ternary_result%1#2: uint64 = φ(ternary_result%1#0 <- block@4, ternary_result%1#1 <- block@5)
+                let tmp%1#0: bool = (== x#0 ternary_result%1#2)
+                (assert tmp%1#0)
+                goto condition#0 ? block@7 : block@8
+            block@7: // ternary_true_L19
+                let ternary_result%2#0: uint64 = 0u
+                goto block@9
+            block@8: // ternary_false_L19
+                let ternary_result%2#1: uint64 = 1u
+                goto block@9
+            block@9: // ternary_merge_L19
+                let ternary_result%2#2: uint64 = φ(ternary_result%2#0 <- block@7, ternary_result%2#1 <- block@8)
+                let y#0: uint64 = (+ x#0 ternary_result%2#2)
+                goto condition#0 ? block@10 : block@11
+            block@10: // ternary_true_L20
+                let ternary_result%3#0: uint64 = 0u
+                goto block@12
+            block@11: // ternary_false_L20
+                let ternary_result%3#1: uint64 = 1u
+                goto block@12
+            block@12: // ternary_merge_L20
+                let ternary_result%3#2: uint64 = φ(ternary_result%3#0 <- block@10, ternary_result%3#1 <- block@11)
+                let y2#0: uint64 = (+ ternary_result%3#2 x#0)
+                let tmp%2#0: bool = (== y#0 1u)
+                (assert tmp%2#0)
+                let tmp%3#0: bool = (== y2#0 1u)
+                (assert tmp%3#0)
+                goto condition#0 ? block@13 : block@14
+            block@13: // ternary_true_L23
+                let ternary_result%4#0: uint64 = 1u
+                goto block@15
+            block@14: // ternary_false_L23
+                let ternary_result%4#1: uint64 = 0u
+                goto block@15
+            block@15: // ternary_merge_L23
+                let ternary_result%4#2: uint64 = φ(ternary_result%4#0 <- block@13, ternary_result%4#1 <- block@14)
+                let maybe#0: bool = (> y#0 ternary_result%4#2)
+                let tmp%4#0: bool = (! condition#0)
+                let tmp%5#0: bool = (== maybe#0 tmp%4#0)
+                (assert tmp%5#0)
+                goto condition#0 ? block@16 : block@17
+            block@16: // ternary_true_L25
+                let ternary_result%5#0: bool = 1u
+                goto block@18
+            block@17: // ternary_false_L25
+                let ternary_result%5#1: bool = 1u
+                goto block@18
+            block@18: // ternary_merge_L25
+                return 
+    
+    program clear-state:
+        subroutine test_cases.conditional_expressions.literals.Literals.clear_state_program() -> bool:
+            block@0: // L11
+                return 1u

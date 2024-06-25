@@ -3,9 +3,10 @@ import typing as t
 from collections.abc import Iterable
 
 from puya.awst import nodes, wtypes
-from puya.awst.nodes import AppStateKind
+from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.errors import InternalError
+from puya.models import ARC4ABIMethodConfig, ARC4BareMethodConfig
 
 
 class ToCodeVisitor(
@@ -70,10 +71,13 @@ class ToCodeVisitor(
         )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        return f"this.{expr.field_name}"
+        return f"GlobalState[{expr.key.accept(self)}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        return f"this.{expr.field_name}[{expr.account.accept(self)}]"
+        return f"LocalState[{expr.key.accept(self)}, {expr.account.accept(self)}]"
+
+    def visit_box_value_expression(self, expr: nodes.BoxValueExpression) -> str:
+        return f"Box[{expr.key.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.values)
@@ -165,27 +169,30 @@ class ToCodeVisitor(
     def visit_contract_fragment(self, c: nodes.ContractFragment) -> list[str]:
         body = list[str]()
         if c.app_state:
-            state_by_kind = dict[AppStateKind, list[nodes.AppStateDefinition]]()
+            state_by_kind = dict[AppStorageKind, list[nodes.AppStorageDefinition]]()
             for state in c.app_state.values():
                 state_by_kind.setdefault(state.kind, []).append(state)
-            global_state = state_by_kind.pop(AppStateKind.app_global, [])
-            if global_state:
-                body.extend(
-                    [
-                        "globals {",
-                        *_indent(f"[{bytes_str(s.key)}]: {s.storage_wtype}" for s in global_state),
-                        "}",
-                    ]
-                )
-            local_state = state_by_kind.pop(AppStateKind.account_local, [])
-            if local_state:
-                body.extend(
-                    [
-                        "locals {",
-                        *_indent(f"[{bytes_str(s.key)}]: {s.storage_wtype}" for s in local_state),
-                        "}",
-                    ]
-                )
+            for kind_name, kind in (
+                ("globals", AppStorageKind.app_global),
+                ("locals", AppStorageKind.account_local),
+                ("boxes", AppStorageKind.box),
+            ):
+                state_of_kind = state_by_kind.pop(kind, [])
+                if state_of_kind:
+                    body.extend(
+                        [
+                            f"{kind_name} {{",
+                            *_indent(
+                                (
+                                    f"[{s.key.accept(self)}]: {s.key_wtype} => {s.storage_wtype}"
+                                    if s.key_wtype is not None
+                                    else f"[{s.key.accept(self)}]: {s.storage_wtype}"
+                                )
+                                for s in state_of_kind
+                            ),
+                            "}",
+                        ]
+                    )
             if state_by_kind:
                 raise InternalError(
                     f"Unhandled app state kinds: {', '.join(map(str, state_by_kind.keys()))}",
@@ -276,13 +283,19 @@ class ToCodeVisitor(
     def visit_contract_method(self, statement: nodes.ContractMethod) -> list[str]:
         body = statement.body.accept(self)
         args = ", ".join([f"{a.name}: {a.wtype}" for a in statement.args])
-        if statement.abimethod_config is not None:
-            if statement.abimethod_config.name != statement.name:
-                deco = f"abimethod[name_override={statement.abimethod_config.name}]"
-            else:
-                deco = "abimethod"
-        else:
-            deco = "subroutine"
+        match statement.arc4_method_config:
+            case None:
+                deco = "subroutine"
+            case ARC4BareMethodConfig():
+                deco = "baremethod"
+            case ARC4ABIMethodConfig(name=config_name):
+                if statement.name != config_name:
+                    deco = f"abimethod[name_override={config_name}]"
+                else:
+                    deco = "abimethod"
+            case other:
+                t.assert_never(other)
+
         return [
             "",
             f"{deco} {statement.name}({args}): {statement.return_type}",
@@ -317,10 +330,11 @@ class ToCodeVisitor(
                 suffix = "u"
             case wtypes.biguint_wtype:
                 suffix = "n"
-            case wtypes.ARC4UIntN(n=n):
-                if n <= 64:
+            case wtypes.ARC4UIntN(n=n, decode_type=decode_type):
+                if decode_type == wtypes.uint64_wtype:
                     suffix = f"arc4u{n}"
                 else:
+                    assert decode_type == wtypes.biguint_wtype
                     suffix = f"arc4n{n}"
             case _:
                 raise InternalError(
@@ -397,8 +411,11 @@ class ToCodeVisitor(
         return f"update_inner_transaction({expr.itxn.accept(self)},{', '.join(fields)})"
 
     def visit_submit_inner_transaction(self, call: nodes.SubmitInnerTransaction) -> str:
-        itxns = [p.accept(self) for p in call.itxns]
-        return f"submit_txn({', '.join(itxns)})"
+        if isinstance(call.group, tuple):
+            group = f'{", ".join(itxn.accept(self) for itxn in call.itxns)}'
+        else:
+            group = call.group.accept(self)
+        return f"submit_txn({group})"
 
     def visit_inner_transaction_field(self, itxn_field: nodes.InnerTransactionField) -> str:
         txn = itxn_field.itxn.accept(self)

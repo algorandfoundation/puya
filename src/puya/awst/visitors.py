@@ -257,3 +257,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
     def visit_intersection_slice_expression(
         self, expr: puya.awst.nodes.IntersectionSliceExpression
     ) -> T: ...
+
+    @abstractmethod
+    def visit_box_value_expression(self, expr: puya.awst.nodes.BoxValueExpression) -> T: ...

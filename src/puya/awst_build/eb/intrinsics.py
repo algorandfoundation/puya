@@ -1,44 +1,43 @@
-from __future__ import annotations
-
-import abc
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
-from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
-from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
-from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
-from puya.awst_build.intrinsic_models import FunctionOpMapping, ImmediateArgMapping
-from puya.awst_build.utils import convert_literal, get_arg_mapping
-from puya.errors import InternalError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from puya.parse import SourceLocation
+from puya.awst.nodes import IntrinsicCall, MethodConstant
+from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._literals import LiteralBuilderImpl
+from puya.awst_build.eb._utils import dummy_value
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
+from puya.awst_build.eb.factories import builder_for_instance, builder_for_type
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.intrinsic_models import (
+    FunctionOpMapping,
+    OpMappingWithOverloads,
+    PropertyOpMapping,
+)
+from puya.errors import CodeError
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class Arc4SignatureBuilder(IntermediateExpressionBuilder):
+class Arc4SignatureBuilder(FunctionBuilder):
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case [Literal(value=str(str_value))]:
-                pass
-            case _:
-                logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
-                str_value = ""  # dummy value to keep evaluating
-        return var_expression(
+    ) -> InstanceBuilder:
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
+        if arg is None:
+            return dummy_value(pytypes.BytesType, location)
+        str_value = expect.simple_string_literal(arg, default=expect.default_fixed_value(""))
+        return BytesExpressionBuilder(
             MethodConstant(
                 value=str_value,
                 source_location=location,
@@ -46,197 +45,157 @@ class Arc4SignatureBuilder(IntermediateExpressionBuilder):
         )
 
 
-class _Namespace(IntermediateExpressionBuilder, abc.ABC):
-    def __init__(self, type_info: mypy.nodes.TypeInfo, location: SourceLocation) -> None:
-        self.type_info = type_info
-        super().__init__(location)
-
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        sym_entry = self.type_info.get(name)
-        if sym_entry is None or sym_entry.node is None:
-            raise InternalError(
-                f"Unknown algopy member: {self.type_info.fullname}.{name}", location
-            )
-        return self._member_access(name=name, node=sym_entry.node, location=location)
-
-    @abc.abstractmethod
-    def _member_access(
-        self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
-    ) -> ExpressionBuilder | Literal: ...
-
-
-class IntrinsicEnumClassExpressionBuilder(_Namespace):
+class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
     @typing.override
-    def _member_access(
-        self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
-    ) -> Literal:
-        value = ENUM_CLASSES.get(self.type_info.fullname, {}).get(name)
-        if value is None:
-            raise InternalError(
-                f"Un-mapped enum value '{name}' for '{self.type_info.fullname}.{name}'", location
-            )
-        return Literal(
-            source_location=location,
-            # this works currently because these enums are StrEnum with auto() as their value
-            value=value,
-        )
-
-
-class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
-    @typing.override
-    def _member_access(
-        self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
-    ) -> ExpressionBuilder:
-        match node:
-            # methods are either @staticmethod or @classmethod, so will be wrapped in decorator
-            case mypy.nodes.Decorator(func=func_def):
-                return IntrinsicFunctionExpressionBuilder(func_def, location)
-            # some class members in the stubs that take no arguments are typed
-            # as final class vars, for these get the intrinsic expression by explicitly
-            # mapping the member name as a call with no args
-            case mypy.nodes.Var(fullname=classvar_fullname):
-                intrinsic_expr = _map_call(
-                    callee=classvar_fullname, node_location=location, args={}
-                )
-                return var_expression(intrinsic_expr)
-        raise InternalError(
-            f"Unhandled intrinsic-namespace node type {type(node).__name__}"
-            f" for {self.type_info.fullname}.{name}",
-            location,
-        )
-
-
-class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, func_def: mypy.nodes.FuncDef, location: SourceLocation) -> None:
-        self.func_def = func_def
-        super().__init__(location)
-
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        resolved_args: list[Expression | Literal] = [
-            a.rvalue() if isinstance(a, ExpressionBuilder) else a for a in args
-        ]
-        arg_mapping = _get_arg_mapping_funcdef(self.func_def, resolved_args, location, arg_names)
-        intrinsic_expr = _map_call(
-            callee=self.func_def.fullname, node_location=location, args=arg_mapping
-        )
-        return var_expression(intrinsic_expr)
+    ) -> InstanceBuilder:
+        raise CodeError("cannot instantiate enumeration type", location)
+
+    @typing.override
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        produces = self.produces()
+        value = produces.members.get(name)
+        if value is None:
+            return super().member_access(name, expr, location)
+        return LiteralBuilderImpl(value=value, source_location=location)
 
 
-def _get_arg_mapping_funcdef(
-    func_def: mypy.nodes.FuncDef,
-    args: Sequence[Expression | Literal],
-    location: SourceLocation,
-    arg_names: Sequence[str | None],
-) -> dict[str, Expression | Literal]:
-    func_pos_args = [
-        arg.variable.name
-        for arg, kind in zip(func_def.arguments, func_def.arg_kinds, strict=True)
-        if kind in (mypy.nodes.ArgKind.ARG_POS, mypy.nodes.ArgKind.ARG_OPT)
-        and not (arg.variable.is_cls or arg.variable.is_self)
-    ]
-    return get_arg_mapping(
-        func_pos_args, args=zip(arg_names, args, strict=True), location=location
-    )
+class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType]):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        raise CodeError("cannot instantiate namespace type", location)
+
+    @typing.override
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        produces = self.produces()
+        mapping = produces.members.get(name)
+        if mapping is None:
+            return super().member_access(name, expr, location)
+        if isinstance(mapping, PropertyOpMapping):
+            intrinsic_expr = IntrinsicCall(
+                op_code=mapping.op_code,
+                immediates=[mapping.immediate],
+                wtype=mapping.typ.wtype,
+                source_location=location,
+            )
+            return builder_for_instance(mapping.typ, intrinsic_expr)
+        else:
+            fullname = ".".join((produces.name, name))
+            return IntrinsicFunctionExpressionBuilder(fullname, mapping, location)
+
+
+class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
+    def __init__(
+        self, fullname: str, mapping: OpMappingWithOverloads, location: SourceLocation
+    ) -> None:
+        self._fullname = fullname
+        self._mapping = mapping
+        super().__init__(location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        if not expect.exactly_n_args(args, location, self._mapping.arity):
+            return dummy_value(self._mapping.result, location)
+        intrinsic_expr = _map_call(self._mapping, args=args, location=location)
+        return builder_for_instance(self._mapping.result, intrinsic_expr)
 
 
 def _best_op_mapping(
-    op_mappings: list[FunctionOpMapping], args: dict[str, Expression | Literal]
+    op_mappings: OpMappingWithOverloads, args: Sequence[NodeBuilder]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
-    literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
-    for op_mapping in sorted(op_mappings, key=lambda om: len(om.literal_arg_names), reverse=True):
-        if literal_arg_names.issuperset(op_mapping.literal_arg_names):
+    literal_arg_positions = {
+        arg_idx
+        for arg_idx, arg in enumerate(args)
+        # we can't handle any form of dynamism for immediates, such as `1 if foo else 2`,
+        # so we must check for LiteralBuilder only
+        if isinstance(arg, LiteralBuilder)
+    }
+    for op_mapping in sorted(
+        op_mappings.overloads, key=lambda om: len(om.literal_arg_positions), reverse=True
+    ):
+        if literal_arg_positions.issuperset(op_mapping.literal_arg_positions):
             return op_mapping
     # fall back to first, let argument mapping handle logging errors
-    return op_mappings[0]
-
-
-def _return_types_to_wtype(types: Sequence[wtypes.WType]) -> wtypes.WType:
-    if not types:
-        return wtypes.void_wtype
-    elif len(types) == 1:
-        return types[0]
-    else:
-        return wtypes.WTuple.from_types(types)
+    return op_mappings.overloads[0]
 
 
 def _map_call(
-    callee: str, node_location: SourceLocation, args: dict[str, Expression | Literal]
+    ast_mapper: OpMappingWithOverloads,
+    args: Sequence[NodeBuilder],
+    location: SourceLocation,
 ) -> IntrinsicCall:
-    ast_mapper = STUB_TO_AST_MAPPER.get(callee)
-    if not ast_mapper:
-        raise InternalError(f"Un-mapped intrinsic call for {callee}", node_location)
-    if len(ast_mapper) == 1:
-        (op_mapping,) = ast_mapper
+    if len(ast_mapper.overloads) == 1:
+        (op_mapping,) = ast_mapper.overloads
     else:
         op_mapping = _best_op_mapping(ast_mapper, args)
 
-    args = args.copy()  # make a copy since we're going to mutate
-
-    immediates = list[str | int]()
-    for immediate in op_mapping.immediates:
-        if not isinstance(immediate, ImmediateArgMapping):
-            immediates.append(immediate)
-        else:
-            arg_in = args.pop(immediate.arg_name, None)
-            if arg_in is None:
-                logger.error(
-                    f"Missing expected argument {immediate.arg_name}", location=node_location
-                )
-            elif not (
-                isinstance(arg_in, Literal)
-                and isinstance(arg_value := arg_in.value, immediate.literal_type)
+    immediates = list(op_mapping.immediates)
+    stack_args = list[InstanceBuilder]()
+    for arg_in, arg_data in zip(args, op_mapping.args, strict=True):
+        if isinstance(arg_data, int):
+            immediates_index = arg_data
+            literal_type = typing.cast(type[str | int], immediates[immediates_index])
+            if not (
+                isinstance(arg_in, LiteralBuilder)  # see note in _best_op_mapping
+                and isinstance(arg_value := arg_in.value, literal_type)
             ):
                 logger.error(
-                    f"Argument must be a literal {immediate.literal_type.__name__} value",
+                    f"argument must be a literal {literal_type.__name__} value",
                     location=arg_in.source_location,
                 )
+                immediates[immediates_index] = literal_type()
             else:
                 assert isinstance(arg_value, int | str)
-                immediates.append(arg_value)
-
-    stack_args = list[Expression]()
-    for arg_mapping in op_mapping.stack_inputs:
-        arg_in = args.pop(arg_mapping.arg_name, None)
-        if arg_in is None:
-            logger.error(
-                f"Missing expected argument {arg_mapping.arg_name}", location=node_location
-            )
-        elif isinstance(arg_in, Expression):
-            # TODO this is identity based, match types instead?
-            if arg_in.wtype not in arg_mapping.allowed_types:
-                logger.error(
-                    f'Invalid argument type "{arg_in.wtype}"'
-                    f' for argument "{arg_mapping.arg_name}" when calling {callee}',
-                    location=arg_in.source_location,
-                )
-            stack_args.append(arg_in)
+                immediates[immediates_index] = arg_value
         else:
-            literal_value = arg_in.value
-            for allowed_type in arg_mapping.allowed_types:
-                if allowed_type.is_valid_literal(literal_value):
-                    literal_expr = convert_literal(arg_in, allowed_type)
-                    stack_args.append(literal_expr)
-                    break
+            allowed_pytypes = arg_data
+            if not isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
+                if not (isinstance(arg_in, InstanceBuilder) and arg_in.pytype in allowed_pytypes):
+                    logger.error("unexpected argument type", location=arg_in.source_location)
+                else:
+                    stack_args.append(arg_in)
             else:
-                logger.error(
-                    f"Unhandled literal type '{type(literal_value).__name__}' for argument",
-                    location=arg_in.source_location,
-                )
-
-    for arg_node in args.values():
-        logger.error("Unexpected argument", location=arg_node.source_location)
+                for allowed_type in allowed_pytypes:
+                    type_builder = builder_for_type(allowed_type, arg_in.source_location)
+                    if isinstance(arg_in, InstanceBuilder) and isinstance(
+                        type_builder, TypeBuilder
+                    ):
+                        try:
+                            converted = arg_in.resolve_literal(type_builder)
+                        except CodeError:  # TODO: fixme, need a try version or something here
+                            pass
+                        else:
+                            stack_args.append(converted)
+                            break
+                else:
+                    logger.error("unexpected argument type", location=arg_in.source_location)
 
     return IntrinsicCall(
-        source_location=node_location,
-        wtype=_return_types_to_wtype(op_mapping.stack_outputs),
         op_code=op_mapping.op_code,
-        immediates=immediates,
-        stack_args=stack_args,
+        wtype=ast_mapper.result.wtype,
+        immediates=typing.cast(list[str | int], immediates),
+        stack_args=[a.resolve() for a in stack_args],
+        source_location=location,
     )

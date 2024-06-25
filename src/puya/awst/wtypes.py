@@ -1,149 +1,123 @@
 import base64
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
+from functools import cached_property
 
 import attrs
 from immutabledict import immutabledict
 
-from puya.algo_constants import (
-    ADDRESS_CHECKSUM_LENGTH,
-    ENCODED_ADDRESS_LENGTH,
-    MAX_BIGUINT_BITS,
-    MAX_BYTES_LENGTH,
-    PUBLIC_KEY_HASH_LENGTH,
-)
+from puya import algo_constants, log
+from puya.avm_type import AVMType
 from puya.awst_build import constants
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
+from puya.parse import SourceLocation
 from puya.utils import sha512_256_hash
 
-
-def _all_literals_invalid(_value: object) -> bool:
-    return False
+logger = log.get_logger(__name__)
 
 
-LiteralValidator: typing.TypeAlias = Callable[[object], bool]
-
-
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class WType:
     name: str
-    stub_name: str
-    lvalue: bool = True
-    immutable: bool = True
-    is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
+    scalar_type: typing.Literal[AVMType.uint64, AVMType.bytes, None]
+    "the (unbound) AVM stack type, if any"
+    ephemeral: bool = False
+    """ephemeral types are not suitable for naive storage / persistence,
+     even if their underlying type is a simple stack value"""
+    immutable: bool
 
     def __str__(self) -> str:
-        return self.stub_name
-
-
-def is_valid_bool_literal(value: object) -> typing.TypeGuard[bool]:
-    return isinstance(value, bool)
-
-
-def _is_unsigned_int(value: object) -> typing.TypeGuard[int]:
-    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
-
-
-def _uint_literal_validator(*, max_bits: int) -> Callable[[object], typing.TypeGuard[int]]:
-    def validator(value: object) -> typing.TypeGuard[int]:
-        return _is_unsigned_int(value) and value.bit_length() <= max_bits
-
-    return validator
-
-
-is_valid_uint64_literal = _uint_literal_validator(max_bits=64)
-
-
-is_valid_biguint_literal = _uint_literal_validator(max_bits=MAX_BIGUINT_BITS)
-
-
-def is_valid_bytes_literal(value: object) -> typing.TypeGuard[bytes]:
-    return isinstance(value, bytes) and len(value) <= MAX_BYTES_LENGTH
-
-
-def is_valid_account_literal(value: object) -> typing.TypeGuard[str]:
-    return isinstance(value, str) and valid_address(value)
-
-
-def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
-    return isinstance(value, str) and is_valid_bytes_literal(value.encode("utf8"))
+        return self.name
 
 
 void_wtype: typing.Final = WType(
     name="void",
-    stub_name="None",
-    lvalue=False,
+    scalar_type=None,
+    immutable=True,
 )
 
 bool_wtype: typing.Final = WType(
     name="bool",
-    stub_name="bool",
-    is_valid_literal=is_valid_bool_literal,
+    scalar_type=AVMType.uint64,
+    immutable=True,
 )
 
 uint64_wtype: typing.Final = WType(
     name="uint64",
-    stub_name=constants.CLS_UINT64_ALIAS,
-    is_valid_literal=is_valid_uint64_literal,
+    scalar_type=AVMType.uint64,
+    immutable=True,
 )
 
 biguint_wtype: typing.Final = WType(
     name="biguint",
-    stub_name=constants.CLS_BIGUINT_ALIAS,
-    is_valid_literal=is_valid_biguint_literal,
+    scalar_type=AVMType.bytes,
+    immutable=True,
 )
 
 bytes_wtype: typing.Final = WType(
     name="bytes",
-    stub_name=constants.CLS_BYTES_ALIAS,
-    is_valid_literal=is_valid_bytes_literal,
+    scalar_type=AVMType.bytes,
+    immutable=True,
 )
 string_wtype: typing.Final = WType(
     name="string",
-    stub_name=constants.CLS_STRING_ALIAS,
-    is_valid_literal=is_valid_utf8_literal,
+    scalar_type=AVMType.bytes,
+    immutable=True,
 )
 asset_wtype: typing.Final = WType(
     name="asset",
-    stub_name=constants.CLS_ASSET_ALIAS,
-    is_valid_literal=is_valid_uint64_literal,
+    scalar_type=AVMType.uint64,
+    immutable=True,
 )
 
 account_wtype: typing.Final = WType(
     name="account",
-    stub_name=constants.CLS_ACCOUNT_ALIAS,
-    is_valid_literal=is_valid_account_literal,
+    scalar_type=AVMType.bytes,
+    immutable=True,
 )
 
 application_wtype: typing.Final = WType(
     name="application",
-    stub_name=constants.CLS_APPLICATION_ALIAS,
-    is_valid_literal=is_valid_uint64_literal,
+    scalar_type=AVMType.uint64,
+    immutable=True,
+)
+
+state_key: typing.Final = WType(
+    name="state_key",
+    scalar_type=AVMType.bytes,
+    immutable=True,
+)
+box_key: typing.Final = WType(
+    name="box_key",
+    scalar_type=AVMType.bytes,
+    immutable=True,
 )
 
 
-@typing.final
-@attrs.frozen(str=False, kw_only=True)
-class WGroupTransaction(WType):
+@attrs.frozen
+class _TransactionRelatedWType(WType):
     transaction_type: constants.TransactionType | None
+    ephemeral: bool = attrs.field(default=True, init=False)
+    immutable: bool = attrs.field(default=True, init=False)
+
+
+@typing.final
+@attrs.frozen
+class WGroupTransaction(_TransactionRelatedWType):
+    scalar_type: typing.Literal[AVMType.uint64] = attrs.field(default=AVMType.uint64, init=False)
 
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WGroupTransaction":
         name = "group_transaction"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
-        return cls(
-            transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].gtxn,
-            name=name,
-        )
-
-    # TODO only allow int literals below max group size
+        return cls(name=name, transaction_type=transaction_type)
 
 
-@attrs.define
-class WInnerTransactionFields(WType):
-    transaction_type: constants.TransactionType | None
+@typing.final
+@attrs.frozen
+class WInnerTransactionFields(_TransactionRelatedWType):
+    scalar_type: None = attrs.field(default=None, init=False)
 
     @classmethod
     def from_type(
@@ -152,289 +126,367 @@ class WInnerTransactionFields(WType):
         name = "inner_transaction_fields"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
-        return cls(
-            transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_fields,
-            name=name,
-        )
+        return cls(name=name, transaction_type=transaction_type)
 
 
-@attrs.define
-class WInnerTransaction(WType):
-    transaction_type: constants.TransactionType | None
+@typing.final
+@attrs.frozen
+class WInnerTransaction(_TransactionRelatedWType):
+    scalar_type: None = attrs.field(default=None, init=False)
 
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WInnerTransaction":
         name = "inner_transaction"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
-        return cls(
-            transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_result,
-            name=name,
-        )
+        return cls(name=name, transaction_type=transaction_type)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(init=False)
 class WStructType(WType):
     fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
+    scalar_type: None = attrs.field(default=None, init=False)
 
-    @classmethod
-    def from_name_and_fields(cls, python_name: str, fields: Mapping[str, WType]) -> typing.Self:
+    def __init__(
+        self,
+        fields: Mapping[str, WType],
+        *,
+        name: str,
+        immutable: bool,
+        source_location: SourceLocation | None,
+    ):
         if not fields:
-            raise ValueError("struct needs fields")
+            raise CodeError("struct needs fields", source_location)
         if void_wtype in fields.values():
-            raise ValueError("struct should not contain void types")
-        name = (
-            "struct<"
-            + ",".join(
-                f"{field_name}:{field_type.name}" for field_name, field_type in fields.items()
-            )
-            + ">"
-        )
-        return cls(
-            name=name,
-            stub_name=python_name,
-            immutable=False,
-            fields=fields,
-        )
+            raise CodeError("struct should not contain void types", source_location)
+        self.__attrs_init__(name=name, fields=fields, immutable=immutable)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(init=False)
 class WArray(WType):
     element_type: WType
+    scalar_type: None = attrs.field(default=None, init=False)
 
-    @classmethod
-    def from_element_type(cls, element_type: WType) -> typing.Self:
+    def __init__(self, element_type: WType, source_location: SourceLocation | None):
         if element_type == void_wtype:
-            raise ValueError("array element type cannot be void")
+            raise CodeError("array element type cannot be void", source_location)
         name = f"array<{element_type.name}>"
-        return cls(
-            name=name,
-            stub_name=f"{constants.CLS_ARRAY_ALIAS}[{element_type}]",
-            immutable=False,
-            element_type=element_type,
+        self.__attrs_init__(name=name, element_type=element_type, immutable=False)
+
+
+@typing.final
+@attrs.frozen(init=False)
+class WTuple(WType):
+    types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
+    scalar_type: None = attrs.field(default=None, init=False)
+    immutable: bool = attrs.field(default=True, init=False)
+
+    def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
+        types = tuple(types)
+        if not types:
+            raise CodeError("empty tuples are not supported", source_location)
+        if void_wtype in types:
+            raise CodeError("tuple should not contain void types", source_location)
+        name = f"tuple<{','.join([t.name for t in types])}>"
+        self.__attrs_init__(name=name, types=types)
+
+
+@attrs.frozen(kw_only=True)
+class ARC4Type(WType):
+    scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
+    arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
+    decode_type: WType | None
+    _other_encodeable_types: Collection[WType] = attrs.field(default=())
+
+    @cached_property
+    def encodeable_types(self) -> frozenset[WType]:
+        if self.decode_type is None:
+            return frozenset(self._other_encodeable_types)
+        return frozenset([self.decode_type, *self._other_encodeable_types])
+
+
+arc4_bool_wtype: typing.Final = ARC4Type(
+    name="arc4.bool",
+    arc4_name="bool",
+    immutable=True,
+    decode_type=bool_wtype,
+)
+
+
+@typing.final
+@attrs.frozen(init=False, kw_only=True)
+class ARC4UIntN(ARC4Type):
+    immutable: bool = attrs.field(default=True, init=False)
+    decode_type: WType
+    n: int
+
+    def __init__(
+        self,
+        n: int,
+        source_location: SourceLocation | None,
+        *,
+        decode_type: WType,
+        alias: str | None = None,
+    ):
+        if not (n % 8 == 0):
+            raise CodeError("Bit size must be multiple of 8", source_location)
+        if not (8 <= n <= 512):
+            raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
+        if decode_type == uint64_wtype:
+            if n > 64:
+                raise InternalError(
+                    f"ARC-4 UIntN type received decode type {decode_type},"
+                    f" which is smaller than size {n=}",
+                    source_location,
+                )
+        elif decode_type == biguint_wtype:
+            pass
+        else:
+            raise InternalError(
+                f"Unhandled decode_type for ARC-4 UIntN: {decode_type}", source_location
+            )
+        default_arc4_name = f"uint{n}"
+        arc4_name = alias or default_arc4_name
+        self.__attrs_init__(
+            name=f"arc4.{default_arc4_name}",
+            arc4_name=arc4_name,
+            n=n,
+            decode_type=decode_type,
+            other_encodeable_types=frozenset({bool_wtype, uint64_wtype, biguint_wtype}),
         )
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
-class WTuple(WType):
-    types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
-
-    @classmethod
-    def from_types(cls, types: Iterable[WType]) -> typing.Self:
-        types = tuple(types)
-        if not types:
-            raise ValueError("tuple needs types")
-        if void_wtype in types:
-            raise ValueError("tuple should not contain void types")
-        name = f"tuple<{','.join([t.name for t in types])}>"
-        python_name = f"tuple[{', '.join(map(str, types))}]"
-        return cls(name=name, stub_name=python_name, types=types)
-
-
-@attrs.frozen
-class ARC4Type(WType):
-    alias: str | None = None
-
-
-@typing.final
-@attrs.frozen(str=False, kw_only=True)
-class ARC4UIntN(ARC4Type):
+@attrs.frozen(init=False, kw_only=True)
+class ARC4UFixedNxM(ARC4Type):
     n: int
+    m: int
+    immutable: bool = attrs.field(default=True, init=False)
 
-    is_valid_literal: LiteralValidator = attrs.field(init=False, eq=False)
+    def __init__(self, bits: int, precision: int, source_location: SourceLocation | None):
+        if not (bits % 8 == 0):
+            raise CodeError("Bit size must be multiple of 8", source_location)
+        if not (8 <= bits <= 512):
+            raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
+        if not (1 <= precision <= 160):
+            raise CodeError("Precision must be between 1 and 160 inclusive", source_location)
 
-    @is_valid_literal.default
-    def _literal_validator(self) -> LiteralValidator:
-        return _uint_literal_validator(max_bits=self.n)
-
-    @classmethod
-    def from_scale(cls, n: int) -> typing.Self:
-        assert n % 8 == 0, "bit size must be multiple of 8"
-        assert 8 <= n <= 512, "bit size must be between 8 and 512 inclusive"
-        name = f"arc4.uint{n}"
-        if n.bit_count() == 1:  # quick way to check for power of 2
-            stub_name = f"{constants.ARC4_PREFIX}UInt{n}"
-        else:
-            base_cls = constants.CLS_ARC4_UINTN if n <= 64 else constants.CLS_ARC4_BIG_UINTN
-            stub_name = f"{base_cls}[typing.Literal[{n}]]"
-
-        return cls(n=n, name=name, stub_name=stub_name)
+        arc4_name = f"ufixed{bits}x{precision}"
+        self.__attrs_init__(
+            name=f"arc4.{arc4_name}",
+            arc4_name=arc4_name,
+            n=bits,
+            m=precision,
+            decode_type=None,
+        )
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(init=False, kw_only=True)
 class ARC4Tuple(ARC4Type):
     types: tuple[ARC4Type, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
 
-    @classmethod
-    def from_types(cls, types: Iterable[ARC4Type]) -> typing.Self:
+    def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
         types = tuple(types)
         if not types:
-            raise ValueError("arc4.Tuple needs types")
+            raise CodeError("empty tuples are not supported", source_location)
         immutable = True
-        for typ in types:
+        arc4_types = []
+        for typ_idx, typ in enumerate(types):
+            if not isinstance(typ, ARC4Type):
+                raise CodeError(
+                    f"invalid ARC4 Tuple type:"
+                    f" type at index {typ_idx} is not an ARC4 encoded type",
+                    source_location,
+                )
+            arc4_types.append(typ)
             # this seems counterintuitive, but is necessary.
             # despite the overall collection remaining stable, since ARC4 types
             # are encoded as a single value, if items within the tuple can be mutated,
             # then the overall value is also mutable
             immutable = immutable and typ.immutable
         name = f"arc4.tuple<{','.join([t.name for t in types])}>"
-        python_name = f"{constants.CLS_ARC4_TUPLE}[{', '.join(map(str, types))}]"
-        return cls(name=name, stub_name=python_name, types=types, immutable=immutable)
-
-
-@typing.final
-@attrs.frozen(str=False, kw_only=True)
-class ARC4UFixedNxM(ARC4Type):
-    n: int
-    m: int
-
-    @classmethod
-    def from_scale_and_precision(cls, n: int, m: int) -> typing.Self:
-        assert n % 8 == 0, "bit size must be multiple of 8"
-        assert 8 <= n <= 512, "bit size must be between 8 and 512 inclusive"
-        assert 1 <= m <= 160, "precision must be between 1 and 160 inclusive"
-
-        name = f"arc4.ufixed{n}x{m}"
-        base_cls = constants.CLS_ARC4_UFIXEDNXM if n <= 64 else constants.CLS_ARC4_BIG_UFIXEDNXM
-
-        def is_valid_literal(value: object) -> bool:
-            import decimal
-
-            if not isinstance(value, decimal.Decimal):
-                return False
-            sign, digits, exponent = value.as_tuple()
-            if sign != 0:  # is negative
-                return False
-            if not isinstance(exponent, int):  # is infinite
-                return False
-            # note: input is expected to be quantized correctly already
-            if -exponent != m:  # wrong precision
-                return False
-            adjusted_int = int("".join(map(str, digits)))
-            return adjusted_int.bit_length() <= n
-
-        return cls(
-            n=n,
-            m=m,
+        arc4_name = f"({','.join(item.arc4_name for item in arc4_types)})"
+        native_type = WTuple(types, source_location)
+        self.__attrs_init__(
             name=name,
-            stub_name=f"{base_cls}[typing.Literal[{n}], typing.Literal[{m}]]",
-            is_valid_literal=is_valid_literal,
+            arc4_name=arc4_name,
+            types=tuple(arc4_types),
+            immutable=immutable,
+            decode_type=native_type,
         )
 
 
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
     element_type: ARC4Type
-    immutable: bool = attrs.field(default=False, init=False)
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(init=False)
 class ARC4DynamicArray(ARC4Array):
-    @classmethod
-    def from_element_type(cls, element_type: ARC4Type) -> typing.Self:
+    def __init__(
+        self,
+        element_type: WType,
+        source_location: SourceLocation | None,
+        *,
+        alias: str | None = None,
+        native_type: WType | None = None,
+        immutable: bool = False,
+    ):
+        if not isinstance(element_type, ARC4Type):
+            raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
         name = f"arc4.dynamic_array<{element_type.name}>"
-        return cls(
+        arc4_name = alias or f"{element_type.arc4_name}[]"
+        self.__attrs_init__(
             name=name,
+            arc4_name=arc4_name,
             element_type=element_type,
-            stub_name=f"{constants.CLS_ARC4_DYNAMIC_ARRAY}[{element_type}]",
+            decode_type=native_type,
+            immutable=immutable,
         )
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True, init=False)
 class ARC4StaticArray(ARC4Array):
     array_size: int
 
-    @classmethod
-    def from_element_type_and_size(
-        cls, element_type: ARC4Type, array_size: int, alias: str | None = None
-    ) -> typing.Self:
+    def __init__(
+        self,
+        element_type: WType,
+        array_size: int,
+        source_location: SourceLocation | None,
+        *,
+        alias: str | None = None,
+        native_type: WType | None = None,
+        immutable: bool = False,
+    ):
+        if not isinstance(element_type, ARC4Type):
+            raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
+        if array_size < 0:
+            raise CodeError("ARC4 static array size must be non-negative", source_location)
         name = f"arc4.static_array<{element_type.name}, {array_size}>"
-        return cls(
-            array_size=array_size,
+        arc4_name = alias or f"{element_type.arc4_name}[{array_size}]"
+        self.__attrs_init__(
             name=name,
+            arc4_name=arc4_name,
             element_type=element_type,
-            stub_name=(
-                f"{constants.CLS_ARC4_STATIC_ARRAY}["
-                f"{element_type}, typing.Literal[{array_size}]"
-                f"]"
-            ),
-            alias=alias,
+            array_size=array_size,
+            decode_type=native_type,
+            immutable=immutable,
         )
 
 
 @typing.final
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True, init=False)
 class ARC4Struct(ARC4Type):
     fields: Mapping[str, ARC4Type] = attrs.field(
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
     )
-    names: Sequence[str] = attrs.field(init=False, eq=False)
-    types: Sequence[ARC4Type] = attrs.field(init=False, eq=False)
-    immutable: bool = attrs.field(default=False, init=False)
 
-    @names.default
-    def _names_factory(self) -> Sequence[str]:
+    @cached_property
+    def names(self) -> Sequence[str]:
         return list(self.fields.keys())
 
-    @types.default
-    def _types_factory(self) -> Sequence[WType]:
+    @cached_property
+    def types(self) -> Sequence[ARC4Type]:
         return list(self.fields.values())
 
-    @classmethod
-    def from_name_and_fields(
-        cls, *, python_name: str, fields: Mapping[str, ARC4Type]
-    ) -> typing.Self:
+    def __init__(
+        self,
+        fields: Mapping[str, WType],
+        *,
+        name: str,
+        immutable: bool,
+        source_location: SourceLocation | None,
+    ):
         if not fields:
-            raise ValueError("arc4.Struct needs at least one element")
-        name = (
-            "arc4.struct<"
-            + ",".join(
-                f"{field_name}:{field_type.name}" for field_name, field_type in fields.items()
+            raise CodeError("arc4.Struct needs at least one element", source_location)
+        arc4_fields = {}
+        bad_field_names = []
+        for field_name, field_wtype in fields.items():
+            if not isinstance(field_wtype, ARC4Type):
+                bad_field_names.append(field_name)
+                continue
+
+            arc4_fields[field_name] = field_wtype
+            # this seems counterintuitive, but is necessary.
+            # despite the overall collection remaining stable, since ARC4 types
+            # are encoded as a single value, if items within a "frozen" struct can be mutated,
+            # then the overall value is also mutable
+            immutable = immutable and field_wtype.immutable
+        if bad_field_names:
+            raise CodeError(
+                "Invalid ARC4 Struct declaration,"
+                f" the following fields are not ARC4 encoded types: {', '.join(bad_field_names)}",
+                source_location,
             )
-            + ">"
+
+        arc4_name = ARC4Tuple(
+            types=arc4_fields.values(), source_location=source_location
+        ).arc4_name
+        self.__attrs_init__(
+            name=name,
+            arc4_name=arc4_name,
+            fields=arc4_fields,
+            immutable=immutable,
+            decode_type=None,
         )
-        return cls(name=name, stub_name=python_name, fields=fields)
 
 
-arc4_string_wtype: typing.Final = ARC4Type(
-    name="arc4.string",
-    stub_name=constants.CLS_ARC4_STRING,
-    alias="string",
-    is_valid_literal=is_valid_utf8_literal,
-)
-arc4_bool_wtype: typing.Final = ARC4Type(
-    name="arc4.bool",
-    stub_name=constants.CLS_ARC4_BOOL,
-    alias="bool",
-    is_valid_literal=is_valid_bool_literal,
-)
-arc4_byte_type: typing.Final = ARC4UIntN(
+arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,
-    name="arc4.byte",
-    stub_name=constants.CLS_ARC4_BYTE,
     alias="byte",
+    decode_type=uint64_wtype,
+    source_location=None,
 )
-arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(
-    name="arc4.dynamic_bytes",
-    element_type=arc4_byte_type,
-    is_valid_literal=is_valid_bytes_literal,
-    stub_name=constants.CLS_ARC4_DYNAMIC_BYTES,
+
+arc4_string_alias: typing.Final = ARC4DynamicArray(
+    alias="string",
+    element_type=arc4_byte_alias,
+    native_type=string_wtype,
+    immutable=True,
+    source_location=None,
 )
-arc4_address_type: typing.Final = ARC4StaticArray(
-    array_size=32,
-    name="arc4.address",
-    element_type=arc4_byte_type,
-    stub_name=constants.CLS_ARC4_ADDRESS,
+
+arc4_address_alias: typing.Final = ARC4StaticArray(
     alias="address",
+    element_type=arc4_byte_alias,
+    native_type=account_wtype,
+    array_size=32,
+    immutable=True,
+    source_location=None,
 )
+
+
+def persistable_stack_type(
+    wtype: WType, location: SourceLocation
+) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
+    match _storage_type_or_error(wtype):
+        case str(error):
+            raise CodeError(error, location=location)
+        case result:
+            return result
+
+
+def validate_persistable(wtype: WType, location: SourceLocation) -> bool:
+    match _storage_type_or_error(wtype):
+        case str(error):
+            logger.error(error, location=location)
+            return False
+        case _:
+            return True
+
+
+def _storage_type_or_error(wtype: WType) -> str | typing.Literal[AVMType.uint64, AVMType.bytes]:
+    if wtype.ephemeral:
+        return "ephemeral types (such as transaction related types) are not suitable for storage"
+    if wtype.scalar_type is None:
+        return "type is not suitable for storage"
+    return wtype.scalar_type
 
 
 # TODO: move these validation functions somewhere else
@@ -444,7 +496,7 @@ def valid_base32(s: str) -> bool:
         value = base64.b32decode(s)
     except ValueError:
         return False
-    return bytes_wtype.is_valid_literal(value)
+    return len(value) <= algo_constants.MAX_BYTES_LENGTH
     # regex from PyTEAL, appears to be RFC-4648
     # ^(?:[A-Z2-7]{8})*(?:([A-Z2-7]{2}([=]{6})?)|([A-Z2-7]{4}([=]{4})?)|([A-Z2-7]{5}([=]{3})?)|([A-Z2-7]{7}([=]{1})?))?  # noqa: E501
 
@@ -454,7 +506,7 @@ def valid_base16(s: str) -> bool:
         value = base64.b16decode(s)
     except ValueError:
         return False
-    return bytes_wtype.is_valid_literal(value)
+    return len(value) <= algo_constants.MAX_BYTES_LENGTH
 
 
 def valid_base64(s: str) -> bool:
@@ -463,7 +515,7 @@ def valid_base64(s: str) -> bool:
         value = base64.b64decode(s, validate=True)
     except ValueError:
         return False
-    return bytes_wtype.is_valid_literal(value)
+    return len(value) <= algo_constants.MAX_BYTES_LENGTH
     # regex from PyTEAL, appears to be RFC-4648
     # ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
 
@@ -472,95 +524,20 @@ def valid_address(address: str) -> bool:
     """check if address is a valid address with checksum"""
     # Pad address so it's a valid b32 string
     padded_address = address + (6 * "=")
-    if not (len(address) == ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)):
+    if not (
+        len(address) == algo_constants.ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)
+    ):
         return False
     address_bytes = base64.b32decode(padded_address)
-    if len(address_bytes) != PUBLIC_KEY_HASH_LENGTH + ADDRESS_CHECKSUM_LENGTH:
+    if (
+        len(address_bytes)
+        != algo_constants.PUBLIC_KEY_HASH_LENGTH + algo_constants.ADDRESS_CHECKSUM_LENGTH
+    ):
         return False
 
-    public_key_hash = address_bytes[:PUBLIC_KEY_HASH_LENGTH]
-    check_sum = address_bytes[PUBLIC_KEY_HASH_LENGTH:]
-    verified_check_sum = sha512_256_hash(public_key_hash)[-ADDRESS_CHECKSUM_LENGTH:]
+    public_key_hash = address_bytes[: algo_constants.PUBLIC_KEY_HASH_LENGTH]
+    check_sum = address_bytes[algo_constants.PUBLIC_KEY_HASH_LENGTH :]
+    verified_check_sum = sha512_256_hash(public_key_hash)[
+        -algo_constants.ADDRESS_CHECKSUM_LENGTH :
+    ]
     return check_sum == verified_check_sum
-
-
-def is_transaction_type(wtype: WType) -> typing.TypeGuard[WGroupTransaction]:
-    return isinstance(wtype, WGroupTransaction)
-
-
-def is_inner_transaction_type(wtype: WType) -> typing.TypeGuard[WInnerTransaction]:
-    return isinstance(wtype, WInnerTransaction)
-
-
-def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
-    return isinstance(wtype, WTuple) and all(is_inner_transaction_type(t) for t in wtype.types)
-
-
-def is_inner_transaction_field_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionFields]:
-    return isinstance(wtype, WInnerTransactionFields)
-
-
-def is_reference_type(wtype: WType) -> bool:
-    return wtype in (asset_wtype, account_wtype, application_wtype)
-
-
-def is_arc4_encoded_type(wtype: WType) -> typing.TypeGuard[ARC4Type]:
-    return isinstance(wtype, ARC4Type)
-
-
-def is_arc4_argument_type(wtype: WType) -> bool:
-    return is_arc4_encoded_type(wtype) or is_reference_type(wtype) or (is_transaction_type(wtype))
-
-
-def has_arc4_equivalent_type(wtype: WType) -> bool:
-    """
-    Checks if a non-arc4 encoded type has an arc4 equivalent
-    """
-    if wtype in (bool_wtype, uint64_wtype, bytes_wtype, biguint_wtype, string_wtype):
-        return True
-
-    match wtype:
-        case WTuple(types=types):
-            return all(
-                (has_arc4_equivalent_type(t) or is_arc4_encoded_type(t))
-                and not isinstance(t, WTuple)
-                for t in types
-            )
-    return False
-
-
-def avm_to_arc4_equivalent_type(wtype: WType) -> ARC4Type:
-    if wtype is bool_wtype:
-        return arc4_bool_wtype
-    if wtype is uint64_wtype:
-        return ARC4UIntN.from_scale(64)
-    if wtype is biguint_wtype:
-        return ARC4UIntN.from_scale(512)
-    if wtype is bytes_wtype:
-        return arc4_dynamic_bytes
-    if wtype is string_wtype:
-        return arc4_string_wtype
-    if isinstance(wtype, WTuple):
-        return ARC4Tuple.from_types(
-            types=[
-                t if is_arc4_encoded_type(t) else avm_to_arc4_equivalent_type(t)
-                for t in wtype.types
-            ]
-        )
-    raise InternalError(f"{wtype} does not have an arc4 equivalent type")
-
-
-def arc4_to_avm_equivalent_wtype(arc4_wtype: WType) -> WType:
-    match arc4_wtype:
-        case ARC4UIntN(n=n) | ARC4UFixedNxM(n=n):
-            return uint64_wtype if n <= 64 else biguint_wtype
-        case ARC4Tuple(types=types):
-            return WTuple.from_types(types)
-        case ARC4DynamicArray(element_type=ARC4UIntN(n=8)):
-            return bytes_wtype
-    if arc4_wtype is arc4_string_wtype:
-        return string_wtype
-    elif arc4_wtype is arc4_bool_wtype:
-        return bool_wtype
-
-    raise InternalError(f"Invalid arc4_wtype: {arc4_wtype}")

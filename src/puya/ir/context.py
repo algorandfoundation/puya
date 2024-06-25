@@ -80,9 +80,10 @@ class IRBuildContext(CompileContext):
     ) -> awst_nodes.Function:
         try:
             match target:
-                case awst_nodes.BaseClassSubroutineTarget(base_class=cref, name=func_name):
-                    contract = self.resolve_contract_reference(cref)
-                    func: awst_nodes.Node = contract.symtable[func_name]
+                case awst_nodes.BaseClassSubroutineTarget(base_class=base_cref, name=func_name):
+                    func: awst_nodes.Node = self._resolve_contract_attribute(
+                        func_name, source_location, start=base_cref
+                    )
                 case awst_nodes.InstanceSubroutineTarget(name=func_name):
                     func = self._resolve_contract_attribute(func_name, source_location)
                 case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
@@ -107,30 +108,33 @@ class IRBuildContext(CompileContext):
             )
         return func
 
-    def resolve_state(
-        self, field_name: str, source_location: SourceLocation
-    ) -> awst_nodes.AppStateDefinition:
-        node = self._resolve_contract_attribute(field_name, source_location)
-        if not isinstance(node, awst_nodes.AppStateDefinition):
-            raise CodeError(f"State reference {field_name} resolved to {node}", source_location)
-        return node
-
     def _resolve_contract_attribute(
-        self, name: str, source_location: SourceLocation
-    ) -> awst_nodes.ContractMethod | awst_nodes.AppStateDefinition:
-        if self.contract is None:
+        self,
+        name: str,
+        source_location: SourceLocation,
+        *,
+        start: awst_nodes.ContractReference | None = None,
+    ) -> awst_nodes.ContractMethod:
+        current = self.contract
+        if current is None:
             raise InternalError(
                 f"Cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
+        if start is None:
+            start_contract = current
+        else:
+            if start not in current.bases:
+                raise CodeError("Call to base method outside current hierarchy", source_location)
+            start_contract = self.resolve_contract_reference(start)
         for contract in (
-            self.contract,
-            *[self.resolve_contract_reference(cref) for cref in self.contract.bases],
+            start_contract,
+            *[self.resolve_contract_reference(cref) for cref in start_contract.bases],
         ):
             with contextlib.suppress(KeyError):
-                return contract.symtable[name]
+                return contract.methods[name]
         raise CodeError(
-            f"Unresolvable attribute '{name}' of {self.contract.full_name}",
+            f"Unresolvable attribute '{name}' of {start_contract.full_name}",
             source_location,
         )
 

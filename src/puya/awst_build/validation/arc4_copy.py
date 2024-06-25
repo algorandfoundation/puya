@@ -1,5 +1,7 @@
 from collections.abc import Iterator
 
+import attrs
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
@@ -20,6 +22,16 @@ class ARC4CopyValidator(AWSTTraverser):
     def __init__(self) -> None:
         super().__init__()
         self._for_items: awst_nodes.Lvalue | None = None
+
+    # for nodes that can't modify the input don't need to check for copies unless an assignment
+    # expression is being used
+    def visit_submit_inner_transaction(self, call: awst_nodes.SubmitInnerTransaction) -> None:
+        if _HasAssignmentVisitor.check(call):
+            super().visit_submit_inner_transaction(call)
+
+    def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> None:
+        if _HasAssignmentVisitor.check(call):
+            super().visit_intrinsic_call(call)
 
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         _check_assignment(statement.target, statement.value)
@@ -84,6 +96,7 @@ def _is_referable_expression(expr: awst_nodes.Expression) -> bool:
             | awst_nodes.AppAccountStateExpression()
             | awst_nodes.StateGet()
             | awst_nodes.StateGetEx()
+            | awst_nodes.BoxValueExpression()
         ):
             return True
         case (
@@ -98,20 +111,19 @@ def _is_referable_expression(expr: awst_nodes.Expression) -> bool:
 def _check_assignment(target: awst_nodes.Expression, value: awst_nodes.Expression) -> None:
     if not isinstance(target, awst_nodes.TupleExpression):
         _check_for_arc4_copy(value, "being assigned to another variable")
-    elif _is_referable_expression(value):
-        problem_type = next((i for i in target.wtype.types if _is_arc4_mutable(i)), None)
-        if problem_type:
-            logger.error(
-                f"Tuple cannot be destructured as it contains an item of type"
-                f" {problem_type} which requires copying. Use index access instead",
-                location=value.source_location,
-            )
+    elif _is_referable_expression(value) and any(_is_arc4_mutable(i) for i in target.wtype.types):
+        logger.error(
+            "tuples containing a mutable reference to an ARC4-encoded value cannot be unpacked,"
+            " use index access instead",
+            location=value.source_location,
+        )
 
 
 def _check_for_arc4_copy(expr: awst_nodes.Expression, context_desc: str) -> None:
     if _is_arc4_mutable(expr.wtype) and _is_referable_expression(expr):
         logger.error(
-            f"{expr.wtype} must be copied using .copy() when {context_desc}",
+            "mutable reference to ARC4-encoded value"
+            f" must be copied using .copy() when {context_desc}",
             location=expr.source_location,
         )
 
@@ -134,3 +146,17 @@ def _is_arc4_mutable(wtype: wtypes.WType) -> bool:
         case wtypes.WTuple(types=types):
             return any(_is_arc4_mutable(t) for t in types)
     return False
+
+
+@attrs.define
+class _HasAssignmentVisitor(AWSTTraverser):
+    has_assignment: bool = False
+
+    @classmethod
+    def check(cls, expr: awst_nodes.Expression) -> bool:
+        visitor = _HasAssignmentVisitor()
+        expr.accept(visitor)
+        return visitor.has_assignment
+
+    def visit_assignment_expression(self, _: awst_nodes.AssignmentExpression) -> None:
+        self.has_assignment = True

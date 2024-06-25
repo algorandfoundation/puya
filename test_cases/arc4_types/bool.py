@@ -1,6 +1,6 @@
 import typing as t
 
-from algopy import Bytes, Contract, subroutine
+from algopy import Bytes, Contract, Txn, subroutine
 from algopy.arc4 import (
     Bool as ARC4Bool,
     DynamicArray,
@@ -11,6 +11,9 @@ from algopy.arc4 import (
 class Arc4BoolTypeContract(Contract):
     def approval_program(self) -> bool:
         self.test_stuff(ARC4Bool(True), ARC4Bool(False))
+        assert ARC4Bool(
+            False if Txn.num_app_args else True  # noqa: SIM211
+        ).native, "conditional expr"
 
         static_boolean_array = StaticArray[ARC4Bool, t.Literal[12]](
             ARC4Bool(True),
@@ -37,6 +40,11 @@ class Arc4BoolTypeContract(Contract):
         )
 
         assert dynamic_boolean_array.bytes == Bytes.from_hex("0003A0")
+
+        assert ARC4Bool(True) == True  # noqa: E712
+        assert ARC4Bool(False) != True  # noqa: E712
+        assert False == ARC4Bool(False)  # noqa: E712, SIM300
+        assert False != ARC4Bool(True)  # noqa: E712, SIM300
 
         return True
 

@@ -26,13 +26,13 @@ test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
     // assert dynamic_bytes.native == b"\x02\x03\x01"
     dup
     extract 2 0
-    byte "\x02\x03\x01"
+    byte 0x020301
     ==
     assert
     // arc4_types/dynamic_bytes.py:14
     // assert dynamic_bytes.bytes == b"\x00\x03\x02\x03\x01"
     dup
-    byte "\x00\x03\x02\x03\x01"
+    byte 0x0003020301
     ==
     assert
     // arc4_types/dynamic_bytes.py:16
@@ -89,13 +89,13 @@ main_after_for@4:
     // assert dynamic_bytes2.native == b"\x03\x04"
     dup
     extract 2 0
-    byte "\x03\x04"
+    byte 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:23
     // assert dynamic_bytes2.bytes == b"\x00\x02\x03\x04"
     dup
-    byte "\x00\x02\x03\x04"
+    byte 0x00020304
     ==
     assert
     // arc4_types/dynamic_bytes.py:25
@@ -150,13 +150,13 @@ main_after_for@8:
     // assert dynamic_bytes3.native == b"\x03\x04"
     dup
     extract 2 0
-    byte "\x03\x04"
+    byte 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:30
     // assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
     dup
-    byte "\x00\x02\x03\x04"
+    byte 0x00020304
     ==
     assert
     // arc4_types/dynamic_bytes.py:32
@@ -222,16 +222,76 @@ main_after_for@12:
     // arc4_types/dynamic_bytes.py:38
     // assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
     dup
-    byte "\x00\x05\x03\x04abc"
+    byte 0x00050304616263
     ==
     assert
     // arc4_types/dynamic_bytes.py:39
     // assert dynamic_bytes3.native == b"\x03\x04abc"
     extract 2 0
-    byte "\x03\x04abc"
+    byte 0x0304616263
     ==
     assert
     // arc4_types/dynamic_bytes.py:41
+    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+    txn NumAppArgs
+    bz main_ternary_false@14
+    byte 0x02
+    b main_ternary_merge@15
+
+main_ternary_false@14:
+    // arc4_types/dynamic_bytes.py:41
+    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+    byte 0x03
+
+main_ternary_merge@15:
+    // arc4_types/dynamic_bytes.py:41
+    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+    byte 0x
+    uncover 1
+    concat
+    byte 0x03
+    concat
+    byte 0x01
+    concat
+    byte 0x0003
+    uncover 1
+    concat
+    // arc4_types/dynamic_bytes.py:42
+    // assert dynamic_bytes.native == Bytes.from_hex("030301")
+    extract 2 0
+    byte 0x030301
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:44
+    // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
+    txn NumAppArgs
+    bz main_ternary_false@17
+    byte 0x32
+    len
+    itob
+    extract 6 2
+    byte 0x32
+    concat
+    b main_ternary_merge@18
+
+main_ternary_false@17:
+    // arc4_types/dynamic_bytes.py:44
+    // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
+    byte 0x33
+    len
+    itob
+    extract 6 2
+    byte 0x33
+    concat
+
+main_ternary_merge@18:
+    // arc4_types/dynamic_bytes.py:45
+    // assert dynamic_bytes.native == b"3"
+    extract 2 0
+    byte 0x33
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:46
     // return True
     int 1
     return

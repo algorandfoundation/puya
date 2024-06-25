@@ -1,106 +1,93 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    Expression,
-    FieldExpression,
-    Literal,
-    NewStruct,
+from puya.awst.nodes import Expression, FieldExpression, NewStruct
+from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb._bytes_backed import (
+    BytesBackedInstanceExpressionBuilder,
+    BytesBackedTypeBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes, get_bytes_expr_builder
-from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
-from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import get_arg_mapping, require_expression_builder
-from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.awst_build.eb.base import (
-        ExpressionBuilder,
-    )
-    from puya.parse import SourceLocation
-
+from puya.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
+from puya.awst_build.eb.arc4._base import CopyBuilder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puya.awst_build.utils import get_arg_mapping
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return self.wtype
+class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.StructType)
+        assert pytypes.ARC4StructBaseType in typ.mro
+        super().__init__(typ, location)
 
-    def __init__(
-        self,
-        wtype: wtypes.ARC4Struct,
-        location: SourceLocation,
-    ):
-        super().__init__(location)
-        self.wtype = wtype
-
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        ordered_field_names = self.wtype.names
-        field_mapping = get_arg_mapping(
-            positional_arg_names=ordered_field_names,
-            args=zip(arg_names, args, strict=True),
-            location=location,
+    ) -> InstanceBuilder:
+        pytype = self.produces()
+        field_mapping, any_missing = get_arg_mapping(
+            required_positional_names=list(pytype.fields),
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
+        if any_missing:
+            return dummy_value(pytype, location)
 
-        values = dict[str, Expression]()
-        for field_name, field_type in self.wtype.fields.items():
-            field_value = field_mapping.pop(field_name, None)
-            if field_value is None:
-                raise CodeError(f"Missing required argument {field_name}", location)
-            field_expr = require_expression_builder(field_value).rvalue()
-            if field_expr.wtype != field_type:
-                raise CodeError("Invalid type for field", field_expr.source_location)
-            values[field_name] = field_expr
-        if field_mapping:
-            raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
-
-        return var_expression(NewStruct(wtype=self.wtype, values=values, source_location=location))
+        values = {
+            field_name: expect.argument_of_type_else_dummy(
+                field_mapping[field_name], field_type
+            ).resolve()
+            for field_name, field_type in pytype.fields.items()
+        }
+        assert isinstance(pytype.wtype, wtypes.ARC4Struct)
+        expr: Expression = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
+        return ARC4StructExpressionBuilder(expr, pytype)
 
 
-class ARC4StructExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
-        assert isinstance(expr.wtype, wtypes.ARC4Struct)
-        self.wtype: wtypes.ARC4Struct = expr.wtype
-        super().__init__(expr)
+class ARC4StructExpressionBuilder(
+    NotIterableInstanceExpressionBuilder[pytypes.StructType],
+    BytesBackedInstanceExpressionBuilder[pytypes.StructType],
+):
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.StructType)
+        super().__init__(typ, expr)
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
         match name:
-            case field_name if field_name in self.wtype.fields:
-                return var_expression(
-                    FieldExpression(
-                        source_location=location,
-                        base=self.expr,
-                        name=field_name,
-                        wtype=self.wtype.fields[field_name],
-                    )
+            case field_name if field := self.pytype.fields.get(field_name):
+                result_expr = FieldExpression(
+                    base=self.resolve(),
+                    name=field_name,
+                    wtype=field.wtype,
+                    source_location=location,
                 )
-            case "bytes":
-                return get_bytes_expr_builder(self.expr)
+                return builder_for_instance(field, result_expr)
             case "copy":
-                return CopyBuilder(self.expr, location)
+                return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
-                return super().member_access(name, location)
+                return super().member_access(name, expr, location)
 
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return arc4_compare_bytes(self, op, other, location)
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return constant_bool_and_error(value=True, location=location, negate=negate)

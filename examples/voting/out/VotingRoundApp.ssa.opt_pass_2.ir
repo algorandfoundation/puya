@@ -10,7 +10,7 @@ contract examples.voting.voting.VotingRoundApp:
             block@2: // entrypoint_L50
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%0#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => fail // reject transaction}
-            block@3: // create_route_L56
+            block@3: // create_route_L58
                 let tmp%1#0: uint64 = (txn OnCompletion)
                 let tmp%2#0: bool = (! tmp%1#0)
                 (assert tmp%2#0) // OnCompletion is NoOp
@@ -34,7 +34,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%19#0: bytes = ((extract 2 0) tmp%18#0)
                 examples.voting.voting.VotingRoundApp.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%12#0, tmp%14#0, tmp%15#0, tmp%17#0, tmp%19#0)
                 return 1u
-            block@4: // bootstrap_route_L80
+            block@4: // bootstrap_route_L82
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 let tmp%21#0: bool = (! tmp%20#0)
                 (assert tmp%21#0) // OnCompletion is NoOp
@@ -47,7 +47,7 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert tmp%25#0) // transaction type is pay
                 examples.voting.voting.VotingRoundApp.bootstrap(awst_tmp%0#0)
                 return 1u
-            block@5: // close_route_L108
+            block@5: // close_route_L110
                 let tmp%26#0: uint64 = (txn OnCompletion)
                 let tmp%27#0: bool = (! tmp%26#0)
                 (assert tmp%27#0) // OnCompletion is NoOp
@@ -55,7 +55,7 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert tmp%28#0) // is not creating
                 examples.voting.voting.VotingRoundApp.close()
                 return 1u
-            block@6: // get_preconditions_route_L158
+            block@6: // get_preconditions_route_L160
                 let tmp%29#0: uint64 = (txn OnCompletion)
                 let tmp%30#0: bool = (! tmp%29#0)
                 (assert tmp%30#0) // OnCompletion is NoOp
@@ -67,7 +67,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
                 (log tmp%35#0)
                 return 1u
-            block@7: // vote_route_L167
+            block@7: // vote_route_L169
                 let tmp%36#0: uint64 = (txn OnCompletion)
                 let tmp%37#0: bool = (! tmp%36#0)
                 (assert tmp%37#0) // OnCompletion is NoOp
@@ -85,7 +85,7 @@ contract examples.voting.voting.VotingRoundApp:
                 return 1u
         
         subroutine examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
-            block@0: // L56
+            block@0: // L58
                 let tmp%0#0: bool = (< start_time#0 end_time#0)
                 (assert tmp%0#0) // End time should be after start time
                 let tmp%1#0: uint64 = (global LatestTimestamp)
@@ -102,7 +102,7 @@ contract examples.voting.voting.VotingRoundApp:
                 return 
         
         subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
-            block@0: // L216
+            block@0: // L217
                 let reinterpret_bool%0#0: bool = (extract_uint16 option_counts#0 0u)
                 (assert reinterpret_bool%0#0) // option_counts should be non-empty
                 let tmp%1#0: bool = (<= reinterpret_bool%0#0 112u)
@@ -110,19 +110,19 @@ contract examples.voting.voting.VotingRoundApp:
                 let total_options#0: uint64 = 0u
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L222
+            block@1: // for_header_L223
                 let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
                 let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@2)
                 let continue_looping%0#0: bool = (< item_index_internal%0#1 reinterpret_bool%0#0)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L222
+            block@2: // for_body_L223
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
                 let item#0: bytes = (extract3 array_head_and_tail%0#0 item_index_internal%0#1 1u) // on error: Index access is out of bounds
                 let tmp%2#0: uint64 = (btoi item#0)
                 let total_options#2: uint64 = (+ total_options#1 tmp%2#0)
                 let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
                 goto block@1
-            block@4: // after_for_L222
+            block@4: // after_for_L223
                 let tmp%3#0: bool = (<= total_options#1 128u)
                 (assert tmp%3#0) // Can't have more than 128 vote options
                 (app_global_put "option_counts" option_counts#0)
@@ -130,19 +130,19 @@ contract examples.voting.voting.VotingRoundApp:
                 return option_counts#0
         
         subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
-            block@0: // L80
-                let (is_bootstrapped_value%0#0: bool, is_bootstrapped_exists%0#0: bool) = (app_global_get_ex 0u "is_bootstrapped")
-                (assert is_bootstrapped_exists%0#0) // check is_bootstrapped exists
-                let tmp%0#0: bool = (! is_bootstrapped_value%0#0)
+            block@0: // L82
+                let (maybe_value%0#0: bool, maybe_exists%0#0: bool) = (app_global_get_ex 0u "is_bootstrapped")
+                (assert maybe_exists%0#0) // check self.is_bootstrapped exists
+                let tmp%0#0: bool = (! maybe_value%0#0)
                 (assert tmp%0#0) // Must not be already bootstrapped
                 (app_global_put "is_bootstrapped" 1u)
                 let tmp%1#0: bytes = ((gtxns Receiver) fund_min_bal_req#0)
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let tmp%3#0: bool = (== tmp%1#0 tmp%2#0)
                 (assert tmp%3#0) // Payment must be to app address
-                let (total_options_value%0#0: uint64, total_options_exists%0#0: bool) = (app_global_get_ex 0u "total_options")
-                (assert total_options_exists%0#0) // check total_options exists
-                let tally_box_size#0: uint64 = (* total_options_value%0#0 8u)
+                let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "total_options")
+                (assert maybe_exists%1#0) // check self.total_options exists
+                let tally_box_size#0: uint64 = (* maybe_value%1#0 8u)
                 let tmp%4#0: uint64 = (* tally_box_size#0 400u)
                 let min_balance_req#0: uint64 = (+ 203900u tmp%4#0)
                 let tmp%5#0: bytes = (itob min_balance_req#0)
@@ -155,101 +155,101 @@ contract examples.voting.voting.VotingRoundApp:
                 return 
         
         subroutine examples.voting.voting.VotingRoundApp.close() -> void:
-            block@0: // L108
+            block@0: // L110
                 algopy.ensure_budget(20000u, 0u)
-                let (close_time_exists%0#0: uint64, close_time_exists%1#0: bool) = (app_global_get_ex 0u "close_time")
-                let tmp%0#0: bool = (! close_time_exists%1#0)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "close_time")
+                let tmp%0#0: bool = (! maybe_exists%0#0)
                 (assert tmp%0#0) // Already closed
                 let new_state_value%0#0: uint64 = (global LatestTimestamp)
                 (app_global_put "close_time" new_state_value%0#0)
-                let (vote_id_value%0#0: bytes, vote_id_exists%0#0: bool) = (app_global_get_ex 0u "vote_id")
-                (assert vote_id_exists%0#0) // check vote_id exists
-                let tmp%1#0: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " vote_id_value%0#0)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "vote_id")
+                (assert maybe_exists%1#0) // check self.vote_id exists
+                let tmp%1#0: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " maybe_value%1#0)
                 let tmp%2#0: bytes = (concat tmp%1#0 ".\",\"properties\":{\"metadata\":\"ipfs://")
-                let (metadata_ipfs_cid_value%0#0: bytes, metadata_ipfs_cid_exists%0#0: bool) = (app_global_get_ex 0u "metadata_ipfs_cid")
-                (assert metadata_ipfs_cid_exists%0#0) // check metadata_ipfs_cid exists
-                let tmp%3#0: bytes = (concat tmp%2#0 metadata_ipfs_cid_value%0#0)
+                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "metadata_ipfs_cid")
+                (assert maybe_exists%2#0) // check self.metadata_ipfs_cid exists
+                let tmp%3#0: bytes = (concat tmp%2#0 maybe_value%2#0)
                 let tmp%4#0: bytes = (concat tmp%3#0 "\",\"id\":\"")
-                let (vote_id_value%1#0: bytes, vote_id_exists%1#0: bool) = (app_global_get_ex 0u "vote_id")
-                (assert vote_id_exists%1#0) // check vote_id exists
-                let tmp%5#0: bytes = (concat tmp%4#0 vote_id_value%1#0)
+                let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "vote_id")
+                (assert maybe_exists%3#0) // check self.vote_id exists
+                let tmp%5#0: bytes = (concat tmp%4#0 maybe_value%3#0)
                 let tmp%6#0: bytes = (concat tmp%5#0 "\",\"quorum\":")
-                let (quorum_value%0#0: uint64, quorum_exists%0#0: bool) = (app_global_get_ex 0u "quorum")
-                (assert quorum_exists%0#0) // check quorum exists
-                let tmp%7#0: bytes = examples.voting.voting.itoa(quorum_value%0#0)
+                let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "quorum")
+                (assert maybe_exists%4#0) // check self.quorum exists
+                let tmp%7#0: bytes = examples.voting.voting.itoa(maybe_value%4#0)
                 let tmp%8#0: bytes = (concat tmp%6#0 tmp%7#0)
                 let tmp%9#0: bytes = (concat tmp%8#0 ",\"voterCount\":")
-                let (voter_count_value%0#0: uint64, voter_count_exists%0#0: bool) = (app_global_get_ex 0u "voter_count")
-                (assert voter_count_exists%0#0) // check voter_count exists
-                let tmp%10#0: bytes = examples.voting.voting.itoa(voter_count_value%0#0)
+                let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "voter_count")
+                (assert maybe_exists%5#0) // check self.voter_count exists
+                let tmp%10#0: bytes = examples.voting.voting.itoa(maybe_value%5#0)
                 let tmp%11#0: bytes = (concat tmp%9#0 tmp%10#0)
                 let note#0: bytes = (concat tmp%11#0 ",\"tallies\":[")
                 let current_index#0: uint64 = 0u
-                let (option_counts_value%0#0: bytes, option_counts_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
-                (assert option_counts_exists%0#0) // check option_counts exists
-                let array_length%0#0: uint64 = (extract_uint16 option_counts_value%0#0 0u)
+                let (maybe_value%6#0: bytes, maybe_exists%6#0: bool) = (app_global_get_ex 0u "option_counts")
+                (assert maybe_exists%6#0) // check self.option_counts exists
+                let array_length%0#0: uint64 = (extract_uint16 maybe_value%6#0 0u)
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L130
+            block@1: // for_header_L132
                 let question_index#0: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#6 <- block@13)
                 let note#1: bytes = φ(note#0 <- block@0, note#11 <- block@13)
                 let current_index#6: uint64 = φ(current_index#0 <- block@0, current_index#7 <- block@13)
                 let continue_looping%0#0: bool = (< question_index#0 array_length%0#0)
                 goto continue_looping%0#0 ? block@2 : block@15
-            block@2: // for_body_L130
-                let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts_value%0#0)
+            block@2: // for_body_L132
+                let array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%6#0)
                 let question_options#0: bytes = (extract3 array_head_and_tail%0#0 question_index#0 1u) // on error: Index access is out of bounds
                 goto question_index#0 ? block@3 : block@4
-            block@3: // if_body_L131
+            block@3: // if_body_L133
                 let note#2: bytes = (concat note#1 ",")
                 goto block@4
-            block@4: // after_if_else_L131
+            block@4: // after_if_else_L133
                 let note#3: bytes = φ(note#1 <- block@2, note#2 <- block@3)
                 let tmp%13#0: bool = (b> question_options#0 0x00)
                 goto tmp%13#0 ? block@5 : block@13
-            block@5: // if_body_L133
+            block@5: // if_body_L135
                 let note#4: bytes = (concat note#3 "[")
                 let tmp%14#0: uint64 = (btoi question_options#0)
                 let range_item%0#0: uint64 = 0u
                 goto block@6
-            block@6: // for_header_L135
+            block@6: // for_header_L137
                 let option_index#0: uint64 = φ(range_item%0#0 <- block@5, range_item%0#4 <- block@9)
                 let note#9: bytes = φ(note#4 <- block@5, note#8 <- block@9)
                 let current_index#4: uint64 = φ(current_index#6 <- block@5, current_index#3 <- block@9)
                 let continue_looping%1#0: bool = (< option_index#0 tmp%14#0)
                 goto continue_looping%1#0 ? block@7 : block@12
-            block@7: // for_body_L135
+            block@7: // for_body_L137
                 goto option_index#0 ? block@8 : block@9
-            block@8: // if_body_L136
+            block@8: // if_body_L138
                 let note#6: bytes = (concat note#9 ",")
                 goto block@9
-            block@9: // after_if_else_L136
+            block@9: // after_if_else_L138
                 let note#7: bytes = φ(note#9 <- block@7, note#6 <- block@8)
-                let votes_for_option#0: uint64 = examples.voting.voting.get_vote_from_box(current_index#4)
+                let votes_for_option#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(current_index#4)
                 let tmp%16#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
                 let note#8: bytes = (concat note#7 tmp%16#0)
                 let current_index#3: uint64 = (+ current_index#4 1u)
                 let range_item%0#4: uint64 = (+ option_index#0 1u)
                 goto block@6
-            block@12: // after_for_L135
+            block@12: // after_for_L137
                 let note#10: bytes = (concat note#9 "]")
                 goto block@13
-            block@13: // after_if_else_L133
+            block@13: // after_if_else_L135
                 let note#11: bytes = φ(note#3 <- block@4, note#10 <- block@12)
                 let current_index#7: uint64 = φ(current_index#6 <- block@4, current_index#4 <- block@12)
                 let item_index_internal%0#6: uint64 = (+ question_index#0 1u)
                 goto block@1
-            block@15: // after_for_L130
+            block@15: // after_for_L132
                 let note#12: bytes = (concat note#1 "]}}")
                 itxn_begin
                 let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
-                let (vote_id_value%2#0: bytes, vote_id_exists%2#0: bool) = (app_global_get_ex 0u "vote_id")
-                (assert vote_id_exists%2#0) // check vote_id exists
-                let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " vote_id_value%2#0)
-                let (nft_image_url_value%0#0: bytes, nft_image_url_exists%0#0: bool) = (app_global_get_ex 0u "nft_image_url")
-                (assert nft_image_url_exists%0#0) // check nft_image_url exists
+                let (maybe_value%7#0: bytes, maybe_exists%7#0: bool) = (app_global_get_ex 0u "vote_id")
+                (assert maybe_exists%7#0) // check self.vote_id exists
+                let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " maybe_value%7#0)
+                let (maybe_value%8#0: bytes, maybe_exists%8#0: bool) = (app_global_get_ex 0u "nft_image_url")
+                (assert maybe_exists%8#0) // check self.nft_image_url exists
                 ((itxn_field Note) note#12)
-                ((itxn_field ConfigAssetURL) nft_image_url_value%0#0)
+                ((itxn_field ConfigAssetURL) maybe_value%8#0)
                 ((itxn_field ConfigAssetUnitName) "VOTERSLT")
                 ((itxn_field ConfigAssetName) inner_txn_params%0%%param_ConfigAssetName_idx_0#0)
                 ((itxn_field ConfigAssetDefaultFrozen) 0u)
@@ -291,32 +291,30 @@ contract examples.voting.voting.VotingRoundApp:
                 return 
         
         subroutine examples.voting.voting.itoa(i: uint64) -> bytes:
-            block@0: // L254
+            block@0: // L249
                 let tmp%0#0: bool = (< i#0 10u)
                 goto tmp%0#0 ? block@1 : block@2
-            block@1: // if_body_L258
+            block@1: // if_body_L253
                 let index_plus_1%0#0: uint64 = (+ i#0 1u)
-                let tmp%1#0: bytes = (substring3 "0123456789" i#0 index_plus_1%0#0)
+                let tmp%1#0: bytes = (substring3 0x30313233343536373839 i#0 index_plus_1%0#0)
                 return tmp%1#0
-            block@2: // after_if_else_L258
+            block@2: // after_if_else_L253
                 let tmp%2#0: uint64 = (/ i#0 10u)
                 let tmp%3#0: bytes = examples.voting.voting.itoa(tmp%2#0)
                 let tmp%4#0: uint64 = (% i#0 10u)
                 let index_plus_1%1#0: uint64 = (+ tmp%4#0 1u)
-                let tmp%5#0: bytes = (substring3 "0123456789" tmp%4#0 index_plus_1%1#0)
+                let tmp%5#0: bytes = (substring3 0x30313233343536373839 tmp%4#0 index_plus_1%1#0)
                 let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
                 return tmp%6#0
         
-        subroutine examples.voting.voting.get_vote_from_box(index: uint64) -> uint64:
+        subroutine examples.voting.voting.VotingRoundApp.get_vote_from_box(index: uint64) -> uint64:
             block@0: // L239
-                let (box_data#0: bytes, exists#0: bool) = (box_get "V")
-                (assert exists#0) // Box not created
-                let tmp%0#0: bytes = (extract3 box_data#0 index#0 8u)
+                let tmp%0#0: bytes = (box_extract "V" index#0 8u)
                 let tmp%1#0: uint64 = (btoi tmp%0#0)
                 return tmp%1#0
         
         subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> bytes:
-            block@0: // L158
+            block@0: // L160
                 let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
                 let val_as_bytes%0#0: bytes = (itob tmp%0#0)
                 let tmp%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
@@ -331,51 +329,51 @@ contract examples.voting.voting.VotingRoundApp:
                 return encoded_tuple_buffer%4#0
         
         subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
-            block@0: // L203
-                let (is_bootstrapped_value%0#0: bool, is_bootstrapped_exists%0#0: bool) = (app_global_get_ex 0u "is_bootstrapped")
-                (assert is_bootstrapped_exists%0#0) // check is_bootstrapped exists
-                goto is_bootstrapped_value%0#0 ? block@1 : block@5
-            block@1: // and_contd_L206
-                let (close_time_exists%0#0: uint64, close_time_exists%1#0: bool) = (app_global_get_ex 0u "close_time")
-                goto close_time_exists%1#0 ? block@5 : block@2
-            block@2: // and_contd_L206
-                let (start_time_value%0#0: uint64, start_time_exists%0#0: bool) = (app_global_get_ex 0u "start_time")
-                (assert start_time_exists%0#0) // check start_time exists
+            block@0: // L205
+                let (maybe_value%0#0: bool, maybe_exists%0#0: bool) = (app_global_get_ex 0u "is_bootstrapped")
+                (assert maybe_exists%0#0) // check self.is_bootstrapped exists
+                goto maybe_value%0#0 ? block@1 : block@5
+            block@1: // and_contd_L208
+                let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "close_time")
+                goto maybe_exists%1#0 ? block@5 : block@2
+            block@2: // and_contd_L208
+                let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "start_time")
+                (assert maybe_exists%2#0) // check self.start_time exists
                 let awst_tmp%0#0: uint64 = (global LatestTimestamp)
-                let tmp%0#0: bool = (<= start_time_value%0#0 awst_tmp%0#0)
+                let tmp%0#0: bool = (<= maybe_value%2#0 awst_tmp%0#0)
                 goto tmp%0#0 ? block@3 : block@5
-            block@3: // and_contd_L208
-                let (end_time_value%0#0: uint64, end_time_exists%0#0: bool) = (app_global_get_ex 0u "end_time")
-                (assert end_time_exists%0#0) // check end_time exists
-                let tmp%1#0: bool = (<= awst_tmp%0#0 end_time_value%0#0)
+            block@3: // and_contd_L210
+                let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "end_time")
+                (assert maybe_exists%3#0) // check self.end_time exists
+                let tmp%1#0: bool = (<= awst_tmp%0#0 maybe_value%3#0)
                 goto tmp%1#0 ? block@4 : block@5
-            block@4: // bool_true_L206
+            block@4: // bool_true_L208
                 let and_result%0#0: bool = 1u
                 goto block@6
-            block@5: // bool_false_L206
+            block@5: // bool_false_L208
                 let and_result%0#1: bool = 0u
                 goto block@6
-            block@6: // bool_merge_L206
+            block@6: // bool_merge_L208
                 let and_result%0#2: bool = φ(and_result%0#0 <- block@4, and_result%0#1 <- block@5)
                 return and_result%0#2
         
         subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> bool:
-            block@0: // L229
+            block@0: // L230
                 algopy.ensure_budget(2000u, 0u)
                 let tmp%0#0: bytes = (txn Sender)
-                let (snapshot_public_key_value%0#0: bytes, snapshot_public_key_exists%0#0: bool) = (app_global_get_ex 0u "snapshot_public_key")
-                (assert snapshot_public_key_exists%0#0) // check snapshot_public_key exists
-                let tmp%1#0: bool = (ed25519verify_bare tmp%0#0 signature#0 snapshot_public_key_value%0#0)
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "snapshot_public_key")
+                (assert maybe_exists%0#0) // check self.snapshot_public_key exists
+                let tmp%1#0: bool = (ed25519verify_bare tmp%0#0 signature#0 maybe_value%0#0)
                 return tmp%1#0
         
         subroutine examples.voting.voting.VotingRoundApp.already_voted() -> bool:
-            block@0: // L211
+            block@0: // L213
                 let tmp%0#0: bytes = (txn Sender)
-                let (votes#0: bytes, exists#0: bool) = (box_get tmp%0#0)
-                return exists#0
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len tmp%0#0)
+                return maybe_exists%0#0
         
         subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
-            block@0: // L167
+            block@0: // L169
                 algopy.ensure_budget(7700u, 0u)
                 let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
                 (assert tmp%0#0) // Not allowed to vote
@@ -384,9 +382,9 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
                 let tmp%3#0: bool = (! tmp%2#0)
                 (assert tmp%3#0) // Already voted
-                let (option_counts_value%0#0: bytes, option_counts_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
-                (assert option_counts_exists%0#0) // check option_counts exists
-                let questions_count#0: uint64 = (extract_uint16 option_counts_value%0#0 0u)
+                let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
+                (assert maybe_exists%0#0) // check self.option_counts exists
+                let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
                 let tmp%4#0: uint64 = (extract_uint16 answer_ids#0 0u)
                 let tmp%5#0: bool = (== tmp%4#0 questions_count#0)
                 (assert tmp%5#0) // Number of answers incorrect
@@ -405,45 +403,43 @@ contract examples.voting.voting.VotingRoundApp:
                 let cumulative_offset#0: uint64 = 0u
                 let range_item%0#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L193
+            block@1: // for_header_L195
                 let question_index#0: uint64 = φ(range_item%0#0 <- block@0, range_item%0#3 <- block@2)
                 let cumulative_offset#3: uint64 = φ(cumulative_offset#0 <- block@0, cumulative_offset#2 <- block@2)
                 let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
                 goto continue_looping%0#0 ? block@2 : block@5
-            block@2: // for_body_L193
+            block@2: // for_body_L195
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) answer_ids#0)
                 let tmp%16#0: bytes = (extract3 array_head_and_tail%0#0 question_index#0 1u) // on error: Index access is out of bounds
                 let answer_option_index#0: uint64 = (btoi tmp%16#0)
-                let (option_counts_value%1#0: bytes, option_counts_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
-                (assert option_counts_exists%1#0) // check option_counts exists
-                let array_head_and_tail%1#0: bytes = ((extract 2 0) option_counts_value%1#0)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
+                (assert maybe_exists%1#0) // check self.option_counts exists
+                let array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
                 let tmp%17#0: bytes = (extract3 array_head_and_tail%1#0 question_index#0 1u) // on error: Index access is out of bounds
                 let options_count#0: uint64 = (btoi tmp%17#0)
                 let tmp%18#0: bool = (< answer_option_index#0 options_count#0)
                 (assert tmp%18#0) // Answer option index invalid
                 let tmp%19#0: uint64 = (+ cumulative_offset#3 answer_option_index#0)
-                examples.voting.voting.increment_vote_in_box(tmp%19#0)
+                examples.voting.voting.VotingRoundApp.increment_vote_in_box(tmp%19#0)
                 let cumulative_offset#2: uint64 = (+ cumulative_offset#3 options_count#0)
                 let tmp%20#0: bytes = (txn Sender)
+                (box_del tmp%20#0)
                 (box_put tmp%20#0 answer_ids#0)
-                let (voter_count_value%0#0: uint64, voter_count_exists%0#0: bool) = (app_global_get_ex 0u "voter_count")
-                (assert voter_count_exists%0#0) // check voter_count exists
-                let new_state_value%0#0: uint64 = (+ voter_count_value%0#0 1u)
+                let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
+                (assert maybe_exists%2#0) // check self.voter_count exists
+                let new_state_value%0#0: uint64 = (+ maybe_value%2#0 1u)
                 (app_global_put "voter_count" new_state_value%0#0)
                 let range_item%0#3: uint64 = (+ question_index#0 1u)
                 goto block@1
-            block@5: // after_for_L193
+            block@5: // after_for_L195
                 return 
         
-        subroutine examples.voting.voting.increment_vote_in_box(index: uint64) -> void:
-            block@0: // L246
-                let (box_data#0: bytes, exists#0: bool) = (box_get "V")
-                (assert exists#0) // Box not created
-                let tmp%0#0: bytes = (extract3 box_data#0 index#0 8u)
-                let current_vote#0: uint64 = (btoi tmp%0#0)
-                let tmp%1#0: uint64 = (+ current_vote#0 1u)
-                let tmp%2#0: bytes = (itob tmp%1#0)
-                (box_replace "V" index#0 tmp%2#0)
+        subroutine examples.voting.voting.VotingRoundApp.increment_vote_in_box(index: uint64) -> void:
+            block@0: // L243
+                let current_vote#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(index#0)
+                let tmp%0#0: uint64 = (+ current_vote#0 1u)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                (box_replace "V" index#0 tmp%1#0)
                 return 
         
         subroutine examples.voting.voting.VotingRoundApp.__init__() -> void:

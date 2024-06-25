@@ -1,4 +1,3 @@
-
 ## case: test_cant_instantiate_inner_transaction
 
 from algopy import Contract, itxn
@@ -6,7 +5,9 @@ from algopy import Contract, itxn
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
-        txn = itxn.InnerTransactionResult()  ## E: algopy.itxn.InnerTransactionResult cannot be instantiated directly, create a algopy.itxn.InnerTransaction and submit instead
+        txn = (
+            itxn.InnerTransactionResult()  ## E: algopy.itxn.InnerTransactionResult cannot be instantiated directly, create a algopy.itxn.InnerTransaction and submit instead
+        )
         return True
 
     def clear_state_program(self) -> bool:
@@ -22,40 +23,66 @@ class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         txn = params.submit()
-        self.cant_pass_inner_txn(txn) ## E: inner transactions cannot be used as a subroutine argument or return value
-        txn2 = self.cant_return_inner_txn() ## E: inner transactions can not be used like this
-        if (txn3 := params.submit()).created_app: ## E: inner transactions cannot be used in assignment expressions
+        self.cant_pass_inner_txn(  ## E: inner transactions cannot be used as a subroutine argument or return value
+            txn
+        )
+        txn2 = self.cant_return_inner_txn()  ## E: inner transactions can not be used like this
+        if (
+            txn3 := params.submit()  ## E: inner transactions cannot be used in assignment expressions
+        ).created_app:
             pass
-        txn4 = txn ## E: inner transactions can not be used like this
+        txn4 = txn  ## E: inner transactions can not be used like this
         return True
 
     def clear_state_program(self) -> bool:
         return True
 
     @subroutine
-    def cant_pass_inner_txn(self, txn: itxn.InnerTransactionResult) -> None: ## E: inner transactions cannot be used as a subroutine argument or return value
+    def cant_pass_inner_txn(
+        self,
+        txn: itxn.InnerTransactionResult,  ## E: inner transactions cannot be used as a subroutine argument or return value
+    ) -> None:
         assert txn.type
 
-    @subroutine ## E: inner transactions cannot be used as a subroutine argument or return value
+    @subroutine  ## E: inner transactions cannot be used as a subroutine argument or return value
     def cant_return_inner_txn(self) -> itxn.InnerTransactionResult:
         return itxn.InnerTransaction(type=TransactionType.Payment).submit()
 
+
 ## case: test_inner_txn_local_only
 
-from algopy import ARC4Contract, TransactionType, itxn, arc4
+from algopy import *
 
 
 class MyContract(ARC4Contract):
+    def __init__(self) -> None:
+        self.foo = GlobalState(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+            itxn.InnerTransactionResult
+        )
+        self.foo_box = Box(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+            itxn.InnerTransactionResult
+        )
+        self.foo_box_map = BoxMap(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+            itxn.InnerTransactionResult, String
+        )
+        self.box_foo_map = BoxMap(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+            String, itxn.InnerTransactionResult
+        )
 
     @arc4.abimethod()
     def non_local_fields(self) -> None:
-        self.fields = itxn.InnerTransaction(type=TransactionType.Payment) ## E: Inner Transactions can only be assigned to local variables
+        self.fields = itxn.InnerTransaction(  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+            type=TransactionType.Payment
+        )
         txn = self.fields.submit()
 
     @arc4.abimethod()
     def non_local_itxn(self) -> None:
         fields = itxn.InnerTransaction(type=TransactionType.Payment)
-        self.txn = fields.submit() ## E: Inner Transactions can only be assigned to local variables
+        self.txn = (  ## E: ephemeral types (such as transaction related types) are not suitable for storage
+            fields.submit()
+        )
+
 
 ## case: test_inner_txn_param_cant_be_aliased
 
@@ -65,24 +92,40 @@ from algopy import Contract, TransactionType, itxn, subroutine
 class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
-        self.cant_pass_inner_txn_params(params) ## E: inner transactions cannot be used as a subroutine argument or return value
-        params2 = self.cant_return_inner_txn_params() ## E: inner transactions can not be used like this
-        if (params3 := itxn.InnerTransaction(type=TransactionType.Payment)).submit().created_app: ## E: inner transactions cannot be used in assignment expressions
+        self.cant_pass_inner_txn_params( ## E: inner transactions cannot be used as a subroutine argument or return value
+            params
+        )
+        params2 = (
+            self.cant_return_inner_txn_params() ## E: inner transactions can not be used like this
+        )
+        if (
+            (params3 := itxn.InnerTransaction(type=TransactionType.Payment)) ## E: inner transactions cannot be used in assignment expressions
+            .submit()
+            .created_app
+        ):
             pass
         params4 = params ## E: inner transaction fields must be copied using .copy() when assigning to a new local
-        txn = (params5 := itxn.InnerTransaction(type=TransactionType.Payment)).submit() ## E: inner transactions cannot be used in assignment expressions
+        txn = (
+            params5 := itxn.InnerTransaction( ## E: inner transactions cannot be used in assignment expressions
+                type=TransactionType.Payment
+            )
+        ).submit()
         return True
 
     def clear_state_program(self) -> bool:
         return True
 
     @subroutine
-    def cant_pass_inner_txn_params(self, txn: itxn.InnerTransaction) -> None: ## E: inner transactions cannot be used as a subroutine argument or return value
+    def cant_pass_inner_txn_params(
+        self,
+        txn: itxn.InnerTransaction, ## E: inner transactions cannot be used as a subroutine argument or return value
+    ) -> None:
         pass
 
     @subroutine ## E: inner transactions cannot be used as a subroutine argument or return value
     def cant_return_inner_txn_params(self) -> itxn.InnerTransaction:
         return itxn.InnerTransaction(type=TransactionType.Payment)
+
 
 ## case: test_inner_txn_param_loop_modified
 
@@ -90,22 +133,26 @@ from algopy import Contract, TransactionType, itxn, subroutine
 
 
 class MyContract(Contract):
-    def approval_program(self) -> bool: ## E: Missing return statement  [return]
+    def approval_program(self) -> bool:  ## E: Missing return statement  [return]
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         while True:
             txn = params.submit()
-            params.set(fee=1) ## E: inner transaction fields cannot be modified after submission while in a loop
+            params.set(  ## E: inner transaction fields cannot be modified after submission while in a loop
+                fee=1
+            )
             if txn.fee == 1:
                 break
 
     def clear_state_program(self) -> bool:
         return True
 
-## case: test_abi_call_errors
 
+## case: test_abi_call_errors
+import typing
 from algopy import arc4, subroutine
 
-class Client(arc4.ARC4Client):
+
+class Client(arc4.ARC4Client, typing.Protocol):
 
     @arc4.abimethod
     def foo(self, uint: arc4.UInt64) -> None:
@@ -114,32 +161,48 @@ class Client(arc4.ARC4Client):
 
 @subroutine
 def wrong_arg_type1() -> None:
-    arc4.abi_call(Client.foo, b"") ## E: Invalid algopy.arc4.UInt64 value: b''
+    arc4.abi_call(
+        Client.foo, b"" ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
+    )
+
 
 @subroutine
 def wrong_arg_type2() -> None:
-    arc4.abi_call(Client.foo, "") ## E: Invalid algopy.arc4.UInt64 value: ''
+    arc4.abi_call(
+        Client.foo, "" ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
+    )
+
 
 @subroutine
 def wrong_arg_type3() -> None:
-    arc4.abi_call("foo(uint64)void", b"") ## E: Invalid algopy.arc4.UInt64 value: b''
+    arc4.abi_call(
+        "foo(uint64)void", b"" ## E: can't covert literal to algopy.arc4.UIntN[typing.Literal[64]]
+    )
+
 
 @subroutine
 def wrong_arg_type4() -> None:
-    arc4.abi_call("foo(uint8)void", 256) ## E: Invalid algopy.arc4.UInt8 value: 256
+    arc4.abi_call("foo(uint8)void", 256) ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value
+
 
 @subroutine
 def wrong_arg_type5() -> None:
-    arc4.abi_call("foo", 2 ** 64 + 1) ## E: Invalid algopy.arc4.UInt64 value: 18446744073709551617
+    arc4.abi_call("foo", 2**64 + 1) ## E: invalid algopy.arc4.UIntN[typing.Literal[64]] value
+
 
 @subroutine
 def method_selector_mismatch() -> None:
-    arc4.abi_call[arc4.UInt64]("foo(uint8)void", 1) ## E: Method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
+    arc4.abi_call[arc4.UInt64](
+        "foo(uint8)void", ## E: method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
+        1,
+    )
+
 
 @subroutine
 def allowed_coercions() -> None:
-    arc4.abi_call("foo", 256) # value inferred from args
+    arc4.abi_call("foo", 256)  # value inferred from args
     arc4.abi_call(Client.foo, 1)
+
 
 ## case: test_stale_itxn_array_read
 from algopy import (
@@ -156,6 +219,7 @@ ALWAYS_APPROVE = (
     b"\x09"  # pragma version 9
     b"\x81\x01"  # pushint 1
 )
+
 
 class MyContract(ARC4Contract):
 
@@ -180,11 +244,17 @@ class MyContract(ARC4Contract):
         ).submit()
 
         assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
-        assert create_app_txn.app_args(0) == b"1", "this is an error" ## E: inner transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls, move array field access closer to 'create_app_txn' definition
+        assert (
+            create_app_txn.app_args(0) ## E: inner transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls, move array field access closer to 'create_app_txn' definition
+            == b"1"
+        ), "this is an error"
 
         some_sub_that_may_submit_another_inner_txn() ## W: inner transaction 'create_app_txn2' potentially becomes stale here
 
-        assert create_app_txn2.app_args(0) == b"42", "this is an error" ## E: inner transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls, move array field access closer to 'create_app_txn2' definition
+        assert (
+            create_app_txn2.app_args(0) ## E: inner transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls, move array field access closer to 'create_app_txn2' definition
+            == b"42"
+        ), "this is an error"
 
     @arc4.abimethod
     def test2(self) -> None:
@@ -209,11 +279,16 @@ class MyContract(ARC4Contract):
 
         some_sub_that_may_submit_another_inner_txn() ## W: inner transaction 'create_app_txn' potentially becomes stale here
 
-        assert create_app_txn.app_args(0) == b"42", "correct args used" ## E: inner transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls, move array field access closer to 'create_app_txn' definition
+        assert (
+            create_app_txn.app_args(0) ## E: inner transaction array field can not be reliably accessed due to other inner transaction  submissions or subroutine calls, move array field access closer to 'create_app_txn' definition
+            == b"42"
+        ), "correct args used"
+
 
 @subroutine
 def some_sub_that_may_submit_another_inner_txn() -> None:
     pass
+
 
 ## case: test_non_constant_group_index
 from algopy import ARC4Contract, Bytes, Txn, arc4, itxn
@@ -222,6 +297,7 @@ ALWAYS_APPROVE = (
     b"\x09"  # pragma version 9
     b"\x81\x01"  # pushint 1
 )
+
 
 class MyContract(ARC4Contract):
 
@@ -242,12 +318,19 @@ class MyContract(ARC4Contract):
             fee=0,
         )
         if Txn.num_app_args:
-            create_1, create_2 = itxn.submit_txns(txn_1, txn_2) ## N: Potential cause of field access with non-constant group index
+            create_1, create_2 = itxn.submit_txns(
+                txn_1, txn_2 ## N: Potential cause of field access with non-constant group index
+            )
         else:
-            create_2, create_1 = itxn.submit_txns(txn_1, txn_2) ## N: Potential cause of field access with non-constant group index
+            create_2, create_1 = itxn.submit_txns(
+                txn_1, txn_2 ## N: Potential cause of field access with non-constant group index
+            )
 
         assert create_1.num_app_args > 2
-        assert create_1.app_args(0) == b"1" ## E: Inner transaction field access with non constant group index, to resolve move field access to same code path where the inner transaction is submitted
+        assert (
+            create_1.app_args(0) ## E: Inner transaction field access with non constant group index, to resolve move field access to same code path where the inner transaction is submitted
+            == b"1"
+        )
 
 
 ## case: test_unassigned_create_itxn
@@ -259,14 +342,52 @@ ALWAYS_APPROVE = (
     b"\x81\x01"  # pushint 1
 )
 
+
 class FieldTupleContract(ARC4Contract):
     @arc4.abimethod
     def test_assign_tuple(self) -> None:
-        itxn.ApplicationCall( ## W: expression result is ignored \
-                              ## E: statement has no effect, did you forget to submit?
+        itxn.ApplicationCall(  ## W: expression result is ignored \
+            ## E: statement has no effect, did you forget to submit?
             approval_program=ALWAYS_APPROVE,
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
             app_args=(Bytes(b"1a"), Bytes(b"2a")),
             fee=0,
         )
+
+
+## case: test_itxn_app_args
+
+from algopy import *
+
+
+class AppArgs(ARC4Contract):
+    @arc4.abimethod
+    def test_account(self) -> None:
+        itxn.ApplicationCall(
+            app_args=(
+                Account(), ## W: algopy.Account will not be added to foreign array, use .bytes to suppress this warning
+            ),
+        ).submit()
+
+    @arc4.abimethod
+    def test_application(self) -> None:
+        itxn.ApplicationCall(
+            app_args=(
+                Application(), ## W: algopy.Application will not be added to foreign array, use .id to suppress this warning
+            ),
+        ).submit()
+
+    @arc4.abimethod
+    def test_asset(self) -> None:
+        itxn.ApplicationCall(
+            app_args=(
+                Asset(), ## W: algopy.Asset will not be added to foreign array, use .id to suppress this warning
+            ),
+        ).submit()
+
+    @arc4.abimethod
+    def test_literal_int(self) -> None:
+        itxn.ApplicationCall(
+            app_args=(42,), ## E: cannot serialize literal of type int
+        ).submit()

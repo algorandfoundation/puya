@@ -1,16 +1,40 @@
+import typing
 from collections.abc import Iterable, Mapping, Sequence
 
-from puya import arc4_util
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import (
+    ARC4DynamicArray,
+    ARC4Tuple,
+    ARC4Type,
+    ARC4UIntN,
+    WGroupTransaction,
+    WTuple,
+    WType,
+    account_wtype,
+    application_wtype,
+    arc4_bool_wtype,
+    arc4_byte_alias,
+    arc4_string_alias,
+    asset_wtype,
+    biguint_wtype,
+    bool_wtype,
+    bytes_wtype,
+    string_wtype,
+    uint64_wtype,
+)
 from puya.awst_build import intrinsic_factory
-from puya.awst_build.arc4_utils import arc4_decode, arc4_encode
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
 from puya.models import (
+    ARC4ABIMethod,
+    ARC4ABIMethodConfig,
+    ARC4BareMethod,
+    ARC4BareMethodConfig,
+    ARC4CreateOption,
     ARC4Method,
     ARC4MethodArg,
     ARC4MethodConfig,
@@ -123,7 +147,7 @@ def create_oca_switch(
 
 def route_bare_methods(
     location: SourceLocation,
-    bare_methods: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
+    bare_methods: dict[awst_nodes.ContractMethod, ARC4BareMethodConfig],
     *,
     add_create: bool,
 ) -> awst_nodes.Block | None:
@@ -165,9 +189,7 @@ def route_bare_methods(
             location,
             "create",
             *assert_create_state(
-                ARC4MethodConfig(
-                    name="", source_location=location, is_bare=True, require_create=True
-                ),
+                ARC4BareMethodConfig(create=ARC4CreateOption.require, source_location=location),
                 location,
             ),
             approve(location),
@@ -183,8 +205,8 @@ def route_bare_methods(
 def log_arc4_compatible_result(
     location: SourceLocation, result_expression: awst_nodes.Expression
 ) -> awst_nodes.ExpressionStatement:
-    arc4_encoded = arc4_encode(
-        result_expression, wtypes.avm_to_arc4_equivalent_type(result_expression.wtype), location
+    arc4_encoded = _arc4_encode(
+        result_expression, _avm_to_arc4_equivalent_type(result_expression.wtype), location
     )
     return log_arc4_result(location, arc4_encoded)
 
@@ -213,20 +235,26 @@ def log_arc4_result(
 def assert_create_state(
     config: ARC4MethodConfig, location: SourceLocation
 ) -> Sequence[awst_nodes.AssertStatement]:
-    if config.allow_create:  # if create is allowed, we don't need to check anything
-        return ()
     existing_app = has_app_id(location)
-    return (
+    match config.create:
+        case ARC4CreateOption.allow:
+            # if create is allowed but not required, we don't need to check anything
+            return ()
+        case ARC4CreateOption.disallow:
+            condition: awst_nodes.Expression = existing_app
+            comment = "is not creating"
+        case ARC4CreateOption.require:
+            condition = awst_nodes.Not(expr=existing_app, source_location=location)
+            comment = "is creating"
+        case invalid:
+            typing.assert_never(invalid)
+    return [
         awst_nodes.AssertStatement(
-            condition=(
-                awst_nodes.Not(expr=existing_app, source_location=location)
-                if config.require_create
-                else existing_app
-            ),
-            comment="is creating" if config.require_create else "is not creating",
+            condition=condition,
+            comment=comment,
             source_location=location,
-        ),
-    )
+        )
+    ]
 
 
 def constant(value: int, location: SourceLocation) -> awst_nodes.Expression:
@@ -391,21 +419,21 @@ def map_abi_args(
     args: Sequence[awst_nodes.SubroutineArgument], location: SourceLocation
 ) -> Iterable[awst_nodes.Expression]:
     abi_arg_index = 1  # 0th arg is for method selector
-    transaction_arg_offset = sum(1 for a in args if wtypes.is_transaction_type(a.wtype))
+    transaction_arg_offset = sum(1 for a in args if isinstance(a.wtype, WGroupTransaction))
 
-    non_transaction_args = [a for a in args if not wtypes.is_transaction_type(a.wtype)]
+    non_transaction_args = [a for a in args if not isinstance(a.wtype, WGroupTransaction)]
     last_arg: awst_nodes.Expression | None = None
     if len(non_transaction_args) > 15:
 
         def map_param_wtype_to_arc4_tuple_type(wtype: wtypes.WType) -> wtypes.WType:
-            if wtypes.has_arc4_equivalent_type(wtype):
-                return wtypes.avm_to_arc4_equivalent_type(wtype)
-            elif wtypes.is_reference_type(wtype):
-                return wtypes.arc4_byte_type
+            if _has_arc4_equivalent_type(wtype):
+                return _avm_to_arc4_equivalent_type(wtype)
+            elif _is_reference_type(wtype):
+                return wtypes.arc4_byte_alias
             else:
                 return wtype
 
-        args_overflow_wtype = arc4_util.make_tuple_wtype(
+        args_overflow_wtype = wtypes.ARC4Tuple(
             [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]],
             location,
         )
@@ -451,9 +479,9 @@ def map_abi_args(
                 )
                 yield check_transaction_type(transaction_index, txn_wtype, location)
                 transaction_arg_offset -= 1
-            case _ if wtypes.has_arc4_equivalent_type(arg.wtype):
-                abi_arg = get_arg(abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype))
-                decoded_abi_arg = arc4_decode(
+            case _ if _has_arc4_equivalent_type(arg.wtype):
+                abi_arg = get_arg(abi_arg_index, _avm_to_arc4_equivalent_type(arg.wtype))
+                decoded_abi_arg = _arc4_decode(
                     bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
                 )
                 yield decoded_abi_arg
@@ -466,7 +494,8 @@ def map_abi_args(
 
 
 def route_abi_methods(
-    location: SourceLocation, methods: dict[awst_nodes.ContractMethod, ARC4MethodConfig]
+    location: SourceLocation,
+    methods: dict[awst_nodes.ContractMethod, ARC4ABIMethodConfig],
 ) -> awst_nodes.Block:
     if not methods:
         return create_block(location, "reject_abi_methods", reject(location))
@@ -478,9 +507,9 @@ def route_abi_methods(
         match method.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
-            case _ if wtypes.is_arc4_encoded_type(method.return_type):
+            case _ if isinstance(method.return_type, ARC4Type):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
-            case _ if wtypes.has_arc4_equivalent_type(method.return_type):
+            case _ if _has_arc4_equivalent_type(method.return_type):
                 call_and_maybe_log = log_arc4_compatible_result(abi_loc, method_result)
             case _:
                 raise CodeError(
@@ -495,7 +524,7 @@ def route_abi_methods(
             call_and_maybe_log,
             approve(abi_loc),
         )
-        arc4_signature = arc4_util.get_abi_signature(method, config)
+        arc4_signature = _get_abi_signature(method, config)
         if arc4_signature in seen_signatures:
             raise CodeError(
                 f"Cannot have duplicate ARC4 method signatures: {arc4_signature}", abi_loc
@@ -523,12 +552,15 @@ def _validate_default_args(
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod],
 ) -> None:
     for method in arc4_methods:
-        assert method.abimethod_config
+        assert isinstance(method.arc4_method_config, ARC4ABIMethodConfig)
         args_by_name = {a.name: a for a in method.args}
-        for parameter_name, source_name in method.abimethod_config.default_args.items():
+        for (
+            parameter_name,
+            source_name,
+        ) in method.arc4_method_config.default_args.items():
             # any invalid parameter matches should have been caught earlier
             parameter = args_by_name[parameter_name]
-            param_arc4_type = arc4_util.wtype_to_arc4(parameter.wtype)
+            param_arc4_type = _wtype_to_arc4(parameter.wtype)
             # special handling for reference types
             match param_arc4_type:
                 case "asset" | "application":
@@ -546,21 +578,21 @@ def _validate_default_args(
 
             match source:
                 case awst_nodes.ContractMethod(
-                    abimethod_config=ARC4MethodConfig() as abimethod_config,
+                    arc4_method_config=ARC4ABIMethodConfig() as abi_method_config,
                     args=args,
                     return_type=return_type,
                 ):
-                    if OnCompletionAction.NoOp not in abimethod_config.allowed_completion_types:
+                    if OnCompletionAction.NoOp not in abi_method_config.allowed_completion_types:
                         raise CodeError(
                             f"'{source_name}' does not allow no_op on completion calls",
                             method.source_location,
                         )
-                    if abimethod_config.require_create:
+                    if abi_method_config.create == ARC4CreateOption.require:
                         raise CodeError(
                             f"'{source_name}' can only be used for create calls",
                             method.source_location,
                         )
-                    if not abimethod_config.readonly:
+                    if not abi_method_config.readonly:
                         raise CodeError(
                             f"'{source_name}' is not readonly",
                             method.source_location,
@@ -575,7 +607,7 @@ def _validate_default_args(
                             f"'{source_name}' does not provide a value",
                             method.source_location,
                         )
-                    if arc4_util.wtype_to_arc4(return_type) != param_arc4_type:
+                    if _wtype_to_arc4(return_type) != param_arc4_type:
                         raise CodeError(
                             f"'{source_name}' does not provide '{param_arc4_type}' type",
                             method.source_location,
@@ -617,14 +649,21 @@ def create_abi_router(
     abi_methods = {}
     bare_methods = {}
     has_create = False
-    for m, abi_config in arc4_methods_with_configs.items():
-        assert abi_config is m.abimethod_config
-        if abi_config.allow_create or abi_config.require_create:
+    known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
+        **global_state,
+        **local_state,
+    }
+    for m, arc4_config in arc4_methods_with_configs.items():
+        assert arc4_config is m.arc4_method_config
+        if arc4_config.create != ARC4CreateOption.disallow:
             has_create = True
-        if abi_config.is_bare:
-            bare_methods[m] = abi_config
+        if isinstance(arc4_config, ARC4BareMethodConfig):
+            bare_methods[m] = arc4_config
+        elif isinstance(arc4_config, ARC4ABIMethodConfig):
+            abi_methods[m] = arc4_config
+            known_sources[m.name] = m
         else:
-            abi_methods[m] = abi_config
+            typing.assert_never(arc4_config)
     router_location = contract.source_location
     if bare_methods or not has_create:
         router: list[awst_nodes.Statement] = [
@@ -640,49 +679,45 @@ def create_abi_router(
     else:
         router = list(route_abi_methods(router_location, abi_methods).body)
 
-    known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
-        **global_state,
-        **local_state,
-    }
-    for method in arc4_methods_with_configs:
-        known_sources[method.name] = method
-    _validate_default_args(arc4_methods_with_configs.keys(), known_sources)
+    _validate_default_args(abi_methods.keys(), known_sources)
 
     docs = {s: parse_docstring(s.docstring) for s in arc4_methods_with_configs}
 
-    arc4_method_metadata = [
-        ARC4Method(
-            name=m.name,
-            desc=docs[m].description,
-            args=[
-                ARC4MethodArg(
-                    name=a.name,
-                    type_=arc4_util.wtype_to_arc4(a.wtype),
-                    desc=docs[m].args.get(a.name),
-                )
-                for a in m.args
-            ],
-            returns=ARC4Returns(
-                desc=docs[m].returns,
-                type_=arc4_util.wtype_to_arc4(m.return_type),
-            ),
-            config=abi_config,
+    arc4_method_metadata = list[ARC4Method]()
+    for m, bare_method_config in bare_methods.items():
+        arc4_method_metadata.append(
+            ARC4BareMethod(
+                desc=docs[m].description,
+                config=bare_method_config,
+            )
         )
-        for m, abi_config in arc4_methods_with_configs.items()
-    ]
+    for m, abi_method_config in abi_methods.items():
+        arc4_method_metadata.append(
+            ARC4ABIMethod(
+                name=m.name,
+                desc=docs[m].description,
+                args=[
+                    ARC4MethodArg(
+                        name=a.name,
+                        type_=_wtype_to_arc4(a.wtype),
+                        desc=docs[m].args.get(a.name),
+                    )
+                    for a in m.args
+                ],
+                returns=ARC4Returns(
+                    desc=docs[m].returns,
+                    type_=_wtype_to_arc4(m.return_type),
+                ),
+                config=abi_method_config,
+            )
+        )
     if not has_create:
         arc4_method_metadata.append(
-            ARC4Method(
-                name="",
-                desc=None,
-                args=[],
-                returns=ARC4Returns(type_="void", desc=None),
-                config=ARC4MethodConfig(
-                    source_location=router_location,
-                    name="",
-                    is_bare=True,
-                    require_create=True,
+            ARC4BareMethod(
+                config=ARC4BareMethodConfig(
+                    create=ARC4CreateOption.require, source_location=router_location
                 ),
+                desc=None,
             )
         )
 
@@ -695,7 +730,7 @@ def create_abi_router(
         return_type=wtypes.bool_wtype,
         body=create_block(router_location, "abi_bare_routing", *router),
         docstring=None,
-        abimethod_config=None,
+        arc4_method_config=None,
     )
     return approval_program, arc4_method_metadata
 
@@ -717,5 +752,193 @@ def create_default_clear_state(contract: awst_nodes.ContractFragment) -> awst_no
             approve(contract.source_location),
         ),
         docstring=None,
-        abimethod_config=None,
+        arc4_method_config=None,
     )
+
+
+def _arc4_encode(
+    base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type, location: SourceLocation
+) -> awst_nodes.Expression:
+    """encode, with special handling of native tuples"""
+    match base.wtype:
+        case wtypes.WTuple(types=types):
+            base_temp = awst_nodes.SingleEvaluation(base)
+
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=awst_nodes.TupleExpression.from_items(
+                    items=[
+                        _maybe_arc4_encode(
+                            awst_nodes.TupleItemExpression(
+                                base=base_temp,
+                                index=i,
+                                source_location=location,
+                            ),
+                            t,
+                            location,
+                        )
+                        for i, t in enumerate(types)
+                    ],
+                    location=location,
+                ),
+                wtype=target_wtype,
+            )
+
+        case _:
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=base,
+                wtype=target_wtype,
+            )
+
+
+def _maybe_arc4_encode(
+    item: awst_nodes.Expression, wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.Expression:
+    """Encode as arc4 if wtype is not already an arc4 encoded type"""
+    if isinstance(wtype, ARC4Type):
+        return item
+    return _arc4_encode(item, _avm_to_arc4_equivalent_type(wtype), location)
+
+
+def _arc4_decode(
+    bytes_arg: awst_nodes.Expression,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+) -> awst_nodes.Expression:
+    """decode, with special handling of native tuples"""
+    match bytes_arg.wtype:
+        case wtypes.ARC4DynamicArray(
+            element_type=wtypes.ARC4UIntN(n=8)
+        ) if target_wtype == wtypes.bytes_wtype:
+            return intrinsic_factory.extract(bytes_arg, start=2, loc=location)
+        case wtypes.ARC4Tuple(types=tuple_types):
+            decode_expression = awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=wtypes.WTuple(tuple_types, location),
+                value=bytes_arg,
+            )
+            assert isinstance(
+                target_wtype, wtypes.WTuple
+            ), "Target wtype must be a WTuple when decoding ARC4Tuple"
+            if all(
+                target == current
+                for target, current in zip(target_wtype.types, tuple_types, strict=True)
+            ):
+                return decode_expression
+            decoded = awst_nodes.SingleEvaluation(decode_expression)
+            return awst_nodes.TupleExpression.from_items(
+                items=[
+                    _maybe_arc4_decode(
+                        awst_nodes.TupleItemExpression(
+                            base=decoded,
+                            index=i,
+                            source_location=location,
+                        ),
+                        target_wtype=t_t,
+                        current_wtype=t_c,
+                        location=location,
+                    )
+                    for i, (t_c, t_t) in enumerate(
+                        zip(tuple_types, target_wtype.types, strict=True)
+                    )
+                ],
+                location=location,
+            )
+
+        case _:
+            return awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=target_wtype,
+                value=bytes_arg,
+            )
+
+
+def _maybe_arc4_decode(
+    item: awst_nodes.Expression,
+    *,
+    current_wtype: wtypes.WType,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+) -> awst_nodes.Expression:
+    if current_wtype == target_wtype:
+        return item
+    return _arc4_decode(item, target_wtype, location)
+
+
+def _get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4ABIMethodConfig) -> str:
+    arg_types = [_wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
+    return_type = _wtype_to_arc4(subroutine.return_type, subroutine.source_location)
+    return f"{config.name}({','.join(arg_types)}){return_type}"
+
+
+def _wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
+    match wtype:
+        case wtypes.ARC4Type(arc4_name=arc4_name):
+            return arc4_name
+        case (
+            wtypes.void_wtype
+            | wtypes.asset_wtype
+            | wtypes.account_wtype
+            | wtypes.application_wtype
+            | wtypes.uint64_wtype
+            | wtypes.bool_wtype
+            | wtypes.string_wtype
+        ):
+            return wtype.name
+        case wtypes.biguint_wtype:
+            return "uint512"
+        case wtypes.bytes_wtype:
+            return "byte[]"
+        case wtypes.WGroupTransaction(transaction_type=transaction_type):
+            return transaction_type.name if transaction_type else "txn"
+        case wtypes.WTuple(types=types):
+            item_types = ",".join([_wtype_to_arc4(item) for item in types])
+            return f"({item_types})"
+        case _:
+            raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
+
+
+def _is_reference_type(wtype: WType) -> bool:
+    return wtype in (asset_wtype, account_wtype, application_wtype)
+
+
+def _has_arc4_equivalent_type(wtype: WType) -> bool:
+    """
+    Checks if a non-arc4 encoded type has an arc4 equivalent
+    """
+    if wtype in (bool_wtype, uint64_wtype, bytes_wtype, biguint_wtype, string_wtype):
+        return True
+
+    match wtype:
+        case WTuple(types=types):
+            return all(
+                (_has_arc4_equivalent_type(t) or isinstance(t, ARC4Type))
+                and not isinstance(t, WTuple)
+                for t in types
+            )
+    return False
+
+
+def _avm_to_arc4_equivalent_type(wtype: WType) -> ARC4Type:
+    if wtype is bool_wtype:
+        return arc4_bool_wtype
+    if wtype is uint64_wtype:
+        return ARC4UIntN(64, decode_type=wtype, source_location=None)
+    if wtype is biguint_wtype:
+        return ARC4UIntN(512, decode_type=wtype, source_location=None)
+    if wtype is bytes_wtype:
+        return ARC4DynamicArray(
+            element_type=arc4_byte_alias, native_type=wtype, source_location=None
+        )
+    if wtype is string_wtype:
+        return arc4_string_alias
+    if isinstance(wtype, WTuple):
+        return ARC4Tuple(
+            types=(
+                t if isinstance(t, ARC4Type) else _avm_to_arc4_equivalent_type(t)
+                for t in wtype.types
+            ),
+            source_location=None,
+        )
+    raise InternalError(f"{wtype} does not have an arc4 equivalent type")

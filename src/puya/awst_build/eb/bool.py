@@ -1,79 +1,91 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BoolConstant,
-    Literal,
+    Expression,
     Not,
     NumericComparison,
     NumericComparisonExpression,
 )
-from puya.awst_build.eb.base import (
+from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
-    ExpressionBuilder,
-    TypeClassExpressionBuilder,
-    ValueExpressionBuilder,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+    TypeBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import bool_eval, convert_literal_to_expr
-from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.bool_wtype
+class BoolTypeBuilder(TypeBuilder):
+    def __init__(self, location: SourceLocation):
+        super().__init__(pytypes.BoolType, location)
 
+    @typing.override
+    def try_convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case bool(literal_value):
+                expr = BoolConstant(value=literal_value, source_location=location)
+                return BoolExpressionBuilder(expr)
+        return None
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case []:
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case None:
                 false = BoolConstant(value=False, source_location=location)
-                return var_expression(false)
-            case [arg]:
-                return bool_eval(arg, location)
+                return BoolExpressionBuilder(false)
+            case InstanceBuilder(pytype=pytypes.BoolType):
+                return arg
             case _:
-                raise CodeError("Too many arguments", location=location)
+                return arg.bool_eval(location)
 
 
-class BoolExpressionBuilder(ValueExpressionBuilder):
-    wtype = wtypes.bool_wtype
+class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.BoolType, expr)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+    @typing.override
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return intrinsic_factory.itob(self.resolve(), location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         if not negate:
             return self
-        return BoolExpressionBuilder(Not(location, self.expr))
+        return BoolExpressionBuilder(Not(location, self.resolve()))
 
+    @typing.override
     def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
-        if other_expr.wtype == self.wtype:
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        if other.pytype == self.pytype:
             pass
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
-            lhs=self.expr,
+            lhs=self.resolve(),
             operator=NumericComparison(op.value),
-            rhs=other_expr,
+            rhs=other.resolve(),
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)

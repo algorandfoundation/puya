@@ -1,166 +1,221 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
-from puya import log
+import mypy.nodes
+
+from puya import algo_constants, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Decode,
     ARC4Encode,
     ArrayConcat,
     ArrayExtend,
-    BytesComparisonExpression,
-    BytesConstant,
-    BytesEncoding,
-    EqualityComparison,
     Expression,
     ExpressionStatement,
-    Literal,
     Statement,
     StringConstant,
 )
-from puya.awst_build.eb.arc4.base import (
-    ARC4ClassExpressionBuilder,
-    ARC4EncodedExpressionBuilder,
-    arc4_bool_bytes,
-    get_bytes_expr,
+from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import compare_expr_bytes, dummy_statement
+from puya.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
+from puya.awst_build.eb.interface import (
+    BuilderBinaryOp,
+    BuilderComparisonOp,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
 )
-from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
-from puya.errors import CodeError
+from puya.awst_build.eb.string import StringExpressionBuilder
+from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+__all__ = [
+    "ARC4StringTypeBuilder",
+    "ARC4StringExpressionBuilder",
+]
 
 logger = log.get_logger(__name__)
 
 
-class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.arc4_string_wtype
+class ARC4StringTypeBuilder(ARC4TypeBuilder):
+    def __init__(self, location: SourceLocation):
+        super().__init__(pytypes.ARC4StringType, location)
 
+    @typing.override
+    def try_convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case str(literal_value):
+                try:
+                    bytes_value = literal_value.encode("utf8")
+                except UnicodeEncodeError as ex:
+                    logger.error(  # noqa: TRY400
+                        f"invalid UTF-8 string (encoding error: {ex})",
+                        location=literal.source_location,
+                    )
+                else:
+                    if len(bytes_value) > (algo_constants.MAX_BYTES_LENGTH - 2):
+                        logger.error(
+                            "encoded string exceeds max byte array length",
+                            location=literal.source_location,
+                        )
+                return _arc4_encode_str_literal(literal_value, location)
+        return None
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        if not args:
-            return var_expression(
-                arc4_encode_bytes(StringConstant(value="", source_location=location), location)
-            )
-        if len(args) == 1:
-            return var_expression(expect_string_or_bytes(args[0], location))
-        raise CodeError("Invalid/unhandled arguments", location)
-
-
-def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -> Expression:
-    return ARC4Encode(
-        value=bytes_expr, source_location=source_location, wtype=wtypes.arc4_string_wtype
-    )
-
-
-def expect_string_or_bytes(
-    expr: ExpressionBuilder | Literal, source_location: SourceLocation
-) -> Expression:
-    match expr:
-        case Literal(value=str(string_literal)):
-            return arc4_encode_bytes(
-                BytesConstant(
-                    value=string_literal.encode("utf-8"),
-                    encoding=BytesEncoding.utf8,
-                    source_location=source_location,
-                ),
-                source_location,
-            )
-        case ExpressionBuilder() as eb:
-            rvalue = eb.rvalue()
-            match rvalue.wtype:
-                case wtypes.arc4_string_wtype:
-                    return rvalue
-                case wtypes.string_wtype:
-                    return arc4_encode_bytes(rvalue, eb.source_location)
-    raise CodeError("Expected String, or a str literal", expr.source_location)
-
-
-class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
-    wtype = wtypes.arc4_string_wtype
-
-    def augmented_assignment(
-        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> Statement:
-        match op:
-            case BuilderBinaryOp.add:
-                return ExpressionStatement(
-                    expr=ArrayExtend(
-                        base=self.expr,
-                        other=expect_string_or_bytes(rhs, rhs.source_location),
-                        source_location=location,
-                        wtype=wtypes.arc4_string_wtype,
-                    )
-                )
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
+                return arg.resolve_literal(ARC4StringTypeBuilder(location))
+            case None:
+                return _arc4_encode_str_literal("", location)
             case _:
-                return super().augmented_assignment(op, rhs, location)  # TODO: bad error message
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.StringType)
+                return _from_native(arg, location)
 
+
+class ARC4StringExpressionBuilder(
+    NotIterableInstanceExpressionBuilder, BytesBackedInstanceExpressionBuilder
+):
+    def __init__(self, expr: Expression):
+        super().__init__(pytypes.ARC4StringType, expr)
+
+    @typing.override
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
+    ) -> Statement:
+        if op != BuilderBinaryOp.add:
+            logger.error(f"unsupported operator for type: {op.value!r}", location=location)
+            return dummy_statement(location)
+
+        rhs = rhs.resolve_literal(ARC4StringTypeBuilder(rhs.source_location))
+        if rhs.pytype == pytypes.StringType:
+            value = _from_native(rhs, rhs.source_location).resolve()
+        else:
+            value = expect.argument_of_type_else_dummy(rhs, self.pytype).resolve()
+
+        return ExpressionStatement(
+            ArrayExtend(
+                base=self.resolve(),
+                other=value,
+                wtype=wtypes.arc4_string_alias,
+                source_location=location,
+            )
+        )
+
+    @typing.override
     def binary_op(
         self,
-        other: ExpressionBuilder | Literal,
+        other: InstanceBuilder,
         op: BuilderBinaryOp,
         location: SourceLocation,
         *,
         reverse: bool,
-    ) -> ExpressionBuilder:
-        match op:
-            case BuilderBinaryOp.add:
-                lhs = self.expr
-                rhs = expect_string_or_bytes(other, other.source_location)
-                if reverse:
-                    (lhs, rhs) = (rhs, lhs)
-                return var_expression(
-                    ArrayConcat(
-                        left=lhs,
-                        right=rhs,
-                        source_location=location,
-                        wtype=wtypes.arc4_string_wtype,
-                    )
-                )
+    ) -> InstanceBuilder:
+        if op != BuilderBinaryOp.add:
+            return NotImplemented
 
-            case _:
-                return super().binary_op(other, op, location, reverse=reverse)
+        other = other.resolve_literal(ARC4StringTypeBuilder(other.source_location))
+        if other.pytype == self.pytype:
+            other_expr = other.resolve()
+        elif other.pytype == pytypes.StringType:
+            other_expr = _from_native(other, other.source_location).resolve()
+        else:
+            return NotImplemented
 
-    def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        other_expr: Expression
-        match other:
-            case Literal(value=str(string_literal), source_location=source_location):
-                other_expr = arc4_encode_bytes(
-                    BytesConstant(
-                        value=string_literal.encode("utf-8"),
-                        encoding=BytesEncoding.utf8,
-                        source_location=source_location,
-                    ),
-                    source_location,
-                )
-            case ExpressionBuilder() as eb if eb.rvalue().wtype == wtypes.arc4_string_wtype:
-                other_expr = eb.rvalue()
-            case _:
-                raise CodeError("Expected arc4.String or str literal")
+        lhs = self.resolve()
+        rhs = other_expr
+        if reverse:
+            (lhs, rhs) = (rhs, lhs)
 
-        return var_expression(
-            BytesComparisonExpression(
+        return ARC4StringExpressionBuilder(
+            ArrayConcat(
+                left=lhs,
+                right=rhs,
+                wtype=wtypes.arc4_string_alias,
                 source_location=location,
-                lhs=get_bytes_expr(self.expr),
-                operator=EqualityComparison(op.value),
-                rhs=get_bytes_expr(other_expr),
             )
         )
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        return arc4_bool_bytes(
-            self.expr, false_bytes=b"\x00\x00", location=location, negate=negate
+    @typing.override
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        other = other.resolve_literal(ARC4StringTypeBuilder(other.source_location))
+        match other:
+            case InstanceBuilder(pytype=pytypes.ARC4StringType):
+                lhs: InstanceBuilder = self
+            case InstanceBuilder(pytype=pytypes.StringType):
+                # when comparing arc4 to native, easier to convert by stripping length prefix
+                lhs = _string_to_native(self, self.source_location)
+            case _:
+                return NotImplemented
+        return compare_expr_bytes(
+            lhs=lhs.resolve(),
+            op=op,
+            rhs=other.resolve(),
+            source_location=location,
         )
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return arc4_bool_bytes(
+            self,
+            false_bytes=b"\x00\x00",
+            negate=negate,
+            location=location,
+        )
+
+    @typing.override
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        match name:
+            case "native":
+                return _string_to_native(self, location)
+            case _:
+                return super().member_access(name, expr, location)
+
+
+def _string_to_native(
+    builder: InstanceBuilder, location: SourceLocation
+) -> StringExpressionBuilder:
+    assert builder.pytype == pytypes.ARC4StringType
+    return StringExpressionBuilder(
+        ARC4Decode(
+            value=builder.resolve(),
+            wtype=pytypes.StringType.wtype,
+            source_location=location,
+        )
+    )
+
+
+def _arc4_encode_str_literal(value: str, location: SourceLocation) -> InstanceBuilder:
+    return ARC4StringExpressionBuilder(
+        ARC4Encode(
+            value=StringConstant(value=value, source_location=location),
+            wtype=wtypes.arc4_string_alias,
+            source_location=location,
+        )
+    )
+
+
+def _from_native(eb: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+    assert eb.pytype == pytypes.StringType
+    return ARC4StringExpressionBuilder(
+        ARC4Encode(
+            value=eb.resolve(),
+            wtype=wtypes.arc4_string_alias,
+            source_location=location,
+        )
+    )

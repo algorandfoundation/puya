@@ -17,7 +17,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:13
     // some_bytes_as_string.bytes != HELLO_WORLD
     dup
-    byte "Hello World!"
+    byte 0x48656c6c6f20576f726c6421
     !=
     // arc4_types/string.py:12-14
     // assert (
@@ -39,7 +39,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     uncover 1
     uncover 2
     substring3
-    byte "Hello World!"
+    byte 0x48656c6c6f20576f726c6421
     ==
     // arc4_types/string.py:16-18
     // assert (
@@ -48,7 +48,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert // Original bytes should match encoded if we strip the length header
     // arc4_types/string.py:20
     // assert some_bytes_as_bytes_again == HELLO_WORLD
-    byte "Hello World!"
+    byte 0x48656c6c6f20576f726c6421
     ==
     assert
     // arc4_types/string.py:22
@@ -252,6 +252,51 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     ==
     assert
     // arc4_types/string.py:39
+    // assert arc4.String("hello") == String("hello")
+    byte "hello"
+    len
+    itob
+    extract 6 2
+    byte "hello"
+    concat
+    extract 2 0
+    byte "hello"
+    ==
+    assert
+    // arc4_types/string.py:41
+    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+    txn NumAppArgs
+    bz main_ternary_false@2
+    byte "aye"
+    len
+    itob
+    extract 6 2
+    byte "aye"
+    concat
+    b main_ternary_merge@3
+
+main_ternary_false@2:
+    // arc4_types/string.py:41
+    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+    byte "bee"
+    len
+    itob
+    extract 6 2
+    byte "bee"
+    concat
+
+main_ternary_merge@3:
+    // arc4_types/string.py:41
+    // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
+    byte "bee"
+    len
+    itob
+    extract 6 2
+    byte "bee"
+    concat
+    ==
+    assert
+    // arc4_types/string.py:42
     // return True
     int 1
     return

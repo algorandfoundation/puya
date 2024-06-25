@@ -70,28 +70,29 @@ def wtype_to_ir_type(
     match wtype:
         case wtypes.bool_wtype:
             return IRType.bool
-        case (
-            wtypes.uint64_wtype
-            | wtypes.asset_wtype
-            | wtypes.application_wtype
-            | wtypes.WGroupTransaction()
-        ):
-            return IRType.uint64
+        case wtypes.biguint_wtype:
+            return IRType.biguint
         case wtypes.WInnerTransaction():
             return IRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return IRType.itxn_field_set
-        case wtypes.biguint_wtype:
-            return IRType.biguint
-        case wtypes.bytes_wtype | wtypes.account_wtype | wtypes.string_wtype | wtypes.ARC4Type():
-            return IRType.bytes
         case wtypes.void_wtype:
-            raise InternalError("Can't translate void WType to IRType", source_location)
-        case _:
+            raise InternalError("can't translate void wtype to irtype", source_location)
+        # case wtypes.state_key:
+        #     return IRType.state_key  # TODO
+        # case wtypes.box_key:
+        #     return IRType.box_key  # TODO
+    match wtype.scalar_type:
+        case AVMType.uint64:
+            return IRType.uint64
+        case AVMType.bytes:
+            return IRType.bytes
+        case None:
             raise CodeError(
-                f"Unsupported nested/compound type encountered: {wtype}",
-                source_location,
+                f"unsupported nested/compound wtype encountered: {wtype}", source_location
             )
+        case _:
+            typing.assert_never(wtype.scalar_type)
 
 
 def wtype_to_ir_types(
@@ -108,44 +109,6 @@ def wtype_to_ir_types(
         return [wtype_to_ir_type(t, source_location) for t in wtype.types]
     else:
         return [wtype_to_ir_type(wtype, source_location)]
-
-
-def wtype_to_avm_type(
-    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
-    source_location: SourceLocation | None = None,
-) -> typing.Literal[AVMType.bytes, AVMType.uint64]:
-    if isinstance(expr_or_wtype, awst_nodes.Expression):
-        return wtype_to_avm_type(
-            expr_or_wtype.wtype, source_location=source_location or expr_or_wtype.source_location
-        )
-    else:
-        wtype = expr_or_wtype
-    match wtype:
-        case (
-            wtypes.uint64_wtype
-            | wtypes.bool_wtype
-            | wtypes.asset_wtype
-            | wtypes.application_wtype
-            | wtypes.WGroupTransaction()
-            | wtypes.WInnerTransaction()
-            | wtypes.WInnerTransactionFields()
-        ):
-            return AVMType.uint64
-        case (
-            wtypes.bytes_wtype
-            | wtypes.biguint_wtype
-            | wtypes.account_wtype
-            | wtypes.ARC4Type()
-            | wtypes.string_wtype
-        ):
-            return AVMType.bytes
-        case wtypes.void_wtype:
-            raise InternalError("Can't translate void WType to AVMType", source_location)
-        case _:
-            raise CodeError(
-                f"Unsupported nested/compound type encountered: {wtype}",
-                source_location,
-            )
 
 
 def stack_type_to_avm_type(stack_type: StackType) -> AVMType:

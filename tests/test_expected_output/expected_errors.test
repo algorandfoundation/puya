@@ -14,10 +14,8 @@ SOME_ADDRESS_PADDED = SOME_ADDRESS + "=="
 
 @subroutine
 def typing_interactions() -> None:
-    typing.reveal_type(UInt64(1)) ## N: Revealed type is "algopy._primitives.UInt64" \
-                                  ## N: algopy type is "uint64"
-    typing.reveal_type((UInt64(1), Bytes(b""))) ## N: Revealed type is "tuple[algopy._primitives.UInt64, algopy._primitives.Bytes]" \
-                                                ## N: algopy type is "tuple<uint64,bytes>"
+    typing.reveal_type(UInt64(1)) ## N: Revealed type is "algopy._primitives.UInt64"
+    typing.reveal_type((UInt64(1), Bytes(b""))) ## N: Revealed type is "tuple[algopy._primitives.UInt64, algopy._primitives.Bytes]"
     typing.assert_type(UInt64(1), UInt64) ## W: use of typing.assert_type has no effect on compilation \
                                           ## W: expression result is ignored
 
@@ -53,7 +51,7 @@ class ContractWithInvalidAddressLiteral(Contract):
         return True
 
     def clear_state_program(self) -> bool:
-        some_address = Account("ABC") ## E: Invalid address value. Address literals should be 58 characters and not include base32 padding
+        some_address = Account("ABC") ## E: invalid address value - should have length 58 and not include base32 padding
         return True
 
 ## case: test_undefined_variable
@@ -86,7 +84,7 @@ def okay1() -> None:
 @subroutine
 def baddie1() -> None:
     arr_of_arr = arc4.DynamicArray[arc4.DynamicBytes]()
-    for arr in arr_of_arr: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+    for arr in arr_of_arr: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
         arr.append(arc4.Byte(1))
 
 
@@ -100,7 +98,7 @@ def okay2() -> None:
 @subroutine
 def baddie2() -> None:
     arr_of_tup_with_arr = arc4.DynamicArray[arc4.Tuple[arc4.DynamicBytes, arc4.UInt64]]()
-    for tup in arr_of_tup_with_arr: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+    for tup in arr_of_tup_with_arr: ## E: cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
         tup[0].append(arc4.Byte(1))
 
 
@@ -151,11 +149,11 @@ class Baddie(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def not_okay1(self) -> None:
-        self.global_c = GlobalState(UInt64) ## E: algopy.GlobalState can only be used in the __init__ method
+        self.global_c = GlobalState(UInt64) ## E: algopy.GlobalState can only be assigned to a member variable in the __init__ method
 
     @arc4.abimethod()
     def not_okay2(self) -> None:
-        self.local_d = LocalState(UInt64) ## E: algopy.LocalState can only be used in the __init__ method
+        self.local_d = LocalState(UInt64) ## E: algopy.LocalState can only be assigned to a member variable in the __init__ method
 
 
 ## case: bad_intrinsic_call
@@ -163,19 +161,16 @@ from algopy import *
 
 @subroutine
 def baddie() -> None:
-    result = op.setbit_bytes(UInt64(0), 0, 0, 1) # type: ignore[call-arg,arg-type] ## E: Too many positional arguments \
-                                                                                   ## E: Invalid argument type "algopy.UInt64" for argument "a" when calling algopy.op.setbit_bytes
-    result = op.setbit_bytes(UInt64(0), 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: Unexpected argument \
-                                                                                           ## E: Invalid argument type "algopy.UInt64" for argument "a" when calling algopy.op.setbit_bytes
-    result = op.setbit_bytes(0, 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: Unexpected argument \
-                                                                                   ## E: Unhandled literal type 'int' for argument
-    result = op.setbit_bytes(b"", 0) # type: ignore[call-arg] ## E: Missing expected argument c
+    result = op.setbit_bytes(UInt64(0), 0, 0, 1) # type: ignore[call-arg,arg-type] ## E: expected 3 arguments, got 4
+    result = op.setbit_bytes(UInt64(0), 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: expected 3 arguments, got 4
+    result = op.setbit_bytes(0, 0, 0, unknown=1) # type: ignore[call-arg,arg-type] ## E: expected 3 arguments, got 4
+    result = op.setbit_bytes(b"", 0) # type: ignore[call-arg] ## E: expected 3 arguments, got 2
 
-    result2 = op.GITxn.application_args(UInt64(0), UInt64(0)) # type: ignore[arg-type] ## E: Argument must be a literal int value
+    result2 = op.GITxn.application_args(UInt64(0), UInt64(0)) # type: ignore[arg-type] ## E: argument must be a literal int value
 
-    foo = arc4.arc4_signature(String("foo(uint64)uint64")) # type: ignore[arg-type] ## E: Unexpected args for algopy.arc4.arc4_signature
+    foo = arc4.arc4_signature(String("foo(uint64)uint64")) # type: ignore[arg-type] ## E: unexpected argument type
 
-    result3 = op.GITxn.fee() # type: ignore[call-arg] ## E: Missing expected argument t
+    result3 = op.GITxn.fee() # type: ignore[call-arg] ## E: expected 1 argument, got 0
 
 
 ## case: non_existent_members
@@ -183,31 +178,31 @@ from algopy import *
 
 @subroutine
 def uint64() -> None:
-    UInt64().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.UInt64: foo
+    UInt64().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.UInt64: foo
 
 @subroutine
 def biguint() -> None:
-    BigUInt().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.BigUInt: foo
+    BigUInt().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.BigUInt: foo
 
 @subroutine
 def bytes_() -> None:
-    Bytes().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.Bytes: foo
+    Bytes().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.Bytes: foo
 
 @subroutine
 def string() -> None:
-    String().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.String: foo
+    String().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.String: foo
 
 @subroutine
 def account() -> None:
-    Account().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.Account: foo
+    Account().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.Account: foo
 
 @subroutine
 def asset() -> None:
-    Asset().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.Asset: foo
+    Asset().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.Asset: foo
 
 @subroutine
 def application() -> None:
-    Application().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.Application: foo
+    Application().foo # type: ignore[attr-defined] ## E: unrecognised member of algopy.Application: foo
 
 
 ## case: invalid_constructor_args
@@ -215,16 +210,16 @@ from algopy import *
 
 @subroutine
 def invalid_constructor_args() -> None:
-    a = UInt64("a") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
-    b = BigUInt("b") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
-    c = Bytes(3) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
-    d = String(4) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
-    e = Account(5) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
-    f = Asset("f") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
-    g = Application("g") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    a = UInt64("a") # type: ignore[arg-type] ## E: unexpected argument type
+    b = BigUInt("b") # type: ignore[arg-type] ## E: unexpected argument type
+    c = Bytes(3) # type: ignore[arg-type] ## E: unexpected argument type
+    d = String(4) # type: ignore[arg-type] ## E: unexpected argument type
+    e = Account(5) # type: ignore[arg-type] ## E: unexpected argument type
+    f = Asset("f") # type: ignore[arg-type] ## E: unexpected argument type
+    g = Application("g") # type: ignore[arg-type] ## E: unexpected argument type
     # the next check is just to make sure we didn't throw on the line above
 
-    h = 1 ## E: A Python literal is not valid at this location
+    h = 1 ## E: a Python literal is not valid at this location
 
 
 ## case: unsupported_type_comparisons
@@ -243,7 +238,7 @@ def float_div() -> None:
     assert UInt64(10) / 2 # type: ignore[operator] ## E: To maintain semantic compatibility with Python, only the truncating division operator (//) is supported
     assert BigUInt(5) / 2 # type: ignore[operator] ## E: To maintain semantic compatibility with Python, only the truncating division operator (//) is supported
 
-    x = 1 ## E: A Python literal is not valid at this location
+    x = 1 ## E: a Python literal is not valid at this location
 
 
 ## case: unsupported_math_operators
@@ -251,9 +246,84 @@ from algopy import *
 
 @subroutine
 def unsupported_biguint_operator() -> None:
-    assert BigUInt() ** 2 # type: ignore[operator,misc] ## E: Unsupported BigUInt math operator '**'
+    assert BigUInt() ** 2 # type: ignore[operator,misc] ## E: unsupported operation ** between types
 
 @subroutine
 def unsupported_uint64_operator() -> None:
-    assert UInt64() @ 2 # type: ignore[operator,misc] ## E: Unsupported UInt64 math operator '@'
+    assert UInt64() @ 2 # type: ignore[operator,misc] ## E: unsupported operation @ between types
 
+
+## case: super_with_data_member
+from algopy import *
+
+class Base(ARC4Contract):
+    def __init__(self) -> None:
+        self.foo = UInt64(1)
+
+
+class Derived(Base):
+    def __init__(self) -> None:
+        self.foo2 = 2 * super().foo ## E: super() is only supported for calling functions
+
+
+## case: redefinition
+from algopy import *
+
+class Base(ARC4Contract):
+    def __init__(self) -> None:
+        self.foo = UInt64(1)
+        self.bar = UInt64(2)
+        self.foo_p = GlobalState(UInt64(1))  ## N: Previous definition of foo_p was here
+        self.bar_p = GlobalState(UInt64(2))  ## N: Previous definition of bar_p was here
+
+class Derived1(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.foo = UInt64(2) # ok
+
+class Derived2(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bar = Bytes(b"bbb") # type: ignore[assignment] ## E: assignment target type differs from expression value type
+
+class Derived3(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.foo_p = GlobalState(UInt64(3)) ## E: Redefinition of foo_p
+
+class Derived4(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: Redefinition of bar_p
+
+class Base2(ARC4Contract):
+    def __init__(self) -> None:
+        if Txn.num_app_args:
+            self.foo = UInt64(1)
+            self.foo_p = GlobalState(UInt64(1)) ## N: Previous definition of foo_p was here
+        else:
+            self.foo = UInt64(2)
+            self.foo_p = GlobalState(UInt64(2)) ## E: Redefinition of foo_p
+
+
+## case: void_state
+from algopy import *
+
+class Con(Contract):
+    x: None ## E: None is not supported as a value, only a return type \
+            ## E: type is not suitable for storage
+
+    def approval_program(self) -> bool:
+        self.x = log(b"")  # type: ignore[func-returns-value] ## E: None indicates an empty return and cannot be assigned
+        return True
+
+    def clear_state_program(self) -> bool:
+        assert self.x ## E: expression is always False
+        return True
+
+## case: tuple_types
+from algopy import *
+
+@subroutine
+def test_tuple_type() -> None:
+    tuple[UInt64, Bytes]((UInt64(), Bytes())) # ## E: variadic tuples are not supported

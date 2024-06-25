@@ -1,67 +1,84 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
-from immutabledict import immutabledict
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, Literal, UInt64Constant
-from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
-from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
-from puya.awst_build.utils import expect_operand_wtype
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
-
+from puya.awst.nodes import Expression, ReinterpretCast, UInt64Constant
+from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.application_wtype
+class ApplicationTypeBuilder(TypeBuilder):
+    def __init__(self, location: SourceLocation):
+        super().__init__(pytypes.ApplicationType, location)
 
+    @typing.override
+    def try_convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case int(int_value):
+                if int_value < 0 or int_value.bit_length() > 64:  # TODO: should this be 256?
+                    logger.error("invalid application ID", location=literal.source_location)
+                const = UInt64Constant(value=int_value, source_location=location)
+                expr = ReinterpretCast(
+                    expr=const, wtype=wtypes.application_wtype, source_location=location
+                )
+                return ApplicationExpressionBuilder(expr)
+        return None
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case []:
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
+                return arg.resolve_literal(ApplicationTypeBuilder(location))
+            case None:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [Literal(value=int(int_value), source_location=loc)]:
-                uint64_expr = UInt64Constant(value=int_value, source_location=loc)
-            case [ExpressionBuilder() as eb]:
-                uint64_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
             case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                uint64_expr = UInt64Constant(value=0, source_location=location)
-        return ApplicationExpressionBuilder(uint64_expr)
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
+                uint64_expr = arg.resolve()
+        app_expr = ReinterpretCast(
+            source_location=location, wtype=wtypes.application_wtype, expr=uint64_expr
+        )
+        return ApplicationExpressionBuilder(app_expr)
 
 
 class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
-    wtype = wtypes.application_wtype
-    native_access_member = "id"
-    field_mapping = immutabledict(
-        {
-            "approval_program": ("AppApprovalProgram", wtypes.bytes_wtype),
-            "clear_state_program": ("AppClearStateProgram", wtypes.bytes_wtype),
-            "global_num_uint": ("AppGlobalNumUint", wtypes.uint64_wtype),
-            "global_num_bytes": ("AppGlobalNumByteSlice", wtypes.uint64_wtype),
-            "local_num_uint": ("AppLocalNumUint", wtypes.uint64_wtype),
-            "local_num_bytes": ("AppLocalNumByteSlice", wtypes.uint64_wtype),
-            "extra_program_pages": ("AppExtraProgramPages", wtypes.uint64_wtype),
-            "creator": ("AppCreator", wtypes.account_wtype),
-            "address": ("AppAddress", wtypes.account_wtype),
+    def __init__(self, expr: Expression):
+        native_access_member = "id"
+        field_mapping = {
+            "approval_program": ("AppApprovalProgram", pytypes.BytesType),
+            "clear_state_program": ("AppClearStateProgram", pytypes.BytesType),
+            "global_num_uint": ("AppGlobalNumUint", pytypes.UInt64Type),
+            "global_num_bytes": ("AppGlobalNumByteSlice", pytypes.UInt64Type),
+            "local_num_uint": ("AppLocalNumUint", pytypes.UInt64Type),
+            "local_num_bytes": ("AppLocalNumByteSlice", pytypes.UInt64Type),
+            "extra_program_pages": ("AppExtraProgramPages", pytypes.UInt64Type),
+            "creator": ("AppCreator", pytypes.AccountType),
+            "address": ("AppAddress", pytypes.AccountType),
         }
-    )
-    field_op_code = "app_params_get"
-    field_bool_comment = "application exists"
+        field_op_code = "app_params_get"
+        field_bool_comment = "application exists"
+        super().__init__(
+            expr,
+            typ=pytypes.ApplicationType,
+            typ_literal_converter=ApplicationTypeBuilder,
+            native_access_member=native_access_member,
+            field_mapping=field_mapping,
+            field_op_code=field_op_code,
+            field_bool_comment=field_bool_comment,
+        )

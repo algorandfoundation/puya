@@ -9,45 +9,67 @@ main_entrypoint@2:
     // global_state/contract.py:23
     // assert self.global_int_simplified == 33
     int 0
+    // global_state/contract.py:7
+    // self.global_int_simplified = UInt64(33)
     byte "global_int_simplified"
+    // global_state/contract.py:23
+    // assert self.global_int_simplified == 33
     app_global_get_ex
-    assert // check global_int_simplified exists
+    assert // check self.global_int_simplified exists
     int 33
     ==
     assert
     // global_state/contract.py:24
     // assert self.global_int_full
     int 0
+    // global_state/contract.py:6
+    // self.global_int_full = GlobalState(UInt64(55))
     byte "global_int_full"
+    // global_state/contract.py:24
+    // assert self.global_int_full
     app_global_get_ex
     bury 1
     assert
     // global_state/contract.py:25
     // assert self.global_int_full.value == 55
     int 0
+    // global_state/contract.py:6
+    // self.global_int_full = GlobalState(UInt64(55))
     byte "global_int_full"
+    // global_state/contract.py:25
+    // assert self.global_int_full.value == 55
     app_global_get_ex
-    assert // check global_int_full exists
+    assert // check self.global_int_full exists
     int 55
     ==
     assert
     // global_state/contract.py:26
     // assert not self.global_int_no_default
     int 0
+    // global_state/contract.py:8
+    // self.global_int_no_default = GlobalState(UInt64)
     byte "global_int_no_default"
+    // global_state/contract.py:26
+    // assert not self.global_int_no_default
     app_global_get_ex
     bury 1
     !
     assert
+    // global_state/contract.py:8
+    // self.global_int_no_default = GlobalState(UInt64)
+    byte "global_int_no_default"
     // global_state/contract.py:27
     // self.global_int_no_default.value = UInt64(44)
-    byte "global_int_no_default"
     int 44
     app_global_put
     // global_state/contract.py:28
     // i_value, i_exists = self.global_int_no_default.maybe()
     int 0
+    // global_state/contract.py:8
+    // self.global_int_no_default = GlobalState(UInt64)
     byte "global_int_no_default"
+    // global_state/contract.py:28
+    // i_value, i_exists = self.global_int_no_default.maybe()
     app_global_get_ex
     // global_state/contract.py:29
     // assert i_exists
@@ -60,73 +82,105 @@ main_entrypoint@2:
     // global_state/contract.py:32
     // assert self.global_bytes_simplified == b"Hello"
     int 0
+    // global_state/contract.py:11
+    // self.global_bytes_simplified = Bytes(b"Hello")
     byte "global_bytes_simplified"
+    // global_state/contract.py:32
+    // assert self.global_bytes_simplified == b"Hello"
     app_global_get_ex
-    assert // check global_bytes_simplified exists
-    byte "Hello"
+    assert // check self.global_bytes_simplified exists
+    byte 0x48656c6c6f
     ==
     assert
     // global_state/contract.py:33
     // assert self.global_bytes_full
     int 0
+    // global_state/contract.py:10
+    // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
     byte "global_bytes_full"
+    // global_state/contract.py:33
+    // assert self.global_bytes_full
     app_global_get_ex
     bury 1
     assert
     // global_state/contract.py:34
     // assert self.global_bytes_full.value == b"Hello"
     int 0
+    // global_state/contract.py:10
+    // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
     byte "global_bytes_full"
+    // global_state/contract.py:34
+    // assert self.global_bytes_full.value == b"Hello"
     app_global_get_ex
-    assert // check global_bytes_full exists
-    byte "Hello"
+    assert // check self.global_bytes_full exists
+    byte 0x48656c6c6f
     ==
     assert
     // global_state/contract.py:35
     // assert self.global_bytes_full.get(Bytes(b"default")) == b"Hello"
     int 0
+    // global_state/contract.py:10
+    // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
     byte "global_bytes_full"
+    // global_state/contract.py:35
+    // assert self.global_bytes_full.get(Bytes(b"default")) == b"Hello"
     app_global_get_ex
-    byte "default"
+    byte 0x64656661756c74
     cover 2
     select
-    byte "Hello"
+    byte 0x48656c6c6f
     ==
     assert
     // global_state/contract.py:36
     // assert not self.global_bytes_no_default
     int 0
+    // global_state/contract.py:12
+    // self.global_bytes_no_default = GlobalState(Bytes)
     byte "global_bytes_no_default"
+    // global_state/contract.py:36
+    // assert not self.global_bytes_no_default
     app_global_get_ex
     bury 1
     !
     assert
+    // global_state/contract.py:12
+    // self.global_bytes_no_default = GlobalState(Bytes)
+    byte "global_bytes_no_default"
     // global_state/contract.py:37
     // self.global_bytes_no_default.value = Bytes(b"World")
-    byte "global_bytes_no_default"
-    byte "World"
+    byte 0x576f726c64
     app_global_put
     // global_state/contract.py:38
     // b_value, b_exists = self.global_bytes_no_default.maybe()
     int 0
+    // global_state/contract.py:12
+    // self.global_bytes_no_default = GlobalState(Bytes)
     byte "global_bytes_no_default"
+    // global_state/contract.py:38
+    // b_value, b_exists = self.global_bytes_no_default.maybe()
     app_global_get_ex
     // global_state/contract.py:39
     // assert b_exists
     assert
     // global_state/contract.py:40
     // assert b_value == b"World"
-    byte "World"
+    byte 0x576f726c64
     ==
     assert
+    // global_state/contract.py:12
+    // self.global_bytes_no_default = GlobalState(Bytes)
+    byte "global_bytes_no_default"
     // global_state/contract.py:41
     // del self.global_bytes_no_default.value
-    byte "global_bytes_no_default"
     app_global_del
     // global_state/contract.py:42
     // b_value, b_exists = self.global_bytes_no_default.maybe()
     int 0
+    // global_state/contract.py:12
+    // self.global_bytes_no_default = GlobalState(Bytes)
     byte "global_bytes_no_default"
+    // global_state/contract.py:42
+    // b_value, b_exists = self.global_bytes_no_default.maybe()
     app_global_get_ex
     bury 1
     // global_state/contract.py:43
@@ -136,62 +190,117 @@ main_entrypoint@2:
     // global_state/contract.py:45
     // assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
     int 0
+    // global_state/contract.py:12
+    // self.global_bytes_no_default = GlobalState(Bytes)
     byte "global_bytes_no_default"
+    // global_state/contract.py:45
+    // assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
     app_global_get_ex
-    byte "default"
+    byte 0x64656661756c74
     cover 2
     select
-    byte "default"
+    byte 0x64656661756c74
     ==
     assert
     // global_state/contract.py:47-48
     // # Assert 'is set'
     // assert self.global_bool_full
     int 0
+    // global_state/contract.py:14
+    // self.global_bool_full = GlobalState(False)
     byte "global_bool_full"
+    // global_state/contract.py:47-48
+    // # Assert 'is set'
+    // assert self.global_bool_full
     app_global_get_ex
     bury 1
     assert
     // global_state/contract.py:49
     // assert not self.global_bool_no_default
     int 0
+    // global_state/contract.py:16
+    // self.global_bool_no_default = GlobalState(bool)
     byte "global_bool_no_default"
+    // global_state/contract.py:49
+    // assert not self.global_bool_no_default
     app_global_get_ex
     bury 1
     !
     assert
+    // global_state/contract.py:16
+    // self.global_bool_no_default = GlobalState(bool)
+    byte "global_bool_no_default"
     // global_state/contract.py:51
     // self.global_bool_no_default.value = True
-    byte "global_bool_no_default"
     int 1
     app_global_put
     // global_state/contract.py:53-54
     // # Assert 'value'
     // assert not self.global_bool_full.value
     int 0
+    // global_state/contract.py:14
+    // self.global_bool_full = GlobalState(False)
     byte "global_bool_full"
+    // global_state/contract.py:53-54
+    // # Assert 'value'
+    // assert not self.global_bool_full.value
     app_global_get_ex
-    assert // check global_bool_full exists
+    assert // check self.global_bool_full exists
     !
     assert
     // global_state/contract.py:55
     // assert self.global_bool_simplified
     int 0
+    // global_state/contract.py:15
+    // self.global_bool_simplified = True
     byte "global_bool_simplified"
+    // global_state/contract.py:55
+    // assert self.global_bool_simplified
     app_global_get_ex
-    assert // check global_bool_simplified exists
+    assert // check self.global_bool_simplified exists
     assert
     // global_state/contract.py:56
     // assert self.global_bool_no_default.value
     int 0
+    // global_state/contract.py:16
+    // self.global_bool_no_default = GlobalState(bool)
     byte "global_bool_no_default"
+    // global_state/contract.py:56
+    // assert self.global_bool_no_default.value
     app_global_get_ex
-    assert // check global_bool_no_default exists
+    assert // check self.global_bool_no_default exists
     assert
-    // global_state/contract.py:58
+    // global_state/contract.py:8
+    // self.global_int_no_default = GlobalState(UInt64)
+    byte "global_int_no_default"
+    // global_state/contract.py:58-59
+    // # test the proxy can be passed as an argument
+    // assert get_global_state_plus_1(self.global_int_no_default) == 45
+    callsub get_global_state_plus_1
+    int 45
+    ==
+    assert
+    // global_state/contract.py:61
     // return True
     int 1
     return
+
+
+// examples.global_state.contract.get_global_state_plus_1(state: bytes) -> uint64:
+get_global_state_plus_1:
+    // global_state/contract.py:67-68
+    // @subroutine
+    // def get_global_state_plus_1(state: GlobalState[UInt64]) -> UInt64:
+    proto 1 1
+    // global_state/contract.py:69
+    // return state.value + 1
+    int 0
+    frame_dig -1
+    app_global_get_ex
+    assert // check GlobalState exists
+    int 1
+    +
+    retsub
 
 
 // examples.global_state.contract.AppStateContract.__init__() -> void:
@@ -212,12 +321,12 @@ __init__:
     // global_state/contract.py:10
     // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
     byte "global_bytes_full"
-    byte "Hello"
+    byte 0x48656c6c6f
     app_global_put
     // global_state/contract.py:11
     // self.global_bytes_simplified = Bytes(b"Hello")
     byte "global_bytes_simplified"
-    byte "Hello"
+    byte 0x48656c6c6f
     app_global_put
     // global_state/contract.py:14
     // self.global_bool_full = GlobalState(False)

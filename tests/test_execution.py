@@ -558,14 +558,26 @@ def test_ssa(harness: _TestHarness) -> None:
 
 
 def test_tuple_support(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "tuple_support")
-    total, msg, hi, mid, lo, batman = result.decode_logs("iuiiiu")
-    assert total == 306
-    assert msg == "Hello, world!"
-    assert hi == 0
-    assert mid == 2
-    assert lo == 1
-    assert batman == "nanananana"
+    result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_support.py")
+    assert result.decode_logs("iuiiiuuuuu") == [
+        306,
+        "Hello, world!",
+        0,
+        2,
+        1,
+        "nanananana",
+        "non_empty_tuple called",
+        "not empty",
+        "get_uint_with_side_effect called",
+        "not empty2",
+    ]
+
+
+def test_tuple_comparisons(harness: _TestHarness) -> None:
+    result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_comparisons.py")
+    expected_log_values = list(range(42, 48))
+    assert len(result.logs) == len(expected_log_values)
+    assert result.decode_logs("i" * len(expected_log_values)) == expected_log_values
 
 
 def test_chained_assignment(harness: _TestHarness) -> None:
@@ -648,7 +660,7 @@ def test_with_reentrancy(harness: _TestHarness) -> None:
 
 
 def test_conditional_expressions(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "conditional_expressions")
+    result = harness.deploy(TEST_CASES_DIR / "conditional_expressions" / "contract.py")
     logs = result.decode_logs(("u" * 6) + "i")
     counts = collections.Counter(logs[:-1])
     assert counts == {
@@ -656,6 +668,10 @@ def test_conditional_expressions(harness: _TestHarness) -> None:
         "side_effecting_op": 3,
     }
     assert logs[-1] == 19
+
+
+def test_literal_conditional_expressions(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "conditional_expressions" / "literals.py")
 
 
 def test_contains_operator(harness: _TestHarness) -> None:
@@ -756,7 +772,7 @@ def test_address(harness: _TestHarness) -> None:
 
 
 def test_string_ops(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=2))
+    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=4))
 
 
 def test_global_storage(harness: _TestHarness) -> None:

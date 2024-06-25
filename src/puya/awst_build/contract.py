@@ -5,24 +5,16 @@ import mypy.types
 import mypy.visitor
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
-    AppStateDefinition,
-    AppStateKind,
-    BytesEncoding,
     ContractFragment,
     ContractMethod,
     ContractReference,
 )
-from puya.awst_build import constants
-from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
+from puya.awst_build import constants, pytypes
+from puya.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import (
-    AppStateDeclaration,
-    AppStateDeclType,
-    ContractClassOptions,
-)
+from puya.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
@@ -30,8 +22,12 @@ from puya.awst_build.utils import (
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, OnCompletionAction
+from puya.models import (
+    ARC4MethodConfig,
+    OnCompletionAction,
+)
 from puya.parse import SourceLocation
+from puya.utils import unique
 
 ALLOWABLE_OCA = frozenset(
     [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
@@ -56,32 +52,30 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
-        this_app_state = list(_gather_app_state(context, class_def.info))
-        self.app_state = _gather_app_state_recursive(context, class_def, this_app_state)
+        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def)
+        self.context.set_state_defs(self.cref, inherited_and_direct_storage)
 
+        # if the class has an __init__ method, we need to visit it first, so any storage
+        # fields cane be resolved to a (static) key
+        match class_def.info.names.get("__init__"):
+            case mypy.nodes.SymbolTableNode(node=mypy.nodes.Statement() as init_node):
+                stmts = unique((init_node, *class_def.defs.body))
+            case _:
+                stmts = class_def.defs.body
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
         #       the constraints we place (e.g. if one function fails to convert,
         #       we can still keep trying to convert other functions to produce more valid errors)
-        for stmt in class_def.defs.body:
+        for stmt in stmts:
             with context.log_exceptions(fallback_location=stmt):
                 stmt.accept(self)
+        # TODO: validation for state proxies being non-conditional
 
-        collected_app_state_definitions = {
-            app_state_defn.member_name: app_state_defn
-            for app_state_defn in context.state_defs[self.cref]
+        app_state = {
+            name: state_decl.definition
+            for name, state_decl in context.state_defs(self.cref).items()
+            if state_decl.defined_in == self.cref
         }
-        for decl in this_app_state:
-            if decl.decl_type is AppStateDeclType.global_direct:
-                collected_app_state_definitions[decl.member_name] = AppStateDefinition(
-                    member_name=decl.member_name,
-                    storage_wtype=decl.storage_wtype,
-                    key=decl.member_name.encode("utf8"),
-                    key_encoding=BytesEncoding.utf8,
-                    description=None,
-                    source_location=decl.source_location,
-                    kind=decl.kind,
-                )
 
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
@@ -94,7 +88,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             approval_program=self._approval_program,
             clear_program=self._clear_program,
             subroutines=self._subroutines,
-            app_state=collected_app_state_definitions,
+            app_state=app_state,
             docstring=class_def.docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
@@ -152,7 +146,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                abimethod_config=None,
+                arc4_method_config=None,
                 source_location=source_location,
             )
             if sub is not None:
@@ -168,16 +162,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         elif (
             is_approval := func_def.name == constants.APPROVAL_METHOD
         ) or func_def.name == constants.CLEAR_STATE_METHOD:
-            if is_approval and self._is_arc4:
-                self.context.warning(
-                    "ARC4 contract compliance may be violated"
-                    f" when a custom {func_def.name} function is used",
-                    func_loc,
-                )
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                abimethod_config=None,
+                arc4_method_config=None,
                 source_location=source_location,
             )
             if sub is not None:
@@ -185,75 +173,59 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._approval_program = sub
                 else:
                     self._clear_program = sub
+        elif not self._is_arc4:
+            for arc4_only_dec_name in (
+                constants.ABIMETHOD_DECORATOR,
+                constants.BAREMETHOD_DECORATOR,
+            ):
+                if invalid_dec := dec_by_fullname.pop(arc4_only_dec_name, None):
+                    self._error(
+                        f"decorator is only valid in subclasses of"
+                        f" {constants.ARC4_CONTRACT_BASE_ALIAS}",
+                        invalid_dec,
+                    )
+            if not dec_by_fullname.pop(constants.SUBROUTINE_HINT, None):
+                self._error(f"missing @{constants.SUBROUTINE_HINT_ALIAS} decorator", func_loc)
+            sub = self._handle_method(
+                func_def,
+                extra_decorators=dec_by_fullname,
+                arc4_method_config=None,
+                source_location=source_location,
+            )
+            if sub is not None:
+                self._subroutines.append(sub)
         else:
             subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
             abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
             baremethod_dec = dec_by_fullname.pop(constants.BAREMETHOD_DECORATOR, None)
 
-            if not (subroutine_dec or abimethod_dec or baremethod_dec):
+            if len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))) != 1:
                 self._error(
-                    f"member functions (other than __init__ or approval / clear program methods)"
-                    f" must be annotated with exactly one of @{constants.SUBROUTINE_HINT_ALIAS} or"
-                    f" @{constants.ABIMETHOD_DECORATOR_ALIAS}",
+                    f"ARC-4 contract member functions"
+                    f" (other than __init__ or approval / clear program methods)"
+                    f" must be annotated with exactly one of"
+                    f" @{constants.SUBROUTINE_HINT_ALIAS},"
+                    f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
+                    f" or @{constants.BAREMETHOD_DECORATOR_ALIAS}",
                     func_loc,
                 )
 
-            arc4_method_config = None
-            arc4_decorator = abimethod_dec or baremethod_dec
-            if arc4_decorator is not None:
-                arc4_decorator_name = (
-                    constants.ABIMETHOD_DECORATOR_ALIAS
-                    if abimethod_dec
-                    else constants.BAREMETHOD_DECORATOR_ALIAS
+            arc4_method_config: ARC4MethodConfig | None
+            if abimethod_dec:
+                arc4_method_config = get_arc4_abimethod_data(
+                    self.context, abimethod_dec, func_def
+                ).config
+            elif baremethod_dec:
+                arc4_method_config = get_arc4_baremethod_data(
+                    self.context, baremethod_dec, func_def
                 )
-
-                arc4_decorator_loc = self._location(arc4_decorator)
-                if not self._is_arc4:
-                    self._error(
-                        f"{arc4_decorator_name} decorator is only for subclasses"
-                        f" of {constants.ARC4_CONTRACT_BASE_ALIAS}",
-                        arc4_decorator_loc,
-                    )
-                if abimethod_dec and baremethod_dec:
-                    self._error("cannot be both an abimethod and a baremethod", arc4_decorator_loc)
-                if subroutine_dec is not None:
-                    self._error(
-                        f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
-                    )
-                *arg_wtypes, ret_wtype = get_func_types(
-                    self.context, func_def, location=self._location(func_def)
-                ).values()
-                arc4_method_config = get_arc4_method_config(self.context, arc4_decorator, func_def)
-                if arc4_method_config.is_bare:
-                    if arg_wtypes or (ret_wtype is not wtypes.void_wtype):
-                        self._error(
-                            "bare methods should have no arguments or return values",
-                            arc4_decorator_loc,
-                        )
-                else:
-                    for arg_wtype in arg_wtypes:
-                        if not (
-                            wtypes.is_arc4_argument_type(arg_wtype)
-                            or wtypes.has_arc4_equivalent_type(arg_wtype)
-                        ):
-                            self._error(
-                                f"Invalid argument type for an ARC4 method: {arg_wtype}",
-                                arc4_decorator_loc,
-                            )
-                    if not (
-                        ret_wtype is wtypes.void_wtype
-                        or wtypes.is_arc4_encoded_type(ret_wtype)
-                        or wtypes.has_arc4_equivalent_type(ret_wtype)
-                    ):
-                        self._error(
-                            f"Invalid return type for an ARC4 method: {ret_wtype}",
-                            arc4_decorator_loc,
-                        )
-                # TODO: validate against super-class configs??
+            else:
+                arc4_method_config = None
+            # TODO: validate against super-class configs??
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
-                abimethod_config=arc4_method_config,
+                arc4_method_config=arc4_method_config,
                 source_location=source_location,
             )
             if sub is not None:
@@ -263,7 +235,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self,
         func_def: mypy.nodes.FuncDef,
         extra_decorators: Mapping[str, mypy.nodes.Expression],
-        abimethod_config: ARC4MethodConfig | None,
+        arc4_method_config: ARC4MethodConfig | None,
         source_location: SourceLocation,
     ) -> ContractMethod | None:
         func_loc = self._location(func_def)
@@ -286,8 +258,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     source_location=source_location,
                     contract_method_info=ContractMethodInfo(
                         type_info=self.class_def.info,
-                        arc4_method_config=abimethod_config,
-                        app_state=self.app_state,
+                        arc4_method_config=arc4_method_config,
                         cref=self.cref,
                     ),
                 )
@@ -364,77 +335,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported_stmt("match", stmt)
 
 
-def _gather_app_state(
-    context: ASTConversionModuleContext,
-    class_info: mypy.nodes.TypeInfo,
-    *,
-    report_errors: bool = True,
-) -> Iterator[AppStateDeclaration]:
-    for name, sym in class_info.names.items():
-        if isinstance(sym.node, mypy.nodes.Var):
-            var_loc = context.node_location(sym.node)
-            typ = mypy.types.get_proper_type(sym.type)
-            if typ is None:
-                raise InternalError(
-                    f"symbol table for class {class_info.fullname}"
-                    f" contains Var node entry for {name} without type",
-                    var_loc,
-                )
-            match typ:
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_LOCAL_STATE),
-                    args=args,
-                ):
-                    kind = AppStateKind.account_local
-                    decl_type = AppStateDeclType.local_proxy
-                    try:
-                        (storage_type,) = args
-                    except ValueError:
-                        if report_errors:
-                            context.error(
-                                f"{constants.CLS_LOCAL_STATE_ALIAS}"
-                                f" requires exactly one type parameter",
-                                var_loc,
-                            )
-                        continue
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_GLOBAL_STATE),
-                    args=args,
-                ):
-                    kind = AppStateKind.app_global
-                    decl_type = AppStateDeclType.global_proxy
-                    try:
-                        (storage_type,) = args
-                    except ValueError:
-                        if report_errors:
-                            context.error(
-                                f"{constants.CLS_GLOBAL_STATE_ALIAS}"
-                                f" requires exactly one type parameter",
-                                var_loc,
-                            )
-                        continue
-                case _:
-                    kind = AppStateKind.app_global
-                    decl_type = AppStateDeclType.global_direct
-                    storage_type = typ
-            storage_wtype = context.type_to_wtype(storage_type, source_location=var_loc)
-            if not storage_wtype.lvalue:
-                if report_errors:
-                    context.error(
-                        f"Invalid type for Local storage - must be assignable,"
-                        f" which type {storage_wtype} is not",
-                        var_loc,
-                    )
-            else:
-                yield AppStateDeclaration(
-                    member_name=name,
-                    kind=kind,
-                    storage_wtype=storage_wtype,
-                    decl_type=decl_type,
-                    source_location=var_loc,
-                )
-
-
 def _gather_bases(
     context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
 ) -> list[ContractReference]:
@@ -475,34 +375,68 @@ def _gather_bases(
     return contract_bases_mro
 
 
-def _gather_app_state_recursive(
-    context: ASTConversionModuleContext,
-    class_def: mypy.nodes.ClassDef,
-    this_app_state: list[AppStateDeclaration],
-) -> dict[str, AppStateDeclaration]:
-    combined_app_state = {defn.member_name: defn for defn in this_app_state}
+def _gather_app_storage_recursive(
+    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
+) -> dict[str, AppStorageDeclaration]:
+    this_global_directs = {
+        defn.member_name: defn for defn in _gather_global_direct_storages(context, class_def.info)
+    }
+    combined_app_state = this_global_directs.copy()
     for base in iterate_user_bases(class_def.info):
+        base_cref = qualified_class_name(base)
         base_app_state = {
-            defn.member_name: defn
-            # NOTE: we don't report errors for the decls themselves here,
-            #       they should already have been reported when analysing the base type
-            for defn in _gather_app_state(context, base, report_errors=False)
+            name: defn
+            for name, defn in context.state_defs(base_cref).items()
+            if defn.defined_in == base_cref
         }
         for redefined_member in combined_app_state.keys() & base_app_state.keys():
-            member_redef = combined_app_state[redefined_member]
-            member_orig = base_app_state[redefined_member]
-            context.info(
-                f"Previous definition of {redefined_member} was here",
-                member_orig.source_location,
-            )
-            context.error(
-                f"Redefinition of {redefined_member}",
-                member_redef.source_location,
-            )
+            # only handle producing errors for direct globals here,
+            # proxies get handled on insert
+            if this_member_redef := combined_app_state.get(redefined_member):
+                member_orig = base_app_state[redefined_member]
+                context.info(
+                    f"Previous definition of {redefined_member} was here",
+                    member_orig.source_location,
+                )
+                context.error(
+                    f"Redefinition of {redefined_member}",
+                    this_member_redef.source_location,
+                )
         # we do it this way around so that we keep combined_app_state with the most-derived
         # definition in case of redefinitions
         combined_app_state = base_app_state | combined_app_state
     return combined_app_state
+
+
+def _gather_global_direct_storages(
+    context: ASTConversionModuleContext, class_info: mypy.nodes.TypeInfo
+) -> Iterator[AppStorageDeclaration]:
+    cref = qualified_class_name(class_info)
+    for name, sym in class_info.names.items():
+        if isinstance(sym.node, mypy.nodes.Var):
+            var_loc = context.node_location(sym.node)
+            if sym.type is None:
+                raise InternalError(
+                    f"symbol table for class {class_info.fullname}"
+                    f" contains Var node entry for {name} without type",
+                    var_loc,
+                )
+            pytyp = context.type_to_pytype(sym.type, source_location=var_loc)
+
+            if isinstance(pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType):
+                # these are handled on declaration, need to collect constructor arguments too
+                continue
+
+            if pytyp is pytypes.NoneType:
+                context.error("None is not supported as a value, only a return type", var_loc)
+            yield AppStorageDeclaration(
+                member_name=name,
+                typ=pytyp,
+                source_location=var_loc,
+                defined_in=cref,
+                key_override=None,
+                description=None,
+            )
 
 
 def _check_class_abstractness(

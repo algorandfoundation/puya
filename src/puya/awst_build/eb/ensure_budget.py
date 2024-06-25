@@ -1,102 +1,118 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CallArg,
+    Expression,
     FreeSubroutineTarget,
-    Literal,
+    IntegerConstant,
     SubroutineCallExpression,
     UInt64Constant,
 )
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
+from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._utils import dummy_value
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
+from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+logger = log.get_logger(__name__)
 
 
-class EnsureBudgetBuilder(IntermediateExpressionBuilder):
+class EnsureBudgetBuilder(FunctionBuilder):
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
+    ) -> InstanceBuilder:
         required_budget_arg_name = "required_budget"
         fee_source_arg_name = "fee_source"
-        arg_mapping = get_arg_mapping(
-            positional_arg_names=[required_budget_arg_name, fee_source_arg_name],
-            args=zip(arg_names, args, strict=True),
-            location=location,
+        arg_mapping, _ = get_arg_mapping(
+            required_positional_names=[required_budget_arg_name],
+            optional_positional_names=[fee_source_arg_name],
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
-        try:
-            required_budget = arg_mapping.pop(required_budget_arg_name)
-        except KeyError:
-            raise CodeError(
-                f"Missing required argument '{required_budget_arg_name}'", location
-            ) from None
+        required_budget_arg = arg_mapping.get(required_budget_arg_name)
+        if required_budget_arg is None:
+            required_budget = dummy_value(pytypes.UInt64Type, location)
+        else:
+            required_budget = expect.argument_of_type_else_dummy(
+                required_budget_arg, pytypes.UInt64Type, resolve_literal=True
+            )
+
+        fee_source_arg = arg_mapping.get(fee_source_arg_name)
+        if fee_source_arg is None:
+            fee_source_expr: Expression = UInt64Constant(value=0, source_location=location)
+        else:
+            fee_source_expr = expect.argument_of_type_else_dummy(
+                fee_source_arg, pytypes.UInt64Type
+            ).resolve()
+        if (
+            isinstance(fee_source_expr, IntegerConstant)
+            and fee_source_expr.value not in FeeSourceValues.values()
+        ):
+            logger.error("invalid argument value", location=fee_source_expr.source_location)
 
         call_args = [
             CallArg(
                 name=required_budget_arg_name,
-                value=expect_operand_wtype(required_budget, wtypes.uint64_wtype),
-            )
-        ]
-
-        match arg_mapping.pop(fee_source_arg_name, None):
-            case Literal(
-                value=int(fee_source_value), source_location=fee_source_loc
-            ) if 0 <= fee_source_value <= 2:
-                fee_source_expr = UInt64Constant(
-                    value=fee_source_value, source_location=fee_source_loc
-                )
-            case None:
-                fee_source_expr = UInt64Constant(value=0, source_location=location)
-            case _:
-                raise CodeError(f"Invalid argument value for {fee_source_arg_name}", location)
-        call_args.append(
+                value=required_budget.resolve(),
+            ),
             CallArg(
                 name=fee_source_arg_name,
                 value=fee_source_expr,
-            )
-        )
-        if arg_mapping:
-            raise CodeError(f"Unexpected arguments: {', '.join(arg_mapping)}", location)
+            ),
+        ]
         call_expr = SubroutineCallExpression(
             source_location=location,
             target=FreeSubroutineTarget(module_name="algopy", name="ensure_budget"),
             args=call_args,
             wtype=wtypes.void_wtype,
         )
-        return var_expression(call_expr)
+        return NoneExpressionBuilder(call_expr)
 
 
-class OpUpFeeSourceClassBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.uint64_wtype
+FeeSourceValues = {
+    "GroupCredit": 0,
+    "AppAccount": 1,
+    "Any": 2,
+}
 
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        match name:
-            case "GroupCredit":
-                return Literal(value=0, source_location=location)
-            case "AppAccount":
-                return Literal(value=1, source_location=location)
-            case "Any":
-                return Literal(value=2, source_location=location)
-            case _:
-                return super().member_access(name, location)
+
+class OpUpFeeSourceTypeBuilder(TypeBuilder):
+    def __init__(self, location: SourceLocation):
+        super().__init__(pytypes.UInt64Type, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        raise CodeError("cannot instantiate enumeration type", location)
+
+    @typing.override
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        if (value := FeeSourceValues.get(name)) is None:
+            return super().member_access(name, expr, location)
+        const_expr = UInt64Constant(value=value, source_location=location)
+        return UInt64ExpressionBuilder(const_expr)

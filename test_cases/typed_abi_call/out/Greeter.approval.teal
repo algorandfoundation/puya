@@ -536,7 +536,7 @@ test_arg_conversion:
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_string(string)void"
+    method "log(string)void"
     itxn_field ApplicationArgs
     byte 0x000a636f6e76657274656431
     itxn_field ApplicationArgs
@@ -548,7 +548,7 @@ test_arg_conversion:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:49
     // assert txn.last_log == b"converted1"
-    byte "converted1"
+    byte 0x636f6e76657274656431
     ==
     assert
     // typed_abi_call/typed_c2c.py:51
@@ -556,7 +556,7 @@ test_arg_conversion:
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_uint64(uint64)void"
+    method "log(uint64)void"
     itxn_field ApplicationArgs
     byte 0x0000000000000002
     itxn_field ApplicationArgs
@@ -577,7 +577,7 @@ test_arg_conversion:
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_uint512(uint512)void"
+    method "log(uint512)void"
     itxn_field ApplicationArgs
     byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
     itxn_field ApplicationArgs
@@ -597,7 +597,7 @@ test_arg_conversion:
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_bytes(byte[])void"
+    method "log(byte[])void"
     itxn_field ApplicationArgs
     byte 0x000134
     itxn_field ApplicationArgs
@@ -609,7 +609,7 @@ test_arg_conversion:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:58
     // assert txn.last_log == b"4"
-    byte "4"
+    byte 0x34
     ==
     assert
     // typed_abi_call/typed_c2c.py:60
@@ -617,7 +617,7 @@ test_arg_conversion:
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_bool(bool)void"
+    method "log(bool)void"
     itxn_field ApplicationArgs
     byte 0x80
     itxn_field ApplicationArgs
@@ -629,7 +629,7 @@ test_arg_conversion:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:61
     // assert txn.last_log == b"True"
-    byte "True"
+    byte 0x54727565
     ==
     assert
     retsub
@@ -790,11 +790,11 @@ test_void:
     // def test_void(self, app: Application) -> None:
     proto 1 0
     // typed_abi_call/typed_c2c.py:93
-    // txn = arc4.abi_call("log_string(string)void", "World1", app_id=app)
+    // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_string(string)void"
+    method "log(string)void"
     itxn_field ApplicationArgs
     byte 0x0006576f726c6431
     itxn_field ApplicationArgs
@@ -806,15 +806,15 @@ test_void:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:94
     // assert txn.last_log == b"World1"
-    byte "World1"
+    byte 0x576f726c6431
     ==
     assert
     // typed_abi_call/typed_c2c.py:96
-    // txn = arc4.abi_call("log_string(string)", "World2", app_id=app)
+    // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)", "World2", app_id=app)
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_string(string)void"
+    method "log(string)void"
     itxn_field ApplicationArgs
     byte 0x0006576f726c6432
     itxn_field ApplicationArgs
@@ -826,15 +826,15 @@ test_void:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:97
     // assert txn.last_log == b"World2"
-    byte "World2"
+    byte 0x576f726c6432
     ==
     assert
     // typed_abi_call/typed_c2c.py:99
-    // txn = arc4.abi_call("log_string", arc4.String("World3"), app_id=app)
+    // txn = arc4.abi_call(LOG_METHOD_NAME, arc4.String("World3"), app_id=app)
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_string(string)void"
+    method "log(string)void"
     itxn_field ApplicationArgs
     byte 0x0006576f726c6433
     itxn_field ApplicationArgs
@@ -846,7 +846,7 @@ test_void:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:100
     // assert txn.last_log == b"World3"
-    byte "World3"
+    byte 0x576f726c6433
     ==
     assert
     // typed_abi_call/typed_c2c.py:102
@@ -854,7 +854,7 @@ test_void:
     itxn_begin
     frame_dig -1
     itxn_field ApplicationID
-    method "log_string(string)void"
+    method "log(string)void"
     itxn_field ApplicationArgs
     byte 0x0006576f726c6434
     itxn_field ApplicationArgs
@@ -866,7 +866,7 @@ test_void:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:103
     // assert txn.last_log == b"World4"
-    byte "World4"
+    byte 0x576f726c6434
     ==
     assert
     retsub
@@ -905,7 +905,7 @@ test_ref_types:
     //     app,
     //     app_id=app,
     // )
-    method "log_asset_account_app(asset,account,application)void"
+    method "log(asset,account,application)void"
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:109
     // asset,
@@ -1082,7 +1082,7 @@ test_native_bytes:
     // typed_abi_call/typed_c2c.py:133
     // assert result1 == b"echo: b"
     dup
-    byte "echo: b"
+    byte 0x6563686f3a2062
     ==
     assert
     // typed_abi_call/typed_c2c.py:135
@@ -1436,7 +1436,7 @@ test_native_tuple:
     // assert b.native == b"echo: b1"
     swap
     extract 2 0
-    byte "echo: b1"
+    byte 0x6563686f3a206231
     ==
     assert
     // typed_abi_call/typed_c2c.py:184

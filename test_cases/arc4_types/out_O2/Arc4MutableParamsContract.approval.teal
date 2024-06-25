@@ -57,10 +57,15 @@ mutating_copies:
     assert // my_array_copy_2 should have original value
     callsub other_routine_2
     bury 1
+    dup
     extract 0 1 // on error: Index access is out of bounds
     byte 0x0a
     b==
     assert // my_array_copy_2 should have mutated value
+    dup2
+    uncover 2
+    callsub other_routine_3
+    popn 3
     extract 0 4 // on error: Index access is out of bounds
     callsub other_routine_2
     popn 2
@@ -125,4 +130,39 @@ other_routine_2:
     replace2 0
     frame_dig -1
     swap
+    retsub
+
+
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_3(arrays.0: bytes, arrays.1: bytes, arrays.2: bytes) -> bytes, bytes, bytes:
+other_routine_3:
+    proto 3 3
+    byte ""
+    int 0
+    b other_routine_3_for_body@4
+
+other_routine_3_for_header_1@2:
+    frame_dig 0
+
+other_routine_3_for_body@4:
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch other_routine_3_for_header_1@2 other_routine_3_for_header_1@2
+    frame_dig -3
+    byte 0x63
+    replace2 0
+    frame_bury -3
+    frame_dig -2
+    byte 0x63
+    replace2 0
+    frame_bury -2
+    frame_dig -1
+    byte 0x63
+    replace2 0
+    frame_bury -1
+    frame_dig -3
+    frame_dig -2
+    frame_dig -1
+    uncover 3
     retsub

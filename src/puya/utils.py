@@ -256,3 +256,10 @@ def coalesce(*args: T | None) -> T | None:
 
 def positive_index(idx: int, seq: Sequence[T]) -> int:
     return idx if idx >= 0 else len(seq) + idx
+
+
+def set_add(set_: MutableSet[T], value: T) -> bool:
+    """ensure item exists in a set, returning if it was added or not"""
+    added = value not in set_
+    set_.add(value)
+    return added

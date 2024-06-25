@@ -5,6 +5,7 @@ from algopy import (
     LocalState,
     OnCompleteAction,
     Txn,
+    UInt64,
     log,
     subroutine,
 )
@@ -31,7 +32,7 @@ class LocalStateContract(Contract):
                 log(self.get_data_or_assert(Txn.sender))
             elif method == b"delete_data":
                 self.delete_data(Txn.sender)
-                log(b"Deleted")
+                log("Deleted")
             else:
                 return False
             return True
@@ -51,7 +52,10 @@ class LocalStateContract(Contract):
 
     @subroutine
     def get_guaranteed_data(self, for_account: Account) -> Bytes:
-        return self.local[for_account]
+        result = self.local[for_account]
+        # this just tests local state proxy can be passed around
+        assert result.length == get_local_state_length(self.local, for_account)
+        return result
 
     @subroutine
     def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
@@ -70,3 +74,8 @@ class LocalStateContract(Contract):
     @subroutine
     def delete_data(self, for_account: Account) -> None:
         del self.local[for_account]
+
+
+@subroutine
+def get_local_state_length(state: LocalState[Bytes], account: Account) -> UInt64:
+    return state[account].length

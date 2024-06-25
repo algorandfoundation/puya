@@ -6,8 +6,7 @@ from algopy import UInt64, subroutine
 def test() -> UInt64:
     one = UInt64(1)
     three = one + 2
-    typing.reveal_type(three) ## N: algopy type is "uint64" \
-                              ## N: Revealed type is "algopy._primitives.UInt64"
+    typing.reveal_type(three) ## N: Revealed type is "algopy._primitives.UInt64"
 
     return three
 
@@ -66,13 +65,21 @@ def test(a: UInt64, b: UInt64) -> UInt64:
 
 ## case: no_type_alias
 import typing
-from algopy import UInt64, subroutine
+from algopy import *
 
 @subroutine
 def test() -> UInt64:
     Foo: typing.TypeAlias = UInt64 ## E: type aliases, type vars, and type constructors are not supported inside functions
     one: Foo = UInt64(1)
     return one
+
+class MyContract(ARC4Contract):
+    Foo: typing.TypeAlias = UInt64 ## E: assignment statements are not supported in the class body
+
+    def __init__(self) -> None:
+        Bar: typing.TypeAlias = UInt64 ## E: type aliases, type vars, and type constructors are not supported inside functions
+        self.bar = Bar(1) ## E: Unable to resolve reference to 'no_type_alias.MyContract.Bar', scope='local'
+
 
 ## case: no_assign_void
 from algopy import UInt64, subroutine
@@ -92,7 +99,7 @@ from algopy import Bytes, UInt64, subroutine
 @subroutine
 def test() -> None:
     b = Bytes(b"123")
-    b = UInt64(1) # type: ignore[assignment] ## E: Assignment target type algopy.Bytes differs from expression value type algopy.UInt64
+    b = UInt64(1) # type: ignore[assignment] ## E: assignment target type differs from expression value type
 
 ## case: while_ok
 from algopy import UInt64, subroutine
@@ -212,7 +219,8 @@ from algopy import UInt64, subroutine, urange
 @subroutine
 def test() -> UInt64:
     sum = UInt64(0)
-    for i in urange(5, 10, 2, 4): # type: ignore[call-overload, misc] ## E: too many arguments to urange function, takes at most three arguments
+    for i in urange(5, 10, 2, 4): # type: ignore[call-overload, misc] ## E: expected at most 3 arguments, got 4 \
+                                                                      ## E: Any type is not supported
         pass
     return sum
 
@@ -221,7 +229,7 @@ from algopy import UInt64, subroutine, urange
 
 @subroutine
 def test() -> None:
-    i = urange(5) ## E: UnsignedRange is not valid as an rvalue
+    i = urange(5) ## E: expression is only usable as the source of a for-loop
 
 ## case: uenumerate
 from algopy import Bytes, subroutine, uenumerate
@@ -233,10 +241,8 @@ def test() -> None:
     two = Bytes(b"2")
     three = Bytes(b"3")
     for loop_index, x in uenumerate((one, two, three)):
-        typing.reveal_type(loop_index) ## N: Revealed type is "algopy._primitives.UInt64" \
-                                       ## N: algopy type is "uint64"
-        typing.reveal_type(x) ## N: Revealed type is "algopy._primitives.Bytes" \
-                              ## N: algopy type is "bytes"
+        typing.reveal_type(loop_index) ## N: Revealed type is "algopy._primitives.UInt64"
+        typing.reveal_type(x) ## N: Revealed type is "algopy._primitives.Bytes"
 
 ## case: no_uenumerate_outside_for
 from algopy import Bytes, subroutine, uenumerate
@@ -246,7 +252,7 @@ def test() -> None:
     one = Bytes(b"1")
     two = Bytes(b"2")
     three = Bytes(b"3")
-    i = uenumerate((one, two, three)) ## E: UnsignedEnumerate is not valid as an rvalue
+    i = uenumerate((one, two, three)) ## E: expression is only usable as the source of a for-loop
 
 ## case: assert_ok
 from algopy import UInt64, subroutine
@@ -325,11 +331,17 @@ def test() -> None:
     true = False
 
 ## case: no_none_name
-from algopy import subroutine
+from algopy import *
 
 @subroutine
 def test() -> None:
     none = None ## E: None is not supported as a value, only a return type
+
+@subroutine
+def test2(x: UInt64) -> None:
+    y = test() ## E: None indicates an empty return and cannot be assigned
+    if x > 0:
+        y = x
 
 ## case: can_reference_global_defined_after
 from algopy import UInt64, subroutine
@@ -345,7 +357,7 @@ from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
-    two = one + one # type: ignore[has-type, misc, used-before-def] ## E: Any type is not supported
+    two = one + one # type: ignore[has-type, misc, used-before-def] ## E: unsupported type form
     one = UInt64(1)
 
 ## case: no_underscore
@@ -362,7 +374,7 @@ from algopy import Bytes, UInt64, subroutine
 def test() -> None:
     one = UInt64(1)
     two = Bytes(b"2")
-    one = two = Bytes(b"3") # type: ignore[assignment] ## E: Assignment target type algopy.UInt64 differs from expression value type algopy.Bytes
+    one = two = Bytes(b"3") # type: ignore[assignment] ## E: assignment target type differs from expression value type
 
 ## case: can_reference_intrinsic_with_enum
 from algopy import UInt64, op, subroutine
@@ -378,11 +390,9 @@ from algopy import OnCompleteAction, UInt64, subroutine
 @subroutine
 def test() -> None:
     update_application = OnCompleteAction.UpdateApplication
-    typing.reveal_type(update_application) ## N: algopy type is "uint64" \
-                                           ## N: Revealed type is "algopy._constants.OnCompleteAction"
+    typing.reveal_type(update_application) ## N: Revealed type is "algopy._constants.OnCompleteAction"
     foo = update_application + 1
-    typing.reveal_type(foo) ## N: algopy type is "uint64" \
-                            ## N: Revealed type is "algopy._primitives.UInt64"
+    typing.reveal_type(foo) ## N: Revealed type is "algopy._primitives.UInt64"
 
 ## case: can_call_other
 from algopy import UInt64, subroutine
@@ -475,5 +485,13 @@ def no_op() -> None:
 
 @subroutine
 def test() -> None:
-    if no_op():  ## E: None does not support boolean evaluation
+    if no_op(): ## E: expression is always False
         pass
+
+
+## case: subroutine_taking_none
+from algopy import *
+
+@subroutine
+def naughty(foo: None) -> None:  ## E: void type arguments are not supported
+    return foo

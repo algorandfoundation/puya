@@ -2,16 +2,18 @@ import typing
 from collections.abc import Sequence
 
 import puya.awst.visitors
-from puya import log
+import puya.ir.builder.storage
+from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
+from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, flow_control, state
+from puya.ir.builder import arc4, flow_control, storage
 from puya.ir.builder._utils import (
     assert_value,
     assign,
@@ -192,19 +194,29 @@ class FunctionIRBuilder(
     def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> TExpression:
         match expr.wtype:
             case wtypes.uint64_wtype:
+                if expr.value < 0 or expr.value.bit_length() > 64:
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
                 return UInt64Constant(
                     value=expr.value,
                     source_location=expr.source_location,
                     teal_alias=expr.teal_alias,
                 )
             case wtypes.biguint_wtype:
+                if expr.value < 0 or expr.value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
                 return BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
                 num_bytes = bit_size // 8
+                try:
+                    arc4_result = expr.value.to_bytes(num_bytes, "big", signed=False)
+                except OverflowError:
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location) from None
                 return BytesConstant(
-                    source_location=expr.source_location,
+                    value=arc4_result,
                     encoding=AVMBytesEncoding.base16,
-                    value=expr.value.to_bytes(num_bytes, "big", signed=False),
+                    source_location=expr.source_location,
                 )
             case _:
                 raise InternalError(
@@ -214,10 +226,17 @@ class FunctionIRBuilder(
 
     def visit_decimal_constant(self, expr: awst_nodes.DecimalConstant) -> TExpression:
         match expr.wtype:
-            case wtypes.ARC4UFixedNxM(n=bit_size):
+            case wtypes.ARC4UFixedNxM(n=bit_size, m=precision):
                 num_bytes = bit_size // 8
-                _, digits, _ = expr.value.as_tuple()
+                sign, digits, exponent = expr.value.as_tuple()
                 adjusted_int = int("".join(map(str, digits)))
+                if (
+                    sign != 0  # negative
+                    or not isinstance(exponent, int)  # infinite
+                    or -exponent > precision  # too precise
+                    or adjusted_int.bit_length() > bit_size  # too big
+                ):
+                    raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
                 return BytesConstant(
                     source_location=expr.source_location,
                     encoding=AVMBytesEncoding.base16,
@@ -235,20 +254,33 @@ class FunctionIRBuilder(
         )
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
+        if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
         return BytesConstant(
             value=expr.value,
             encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
+            ir_type=wtype_to_ir_type(expr),
             source_location=expr.source_location,
         )
 
     def visit_string_constant(self, expr: awst_nodes.StringConstant) -> BytesConstant:
+        try:
+            value = expr.value.encode("utf8")
+        except UnicodeError:
+            value = None
+        if value is None or len(value) > algo_constants.MAX_BYTES_LENGTH:
+            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+
         return BytesConstant(
-            value=expr.value.encode("utf8"),
+            value=value,
             encoding=AVMBytesEncoding.utf8,
             source_location=expr.source_location,
         )
 
     def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> TExpression:
+        if not wtypes.valid_address(expr.value):
+            # TODO: should this be here, or on IR model? there's pros and cons to each
+            raise CodeError("invalid Algorand address", expr.source_location)
         return AddressConstant(
             value=expr.value,
             source_location=expr.source_location,
@@ -297,6 +329,13 @@ class FunctionIRBuilder(
         return value
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
+        # TODO: remove this once wtypes are available at IR layer and assign can deal with
+        #       single item tuples correctly
+        if isinstance(expr.wtype, wtypes.WTuple) and len(expr.wtype.types) == 1:
+            ir_type = wtype_to_ir_type(expr.wtype.types[0])
+            return self.context.ssa.read_variable(
+                expr.name, ir_type, self.context.block_builder.active_block
+            )
         if isinstance(expr.wtype, wtypes.WTuple):
             return ValueTuple(
                 source_location=expr.source_location,
@@ -529,24 +568,27 @@ class FunctionIRBuilder(
         return result
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
-        return state.visit_app_state_expression(self.context, expr)
+        return storage.visit_app_state_expression(self.context, expr)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> TExpression:
-        return state.visit_app_account_state_expression(self.context, expr)
+        return storage.visit_app_account_state_expression(self.context, expr)
+
+    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
+        return puya.ir.builder.storage.visit_box_value(self.context, expr)
 
     def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
-        return state.visit_state_get_ex(self.context, expr)
+        return storage.visit_state_get_ex(self.context, expr)
 
     def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
-        return state.visit_state_delete(self.context, statement)
+        return storage.visit_state_delete(self.context, statement)
 
     def visit_state_get(self, expr: awst_nodes.StateGet) -> TExpression:
-        return state.visit_state_get(self.context, expr)
+        return storage.visit_state_get(self.context, expr)
 
     def visit_state_exists(self, expr: awst_nodes.StateExists) -> TExpression:
-        return state.visit_state_exists(self.context, expr)
+        return storage.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         match expr.wtype:
@@ -791,11 +833,7 @@ class FunctionIRBuilder(
             match wtype:
                 case wtypes.void_wtype:
                     pass
-                case _ if (
-                    wtypes.is_inner_transaction_type(wtype)
-                    or wtypes.is_inner_transaction_field_type(wtype)
-                    or wtypes.is_inner_transaction_tuple_type(wtype)
-                ):
+                case _ if (isinstance(wtype, WInnerTransaction | WInnerTransactionFields)):
                     # inner transaction wtypes aren't true expressions
                     pass
                 case _:
@@ -949,7 +987,7 @@ class FunctionIRBuilder(
         return value_seq_or_provider
 
     def materialise_value_provider(
-        self, provider: ValueProvider, description: str
+        self, provider: ValueProvider, description: str | Sequence[str]
     ) -> Sequence[Value]:
         """
         Given a ValueProvider with arity of N, return a Value sequence of length N.
@@ -1059,7 +1097,7 @@ def get_comparison_op_for_wtype(
                 case awst_nodes.NumericComparison.ne:
                     return AVMOp.neq
     raise InternalError(
-        f"Unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
+        f"unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
     )
 
 

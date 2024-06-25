@@ -6,6 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.awst_build.validation.awst_traverser import AWSTTraverser
 from puya.parse import SourceLocation
 
@@ -72,13 +73,13 @@ class InnerTransactionsValidator(AWSTTraverser):
                 pass  # ok
             case awst_nodes.VarExpression(wtype=wtype) | awst_nodes.TupleItemExpression(
                 wtype=wtype
-            ) if wtypes.is_inner_transaction_field_type(wtype):
+            ) if isinstance(wtype, WInnerTransactionFields):
                 logger.error(
                     INNER_TRANSACTION_COPY_REQUIRED_ERROR,
                     location=value.source_location,
                 )
             case awst_nodes.Expression(wtype=wtype) if (
-                wtypes.is_inner_transaction_field_type(wtype)
+                isinstance(wtype, WInnerTransactionFields)
             ):
                 logger.error(
                     INNER_TRANSACTION_SOURCE_ERROR,
@@ -212,13 +213,13 @@ def _is_either_itxn_wtype(wtype: wtypes.WType) -> bool:
 
 
 def _is_itxn_wtype(wtype: wtypes.WType) -> bool:
-    return wtypes.is_inner_transaction_type(wtype) or (
+    return isinstance(wtype, WInnerTransaction) or (
         isinstance(wtype, wtypes.WTuple) and any(map(_is_itxn_wtype, wtype.types))
     )
 
 
 def _is_itxn_fields_wtype(wtype: wtypes.WType) -> bool:
-    return wtypes.is_inner_transaction_field_type(wtype) or (
+    return isinstance(wtype, WInnerTransactionFields) or (
         isinstance(wtype, wtypes.WTuple) and any(map(_is_itxn_fields_wtype, wtype.types))
     )
 
@@ -244,7 +245,7 @@ class StaleInnerTransactionsValidator(AWSTTraverser):
                 new_itxn_var_names = self._get_var_names(stmt.target)
                 self._update_active_var_names(new_itxn_var_names)
             case awst_nodes.TupleExpression(items=items) if any(
-                wtypes.is_inner_transaction_type(item.wtype) for item in items
+                isinstance(item.wtype, WInnerTransaction) for item in items
             ):
                 var_names = self._get_var_names(stmt.target)
                 self._update_active_var_names(var_names)

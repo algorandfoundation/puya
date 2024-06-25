@@ -116,10 +116,10 @@ main_create_route@1:
     dup
     len
     itob
-    substring 6 8
+    extract 6 2
     uncover 1
     concat
-    cover 2
+    cover 4
     dup
     len
     int 64
@@ -136,9 +136,9 @@ main_create_route@1:
     concat
     cover 1
     byte 0x
-    uncover 4
+    uncover 3
     concat
-    uncover 4
+    uncover 3
     concat
     int 77
     itob
@@ -226,59 +226,42 @@ create:
     // avm_types_in_abi/contract.py:15
     // result = (bool_param, uint64_param, bytes_param, biguint_param, string_param)
     frame_dig -10
-    dup
-    cover 1
     frame_dig -9
     cover 1
     frame_dig -8
-    cover 1
+    cover 2
     frame_dig -7
-    cover 1
+    cover 3
     frame_dig -6
-    cover 1
+    cover 4
     // avm_types_in_abi/contract.py:16
     // assert result == tuple_param
+    dup
     frame_dig -5
     ==
-    bz create_bool_false@6
-    frame_dig 1
+    dig 2
     frame_dig -4
     ==
-    bz create_bool_false@6
-    frame_dig 2
+    &&
+    dig 3
     frame_dig -3
     ==
-    bz create_bool_false@6
-    frame_dig 3
+    &&
+    dig 4
     frame_dig -2
     b==
-    bz create_bool_false@6
-    frame_dig 4
+    &&
+    dig 5
     frame_dig -1
     ==
-    bz create_bool_false@6
-    int 1
-    b create_bool_merge@7
-
-create_bool_false@6:
-    int 0
-
-create_bool_merge@7:
-    // avm_types_in_abi/contract.py:16
-    // assert result == tuple_param
+    &&
     assert
     // avm_types_in_abi/contract.py:17
     // return result
-    frame_dig 0
-    frame_dig 1
-    frame_dig 2
-    frame_dig 3
-    frame_dig 4
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
+    uncover 1
+    uncover 2
+    uncover 3
+    uncover 4
     retsub
 
 

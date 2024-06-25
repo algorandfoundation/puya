@@ -1,96 +1,70 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
+import mypy.types
 
-from puya.awst import wtypes
-from puya.awst.nodes import (
-    BytesConstant,
-    BytesEncoding,
-    Expression,
-    Literal,
-    UInt64Constant,
-)
-from puya.awst_build import intrinsic_factory
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-)
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import expect_operand_wtype
-from puya.errors import CodeError
+from puya import log
+from puya.awst.nodes import BytesConstant, BytesEncoding, Expression
+from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64TypeBuilder
+from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.types
-
-    from puya.parse import SourceLocation
+logger = log.get_logger(__name__)
 
 
-class LogBuilder(IntermediateExpressionBuilder):
+class LogBuilder(FunctionBuilder):
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        args_ = list(args)
+    ) -> InstanceBuilder:
+        empty_utf8: Expression = BytesConstant(
+            value=b"", encoding=BytesEncoding.utf8, source_location=location
+        )
+        args = list(args)
         try:
             sep_index = arg_names.index("sep")
         except ValueError:
-            sep: Expression = BytesConstant(value=b"", source_location=location)
+            sep = empty_utf8
         else:
-            sep_arg = args_.pop(sep_index)
-            match sep_arg:
-                case Literal(value=str() as str_sep):
-                    sep = BytesConstant(
-                        value=str_sep.encode("utf8"),
-                        encoding=BytesEncoding.utf8,
-                        source_location=sep_arg.source_location,
-                    )
-                case _:
-                    sep = expect_operand_wtype(sep_arg, wtypes.bytes_wtype)
-
-        log_value: Expression | None = None
-        for arg in args_:
-            match arg:
-                case ExpressionBuilder(value_type=wtypes.uint64_wtype):
-                    bytes_expr: Expression = intrinsic_factory.itob(
-                        arg.rvalue(), arg.source_location
-                    )
-                case ExpressionBuilder() as eb:
-                    bytes_expr = eb.rvalue()
-                case Literal(value=int(int_literal)):
-                    bytes_expr = intrinsic_factory.itob(
-                        UInt64Constant(value=int_literal, source_location=arg.source_location),
-                        arg.source_location,
-                    )
-                case Literal(value=bytes(bytes_literal)):
-                    bytes_expr = BytesConstant(
-                        value=bytes_literal, source_location=arg.source_location
-                    )
-                case Literal(value=str(str_literal)):
-                    bytes_expr = BytesConstant(
-                        value=str_literal.encode("utf8"), source_location=arg.source_location
-                    )
-                case Literal() as lit:
-                    raise CodeError(
-                        f"Unexpected argument type: {type(lit.value).__name__}",
-                        arg.source_location,
-                    )
-                case _:
-                    raise CodeError("Unexpected argument", arg.source_location)
-            if log_value is None:
-                log_value = bytes_expr
+            sep_arg = args.pop(sep_index)
+            if isinstance(sep_arg, InstanceBuilder) and sep_arg.pytype in (
+                pytypes.StringType,
+                pytypes.StrLiteralType,
+                pytypes.BytesType,
+                pytypes.BytesLiteralType,
+            ):
+                sep = sep_arg.to_bytes(sep_arg.source_location)
             else:
+                logger.error("unexpected argument type", location=sep_arg.source_location)
+                sep = empty_utf8
+
+        bytes_args = []
+        for arg in args:
+            if not isinstance(arg, InstanceBuilder):
+                logger.error("unexpected argument type", location=arg.source_location)
+            else:
+                if arg.pytype == pytypes.IntLiteralType:
+                    arg = arg.resolve_literal(UInt64TypeBuilder(arg.source_location))
+                # TODO: make to_bytes non-throwing
+                bytes_expr = arg.to_bytes(arg.source_location)
+                bytes_args.append(bytes_expr)
+
+        if not bytes_args:
+            log_value = empty_utf8
+        else:
+            log_value = bytes_args[0]
+            for bytes_expr in bytes_args[1:]:
+                arg_plus_sep = intrinsic_factory.concat(log_value, sep, bytes_expr.source_location)
                 log_value = intrinsic_factory.concat(
-                    intrinsic_factory.concat(log_value, sep, arg.source_location),
-                    bytes_expr,
-                    arg.source_location,
+                    arg_plus_sep, bytes_expr, bytes_expr.source_location
                 )
-        if log_value is None:
-            log_value = BytesConstant(value=b"", source_location=location)
-        return var_expression(intrinsic_factory.log(log_value, location))
+        log_expr = intrinsic_factory.log(log_value, location)
+        return NoneExpressionBuilder(log_expr)

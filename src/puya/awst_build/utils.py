@@ -1,7 +1,10 @@
+import contextlib
 import operator
 import re
 import typing
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+import warnings
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from itertools import zip_longest
 
 import mypy.build
 import mypy.nodes
@@ -9,25 +12,18 @@ import mypy.types
 from mypy.types import get_proper_type, is_named_instance
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
-    AddressConstant,
-    BoolConstant,
-    BytesConstant,
-    BytesEncoding,
     ConstantValue,
     ContractReference,
-    Expression,
-    IntegerConstant,
-    Literal,
-    ReinterpretCast,
-    StringConstant,
-    UInt64Constant,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.factories import builder_for_type
+from puya.awst_build.eb.interface import (
+    InstanceBuilder,
+    NodeBuilder,
+    TypeBuilder,
+)
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -87,11 +83,28 @@ UNARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any], typing.Any]]] = {
 }
 
 
+@contextlib.contextmanager
+def _log_warnings(location: SourceLocation) -> Iterator[None]:
+    folding_warnings = []
+    try:
+        with warnings.catch_warnings(record=True, action="always") as folding_warnings:
+            yield
+    finally:
+        for warning in folding_warnings:
+            logger.warning(warning.message, location=location)
+
+
 def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> ConstantValue:
     if not (func := UNARY_OPS.get(op)):
         raise InternalError(f"Unhandled unary operator: {op}", location)
+    if op == "~" and isinstance(expr, int):
+        logger.warning(
+            "due to Python ints being signed, bitwise inversion yield a negative number",
+            location=location,
+        )
     try:
-        result = func(expr)
+        with _log_warnings(location):
+            result = func(expr)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
@@ -139,7 +152,8 @@ def fold_binary_expr(
     if not (func := BINARY_OPS.get(op)):
         raise InternalError(f"Unhandled binary operator: {op}", location)
     try:
-        result = func(lhs, rhs)
+        with _log_warnings(location):
+            result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
@@ -149,108 +163,40 @@ def fold_binary_expr(
     return typing.cast(ConstantValue, result)
 
 
-def require_expression_builder(
-    builder_or_expr_or_literal: ExpressionBuilder | Expression | Literal,
+def require_instance_builder(
+    builder_or_literal: NodeBuilder,
     *,
-    msg: str = "A Python literal is not valid at this location",
-) -> ExpressionBuilder:
-    match builder_or_expr_or_literal:
-        case Literal(value=bool(value), source_location=literal_location):
-            return var_expression(BoolConstant(value=value, source_location=literal_location))
-        case Literal(source_location=literal_location):
-            raise CodeError(msg, literal_location)
-        case Expression() as expr:
-            return var_expression(expr)
-    return builder_or_expr_or_literal
+    non_instance_msg: str = "expression is not a value",
+) -> InstanceBuilder:
+    match builder_or_literal:
+        case InstanceBuilder() as builder:
+            return builder
+        case NodeBuilder(source_location=non_value_location):
+            raise CodeError(non_instance_msg, non_value_location)
+        case _:
+            typing.assert_never(builder_or_literal)
 
 
-def expect_operand_wtype(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
-) -> Expression:
-    if isinstance(literal_or_expr, ExpressionBuilder):
-        literal_or_expr = literal_or_expr.rvalue()
-
-    if isinstance(literal_or_expr, Expression):
-        if literal_or_expr.wtype != target_wtype:
-            raise CodeError(
-                f"Expected type {target_wtype}, got type {literal_or_expr.wtype}",
-                literal_or_expr.source_location,
-            )
-        return literal_or_expr
-    else:
-        return convert_literal(literal_or_expr, target_wtype)
+def expect_operand_type(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+    instance = require_instance_builder(operand)
+    instance = maybe_resolve_literal(instance, target_type)
+    if instance.pytype != target_type:
+        raise CodeError(
+            f"Expected type {target_type}, got type {instance.pytype}", instance.source_location
+        )
+    return instance
 
 
-@typing.overload
-def convert_literal(
-    literal_or_expr: Literal | Expression, target_wtype: wtypes.WType
-) -> Expression: ...
-
-
-@typing.overload
-def convert_literal(
-    literal_or_expr: ExpressionBuilder, target_wtype: wtypes.WType
-) -> ExpressionBuilder: ...
-
-
-def convert_literal(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
-) -> Expression | ExpressionBuilder:
-    if not isinstance(literal_or_expr, Literal):
-        return literal_or_expr
-
-    loc = literal_or_expr.source_location
-    match literal_or_expr.value, target_wtype:
-        case bool(bool_value), wtypes.bool_wtype:
-            return BoolConstant(value=bool_value, source_location=loc)
-        case int(int_value), wtypes.uint64_wtype | wtypes.biguint_wtype:
-            return IntegerConstant(value=int_value, wtype=target_wtype, source_location=loc)
-        case bytes(bytes_value), wtypes.bytes_wtype:
-            try:
-                # TODO: YEET ME
-                bytes_value.decode("utf8")
-            except ValueError:
-                encoding = BytesEncoding.unknown
-            else:
-                encoding = BytesEncoding.utf8
-            return BytesConstant(value=bytes_value, encoding=encoding, source_location=loc)
-        case str(str_value), wtypes.bytes_wtype:
-            return BytesConstant(
-                value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
-            )
-        case str(str_value), wtypes.string_wtype:
-            return StringConstant(value=str_value, source_location=loc)
-        case str(str_value), wtypes.account_wtype:
-            return AddressConstant(value=str_value, source_location=loc)
-        case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:
-            return ReinterpretCast(
-                expr=UInt64Constant(value=int_value, source_location=loc),
-                wtype=target_wtype,
-                source_location=loc,
-            )
-    raise CodeError(
-        f"Can't construct {target_wtype} from Python literal {literal_or_expr.value!r}", loc
-    )
-
-
-def convert_literal_to_expr(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
-) -> Expression:
-    expr_or_builder = convert_literal(literal_or_expr, target_wtype)
-    if isinstance(expr_or_builder, ExpressionBuilder):
-        return expr_or_builder.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
-    return expr_or_builder
-
-
-def bool_eval(
-    builder_or_literal: ExpressionBuilder | Literal, loc: SourceLocation, *, negate: bool = False
-) -> ExpressionBuilder:
-    if isinstance(builder_or_literal, ExpressionBuilder):
-        return builder_or_literal.bool_eval(location=loc, negate=negate)
-    constant_value = bool(builder_or_literal.value)
-    if negate:
-        constant_value = not constant_value
-    return var_expression(BoolConstant(value=constant_value, source_location=loc))
+def require_instance_builder_of_type(
+    builder: NodeBuilder, target_type: pytypes.PyType
+) -> InstanceBuilder:
+    builder = require_instance_builder(builder)
+    if builder.pytype != target_type:
+        raise CodeError(
+            f"Expected type {target_type}, got type {builder.pytype}",
+            builder.source_location,
+        )
+    return builder
 
 
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:
@@ -287,31 +233,70 @@ def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:
     return bytes_const
 
 
-T = typing.TypeVar("T")
+TBuilder = typing.TypeVar("TBuilder", bound=NodeBuilder)
 
 
 def get_arg_mapping(
-    positional_arg_names: Sequence[str],
-    args: Iterable[tuple[str | None, T]],
-    location: SourceLocation,
-) -> dict[str, T]:
-    arg_mapping = dict[str, T]()
-    has_too_many_error = False
-    for arg_idx, (supplied_arg_name, arg) in enumerate(args):
-        if supplied_arg_name is not None:
-            arg_name = supplied_arg_name
+    *,
+    required_positional_names: Sequence[str] | None = None,
+    optional_positional_names: Sequence[str] | None = None,
+    required_kw_only: Sequence[str] | None = None,
+    optional_kw_only: Sequence[str] | None = None,
+    args: Sequence[TBuilder],
+    arg_names: Sequence[str | None],
+    call_location: SourceLocation,
+    raise_on_missing: bool,
+) -> tuple[dict[str, TBuilder], bool]:
+    required_positional_names = required_positional_names or []
+    optional_positional_names = optional_positional_names or []
+    required_kw_only = required_kw_only or []
+    optional_kw_only = optional_kw_only or []
+    all_names = [
+        *required_positional_names,
+        *optional_positional_names,
+        *required_kw_only,
+        *optional_kw_only,
+    ]
+    if len(all_names) != len(set(all_names)):
+        raise InternalError("duplicate names", call_location)
+
+    arg_mapping = dict[str, TBuilder]()
+    num_positionals = arg_names.count(None)
+    positional_names = [*required_positional_names, *optional_positional_names]
+    for positional_name, positional_arg in zip_longest(positional_names, args[:num_positionals]):
+        if positional_name is None:
+            logger.error("unexpected positional argument", location=positional_arg.source_location)
+        elif positional_arg is None:
+            break  # positional arguments could be named
         else:
-            try:
-                arg_name = positional_arg_names[arg_idx]
-            except IndexError:
-                if not has_too_many_error:
-                    logger.error(  # noqa: TRY400
-                        "Too many positional arguments", location=location
-                    )
-                    has_too_many_error = True
-                continue
-        arg_mapping[arg_name] = arg
-    return arg_mapping
+            arg_mapping[positional_name] = positional_arg
+    for arg_name, kw_arg in zip(arg_names[num_positionals:], args[num_positionals:], strict=True):
+        if arg_name is None:
+            # shouldn't be possible, might happen with type ignore?
+            logger.error(
+                "non-keyword argument appears after keywords", location=kw_arg.source_location
+            )
+        elif arg_name in arg_mapping:
+            # again, shouldn't be possible, but might happen with type ignore?
+            logger.error("duplicate argument name", location=kw_arg.source_location)
+        elif arg_name not in all_names:
+            logger.error("unrecognised keyword argument", location=kw_arg.source_location)
+        else:
+            arg_mapping[arg_name] = kw_arg
+    any_missing = False
+    if missing_args := set(required_positional_names).difference(arg_mapping.keys()):
+        msg = f"missing required positional argument(s): {', '.join(sorted(missing_args))}"
+        if raise_on_missing:
+            raise CodeError(msg, call_location)
+        any_missing = True
+        logger.error(msg, location=call_location)
+    elif missing_kwargs := set(required_kw_only).difference(arg_mapping.keys()):
+        msg = f"missing required keyword argument(s): {', '.join(sorted(missing_kwargs))}"
+        if raise_on_missing:
+            raise CodeError(msg, call_location)
+        any_missing = True
+        logger.error(msg, location=call_location)
+    return arg_mapping, any_missing
 
 
 def snake_case(s: str) -> str:
@@ -319,3 +304,48 @@ def snake_case(s: str) -> str:
     s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
     s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
     return re.sub(r"[-\s]", "_", s).lower()
+
+
+def resolve_method_from_type_info(
+    type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
+) -> mypy.nodes.FuncBase | mypy.nodes.Decorator | None:
+    """Get a function member from TypeInfo, or return None.
+
+    Differs from TypeInfo.get_method() if there are conflicting definitions of name,
+    one being a method and another being an attribute.
+    This is important for semantic compatibility.
+
+    If the found member is not a function, an exception is raised.
+    Also raises if the SymbolTableNode is unresolved (it shouldn't be once we can see it).
+    """
+    member = type_info.get(name)
+    if member is None:
+        return None
+    match member.node:
+        case None:
+            raise InternalError(
+                "mypy cross reference remains unresolved:"
+                f" member {name!r} of {type_info.fullname!r}",
+                location,
+            )
+        # matching types taken from mypy.nodes.TypeInfo.get_method
+        case mypy.nodes.FuncBase() | mypy.nodes.Decorator() as func_or_dec:
+            return func_or_dec
+        case other_node:
+            logger.debug(
+                f"Non-function member: type={type(other_node).__name__!r}, value={other_node}",
+                location=location,
+            )
+            raise CodeError(f"unsupported reference to non-function member {name!r}", location)
+
+
+def maybe_resolve_literal(
+    operand: TBuilder, target_type: pytypes.PyType
+) -> TBuilder | InstanceBuilder:
+    if not isinstance(operand, InstanceBuilder):
+        return operand
+    if operand.pytype != target_type:
+        target_type_builder = builder_for_type(target_type, operand.source_location)
+        if isinstance(target_type_builder, TypeBuilder):
+            return operand.resolve_literal(target_type_builder)
+    return operand

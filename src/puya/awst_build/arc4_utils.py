@@ -1,109 +1,261 @@
+import re
 import typing
+from collections.abc import Callable, Mapping, Sequence
+from functools import cached_property
 
+import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
 from immutabledict import immutabledict
 
-import puya.models
-from puya.arc4_util import wtype_to_arc4
-from puya.awst import (
-    nodes as awst_nodes,
-    wtypes,
-)
-from puya.awst_build import constants, intrinsic_factory
+from puya import log
+from puya.arc4_util import split_tuple_types
+from puya.awst import wtypes
+from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.utils import extract_bytes_literal_from_mypy
+from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
+from puya.models import (
+    ARC4ABIMethodConfig,
+    ARC4BareMethodConfig,
+    ARC4CreateOption,
+    ARC32StructDef,
+    OnCompletionAction,
+)
 from puya.parse import SourceLocation
 
-ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
+__all__ = [
+    "ARC4ABIMethodData",
+    "get_arc4_abimethod_data",
+    "get_arc4_baremethod_data",
+    "arc4_to_pytype",
+    "pytype_to_arc4",
+    "pytype_to_arc4_pytype",
+]
+
+logger = log.get_logger(__name__)
 
 
-def get_arc4_method_config(
+def _allowed_oca(name: object) -> OnCompletionAction | None:
+    if not isinstance(name, str):
+        return None
+    try:
+        result = OnCompletionAction[name]
+    except KeyError:
+        return None
+    if result is OnCompletionAction.ClearState:
+        return None
+    return result
+
+
+def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
+    if pytypes.ARC4StructBaseType not in typ.mro:
+        return False
+    if not isinstance(typ, pytypes.StructType):
+        raise InternalError(
+            f"Type inherits from {pytypes.ARC4StructBaseType!r}"
+            f" but structure type is {type(typ).__name__!r}"
+        )
+    return True
+
+
+@attrs.frozen
+class ARC4ABIMethodData:
+    config: ARC4ABIMethodConfig
+    _signature: dict[str, pytypes.PyType]
+    _arc4_signature: Mapping[str, pytypes.PyType] = attrs.field(init=False)
+
+    @_arc4_signature.default
+    def _arc4_signature_default(self) -> Mapping[str, pytypes.PyType]:
+        def on_error(bad_type: pytypes.PyType) -> typing.Never:
+            raise CodeError(
+                f"invalid type for an ARC4 method: {bad_type}", self.config.source_location
+            )
+
+        return {k: pytype_to_arc4_pytype(v, on_error=on_error) for k, v in self._signature.items()}
+
+    @property
+    def signature(self) -> Mapping[str, pytypes.PyType]:
+        return self._signature
+
+    @cached_property
+    def return_type(self) -> pytypes.PyType:
+        return self._signature["output"]
+
+    @cached_property
+    def arc4_return_type(self) -> pytypes.PyType:
+        return self._arc4_signature["output"]
+
+    @cached_property
+    def argument_types(self) -> Sequence[pytypes.PyType]:
+        names, types = zip(*self._signature.items(), strict=True)
+        assert names[-1] == "output"
+        return tuple(types[:-1])
+
+    @cached_property
+    def arc4_argument_types(self) -> Sequence[pytypes.PyType]:
+        names, types = zip(*self._arc4_signature.items(), strict=True)
+        assert names[-1] == "output"
+        return tuple(types[:-1])
+
+
+@attrs.frozen
+class _DecoratorData:
+    fullname: str
+    args: list[tuple[str | None, mypy.nodes.Expression]]
+    source_location: SourceLocation
+
+
+def _extract_decorator_args(
+    decorator: mypy.nodes.Expression, location: SourceLocation
+) -> list[tuple[str | None, mypy.nodes.Expression]]:
+    match decorator:
+        case mypy.nodes.RefExpr():
+            return []
+        case mypy.nodes.CallExpr(args=args, arg_names=arg_names):
+            return list(zip(arg_names, args, strict=True))
+        case unexpected_node:
+            raise InternalError(f"unexpected decorator node: {unexpected_node}", location)
+
+
+def _extract_create_option(
+    evaluated_args: dict[str | None, object], location: SourceLocation
+) -> ARC4CreateOption:
+    default_value = ARC4CreateOption.disallow
+    option_name = evaluated_args.pop("create", default_value.name)
+    try:
+        return ARC4CreateOption[option_name]  # type: ignore[misc]
+    except KeyError:
+        logger.error(  # noqa: TRY400
+            f"invalid create option value: {option_name}", location=location
+        )
+        return default_value
+
+
+def _extract_allow_actions_option(
+    evaluated_args: dict[str | None, object], location: SourceLocation
+) -> list[OnCompletionAction]:
+    allowed_completion_types = []
+    match evaluated_args.pop("allow_actions", None):
+        case None:
+            pass
+        case []:
+            logger.error("empty allow_actions", location=location)
+        case [*allow_actions]:
+            for a in allow_actions:
+                oca = _allowed_oca(a)
+                if oca is None:
+                    logger.error(f"invalid allow action: {a}", location=location)
+                elif oca in allowed_completion_types:
+                    logger.error(f"duplicate value in allow_actions: {a}", location=location)
+                else:
+                    allowed_completion_types.append(oca)
+        case invalid_allow_actions_option:
+            logger.error(
+                f"invalid allow_actions option: {invalid_allow_actions_option}", location=location
+            )
+    # defaults set last in case of one or more errors above
+    return allowed_completion_types or [OnCompletionAction.NoOp]
+
+
+def get_arc4_baremethod_data(
     context: ASTConversionModuleContext,
     decorator: mypy.nodes.Expression,
     func_def: mypy.nodes.FuncDef,
-) -> ARC4MethodConfig:
+) -> ARC4BareMethodConfig:
     dec_loc = context.node_location(decorator, func_def.info)
-    match decorator:
-        case mypy.nodes.RefExpr(fullname=fullname):
-            return ARC4MethodConfig(
-                name=func_def.name,
-                source_location=dec_loc,
-                is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-            )
-        case mypy.nodes.CallExpr(
-            args=args,
-            arg_names=arg_names,
-            callee=mypy.nodes.RefExpr(fullname=fullname),
-        ):
-            visitor = _DecoratorArgEvaluator()
-            abi_hints = typing.cast(
-                _AbiHints,
-                {n: a.accept(visitor) for n, a in zip(filter(None, arg_names), args, strict=True)},
-            )
-            name = abi_hints.get("name", func_def.name)
-            allow_actions = abi_hints.get("allow_actions", ["NoOp"])
-            if len(set(allow_actions)) != len(allow_actions):
-                context.error("Cannot have duplicate allow_actions", dec_loc)
-            if not allow_actions:
-                context.error("Must have at least one allow_actions", dec_loc)
-            invalid_actions = [a for a in allow_actions if a not in ALLOWABLE_OCA]
-            if invalid_actions:
-                context.error(
-                    f"Invalid allowed actions: {invalid_actions}",
-                    dec_loc,
-                )
-            create = abi_hints.get("create", "disallow")
-            readonly = abi_hints.get("readonly", False)
-            default_args = immutabledict[str, str](abi_hints.get("default_args", {}))
-            all_args = [
-                a.variable.name for a in (func_def.arguments or []) if not a.variable.is_self
-            ]
-            for parameter in default_args:
-                if parameter not in all_args:
+    func_types = _get_func_types(context, func_def, dec_loc)
+    if func_types != {"output": pytypes.NoneType}:
+        logger.error("bare methods should have no arguments or return values", location=dec_loc)
+
+    visitor = _ARC4DecoratorArgEvaluator(context)
+    evaluated_args = {n: a.accept(visitor) for n, a in _extract_decorator_args(decorator, dec_loc)}
+
+    create = _extract_create_option(evaluated_args, dec_loc)
+    allowed_completion_types = _extract_allow_actions_option(evaluated_args, dec_loc)
+    if evaluated_args:
+        logger.error(
+            f"unexpected parameters: {', '.join(map(str, evaluated_args))}", location=dec_loc
+        )
+
+    return ARC4BareMethodConfig(
+        source_location=dec_loc,
+        allowed_completion_types=allowed_completion_types,
+        create=create,
+    )
+
+
+def get_arc4_abimethod_data(
+    context: ASTConversionModuleContext,
+    decorator: mypy.nodes.Expression,
+    func_def: mypy.nodes.FuncDef,
+) -> ARC4ABIMethodData:
+    dec_loc = context.node_location(decorator, func_def.info)
+    func_types = _get_func_types(context, func_def, dec_loc)
+    visitor = _ARC4DecoratorArgEvaluator(context)
+    evaluated_args = {n: a.accept(visitor) for n, a in _extract_decorator_args(decorator, dec_loc)}
+
+    create = _extract_create_option(evaluated_args, dec_loc)
+    allowed_completion_types = _extract_allow_actions_option(evaluated_args, dec_loc)
+    # map "name" param
+    name = func_def.name
+    match evaluated_args.pop("name", None):
+        case None:
+            pass
+        case str(name):
+            pass
+        case invalid_name:
+            context.error(f"invalid name option: {invalid_name}", dec_loc)
+
+    # map "readonly" param
+    default_readonly = False
+    match evaluated_args.pop("readonly", default_readonly):
+        case bool(readonly):
+            pass
+        case invalid_readonly_option:
+            context.error(f"invalid readonly option: {invalid_readonly_option}", dec_loc)
+            readonly = default_readonly
+
+    # map "default_args" param
+    default_args = dict[str, str]()
+    match evaluated_args.pop("default_args", {}):
+        case {**options}:
+            method_arg_names = func_types.keys() - {"output"}
+            for parameter, value in options.items():
+                if parameter not in method_arg_names:
                     context.error(
-                        f"'{parameter}' is not a parameter of {func_def.fullname}", dec_loc
+                        f"{parameter!r} is not a parameter of {func_def.fullname}",
+                        dec_loc,
                     )
+                elif not isinstance(value, str):
+                    context.error(f"invalid default_args value: {value!r}", dec_loc)
+                else:
+                    # if it's in method_arg_names, it's a str
+                    assert isinstance(parameter, str)
+                    default_args[parameter] = value
+        case invalid_default_args_option:
+            context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
-            structs = immutabledict[str, ARC32StructDef](
-                {
-                    n: _wtype_to_struct_def(t)
-                    for n, t in get_func_types(
-                        context, func_def, context.node_location(func_def, func_def.info)
-                    ).items()
-                    if isinstance(t, wtypes.ARC4Struct)
-                }
-            )
-
-            return ARC4MethodConfig(
-                source_location=dec_loc,
-                name=name,
-                allowed_completion_types=[
-                    puya.models.OnCompletionAction[a] for a in allow_actions
-                ],
-                allow_create=create == "allow",
-                require_create=create == "require",
-                readonly=readonly,
-                is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-                default_args=default_args,
-                structs=structs,
-            )
-        case _:
-            raise InternalError("Unexpected ARC4 decorator", dec_loc)
+    structs = immutabledict[str, ARC32StructDef](
+        {n: _pytype_to_struct_def(pt) for n, pt in func_types.items() if _is_arc4_struct(pt)}
+    )
+    config = ARC4ABIMethodConfig(
+        source_location=dec_loc,
+        allowed_completion_types=allowed_completion_types,
+        create=create,
+        name=name,
+        readonly=readonly,
+        default_args=immutabledict(default_args),
+        structs=structs,
+    )
+    return ARC4ABIMethodData(config=config, signature=func_types)
 
 
-class _AbiHints(typing.TypedDict, total=False):
-    name: str
-    allow_actions: list[str]
-    create: typing.Literal["allow", "require", "disallow"]
-    readonly: bool
-    default_args: dict[str, str]
+class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
+    def __init__(self, context: ASTConversionModuleContext):
+        self.context = context
 
-
-class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
     def __getattribute__(self, name: str) -> object:
         attr = super().__getattribute__(name)
         if name.startswith("visit_") and not attr.__module__.startswith("puya."):
@@ -111,249 +263,255 @@ class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
         return attr
 
     def _not_supported(self, o: mypy.nodes.Context) -> typing.Never:
-        raise CodeError(f"Cannot evaluate expression {o}")
+        raise CodeError("Unsupported expression in ARC4 decorator", self.context.node_location(o))
 
+    @typing.override
     def visit_int_expr(self, o: mypy.nodes.IntExpr) -> int:
         return o.value
 
+    @typing.override
     def visit_str_expr(self, o: mypy.nodes.StrExpr) -> str:
         return o.value
 
+    @typing.override
     def visit_bytes_expr(self, o: mypy.nodes.BytesExpr) -> bytes:
         return extract_bytes_literal_from_mypy(o)
 
-    def visit_float_expr(self, o: mypy.nodes.FloatExpr) -> float:
-        return o.value
-
-    def visit_complex_expr(self, o: mypy.nodes.ComplexExpr) -> object:
-        return o.value
-
-    def visit_ellipsis(self, _: mypy.nodes.EllipsisExpr) -> object:
-        return Ellipsis
-
+    @typing.override
     def visit_name_expr(self, o: mypy.nodes.NameExpr) -> object:
-        if o.name == "True":
+        if o.fullname == "builtins.True":
             return True
-        elif o.name == "False":
+        elif o.fullname == "builtins.False":
             return False
-        elif o.name == "None":
+        elif o.fullname == "builtins.None":
             return None
+        elif isinstance(o.node, mypy.nodes.Decorator):
+            return o.name  # assume abimethod
         else:
-            return o.name
+            return self._resolve_constant_reference(o)
 
+    @typing.override
     def visit_member_expr(self, o: mypy.nodes.MemberExpr) -> object:
-        return o.name
+        expr_loc = self.context.node_location(o)
+        if isinstance(o.expr, mypy.nodes.RefExpr):
+            unaliased_base_fullname = get_unaliased_fullname(o.expr)
+            if unaliased_base_fullname == constants.ENUM_CLS_ON_COMPLETE_ACTION:
+                if (
+                    o.name
+                    in constants.NAMED_INT_CONST_ENUM_DATA[constants.ENUM_CLS_ON_COMPLETE_ACTION]
+                ):
+                    return o.name
+                raise CodeError(
+                    f"Unable to resolve constant value for {unaliased_base_fullname}.{o.name}",
+                    expr_loc,
+                )
+        return self._resolve_constant_reference(o)
 
-    def visit_cast_expr(self, o: mypy.nodes.CastExpr) -> object:
-        return o.expr.accept(self)
+    def _resolve_constant_reference(self, expr: mypy.nodes.RefExpr) -> object:
 
-    def visit_assert_type_expr(self, o: mypy.nodes.AssertTypeExpr) -> object:
-        return o.expr.accept(self)
+        try:
+            return self.context.constants[expr.fullname]
+        except KeyError:
+            raise CodeError(
+                f"Unresolved module constant: {expr.fullname}", self.context.node_location(expr)
+            ) from None
 
+    @typing.override
     def visit_unary_expr(self, o: mypy.nodes.UnaryExpr) -> object:
-        operand: object = o.expr.accept(self)
-        if o.op == "-":
-            if isinstance(operand, int | float | complex):
-                return -operand
-        elif o.op == "+":
-            if isinstance(operand, int | float | complex):
-                return +operand
-        elif o.op == "~":
-            if isinstance(operand, int):
-                return ~operand
-        elif o.op == "not" and isinstance(operand, bool | int | float | str | bytes):
+        operand = o.expr.accept(self)
+        if o.op == "not":
             return not operand
         self._not_supported(o)
 
-    def visit_assignment_expr(self, o: mypy.nodes.AssignmentExpr) -> object:
-        return o.value.accept(self)
-
+    @typing.override
     def visit_list_expr(self, o: mypy.nodes.ListExpr) -> list[object]:
         return [item.accept(self) for item in o.items]
 
-    def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
-        return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
-
+    @typing.override
     def visit_tuple_expr(self, o: mypy.nodes.TupleExpr) -> tuple[object, ...]:
         return tuple(item.accept(self) for item in o.items)
 
-    def visit_set_expr(self, o: mypy.nodes.SetExpr) -> set[object]:
-        return {item.accept(self) for item in o.items}
+    @typing.override
+    def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
+        return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
 
 
-def _wtype_to_struct_def(wtype: wtypes.ARC4Struct) -> ARC32StructDef:
+def _pytype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
     return ARC32StructDef(
-        name=wtype.stub_name.rsplit(".", maxsplit=1)[-1],
-        elements=[(n, wtype_to_arc4(t)) for n, t in wtype.fields.items()],
+        name=typ.name.rsplit(".", maxsplit=1)[-1],
+        elements=[(n, pytype_to_arc4(t)) for n, t in typ.fields.items()],
     )
 
 
-def arc4_encode(
-    base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type, location: SourceLocation
-) -> awst_nodes.Expression:
-    match base.wtype:
-        case wtypes.bytes_wtype:
-            base_temp = awst_nodes.SingleEvaluation(base)
-
-            length = awst_nodes.IntrinsicCall(
-                source_location=location,
-                op_code="substring",
-                immediates=[6, 8],
-                wtype=wtypes.bytes_wtype,
-                stack_args=[
-                    intrinsic_factory.itob(intrinsic_factory.bytes_len(base_temp, loc=location))
-                ],
-            )
-            return awst_nodes.ReinterpretCast(
-                source_location=location,
-                wtype=wtypes.arc4_dynamic_bytes,
-                expr=intrinsic_factory.concat(length, base_temp, location),
-            )
-        case wtypes.WTuple(types=types):
-            base_temp = awst_nodes.SingleEvaluation(base)
-
-            return awst_nodes.ARC4Encode(
-                source_location=location,
-                value=awst_nodes.TupleExpression.from_items(
-                    items=[
-                        maybe_arc4_encode(
-                            awst_nodes.TupleItemExpression(
-                                base=base_temp,
-                                index=i,
-                                source_location=location,
-                            ),
-                            t,
-                            location,
-                        )
-                        for i, t in enumerate(types)
-                    ],
-                    location=location,
-                ),
-                wtype=target_wtype,
-            )
-
-        case _:
-            return awst_nodes.ARC4Encode(
-                source_location=location,
-                value=base,
-                wtype=target_wtype,
-            )
-
-
-def maybe_arc4_encode(
-    item: awst_nodes.Expression, wtype: wtypes.WType, location: SourceLocation
-) -> awst_nodes.Expression:
-    """Encode as arc4 if wtype is not already an arc4 encoded type"""
-    if wtypes.is_arc4_encoded_type(wtype):
-        return item
-    return arc4_encode(
-        item,
-        wtypes.avm_to_arc4_equivalent_type(wtype),
-        location,
-    )
-
-
-def maybe_arc4_decode(
-    item: awst_nodes.Expression,
-    *,
-    current_wtype: wtypes.WType,
-    target_wtype: wtypes.WType,
-    location: SourceLocation,
-) -> awst_nodes.Expression:
-    if current_wtype == target_wtype:
-        return item
-    assert target_wtype == wtypes.arc4_to_avm_equivalent_wtype(
-        current_wtype
-    ), "target type must be avm equivalent of current type"
-    return arc4_decode(
-        item,
-        target_wtype,
-        location,
-    )
-
-
-def arc4_decode(
-    bytes_arg: awst_nodes.Expression,
-    target_wtype: wtypes.WType,
-    location: SourceLocation,
-) -> awst_nodes.Expression:
-    match bytes_arg.wtype:
-        case wtypes.ARC4DynamicArray(
-            element_type=wtypes.ARC4UIntN(n=8)
-        ) if target_wtype == wtypes.bytes_wtype:
-            return intrinsic_factory.extract(
-                awst_nodes.ReinterpretCast(
-                    expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
-                ),
-                start=2,
-            )
-        case wtypes.ARC4Tuple(types=tuple_types):
-            decode_expression = awst_nodes.ARC4Decode(
-                source_location=location,
-                wtype=wtypes.WTuple.from_types(tuple_types),
-                value=bytes_arg,
-            )
-            assert isinstance(
-                target_wtype, wtypes.WTuple
-            ), "Target wtype must be a WTuple when decoding ARC4Tuple"
-            if all(
-                target == current
-                for target, current in zip(target_wtype.types, tuple_types, strict=True)
-            ):
-                return decode_expression
-            decoded = awst_nodes.SingleEvaluation(decode_expression)
-            return awst_nodes.TupleExpression.from_items(
-                items=[
-                    maybe_arc4_decode(
-                        awst_nodes.TupleItemExpression(
-                            base=decoded,
-                            index=i,
-                            source_location=location,
-                        ),
-                        target_wtype=t_t,
-                        current_wtype=t_c,
-                        location=location,
-                    )
-                    for i, (t_c, t_t) in enumerate(
-                        zip(tuple_types, target_wtype.types, strict=True)
-                    )
-                ],
-                location=location,
-            )
-
-        case _:
-            return awst_nodes.ARC4Decode(
-                source_location=location,
-                wtype=target_wtype,
-                value=bytes_arg,
-            )
-
-
-def get_func_types(
+def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
-) -> dict[str, wtypes.WType]:
-    if not (func_def.arguments and func_def.arguments[0].variable.is_self):
+) -> dict[str, pytypes.PyType]:
+    if func_def.type is None:
+        raise CodeError("typing error", location)
+    func_type = context.type_to_pytype(
+        func_def.type, source_location=context.node_location(func_def, module_src=func_def.info)
+    )
+    if not isinstance(func_type, pytypes.FuncType):
         raise InternalError(
-            "arc4_utils.get_func_types called with non class method,"
-            " which means it can't be an ABI method",
+            f"unexpected type result for ABI function definition type: {type(func_type).__name__}",
             location,
         )
-    func_type = func_def.type
-    if not isinstance(func_type, mypy.types.CallableType):
-        raise InternalError(f"Unexpected FuncDef type: {type(func_def.type).__name__}", location)
-    if "output" in (arg.variable.name for arg in func_def.arguments):
+
+    def require_arg_name(arg: pytypes.FuncArg) -> str:
+        if arg.name is None:
+            raise CodeError(
+                "positional only arguments are not supported with ARC-4 methods", location
+            )
+        return arg.name
+
+    def require_single_type(arg: pytypes.FuncArg) -> pytypes.PyType:
+        try:
+            (typ,) = arg.types
+        except ValueError:
+            raise CodeError(
+                "union types are not supported as method arguments", location
+            ) from None
+        else:
+            return typ
+
+    if not (
+        func_type.args
+        and set(require_single_type(func_type.args[0]).mro).intersection(
+            (pytypes.ARC4ContractBaseType, pytypes.ARC4ClientBaseType)
+        )
+    ):
+        raise CodeError(
+            f"ARC-4 method decorators can only be applied to"
+            f" instance methods of classes derived from {pytypes.ARC4ContractBaseType}",
+            location,
+        )
+    result = {require_arg_name(arg): require_single_type(arg) for arg in func_type.args[1:]}
+    if "output" in result:
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(
-            "For compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
+            "for compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
             location,
         )
-    return {
-        **{
-            arg.variable.name: context.type_to_wtype(
-                t, source_location=context.node_location(arg, module_src=func_def.info)
+    result["output"] = func_type.ret_type
+    return result
+
+
+def pytype_to_arc4_pytype(
+    pytype: pytypes.PyType,
+    on_error: Callable[[pytypes.PyType], pytypes.PyType],
+) -> pytypes.PyType:
+    match pytype:
+        case pytypes.BoolType:
+            return pytypes.ARC4BoolType
+        case pytypes.UInt64Type:
+            return pytypes.ARC4UIntN_Aliases[64]
+        case pytypes.BigUIntType:
+            return pytypes.ARC4UIntN_Aliases[512]
+        case pytypes.BytesType:
+            return pytypes.ARC4DynamicBytesType
+        case pytypes.StringType:
+            return pytypes.ARC4StringType
+        case pytypes.TupleType(
+            generic=pytypes.GenericTupleType,
+            items=tuple_item_types,
+            source_location=tuple_location,
+        ):
+            return pytypes.GenericARC4TupleType.parameterise(
+                [pytype_to_arc4_pytype(item_typ, on_error) for item_typ in tuple_item_types],
+                tuple_location,
             )
-            for t, arg in zip(func_type.arg_types, func_def.arguments, strict=True)
-            if not arg.variable.is_self
-        },
-        "output": context.type_to_wtype(func_type.ret_type, source_location=location),
-    }
+        case (
+            pytypes.NoneType
+            | pytypes.ApplicationType
+            | pytypes.AssetType
+            | pytypes.AccountType
+            | pytypes.GroupTransactionBaseType
+        ):
+            return pytype
+        case maybe_gtxn if maybe_gtxn in pytypes.GroupTransactionTypes.values():
+            return pytype
+        case pytypes.PyType(wtype=wtypes.ARC4Type()):
+            return pytype
+        case unsupported:
+            return on_error(unsupported)
+
+
+_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
+_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
+_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
+_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
+_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
+_ARC4_PYTYPE_MAPPING = {
+    "bool": pytypes.ARC4BoolType,
+    "string": pytypes.ARC4StringType,
+    "account": pytypes.AccountType,
+    "application": pytypes.ApplicationType,
+    "asset": pytypes.AssetType,
+    "void": pytypes.NoneType,
+    "txn": pytypes.GroupTransactionTypes[None],
+    **{t.name: pytypes.GroupTransactionTypes[t] for t in constants.TransactionType},
+    "address": pytypes.ARC4AddressType,
+    "byte": pytypes.ARC4ByteType,
+    "byte[]": pytypes.ARC4DynamicBytesType,
+}
+
+
+def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.PyType:
+    if known_typ := _ARC4_PYTYPE_MAPPING.get(typ):
+        return known_typ
+    if uint := _UINT_REGEX.match(typ):
+        n = int(uint.group("n"))
+        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        if n <= 64:
+            return pytypes.GenericARC4UIntNType.parameterise([n_typ], location)
+        else:
+            return pytypes.GenericARC4BigUIntNType.parameterise([n_typ], location)
+    if ufixed := _UFIXED_REGEX.match(typ):
+        n, m = map(int, ufixed.group("n", "m"))
+        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        m_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        if n <= 64:
+            return pytypes.GenericARC4UFixedNxMType.parameterise([n_typ, m_typ], location)
+        else:
+            return pytypes.GenericARC4BigUFixedNxMType.parameterise([n_typ, m_typ], location)
+    if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
+        arr_type, size_str = fixed_array.group("type", "size")
+        size = int(size_str)
+        size_typ = pytypes.TypingLiteralType(value=size, source_location=None)
+        element_type = arc4_to_pytype(arr_type, location)
+        return pytypes.GenericARC4StaticArrayType.parameterise([element_type, size_typ], location)
+    if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
+        arr_type = dynamic_array.group("type")
+        element_type = arc4_to_pytype(arr_type, location)
+        return pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
+    if tuple_match := _TUPLE_REGEX.match(typ):
+        tuple_types = [
+            arc4_to_pytype(x, location) for x in split_tuple_types(tuple_match.group("types"))
+        ]
+        return pytypes.GenericARC4TupleType.parameterise(tuple_types, location)
+    raise CodeError(f"unknown ARC4 type '{typ}'", location)
+
+
+def pytype_to_arc4(typ: pytypes.PyType, loc: SourceLocation | None = None) -> str:
+    def on_error(bad_type: pytypes.PyType) -> typing.Never:
+        raise CodeError(
+            f"not an ARC4 type or native equivalent: {bad_type}",
+            loc or getattr(bad_type, "source_location", None),
+        )
+
+    arc4_pytype = pytype_to_arc4_pytype(typ, on_error)
+    match arc4_pytype:
+        case pytypes.NoneType:
+            return "void"
+        case pytypes.AssetType:
+            return "asset"
+        case pytypes.AccountType:
+            return "account"
+        case pytypes.ApplicationType:
+            return "application"
+        case pytypes.TransactionRelatedType(transaction_type=transaction_type):
+            return transaction_type.name if transaction_type else "txn"
+    wtype = arc4_pytype.wtype
+    if not isinstance(wtype, wtypes.ARC4Type):
+        raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
+    return wtype.arc4_name

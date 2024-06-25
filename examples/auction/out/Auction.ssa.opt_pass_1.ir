@@ -96,9 +96,9 @@ contract examples.auction.contract.Auction:
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // Only creator can opt in to ASA
-                let (asa_value%0#0: uint64, asa_exists%0#0: bool) = (app_global_get_ex 0u "asa")
-                (assert asa_exists%0#0) // check asa exists
-                let tmp%3#0: bool = (! asa_value%0#0)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
+                (assert maybe_exists%0#0) // check self.asa exists
+                let tmp%3#0: bool = (! maybe_value%0#0)
                 (assert tmp%3#0) // ASA already opted in
                 (app_global_put "asa" asset#0)
                 itxn_begin
@@ -116,9 +116,9 @@ contract examples.auction.contract.Auction:
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // auction must be started by creator
-                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
-                (assert auction_end_exists%0#0) // check auction_end exists
-                let tmp%3#0: bool = (! auction_end_value%0#0)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
+                (assert maybe_exists%0#0) // check self.auction_end exists
+                let tmp%3#0: bool = (! maybe_value%0#0)
                 (assert tmp%3#0) // auction already started
                 let tmp%4#0: bytes = ((gtxns AssetReceiver) axfer#0)
                 let tmp%5#0: bytes = (global CurrentApplicationAddress)
@@ -139,18 +139,18 @@ contract examples.auction.contract.Auction:
         subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
             block@0: // L66
                 let tmp%0#0: uint64 = (global LatestTimestamp)
-                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
-                (assert auction_end_exists%0#0) // check auction_end exists
-                let tmp%1#0: bool = (< tmp%0#0 auction_end_value%0#0)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
+                (assert maybe_exists%0#0) // check self.auction_end exists
+                let tmp%1#0: bool = (< tmp%0#0 maybe_value%0#0)
                 (assert tmp%1#0) // auction has ended
                 let tmp%2#0: bytes = ((gtxns Sender) pay#0)
                 let tmp%3#0: bytes = (txn Sender)
                 let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
                 (assert tmp%4#0) // payment sender must match transaction sender
                 let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
-                let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: bool) = (app_global_get_ex 0u "previous_bid")
-                (assert previous_bid_exists%0#0) // check previous_bid exists
-                let tmp%6#0: bool = (> tmp%5#0 previous_bid_value%0#0)
+                let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bid")
+                (assert maybe_exists%1#0) // check self.previous_bid exists
+                let tmp%6#0: bool = (> tmp%5#0 maybe_value%1#0)
                 (assert tmp%6#0) // Bid must be higher than previous bid
                 (app_global_put "previous_bid" tmp%5#0)
                 (app_global_put "previous_bidder" tmp%2#0)
@@ -161,17 +161,17 @@ contract examples.auction.contract.Auction:
         subroutine examples.auction.contract.Auction.claim_bids() -> void:
             block@0: // L82
                 let tmp%0#0: bytes = (txn Sender)
-                let (original_amount#0: uint64, claimable_amount_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
-                (assert claimable_amount_exists%0#0) // check claimable_amount exists for account
+                let (original_amount#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
+                (assert maybe_exists%0#0) // check self.claimable_amount exists for account
                 let tmp%1#0: bytes = (txn Sender)
-                let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: bool) = (app_global_get_ex 0u "previous_bidder")
-                (assert previous_bidder_exists%0#0) // check previous_bidder exists
-                let tmp%2#0: bool = (== tmp%1#0 previous_bidder_value%0#0)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
+                (assert maybe_exists%1#0) // check self.previous_bidder exists
+                let tmp%2#0: bool = (== tmp%1#0 maybe_value%1#0)
                 goto tmp%2#0 ? block@1 : block@2
             block@1: // if_body_L86
-                let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: bool) = (app_global_get_ex 0u "previous_bid")
-                (assert previous_bid_exists%0#0) // check previous_bid exists
-                let amount#1: uint64 = (- original_amount#0 previous_bid_value%0#0)
+                let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bid")
+                (assert maybe_exists%2#0) // check self.previous_bid exists
+                let amount#1: uint64 = (- original_amount#0 maybe_value%2#0)
                 goto block@2
             block@2: // after_if_else_L86
                 let amount#2: uint64 = φ(original_amount#0 <- block@0, amount#1 <- block@1)
@@ -182,28 +182,28 @@ contract examples.auction.contract.Auction:
                 ((itxn_field TypeEnum) pay)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let new_state_value%0#0: uint64 = (- original_amount#0 amount#2)
                 let tmp%3#0: bytes = (txn Sender)
+                let new_state_value%0#0: uint64 = (- original_amount#0 amount#2)
                 (app_local_put tmp%3#0 "claim" new_state_value%0#0)
                 return 
         
         subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
             block@0: // L97
                 let tmp%0#0: uint64 = (global LatestTimestamp)
-                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
-                (assert auction_end_exists%0#0) // check auction_end exists
-                let tmp%1#0: bool = (> tmp%0#0 auction_end_value%0#0)
+                let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
+                (assert maybe_exists%0#0) // check self.auction_end exists
+                let tmp%1#0: bool = (> tmp%0#0 maybe_value%0#0)
                 (assert tmp%1#0) // auction has not ended
                 itxn_begin
-                let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: bool) = (app_global_get_ex 0u "previous_bidder")
-                (assert previous_bidder_exists%0#0) // check previous_bidder exists
-                let (previous_bidder_value%1#0: bytes, previous_bidder_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
-                (assert previous_bidder_exists%1#0) // check previous_bidder exists
-                let (asa_amount_value%0#0: uint64, asa_amount_exists%0#0: bool) = (app_global_get_ex 0u "asa_amount")
-                (assert asa_amount_exists%0#0) // check asa_amount exists
-                ((itxn_field AssetAmount) asa_amount_value%0#0)
-                ((itxn_field AssetReceiver) previous_bidder_value%1#0)
-                ((itxn_field AssetCloseTo) previous_bidder_value%0#0)
+                let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
+                (assert maybe_exists%1#0) // check self.previous_bidder exists
+                let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bidder")
+                (assert maybe_exists%2#0) // check self.previous_bidder exists
+                let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asa_amount")
+                (assert maybe_exists%3#0) // check self.asa_amount exists
+                ((itxn_field AssetAmount) maybe_value%3#0)
+                ((itxn_field AssetReceiver) maybe_value%2#0)
+                ((itxn_field AssetCloseTo) maybe_value%1#0)
                 ((itxn_field XferAsset) asset#0)
                 ((itxn_field TypeEnum) axfer)
                 ((itxn_field Fee) 0u)

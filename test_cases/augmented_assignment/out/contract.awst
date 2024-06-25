@@ -1,34 +1,34 @@
 contract Augmented
 {
   globals {
-    ['global_uint']: algopy.UInt64
-    ['global_bytes']: algopy.Bytes
+    ['global_uint']: uint64
+    ['global_bytes']: bytes
   }
   locals {
-    ['my_uint']: algopy.UInt64
-    ['my_bytes']: algopy.Bytes
+    ['my_uint']: uint64
+    ['my_bytes']: bytes
   }
   
   constructor()
   {
-    this.global_uint: algopy.UInt64 = 0u
-    this.global_bytes: algopy.Bytes = ''
+    GlobalState['global_uint']: uint64 = 0u
+    GlobalState['global_bytes']: bytes = hex<"">
   }
   
   approval_program(): bool
   {
-    me: algopy.Account = txn<Sender>()
+    me: account = txn<Sender>()
     if (txn<OnCompletion>() == OptIn) {
-      this.my_uint[me]: algopy.UInt64 = 0u
-      this.my_bytes[me]: algopy.Bytes = ''
+      LocalState['my_uint', me]: uint64 = 0u
+      LocalState['my_bytes', me]: bytes = hex<"">
     }
     if (reinterpret_cast<bool>(txn<ApplicationID>())) {
-      n: algopy.UInt64 = txn<NumAppArgs>()
-      bytes_to_add: algopy.Bytes = reinterpret_cast<algopy.Bytes>(itob(n))
-      this.my_uint[me] += n
-      this.my_bytes[me] += bytes_to_add
-      this.global_uint += n
-      this.global_bytes += bytes_to_add
+      n: uint64 = txn<NumAppArgs>()
+      bytes_to_add: bytes = reinterpret_cast<bytes>(itob(n))
+      LocalState['my_uint', me] += n
+      LocalState['my_bytes', me] += bytes_to_add
+      GlobalState['global_uint'] += n
+      GlobalState['global_bytes'] += bytes_to_add
     }
     return true
   }

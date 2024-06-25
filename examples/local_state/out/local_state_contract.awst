@@ -1,7 +1,7 @@
 contract LocalStateContract
 {
   locals {
-    ['local']: algopy.Bytes
+    ['local']: bytes
     ['local_bool']: bool
   }
   
@@ -11,7 +11,7 @@ contract LocalStateContract
   
   approval_program(): bool
   {
-    if (txn<ApplicationID>() == reinterpret_cast<algopy.Application>(0u)) {
+    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
     if (!(txn<OnCompletion>() IS IN (NoOp, OptIn))) {
@@ -20,15 +20,15 @@ contract LocalStateContract
     if (txn<NumAppArgs>() == 0u) {
       return false
     }
-    method: algopy.Bytes = txna<ApplicationArgs, 0>()
+    method: bytes = txna<ApplicationArgs, 0>()
     if (txn<NumAppArgs>() == 1u) {
-      if (method == 'get_guaranteed_data') {
+      if (method == hex<"6765745F67756172616E746565645F64617461">) {
         log(this::get_guaranteed_data(txn<Sender>()))
       } else {
-        if (method == 'get_data_or_assert') {
+        if (method == hex<"6765745F646174615F6F725F617373657274">) {
           log(this::get_data_or_assert(txn<Sender>()))
         } else {
-          if (method == 'delete_data') {
+          if (method == hex<"64656C6574655F64617461">) {
             this::delete_data(txn<Sender>())
             log('Deleted')
           } else {
@@ -39,10 +39,10 @@ contract LocalStateContract
       return true
     } else {
       if (txn<NumAppArgs>() == 2u) {
-        if (method == 'set_data') {
+        if (method == hex<"7365745F64617461">) {
           this::set_data(txn<Sender>(), txna<ApplicationArgs, 1>())
         } else {
-          if (method == 'get_data_with_default') {
+          if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
             log(this::get_data_with_default(txn<Sender>(), txna<ApplicationArgs, 1>()))
           } else {
             return false
@@ -60,30 +60,37 @@ contract LocalStateContract
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: algopy.Account): algopy.Bytes
+  subroutine get_guaranteed_data(for_account: account): bytes
   {
-    return this.local[for_account]
+    result: bytes = LocalState['local', for_account]
+    assert(len(result) == examples.local_state.local_state_contract::get_local_state_length('local', for_account))
+    return result
   }
   
-  subroutine get_data_with_default(for_account: algopy.Account, default: algopy.Bytes): algopy.Bytes
+  subroutine get_data_with_default(for_account: account, default: bytes): bytes
   {
-    return STATE_GET(this.local[for_account], default=default)
+    return STATE_GET(LocalState['local', for_account], default=default)
   }
   
-  subroutine get_data_or_assert(for_account: algopy.Account): algopy.Bytes
+  subroutine get_data_or_assert(for_account: account): bytes
   {
-    (result, exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.local[for_account])
+    (result, exists): tuple<bytes,bool> = STATE_GET_EX(LocalState['local', for_account])
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: algopy.Account, value: algopy.Bytes): None
+  subroutine set_data(for_account: account, value: bytes): void
   {
-    this.local[for_account]: algopy.Bytes = value
+    LocalState['local', for_account]: bytes = value
   }
   
-  subroutine delete_data(for_account: algopy.Account): None
+  subroutine delete_data(for_account: account): void
   {
-    STATE_DELETE(this.local[for_account])
+    STATE_DELETE(LocalState['local', for_account])
   }
+}
+
+subroutine get_local_state_length(state: state_key, account: account): uint64
+{
+  return len(LocalState[state, account])
 }

@@ -1,7 +1,8 @@
 import typing
 from collections.abc import Sequence
 
-from puya import log
+from puya import arc4_util, log
+from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -12,13 +13,9 @@ from puya.ir.builder import arc4
 from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
-    BytesConstant,
     Intrinsic,
     Value,
     ValueProvider,
-)
-from puya.ir.types_ import (
-    bytes_enc_to_avm_bytes_enc,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -40,13 +37,39 @@ def handle_assignment_expr(
 
 def handle_assignment(
     context: IRFunctionBuildContext,
+    target: awst_nodes.Expression,
+    value: ValueProvider,
+    assignment_location: SourceLocation,
+    *,
+    is_mutation: bool = False,
+) -> Sequence[Value]:
+    # separating out the target LValue check allows the _handle_assignment to statically assert
+    # all LValue types are covered
+    if not isinstance(target, awst_nodes.Lvalue):  # type: ignore[arg-type]
+        raise CodeError("expression is not valid as an assignment target", target.source_location)
+    return _handle_assignment(
+        context,
+        typing.cast(awst_nodes.Lvalue, target),
+        value,
+        assignment_location,
+        is_mutation=is_mutation,
+    )
+
+
+def _handle_assignment(
+    context: IRFunctionBuildContext,
     target: awst_nodes.Lvalue,
     value: ValueProvider,
     assignment_location: SourceLocation,
+    *,
+    is_mutation: bool,
 ) -> Sequence[Value]:
     match target:
         case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
-            if var_name in (p.name for p in context.subroutine.parameters if p.implicit_return):
+            is_implicit_return = var_name in (
+                p.name for p in context.subroutine.parameters if p.implicit_return
+            )
+            if is_implicit_return and not is_mutation:
                 raise CodeError(
                     f"Cannot reassign mutable parameter {var_name!r}"
                     " which is being passed by reference",
@@ -72,56 +95,80 @@ def handle_assignment(
                     context, target=dst, value=src, assignment_location=assignment_location
                 )
             ]
-        case awst_nodes.AppStateExpression(field_name=field_name, source_location=key_loc):
-            source = context.visitor.materialise_value_provider(
+        case awst_nodes.AppStateExpression(
+            key=awst_key, wtype=wtype, source_location=field_location
+        ):
+            _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
+            key_value = context.visitor.visit_and_materialise_single(awst_key)
+            (mat_value, *rest) = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
             )
-            if len(source) != 1:
-                raise CodeError("Tuple state is not supported", assignment_location)
-            state_def = context.resolve_state(field_name, key_loc)
+            assert not rest, "non-tuple state should have been already validated by AWST"
             context.block_builder.add(
                 Intrinsic(
                     op=AVMOp.app_global_put,
-                    args=[
-                        BytesConstant(
-                            value=state_def.key,
-                            source_location=key_loc,
-                            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
-                        ),
-                        source[0],
-                    ],
+                    args=[key_value, mat_value],
                     source_location=assignment_location,
                 )
             )
-            return source
+            return [mat_value]
         case awst_nodes.AppAccountStateExpression(
-            field_name=field_name,
-            account=account_expr,
-            source_location=key_loc,
+            key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):
-            source = context.visitor.materialise_value_provider(
+            _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
+            account = context.visitor.visit_and_materialise_single(account_expr)
+            key_value = context.visitor.visit_and_materialise_single(awst_key)
+            (mat_value, *rest) = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
             )
-            account = context.visitor.visit_and_materialise_single(account_expr)
-            if len(source) != 1:
-                raise CodeError("Tuple state is not supported", assignment_location)
-            state_def = context.resolve_state(field_name, key_loc)
+            assert not rest, "non-tuple state should have been already validated by AWST"
             context.block_builder.add(
                 Intrinsic(
                     op=AVMOp.app_local_put,
-                    args=[
-                        account,
-                        BytesConstant(
-                            value=state_def.key,
-                            source_location=key_loc,
-                            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
-                        ),
-                        source[0],
-                    ],
+                    args=[account, key_value, mat_value],
                     source_location=assignment_location,
                 )
             )
-            return source
+            return [mat_value]
+        case awst_nodes.BoxValueExpression(
+            key=awst_key, wtype=wtype, source_location=field_location
+        ):
+            scalar_type = wtypes.persistable_stack_type(wtype, field_location)  # double check
+            key_value = context.visitor.visit_and_materialise_single(awst_key)
+            (mat_value,) = context.visitor.materialise_value_provider(
+                value, description="new_box_value"
+            )
+            if scalar_type == AVMType.bytes:
+                serialized_value = mat_value
+                if not (
+                    isinstance(wtype, wtypes.ARC4Type) and arc4_util.is_arc4_static_size(wtype)
+                ):
+                    context.block_builder.add(
+                        Intrinsic(
+                            op=AVMOp.box_del, args=[key_value], source_location=assignment_location
+                        )
+                    )
+            elif scalar_type == AVMType.uint64:
+                (serialized_value,) = assign(
+                    context=context,
+                    temp_description="new_box_value",
+                    source=Intrinsic(
+                        op=AVMOp.itob,
+                        args=[mat_value],
+                        source_location=assignment_location,
+                    ),
+                    source_location=assignment_location,
+                )
+            else:
+                typing.assert_never(scalar_type)
+            context.block_builder.add(
+                Intrinsic(
+                    op=AVMOp.box_put,
+                    args=[key_value, serialized_value],
+                    source_location=assignment_location,
+                )
+            )
+            return [mat_value]
         case awst_nodes.IndexExpression() as ix_expr:
             if isinstance(ix_expr.base.wtype, wtypes.WArray):
                 raise NotImplementedError

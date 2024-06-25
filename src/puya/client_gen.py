@@ -8,12 +8,15 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.arc32 import OCA_ARC32_MAPPING, write_arc32_client
+from puya.arc32 import OCA_ARC32_MAPPING
+from puya.awst_build.arc32_client_gen import write_arc32_client
 from puya.errors import PuyaError
 from puya.models import (
+    ARC4ABIMethod,
+    ARC4ABIMethodConfig,
+    ARC4CreateOption,
     ARC4Method,
     ARC4MethodArg,
-    ARC4MethodConfig,
     ARC4Returns,
     ARC32StructDef,
     OnCompletionAction,
@@ -80,19 +83,17 @@ def _parse_app_spec_methods(path: Path) -> tuple[str, Sequence[ARC4Method]]:
     arc4_methods = {m.signature: m for m in _parse_methods(contract["methods"])}
     for arc4_method in arc4_methods.values():
         method_hints = hints[str(arc4_method.signature)]
-        allow_create, require_create, allowed_oca = _call_config(method_hints["call_config"])
+        create_option, allowed_oca = _call_config(method_hints["call_config"])
         methods.append(
-            ARC4Method(
+            ARC4ABIMethod(
                 name=arc4_method.python_name,
                 desc=arc4_method.desc,
                 args=arc4_method.signature.args,
                 returns=arc4_method.signature.returns,
-                config=ARC4MethodConfig(
+                config=ARC4ABIMethodConfig(
                     source_location=None,
                     name=arc4_method.signature.name,
-                    is_bare=False,
-                    allow_create=allow_create,
-                    require_create=require_create,
+                    create=create_option,
                     readonly=bool(method_hints.get("read_only")),
                     allowed_completion_types=allowed_oca,
                     default_args=immutabledict(
@@ -156,15 +157,22 @@ def _parse_signature(method: dict[str, typing.Any]) -> _MethodSignature:
 
 def _call_config(
     method_call_config: dict[str, str]
-) -> tuple[bool, bool, Sequence[OnCompletionAction]]:
+) -> tuple[ARC4CreateOption, Sequence[OnCompletionAction]]:
     try:
         (call_config,) = set(method_call_config.values())
     except ValueError as ex:
         raise PuyaError("Different call configs for a single method not supported") from ex
-    require_create = call_config == "CREATE"
-    allow_create = call_config == "ALL"
+    match call_config:
+        case "CREATE":
+            create_option = ARC4CreateOption.require
+        case "ALL":
+            create_option = ARC4CreateOption.allow
+        case "CALL":
+            create_option = ARC4CreateOption.disallow
+        case invalid:
+            raise PuyaError(f"invalid call config option: {invalid}")
     allowed_oca = [ARC32_OCA_MAPPING[a] for a in method_call_config]
-    return allow_create, require_create, allowed_oca
+    return create_option, allowed_oca
 
 
 def _default_args(

@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, op
+from algopy import Contract, Txn, UInt64, op
 
 
 class Uint64Contract(Contract):
@@ -77,8 +77,11 @@ class Uint64Contract(Contract):
 
         assert one == +one
 
+        assert UInt64(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"
+
         return UInt64(1)
 
     def clear_state_program(self) -> bool:
         assert UInt64() == 0
+        assert UInt64(False) == 0
         return True

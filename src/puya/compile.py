@@ -17,7 +17,8 @@ import mypy.util
 from packaging import version
 
 from puya import log
-from puya.arc32 import create_arc32_json, write_arc32_client
+from puya.arc32 import create_arc32_json
+from puya.awst_build.arc32_client_gen import write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
 from puya.errors import InternalError, log_exceptions
@@ -40,7 +41,7 @@ from puya.utils import determine_out_dir, make_path_relative_to_cwd
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
-MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("1.2.0")
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("1.3.0")
 MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.major}.0.0")
 
 logger = log.get_logger(__name__)

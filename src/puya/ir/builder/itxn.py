@@ -8,7 +8,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.to_code_visitor import ToCodeVisitor
-from puya.awst.wtypes import is_inner_transaction_field_type
+from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assign, assign_intrinsic_op
@@ -107,7 +107,7 @@ class InnerTransactionBuilder:
                 self._copy_inner_transaction_fields(var_name, src_var_name, var_loc)
                 return True
             case awst_nodes.TupleExpression(items=tuple_items) as tuple_source if any(
-                map(is_inner_transaction_field_type, tuple_source.wtype.types)
+                isinstance(t, WInnerTransactionFields) for t in tuple_source.wtype.types
             ):
                 names = _get_assignment_target_local_names(target, len(tuple_items))
                 for (item_name, item_loc), item_value in zip(names, tuple_items, strict=True):

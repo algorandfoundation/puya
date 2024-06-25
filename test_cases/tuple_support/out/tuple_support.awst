@@ -1,107 +1,159 @@
 contract TupleSupport
 {
   globals {
-    ['state']: algopy.UInt64
+    ['state']: uint64
   }
   
   constructor()
   {
-    this.state: algopy.UInt64 = 0u
+    GlobalState['state']: uint64 = 0u
   }
   
-  approval_program(): algopy.UInt64
+  approval_program(): uint64
   {
-    total: algopy.UInt64 = test_cases.tuple_support.tuple_support::add_three_values((101u, 102u, 103u))
+    total: uint64 = test_cases.tuple_support.tuple_support::add_three_values((101u, 102u, 103u))
     log(itob(total))
-    (a, b): tuple[algopy.UInt64, algopy.UInt64] = (1u, 2u)
-    (did_overflow, this.state): tuple[algopy.UInt64, algopy.UInt64] = addw(a, b)
+    (a, b): tuple<uint64,uint64> = (1u, 2u)
+    (did_overflow, GlobalState['state']): tuple<uint64,uint64> = addw(a, b)
     assert(!(reinterpret_cast<bool>(did_overflow)), comment="overflow!")
-    ab: tuple[algopy.UInt64, algopy.UInt64] = (a, b)
+    ab: tuple<uint64,uint64> = (a, b)
     assert(ab[-1] == ab[1])
-    result: tuple[algopy.UInt64, algopy.UInt64] = addw(a, b)
+    result: tuple<uint64,uint64> = addw(a, b)
     assert(!(reinterpret_cast<bool>(result[0])), comment="overflow!")
-    d: algopy.UInt64 = 3u
-    c: algopy.UInt64 = 3u
-    (a2, b2): tuple[algopy.UInt64, algopy.UInt64] = ab
-    cd: tuple[algopy.UInt64, algopy.UInt64] = (c, d)
-    ab2: tuple[algopy.UInt64, algopy.UInt64] = ab
+    d: uint64 = 3u
+    c: uint64 = 3u
+    (a2, b2): tuple<uint64,uint64> = ab
+    cd: tuple<uint64,uint64> = (c, d)
+    ab2: tuple<uint64,uint64> = ab
     if (a == b) {
-      tup: tuple[algopy.UInt64, algopy.UInt64] = ab2
+      tup: tuple<uint64,uint64> = ab2
     } else {
-      tup: tuple[algopy.UInt64, algopy.UInt64] = cd
+      tup: tuple<uint64,uint64> = cd
     }
     assert(a2 == a)
     assert(b2 == b)
     assert(cd[0] == tup[0])
     assert(cd[1] == tup[1])
-    log(test_cases.tuple_support.tuple_support::bytes_combine(('Hello, ', 'world!')))
-    max_uint64: algopy.UInt64 = 18446744073709551615u
-    (hi, mid, lo): tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64] = test_cases.tuple_support.tuple_support::addw2(addw(max_uint64, max_uint64), addw(a, b))
+    log(test_cases.tuple_support.tuple_support::bytes_combine((hex<"48656C6C6F2C20">, hex<"776F726C6421">)))
+    max_uint64: uint64 = 18446744073709551615u
+    (hi, mid, lo): tuple<uint64,uint64,uint64> = test_cases.tuple_support.tuple_support::addw2(addw(max_uint64, max_uint64), addw(a, b))
     log(itob(hi))
     log(itob(mid))
     log(itob(lo))
-    log(test_cases.tuple_support.tuple_support::bytes_multiply(('na', 5u)))
+    log(test_cases.tuple_support.tuple_support::bytes_multiply((hex<"6E61">, 5u)))
     test_cases.tuple_support.tuple_support::test_tuple_swap(zero=0u)
     test_cases.tuple_support.tuple_support::slicing((1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u))
+    test_cases.tuple_support.tuple_support::bin_ops()
+    if (||(SINGLE_EVAL(id=0, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[0]) == SINGLE_EVAL(id=0, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[0]), SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[1]) == SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1, source=test_cases.tuple_support.tuple_support::non_empty_tuple())[1]))) {
+      log('not empty')
+    }
+    if (SINGLE_EVAL(id=3, source=test_cases.tuple_support.tuple_support::get_uint_with_side_effect()) == SINGLE_EVAL(id=3, source=test_cases.tuple_support.tuple_support::get_uint_with_side_effect())) {
+      log('not empty2')
+    }
+    test_cases.tuple_support.tuple_support::single_tuple()
     return a + b
   }
   
-  clear_state_program(): algopy.UInt64
+  clear_state_program(): uint64
   {
     return 0u
   }
 }
 
-subroutine bytes_combine(arg: tuple[algopy.Bytes, algopy.Bytes]): algopy.Bytes
+subroutine single_tuple(): void
 {
-  (a, b): tuple[algopy.Bytes, algopy.Bytes] = arg
-  result: algopy.Bytes = a + b
+  tup: tuple<uint64> = (1u)
+  assert(tup[0] == 1u)
+}
+
+subroutine get_uint_with_side_effect(): uint64
+{
+  log('get_uint_with_side_effect called')
+  return 4u
+}
+
+subroutine non_empty_tuple(): tuple<uint64,uint64>
+{
+  log('non_empty_tuple called')
+  return (4u, 2u)
+}
+
+subroutine bin_ops(): void
+{
+  a: tuple<uint64,uint64,uint64> = (1u, 1u, 1u)
+  assert(a[0] == 1u)
+  assert(a[1] == 1u)
+  assert(a[2] == 1u)
+  tup: tuple<uint64,uint64> = (1u, 2u)
+  b: tuple<uint64,uint64,uint64,uint64,uint64,uint64> = (tup[0], tup[1], tup[0], tup[1], tup[0], tup[1])
+  assert(b[0] == 1u)
+  assert(b[1] == 2u)
+  assert(b[2] == 1u)
+  assert(b[3] == 2u)
+  assert(b[4] == 1u)
+  assert(b[5] == 2u)
+  c: tuple<uint64,bytes,uint64> = (1u, hex<"32">, 3u)
+  assert(c[0] == 1u)
+  assert(c[1] == hex<"32">)
+  assert(c[2] == 3u)
+  d: tuple<uint64,uint64,uint64,uint64> = (tup[0], tup[1], tup[0], tup[1])
+  assert(d[0] == 1u)
+  assert(d[1] == 2u)
+  assert(d[2] == 1u)
+  assert(d[3] == 2u)
+}
+
+subroutine bytes_combine(arg: tuple<bytes,bytes>): bytes
+{
+  (a, b): tuple<bytes,bytes> = arg
+  result: bytes = a + b
   return result
 }
 
-subroutine bytes_multiply(arg: tuple[algopy.Bytes, algopy.UInt64]): algopy.Bytes
+subroutine bytes_multiply(arg: tuple<bytes,uint64>): bytes
 {
-  (b, count): tuple[algopy.Bytes, algopy.UInt64] = arg
-  result: algopy.Bytes = ''
+  (b, count): tuple<bytes,uint64> = arg
+  result: bytes = hex<"">
   for _i in range(0u, count, 1u) {
     result += b
   }
   return result
 }
 
-subroutine add_three_values(values: tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64]): algopy.UInt64
+subroutine add_three_values(values: tuple<uint64,uint64,uint64>): uint64
 {
-  total: algopy.UInt64 = 0u
+  total: uint64 = 0u
   for value in values {
     total += value
   }
   return total
 }
 
-subroutine addw2(a: tuple[algopy.UInt64, algopy.UInt64], b: tuple[algopy.UInt64, algopy.UInt64]): tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64]
+subroutine addw2(a: tuple<uint64,uint64>, b: tuple<uint64,uint64>): tuple<uint64,uint64,uint64>
 {
-  (a_hi, a_lo): tuple[algopy.UInt64, algopy.UInt64] = a
-  (b_hi, b_lo): tuple[algopy.UInt64, algopy.UInt64] = b
-  (lo_carry, c_lo): tuple[algopy.UInt64, algopy.UInt64] = addw(a_lo, b_lo)
-  (hi_carry1, c_mid): tuple[algopy.UInt64, algopy.UInt64] = addw(a_hi, b_hi)
-  (hi_carry2, c_mid): tuple[algopy.UInt64, algopy.UInt64] = addw(c_mid, lo_carry)
-  (did_overflow, c_hi): tuple[algopy.UInt64, algopy.UInt64] = addw(hi_carry1, hi_carry2)
+  (a_hi, a_lo): tuple<uint64,uint64> = a
+  (b_hi, b_lo): tuple<uint64,uint64> = b
+  (lo_carry, c_lo): tuple<uint64,uint64> = addw(a_lo, b_lo)
+  (hi_carry1, c_mid): tuple<uint64,uint64> = addw(a_hi, b_hi)
+  (hi_carry2, c_mid): tuple<uint64,uint64> = addw(c_mid, lo_carry)
+  (did_overflow, c_hi): tuple<uint64,uint64> = addw(hi_carry1, hi_carry2)
   assert(!(reinterpret_cast<bool>(did_overflow)), comment="is such a thing even possible? 👽")
   return (c_hi, c_mid, c_lo)
 }
 
-subroutine test_tuple_swap(zero: algopy.UInt64): None
+subroutine test_tuple_swap(zero: uint64): void
 {
-  a: algopy.UInt64 = zero + 1u
-  b: algopy.UInt64 = zero + 2u
-  (a, b): tuple[algopy.UInt64, algopy.UInt64] = (b, a)
+  a: uint64 = zero + 1u
+  b: uint64 = zero + 2u
+  (a, b): tuple<uint64,uint64> = (b, a)
   assert(a == 2u, comment="a should be two")
   assert(b == 1u, comment="b should be one")
 }
 
-subroutine slicing(values: tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64]): None
+subroutine slicing(values: tuple<uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64>): void
 {
-  one_to_three: tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64] = values[0u:3u]
+  one_to_three: tuple<uint64,uint64,uint64> = values[0u:3u]
   assert(test_cases.tuple_support.tuple_support::add_three_values(one_to_three) == values[0] + values[1] + values[2])
   assert(one_to_three[1u:2u][0] == one_to_three[1])
+  assert(&&(&&(one_to_three[0] == SINGLE_EVAL(id=4, source=one_to_three[:])[0], one_to_three[1] == SINGLE_EVAL(id=4, source=one_to_three[:])[1]), one_to_three[2] == SINGLE_EVAL(id=4, source=one_to_three[:])[2]))
 }

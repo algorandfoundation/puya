@@ -62,7 +62,7 @@ main_after_if_else@6:
     // local_state/local_state_with_offsets.py:29
     // if method == b"get_guaranteed_data":
     dig 1
-    byte "get_guaranteed_data"
+    byte 0x6765745f67756172616e746565645f64617461
     ==
     bz main_else_body@9
     // local_state/local_state_with_offsets.py:30
@@ -76,7 +76,7 @@ main_else_body@9:
     // local_state/local_state_with_offsets.py:31
     // elif method == b"get_data_or_assert":
     dig 1
-    byte "get_data_or_assert"
+    byte 0x6765745f646174615f6f725f617373657274
     ==
     bz main_else_body@11
     // local_state/local_state_with_offsets.py:32
@@ -90,7 +90,7 @@ main_else_body@11:
     // local_state/local_state_with_offsets.py:33
     // elif method == b"delete_data":
     dig 1
-    byte "delete_data"
+    byte 0x64656c6574655f64617461
     ==
     bz main_else_body@13
     // local_state/local_state_with_offsets.py:34
@@ -98,7 +98,7 @@ main_else_body@11:
     dup
     callsub delete_data
     // local_state/local_state_with_offsets.py:35
-    // log(b"Deleted")
+    // log("Deleted")
     byte "Deleted"
     log
     b main_after_if_else@14
@@ -129,7 +129,7 @@ main_else_body@17:
     // local_state/local_state_with_offsets.py:40
     // if method == b"set_data":
     dig 1
-    byte "set_data"
+    byte 0x7365745f64617461
     ==
     bz main_else_body@20
     // local_state/local_state_with_offsets.py:41
@@ -144,7 +144,7 @@ main_else_body@20:
     // local_state/local_state_with_offsets.py:42
     // elif method == b"get_data_with_default":
     dig 1
-    byte "get_data_with_default"
+    byte 0x6765745f646174615f776974685f64656661756c74
     ==
     bz main_else_body@22
     // local_state/local_state_with_offsets.py:43
@@ -187,9 +187,13 @@ get_guaranteed_data:
     // return self.local[for_account]
     frame_dig -1
     int 0
+    // local_state/local_state_with_offsets.py:16
+    // self.local = LocalState(Bytes)
     byte "local"
+    // local_state/local_state_with_offsets.py:55
+    // return self.local[for_account]
     app_local_get_ex
-    assert // check local exists for account
+    assert // check self.local exists for account
     retsub
 
 
@@ -203,7 +207,11 @@ get_data_or_assert:
     // result, exists = self.local.maybe(for_account)
     frame_dig -1
     int 0
+    // local_state/local_state_with_offsets.py:16
+    // self.local = LocalState(Bytes)
     byte "local"
+    // local_state/local_state_with_offsets.py:63
+    // result, exists = self.local.maybe(for_account)
     app_local_get_ex
     // local_state/local_state_with_offsets.py:64
     // assert exists, "no data for account"
@@ -222,7 +230,11 @@ delete_data:
     // local_state/local_state_with_offsets.py:73
     // del self.local[for_account]
     frame_dig -1
+    // local_state/local_state_with_offsets.py:16
+    // self.local = LocalState(Bytes)
     byte "local"
+    // local_state/local_state_with_offsets.py:73
+    // del self.local[for_account]
     app_local_del
     retsub
 
@@ -236,7 +248,11 @@ set_data:
     // local_state/local_state_with_offsets.py:69
     // self.local[for_account] = value
     frame_dig -2
+    // local_state/local_state_with_offsets.py:16
+    // self.local = LocalState(Bytes)
     byte "local"
+    // local_state/local_state_with_offsets.py:69
+    // self.local[for_account] = value
     frame_dig -1
     app_local_put
     retsub
@@ -252,7 +268,11 @@ get_data_with_default:
     // return self.local.get(for_account, default)
     frame_dig -2
     int 0
+    // local_state/local_state_with_offsets.py:16
+    // self.local = LocalState(Bytes)
     byte "local"
+    // local_state/local_state_with_offsets.py:59
+    // return self.local.get(for_account, default)
     app_local_get_ex
     cover 1
     frame_dig -1

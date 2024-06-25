@@ -51,10 +51,62 @@ class TupleSupport(Contract):
                 UInt64(8),
             )
         )
+        bin_ops()
+        if non_empty_tuple():
+            log("not empty")
+        if (get_uint_with_side_effect(),):  # noqa: F634
+            log("not empty2")
+        single_tuple()
         return a + b
 
     def clear_state_program(self) -> UInt64:
         return UInt64(0)
+
+
+@subroutine
+def single_tuple() -> None:
+    tup = (UInt64(1),)
+    assert tup[0] == 1
+
+
+@subroutine
+def get_uint_with_side_effect() -> UInt64:
+    log("get_uint_with_side_effect called")
+    return UInt64(4)
+
+
+@subroutine
+def non_empty_tuple() -> tuple[UInt64, UInt64]:
+    log("non_empty_tuple called")
+    return UInt64(4), UInt64(2)
+
+
+@subroutine
+def bin_ops() -> None:
+    a = (UInt64(1),) * 3
+    assert a[0] == 1
+    assert a[1] == 1
+    assert a[2] == 1
+
+    tup = (UInt64(1), UInt64(2))
+    b = tup * 3
+    assert b[0] == 1
+    assert b[1] == 2
+    assert b[2] == 1
+    assert b[3] == 2
+    assert b[4] == 1
+    assert b[5] == 2
+
+    c = (UInt64(1),) + (Bytes(b"2"), UInt64(3))  # noqa: RUF005
+    assert c[0] == 1
+    assert c[1] == b"2"
+    assert c[2] == 3
+
+    d = tup + tup
+    assert d[0] == 1
+    assert d[1] == 2
+    assert d[2] == 1
+    assert d[3] == 2
 
 
 @subroutine
@@ -109,3 +161,5 @@ def slicing(values: tuple[UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64
     assert add_three_values(one_to_three) == values[0] + values[1] + values[2]
 
     assert one_to_three[-2:-1][0] == one_to_three[1]
+
+    assert one_to_three == one_to_three[:]

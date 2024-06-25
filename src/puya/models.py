@@ -22,19 +22,34 @@ class OnCompletionAction(enum.IntEnum):
     DeleteApplication = 5
 
 
+class ARC4CreateOption(enum.Enum):
+    allow = enum.auto()
+    require = enum.auto()
+    disallow = enum.auto()
+
+
 @attrs.frozen(kw_only=True)
-class ARC4MethodConfig:
+class ARC4BareMethodConfig:
     source_location: SourceLocation | None
-    name: str
-    is_bare: bool = False
-    allow_create: bool = False
-    require_create: bool = False
-    readonly: bool = False
     allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
         default=(OnCompletionAction.NoOp,),
         converter=tuple[OnCompletionAction],
         validator=attrs.validators.min_len(1),
     )
+    create: ARC4CreateOption = ARC4CreateOption.disallow
+
+
+@attrs.frozen(kw_only=True)
+class ARC4ABIMethodConfig:
+    source_location: SourceLocation | None
+    allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
+        default=(OnCompletionAction.NoOp,),
+        converter=tuple[OnCompletionAction],
+        validator=attrs.validators.min_len(1),
+    )
+    create: ARC4CreateOption = ARC4CreateOption.disallow
+    name: str
+    readonly: bool = False
     default_args: immutabledict[str, str] = immutabledict()
     """Mapping is from parameter -> source"""
     structs: immutabledict[str, ARC32StructDef] = immutabledict()
@@ -54,12 +69,18 @@ class ARC4Returns:
 
 
 @attrs.frozen
-class ARC4Method:
+class ARC4ABIMethod:
     name: str
     desc: str | None = attrs.field(hash=False)
     args: Sequence[ARC4MethodArg] = attrs.field(converter=tuple[ARC4MethodArg, ...])
     returns: ARC4Returns
-    config: ARC4MethodConfig
+    config: ARC4ABIMethodConfig
+
+
+@attrs.frozen
+class ARC4BareMethod:
+    desc: str | None = attrs.field(hash=False)
+    config: ARC4BareMethodConfig
 
 
 @attrs.frozen
@@ -96,6 +117,10 @@ class StateTotals:
     local_uints: int
     global_bytes: int
     local_bytes: int
+
+
+ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig
+ARC4Method = ARC4BareMethod | ARC4ABIMethod
 
 
 @attrs.frozen

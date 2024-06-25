@@ -1,4 +1,4 @@
-from algopy import Contract, String
+from algopy import Contract, String, Txn
 
 
 class StringContract(Contract):
@@ -39,9 +39,15 @@ class StringContract(Contract):
 
         d, e, f = String("d"), String("e"), String("f")
         assert String(".").join((d, e, f)) == "d.e.f"
+        assert String(".").join((d, "e", f)) == "d.e.f"
+        assert String(".").join(("d", "e", "f")) == "d.e.f"
+        assert String(".").join(tuple("def")) == "d.e.f"
         assert String("").join((d, e, f)) == "def"
         assert String(".").join((d,)) == "d"
         assert String("").join((d,)) == "d"
+        assert (
+            String("args" if Txn.num_app_args else "no args") == "no args"
+        ), "constructor expressions supported"
 
         return True
 

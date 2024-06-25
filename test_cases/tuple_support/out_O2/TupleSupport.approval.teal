@@ -21,8 +21,8 @@ main_entrypoint@2:
     dig 1
     !
     assert // overflow!
-    byte "Hello, "
-    byte "world!"
+    byte 0x48656c6c6f2c20
+    byte 0x776f726c6421
     callsub bytes_combine
     log
     int 18446744073709551615
@@ -39,7 +39,7 @@ main_entrypoint@2:
     log
     itob
     log
-    byte "na"
+    byte 0x6e61
     int 5
     callsub bytes_multiply
     log
@@ -54,6 +54,16 @@ main_entrypoint@2:
     int 7
     int 8
     callsub slicing
+    callsub bin_ops
+    callsub non_empty_tuple
+    popn 2
+    byte "not empty"
+    log
+    callsub get_uint_with_side_effect
+    pop
+    byte "not empty2"
+    log
+    callsub single_tuple
     int 3
     return
 
@@ -126,7 +136,7 @@ addw2:
 // test_cases.tuple_support.tuple_support.bytes_multiply(arg.0: bytes, arg.1: uint64) -> bytes:
 bytes_multiply:
     proto 2 1
-    byte ""
+    byte 0x
     int 0
 
 bytes_multiply_for_header@1:
@@ -180,6 +190,37 @@ slicing:
     +
     ==
     assert
+    retsub
+
+
+// test_cases.tuple_support.tuple_support.bin_ops() -> void:
+bin_ops:
+    proto 0 0
+    retsub
+
+
+// test_cases.tuple_support.tuple_support.non_empty_tuple() -> uint64, uint64:
+non_empty_tuple:
+    proto 0 2
+    byte "non_empty_tuple called"
+    log
+    int 4
+    int 2
+    retsub
+
+
+// test_cases.tuple_support.tuple_support.get_uint_with_side_effect() -> uint64:
+get_uint_with_side_effect:
+    proto 0 1
+    byte "get_uint_with_side_effect called"
+    log
+    int 4
+    retsub
+
+
+// test_cases.tuple_support.tuple_support.single_tuple() -> void:
+single_tuple:
+    proto 0 0
     retsub
 
 

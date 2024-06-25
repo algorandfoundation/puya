@@ -1,17 +1,25 @@
 import typing
-from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
+from collections.abc import Callable, Mapping, Reversible, Sequence
 
 import algopy
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
-"""Allowed completion types for ABI methods: 
-NoOp, OptIn, CloseOut, UpdateApplication and DeleteApplication"""
+_ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
 
-# TODO: better typing for ABI methods that can be used as an argument source
-# TODO: support declaring state at the class level so it can be used as a default arg source
-_TABIDefaultArgSource: typing.TypeAlias = object
+class ARC4Contract(algopy.Contract):
+    """A contract that conforms to the ARC4 ABI specification, functions decorated with
+    `@abimethod` or `@baremethod` will form the public interface of the contract
+
+    The approval_program will be implemented by the compiler, and route application args
+    according to the ARC4 ABI specification
+
+    The clear_state_program will by default return True, but can be overridden"""
+
+    @typing.final
+    def approval_program(self) -> algopy.UInt64 | bool: ...
+    def clear_state_program(self) -> algopy.UInt64 | bool: ...
 
 # if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
@@ -33,7 +41,7 @@ def abimethod(
         ]
     ] = ("NoOp",),
     readonly: bool = False,
-    default_args: Mapping[str, str | _TABIDefaultArgSource] = ...,
+    default_args: Mapping[str, str | _ReadOnlyNoArgsMethod] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that indicates a method is an ARC4 ABI method.
 
@@ -45,8 +53,10 @@ def abimethod(
     :arg default_args: Default argument sources for clients to use.
     """
 
+_TARC4Contract = typing.TypeVar("_TARC4Contract", bound=ARC4Contract)
+
 @typing.overload
-def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
+def baremethod(fn: Callable[[_TARC4Contract], None], /) -> Callable[[_TARC4Contract], None]: ...
 @typing.overload
 def baremethod(
     *,
@@ -62,7 +72,7 @@ def baremethod(
             "DeleteApplication",
         ]
     ] = ...,
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+) -> Callable[[Callable[[_TARC4Contract], None]], Callable[[_TARC4Contract], None]]:
     """Decorator that indicates a method is an ARC4 bare method.
 
     There can be only one bare method on a contract for each given On-Completion Action.
@@ -75,23 +85,12 @@ def baremethod(
 def arc4_signature(signature: str, /) -> algopy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""
 
-class ARC4Contract(algopy.Contract):
-    """A contract that conforms to the ARC4 ABI specification, functions decorated with
-    `@abimethod` or `@baremethod` will form the public interface of the contract
-
-    The approval_program will be implemented by the compiler, and route application args
-    according to the ARC4 ABI specification
-
-    The clear_state_program will by default return True, but can be overridden"""
-
-    @typing.final
-    def approval_program(self) -> algopy.UInt64 | bool: ...
-    def clear_state_program(self) -> algopy.UInt64 | bool: ...
-
 class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
-        """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
+        """
+        Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
+        """
 
 class String(_ABIEncoded):
     """An ARC4 sequence of bytes containing a UTF8 string"""
@@ -101,10 +100,10 @@ class String(_ABIEncoded):
     def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
 
-    def __add__(self, other: String | str) -> String: ...
-    def __iadd__(self, other: String | str) -> String: ...
-    def __radd__(self, other: String | str) -> String: ...
-    def __eq__(self, other: String | str) -> bool: ...  # type: ignore[override]
+    def __add__(self, other: String | algopy.String | str) -> String: ...
+    def __iadd__(self, other: String | algopy.String | str) -> String: ...
+    def __radd__(self, other: String | algopy.String | str) -> String: ...
+    def __eq__(self, other: String | algopy.String | str) -> bool: ...  # type: ignore[override]
     def __bool__(self) -> bool:
         """Returns `True` if length is not zero"""
 
@@ -177,6 +176,9 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
+    def __eq__(self, other: typing.Self) -> bool:  # type: ignore[override]
+        """Compare for equality, note both operands must be the exact same type"""
+
 class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
 
@@ -190,6 +192,9 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
+
+    def __eq__(self, other: typing.Self) -> bool:  # type: ignore[override]
+        """Compare for equality, note both operands must be the exact same type"""
 
 class Byte(UIntN[typing.Literal[8]]):
     """An ARC4 alias for a UInt8"""
@@ -219,6 +224,8 @@ class Bool(_ABIEncoded):
     """An ARC4 encoded bool"""
 
     def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001, FBT002
+    def __eq__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
+    def __ne__(self, other: Bool | bool) -> bool: ...  # type: ignore[override]
     @property
     def native(self) -> bool:
         """Return the bool representation of the value after ARC4 decoding"""
@@ -369,13 +376,28 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 
     def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
     def append(self, item: _TArrayItem, /) -> None:
-        """Append items to this array"""
+        """Append an item to this array"""
 
-    def extend(self, other: Iterable[_TArrayItem], /) -> None:
+    def extend(
+        self,
+        other: (
+            DynamicArray[_TArrayItem]
+            | StaticArray[_TArrayItem, _TArrayLength]
+            | tuple[_TArrayItem, ...]
+        ),
+        /,
+    ) -> None:
         """Extend this array with the contents of another array"""
 
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
-    def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
+    def __add__(
+        self,
+        other: (
+            DynamicArray[_TArrayItem]
+            | StaticArray[_TArrayItem, _TArrayLength]
+            | tuple[_TArrayItem, ...]
+        ),
+    ) -> DynamicArray[_TArrayItem]: ...
     def pop(self) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
         """Create a copy of this array"""

@@ -41,14 +41,36 @@ contract test_cases.arc4_types.numeric.Arc4NumericTypesContract:
                 let tmp%14#0: uint64 = (btoi tmp%13#0)
                 let tmp%15#0: bool = (== tmp%14#0 9223372036854775807u)
                 (assert tmp%15#0)
-                let tmp%17#0: bool = 1u
+                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%0#0 ? block@1 : block@2
+            block@1: // ternary_true_L42
+                let ternary_result%0#0: bytes = 0x01
+                goto block@3
+            block@2: // ternary_false_L42
+                let ternary_result%0#1: bytes = 0x02
+                goto block@3
+            block@3: // ternary_merge_L42
+                let ternary_result%0#2: bytes = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
+                let tmp%16#0: bool = (b== ternary_result%0#2 0x02)
+                (assert tmp%16#0)
+                let reinterpret_bool%1#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%1#0 ? block@4 : block@5
+            block@4: // ternary_true_L43
+                let ternary_result%1#0: bytes = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+                goto block@6
+            block@5: // ternary_false_L43
+                let ternary_result%1#1: bytes = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+                goto block@6
+            block@6: // ternary_merge_L43
+                let ternary_result%1#2: bytes = φ(ternary_result%1#0 <- block@4, ternary_result%1#1 <- block@5)
+                let tmp%17#0: bool = (b== ternary_result%1#2 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
                 (assert tmp%17#0)
                 let tmp%19#0: bool = 1u
                 (assert tmp%19#0)
-                let tmp%20#0: uint64 = 8u
-                let tmp%21#0: bool = (== tmp%20#0 8u)
+                let tmp%21#0: bool = 1u
                 (assert tmp%21#0)
-                let tmp%23#0: bool = 1u
+                let tmp%22#0: uint64 = 8u
+                let tmp%23#0: bool = (== tmp%22#0 8u)
                 (assert tmp%23#0)
                 let tmp%25#0: bool = 1u
                 (assert tmp%25#0)
@@ -62,27 +84,41 @@ contract test_cases.arc4_types.numeric.Arc4NumericTypesContract:
                 (assert tmp%33#0)
                 let tmp%35#0: bool = 1u
                 (assert tmp%35#0)
-                let tmp%36#0: bool = 1u
-                (assert tmp%36#0)
-                let tmp%37#0: biguint = 2b
-                let len_%0#0: uint64 = (len tmp%37#0)
+                let tmp%37#0: bool = 1u
+                (assert tmp%37#0)
+                let tmp%38#0: bool = 1u
+                (assert tmp%38#0)
+                let reinterpret_bool%2#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%2#0 ? block@7 : block@8
+            block@7: // ternary_true_L90
+                let ternary_result%2#0: bytes = 0xffffffffffffffff
+                goto block@9
+            block@8: // ternary_false_L90
+                let ternary_result%2#1: bytes = 0x0000000000000000
+                goto block@9
+            block@9: // ternary_merge_L90
+                let ternary_result%2#2: bytes = φ(ternary_result%2#0 <- block@7, ternary_result%2#1 <- block@8)
+                let tmp%39#0: bool = (== ternary_result%2#2 0x0000000000000000)
+                (assert tmp%39#0)
+                let tmp%40#0: biguint = 2b
+                let len_%0#0: uint64 = (len tmp%40#0)
                 let no_overflow%0#0: bool = (<= len_%0#0 16u)
                 (assert no_overflow%0#0) // overflow
                 let b_zeros%0#0: bytes = (bzero 16u)
-                let arc4_biguint_dynamic#0: bytes = (b| tmp%37#0 b_zeros%0#0)
-                let tmp%38#0: bool = 1u
-                (assert tmp%38#0)
-                let tmp%39#0: uint64 = (len arc4_biguint_dynamic#0)
-                let tmp%40#0: bool = (== tmp%39#0 16u)
-                (assert tmp%40#0)
-                let tmp%41#0: uint64 = 64u
-                let tmp%42#0: bool = (== tmp%41#0 64u)
-                (assert tmp%42#0)
+                let arc4_biguint_dynamic#0: bytes = (b| tmp%40#0 b_zeros%0#0)
+                let tmp%41#0: bool = 1u
+                (assert tmp%41#0)
+                let tmp%42#0: uint64 = (len arc4_biguint_dynamic#0)
+                let tmp%43#0: bool = (== tmp%42#0 16u)
+                (assert tmp%43#0)
+                let tmp%44#0: uint64 = 64u
+                let tmp%45#0: bool = (== tmp%44#0 64u)
+                (assert tmp%45#0)
                 return 1u
     
     program clear-state:
         subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program() -> bool:
-            block@0: // L100
+            block@0: // L104
                 let tmp%0#0: bool = 1u
                 (assert tmp%0#0)
                 let tmp%1#0: bool = 1u

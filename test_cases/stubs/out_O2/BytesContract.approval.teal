@@ -1,10 +1,22 @@
 #pragma version 10
 
 test_cases.stubs.bytes.BytesContract.approval_program:
-    byte "abc"
+    byte 0x616263
     callsub check_slicing_with_uint64
-    byte "abc"
+    byte 0x616263
     callsub check_end_before_start_slicing
+    txn NumAppArgs
+    bz main_ternary_false@29
+    byte 0x61726773
+    b main_ternary_merge@30
+
+main_ternary_false@29:
+    byte 0x6e6f2061726773
+
+main_ternary_merge@30:
+    byte 0x6e6f2061726773
+    ==
+    assert // constructor expressions supported
     int 1
     return
 
@@ -25,21 +37,21 @@ check_slicing_with_uint64:
     dig 1
     dig 3
     substring3
-    byte "bc"
+    byte 0x6263
     ==
     assert
     frame_dig -1
     dig 1
     dig 2
     substring3
-    byte ""
+    byte 0x
     ==
     assert
     frame_dig -1
     int 0
     uncover 2
     substring3
-    byte "a"
+    byte 0x61
     ==
     assert
     callsub one_to_seven
@@ -62,7 +74,7 @@ check_slicing_with_uint64:
     swap
     select
     substring3
-    byte "23456"
+    byte 0x3233343536
     ==
     assert
     int 0
@@ -82,7 +94,7 @@ check_slicing_with_uint64:
     frame_dig -1
     cover 2
     substring3
-    byte "abc"
+    byte 0x616263
     ==
     assert
     retsub
@@ -93,7 +105,7 @@ one_to_seven:
     proto 0 1
     byte "one_to_seven called"
     log
-    byte "1234567"
+    byte 0x31323334353637
     retsub
 
 
@@ -127,7 +139,7 @@ check_end_before_start_slicing:
     dig 3
     uncover 2
     substring3
-    byte ""
+    byte 0x
     ==
     assert
     dup
@@ -151,7 +163,7 @@ check_end_before_start_slicing:
     frame_dig -1
     cover 2
     substring3
-    byte ""
+    byte 0x
     ==
     assert
     retsub

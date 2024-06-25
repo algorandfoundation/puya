@@ -11,7 +11,7 @@ from algopy import (
     op,
 )
 
-from test_cases.typed_abi_call.logger import Logger, LoggerClient
+from test_cases.typed_abi_call.logger import LOG_METHOD_NAME, Logger, LoggerClient
 
 
 class Greeter(ARC4Contract):
@@ -90,13 +90,13 @@ class Greeter(ARC4Contract):
 
     @arc4.abimethod()
     def test_void(self, app: Application) -> None:
-        txn = arc4.abi_call("log_string(string)void", "World1", app_id=app)
+        txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
         assert txn.last_log == b"World1"
 
-        txn = arc4.abi_call("log_string(string)", "World2", app_id=app)
+        txn = arc4.abi_call(LOG_METHOD_NAME + "(string)", "World2", app_id=app)
         assert txn.last_log == b"World2"
 
-        txn = arc4.abi_call("log_string", arc4.String("World3"), app_id=app)
+        txn = arc4.abi_call(LOG_METHOD_NAME, arc4.String("World3"), app_id=app)
         assert txn.last_log == b"World3"
 
         txn = arc4.abi_call(Logger.log_string, "World4", app_id=app)

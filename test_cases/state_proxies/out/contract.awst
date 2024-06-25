@@ -1,23 +1,25 @@
 contract StateProxyContract
 {
   globals {
-    ['g1']: algopy.UInt64
-    ['g2']: algopy.UInt64
+    ['g1']: uint64
+    [hex<"6732">]: uint64
   }
   locals {
-    ['l1']: algopy.UInt64
-    ['l2']: algopy.UInt64
+    ['l1']: uint64
+    [hex<"6C32">]: uint64
   }
   
   constructor()
   {
-    this.global2: algopy.UInt64 = 0u
+    GlobalState[hex<"6732">]: uint64 = 0u
+    funky_town: state_key = (reinterpret_cast<bool>(txn<NumAppArgs>())) ? ('funky') : ('town')
+    GlobalState[funky_town]: uint64 = 123u
   }
   
-  abimethod create(): None
+  abimethod create(): void
   {
-    this.global1: algopy.UInt64 = 1u
-    this.local1[txn<Sender>()]: algopy.UInt64 = 2u
-    this.local2[txn<Sender>()]: algopy.UInt64 = 3u
+    GlobalState['g1']: uint64 = 1u
+    LocalState['l1', txn<Sender>()]: uint64 = 2u
+    LocalState[hex<"6C32">, txn<Sender>()]: uint64 = 3u
   }
 }

@@ -2,9 +2,20 @@ contract test_cases.stubs.uint64.Uint64Contract:
     program approval:
         subroutine test_cases.stubs.uint64.Uint64Contract.approval_program() -> uint64:
             block@0: // L5
+                let reinterpret_bool%10#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%10#0 ? block@25 : block@26
+            block@25: // ternary_true_L80
+                let ternary_result%8#0: uint64 = 1u
+                goto block@27
+            block@26: // ternary_false_L80
+                let ternary_result%8#0: uint64 = 5u
+                goto block@27
+            block@27: // ternary_merge_L80
+                let tmp%48#0: bool = (== ternary_result%8#0 5u)
+                (assert tmp%48#0) // constructor expressions supported
                 return 1u
     
     program clear-state:
         subroutine test_cases.stubs.uint64.Uint64Contract.clear_state_program() -> bool:
-            block@0: // L82
+            block@0: // L84
                 return 1u

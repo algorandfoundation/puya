@@ -1,0 +1,242 @@
+# fmt: off
+# ruff: noqa
+# TODO: combine these test cases, to also test continuation on bad data etc
+## case: test_uint64_literals
+
+from algopy import UInt64, subroutine
+
+
+@subroutine
+def negative() -> UInt64:
+    return UInt64(-1) ## E: invalid algopy.UInt64 value
+
+@subroutine
+def too_large() -> UInt64:
+    return UInt64(2**64) ## E: invalid algopy.UInt64 value
+
+@subroutine
+def wrong_type() -> UInt64:
+    return UInt64("1") # type: ignore[arg-type] ## E: unexpected argument type
+
+@subroutine
+def test_in() -> bool:
+    return 0 in (UInt64(0), UInt64(2)) ## E: a Python literal is not valid at this location
+
+@subroutine
+def test_in2() -> bool:
+    return UInt64(0) in 0 # type: ignore[operator] ## E: cannot perform containment check with non-constant value
+
+@subroutine
+def test_in3() -> bool:
+    return 0 in 0 # type: ignore[operator] ## E: argument of type 'int' is not iterable
+
+@subroutine
+def test_not_in() -> bool:
+    return 0 not in (UInt64(0), UInt64(2)) ## E: a Python literal is not valid at this location
+
+## case: test_asset_literals
+
+from algopy import Asset, subroutine
+
+@subroutine
+def negative() -> Asset:
+    return Asset(-1) ## E: invalid asset ID
+
+@subroutine
+def too_large() -> Asset:
+    return Asset(2**64) ## E: invalid asset ID
+
+@subroutine
+def wrong_type() -> Asset:
+    return Asset("1") # type: ignore[arg-type] ## E: unexpected argument type
+
+## case: test_application_literals
+
+from algopy import Application, subroutine
+
+@subroutine
+def negative() -> Application:
+    return Application(-1) ## E: invalid application ID
+
+@subroutine
+def too_large() -> Application:
+    return Application(2**64) ## E: invalid application ID
+
+@subroutine
+def wrong_type() -> Application:
+    return Application("1") # type: ignore[arg-type] ## E: unexpected argument type
+
+
+## case: test_account_literals
+
+from algopy import Account, subroutine
+
+@subroutine
+def invalid() -> Account:
+    return Account("notanaddress") ## E: invalid address value - should have length 58 and not include base32 padding
+
+@subroutine
+def wrong_type() -> Account:
+    return Account(1) # type: ignore[arg-type] ## E: unexpected argument type
+
+
+## case: test_group_transaction
+
+from algopy import gtxn, subroutine
+
+@subroutine
+def negative() -> gtxn.PaymentTransaction:
+    return gtxn.PaymentTransaction(-1) ## E: transaction group index should be non-negative
+
+@subroutine
+def too_large() -> gtxn.PaymentTransaction:
+    return gtxn.PaymentTransaction(16) ## E: transaction group index should be less than 16
+
+@subroutine
+def wrong_type() -> gtxn.PaymentTransaction:
+    return gtxn.PaymentTransaction("") # type: ignore[arg-type] ## E: unexpected argument type
+
+
+## case: test_biguint_literals
+
+from algopy import BigUInt, subroutine
+
+
+@subroutine
+def negative() -> BigUInt:
+    return BigUInt(-1) ## E: invalid algopy.BigUInt value
+
+@subroutine
+def too_large() -> BigUInt:
+    return BigUInt(2**512) ## E: invalid algopy.BigUInt value
+
+@subroutine
+def wrong_type() -> BigUInt:
+    return BigUInt("1") # type: ignore[arg-type] ## E: unexpected argument type
+
+
+## case: test_byte_literals
+
+from algopy import Bytes, subroutine
+
+@subroutine
+def too_large() -> Bytes:
+    return Bytes(b"0" * 4097) ## E: bytes constant exceeds max length
+
+@subroutine
+def wrong_type() -> Bytes:
+    return Bytes("1") # type: ignore[arg-type] ## E: unexpected argument type
+
+
+## case: test_string_literals
+
+from algopy import String, subroutine
+
+@subroutine
+def too_large() -> String:
+    return String("0" * 4097) ## E: string constant exceeds max byte array length
+
+@subroutine
+def invalid_utf8() -> String:
+    return String('\ud861\udd37') ## E: invalid UTF-8 string (encoding error: 'utf-8' codec can't encode characters in position 0-1: surrogates not allowed)
+
+@subroutine
+def wrong_type() -> String:
+    return String(b"1") # type: ignore[arg-type] ## E: unexpected argument type
+
+@subroutine
+def compare() -> None:
+    b = String("b")
+    assert "a" < b  # type: ignore[operator] ## E: Unsupported comparison '<' between types
+
+@subroutine
+def test_in() -> None:
+    assert String("a") in "abc"  # type: ignore[operator] ## E: cannot perform containment check with non-constant value
+
+## case: test_decimal_literals
+import typing
+from algopy import arc4, subroutine
+
+UInt64_2 = arc4.UFixedNxM[typing.Literal[64], typing.Literal[2]]
+UInt512_2 = arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]]
+
+@subroutine
+def invalid_64() -> UInt64_2:
+    return UInt64_2("abc") ## E: invalid decimal literal
+
+@subroutine
+def negative_64() -> UInt64_2:
+    return UInt64_2("-0") ## E: invalid decimal constant (value is negative)
+
+@subroutine
+def too_many_bits_64() -> UInt64_2:
+    return UInt64_2("18446744073709551616") ## E: invalid decimal constant (too many bits)
+
+@subroutine
+def too_many_decimals_64() -> UInt64_2:
+    return UInt64_2("12.345") ## E: invalid decimal constant (wrong precision)
+
+@subroutine
+def wrong_type_64() -> UInt64_2:
+    return UInt64_2(12) # type: ignore[arg-type] ## E: unexpected argument type
+
+
+@subroutine
+def invalid_512() -> UInt512_2:
+    return UInt512_2("abc") ## E: invalid decimal literal
+
+
+@subroutine
+def negative_512() -> UInt512_2:
+    return UInt512_2("-0") ## E: invalid decimal constant (value is negative)
+
+@subroutine
+def too_many_bits_512() -> UInt512_2:
+    return UInt512_2("2" * 155) ## E: invalid decimal constant (too many bits)
+
+@subroutine
+def too_many_decimals_512() -> UInt512_2:
+    return UInt512_2("12.345") ## E: invalid decimal constant (wrong precision)
+
+@subroutine
+def wrong_type_512() -> UInt512_2:
+    return UInt512_2(12) # type: ignore[arg-type] ## E: unexpected argument type
+
+
+## case: test_string
+from algopy import arc4, subroutine
+
+@subroutine
+def wrong_type() -> arc4.String:
+    return arc4.String(b"bad")  # type: ignore[arg-type] ## E: unexpected argument type
+
+@subroutine
+def too_long() -> arc4.String:
+    return arc4.String("a" * 4096) ## E: encoded string exceeds max byte array length
+
+
+## case: test_dynamic_bytes
+from algopy import arc4, subroutine
+
+@subroutine
+def wrong_type() -> None:
+    bad = arc4.DynamicBytes("bad")  # type: ignore[call-overload, misc] ## E: can't covert literal to algopy.arc4.Byte \
+                                                                        ## E: Any type is not supported
+
+@subroutine
+def too_long() -> arc4.DynamicBytes:
+    return arc4.DynamicBytes(b"a" * 4096) ## E: encoded bytes exceed max length
+
+
+## case: test_tuple
+import typing
+from algopy import *
+
+@subroutine
+def wrong_type() -> None:
+    a = tuple(arc4.DynamicBytes(b"as")) ## E: unhandled argument type
+
+
+@subroutine
+def empty_tuple() -> None:
+    a: tuple[typing.Never, ...] = tuple() ## E: empty tuples are not supported

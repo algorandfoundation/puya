@@ -1,119 +1,185 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
-from immutabledict import immutabledict
+import mypy.nodes
 
 from puya import log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
-    BytesComparisonExpression,
     CheckedMaybe,
-    EqualityComparison,
     Expression,
     IntrinsicCall,
-    Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
-    SingleEvaluation,
     TupleItemExpression,
     UInt64Constant,
 )
-from puya.awst_build import intrinsic_factory
-from puya.awst_build.eb.base import (
+from puya.awst_build import intrinsic_factory, pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puya.awst_build.eb._utils import cast_to_bytes, compare_bytes, compare_expr_bytes, dummy_value
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
 )
-from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
-from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
-
+from puya.awst_build.eb.reference_types._base import ReferenceValueExpressionBuilder
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.account_wtype
+class AccountTypeBuilder(BytesBackedTypeBuilder):
+    def __init__(self, location: SourceLocation):
+        super().__init__(pytypes.AccountType, location)
 
+    @typing.override
+    def try_convert_literal(
+        self, literal: LiteralBuilder, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match literal.value:
+            case str(str_value):
+                if not wtypes.valid_address(str_value):
+                    logger.error(
+                        "invalid address value - should have length"
+                        f" {ENCODED_ADDRESS_LENGTH} and not include base32 padding",
+                        location=literal.source_location,
+                    )
+                expr = AddressConstant(
+                    value=str_value,
+                    wtype=wtypes.account_wtype,
+                    source_location=location,
+                )
+                return AccountExpressionBuilder(expr)
+        return None
+
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case []:
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg(args, location)
+        match arg:
+            case InstanceBuilder(pytype=pytypes.StrLiteralType):
+                return arg.resolve_literal(converter=AccountTypeBuilder(location))
+            case None:
                 value: Expression = intrinsic_factory.zero_address(location)
-            case [Literal(value=str(addr_value))]:
-                if not wtypes.valid_address(addr_value):
-                    raise CodeError(
-                        f"Invalid address value. Address literals should be"
-                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
-                        location,
-                    )
-                value = AddressConstant(value=addr_value, source_location=location)
-            case [ExpressionBuilder() as eb]:
-                value = expect_operand_wtype(eb, wtypes.bytes_wtype)
-                address_bytes_temp = SingleEvaluation(value)
+            case _:
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.BytesType)
+                address_bytes_temp = arg.single_eval().resolve()
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
                     lhs=UInt64Constant(value=32, source_location=location),
                     rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
                 )
-                address_bytes = CheckedMaybe.from_tuple_items(
-                    expr=address_bytes_temp,
+                value = CheckedMaybe.from_tuple_items(
+                    expr=ReinterpretCast(
+                        expr=address_bytes_temp,
+                        wtype=wtypes.account_wtype,
+                        source_location=location,
+                    ),
                     check=is_correct_length,
                     source_location=location,
                     comment="Address length is 32 bytes",
                 )
-                value = ReinterpretCast(
-                    expr=address_bytes, wtype=self.produces(), source_location=location
-                )
-            case _:
-                logger.error("Invalid/unhandled arguments", location=location)
-                # dummy value to continue with
-                value = intrinsic_factory.zero_address(location)
-        return var_expression(value)
+        return AccountExpressionBuilder(value)
 
 
-class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
+class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
+    def __init__(self, expr: Expression):
+        native_type = pytypes.BytesType
+        native_access_member = "bytes"
+        field_mapping = {
+            "balance": ("AcctBalance", pytypes.UInt64Type),
+            "min_balance": ("AcctMinBalance", pytypes.UInt64Type),
+            "auth_address": ("AcctAuthAddr", pytypes.AccountType),
+            "total_num_uint": ("AcctTotalNumUint", pytypes.UInt64Type),
+            "total_num_byte_slice": ("AcctTotalNumByteSlice", pytypes.UInt64Type),
+            "total_extra_app_pages": ("AcctTotalExtraAppPages", pytypes.UInt64Type),
+            "total_apps_created": ("AcctTotalAppsCreated", pytypes.UInt64Type),
+            "total_apps_opted_in": ("AcctTotalAppsOptedIn", pytypes.UInt64Type),
+            "total_assets_created": ("AcctTotalAssetsCreated", pytypes.UInt64Type),
+            "total_assets": ("AcctTotalAssets", pytypes.UInt64Type),
+            "total_boxes": ("AcctTotalBoxes", pytypes.UInt64Type),
+            "total_box_bytes": ("AcctTotalBoxBytes", pytypes.UInt64Type),
+        }
+        field_op_code = "acct_params_get"
+        field_bool_comment = "account funded"
+        super().__init__(
+            expr,
+            typ=pytypes.AccountType,
+            native_type=native_type,
+            native_access_member=native_access_member,
+            field_mapping=field_mapping,
+            field_op_code=field_op_code,
+            field_bool_comment=field_bool_comment,
+        )
+
+    @typing.override
+    def to_bytes(self, location: SourceLocation) -> Expression:
+        return cast_to_bytes(self.resolve(), location)
+
+    @typing.override
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        if name == "is_opted_in":
+            return _IsOptedIn(self.resolve(), location)
+        return super().member_access(name, expr, location)
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return compare_expr_bytes(
+            lhs=self.resolve(),
+            op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
+            rhs=intrinsic_factory.zero_address(location),
+            source_location=location,
+        )
+
+    @typing.override
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        other = other.resolve_literal(converter=AccountTypeBuilder(other.source_location))
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+
+
+class _IsOptedIn(FunctionBuilder):
     def __init__(self, expr: Expression, source_location: SourceLocation):
         super().__init__(source_location)
         self.expr = expr
 
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case [ExpressionBuilder(value_type=wtypes.asset_wtype) as asset]:
-                return var_expression(
+    ) -> InstanceBuilder:
+        arg = expect.exactly_one_arg(args, location, default=expect.default_none)
+        match arg:
+            case None:
+                return dummy_value(pytypes.BoolType, location)
+            case InstanceBuilder(pytype=pytypes.AssetType):
+                return BoolExpressionBuilder(
                     TupleItemExpression(
                         base=IntrinsicCall(
                             op_code="asset_holding_get",
                             immediates=["AssetBalance"],
-                            stack_args=[self.expr, asset.rvalue()],
-                            wtype=wtypes.WTuple.from_types(
-                                (wtypes.uint64_wtype, wtypes.bool_wtype)
+                            stack_args=[self.expr, arg.resolve()],
+                            wtype=wtypes.WTuple(
+                                (wtypes.uint64_wtype, wtypes.bool_wtype), location
                             ),
                             source_location=location,
                         ),
@@ -121,69 +187,13 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
                         source_location=location,
                     )
                 )
-            case [ExpressionBuilder(value_type=wtypes.application_wtype) as app]:
-                return var_expression(
+            case _:
+                arg = expect.argument_of_type_else_dummy(arg, pytypes.ApplicationType)
+                return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",
-                        stack_args=[self.expr, app.rvalue()],
+                        stack_args=[self.expr, arg.resolve()],
                         source_location=location,
                         wtype=wtypes.bool_wtype,
                     )
                 )
-        raise CodeError("Unexpected argument", location)
-
-
-class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
-    wtype = wtypes.account_wtype
-    native_wtype = wtypes.bytes_wtype
-    native_access_member = "bytes"
-    field_mapping = immutabledict(
-        {
-            "balance": ("AcctBalance", wtypes.uint64_wtype),
-            "min_balance": ("AcctMinBalance", wtypes.uint64_wtype),
-            "auth_address": ("AcctAuthAddr", wtypes.account_wtype),
-            "total_num_uint": ("AcctTotalNumUint", wtypes.uint64_wtype),
-            "total_num_byte_slice": ("AcctTotalNumByteSlice", wtypes.uint64_wtype),
-            "total_extra_app_pages": ("AcctTotalExtraAppPages", wtypes.uint64_wtype),
-            "total_apps_created": ("AcctTotalAppsCreated", wtypes.uint64_wtype),
-            "total_apps_opted_in": ("AcctTotalAppsOptedIn", wtypes.uint64_wtype),
-            "total_assets_created": ("AcctTotalAssetsCreated", wtypes.uint64_wtype),
-            "total_assets": ("AcctTotalAssets", wtypes.uint64_wtype),
-            "total_boxes": ("AcctTotalBoxes", wtypes.uint64_wtype),
-            "total_box_bytes": ("AcctTotalBoxBytes", wtypes.uint64_wtype),
-        }
-    )
-    field_op_code = "acct_params_get"
-    field_bool_comment = "account funded"
-
-    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        if name == "is_opted_in":
-            return AccountOptedInExpressionBuilder(self.expr, location)
-        return super().member_access(name, location)
-
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        cmp_with_zero_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-            rhs=intrinsic_factory.zero_address(location),
-        )
-
-        return var_expression(cmp_with_zero_expr)
-
-    def compare(
-        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
-    ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
-        if not (
-            other_expr.wtype == self.wtype  # can only compare with other Accounts?
-            and op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne)
-        ):
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=self.expr,
-            operator=EqualityComparison(op.value),
-            rhs=other_expr,
-        )
-        return var_expression(cmp_expr)

@@ -1,0 +1,207 @@
+#pragma version 10
+
+test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program:
+    // tuple_support/tuple_comparisons.py:6
+    // test_tuple_cmp_eval()
+    callsub test_tuple_cmp_eval
+    // tuple_support/tuple_comparisons.py:7
+    // test_tuple_cmp_empty()
+    callsub test_tuple_cmp_empty
+    // tuple_support/tuple_comparisons.py:8
+    // return True
+    int 1
+    return
+
+
+// test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval() -> void:
+test_tuple_cmp_eval:
+    // tuple_support/tuple_comparisons.py:14-15
+    // @subroutine
+    // def test_tuple_cmp_eval() -> None:
+    proto 0 0
+    // tuple_support/tuple_comparisons.py:17
+    // String("abc"),
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:20
+    // String("abc"),
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:16-21
+    // assert (
+    //     String("abc"),
+    //     log_and_return(UInt64(42)),
+    // ) != (
+    //     String("abc"),
+    // )  # type: ignore[comparison-overlap]
+    !=
+    // tuple_support/tuple_comparisons.py:18
+    // log_and_return(UInt64(42)),
+    int 42
+    callsub log_and_return
+    // tuple_support/tuple_comparisons.py:16-21
+    // assert (
+    //     String("abc"),
+    //     log_and_return(UInt64(42)),
+    // ) != (
+    //     String("abc"),
+    // )  # type: ignore[comparison-overlap]
+    dup
+    uncover 1
+    ==
+    ||
+    assert
+    // tuple_support/tuple_comparisons.py:23
+    // String("abc"),
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:26
+    // String("abc"),
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:22-27
+    // tmp = (
+    //     String("abc"),
+    //     log_and_return(UInt64(43)),
+    // ) == (
+    //     String("abc"),
+    // )  # type: ignore[comparison-overlap]
+    ==
+    // tuple_support/tuple_comparisons.py:24
+    // log_and_return(UInt64(43)),
+    int 43
+    callsub log_and_return
+    // tuple_support/tuple_comparisons.py:22-27
+    // tmp = (
+    //     String("abc"),
+    //     log_and_return(UInt64(43)),
+    // ) == (
+    //     String("abc"),
+    // )  # type: ignore[comparison-overlap]
+    dup
+    uncover 1
+    !=
+    &&
+    // tuple_support/tuple_comparisons.py:28
+    // assert not tmp
+    !
+    assert
+    // tuple_support/tuple_comparisons.py:30
+    // assert (String("abc"),) != (
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:31
+    // String("abc"),
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:30-33
+    // assert (String("abc"),) != (
+    //     String("abc"),
+    //     log_and_return(UInt64(44)),
+    // )  # type: ignore[comparison-overlap]
+    !=
+    // tuple_support/tuple_comparisons.py:32
+    // log_and_return(UInt64(44)),
+    int 44
+    callsub log_and_return
+    // tuple_support/tuple_comparisons.py:30-33
+    // assert (String("abc"),) != (
+    //     String("abc"),
+    //     log_and_return(UInt64(44)),
+    // )  # type: ignore[comparison-overlap]
+    dup
+    uncover 1
+    ==
+    ||
+    assert
+    // tuple_support/tuple_comparisons.py:34
+    // tmp = (String("abc"),) == (
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:35
+    // String("abc"),
+    byte "abc"
+    // tuple_support/tuple_comparisons.py:34-37
+    // tmp = (String("abc"),) == (
+    //     String("abc"),
+    //     log_and_return(UInt64(45)),
+    // )  # type: ignore[comparison-overlap]
+    ==
+    // tuple_support/tuple_comparisons.py:36
+    // log_and_return(UInt64(45)),
+    int 45
+    callsub log_and_return
+    // tuple_support/tuple_comparisons.py:34-37
+    // tmp = (String("abc"),) == (
+    //     String("abc"),
+    //     log_and_return(UInt64(45)),
+    // )  # type: ignore[comparison-overlap]
+    dup
+    uncover 1
+    !=
+    &&
+    // tuple_support/tuple_comparisons.py:38
+    // assert not tmp
+    !
+    assert
+    // tuple_support/tuple_comparisons.py:40
+    // assert (UInt64(1), UInt64(2)) != (UInt64(3), log_and_return(UInt64(46)))
+    int 1
+    int 3
+    !=
+    int 46
+    callsub log_and_return
+    int 2
+    uncover 1
+    !=
+    ||
+    assert
+    // tuple_support/tuple_comparisons.py:41
+    // tmp = (UInt64(1), UInt64(2)) == (UInt64(3), log_and_return(UInt64(47)))
+    int 1
+    int 3
+    ==
+    int 47
+    callsub log_and_return
+    int 2
+    uncover 1
+    ==
+    &&
+    // tuple_support/tuple_comparisons.py:42
+    // assert not tmp
+    !
+    assert
+    retsub
+
+
+// test_cases.tuple_support.tuple_comparisons.log_and_return(val: uint64) -> uint64:
+log_and_return:
+    // tuple_support/tuple_comparisons.py:56-57
+    // @subroutine
+    // def log_and_return(val: UInt64) -> UInt64:
+    proto 1 1
+    // tuple_support/tuple_comparisons.py:58
+    // log(val)
+    frame_dig -1
+    itob
+    log
+    // tuple_support/tuple_comparisons.py:59
+    // return val
+    frame_dig -1
+    retsub
+
+
+// test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty() -> void:
+test_tuple_cmp_empty:
+    // tuple_support/tuple_comparisons.py:45-46
+    // @subroutine
+    // def test_tuple_cmp_empty() -> None:
+    proto 0 0
+    // tuple_support/tuple_comparisons.py:48
+    // tmp = () != ()
+    int 0
+    // tuple_support/tuple_comparisons.py:49
+    // assert not tmp
+    !
+    assert
+    // tuple_support/tuple_comparisons.py:52
+    // tmp = () == ("a",)  # type: ignore[comparison-overlap]
+    int 0
+    // tuple_support/tuple_comparisons.py:53
+    // assert not tmp
+    !
+    assert
+    retsub

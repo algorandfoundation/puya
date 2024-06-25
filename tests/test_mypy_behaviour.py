@@ -26,6 +26,13 @@ def get_assignment_var_named(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.
     raise Exception(f"Assignment to '{name}' not found")
 
 
+def get_class_by_name(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.nodes.ClassDef:
+    for cls_def in (stmt for stmt in mypy_file.defs if isinstance(stmt, mypy.nodes.ClassDef)):
+        if cls_def.name == name:
+            return cls_def
+    raise Exception(f"Assignment to '{name}' not found")
+
+
 def decompile(function: typing.Callable) -> str:
     source = inspect.getsource(function)
     return dedent("\n".join(source.splitlines()[1:]))
@@ -47,7 +54,9 @@ def strip_error_prefixes(br: mypy.build.BuildResult) -> list[str]:
     return [e.split(":", maxsplit=2)[-1].strip() for e in br.errors]
 
 
-def get_revealed_types(br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile) -> list[str]:
+def get_revealed_types(
+    br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile
+) -> list[mypy.types.Type]:
     types = []
     for stmt in tree.defs:
         match stmt:
@@ -55,7 +64,7 @@ def get_revealed_types(br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile) ->
                 expr=mypy.nodes.CallExpr(analyzed=mypy.nodes.RevealExpr(expr=expr))
             ):
                 et = br.types[expr]
-                types.append(repr(et))
+                types.append(et)
     return types
 
 
@@ -701,7 +710,7 @@ def test_if_else_expr_combined_type() -> None:
     ]
     tree = result.graph[TEST_MODULE].tree
     assert tree
-    assert get_revealed_types(result, tree) == [
+    assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
         "builtins.object",
         "Union[builtins.str, builtins.int]",
@@ -742,7 +751,7 @@ def test_or_expr_combined_type() -> None:
     ]
     tree = result.graph[TEST_MODULE].tree
     assert tree
-    assert get_revealed_types(result, tree) == [
+    assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
         "__test__.Base",
         "Union[Literal[True], __test__.Base]",
@@ -847,3 +856,119 @@ def test_annotated_metadata() -> None:
     assert len(ass.unanalyzed_type.args) == 2
     _, ann_arg = ass.unanalyzed_type.args
     assert isinstance(ann_arg, mypy.types.RawExpressionType) and ann_arg.literal_value is None
+
+
+def test_dataclass_transform_frozen() -> None:
+    def test() -> None:
+        import typing
+
+        @typing.dataclass_transform(
+            eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
+        )
+        class _StructMeta(type):
+            def __new__(
+                cls,
+                name: str,
+                bases: tuple[type, ...],
+                namespace: dict[str, object],
+                *,
+                kw_only: bool = False,
+            ) -> "_StructMeta":
+                raise NotImplementedError
+
+        class StructBase(metaclass=_StructMeta):
+            pass
+
+        class Struct(StructBase):
+            field: int
+
+        class FrozenStruct(StructBase, frozen=True):
+            field: int
+
+        class UnfrozenStruct(StructBase, frozen=False):
+            field: int
+
+        f1 = Struct(1)
+        f2 = FrozenStruct(1)
+        f3 = UnfrozenStruct(1)
+        f1.field = 1
+        f2.field = 2
+        f3.field = 3
+
+    result = mypy_parse_and_type_check(test)
+    assert strip_error_prefixes(result) == [
+        'error: Property "field" defined in "FrozenStruct" is read-only  [misc]',
+    ]
+    tree = result.graph[TEST_MODULE].tree
+    assert isinstance(tree, mypy.nodes.MypyFile)
+    struct_cls_def = get_class_by_name(tree, "Struct")
+    assert struct_cls_def.info.metadata["dataclass"]["frozen"] is False
+    frozen_struct_cls_def = get_class_by_name(tree, "FrozenStruct")
+    assert frozen_struct_cls_def.info.metadata["dataclass"]["frozen"] is True
+    unfrozen_struct_cls_def = get_class_by_name(tree, "UnfrozenStruct")
+    assert unfrozen_struct_cls_def.info.metadata["dataclass"]["frozen"] is False
+
+
+def test_bound_method_types() -> None:
+    def test():
+        import typing
+
+        def func(
+            a: bool,
+            /,
+            b: int,
+            b2: None = None,
+            *args: str,
+            c: bytes,
+            d: float | None = None,
+            **kwargs: complex,
+        ) -> bool:
+            return a
+
+        class Class:
+            def __init__(self) -> None:
+                pass
+
+            @staticmethod
+            def static_method(b: int) -> int:
+                return b
+
+            @classmethod
+            def class_method(cls, c: str) -> str:
+                return c
+
+            def instance_method(self, d: bytes) -> bytes:
+                return d
+
+        typing.reveal_type(func)
+        typing.reveal_type(Class)
+        typing.reveal_type(Class.__init__)
+        typing.reveal_type(Class.static_method)
+        typing.reveal_type(Class.class_method)
+        typing.reveal_type(Class.instance_method)
+        inst = Class()
+        typing.reveal_type(inst.static_method)
+        typing.reveal_type(inst.class_method)
+        typing.reveal_type(inst.instance_method)
+
+    result = mypy_parse_and_type_check(test)
+    tree = result.graph[TEST_MODULE].tree
+    assert tree
+    reveled_types = get_revealed_types(result, tree)
+    assert len(reveled_types) == 9
+    assert all(isinstance(t, mypy.types.CallableType) for t in reveled_types)
+
+
+def test_special_indexing() -> None:
+    def test():
+        import typing
+
+        def func(abc: typing.Literal["a", "b", "c"]) -> str:
+            X = typing.Literal[0]
+            Y = tuple[typing.Literal[0, 1, 2], str]
+            y = tuple[typing.Literal[0, 1, 2], str]((0, abc))
+            return abc
+
+    result = mypy_parse_and_type_check(test)
+    tree = result.graph[TEST_MODULE].tree
+    assert tree

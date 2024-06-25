@@ -77,7 +77,7 @@ def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) ->
                 source_location=expr.source_location,
                 types=(IRType.bool,),
             )
-        case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
+        case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
             return Intrinsic(
                 op=AVMOp.extract,
                 immediates=[2, 0],
@@ -111,14 +111,14 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
         case wtypes.arc4_bool_wtype:
             value = context.visitor.visit_and_materialise_single(expr.value)
             return _encode_arc4_bool(context, value, expr.source_location)
-        case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() as wt:
+        case wtypes.ARC4UIntN(n=bits):
             value = context.visitor.visit_and_materialise_single(expr.value)
-            num_bytes = wt.n // 8
+            num_bytes = bits // 8
             return _itob_fixed(context, value, num_bytes, expr.source_location)
         case wtypes.ARC4Tuple(types=item_types):
             elements = context.visitor.visit_and_materialise(expr.value)
             return _visit_arc4_tuple_encode(context, elements, item_types, expr.source_location)
-        case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
+        case wtypes.ARC4DynamicArray(element_type=wtypes.ARC4UIntN(n=8)):
             value = context.visitor.visit_and_materialise_single(expr.value)
             factory = _OpFactory(context, expr.source_location)
             length = factory.len(value, "length")
@@ -275,22 +275,11 @@ def handle_arc4_assign(
     target: awst_nodes.Expression,
     value: ValueProvider,
     source_location: SourceLocation,
+    *,
+    is_mutation: bool = False,
 ) -> Value:
+    result: Value
     match target:
-        case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
-            (register,) = assign(
-                context,
-                source=value,
-                names=[(var_name, var_loc)],
-                source_location=source_location,
-            )
-            return register
-        case awst_nodes.AppAccountStateExpression() | awst_nodes.AppStateExpression():
-            (result,) = handle_assignment(
-                context, target, value=value, assignment_location=source_location
-            )
-            return result
-
         case awst_nodes.IndexExpression(
             base=awst_nodes.Expression(
                 wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
@@ -309,6 +298,7 @@ def handle_arc4_assign(
                     source_location=source_location,
                 ),
                 source_location=source_location,
+                is_mutation=True,
             )
         case awst_nodes.FieldExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
@@ -326,6 +316,7 @@ def handle_arc4_assign(
                     source_location=source_location,
                 ),
                 source_location=source_location,
+                is_mutation=True,
             )
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
@@ -343,7 +334,11 @@ def handle_arc4_assign(
                     source_location=source_location,
                 ),
                 source_location=source_location,
+                is_mutation=True,
             )
+        # this function is sometimes invoked outside an assignment expr/stmt, which
+        # is how a non l-value expression can be possible
+        # TODO: refactor this so that this special case is handled where it originates
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
             index=index_value,
@@ -354,10 +349,16 @@ def handle_arc4_assign(
                 source=value,
                 source_location=source_location,
             )
-
             return result
         case _:
-            raise CodeError("Not a valid assignment target", source_location)
+            (result,) = handle_assignment(
+                context,
+                target,
+                value=value,
+                assignment_location=source_location,
+                is_mutation=is_mutation,
+            )
+            return result
 
 
 def concat_values(
@@ -369,19 +370,14 @@ def concat_values(
     factory = _OpFactory(context, source_location)
     # check left is a valid ARC4 array to concat with
     left_wtype = left_expr.wtype
-    if isinstance(left_wtype, wtypes.ARC4DynamicArray):
-        left_element_type = left_wtype.element_type
-    elif left_wtype == wtypes.arc4_string_wtype:
-        left_element_type = wtypes.arc4_byte_type
-    else:
+    if not isinstance(left_wtype, wtypes.ARC4DynamicArray):
         raise InternalError("Expected left expression to be a dynamic ARC4 array", source_location)
+    left_element_type = left_wtype.element_type
 
     # check right is a valid type to concat
     right_wtype = right_expr.wtype
     if isinstance(right_wtype, wtypes.ARC4Array):
         right_element_type = right_wtype.element_type
-    elif right_wtype == wtypes.arc4_string_wtype:
-        right_element_type = wtypes.arc4_byte_type
     elif isinstance(right_wtype, wtypes.WTuple) and all(
         t == left_element_type for t in right_wtype.types
     ):
@@ -572,13 +568,11 @@ def _is_byte_length_header(wtype: wtypes.ARC4Type) -> bool:
         isinstance(wtype, wtypes.ARC4DynamicArray)
         and is_arc4_static_size(wtype.element_type)
         and get_arc4_fixed_bit_size(wtype.element_type) == 8
-    ) or wtype == wtypes.arc4_string_wtype  # TODO: make arc4 string an arc4 dynamic array
+    )
 
 
 def _maybe_get_inner_element_size(item_wtype: wtypes.ARC4Type) -> int | None:
     match item_wtype:
-        case wtypes.arc4_string_wtype:
-            inner_static_element_type = wtypes.arc4_byte_type
         case wtypes.ARC4Array(element_type=inner_static_element_type) if is_arc4_static_size(
             inner_static_element_type
         ):
@@ -975,11 +969,6 @@ def _get_arc4_array_tail_data_and_item_count(
                 source_location=source_location,
             )
             return data, tuple_length
-        case awst_nodes.Expression(wtype=wtypes.arc4_string_wtype) as str_expr:
-            str_value = context.visitor.visit_and_materialise_single(str_expr)
-            array_length = factory.extract_uint16(str_value, 0, "array_length")
-            data = factory.extract_to_end(str_value, 2, "data")
-            return data, array_length
         case _:
             raise InternalError(f"Unsupported array type: {expr.wtype}")
 
@@ -1241,7 +1230,7 @@ def _concat_dynamic_array_fixed_size(
         match expr.wtype:
             case wtypes.ARC4StaticArray():
                 return context.visitor.visit_and_materialise_single(expr)
-            case wtypes.ARC4DynamicArray() | wtypes.arc4_string_wtype:
+            case wtypes.ARC4DynamicArray():
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple():

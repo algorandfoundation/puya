@@ -1,124 +1,152 @@
-from __future__ import annotations
-
 import typing
+from collections.abc import Sequence
 
-from puya import arc4_util, log
+import mypy.nodes
+
+from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    ARC4Encode,
-    Expression,
-    Literal,
-    TupleItemExpression,
+from puya.awst.nodes import ARC4Decode, ARC4Encode, Expression, TupleItemExpression
+from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import GenericTypeBuilder
+from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puya.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
+from puya.awst_build.eb.arc4._base import ARC4TypeBuilder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import (
+    BuilderComparisonOp,
+    InstanceBuilder,
+    Iteration,
+    LiteralBuilder,
+    NodeBuilder,
 )
-from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
-from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.errors import CodeError
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import mypy.nodes
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
-    def __init__(self, location: SourceLocation, wtype: wtypes.ARC4Tuple | None = None):
-        super().__init__(location)
-        self.wtype = wtype
-
-    def produces(self) -> wtypes.WType:
-        if not self.wtype:
-            raise CodeError(
-                "Unparameterized arc4.Tuple class cannot be used as a type", self.source_location
-            )
-        return self.wtype
-
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return self.index_multiple((index,), location)
-
-    def index_multiple(
-        self,
-        indexes: Sequence[ExpressionBuilder | Literal],
-        location: SourceLocation,
-    ) -> TypeClassExpressionBuilder:
-        tuple_item_types = list[wtypes.ARC4Type]()
-        for index in indexes:
-            match index:
-                case TypeClassExpressionBuilder() as type_class:
-                    wtype = type_class.produces()
-                    if not wtypes.is_arc4_encoded_type(wtype):
-                        raise CodeError(
-                            "ARC4 Tuples can only contain ARC4 encoded values", location
-                        )
-                    tuple_item_types.append(wtype)
-                case _:
-                    raise CodeError("Invalid type parameter", index.source_location)
-        self.wtype = wtypes.ARC4Tuple.from_types(tuple_item_types)
-        return self
-
+class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
+    @typing.override
     def call(
         self,
-        args: Sequence[ExpressionBuilder | Literal],
+        args: Sequence[NodeBuilder],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        wtype = self.wtype
-        match args:
-            case [ExpressionBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
-                tuple_ex = eb.rvalue()
-
-                if wtype is None:
-                    wtype = arc4_util.make_tuple_wtype(tuple_wtype.types, location)
-                else:
-                    expected_type = wtypes.WTuple.from_types(wtype.types)
-                    if tuple_ex.wtype != expected_type:
-                        raise CodeError(
-                            f"Invalid arg type: expected {expected_type}, got {tuple_ex.wtype}",
-                            location,
-                        )
-
-                return var_expression(
-                    ARC4Encode(value=tuple_ex, wtype=wtype, source_location=location)
-                )
-
-        raise CodeError("Invalid/unhandled arguments", location)
-
-
-class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
-    def __init__(self, expr: Expression):
-        assert isinstance(expr.wtype, wtypes.ARC4Tuple)
-        self.wtype: wtypes.ARC4Tuple = expr.wtype
-        super().__init__(expr)
-
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        index_expr_or_literal = index
-        match index_expr_or_literal:
-            case Literal(value=int(index_value)) as index_literal:
-                try:
-                    self.wtype.types[index_value]
-                except IndexError as ex:
-                    raise CodeError(
-                        "Tuple index out of bounds", index_literal.source_location
-                    ) from ex
-                return var_expression(
-                    TupleItemExpression(
-                        base=self.expr,
-                        index=index_value,
-                        source_location=location,
-                    )
+    ) -> InstanceBuilder:
+        arg = expect.exactly_one_arg(args, location, default=expect.default_raise)
+        match arg:
+            case InstanceBuilder(
+                pytype=pytypes.TupleType(items=items, generic=pytypes.GenericTupleType)
+            ):
+                typ = pytypes.GenericARC4TupleType.parameterise(items, location)
+                wtype = typ.wtype
+                assert isinstance(wtype, wtypes.ARC4Tuple)
+                return ARC4TupleExpressionBuilder(
+                    ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
                 )
             case _:
-                raise CodeError("arc4.Tuple can only be indexed by int constants")
+                # don't know expected type
+                raise CodeError("unexpected argument type", arg.source_location)
 
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+
+class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.TupleType)
+        assert typ.generic == pytypes.GenericARC4TupleType
+        super().__init__(typ, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        typ = self.produces()
+        native_type = pytypes.GenericTupleType.parameterise(typ.items, location)
+        arg = expect.exactly_one_arg_of_type_else_dummy(args, native_type, location)
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ARC4Tuple)
+        return ARC4TupleExpressionBuilder(
+            ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
+        )
+
+
+class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType]):
+    def __init__(self, expr: Expression, typ: pytypes.PyType):
+        assert isinstance(typ, pytypes.TupleType)
+        super().__init__(typ, expr)
+
+    @typing.override
+    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        match index:
+            case LiteralBuilder(value=int(index_value)):
+                pass
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
+                raise CodeError("tuple index must be a simple int literal", index.source_location)
+            case _:
+                raise CodeError("unexpected argument type", index.source_location)
+        try:
+            item_typ = self.pytype.items[index_value]
+        except IndexError:
+            raise CodeError("index out of bounds", index.source_location) from None
+        return builder_for_instance(
+            item_typ,
+            TupleItemExpression(
+                base=self.resolve(),
+                index=index_value,
+                source_location=location,
+            ),
+        )
+
+    @typing.override
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return constant_bool_and_error(value=True, location=location, negate=negate)
+
+    @typing.override
+    def member_access(
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
+    ) -> NodeBuilder:
+        match name:
+            case "native":
+                native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
+                result_expr: Expression = ARC4Decode(
+                    value=self.resolve(),
+                    wtype=native_pytype.wtype,
+                    source_location=location,
+                )
+                return TupleExpressionBuilder(result_expr, native_pytype)
+            case _:
+                return super().member_access(name, expr, location)
+
+    @typing.override
+    def compare(
+        self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
+    ) -> InstanceBuilder:
+        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+
+    @typing.override
+    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
+        logger.error(
+            "item containment with ARC4 tuples is currently unsupported", location=location
+        )
+        return dummy_value(pytypes.BoolType, location)
+
+    @typing.override
+    def iterate(self) -> Iteration:
+        # could only support for homogenous types anyway, in which case use a StaticArray?
+        raise CodeError("iterating ARC4 tuples is currently unsupported", self.source_location)
+
+    @typing.override
+    def slice_index(
+        self,
+        begin_index: InstanceBuilder | None,
+        end_index: InstanceBuilder | None,
+        stride: InstanceBuilder | None,
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        raise CodeError("slicing ARC4 tuples is currently unsupported", location)
