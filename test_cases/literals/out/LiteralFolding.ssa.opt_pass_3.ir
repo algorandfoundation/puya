@@ -1,7 +1,7 @@
 contract test_cases.literals.folding.LiteralFolding:
     program approval:
         subroutine test_cases.literals.folding.LiteralFolding.approval_program() -> bool:
-            block@0: // L88
+            block@0: // L93
                 test_cases.literals.folding.unary_str()
                 test_cases.literals.folding.compare_str()
                 test_cases.literals.folding.binary_op_str()
@@ -9,6 +9,7 @@ contract test_cases.literals.folding.LiteralFolding:
                 test_cases.literals.folding.unary_int()
                 test_cases.literals.folding.compare_int()
                 test_cases.literals.folding.unary_bool()
+                test_cases.literals.folding.tuples()
                 return 1u
         
         subroutine test_cases.literals.folding.unary_str() -> void:
@@ -51,26 +52,43 @@ contract test_cases.literals.folding.LiteralFolding:
                 return 0u
         
         subroutine test_cases.literals.folding.binary_op_str() -> void:
-            block@0: // L33
+            block@0: // L31
                 return 
         
         subroutine test_cases.literals.folding.unary_bytes() -> void:
-            block@0: // L43
+            block@0: // L41
                 return 
         
         subroutine test_cases.literals.folding.unary_int() -> void:
-            block@0: // L49
+            block@0: // L47
                 return 
         
         subroutine test_cases.literals.folding.compare_int() -> void:
-            block@0: // L58
+            block@0: // L56
                 return 
         
         subroutine test_cases.literals.folding.unary_bool() -> void:
-            block@0: // L77
+            block@0: // L74
+                return 
+        
+        subroutine test_cases.literals.folding.tuples() -> void:
+            block@0: // L83
+                let tmp%2#0: bool = 1u
+                (assert tmp%2#0)
+                let result%2#0: bytes = 0x000000000000006100000000000000620000000000000063
+                let reinterpret_biguint%0#0: biguint = ((extract 0 8) result%2#0) // on error: Index access is out of bounds
+                let tmp%5#0: bool = (b== reinterpret_biguint%0#0 0x0000000000000061)
+                let reinterpret_biguint%2#0: biguint = ((extract 8 8) result%2#0) // on error: Index access is out of bounds
+                let tmp%6#0: biguint = (itob 98u)
+                let tmp%7#0: bool = (b== reinterpret_biguint%2#0 tmp%6#0)
+                let tmp%8#0: bool = (&& tmp%5#0 tmp%7#0)
+                let reinterpret_biguint%3#0: biguint = ((extract 16 8) result%2#0) // on error: Index access is out of bounds
+                let tmp%9#0: bool = (b== reinterpret_biguint%3#0 0x0000000000000063)
+                let tmp%10#0: bool = (&& tmp%8#0 tmp%9#0)
+                (assert tmp%10#0)
                 return 
     
     program clear-state:
         subroutine test_cases.literals.folding.LiteralFolding.clear_state_program() -> bool:
-            block@0: // L98
+            block@0: // L104
                 return 1u

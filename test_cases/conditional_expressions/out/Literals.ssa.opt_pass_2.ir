@@ -40,23 +40,35 @@ contract test_cases.conditional_expressions.literals.Literals:
             block@9: // ternary_merge_L19
                 let ternary_result%2#2: uint64 = φ(ternary_result%2#0 <- block@7, ternary_result%2#1 <- block@8)
                 let y#0: uint64 = (+ x#0 ternary_result%2#2)
+                goto condition#0 ? block@10 : block@11
+            block@10: // ternary_true_L20
+                let ternary_result%3#0: uint64 = 0u
+                goto block@12
+            block@11: // ternary_false_L20
+                let ternary_result%3#1: uint64 = 1u
+                goto block@12
+            block@12: // ternary_merge_L20
+                let ternary_result%3#2: uint64 = φ(ternary_result%3#0 <- block@10, ternary_result%3#1 <- block@11)
+                let y2#0: uint64 = (+ ternary_result%3#2 x#0)
                 let tmp%2#0: bool = (== y#0 1u)
                 (assert tmp%2#0)
-                goto condition#0 ? block@10 : block@11
-            block@10: // ternary_true_L22
-                let ternary_result%3#0: uint64 = 1u
-                goto block@12
-            block@11: // ternary_false_L22
-                let ternary_result%3#1: uint64 = 0u
-                goto block@12
-            block@12: // ternary_merge_L22
-                let ternary_result%3#2: uint64 = φ(ternary_result%3#0 <- block@10, ternary_result%3#1 <- block@11)
-                let maybe#0: bool = (> y#0 ternary_result%3#2)
-                let tmp%3#0: bool = (! condition#0)
-                let tmp%4#0: bool = (== maybe#0 tmp%3#0)
-                (assert tmp%4#0)
+                let tmp%3#0: bool = (== y2#0 1u)
+                (assert tmp%3#0)
+                goto condition#0 ? block@13 : block@14
+            block@13: // ternary_true_L23
+                let ternary_result%4#0: uint64 = 1u
                 goto block@15
-            block@15: // ternary_merge_L24
+            block@14: // ternary_false_L23
+                let ternary_result%4#1: uint64 = 0u
+                goto block@15
+            block@15: // ternary_merge_L23
+                let ternary_result%4#2: uint64 = φ(ternary_result%4#0 <- block@13, ternary_result%4#1 <- block@14)
+                let maybe#0: bool = (> y#0 ternary_result%4#2)
+                let tmp%4#0: bool = (! condition#0)
+                let tmp%5#0: bool = (== maybe#0 tmp%4#0)
+                (assert tmp%5#0)
+                goto block@18
+            block@18: // ternary_merge_L25
                 return 
     
     program clear-state:

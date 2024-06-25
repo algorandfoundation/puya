@@ -13,8 +13,8 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._utils import get_arc4_signature
 from puya.awst_build.eb.arc4.tuple import ARC4TupleGenericTypeBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
-from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -61,4 +61,4 @@ class EmitBuilder(FunctionBuilder):
             location,
         )
         log_expr = intrinsic_factory.log(log_value, location)
-        return VoidExpressionBuilder(log_expr)
+        return NoneExpressionBuilder(log_expr)

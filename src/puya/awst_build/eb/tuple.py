@@ -78,6 +78,7 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
     arg = expect.at_most_one_arg(args, location)
     if arg is None:
         return TupleLiteralBuilder(items=[], location=location)
+
     # TODO: generalise statically-iterable expressions at InstanceBuilder level
     #       e.g. arc4.StaticArray, sequence literals, all should support an "iterate_static"
     #       method that returns a sequence of builders.

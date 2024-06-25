@@ -623,7 +623,7 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
             native_type=wtypes.bytes_wtype,
             source_location=None,
         ),
-        size=0,
+        size=None,
         items=ARC4ByteType,
         bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
         mro=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
