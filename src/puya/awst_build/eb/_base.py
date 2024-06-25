@@ -55,9 +55,9 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puya.awst_build.eb._utils import bool_eval_to_constant
+        from puya.awst_build.eb._utils import constant_bool_and_error
 
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
     @typing.final
@@ -79,9 +79,9 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puya.awst_build.eb._utils import bool_eval_to_constant
+        from puya.awst_build.eb._utils import constant_bool_and_error
 
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        return constant_bool_and_error(value=True, location=location, negate=negate)
 
 
 class InstanceExpressionBuilder(

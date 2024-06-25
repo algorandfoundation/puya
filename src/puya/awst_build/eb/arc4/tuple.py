@@ -10,7 +10,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder
 from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puya.awst_build.eb._utils import bool_eval_to_constant, compare_bytes, dummy_value
+from puya.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
 from puya.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -105,7 +105,7 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return bool_eval_to_constant(value=True, location=location, negate=negate)
+        return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

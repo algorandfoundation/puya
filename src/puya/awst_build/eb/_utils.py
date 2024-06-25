@@ -55,17 +55,20 @@ def resolve_negative_literal_index(
             return index.resolve_literal(UInt64TypeBuilder(index.source_location))
 
 
-def bool_eval_to_constant(
+def constant_bool_and_error(
     *, value: bool, location: SourceLocation, negate: bool = False
 ) -> InstanceBuilder:
-    # TODO(frist)(frist): this function hides multiple semantic compatibility issues,
-    #       it's used frequently without retaining the underlying expression,
-    #       so it's never evaluated, which is wrong if there are side effects
+    """
+    Returns a constant bool instance builder for the specified value and negate combination.
+
+    Always emits an error as either allowing the expression would result in a semantic
+    compatability issue, or indicates the user has most likely made a mistake
+    """
     from puya.awst_build.eb._literals import LiteralBuilderImpl
 
     if negate:
         value = not value
-    logger.warning(f"expression is always {value}", location=location)
+    logger.error(f"expression is always {value}", location=location)
     return LiteralBuilderImpl(value=value, source_location=location)
 
 
