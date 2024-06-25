@@ -28,7 +28,7 @@ from puya.awst_build.eb.subroutine import (
     SubroutineInvokerExpressionBuilder,
 )
 from puya.awst_build.utils import qualified_class_name, resolve_method_from_type_info
-from puya.errors import CodeError
+from puya.errors import CodeError, PuyaError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -59,13 +59,14 @@ class ContractTypeExpressionBuilder(TypeBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
+        pytype = self.context.mypy_expr_node_type(expr)
         if not isinstance(pytype, pytypes.FuncType):
             raise CodeError("static references are only supported for methods", location)
         func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
         if func_or_dec is None:
-            return super().member_access(name, pytype, location)
+            return super().member_access(name, expr, location)
         target = BaseClassSubroutineTarget(self._cref, name)
         return BaseClassSubroutineInvokerExpressionBuilder(
             context=self.context,
@@ -76,36 +77,43 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         )
 
 
-class ContractSelfExpressionBuilder(NodeBuilder):
+class ContractSelfExpressionBuilder(NodeBuilder): # TODO: this _is_ an instance, technically
     def __init__(
         self,
         context: ASTConversionModuleContext,
         type_info: mypy.nodes.TypeInfo,
+        pytype: pytypes.PyType,
         location: SourceLocation,
     ):
         super().__init__(location)
         self.context = context
         self._type_info = type_info
+        self._pytype = pytype
 
     @typing.override
     @property
-    def pytype(self) -> None:
-        return None  # TODO ?
+    def pytype(self) -> pytypes.PyType:
+        return self._pytype
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
-        if isinstance(pytype, pytypes.FuncType):
-            return SubroutineInvokerExpressionBuilder(
-                target=InstanceSubroutineTarget(name=name),
-                func_type=pytype,
-                location=location,
-            )
         state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
-        if state_decl is None:
-            raise CodeError("cannot resolve state member", location)
-        return _builder_for_storage_access(state_decl, location)
+        if state_decl is not None:
+            return _builder_for_storage_access(state_decl, location)
+        try:
+            pytype = self.context.mypy_expr_node_type(expr)
+        except InternalError: # TODO: fixme
+            pass
+        else:
+            if isinstance(pytype, pytypes.FuncType):
+                return SubroutineInvokerExpressionBuilder(
+                    target=InstanceSubroutineTarget(name=name),
+                    func_type=pytype,
+                    location=location,
+                )
+        raise CodeError("cannot resolve state member", location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

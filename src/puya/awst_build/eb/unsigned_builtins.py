@@ -179,7 +179,7 @@ class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         return self._iterable_only(location)
 

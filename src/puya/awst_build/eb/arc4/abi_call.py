@@ -98,7 +98,7 @@ class ARC4ClientTypeBuilder(TypeBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
         if func_or_dec is None:

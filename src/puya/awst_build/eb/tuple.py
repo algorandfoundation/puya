@@ -119,7 +119,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> typing.Never:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
@@ -241,7 +241,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> typing.Never:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)

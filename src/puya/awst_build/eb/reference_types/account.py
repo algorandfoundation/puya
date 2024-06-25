@@ -131,11 +131,11 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         if name == "is_opted_in":
             return _IsOptedIn(self.resolve(), location)
-        return super().member_access(name, pytype, location)
+        return super().member_access(name, expr, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

@@ -1,5 +1,7 @@
 import typing
 
+import mypy.nodes
+
 from puya import log
 from puya.awst.nodes import (
     BoolConstant,
@@ -174,7 +176,7 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> LiteralBuilder:
         # TODO: support stuff like int.from_bytes etc
         raise CodeError("unsupported member access from literal", location)

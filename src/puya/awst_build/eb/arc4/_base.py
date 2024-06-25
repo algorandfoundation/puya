@@ -48,13 +48,13 @@ _TPyType_co = typing_extensions.TypeVar(
 
 class ARC4TypeBuilder(BytesBackedTypeBuilder[_TPyType_co], abc.ABC):
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         match name:
             case "from_log":
                 return ARC4FromLogBuilder(location, self.produces())
             case _:
-                return super().member_access(name, pytype, location)
+                return super().member_access(name, expr, location)
 
 
 class ARC4FromLogBuilder(FunctionBuilder):
@@ -165,7 +165,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         match name:
             case "length":
@@ -173,7 +173,7 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
-                return super().member_access(name, pytype, location)
+                return super().member_access(name, expr, location)
 
     @typing.override
     def compare(

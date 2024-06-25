@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
+from collections.abc import Callable, Mapping, Reversible, Sequence
 
 import algopy
 
@@ -378,11 +378,26 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def append(self, item: _TArrayItem, /) -> None:
         """Append an item to this array"""
 
-    def extend(self, other: Iterable[_TArrayItem], /) -> None:
+    def extend(
+        self,
+        other: (
+            DynamicArray[_TArrayItem]
+            | StaticArray[_TArrayItem, _TArrayLength]
+            | tuple[_TArrayItem, ...]
+        ),
+        /,
+    ) -> None:
         """Extend this array with the contents of another array"""
 
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
-    def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
+    def __add__(
+        self,
+        other: (
+            DynamicArray[_TArrayItem]
+            | StaticArray[_TArrayItem, _TArrayLength]
+            | tuple[_TArrayItem, ...]
+        ),
+    ) -> DynamicArray[_TArrayItem]: ...
     def pop(self) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
         """Create a copy of this array"""

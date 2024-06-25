@@ -124,7 +124,7 @@ class BoxProxyExpressionBuilder(
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         match name:
             case "value":
@@ -141,7 +141,7 @@ class BoxProxyExpressionBuilder(
                 return UInt64ExpressionBuilder(
                     box_length_checked(self._get_value(location).resolve(), location)
                 )
-        return super().member_access(name, pytype, location)
+        return super().member_access(name, expr, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

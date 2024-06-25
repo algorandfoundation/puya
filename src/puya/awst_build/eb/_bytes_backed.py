@@ -23,7 +23,7 @@ _TPyType_co = typing_extensions.TypeVar(
 class BytesBackedTypeBuilder(TypeBuilder[_TPyType_co], abc.ABC):
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         typ = self.produces()
         match name:
@@ -73,12 +73,12 @@ class BytesBackedInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         if name == self._bytes_member:
             return self.bytes(location)
         else:
-            return super().member_access(name, pytype, location)
+            return super().member_access(name, expr, location)
 
     def bytes(self, location: SourceLocation) -> BytesExpressionBuilder:
         return BytesExpressionBuilder(self.to_bytes(location))

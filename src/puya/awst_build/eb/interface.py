@@ -70,9 +70,11 @@ class NodeBuilder(abc.ABC):
 
     @abc.abstractmethod
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         """Handle self.name"""
+        # TODO: remove mypy Expression from this signature, only added temporarily
+        #       because of pytype resolution failures
 
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
@@ -196,7 +198,7 @@ class LiteralBuilder(InstanceBuilder, abc.ABC):
     @typing.override
     @abc.abstractmethod
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> LiteralBuilder:
         """Handle self.name"""
 
@@ -251,7 +253,7 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 

@@ -102,7 +102,7 @@ def exactly_one_arg_of_type(
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     if resolve_literal:
         first = maybe_resolve_literal(first, pytype)
-    if isinstance(first, InstanceBuilder) and first.pytype == pytype:
+    if _type_match_and_instance(first, pytype):
         return first
     msg = "unexpected argument type"
     result = default(msg, first.source_location)
@@ -166,7 +166,7 @@ def argument_of_type_else_dummy(
     if resolve_literal:
         builder = maybe_resolve_literal(builder, target_type)
 
-    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
+    if _type_match_and_instance(builder, target_type):
         return builder
     logger.error("unexpected argument type", location=builder.source_location)
     return dummy_value(target_type, builder.source_location)
@@ -177,7 +177,7 @@ def argument_of_type_else_die(
 ) -> InstanceBuilder:
     from puya.errors import CodeError
 
-    if isinstance(builder, InstanceBuilder) and builder.pytype == target_type:
+    if _type_match_and_instance(builder, target_type):
         return builder
     raise CodeError("unexpected argument type", builder.source_location)
 
@@ -199,3 +199,19 @@ def simple_string_literal(
     result = default(msg, builder.source_location)
     logger.error(msg, location=builder.source_location)
     return result
+
+
+def _type_match(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
+    return builder.pytype == target_type or (builder.pytype is not None and target_type in builder.pytype.mro)
+
+def _type_match_and_instance(builder: NodeBuilder, target_type: pytypes.PyType) -> typing.TypeGuard[InstanceBuilder]:
+    if isinstance(builder, InstanceBuilder) and _type_match(builder, target_type):
+        return True
+    return False
+
+
+def is_type_or_subtype(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
+    if not _type_match(builder, target_type):
+        logger.error("unexpected argument type", location=builder.source_location)
+        return False
+    return True

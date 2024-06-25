@@ -1,6 +1,7 @@
 import abc
 import typing
 
+import mypy.nodes
 import typing_extensions
 
 from puya import log
@@ -62,7 +63,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @typing.final
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> typing.Never:
         raise CodeError("function attribute access is not supported", location)
 
@@ -76,7 +77,7 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @typing.final
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         raise CodeError("generic type requires parameters", location)
 
@@ -130,7 +131,7 @@ class InstanceExpressionBuilder(
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
 

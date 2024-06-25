@@ -187,14 +187,14 @@ class LocalStateExpressionBuilder(
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         match name:
             case "get":
                 return _Get(self.pytype.content, self._build_field, location)
             case "maybe":
                 return _Maybe(self.pytype.content, self._build_field, location)
-        return super().member_access(name, pytype, location)
+        return super().member_access(name, expr, location)
 
     @typing.override
     def iterate(self) -> Iteration:

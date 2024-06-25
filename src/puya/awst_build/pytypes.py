@@ -786,6 +786,8 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelate
         name=stub_name,
         transaction_type=kind,
         wtype=wtypes.WGroupTransaction.from_type(kind),
+        bases=[GroupTransactionBaseType],
+        mro=[GroupTransactionBaseType],
     )
 
 

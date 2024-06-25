@@ -97,6 +97,8 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
             return dummy_value(result_pytyp, location)
 
         call_args = []
+        # TODO: ideally, we would iterate arg_map, so the order is the same as the call site
+        #       need to build map from arg to FuncArg then though to extract expected type(s)
         for arg_map_name, typ_arg in type_arg_map.items():
             try:
                 (arg_typ,) = typ_arg.types
@@ -111,9 +113,13 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
                 )
                 return dummy_value(result_pytyp, location)
 
-            arg = expect.argument_of_type_else_dummy(arg_map[arg_map_name], arg_typ)
-            passed_name = arg_map_name if arg_map_name in arg_names else None
-            call_args.append(CallArg(name=passed_name, value=arg.resolve()))
+            arg = arg_map[arg_map_name]
+            if pytypes.ContractBaseType in arg_typ.mro:
+                expect.is_type_or_subtype(arg, arg_typ)
+            else:
+                arg = expect.argument_of_type_else_dummy(arg, arg_typ)
+                passed_name = arg_map_name if arg_map_name in arg_names else None
+                call_args.append(CallArg(name=passed_name, value=arg.resolve()))
 
         call_expr = SubroutineCallExpression(
             target=self.target,

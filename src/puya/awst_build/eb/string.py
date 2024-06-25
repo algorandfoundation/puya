@@ -99,7 +99,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         match name:
             case "startswith":
@@ -109,7 +109,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
             case "join":
                 return _StringJoin(self, location)
             case _:
-                return super().member_access(name, pytype, location)
+                return super().member_access(name, expr, location)
 
     @typing.override
     def augmented_assignment(

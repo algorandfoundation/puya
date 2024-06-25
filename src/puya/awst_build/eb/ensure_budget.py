@@ -110,9 +110,9 @@ class OpUpFeeSourceTypeBuilder(TypeBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         if (value := FeeSourceValues.get(name)) is None:
-            return super().member_access(name, pytype, location)
-        expr = UInt64Constant(value=value, source_location=location)
-        return UInt64ExpressionBuilder(expr)
+            return super().member_access(name, expr, location)
+        const_expr = UInt64Constant(value=value, source_location=location)
+        return UInt64ExpressionBuilder(const_expr)

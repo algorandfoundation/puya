@@ -94,7 +94,7 @@ class BytesTypeBuilder(TypeBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         """Handle self.name"""
         match name:
@@ -105,7 +105,7 @@ class BytesTypeBuilder(TypeBuilder):
             case "from_hex":
                 return _FromEncodedStr(location, BytesEncoding.base16)
             case _:
-                return super().member_access(name, pytype, location)
+                return super().member_access(name, expr, location)
 
 
 class _FromEncodedStr(FunctionBuilder):
@@ -174,7 +174,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> InstanceBuilder:
         match name:
             case "length":

@@ -1,5 +1,7 @@
 import typing
 
+import mypy.nodes
+
 from puya.awst.nodes import ConditionalExpression, Expression, Lvalue, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -174,10 +176,10 @@ class ConditionalLiteralBuilder(InstanceBuilder):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
-        transformed_true = self._true_literal.member_access(name, pytype, location)
-        transformed_false = self._false_literal.member_access(name, pytype, location)
+        transformed_true = self._true_literal.member_access(name, expr, location)
+        transformed_false = self._false_literal.member_access(name, expr, location)
         return ConditionalLiteralBuilder(
             true_literal=transformed_true,
             false_literal=transformed_false,

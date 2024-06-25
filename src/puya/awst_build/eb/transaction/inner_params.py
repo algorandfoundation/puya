@@ -170,7 +170,7 @@ class InnerTxnParamsExpressionBuilder(
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         if name == "submit":
             return _Submit(self.resolve(), self.pytype.transaction_type, location)
@@ -178,7 +178,7 @@ class InnerTxnParamsExpressionBuilder(
             return _Set(self.resolve(), location)
         elif name == "copy":
             return _Copy(self.resolve(), self.pytype, location)
-        return super().member_access(name, pytype, location)
+        return super().member_access(name, expr, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

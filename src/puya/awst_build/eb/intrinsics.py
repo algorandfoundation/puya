@@ -58,12 +58,12 @@ class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         produces = self.produces()
         value = produces.members.get(name)
         if value is None:
-            return super().member_access(name, pytype, location)
+            return super().member_access(name, expr, location)
         return LiteralBuilderImpl(value=value, source_location=location)
 
 
@@ -80,12 +80,12 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
 
     @typing.override
     def member_access(
-        self, name: str, pytype: pytypes.PyType, location: SourceLocation
+        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
         produces = self.produces()
         mapping = produces.members.get(name)
         if mapping is None:
-            return super().member_access(name, pytype, location)
+            return super().member_access(name, expr, location)
         if isinstance(mapping, PropertyOpMapping):
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
