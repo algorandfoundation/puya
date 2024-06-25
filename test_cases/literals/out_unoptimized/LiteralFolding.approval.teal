@@ -1,28 +1,31 @@
 #pragma version 10
 
 test_cases.literals.folding.LiteralFolding.approval_program:
-    // literals/folding.py:86
+    // literals/folding.py:93
     // unary_str()
     callsub unary_str
-    // literals/folding.py:87
+    // literals/folding.py:94
     // compare_str()
     callsub compare_str
-    // literals/folding.py:88
+    // literals/folding.py:95
     // binary_op_str()
     callsub binary_op_str
-    // literals/folding.py:89
+    // literals/folding.py:96
     // unary_bytes()
     callsub unary_bytes
-    // literals/folding.py:90
+    // literals/folding.py:97
     // unary_int()
     callsub unary_int
-    // literals/folding.py:91
+    // literals/folding.py:98
     // compare_int()
     callsub compare_int
-    // literals/folding.py:92
+    // literals/folding.py:99
     // unary_bool()
     callsub unary_bool
-    // literals/folding.py:93
+    // literals/folding.py:100
+    // tuples()
+    callsub tuples
+    // literals/folding.py:101
     // return True
     int 1
     return
@@ -278,4 +281,75 @@ unary_bool:
     // @subroutine
     // def unary_bool() -> None:
     proto 0 0
+    retsub
+
+
+// test_cases.literals.folding.tuples() -> void:
+tuples:
+    // literals/folding.py:83-84
+    // @subroutine
+    // def tuples() -> None:
+    proto 0 0
+    // literals/folding.py:85
+    // assert (97, UInt64(98), 99) == tuple(b"abc")  # type: ignore[comparison-overlap]
+    int 98
+    int 98
+    ==
+    int 1
+    uncover 1
+    &&
+    int 1
+    &&
+    assert
+    // literals/folding.py:86
+    // assert ("a", "b", "c") == tuple("abc")
+    int 1
+    int 1
+    &&
+    int 1
+    &&
+    assert
+    // literals/folding.py:87
+    // assert (97, UInt64(98), 99) == tuple(arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99)))  # type: ignore[comparison-overlap]
+    byte 0x
+    byte 0x0000000000000061
+    concat
+    byte 0x0000000000000062
+    concat
+    byte 0x0000000000000063
+    concat
+    byte 0x
+    uncover 1
+    concat
+    dup
+    int 0
+    int 8
+    *
+    int 8
+    extract3 // on error: Index access is out of bounds
+    byte 0x0000000000000061
+    b==
+    cover 1
+    dup
+    int 1
+    int 8
+    *
+    int 8
+    extract3 // on error: Index access is out of bounds
+    int 98
+    itob
+    b==
+    uncover 2
+    uncover 1
+    &&
+    uncover 1
+    int 2
+    int 8
+    *
+    int 8
+    extract3 // on error: Index access is out of bounds
+    byte 0x0000000000000063
+    b==
+    &&
+    assert
     retsub
