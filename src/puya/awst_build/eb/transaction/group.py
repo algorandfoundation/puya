@@ -66,13 +66,16 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        group_index = expect.exactly_one_arg_of_type_else_dummy(
-            args, pytypes.UInt64Type, location, resolve_literal=True
+        arg = expect.exactly_one_arg(
+            args, location, default=expect.default_dummy_value(pytypes.UInt64Type)
         )
         typ = self.produces()
+        if arg.pytype == pytypes.IntLiteralType:
+            return arg.resolve_literal(GroupTransactionTypeBuilder(typ, location))
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
-        txn = check_transaction_type(group_index.resolve(), wtype, location)
+        group_index = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type).resolve()
+        txn = check_transaction_type(group_index, wtype, location)
         return GroupTransactionExpressionBuilder(txn, typ)
 
 
