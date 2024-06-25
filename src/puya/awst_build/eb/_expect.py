@@ -1,5 +1,6 @@
+# TODO: eliminate usage of require_instance_builder or make non-throwing
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection, Sequence
 from itertools import zip_longest
 
 from puya import log
@@ -23,6 +24,21 @@ def at_most_one_arg(
     if extra:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
     return eb
+
+
+def at_most_one_arg_of_type(
+    args: Sequence[NodeBuilder], valid_types: Collection[pytypes.PyType], location: SourceLocation
+) -> InstanceBuilder | None:
+    if not args:
+        return None
+    first, *rest = args
+    if rest:
+        logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
+    for valid_type in valid_types:
+        if _type_match_and_instance(first, valid_type):
+            return first
+    logger.error("unexpected argument type", location=first.source_location)
+    return None
 
 
 def default_raise(msg: str, location: SourceLocation) -> typing.Never:
