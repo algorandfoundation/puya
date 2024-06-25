@@ -16,9 +16,10 @@ class Literals(Contract):
         x = UInt64(1 if condition else 0)
         assert bool(x) == condition
         assert x == -(-1 if condition else 0)  # test unary op propagation
-        y = x + ((1 if condition else 2) - 1)  # test binary op with literal & non-literal
-        # TODO(frist): test reverse
+        y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
+        y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
         assert y == 1
+        assert y2 == 1
         maybe = (1 if condition else 0) < y  # test comparison with non-literal
         assert maybe == (not condition)
         assert (1 if condition else 0) != 2  # test comparison with literal
