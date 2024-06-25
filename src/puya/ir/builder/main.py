@@ -377,6 +377,7 @@ class FunctionIRBuilder(
                     args=args,
                     immediates=list(call.immediates),
                     types=wtype_to_ir_types(call.wtype),
+                    comment=call.comment,
                 )
 
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:

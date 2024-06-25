@@ -395,6 +395,8 @@ class ToCodeVisitor(
         result += "("
         if expr.stack_args:
             result += ", ".join([stack_arg.accept(self) for stack_arg in expr.stack_args])
+        if expr.comment:
+            result += f', comment="{expr.comment}"'
         result += ")"
         return result
 
