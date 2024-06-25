@@ -264,11 +264,14 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
-        # TODO(frist): missing type check
         bytes_op = _translate_binary_bytes_operator(op)
         if bytes_op is None:
             return NotImplemented
+
+        other = other.resolve_literal(converter=BytesTypeBuilder(other.source_location))
+        if other.pytype != self.pytype:
+            return NotImplemented
+
         lhs = self.resolve()
         rhs = other.resolve()
         if reverse:
@@ -282,12 +285,12 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        rhs = rhs.resolve_literal(converter=BytesTypeBuilder(rhs.source_location))
-        # TODO(frist): missing type check
         bytes_op = _translate_binary_bytes_operator(op)
         if bytes_op is None:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
+
+        rhs = expect.argument_of_type_else_dummy(rhs, self.pytype, resolve_literal=True)
         target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
             target=target,

@@ -68,10 +68,10 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
         raise CodeError("function attribute access is not supported", location)
 
 
-class GenericTypeBuilder(CallableBuilder, abc.ABC):
+class GenericTypeBuilder(CallableBuilder, abc.ABC): # TODO: can we fold this with TypeBuilder?
     @typing.override
     @property
-    def pytype(self) -> None:  # TODO(frist): ??
+    def pytype(self) -> None:  # TODO, take this as an init argument
         return None
 
     @typing.override
