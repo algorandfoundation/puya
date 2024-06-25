@@ -1,4 +1,82 @@
 # CHANGELOG
+## v2.1.0 (2024-06-25)
+
+### Feature
+
+* support comparisons between `arc4.Bool` and `bool` ([`1787f06`](https://github.com/algorandfoundation/puya/commit/1787f06619ef459dfd78e063be3270c0972fc54d))
+
+* support a wider range of types for inner transaction application args ([`28b5197`](https://github.com/algorandfoundation/puya/commit/28b5197081a9eda4586658c918b410409d07c859))
+
+* support string literals in String.join argument ([`0818d7d`](https://github.com/algorandfoundation/puya/commit/0818d7d9c28b72d170c42f13714875312ed16faa))
+
+* support constructing tuples via tuple(&lt;expr&gt;) where expr is a fixed size sequence ([`529f12a`](https://github.com/algorandfoundation/puya/commit/529f12a3465d2013f44a75ce83b29571fa68de07))
+
+* support tuple equality comparisons with literal elements, support tuple repetition &amp; concatenation, and support indexing/slicing literals that support it ([`0c8a745`](https://github.com/algorandfoundation/puya/commit/0c8a745311be5fb779edcba2929f3e9911f265ad))
+
+* allow conditional expressions involving literals when either interacting with an algopy type or being passed to an algopy function, where possible ([`a047d92`](https://github.com/algorandfoundation/puya/commit/a047d929998ab27a53351fbc0dcd610e9fef81a7))
+
+  examples that are now possible: - `x = UInt64(12 if condition else 34)` - `x += 45 if condition else 67` - `op.addw(2**64-1 if condition else 0, x)`
+
+* Box storage api ([`c41ce5e`](https://github.com/algorandfoundation/puya/commit/c41ce5e0b2c051412c8020687e7f3448aa44f439))
+
+* handle cover/uncover rotation simplification edge case ([`9ed7a60`](https://github.com/algorandfoundation/puya/commit/9ed7a609caa719b5d37de81d70f6f9f261940234))
+
+### Fix
+
+* bool evaluations that evaluate to constants are now treated as errors as they were either hiding a semantic compatability issue or were a sign of a mistake in the code. ([`247d62d`](https://github.com/algorandfoundation/puya/commit/247d62d24543d232e2649c48a96d979e426b9ae3))
+
+* handle single item tuples correctly ([`2026815`](https://github.com/algorandfoundation/puya/commit/202681511512bb7c7e6f41190c6bb4d810c02ab6))
+
+* add missing * to stubs, that EB was expecting ([`4842719`](https://github.com/algorandfoundation/puya/commit/48427190defdac743f16938a2a798d8a35bdd677))
+
+* ensure tuple expressions are evaluated when converting to a bool ([`9d556e6`](https://github.com/algorandfoundation/puya/commit/9d556e6f2623d6caee6f51f3a04d4f6517bc18c7))
+
+* do not require ARC4 types to .copy() when being as arguments to an inner transaction ([`601a385`](https://github.com/algorandfoundation/puya/commit/601a3850d041139dbef3ba0e634d55f0127c9ba9))
+
+* fix argument packing condition when using abi_call ([`070d224`](https://github.com/algorandfoundation/puya/commit/070d2242694a287d4897a145438f5296530108df))
+
+* fix UInt64 handling of construction from bool ([`07cd6d9`](https://github.com/algorandfoundation/puya/commit/07cd6d9163859a88b2fb810387c86c5089e51de4))
+
+* fix semantic issues with tuple comparisons of different length / types ([`840118a`](https://github.com/algorandfoundation/puya/commit/840118a6062262c7175f68ccc81f8eba0a80ca4c))
+
+* fix semantic compatibility issue with comparisons involving tuple literals ([`180d363`](https://github.com/algorandfoundation/puya/commit/180d363fab87253c15ed9f50fb83ddff74384c24))
+
+* support negative indexes on indexable types ([`9213996`](https://github.com/algorandfoundation/puya/commit/92139960da2da49e10d77572127d32072a0e7d9c))
+
+* fix bug in &#34;untyped&#34; itxn creation not being declared as allowing BytesBacked ([`f5aeada`](https://github.com/algorandfoundation/puya/commit/f5aeadad78afb6c306f476a253a31703e3da6309))
+
+* fix encoding of bytes constants and allow String as sep value ([`6e82f80`](https://github.com/algorandfoundation/puya/commit/6e82f807312e7ba31dd2d51b2a0b9cb707b56f72))
+
+* handle __eq__ for ufixed ([`83b346b`](https://github.com/algorandfoundation/puya/commit/83b346bb8c794c4f19f48f61c460b37561c2798f))
+
+* handle bool values (as subtype of int) when comparing against arc4 uintn ([`74e065d`](https://github.com/algorandfoundation/puya/commit/74e065de7c99802a7d3f9877b4ea71925828a5da))
+
+  fix: allow arc4.String comparison with String without going through constructor
+
+  refactoring convert_arc4_literal (wip)
+
+* fix bug with inner-transaction-containing tuple detection ([`6ca2c45`](https://github.com/algorandfoundation/puya/commit/6ca2c454de3b056465cdb17b36c379d0d553b775))
+
+* resolve issue when using native types with arguments and return values in abi_call ([`604dddc`](https://github.com/algorandfoundation/puya/commit/604dddcccc18a9cabdf1a75d4b7b51330be30304))
+
+* allow usage of module constants in ARC4 method decorators ([`d09f381`](https://github.com/algorandfoundation/puya/commit/d09f38122c95955d82ea5505bab5a84f8455543d))
+
+* fix bug with resolving super/direct base method invocation ([`a0618cb`](https://github.com/algorandfoundation/puya/commit/a0618cb5d79125f9fdcd308c7c29418afdc3da84))
+
+* improve error messages when typing.Any type is encountered ([`c2cfaf5`](https://github.com/algorandfoundation/puya/commit/c2cfaf531b40d0a1fea5f8c3ada0476ec8efbf79))
+
+* prevent critical error message when missing self param in declaration ([`7ff2e17`](https://github.com/algorandfoundation/puya/commit/7ff2e175576a15014e0beee1c4c5dc31ab3c62e0))
+
+* correct return type of String.join ([`3df0b8b`](https://github.com/algorandfoundation/puya/commit/3df0b8bf8ea62ec2acf1976f9bfe166486270862))
+
+* fix resolution of base class references across modules ([`cf7c67f`](https://github.com/algorandfoundation/puya/commit/cf7c67fe32fd2241641fb9e231002038c31ecab5))
+
+* resolve potential semantic incompatibility with super() usage and differing kinds of attributes (methods vs data) ([`f1f2bdd`](https://github.com/algorandfoundation/puya/commit/f1f2bdde3bac1d90b029e1c18cb9fe2563c8ec57))
+
+  add bad super() usage test
+
+* ARC4 Bool decode now resolves to IRType.bool ([`9b4e82d`](https://github.com/algorandfoundation/puya/commit/9b4e82d4d204005716b9956f8d2b0433345c5ede))
+
 ## v2.0.2 (2024-06-10)
 
 ### Fix
