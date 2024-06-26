@@ -222,9 +222,6 @@ class FunctionTraverser(
     def visit_expression_statement(self, statement: awst_nodes.ExpressionStatement) -> None:
         statement.expr.accept(self)
 
-    def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> None:
-        statement.condition.accept(self)
-
     def visit_template_var(self, statement: awst_nodes.TemplateVar) -> None:
         pass
 

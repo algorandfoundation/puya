@@ -110,10 +110,12 @@ def has_app_args(location: SourceLocation) -> awst_nodes.Expression:
 
 
 def reject(location: SourceLocation) -> awst_nodes.Statement:
-    return awst_nodes.AssertStatement(
-        source_location=location,
-        condition=awst_nodes.BoolConstant(source_location=location, value=False),
-        comment="reject transaction",
+    return awst_nodes.ExpressionStatement(
+        expr=intrinsic_factory.assert_(
+            source_location=location,
+            condition=awst_nodes.BoolConstant(source_location=location, value=False),
+            comment="reject transaction",
+        )
     )
 
 
@@ -234,7 +236,7 @@ def log_arc4_result(
 
 def assert_create_state(
     config: ARC4MethodConfig, location: SourceLocation
-) -> Sequence[awst_nodes.AssertStatement]:
+) -> Sequence[awst_nodes.Statement]:
     existing_app = has_app_id(location)
     match config.create:
         case ARC4CreateOption.allow:
@@ -249,10 +251,12 @@ def assert_create_state(
         case invalid:
             typing.assert_never(invalid)
     return [
-        awst_nodes.AssertStatement(
-            condition=condition,
-            comment=comment,
-            source_location=location,
+        awst_nodes.ExpressionStatement(
+            expr=intrinsic_factory.assert_(
+                condition=condition,
+                comment=comment,
+                source_location=location,
+            )
         )
     ]
 
@@ -357,10 +361,12 @@ def check_allowed_oca(
     if len(allowed_ocas) > 1:
         oca_desc = f"one of {oca_desc}"
     return (
-        awst_nodes.AssertStatement(
-            condition=condition,
-            comment=f"OnCompletion is {oca_desc}",
-            source_location=location,
+        awst_nodes.ExpressionStatement(
+            expr=intrinsic_factory.assert_(
+                condition=condition,
+                comment=f"OnCompletion is {oca_desc}",
+                source_location=location,
+            )
         ),
     )
 
