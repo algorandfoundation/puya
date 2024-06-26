@@ -2,6 +2,8 @@
 
 The Algorand Python Testing framework provides a powerful set of tools for testing your Algorand Python smart contracts within Python interpeter. This section will continue delving into the main features and concepts of the framework.
 
+> Please note that this framework is in preview, detailed documentation is to follow, if you are interested in specific op code or having trouble implementing a test, reach out to us on #algokit channel on official Algorand discord.
+
 ## Test Context Manager
 
 The core of the testing framework is the `algopy_testing_context` [context manager](https://docs.python.org/3/library/contextlib.html#contextlib.ContextDecorator). This creates a simulated Algorand environment for your tests that mimics major behaviour of AVM in Python interpreter.
@@ -218,11 +220,21 @@ ctx.patch_global_fields(latest_timestamp=algopy.UInt64(1000))
 
 ### Global State
 
+To be documented...
+
 ### Local State
+
+To be documented...
 
 ### Scratch Space
 
+To be documented...
+
 ### Boxes
+
+To be documented...
+
+> NOTE: Higher level Boxes interface introduce in v2.1.0 is not supported yet, however all low level Box 'op' calls are available.
 
 ## Smart Signatures
 

@@ -36,35 +36,31 @@ def test_start_auction(
     context: AlgopyTestContext,
 ) -> None:
     # Arrange
-    account = context.any_account()
-    app_account = context.any_account()
     latest_timestamp = context.any_uint64(1, 1000)
-    auction_price = context.any_uint64(1, 100)
-    auction_duration = context.any_uint64(1000, 3600)
+    starting_price = context.any_uint64()
+    auction_duration = context.any_uint64(100, 1000)
     axfer_txn = context.any_asset_transfer_transaction(
-        asset_receiver=app_account,
-        asset_amount=auction_price,
+        asset_receiver=context.default_application.address,
+        asset_amount=starting_price,
     )
     contract = AuctionContract()
-    contract.asa_amount = auction_price
+    contract.asa_amount = starting_price
     context.patch_global_fields(
-        creator_address=account,
-        current_application_address=app_account,
         latest_timestamp=latest_timestamp,
     )
-    context.patch_txn_fields(sender=account)
+    context.patch_txn_fields(sender=context.default_creator)
 
     # Act
     contract.start_auction(
-        auction_price,
+        starting_price,
         auction_duration,
         axfer_txn,
     )
 
     # Assert
     assert contract.auction_end == latest_timestamp + auction_duration
-    assert contract.previous_bid == auction_price
-    assert contract.asa_amount == auction_price
+    assert contract.previous_bid == starting_price
+    assert contract.asa_amount == starting_price
 
 
 def test_bid(context: AlgopyTestContext) -> None:
@@ -72,7 +68,7 @@ def test_bid(context: AlgopyTestContext) -> None:
     account = context.default_creator
     auction_end = context.any_uint64(min_value=int(time.time()) + 10_000)
     previous_bid = context.any_uint64(1, 100)
-    pay_amount = context.any_uint64(100, 200)
+    pay_amount = context.any_uint64()
 
     contract = AuctionContract()
     contract.auction_end = auction_end
@@ -95,10 +91,10 @@ def test_claim_bids(
     account = context.any_account()
     context.patch_txn_fields(sender=account)
     contract = AuctionContract()
-    claimable_amount = context.any_uint64(100, 300)
+    claimable_amount = context.any_uint64()
     contract.claimable_amount[account] = claimable_amount
     contract.previous_bidder = account
-    previous_bid = context.any_uint64(1, 100)
+    previous_bid = context.any_uint64(max_value=int(claimable_amount))
     contract.previous_bid = previous_bid
 
     # Act
@@ -115,12 +111,10 @@ def test_claim_bids(
 
 def test_claim_asset(context: AlgopyTestContext) -> None:
     # Arrange
-    account = context.any_account()
-    latest_timestamp = context.any_uint64(1000, 2000)
-    context.patch_global_fields(latest_timestamp=latest_timestamp)
+    context.patch_global_fields(latest_timestamp=context.any_uint64())
     contract = AuctionContract()
     contract.auction_end = context.any_uint64(1, 100)
-    contract.previous_bidder = account
+    contract.previous_bidder = context.default_creator
     asa_amount = context.any_uint64(1000, 2000)
     contract.asa_amount = asa_amount
     asset = context.any_asset()
@@ -131,8 +125,8 @@ def test_claim_asset(context: AlgopyTestContext) -> None:
     # Assert
     last_inner_txn = context.last_submitted_itxn.asset_transfer
     assert last_inner_txn.xfer_asset == asset
-    assert last_inner_txn.asset_close_to == account
-    assert last_inner_txn.asset_receiver == account
+    assert last_inner_txn.asset_close_to == context.default_creator
+    assert last_inner_txn.asset_receiver == context.default_creator
     assert last_inner_txn.asset_amount == asa_amount
 
 

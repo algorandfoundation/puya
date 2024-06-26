@@ -159,21 +159,30 @@ def txn_type_to_bytes(txn_type: int) -> algopy.Bytes:
 
 
 def is_instance(obj: object, class_or_tuple: type | UnionType) -> bool:
+    if isinstance(class_or_tuple, UnionType):
+        return any(is_instance(obj, arg) for arg in get_args(class_or_tuple))
+
     if isinstance(obj, typing._ProtocolMeta):  # type: ignore[type-check, unused-ignore]
         return (
-            (
-                any(
-                    f"{obj.__module__}.{obj.__name__}"
-                    == f"{class_or_tuple.__module__}.{class_or_tuple.__name__}"  # type: ignore[union-attr, unused-ignore]
-                    for class_or_tuple in get_args(class_or_tuple)
-                )
-            )
-            if isinstance(class_or_tuple, UnionType)
-            else (
-                f"{obj.__module__}.{obj.__name__}"
-                == f"{class_or_tuple.__module__}.{class_or_tuple.__name__}"  # type: ignore[union-attr, unused-ignore]
-            )
+            f"{obj.__module__}.{obj.__name__}"
+            == f"{class_or_tuple.__module__}.{class_or_tuple.__name__}"  # type: ignore[union-attr, unused-ignore]
         )
+
+    # Manual comparison by module and name
+    if (
+        hasattr(obj, "__module__")
+        and hasattr(obj, "__name__")
+        and (
+            obj.__module__,
+            obj.__name__,  # type: ignore[attr-defined, unused-ignore]
+        )
+        == (
+            class_or_tuple.__module__,
+            class_or_tuple.__name__,
+        )
+    ):
+        return True
+
     return isinstance(obj, class_or_tuple)
 
 
@@ -190,21 +199,21 @@ def abi_type_name_for_arg(  # noqa: PLR0912, C901, PLR0911
         return "string"
     if is_instance(arg, algopy.arc4.Bool | bool):
         return "bool"
-    if isinstance(arg, algopy.BigUInt):
+    if is_instance(arg, algopy.BigUInt):
         return "uint512"
-    if isinstance(arg, algopy.UInt64):
+    if is_instance(arg, algopy.UInt64):
         return "uint64"
     if isinstance(arg, int):
         return "uint64" if arg <= MAX_UINT64 else "uint512"
-    if isinstance(arg, algopy.Bytes | bytes):
+    if is_instance(arg, algopy.Bytes | bytes):
         return "byte[]"
     if is_instance(arg, algopy.arc4.Address):
         return "address"
-    if isinstance(arg, algopy.Asset):
+    if is_instance(arg, algopy.Asset):
         return "uint64" if is_return_type else "asset"
-    if isinstance(arg, algopy.Account):
+    if is_instance(arg, algopy.Account):
         return "uint64" if is_return_type else "account"
-    if isinstance(arg, algopy.Application):
+    if is_instance(arg, algopy.Application):
         return "uint64" if is_return_type else "application"
     if is_instance(arg, algopy.arc4.UIntN):
         return "uint" + str(arg._bit_size)  # type: ignore[attr-defined]
