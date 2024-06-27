@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -207,17 +207,28 @@ class TypingLiteralType(PyType):
         raise CodeError(f"{self} is not usable as a value", self.source_location)
 
 
+_TupleWTypeFactory = Callable[
+    [Iterable[wtypes.WType], SourceLocation | None],
+    wtypes.WTuple | wtypes.ARC4Tuple,
+]
+
+
 @typing.final
 @attrs.frozen(kw_only=True)
 class TupleType(PyType):
-    generic: _GenericType[TupleType]
+    names: tuple[str, ...] | None = attrs.field()
     items: tuple[PyType, ...]
-    _wtype_cls: type[wtypes.WTuple | wtypes.ARC4Tuple]
+    _wtype_factory: _TupleWTypeFactory
     source_location: SourceLocation | None
+
+    @names.validator
+    def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
+        if names is not None and len(names) != len(self.items):
+            raise InternalError("names length must match items length", self.source_location)
 
     @property
     def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
-        return self._wtype_cls((i.wtype for i in self.items), self.source_location)
+        return self._wtype_factory((i.wtype for i in self.items), self.source_location)
 
 
 @typing.final
@@ -384,6 +395,7 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     wtype=wtypes.application_wtype,
 )
 
+
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_ON_COMPLETE_ACTION)
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_TRANSACTION_TYPE)
 OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(  # TODO: replace with alias as above
@@ -539,7 +551,7 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 
 
 def _make_tuple_parameterise(
-    wtype_cls: type[wtypes.WTuple | wtypes.ARC4Tuple],
+    wtype_factory: _TupleWTypeFactory,
 ) -> _Parameterise[TupleType]:
     def parameterise(
         self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
@@ -548,8 +560,9 @@ def _make_tuple_parameterise(
         return TupleType(
             generic=self,
             name=name,
+            names=None,
             items=tuple(args),
-            wtype_cls=wtype_cls,
+            wtype_factory=wtype_factory,
             source_location=source_location,
         )
 
@@ -564,6 +577,49 @@ GenericTupleType: typing.Final = _GenericType(
 GenericARC4TupleType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_TUPLE,
     parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
+)
+
+
+def _named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
+    def _flatten(items: Iterable[wtypes.WType]) -> Iterable[wtypes.WType]:
+        for item in items:
+            if isinstance(item, wtypes.WTuple):
+                yield from _flatten(item.types)
+            else:
+                yield item
+
+    pytype = TupleType(
+        name=name,
+        generic=None,
+        names=tuple(items.keys()),
+        items=tuple(items.values()),
+        wtype_factory=lambda items, loc: wtypes.WTuple(_flatten(items), loc),
+        source_location=None,
+    )
+    _register_builtin(pytype)
+    return pytype
+
+
+# TODO: The CompiledContract and CompiledLogicSig types are currently just protocols in the stubs,
+#       however the should become named tuples once nested tuples are supported.
+#       For now it is convenient to represent them as named tuples at the pytypes level
+CompiledContractType: typing.Final[TupleType] = _named_tuple(
+    name=f"{constants.ALGOPY_PREFIX}_compiled.CompiledContract",
+    items={
+        "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
+        "clear_state_program": GenericTupleType.parameterise([BytesType, BytesType], None),
+        "extra_program_pages": UInt64Type,
+        "global_num_uint": UInt64Type,
+        "global_num_bytes": UInt64Type,
+        "local_num_uint": UInt64Type,
+        "local_num_bytes": UInt64Type,
+    },
+)
+CompiledLogicSigType: typing.Final[TupleType] = _named_tuple(
+    name=f"{constants.ALGOPY_PREFIX}_compiled.CompiledLogicSig",
+    items={
+        "account": AccountType,
+    },
 )
 
 
@@ -970,6 +1026,7 @@ class _BaseType(PyType):
         _register_builtin(self)
 
 
+NamedTuple: typing.Final[PyType] = _BaseType(name="typing.NamedTuple")
 ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
 ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
     name=constants.ARC4_CONTRACT_BASE,

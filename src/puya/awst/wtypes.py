@@ -179,7 +179,11 @@ class WTuple(WType):
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
 
-    def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
+    def __init__(
+        self,
+        types: Iterable[WType],
+        source_location: SourceLocation | None,
+    ):
         types = tuple(types)
         if not types:
             raise CodeError("empty tuples are not supported", source_location)
@@ -305,7 +309,7 @@ class ARC4Tuple(ARC4Type):
             immutable = immutable and typ.immutable
         name = f"arc4.tuple<{','.join([t.name for t in types])}>"
         arc4_name = f"({','.join(item.arc4_name for item in arc4_types)})"
-        native_type = WTuple(types, source_location)
+        native_type = WTuple(types=types, source_location=source_location)
         self.__attrs_init__(
             name=name,
             arc4_name=arc4_name,

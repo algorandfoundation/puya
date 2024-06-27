@@ -13,7 +13,13 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, StackType, Variant
 from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
 from puya.ir.visitor import IRVisitor
-from puya.models import CompiledReferenceField, ContractMetaData, LogicSignatureMetaData
+from puya.models import (
+    CompiledReferenceField,
+    ContractMetaData,
+    ContractReference,
+    LogicSignatureMetaData,
+    LogicSigReference,
+)
 from puya.parse import SourceLocation
 from puya.utils import unique
 
@@ -278,16 +284,26 @@ class BytesConstant(Constant):
         return visitor.visit_bytes_constant(self)
 
 
-@attrs.frozen
-class CompiledReference(Value):
-    artifact: str
+@attrs.define
+class CompiledContractReference(Value):
+    artifact: ContractReference
     field: CompiledReferenceField
-    template_variables: Mapping[str, bytes | int] = attrs.field(converter=immutabledict)
+    template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
     source_location: SourceLocation | None = attrs.field(eq=False)
     program_page: int = 0  # used for approval and clear_state fields
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_compiled_reference(self)
+        return visitor.visit_compiled_contract_reference(self)
+
+
+@attrs.define
+class CompiledLogicSigReference(Value):
+    artifact: LogicSigReference
+    template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
+    source_location: SourceLocation | None = attrs.field(eq=False)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_compiled_logicsig_reference(self)
 
 
 @attrs.frozen
@@ -456,7 +472,7 @@ class InvokeSubroutine(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ValueTuple(ValueProvider):
-    values: list[Value]
+    values: Sequence[Value]
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_value_tuple(self)

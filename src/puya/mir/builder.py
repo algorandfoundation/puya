@@ -298,7 +298,10 @@ class MemoryIRBuilder(IRVisitor[None]):
             source_location=block.source_location,
         )
 
-    def visit_compiled_reference(self, const: ir.CompiledReference) -> None:
+    def visit_compiled_contract_reference(self, const: ir.CompiledContractReference) -> None:
+        _unexpected_node(const)
+
+    def visit_compiled_logicsig_reference(self, const: ir.CompiledLogicSigReference) -> None:
         _unexpected_node(const)
 
     def visit_value_tuple(self, tup: ir.ValueTuple) -> None:

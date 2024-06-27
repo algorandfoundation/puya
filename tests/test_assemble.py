@@ -1,5 +1,4 @@
-import copy
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 
 import algosdk.error
@@ -8,11 +7,8 @@ from _pytest.mark import ParameterSet
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
 from puya.context import CompileContext
-from puya.ir.types_ import AVMBytesEncoding
-from puya.models import CompiledContract, CompiledLogicSignature, CompiledProgram
+from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.options import PuyaOptions
-from puya.teal.models import Byte, Int, TealProgram, TemplateVar
-from puya.teal.output import emit_teal
 
 from tests.utils import (
     PuyaExample,
@@ -66,7 +62,7 @@ def test_assemble_matches_algod(
                         clear,
                         f"{artifact.metadata.name}-clear",
                     )
-                case CompiledLogicSignature(program=logic_sig):
+                case CompiledLogicSig(program=logic_sig):
                     assemble_and_compare_program(
                         compile_result.context,
                         algod_client,
@@ -108,8 +104,14 @@ def assemble_and_compare_program(
     name: str,
 ) -> None:
     puya_program = compiled_program.bytecode
-    program = _replace_template_variables(context.options, compiled_program.teal)
-    teal_src = emit_teal(context, program)
+    assert puya_program is not None
+    template_values = {
+        k: _template_value_as_str(v) for k, v in context.options.template_variables.items()
+    }
+    teal_src = "\n".join(
+        _replace_template_variables(line, template_values)
+        for line in compiled_program.teal_src.splitlines()
+    )
     algod_program = Program(teal_src, algod_client).raw_binary
 
     expected = algod_program.hex()
@@ -127,25 +129,13 @@ def assemble_and_compare_program(
     assert actual == expected, f"{name} bytecode does not match algod bytecode"
 
 
-def _replace_template_variables(options: PuyaOptions, program: TealProgram) -> TealProgram:
-    program = copy.deepcopy(program)
-    template_vars = options.template_variables
-    for sub in program.all_subroutines:
-        for block in sub.blocks:
-            for op_idx, op in enumerate(block.ops):
-                match op:
-                    case TemplateVar(op_code="int", name=name, source_location=loc):
-                        value = template_vars[name]
-                        assert isinstance(value, int)
-                        op = Int(value=value, source_location=loc)
-                    case TemplateVar(op_code="byte", name=name, source_location=loc):
-                        value = template_vars[name]
-                        assert isinstance(value, bytes)
-                        op = Byte(
-                            value=value, encoding=AVMBytesEncoding.base16, source_location=loc
-                        )
-                    case _:
-                        continue
-                block.ops[op_idx] = op
+def _template_value_as_str(value: int | bytes) -> str:
+    if isinstance(value, int):
+        return repr(value)
+    return "0x" + value.hex()
 
-    return program
+
+def _replace_template_variables(line: str, template_values: Mapping[str, str]) -> str:
+    for var, value in template_values.items():
+        line = line.replace(var, value, 1)
+    return line

@@ -7,6 +7,7 @@ from collections.abc import Iterator, Mapping, Sequence
 import attrs
 
 import puya.awst.nodes as awst_nodes
+import puya.models
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.ir.builder.blocks import BlocksBuilder
@@ -66,7 +67,7 @@ class IRBuildContext(CompileContext):
         )
 
     def resolve_contract_reference(
-        self, cref: awst_nodes.ContractReference
+        self, cref: puya.models.ContractReference
     ) -> awst_nodes.ContractFragment:
         return self.resolve_symbol(cref.module_name, cref.class_name, awst_nodes.ContractFragment)
 
@@ -121,7 +122,7 @@ class IRBuildContext(CompileContext):
         name: str,
         source_location: SourceLocation,
         *,
-        start: awst_nodes.ContractReference | None = None,
+        start: puya.models.ContractReference | None = None,
     ) -> awst_nodes.ContractMethod:
         current = self.contract
         if current is None:

@@ -35,7 +35,8 @@ from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
     BytesConstant,
-    CompiledReference,
+    CompiledContractReference,
+    CompiledLogicSigReference,
     ConditionalBranch,
     Fail,
     Intrinsic,
@@ -59,6 +60,7 @@ from puya.ir.types_ import (
     wtype_to_ir_types,
 )
 from puya.ir.utils import format_tuple_index
+from puya.models import CompiledReferenceField
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ValueProvider | None
@@ -135,15 +137,61 @@ class FunctionIRBuilder(
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         return arc4.encode_expr(self.context, expr)
 
-    def visit_compiled_reference(self, expr: awst_nodes.CompiledReference) -> TExpression:
+    def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
         prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix
-        return CompiledReference(
-            artifact=expr.artifact,
-            field=expr.field,
-            program_page=expr.program_page,
-            ir_type=wtype_to_ir_type(expr.wtype),
+        template_variables = {
+            prefix + k: self.visit_and_materialise_single(v)
+            for k, v in expr.template_variables.items()
+        }
+        program_pages = [
+            CompiledContractReference(
+                artifact=expr.contract,
+                field=field,
+                program_page=page,
+                ir_type=IRType.bytes,
+                source_location=expr.source_location,
+                template_variables=template_variables,
+            )
+            for field in (CompiledReferenceField.approval, CompiledReferenceField.clear_state)
+            for page in (0, 1)
+        ]
+        return ValueTuple(
+            values=program_pages
+            + [
+                CompiledContractReference(
+                    artifact=expr.contract,
+                    field=field,
+                    ir_type=IRType.uint64,
+                    source_location=expr.source_location,
+                    template_variables=template_variables,
+                )
+                for field in (
+                    CompiledReferenceField.extra_program_pages,
+                    CompiledReferenceField.global_uints,
+                    CompiledReferenceField.global_bytes,
+                    CompiledReferenceField.local_uints,
+                    CompiledReferenceField.local_bytes,
+                )
+            ],
             source_location=expr.source_location,
-            template_variables={prefix + k: v for k, v in expr.template_variables.items()},
+        )
+
+    def visit_compiled_logicsig(self, expr: awst_nodes.CompiledLogicSig) -> TExpression:
+        prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix
+        template_variables = {
+            prefix + k: self.visit_and_materialise_single(v)
+            for k, v in expr.template_variables.items()
+        }
+        return ValueTuple(
+            values=[
+                CompiledLogicSigReference(
+                    artifact=expr.logic_sig,
+                    ir_type=IRType.bytes,
+                    source_location=expr.source_location,
+                    template_variables=template_variables,
+                )
+            ],
+            source_location=expr.source_location,
         )
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:

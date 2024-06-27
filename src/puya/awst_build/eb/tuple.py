@@ -242,7 +242,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
     @typing.override
     def member_access(
         self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> typing.Never:
+    ) -> InstanceBuilder:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)

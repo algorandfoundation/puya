@@ -31,14 +31,10 @@ def compile_arc32(
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
-    contract_name: str | None = None,
 ) -> str:
     result = compile_src(src_path, optimization_level=optimization_level, debug_level=debug_level)
     artifacts = [a for artifacts in result.teal.values() for a in artifacts]
-    if contract_name is None:
-        (contract,) = artifacts
-    else:
-        contract = next(a for a in artifacts if a.metadata.name == contract_name)
+    (contract,) = artifacts
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(
         contract.approval_program.teal_src, contract.clear_program.teal_src, contract.metadata
@@ -1449,11 +1445,9 @@ def test_box_map(box_client: algokit_utils.ApplicationClient) -> None:
 
 
 def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = TEST_CASES_DIR / "compile"
+    example = TEST_CASES_DIR / "compile" / "factory.py"
 
-    app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(example, contract_name="HelloFactory")
-    )
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
     app_client.create()

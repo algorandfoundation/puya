@@ -18,10 +18,8 @@ from puya.awst import (
 from puya.awst.nodes import (
     TXN_FIELDS_BY_IMMEDIATE,
     ARC4Decode,
-    BaseClassSubroutineTarget,
     BytesConstant,
     BytesEncoding,
-    CompiledReference,
     CreateInnerTransaction,
     Expression,
     IntegerConstant,
@@ -35,17 +33,18 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
-from puya.awst_build.eb.bytes import BytesExpressionBuilder, BytesTypeBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
-from puya.awst_build.eb.tuple import TupleExpressionBuilder, TupleLiteralBuilder
+from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder, UInt64TypeBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
@@ -202,8 +201,7 @@ def _abi_call(
     method: NodeBuilder | None = None
     abi_args = list[InstanceBuilder]()
     transaction_kwargs = dict[str, InstanceBuilder]()
-    prefix: str | None = None
-    template_vars = dict[str, int | bytes]()
+    compiled: InstanceBuilder | None = None
     for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
         if arg_name is None:
             if idx == 0:
@@ -212,24 +210,12 @@ def _abi_call(
                 abi_args.append(require_instance_builder(arg))
         elif arg_name in _APP_TRANSACTION_FIELDS:
             transaction_kwargs[arg_name] = require_instance_builder(arg)
-        elif arg_name == "prefix":
-            if isinstance(arg, LiteralBuilder) and isinstance(arg.value, str):
-                prefix = arg.value
-            else:
-                logger.error("expected simple str literal", location=arg.source_location)
-        elif isinstance(arg, LiteralBuilder):
-            # resolve literals so they are validated
-            if isinstance(arg.value, int):
-                const = arg.resolve_literal(UInt64TypeBuilder(arg.source_location)).resolve()
-            elif arg.pytype == pytypes.BytesLiteralType:
-                const = arg.resolve_literal(BytesTypeBuilder(arg.source_location)).resolve()
-            else:
-                logger.error("expected simple int or bytes literal")
-                continue
-            assert isinstance(const, awst_nodes.IntegerConstant | awst_nodes.BytesConstant)
-            template_vars[arg_name] = const.value
+        elif arg_name == "compiled":
+            compiled = expect.exactly_one_arg_of_type_else_dummy(
+                [arg], pytypes.CompiledContractType, arg.source_location
+            )
         else:
-            logger.error("expected simple int or bytes literal", location=arg.source_location)
+            logger.error("unexpected argument", location=arg.source_location)
 
     declared_result_type: pytypes.PyType | None
     arc4_config = None
@@ -249,14 +235,6 @@ def _abi_call(
                 _get_arc4_signature_config_and_return_pytype(eb.context, eb.node, location)
             )
 
-            # fill in default arguments for create/update calls where possible
-            if isinstance(eb, BaseClassSubroutineInvokerExpressionBuilder) and isinstance(
-                eb.target, BaseClassSubroutineTarget
-            ):
-                artifact = eb.target.base_class.full_name
-                _add_default_transaction_args(
-                    transaction_kwargs, arc4_config, artifact, prefix, template_vars, location
-                )
             if (
                 return_type_annotation is not None
                 and return_type_annotation != declared_result_type
@@ -285,6 +263,7 @@ def _abi_call(
         raise InternalError("expected ARC4Signature.return_type to be defined", location)
 
     arc4_args = signature.convert_args(abi_args, location)
+    _add_default_transaction_args(transaction_kwargs, arc4_config, compiled, location)
     _validate_transaction_kwargs(transaction_kwargs, arc4_config, location)
     return _create_abi_call_expr(
         method_selector=signature.method_selector,
@@ -531,9 +510,7 @@ def _validate_transaction_kwargs(
 def _add_default_transaction_args(
     transaction_kwargs: dict[str, InstanceBuilder],
     arc4_config: ARC4MethodConfig | None,
-    artifact: str,
-    prefix: str | None,
-    template_vars: dict[str, int | bytes],
+    compiled: InstanceBuilder | None,
     location: SourceLocation,
 ) -> None:
     on_complete = _get_singular_on_complete(transaction_kwargs, arc4_config)
@@ -545,41 +522,33 @@ def _add_default_transaction_args(
             )
         )
 
-    if not artifact:
+    if not compiled:
         return
 
     is_creating = _is_creating(transaction_kwargs)
 
     if is_creating or on_complete == OnCompletionAction.UpdateApplication:
-        for arg, field in _CREATE_OR_UPDATE_ARGS.items():
+        for arg in _CREATE_OR_UPDATE_ARGS:
             if arg in transaction_kwargs:
                 continue
-            transaction_kwargs[arg] = TupleExpressionBuilder(
-                CompiledReference.pages_tuple(
-                    artifact=artifact,
-                    field=field,
-                    prefix=prefix,
-                    template_variables=template_vars,
-                    source_location=location,
-                ),
-                pytypes.GenericTupleType.parameterise(
-                    (pytypes.BytesType, pytypes.BytesType), location
-                ),
+            transaction_kwargs[arg] = require_instance_builder(
+                compiled.member_access(
+                    arg,
+                    mypy.nodes.FakeExpression(),  # TODO: remove hack
+                    location,
+                )
             )
     if not is_creating:
         return
     # add all create kwargs not already defined
-    for arg, field in _CREATE_ONLY_ARGS.items():
+    for arg in _CREATE_ONLY_ARGS:
         if arg in transaction_kwargs:
             continue
-        transaction_kwargs[arg] = UInt64ExpressionBuilder(
-            CompiledReference(
-                wtype=wtypes.uint64_wtype,
-                artifact=artifact,
-                field=field,
-                prefix=prefix,
-                template_variables=template_vars,
-                source_location=location,
+        transaction_kwargs[arg] = require_instance_builder(
+            compiled.member_access(
+                arg,
+                mypy.nodes.FakeExpression(),  # TODO: remove hack
+                location,
             )
         )
 

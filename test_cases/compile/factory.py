@@ -1,100 +1,31 @@
 from algopy import (
     ARC4Contract,
-    Bytes,
     OnCompleteAction,
     String,
-    TemplateVar,
-    UInt64,
     arc4,
-    get_approval_program,
-    get_clear_state_program,
-    get_logicsig_account,
+    compile_contract,
+    compile_logicsig,
     itxn,
-    logicsig,
-    subroutine,
 )
 
-
-@logicsig
-def always_approve_sig() -> bool:
-    return True
-
-
-class HelloBase(ARC4Contract):
-
-    def __init__(self) -> None:
-        self.greeting = String()
-
-    @arc4.abimethod(allow_actions=["DeleteApplication"])
-    def delete(self) -> None:
-        pass
-
-    @arc4.abimethod()
-    def greet(self, name: String) -> String:
-        return self.greeting + " " + name
-
-
-class LargeProgram(ARC4Contract):
-
-    @arc4.abimethod()
-    def get_big_bytes_length(self) -> UInt64:
-        return get_big_bytes().length
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        pass
-
-    @arc4.abimethod(allow_actions=["DeleteApplication"])
-    def delete(self) -> None:
-        pass
-
-
-@subroutine
-def get_big_bytes() -> Bytes:
-    return Bytes.from_hex("00" * 4096)
-
-
-class Hello(HelloBase):
-
-    @arc4.abimethod(create="require")
-    def create(self, greeting: String) -> None:
-        self.greeting = greeting
-
-
-class HelloTmpl(HelloBase):
-
-    def __init__(self) -> None:
-        self.greeting = TemplateVar[String]("GREETING")
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        pass
-
-
-class HelloPrfx(HelloBase):
-
-    def __init__(self) -> None:
-        self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        pass
+from test_cases.compile.apps import Hello, HelloPrfx, HelloTmpl, LargeProgram, always_approve_sig
 
 
 class HelloFactory(ARC4Contract):
 
     @arc4.abimethod()
     def test_logicsig(self) -> arc4.Address:
-        return arc4.Address(get_logicsig_account(always_approve_sig))
+        return arc4.Address(compile_logicsig(always_approve_sig).account)
 
     @arc4.abimethod()
     def test_get_program(self) -> None:
         # create app
+        compiled = compile_contract(Hello)
         hello_app = (
             itxn.ApplicationCall(
                 app_args=(arc4.arc4_signature("create(string)void"), arc4.String("hello")),
-                approval_program=get_approval_program(Hello),
-                clear_state_program=get_clear_state_program(Hello),
+                approval_program=compiled.approval_program,
+                clear_state_program=compiled.clear_state_program,
                 global_num_bytes=1,
             )
             .submit()
@@ -120,12 +51,14 @@ class HelloFactory(ARC4Contract):
     @arc4.abimethod()
     def test_get_program_tmpl(self) -> None:
         # create app
+        greeting = String("hey")
+        compiled = compile_contract(HelloTmpl, template_vars={"GREETING": greeting})
         hello_app = (
             itxn.ApplicationCall(
                 app_args=(arc4.arc4_signature("create()void"),),
-                approval_program=get_approval_program(HelloTmpl, GREETING=b"hey"),
-                clear_state_program=get_clear_state_program(HelloTmpl),
-                global_num_bytes=1,
+                approval_program=compiled.approval_program,
+                clear_state_program=compiled.clear_state_program,
+                global_num_bytes=compiled.global_num_bytes,
             )
             .submit()
             .created_app
@@ -150,12 +83,15 @@ class HelloFactory(ARC4Contract):
     @arc4.abimethod()
     def test_get_program_prfx(self) -> None:
         # create app
+        compiled = compile_contract(
+            HelloPrfx, template_vars={"GREETING": String("hi")}, template_vars_prefix="PRFX_"
+        )
         hello_app = (
             itxn.ApplicationCall(
                 app_args=(arc4.arc4_signature("create()void"),),
-                approval_program=get_approval_program(HelloPrfx, prefix="PRFX_", GREETING=b"hi"),
-                clear_state_program=get_clear_state_program(HelloPrfx),
-                global_num_bytes=1,
+                approval_program=compiled.approval_program,
+                clear_state_program=compiled.clear_state_program,
+                global_num_bytes=compiled.global_num_bytes,
             )
             .submit()
             .created_app
@@ -180,13 +116,14 @@ class HelloFactory(ARC4Contract):
     @arc4.abimethod()
     def test_get_program_large(self) -> None:
         # create app
+        compiled = compile_contract(LargeProgram)
         hello_app = (
             itxn.ApplicationCall(
                 app_args=(arc4.arc4_signature("create()void"),),
-                approval_program=get_approval_program(LargeProgram),
-                clear_state_program=get_clear_state_program(LargeProgram),
-                extra_program_pages=3,
-                global_num_bytes=1,
+                approval_program=compiled.approval_program,
+                clear_state_program=compiled.clear_state_program,
+                extra_program_pages=compiled.extra_program_pages,
+                global_num_bytes=compiled.global_num_bytes,
             )
             .submit()
             .created_app
@@ -211,11 +148,13 @@ class HelloFactory(ARC4Contract):
     @arc4.abimethod()
     def test_abi_call(self) -> None:
         # create app
+        compiled = compile_contract(Hello)
         hello_app = arc4.abi_call(
             Hello.create,
             "hello",
             # approval_program, clear_state_program, global_num_*, local_num_*, and
             # extra_program_pages are automatically set based on Hello contract
+            compiled=compiled,
         ).created_app
 
         # call the new app
@@ -233,9 +172,10 @@ class HelloFactory(ARC4Contract):
     @arc4.abimethod()
     def test_abi_call_tmpl(self) -> None:
         # create app
+        compiled = compile_contract(HelloTmpl, template_vars={"GREETING": String("tmpl2")})
         hello_app = arc4.abi_call(
             HelloTmpl.create,
-            GREETING=b"tmpl2",
+            compiled=compiled,
         ).created_app
 
         # call the new app
@@ -253,10 +193,12 @@ class HelloFactory(ARC4Contract):
     @arc4.abimethod()
     def test_abi_call_prfx(self) -> None:
         # create app
+        compiled = compile_contract(
+            HelloPrfx, template_vars_prefix="PRFX_", template_vars={"GREETING": String("prfx2")}
+        )
         hello_app = arc4.abi_call(
             HelloPrfx.create,
-            prefix="PRFX_",
-            GREETING=b"prfx2",
+            compiled=compiled,
         ).created_app
 
         # call the new app
@@ -276,6 +218,7 @@ class HelloFactory(ARC4Contract):
         # create app
         app = arc4.abi_call(
             LargeProgram.create,
+            compiled=compile_contract(LargeProgram),
         ).created_app
 
         # call the new app

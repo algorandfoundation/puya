@@ -10,6 +10,7 @@ In top-down order:
     -   ir/
     -   mir/
     -   teal/
+    -   ussemble/
     -   compile.py
 
 Dependencies across layer boundaries should only be to something higher in the list.

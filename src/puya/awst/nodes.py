@@ -15,7 +15,7 @@ from puya.awst import wtypes
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, CompiledReferenceField
+from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
@@ -324,47 +324,6 @@ class StringConstant(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_string_constant(self)
-
-
-@attrs.frozen
-class CompiledReference(Expression):
-    artifact: str
-    """Contract or logic sig fullname"""
-    field: CompiledReferenceField
-    program_page: int = 0
-    prefix: str | None = None
-    template_variables: Mapping[str, bytes | int] = attrs.field(
-        converter=immutabledict, factory=immutabledict
-    )
-
-    @classmethod
-    def pages_tuple(
-        cls,
-        *,
-        artifact: str,
-        field: CompiledReferenceField,
-        prefix: str | None,
-        template_variables: Mapping[str, bytes | int],
-        source_location: SourceLocation,
-    ) -> "TupleExpression":
-        return TupleExpression.from_items(
-            [
-                CompiledReference(
-                    wtype=wtypes.bytes_wtype,
-                    artifact=artifact,
-                    field=field,
-                    program_page=page,
-                    prefix=prefix,
-                    template_variables=template_variables,
-                    source_location=source_location,
-                )
-                for page in (0, 1)
-            ],
-            source_location,
-        )
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_compiled_reference(self)
 
 
 @attrs.frozen
@@ -885,6 +844,17 @@ class FieldExpression(Expression):
         validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct)
     )
     name: str
+    wtype: wtypes.WType = attrs.field()
+
+    @wtype.default
+    def _wtype_factory(self) -> wtypes.WType:
+        struct_wtype = self.base.wtype
+        if not isinstance(struct_wtype, wtypes.WStructType | wtypes.ARC4Struct):
+            raise InternalError("invalid struct wtype")
+        try:
+            return struct_wtype.fields[self.name]
+        except KeyError:
+            raise InternalError(f"invalid field for {struct_wtype}") from None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_field_expression(self)
@@ -1202,16 +1172,6 @@ class BytesComparisonExpression(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_comparison_expression(self)
-
-
-@attrs.frozen
-class ContractReference:
-    module_name: str
-    class_name: str
-
-    @property
-    def full_name(self) -> str:
-        return ".".join((self.module_name, self.class_name))
 
 
 @attrs.frozen
@@ -1716,6 +1676,30 @@ class LogicSignature(ModuleStatement):
 
     def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
         return visitor.visit_logic_signature(self)
+
+
+@attrs.frozen
+class CompiledContract(Expression):
+    contract: ContractReference
+    prefix: str | None = None
+    template_variables: Mapping[str, Expression] = attrs.field(
+        converter=immutabledict, factory=immutabledict
+    )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_compiled_contract(self)
+
+
+@attrs.frozen
+class CompiledLogicSig(Expression):
+    logic_sig: LogicSigReference
+    prefix: str | None = None
+    template_variables: Mapping[str, Expression] = attrs.field(
+        converter=immutabledict, factory=immutabledict
+    )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_compiled_logicsig(self)
 
 
 @attrs.frozen(kw_only=True)

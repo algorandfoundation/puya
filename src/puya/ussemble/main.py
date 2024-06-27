@@ -22,6 +22,7 @@ class AssembledProgram:
 def assemble_program(
     ctx: CompileContext, program: teal.TealProgram, template_variables: Mapping[str, int | bytes]
 ) -> AssembledProgram:
+    # TODO: cache result?
     assemble_ctx = attrs_extend(
         AssembleContext,
         ctx,

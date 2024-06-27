@@ -26,7 +26,6 @@ from puya.awst_build.eb import (
 from puya.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
 from puya.errors import InternalError
-from puya.models import CompiledReferenceField
 from puya.parse import SourceLocation
 
 __all__ = [
@@ -38,17 +37,8 @@ CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
-    **{
-        name: functools.partial(
-            compile.GetCompiledProgramExpressionBuilder,
-            field=field,
-        )
-        for name, field in (
-            (constants.GET_LOGICSIG_ACCOUNT, CompiledReferenceField.account),
-            (constants.GET_APPROVAL_PROGRAM, CompiledReferenceField.approval),
-            (constants.GET_CLEAR_STATE_PROGRAM, CompiledReferenceField.clear_state),
-        )
-    },
+    constants.COMPILE_LOGICSIG: compile.CompileLogicSigFunctionBuilder,
+    constants.COMPILE_CONTRACT: compile.CompileContractFunctionBuilder,
     constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
     constants.LOG: log.LogBuilder,
     constants.EMIT: arc4.EmitBuilder,
@@ -172,6 +162,8 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.BigUIntType: biguint.BigUIntExpressionBuilder,
     pytypes.BoolType: bool_.BoolExpressionBuilder,
     pytypes.BytesType: bytes_.BytesExpressionBuilder,
+    pytypes.CompiledContractType: compile.CompiledContractExpressionBuilder,
+    pytypes.CompiledLogicSigType: compile.CompiledLogicSigExpressionBuilder,
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
     pytypes.NoneType: none.NoneExpressionBuilder,

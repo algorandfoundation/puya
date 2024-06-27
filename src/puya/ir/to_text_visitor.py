@@ -42,15 +42,29 @@ class ToTextVisitor(IRVisitor[str]):
     def visit_itxn_constant(self, op: models.ITxnConstant) -> str:
         return f"{op.ir_type.name}({op.value})"
 
-    def visit_compiled_reference(self, const: models.CompiledReference) -> str:
+    def visit_compiled_contract_reference(self, const: models.CompiledContractReference) -> str:
         return (
             ", ".join(
                 (
-                    f"compiled({const.artifact!r}",
+                    f"compiled_contract({const.artifact!r}",
                     f"field={const.field.name}",
                     f"program_page={const.program_page}",
                     *(
-                        f"{var}={'0x' + val.hex() if isinstance(val, bytes) else str(val)}"
+                        f"{var}={val.accept(self)}"
+                        for var, val in const.template_variables.items()
+                    ),
+                )
+            )
+            + ")"
+        )
+
+    def visit_compiled_logicsig_reference(self, const: models.CompiledLogicSigReference) -> str:
+        return (
+            ", ".join(
+                (
+                    f"compiled_logicsig({const.artifact!r}",
+                    *(
+                        f"{var}={val.accept(self)}"
                         for var, val in const.template_variables.items()
                     ),
                 )

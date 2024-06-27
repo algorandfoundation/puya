@@ -2,6 +2,7 @@ import typing
 from collections.abc import Callable, Mapping, Reversible, Sequence
 
 import algopy
+from algopy import CompiledContract
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
@@ -521,8 +522,7 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
-        prefix: str = ...,
-        **template_vars: int | bytes,
+        compiled: CompiledContract | None = None,
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
 
 class _ABICallProtocolType(typing.Protocol):
@@ -545,8 +545,7 @@ class _ABICallProtocolType(typing.Protocol):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
-        prefix: str = ...,
-        **template_vars: int | bytes,
+        compiled: CompiledContract | None = None,
     ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
     @typing.overload
     def __call__(  # type: ignore[misc]
@@ -567,8 +566,7 @@ class _ABICallProtocolType(typing.Protocol):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | algopy.String | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
-        prefix: str = ...,
-        **template_vars: int | bytes,
+        compiled: CompiledContract | None = None,  # TODO: split into abi_create / abi_update
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
     def __getitem__(
         self, _: type[_TABIResult_co]

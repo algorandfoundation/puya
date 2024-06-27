@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import enum
 import typing
 
@@ -7,11 +8,10 @@ import attrs
 from immutabledict import immutabledict
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Sequence
 
     from puya.avm_type import AVMType
     from puya.parse import SourceLocation
-    from puya.teal.models import TealProgram
 
 
 # values and names are matched to AVM definitions
@@ -102,6 +102,32 @@ class ARC32StructDef:
     )
 
 
+@attrs.frozen
+class ContractReference:
+    module_name: str
+    class_name: str
+
+    @property
+    def full_name(self) -> str:
+        return ".".join((self.module_name, self.class_name))
+
+    def __str__(self) -> str:
+        return self.full_name
+
+
+@attrs.frozen
+class LogicSigReference:
+    module_name: str
+    func_name: str
+
+    @property
+    def full_name(self) -> str:
+        return ".".join((self.module_name, self.func_name))
+
+    def __str__(self) -> str:
+        return self.full_name
+
+
 @attrs.define(eq=False)
 class ContractState:
     name: str
@@ -113,13 +139,16 @@ class ContractState:
 
 @attrs.frozen
 class LogicSignatureMetaData:
-    module_name: str
-    name: str
+    ref: LogicSigReference
     description: str | None
 
     @property
+    def name(self) -> str:
+        return self.ref.func_name
+
+    @property
     def full_name(self) -> str:
-        return ".".join((self.module_name, self.name))
+        return self.ref.full_name
 
 
 @attrs.frozen
@@ -138,8 +167,7 @@ ARC4Method = ARC4BareMethod | ARC4ABIMethod
 class ContractMetaData:
     description: str | None
     name_override: str | None
-    module_name: str
-    class_name: str
+    ref: ContractReference
     global_state: immutabledict[str, ContractState]
     local_state: immutabledict[str, ContractState]
     state_totals: StateTotals
@@ -151,58 +179,60 @@ class ContractMetaData:
 
     @property
     def name(self) -> str:
-        return self.name_override or self.class_name
+        return self.name_override or self.ref.class_name
 
     @property
     def full_name(self) -> str:
-        return ".".join((self.module_name, self.class_name))
+        return self.ref.full_name
 
 
-TemplateVariables = tuple[tuple[str, int | bytes], ...]
-
-
-@attrs.frozen(kw_only=True)
-class CompiledProgram:
-    teal: TealProgram
-    teal_src: str
-    bytecodes: Mapping[TemplateVariables, bytes]
+class CompiledProgram(abc.ABC):
 
     @property
-    def bytecode(self) -> bytes:
-        """Returns the bytecode for the program using CLI template values"""
-        return self.get_bytecode_overrides(None)
+    @abc.abstractmethod
+    def teal_src(self) -> str: ...
 
-    def get_bytecode_overrides(
-        self, template_variables: Mapping[str, int | bytes] | None
-    ) -> bytes:
-        """Returns bytecode for the program when using the specified template overrides"""
-        template_variables = template_variables or {}
-        key = tuple(sorted((k, v) for k, v in template_variables.items()))
-        return self.bytecodes[key]
-
-
-@attrs.frozen(kw_only=True)
-class CompiledContract:
-    approval_program: CompiledProgram
-    clear_program: CompiledProgram
-    metadata: ContractMetaData
+    @property
+    @abc.abstractmethod
+    def bytecode(self) -> bytes | None:
+        """
+        bytecode can only be produced if no template variables are used OR template values are
+        provided, for this reason bytecode is only provided if output_bytecode is True
+        """
 
 
-@attrs.frozen(kw_only=True)
-class CompiledLogicSignature:
-    program: CompiledProgram
-    metadata: LogicSignatureMetaData
+class CompiledContract(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def approval_program(self) -> CompiledProgram: ...
+
+    @property
+    @abc.abstractmethod
+    def clear_program(self) -> CompiledProgram: ...
+
+    @property
+    @abc.abstractmethod
+    def metadata(self) -> ContractMetaData: ...
 
 
-CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSignature
+class CompiledLogicSig(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def program(self) -> CompiledProgram: ...
+
+    @property
+    @abc.abstractmethod
+    def metadata(self) -> LogicSignatureMetaData: ...
+
+
+CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSig
 
 
 class CompiledReferenceField(enum.StrEnum):
     approval = enum.auto()
     clear_state = enum.auto()
-    account = enum.auto()  # logic sig only
+    extra_program_pages = enum.auto()
     global_uints = enum.auto()
     global_bytes = enum.auto()
     local_uints = enum.auto()
     local_bytes = enum.auto()
-    extra_program_pages = enum.auto()

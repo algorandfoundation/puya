@@ -183,8 +183,9 @@ class BaseMyPyVisitor(
         )
 
     # ~~~ unsupported data structures (yet?) ~~~ #
-    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> typing.Never:
-        self._unsupported_node(expr, "dictionaries are not supported")
+    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> _TExpression:
+        # TODO: move out of BaseMyPyVisitor
+        return self._unsupported_node(expr, "dictionaries are not supported")
 
     def visit_dictionary_comprehension(
         self, expr: mypy.nodes.DictionaryComprehension

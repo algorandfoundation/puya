@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     AppStateExpression,
     BytesConstant,
     BytesEncoding,
-    ContractReference,
     Expression,
     Not,
     StateDelete,
@@ -45,6 +44,7 @@ from puya.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

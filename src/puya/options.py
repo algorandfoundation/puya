@@ -42,6 +42,9 @@ class PuyaOptions:
     cli_template_definitions: list[str] = attrs.field(factory=list)
     template_vars_prefix: str = "TMPL_"
     template_vars_path: Path | None = attrs.field(default=None, repr=str)
+    _template_vars_override: Mapping[str, int | bytes] = attrs.field(
+        factory=dict
+    )  # internal use only
     # TODO: the below is probably not scalable as a set of optimisation on/off flags,
     #       but it'll do for now
     locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand
@@ -56,5 +59,6 @@ class PuyaOptions:
                 *template.parse_template_vars(
                     self.cli_template_definitions, self.template_vars_prefix
                 ).items(),
+                *self._template_vars_override.items(),
             )
         )

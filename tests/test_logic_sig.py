@@ -11,7 +11,7 @@ from algosdk.atomic_transaction_composer import (
 )
 from algosdk.transaction import AssetTransferTxn, LogicSigAccount, LogicSigTransaction, PaymentTxn
 from algosdk.v2client.algod import AlgodClient
-from puya.models import CompiledLogicSignature
+from puya.models import CompiledLogicSig
 from puya.options import PuyaOptions
 
 from tests import TEST_CASES_DIR
@@ -25,7 +25,7 @@ def compile_logic_sig(
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
-    cli_template_definitions: list[str] | None = None,
+    template_variables: dict[str, int | bytes] | None = None,
 ) -> bytes:
     result = compile_src_from_options(
         PuyaOptions(
@@ -36,14 +36,16 @@ def compile_logic_sig(
             output_teal=False,
             output_bytecode=True,
             out_dir=Path("out"),
-            cli_template_definitions=cli_template_definitions or [],
+            template_vars_override=template_variables or {},
         )
     )
     (logic_sig,) = (a for file in result.teal.values() for a in file)
     assert isinstance(
-        logic_sig, CompiledLogicSignature
+        logic_sig, CompiledLogicSig
     ), "Compilation artifact must be a logic signature"
-    return logic_sig.program.bytecode
+    bytecode = logic_sig.program.bytecode
+    assert bytecode is not None
+    return bytecode
 
 
 def test_logic_sig(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
@@ -122,11 +124,11 @@ def test_pre_approved_sale(
     )
     logic_sig_prog = compile_logic_sig(
         TEST_CASES_DIR / "logic_signature" / "signature.py",
-        cli_template_definitions=[
-            f"SELLER=0x{algosdk.encoding.decode_address(account.address).hex()}",
-            "PRICE=10_000_000",
-            f"ASSET_ID={asset_a}",
-        ],
+        template_variables={
+            "TMPL_SELLER": algosdk.encoding.decode_address(account.address),
+            "TMPL_PRICE": 10_000_000,
+            "TMPL_ASSET_ID": asset_a,
+        },
     )
     logic_sig = LogicSigAccount(program=logic_sig_prog)
     logic_sig.sign(account.private_key)
