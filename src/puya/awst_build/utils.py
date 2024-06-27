@@ -187,18 +187,6 @@ def expect_operand_type(operand: NodeBuilder, target_type: pytypes.PyType) -> In
     return instance
 
 
-def require_instance_builder_of_type(
-    builder: NodeBuilder, target_type: pytypes.PyType
-) -> InstanceBuilder:
-    builder = require_instance_builder(builder)
-    if builder.pytype != target_type:
-        raise CodeError(
-            f"Expected type {target_type}, got type {builder.pytype}",
-            builder.source_location,
-        )
-    return builder
-
-
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:
     assert type_info.mro[0].defn is type_info.defn, "first MRO entry should always be class itself"
     for base_type in type_info.mro[1:]:
