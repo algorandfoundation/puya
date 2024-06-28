@@ -45,6 +45,7 @@ TEST_MODULE = "__test__"
 def mypy_parse_and_type_check(source: str | typing.Callable) -> mypy.build.BuildResult:
     code = source if isinstance(source, str) else decompile(source)
     options = get_mypy_options()
+    options.export_types = True
 
     sources = [mypy.build.BuildSource(None, TEST_MODULE, text=dedent(code))]
 
