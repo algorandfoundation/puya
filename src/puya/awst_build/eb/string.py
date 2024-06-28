@@ -34,7 +34,6 @@ from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
 )
@@ -183,11 +182,15 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         return BoolExpressionBuilder(is_substring_expr)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         raise CodeError(
             "string iteration in not supported due to lack of UTF8 support in AVM",
             self.source_location,
         )
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

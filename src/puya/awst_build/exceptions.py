@@ -23,5 +23,5 @@ class TypeUnionError(CodeError):
 
     def __init__(self, types: Sequence[pytypes.PyType], location: SourceLocation):
         assert len(types) > 1
-        super().__init__(msg="Type unions are unsupported at this location", location=location)
+        super().__init__(msg="type unions are unsupported at this location", location=location)
         self.types = types

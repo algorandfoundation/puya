@@ -20,7 +20,7 @@ from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilde
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.storage._common import BoxValueExpressionBuilder
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
@@ -177,8 +177,12 @@ class BoxMapProxyExpressionBuilder(
         raise CodeError("slicing of BoxMap is not supported", location)
 
     @typing.override
-    def iterate(self) -> Iteration:  # pragma: no cover
+    def iterate(self) -> typing.Never:  # pragma: no cover
         raise CodeError("iteration of BoxMap is not supported", self.source_location)
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

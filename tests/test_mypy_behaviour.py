@@ -11,6 +11,7 @@ import mypy.nodes
 import mypy.options
 import mypy.types
 import pytest
+from mypy.nodes import RevealExpr
 
 from puya.compile import get_mypy_options
 
@@ -44,6 +45,7 @@ TEST_MODULE = "__test__"
 def mypy_parse_and_type_check(source: str | typing.Callable) -> mypy.build.BuildResult:
     code = source if isinstance(source, str) else decompile(source)
     options = get_mypy_options()
+    options.export_types = True
 
     sources = [mypy.build.BuildSource(None, TEST_MODULE, text=dedent(code))]
 
@@ -56,15 +58,17 @@ def strip_error_prefixes(br: mypy.build.BuildResult) -> list[str]:
 
 def get_revealed_types(
     br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile
-) -> list[mypy.types.Type]:
+) -> list[mypy.types.Type | None]:
+    import mypy.traverser
+
     types = []
-    for stmt in tree.defs:
-        match stmt:
-            case mypy.nodes.ExpressionStmt(
-                expr=mypy.nodes.CallExpr(analyzed=mypy.nodes.RevealExpr(expr=expr))
-            ):
-                et = br.types[expr]
-                types.append(et)
+
+    class MyVisitor(mypy.traverser.TraverserVisitor):
+        def visit_reveal_expr(self, o: RevealExpr) -> None:
+            types.append(br.types.get(o.expr, mypy.types.UninhabitedType()))
+
+    visitor = MyVisitor()
+    visitor.visit_mypy_file(tree)
     return types
 
 
@@ -972,3 +976,38 @@ def test_special_indexing() -> None:
     result = mypy_parse_and_type_check(test)
     tree = result.graph[TEST_MODULE].tree
     assert tree
+
+
+@pytest.mark.xfail(reason="mypy doesn't consider equality in match-case with value patterns")
+def test_match_case_reachability() -> None:
+    def test():
+        import typing
+
+        class MyInt:
+            def __init__(self, value: int):
+                self.value = value
+
+            def __eq__(self, other: object) -> bool:
+                return (other == self.value) or (
+                    isinstance(other, MyInt) and other.value == self.value
+                )
+
+        match MyInt(1):
+            case 1:
+                x = None
+                typing.reveal_type(x)
+            case _:
+                x = "ironically unreachable"
+                typing.reveal_type(x)
+
+        return typing.reveal_type(x)
+
+    assert test() is None
+
+    result = mypy_parse_and_type_check(test)
+    tree = result.graph[TEST_MODULE].tree
+    assert list(map(str, get_revealed_types(result, tree))) == [
+        "None",
+        "builtins.str",
+        "Union[builtins.str, None]",
+    ]
