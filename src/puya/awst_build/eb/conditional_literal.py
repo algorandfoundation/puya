@@ -11,7 +11,6 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
     TypeBuilder,
@@ -188,8 +187,12 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         raise CodeError("cannot iterate literal")
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

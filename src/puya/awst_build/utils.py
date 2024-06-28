@@ -24,8 +24,10 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
+from puya.awst_build.exceptions import TypeUnionError
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
 
@@ -294,37 +296,40 @@ def snake_case(s: str) -> str:
     return re.sub(r"[-\s]", "_", s).lower()
 
 
-def resolve_method_from_type_info(
+def resolve_member_node(
     type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
-) -> mypy.nodes.FuncBase | mypy.nodes.Decorator | None:
-    """Get a function member from TypeInfo, or return None.
-
-    Differs from TypeInfo.get_method() if there are conflicting definitions of name,
-    one being a method and another being an attribute.
-    This is important for semantic compatibility.
-
-    If the found member is not a function, an exception is raised.
-    Also raises if the SymbolTableNode is unresolved (it shouldn't be once we can see it).
-    """
+) -> mypy.nodes.SymbolNode | None:
     member = type_info.get(name)
     if member is None:
         return None
-    match member.node:
-        case None:
-            raise InternalError(
-                "mypy cross reference remains unresolved:"
-                f" member {name!r} of {type_info.fullname!r}",
-                location,
-            )
-        # matching types taken from mypy.nodes.TypeInfo.get_method
-        case mypy.nodes.FuncBase() | mypy.nodes.Decorator() as func_or_dec:
-            return func_or_dec
-        case other_node:
-            logger.debug(
-                f"Non-function member: type={type(other_node).__name__!r}, value={other_node}",
-                location=location,
-            )
-            raise CodeError(f"unsupported reference to non-function member {name!r}", location)
+    if member.node is None:
+        raise InternalError(
+            "mypy cross reference remains unresolved:"
+            f" member {name!r} of {type_info.fullname!r}",
+            location,
+        )
+    return member.node
+
+
+def symbol_node_is_function(
+    node: mypy.nodes.SymbolNode,
+) -> typing.TypeGuard[mypy.nodes.FuncBase | mypy.nodes.Decorator]:
+    # matching types taken from mypy.nodes.TypeInfo.get_method
+    return isinstance(node, mypy.nodes.FuncBase | mypy.nodes.Decorator)
+
+
+def require_callable_type(
+    node: mypy.nodes.FuncBase | mypy.nodes.Decorator, location: SourceLocation
+) -> mypy.types.CallableType:
+    if isinstance(node, mypy.nodes.Decorator):
+        typ = node.var.type
+    else:
+        typ = node.type
+    if typ is None:
+        raise InternalError(f"unable to resolve type of {node.fullname}", location)
+    if not isinstance(typ, mypy.types.CallableType):
+        raise CodeError("expected a callable type", location)
+    return typ
 
 
 def maybe_resolve_literal(
@@ -337,3 +342,42 @@ def maybe_resolve_literal(
         if isinstance(target_type_builder, TypeBuilder):
             return operand.resolve_literal(target_type_builder)
     return operand
+
+
+def determine_base_type(
+    first: pytypes.PyType, *rest: pytypes.PyType, location: SourceLocation
+) -> pytypes.PyType | None:
+    if len({first, *rest}) == 1:
+        return first
+    # the intersection of the MRO lists gives us all potential candidates
+    # of overlapping base types
+    mro_intersection = StableSet[pytypes.PyType](first, *first.mro)
+    for operand in rest:
+        operand_mro = StableSet(operand, *operand.mro)
+        mro_intersection = mro_intersection.intersection(operand_mro)
+        if not mro_intersection:
+            return None
+    assert mro_intersection
+    if len(mro_intersection) == 1:
+        (result,) = mro_intersection
+        return result
+    mro_intersection_list = list(mro_intersection)
+    most_derived = []
+    for idx, candidate in enumerate(mro_intersection_list):
+        for other in mro_intersection_list[idx + 1 :]:
+            # if candidate is an ancestor of another candidate,
+            # it's not a most-derived
+            if candidate in other.mro:
+                break
+        else:
+            most_derived.append(candidate)
+    if not most_derived:
+        # shouldn't happen??
+        raise InternalError(
+            f"unable to find any most derived from MRO intersection: {mro_intersection_list}",
+            location,
+        )
+    if len(most_derived) > 1:
+        raise TypeUnionError(most_derived, location)
+    (result,) = most_derived
+    return result

@@ -16,7 +16,6 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
 )
@@ -137,9 +136,13 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
         return dummy_value(pytypes.BoolType, location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         # could only support for homogenous types anyway, in which case use a StaticArray?
         raise CodeError("iterating ARC4 tuples is currently unsupported", self.source_location)
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def slice_index(

@@ -432,8 +432,8 @@ contract examples.amm.contract.ConstantProductAMM:
                 (assert maybe_exists%2#0) // check self.asset_a exists
                 let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "asset_b")
                 (assert maybe_exists%3#0) // check self.asset_b exists
-                let awst_tmp%0#0: uint64 = ((gtxns XferAsset) swap_xfer#0)
-                switch awst_tmp%0#0 {maybe_value%2#0 => block@1, maybe_value%3#0 => block@2, * => fail // asset id incorrect}
+                let tmp%7#0: uint64 = ((gtxns XferAsset) swap_xfer#0)
+                switch tmp%7#0 {maybe_value%2#0 => block@1, maybe_value%3#0 => block@2, * => fail // asset id incorrect}
             block@1: // switch_case_0_L233
                 let in_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
                 let out_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
@@ -449,8 +449,8 @@ contract examples.amm.contract.ConstantProductAMM:
             block@4: // switch_case_next_L231
                 let to_swap#0: uint64 = examples.amm.contract.tokens_to_swap(tmp%2#0, in_supply#0, out_supply#0)
                 (assert to_swap#0) // send amount too low
-                let tmp%9#0: bytes = (txn Sender)
-                examples.amm.contract.do_asset_transfer(tmp%9#0, out_asset#0, to_swap#0)
+                let tmp%10#0: bytes = (txn Sender)
+                examples.amm.contract.do_asset_transfer(tmp%10#0, out_asset#0, to_swap#0)
                 examples.amm.contract.ConstantProductAMM._update_ratio()
                 return 
         

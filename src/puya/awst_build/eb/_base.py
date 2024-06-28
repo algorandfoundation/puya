@@ -185,6 +185,11 @@ class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
 
     @typing.final
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return super().iterable_item_type()
+
+    @typing.final
+    @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         return super().index(index, location)
 

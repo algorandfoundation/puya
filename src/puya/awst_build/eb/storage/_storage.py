@@ -124,6 +124,10 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(self.source_location)
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return self._assign_first(self.source_location)
+
+    @typing.override
     def member_access(
         self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:

@@ -149,6 +149,10 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         return self.resolve()
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return self.pytype.items
+
+    @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         array_length = self.length(index.source_location)
         index = resolve_negative_literal_index(index, array_length, location)

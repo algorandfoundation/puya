@@ -17,7 +17,7 @@ class MyContract(algopy.Contract):
     def match_uint64(self) -> None:
         n = algopy.op.Txn.num_app_args
         match n:
-            case algopy.UInt64(0):
+            case 0:
                 hello = algopy.Bytes(b"Hello")
                 algopy.log(hello)
             case algopy.UInt64(10):

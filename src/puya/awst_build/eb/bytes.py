@@ -218,6 +218,10 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return self.resolve()
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return pytypes.BytesType
+
+    @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         len_expr = intrinsic_factory.bytes_len(self.resolve(), location)
         len_builder = UInt64ExpressionBuilder(len_expr)

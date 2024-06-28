@@ -43,7 +43,8 @@ from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
     require_instance_builder,
-    resolve_method_from_type_info,
+    resolve_member_node,
+    symbol_node_is_function,
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -100,10 +101,12 @@ class ARC4ClientTypeBuilder(TypeBuilder):
     def member_access(
         self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
     ) -> NodeBuilder:
-        func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
-        if func_or_dec is None:
-            raise CodeError(f"unknown member {name!r} of {self.type_info.fullname!r}", location)
-        return ARC4ClientMethodExpressionBuilder(self.context, func_or_dec, location)
+        node = resolve_member_node(self.type_info, name, location)
+        if node is None:
+            return super().member_access(name, expr, location)
+        if symbol_node_is_function(node):
+            return ARC4ClientMethodExpressionBuilder(self.context, node, location)
+        raise CodeError("static references are only supported for methods", location)
 
 
 class ARC4ClientMethodExpressionBuilder(FunctionBuilder):

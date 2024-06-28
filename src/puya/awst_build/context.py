@@ -155,35 +155,6 @@ class ASTConversionModuleContext(ASTConversionContext):
         with log_exceptions(self._maybe_convert_location(fallback_location)):
             yield
 
-    def mypy_expr_node_type(self, expr: mypy.nodes.Expression) -> pytypes.PyType:
-        expr_loc = self.node_location(expr)
-        match expr:
-            # for some reason, mypy gives you back an unbound callable type when resolving
-            # an alias node...
-            case mypy.nodes.RefExpr(fullname=fullname) if (
-                known_typ := self._pytypes.get(fullname)
-            ):
-                return pytypes.TypeType(known_typ)
-        mypy_type = self.parse_result.manager.all_types.get(expr)
-        if mypy_type is not None:
-            return self.type_to_pytype(mypy_type, source_location=expr_loc)
-        match expr:
-            # for some reason the below don't usually appear in mypy type tables...
-            case mypy.nodes.TupleExpr(items=items):
-                item_types = [self.mypy_expr_node_type(it) for it in items]
-                return pytypes.GenericTupleType.parameterise(item_types, expr_loc)
-            case mypy.nodes.IntExpr():
-                return pytypes.IntLiteralType
-            case mypy.nodes.BytesExpr():
-                return pytypes.BytesLiteralType
-            case mypy.nodes.StrExpr():
-                return pytypes.StrLiteralType
-            case mypy.nodes.RefExpr(node=mypy.nodes.Var(type=mypy.types.Type() as var_typ)):
-                # this can be due to unreachable code
-                return self.type_to_pytype(var_typ, source_location=expr_loc)
-            case _:
-                raise InternalError(f"mypy expression not present in type table: {expr}", expr_loc)
-
     def type_to_pytype(
         self,
         mypy_type: mypy.types.Type,

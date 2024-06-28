@@ -237,6 +237,10 @@ class _RangeIterBuilder(_IterableOnlyBuilder):
         )
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return pytypes.UInt64Type
+
+    @typing.override
     def single_eval(self) -> InstanceBuilder:
         return _RangeIterBuilder(
             start=self._start.single_eval(),
@@ -262,6 +266,13 @@ class _EnumerateIterBuilder(_IterableOnlyBuilder):
         return Enumeration(expr=self._sequence.iterate(), source_location=self.source_location)
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        item_type = self._sequence.iterable_item_type()
+        return pytypes.GenericTupleType.parameterise(
+            [pytypes.UInt64Type, item_type], self.source_location
+        )
+
+    @typing.override
     def single_eval(self) -> InstanceBuilder:
         return _EnumerateIterBuilder(self._sequence.single_eval(), self.source_location)
 
@@ -280,6 +291,10 @@ class _ReversedIterBuilder(_IterableOnlyBuilder):
     @typing.override
     def iterate(self) -> Iteration:
         return Reversed(expr=self._sequence.iterate(), source_location=self.source_location)
+
+    @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return self._sequence.iterable_item_type()
 
     @typing.override
     def single_eval(self) -> InstanceBuilder:

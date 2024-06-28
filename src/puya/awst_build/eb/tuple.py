@@ -34,6 +34,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
+from puya.awst_build.utils import determine_base_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -200,6 +201,10 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
     def iterate(self) -> Iteration:
         return self.resolve()
 
+    @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return _iterable_item_type(self.pytype, self.source_location)
+
     def _expr_builder(self) -> InstanceBuilder:
         # used to maintain semantic compatibility, we must resolve this so all elements
         # get evaluated, we can't handle literal indexing or literal containment specially
@@ -347,6 +352,10 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return self.resolve()
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return _iterable_item_type(self.pytype, self.source_location)
+
+    @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         contains_expr = Contains(
             sequence=self.resolve(),
@@ -486,3 +495,14 @@ def _make_indexer(
         return builder.index(index_lit, location)
 
     return indexer
+
+
+def _iterable_item_type(
+    pytype: pytypes.TupleType, source_location: SourceLocation
+) -> pytypes.PyType:
+    common_base_type = determine_base_type(*pytype.items, location=source_location)
+    if common_base_type is None:
+        raise CodeError(
+            "unable to iterate heterogeneous tuple without common base type", source_location
+        )
+    return common_base_type

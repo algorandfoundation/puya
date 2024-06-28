@@ -29,7 +29,6 @@ from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     InstanceBuilder,
-    Iteration,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeBuilder,
@@ -197,8 +196,12 @@ class LocalStateExpressionBuilder(
         return super().member_access(name, expr, location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         raise CodeError("cannot iterate account states", self.source_location)
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def slice_index(
