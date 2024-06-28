@@ -126,11 +126,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             info = self._process_logic_sig_decorator(logicsig_dec)
 
             def deferred(ctx: ASTConversionModuleContext) -> ModuleStatement:
-                program = FunctionASTConverter.convert(
-                    ctx,
-                    func_def,
-                    source_location,
-                )
+                program = FunctionASTConverter.convert(ctx, func_def, source_location)
                 return LogicSignature(
                     module_name=ctx.module_name,
                     program=program,
