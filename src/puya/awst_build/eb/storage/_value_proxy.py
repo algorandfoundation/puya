@@ -101,3 +101,7 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder[_TPyType_co, _TExpre
     @typing.override
     def iterate(self) -> Iteration:
         return self._proxied.iterate()
+
+    @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return self._proxied.iterable_item_type()

@@ -169,6 +169,11 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         raise CodeError("expression is not iterable", self.source_location)
 
     @abc.abstractmethod
+    def iterable_item_type(self) -> pytypes.PyType:
+        """Produce target of ForInLoop"""
+        raise CodeError("expression is not iterable", self.source_location)
+
+    @abc.abstractmethod
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         """Handle self[index]"""
         raise CodeError("expression is not a collection", location)
