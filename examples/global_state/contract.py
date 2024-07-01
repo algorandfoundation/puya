@@ -1,4 +1,14 @@
-from algopy import Account, Application, Asset, Bytes, Contract, GlobalState, UInt64, subroutine
+from algopy import (
+    Account,
+    Application,
+    Asset,
+    Bytes,
+    Contract,
+    GlobalState,
+    String,
+    UInt64,
+    subroutine,
+)
 
 
 class AppStateContract(Contract):
@@ -28,6 +38,7 @@ class AppStateContract(Contract):
         i_value, i_exists = self.global_int_no_default.maybe()
         assert i_exists
         assert i_value == 44
+        assert read_global_uint64(Bytes(b"global_int_no_default")) == 44
 
         assert self.global_bytes_simplified == b"Hello"
         assert self.global_bytes_full
@@ -38,6 +49,7 @@ class AppStateContract(Contract):
         b_value, b_exists = self.global_bytes_no_default.maybe()
         assert b_exists
         assert b_value == b"World"
+        assert read_global_bytes(String("global_bytes_no_default")) == b"World"
         del self.global_bytes_no_default.value
         b_value, b_exists = self.global_bytes_no_default.maybe()
         assert not b_exists
@@ -67,3 +79,13 @@ class AppStateContract(Contract):
 @subroutine
 def get_global_state_plus_1(state: GlobalState[UInt64]) -> UInt64:
     return state.value + 1
+
+
+@subroutine
+def read_global_uint64(key: Bytes) -> UInt64:
+    return GlobalState(UInt64, key=key).value
+
+
+@subroutine
+def read_global_bytes(key: String) -> Bytes:
+    return GlobalState(Bytes, key=key).value

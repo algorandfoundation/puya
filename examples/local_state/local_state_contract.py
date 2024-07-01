@@ -4,6 +4,7 @@ from algopy import (
     Contract,
     LocalState,
     OnCompleteAction,
+    String,
     Txn,
     UInt64,
     log,
@@ -55,6 +56,9 @@ class LocalStateContract(Contract):
         result = self.local[for_account]
         # this just tests local state proxy can be passed around
         assert result.length == get_local_state_length(self.local, for_account)
+        # tests for dynamic key
+        assert local_bytes_exists(for_account, Bytes(b"local"))
+        assert read_local_bytes(for_account, String("local")) == result
         return result
 
     @subroutine
@@ -79,3 +83,13 @@ class LocalStateContract(Contract):
 @subroutine
 def get_local_state_length(state: LocalState[Bytes], account: Account) -> UInt64:
     return state[account].length
+
+
+@subroutine
+def local_bytes_exists(account: Account, key: Bytes) -> bool:
+    return account in LocalState(Bytes, key=key)
+
+
+@subroutine
+def read_local_bytes(account: Account, key: String) -> Bytes:
+    return LocalState(Bytes, key=key)[account]
