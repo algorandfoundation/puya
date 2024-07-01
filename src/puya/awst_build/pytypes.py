@@ -355,47 +355,47 @@ StrLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.
 BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.bytes"))
 
 UInt64Type: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_UINT64,
+    name="algopy._primitives.UInt64",
     wtype=wtypes.uint64_wtype,
 )
 BigUIntType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_BIGUINT,
+    name="algopy._primitives.BigUInt",
     wtype=wtypes.biguint_wtype,
 )
 BytesType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_BYTES,
+    name="algopy._primitives.Bytes",
     wtype=wtypes.bytes_wtype,
 )
 StringType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_STRING,
+    name="algopy._primitives.String",
     wtype=wtypes.string_wtype,
 )
 AccountType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ACCOUNT,
+    name="algopy._reference.Account",
     wtype=wtypes.account_wtype,
 )
 AssetType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ASSET,
+    name="algopy._reference.Asset",
     wtype=wtypes.asset_wtype,
 )
 ApplicationType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_APPLICATION,
+    name="algopy._reference.Application",
     wtype=wtypes.application_wtype,
 )
 
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_ON_COMPLETE_ACTION)
 _register_builtin(UInt64Type, alias=constants.ENUM_CLS_TRANSACTION_TYPE)
 OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(  # TODO: replace with alias as above
-    name=constants.OP_UP_FEE_SOURCE,
+    name="algopy._util.OpUpFeeSource",
     wtype=wtypes.uint64_wtype,
 )
 
 ARC4StringType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ARC4_STRING,
+    name="algopy.arc4.String",
     wtype=wtypes.arc4_string_alias,
 )
 ARC4BoolType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ARC4_BOOL,
+    name="algopy.arc4.Bool",
     wtype=wtypes.arc4_bool_wtype,
 )
 
@@ -457,11 +457,11 @@ def _make_arc4_unsigned_int_parameterise(
 
 
 GenericARC4UIntNType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_UINTN,
+    name="algopy.arc4.UIntN",
     parameterise=_make_arc4_unsigned_int_parameterise(native_type=UInt64Type, max_bits=64),
 )
 GenericARC4BigUIntNType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_BIG_UINTN,
+    name="algopy.arc4.BigUIntN",
     parameterise=_make_arc4_unsigned_int_parameterise(native_type=BigUIntType),
 )
 
@@ -472,7 +472,7 @@ ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
             (GenericARC4UIntNType if _bits <= 64 else GenericARC4BigUIntNType).parameterise(
                 [TypingLiteralType(value=_bits, source_location=None)], source_location=None
             ),
-            alias=f"{constants.ARC4_PREFIX}UInt{_bits}",
+            alias=f"algopy.arc4.UInt{_bits}",
         )
         for _exp in range(3, 10)
     }
@@ -480,7 +480,7 @@ ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
 ARC4ByteType: typing.Final = _register_builtin(
     ARC4UIntNType(
         generic=None,
-        name=constants.CLS_ARC4_BYTE,
+        name="algopy.arc4.Byte",
         wtype=wtypes.arc4_byte_alias,
         bits=8,
         bases=[ARC4UIntN_Aliases[8]],
@@ -528,11 +528,11 @@ def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> _P
 
 
 GenericARC4UFixedNxMType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_UFIXEDNXM,
+    name="algopy.arc4.UFixedNxM",
     parameterise=_make_arc4_unsigned_fixed_parameterise(max_bits=64),
 )
 GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_BIG_UFIXEDNXM,
+    name="algopy.arc4.BigUFixedNxM",
     parameterise=_make_arc4_unsigned_fixed_parameterise(),
 )
 
@@ -561,7 +561,7 @@ GenericTupleType: typing.Final = _GenericType(
 )
 
 GenericARC4TupleType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_TUPLE,
+    name="algopy.arc4.Tuple",
     parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
 )
 
@@ -610,17 +610,17 @@ def _make_array_parameterise(
 
 
 GenericArrayType: typing.Final = _GenericType(
-    name=constants.CLS_ARRAY,
+    name="algopy._array.Array",
     parameterise=_make_array_parameterise(wtypes.WArray),
 )
 
 GenericARC4DynamicArrayType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_DYNAMIC_ARRAY,
+    name="algopy.arc4.DynamicArray",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
 ARC4DynamicBytesType: typing.Final = _register_builtin(
     ArrayType(
-        name=constants.CLS_ARC4_DYNAMIC_BYTES,
+        name="algopy.arc4.DynamicBytes",
         wtype=wtypes.ARC4DynamicArray(
             element_type=ARC4ByteType.wtype,
             native_type=wtypes.bytes_wtype,
@@ -663,12 +663,12 @@ def _make_fixed_array_parameterise(
 
 
 GenericARC4StaticArrayType: typing.Final = _GenericType(
-    name=constants.CLS_ARC4_STATIC_ARRAY,
+    name="algopy.arc4.StaticArray",
     parameterise=_make_fixed_array_parameterise(wtypes.ARC4StaticArray),
 )
 ARC4AddressType: typing.Final = _register_builtin(
     ArrayType(
-        name=constants.CLS_ARC4_ADDRESS,
+        name="algopy.arc4.Address",
         wtype=wtypes.arc4_address_alias,
         size=32,
         generic=None,
@@ -734,20 +734,20 @@ def _parameterise_storage_map(
 
 
 GenericGlobalStateType: typing.Final = _GenericType(
-    name=constants.CLS_GLOBAL_STATE,
+    name="algopy._state.GlobalState",
     parameterise=_make_storage_parameterise(wtypes.state_key),
 )
 GenericLocalStateType: typing.Final = _GenericType(
-    name=constants.CLS_LOCAL_STATE,
+    name="algopy._state.LocalState",
     parameterise=_make_storage_parameterise(wtypes.state_key),
 )
 GenericBoxType: typing.Final = _GenericType(
-    name=constants.CLS_BOX_PROXY,
+    name="algopy._box.Box",
     parameterise=_make_storage_parameterise(wtypes.box_key),
 )
 BoxRefType: typing.Final = _register_builtin(
     StorageProxyType(
-        name=constants.CLS_BOX_REF_PROXY,
+        name="algopy._box.BoxRef",
         content=BytesType,
         wtype=wtypes.box_key,
         generic=None,
@@ -755,13 +755,13 @@ BoxRefType: typing.Final = _register_builtin(
 )
 
 GenericBoxMapType: typing.Final = _GenericType(
-    name=constants.CLS_BOX_MAP_PROXY,
+    name="algopy._box.BoxMap",
     parameterise=_parameterise_storage_map,
 )
 
 
 GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_TRANSACTION_BASE,
+    name="algopy.gtxn.TransactionBase",
     wtype=wtypes.WGroupTransaction(name="group_transaction_base", transaction_type=None),
 )
 
@@ -781,7 +781,7 @@ def _make_gtxn_type(kind: constants.TransactionType | None) -> TransactionRelate
         cls_name = "Transaction"
     else:
         cls_name = f"{_TXN_TYPE_NAMES[kind]}Transaction"
-    stub_name = f"{constants.ALGOPY_PREFIX}gtxn.{cls_name}"
+    stub_name = f"algopy.gtxn.{cls_name}"
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
@@ -796,7 +796,7 @@ def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> Transact
         cls_name = "InnerTransaction"
     else:
         cls_name = _TXN_TYPE_NAMES[kind]
-    stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
+    stub_name = f"algopy.itxn.{cls_name}"
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
@@ -809,7 +809,7 @@ def _make_itxn_result_type(kind: constants.TransactionType | None) -> Transactio
         cls_name = "InnerTransactionResult"
     else:
         cls_name = f"{_TXN_TYPE_NAMES[kind]}InnerTransaction"
-    stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
+    stub_name = f"algopy.itxn.{cls_name}"
     return TransactionRelatedType(
         name=stub_name,
         transaction_type=kind,
@@ -856,7 +856,7 @@ class _CompileTimeType(PyType):
 
 
 BytesBackedType: typing.Final[PyType] = _CompileTimeType(
-    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
+    name="algopy._primitives.BytesBacked",
     wtype_error="{self} is not usable as a runtime type",
 )
 
@@ -922,7 +922,7 @@ OpEnumTypes: typing.Final = _make_intrinsic_enum_types()
 OpNamespaceTypes: typing.Final = _make_intrinsic_namespace_types()
 
 StateTotalsType: typing.Final[PyType] = _CompileTimeType(
-    name=f"{constants.ALGOPY_PREFIX}_contract.StateTotals",
+    name="algopy._contract.StateTotals",
     wtype_error="{self} is only usable in a class options context",
 )
 
@@ -945,13 +945,13 @@ reversedGenericType: typing.Final[PyType] = _GenericType(  # noqa: N816
     parameterise=_parameterise_any_compile_time,
 )
 uenumerateGenericType: typing.Final[PyType] = _GenericType(  # noqa: N816
-    name=constants.UENUMERATE,
+    name="algopy._unsigned_builtins.uenumerate",
     parameterise=_parameterise_any_compile_time,
 )
 
 
 LogicSigType: typing.Final[PyType] = _CompileTimeType(
-    name=f"{constants.ALGOPY_PREFIX}_logic_sig.LogicSig",
+    name="algopy._logic_sig.LogicSig",
     wtype_error="{self} is only usable in a static context",
 )
 
@@ -975,9 +975,9 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
     bases=[ContractBaseType],
     mro=[ContractBaseType],
 )
-ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
-ARC4StructBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_STRUCT)
-StructBaseType: typing.Final[PyType] = _BaseType(name=constants.STRUCT_BASE)
+ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
+ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")
+StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
 
 
 @typing.final
@@ -1009,11 +1009,11 @@ def _parameterise_pseudo_generic_function_type(
 
 
 GenericABICallWithReturnType: typing.Final[PyType] = _GenericType(
-    name=f"{constants.ARC4_PREFIX}_ABICallWithReturnProtocol",
+    name="algopy.arc4._ABICallWithReturnProtocol",
     parameterise=_parameterise_pseudo_generic_function_type,
 )
 GenericTemplateVarType: typing.Final[PyType] = _GenericType(
-    name=f"{constants.ALGOPY_PREFIX}_template_variables._TemplateVarMethod",
+    name="algopy._template_variables._TemplateVarMethod",
     parameterise=_parameterise_pseudo_generic_function_type,
 )
 
