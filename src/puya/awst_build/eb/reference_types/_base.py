@@ -2,7 +2,6 @@ import abc
 import typing
 from collections.abc import Callable, Mapping
 
-import mypy.nodes
 from immutabledict import immutabledict
 
 from puya.awst import wtypes
@@ -48,9 +47,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
         self.field_bool_comment = field_bool_comment
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == self.native_access_member:
             native_cast = ReinterpretCast(
                 expr=self.resolve(), wtype=self.native_type.wtype, source_location=location
@@ -67,7 +64,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
             )
             checked_maybe = CheckedMaybe(acct_params_get, comment=self.field_bool_comment)
             return builder_for_instance(typ, checked_maybe)
-        return super().member_access(name, expr, location)
+        return super().member_access(name, location)
 
 
 class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilder):

@@ -1,6 +1,5 @@
 import typing
 
-import mypy.nodes
 import typing_extensions
 
 from puya.awst.nodes import Expression, Statement
@@ -93,10 +92,8 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder[_TPyType_co, _TExpre
         return self._proxied.slice_index(begin_index, end_index, stride, location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
-        return self._proxied.member_access(name, expr, location)
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        return self._proxied.member_access(name, location)
 
     @typing.override
     def iterate(self) -> Iteration:

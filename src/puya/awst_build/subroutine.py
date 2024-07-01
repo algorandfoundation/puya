@@ -818,7 +818,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             return self._visit_ref_expr(expr)
 
         base = expr.expr.accept(self)
-        return base.member_access(expr.name, expr, expr_loc)
+        return base.member_access(expr.name, expr_loc)
 
     def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder:
         if call.analyzed is not None:
