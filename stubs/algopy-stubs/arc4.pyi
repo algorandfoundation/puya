@@ -449,11 +449,12 @@ class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
     """An ARC4 ABI tuple, containing other ARC4 ABI types"""
 
     def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
-        """Construct an ARC4 tuple from a python tuple"""
+        """Construct an ARC4 tuple from a native Python tuple"""
 
     @property
     def native(self) -> tuple[typing.Unpack[_TTuple]]:
-        """Return the Bytes representation of the address after ARC4 decoding"""
+        """Convert to a native Python tuple - note that the elements of the tuple
+        should be considered to be copies of the original elements"""
 
 @typing.dataclass_transform(
     eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
