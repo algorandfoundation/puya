@@ -188,7 +188,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
                     case LiteralBuilder(value=int(mult_literal)):
                         return TupleLiteralBuilder(self._items * mult_literal, location)
                     case _:
-                        raise CodeError("can't multiple sequence by non-int-literal", location)
+                        raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
                 return NotImplemented
 
@@ -273,7 +273,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                         items = [indexer(idx) for idx in range(len(self.pytype.items))]
                         return TupleLiteralBuilder(items * mult_literal, location)
                     case _:
-                        raise CodeError("can't multiple sequence by non-int-literal", location)
+                        raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
                 return NotImplemented
 
