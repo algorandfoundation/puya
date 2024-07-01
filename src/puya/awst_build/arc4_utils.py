@@ -11,7 +11,9 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.arc4_util import split_tuple_types
-from puya.awst import wtypes
+from puya.awst import (
+    wtypes,
+)
 from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
@@ -295,11 +297,12 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         expr_loc = self.context.node_location(o)
         if isinstance(o.expr, mypy.nodes.RefExpr):
             unaliased_base_fullname = get_unaliased_fullname(o.expr)
-            if unaliased_base_fullname == constants.ENUM_CLS_ON_COMPLETE_ACTION:
-                if (
-                    o.name
-                    in constants.NAMED_INT_CONST_ENUM_DATA[constants.ENUM_CLS_ON_COMPLETE_ACTION]
-                ):
+            if unaliased_base_fullname == pytypes.OnCompleteActionType.name:
+                try:
+                    OnCompletionAction[o.name]
+                except KeyError:
+                    pass
+                else:
                     return o.name
                 raise CodeError(
                     f"Unable to resolve constant value for {unaliased_base_fullname}.{o.name}",
@@ -308,7 +311,6 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         return self._resolve_constant_reference(o)
 
     def _resolve_constant_reference(self, expr: mypy.nodes.RefExpr) -> object:
-
         try:
             return self.context.constants[expr.fullname]
         except KeyError:

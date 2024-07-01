@@ -328,7 +328,7 @@ from algopy import *
 @subroutine
 def gtxn_or_with_cast(base: gtxn.TransactionBase) -> UInt64:
     t1 = typing.assert_type( ## W: use of typing.assert_type has no effect on compilation
-        base or gtxn.PaymentTransaction(1), ## E: Expected type algopy.gtxn.TransactionBase, got type algopy.gtxn.PaymentTransaction
+        base or gtxn.PaymentTransaction(1), ## E: expression is always True
         gtxn.TransactionBase,
     )
     return t1.fee
@@ -338,20 +338,26 @@ def gtxn_or_with_cast(base: gtxn.TransactionBase) -> UInt64:
 def txn_var_to_arc4() -> bool:
     t = (arc4.UInt64(0), arc4.UInt64(1))
     if not t[0]:
-        t = arc4.Tuple(t) ## E: assignment target type differs from expression value type
+        t = arc4.Tuple(t) ## E: 't' already has type tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]] which is not compatible with algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]
     return t[1] == 1
 
 
 @subroutine
 def arc4_byte_or_uint8() -> None:
-    a = typing.assert_type(arc4.Byte() or arc4.UInt8(1), arc4.UInt8) ## W: use of typing.assert_type has no effect on compilation \
-                                                                     ## E: Expected type algopy.arc4.UIntN[typing.Literal[8]], got type algopy.arc4.Byte
+    a = typing.assert_type(arc4.Byte() or arc4.UInt8(1), arc4.UInt8) ## W: use of typing.assert_type has no effect on compilation
     assert a == 1
 
 
 @subroutine
 def or_with_uint64_subtypes() -> None:
+    assert OnCompleteAction.NoOp or TransactionType.ApplicationCall
     typing.assert_type( ## W: use of typing.assert_type has no effect on compilation
         OnCompleteAction.NoOp or TransactionType.ApplicationCall, ## E: expression would produce a union type, which isn't supported unless evaluating a boolean condition
         OnCompleteAction | TransactionType,
     )
+
+
+@subroutine
+def uint64_subtype_augmented_assignment() -> None:
+    x = OnCompleteAction.NoOp
+    x += 1 ## E: Result type of + incompatible in assignment  [misc]
