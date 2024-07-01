@@ -40,8 +40,7 @@ from puya.awst_build.eb.storage._storage import (
 )
 from puya.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
-from puya.awst_build.eb.uint64 import UInt64TypeBuilder
-from puya.awst_build.utils import get_arg_mapping, require_instance_builder
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -137,19 +136,18 @@ class LocalStateExpressionBuilder(
 
     def _build_field(
         self,
-        index: InstanceBuilder,
+        index: NodeBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
         # TODO: maybe resolve literal should allow functions, so we can validate
         #       constant values inside e.g. conditional expressions, not just plain constants
         #       like we check below with matching on IntegerConstant
-        index = index.resolve_literal(UInt64TypeBuilder(index.source_location))
-        match index.pytype:
-            case pytypes.AccountType:
-                index_expr = index.resolve()
+        match index:
+            case InstanceBuilder(pytype=pytypes.AccountType) as account_builder:
+                index_expr = account_builder.resolve()
             case _:
                 index_expr = expect.argument_of_type_else_dummy(
-                    index, pytypes.UInt64Type
+                    index, pytypes.UInt64Type, resolve_literal=True
                 ).resolve()
                 # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
                 # Note that the sender address is implicitly included in the array,
@@ -260,7 +258,7 @@ class _LocalStateExpressionBuilderFromConstructor(
         )
 
 
-FieldBuilder = Callable[[InstanceBuilder, SourceLocation], AppAccountStateExpression]
+FieldBuilder = Callable[[NodeBuilder, SourceLocation], AppAccountStateExpression]
 
 
 class _Get(FunctionBuilder):
@@ -290,7 +288,7 @@ class _Get(FunctionBuilder):
         )
         if any_missing:
             return dummy_value(self._content_typ, location)
-        item = require_instance_builder(args_map[key_arg_name])
+        item = args_map[key_arg_name]
         default_arg = expect.argument_of_type_else_dummy(
             args_map[default_arg_name], self._content_typ
         )
