@@ -12,7 +12,7 @@ from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
+from puya.awst_build.utils import maybe_resolve_literal
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -96,7 +96,10 @@ def _implicit_arc4_conversion(
 ) -> InstanceBuilder:
     from puya.awst.wtypes import ARC4Type
 
-    instance = require_instance_builder(operand)
+    if expect.instance_builder(operand):
+        instance = operand
+    else:
+        return dummy_value(target_type, operand.source_location)
     instance = maybe_resolve_literal(instance, target_type)
     if instance.pytype == target_type:
         return instance

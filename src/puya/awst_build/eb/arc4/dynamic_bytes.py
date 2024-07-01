@@ -14,13 +14,13 @@ from puya.awst.nodes import (
     NewArray,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.arc4.dynamic_array import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -86,14 +86,16 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
 
 
 def _coerce_to_byte(arg: NodeBuilder) -> InstanceBuilder:
-    arg = require_instance_builder(arg)
-    arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
-    match arg:
-        case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
-            return arg
-        case _:
-            logger.error("invalid argument type", location=arg.source_location)
-            return dummy_value(pytypes.ARC4ByteType, arg.source_location)
+    if not expect.instance_builder(arg):
+        return dummy_value(pytypes.ARC4ByteType, arg.source_location)
+    else:
+        arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
+        match arg:
+            case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
+                return arg
+            case _:
+                logger.error("invalid argument type", location=arg.source_location)
+                return dummy_value(pytypes.ARC4ByteType, arg.source_location)
 
 
 class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
