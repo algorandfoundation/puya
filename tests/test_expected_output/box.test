@@ -186,3 +186,14 @@ class MyContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.my_box = Box(bool, key="")
         assert not self.my_box.length, "length op fails because the key is empty"  ## E: AVM does not support empty box keys
+
+
+## case: dynamic_keys_with_self_assignment
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    def __init__(self) -> None:
+        dynamic = String("dynamic")
+        self.box = Box(UInt64, key=dynamic) ## E: assigning algopy.Box[algopy.UInt64] to a member variable requires a constant value for key
+        self.box_map = BoxMap(UInt64, UInt64, key_prefix=dynamic) ## E: assigning algopy.BoxMap[algopy.UInt64, algopy.UInt64] to a member variable requires a constant value for key_prefix
+        self.box_ref = BoxRef(key=dynamic) ## E: assigning algopy.BoxRef to a member variable requires a constant value for key

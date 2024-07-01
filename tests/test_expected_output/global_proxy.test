@@ -42,6 +42,16 @@ class StateProxyContract4(ARC4Contract):
 
 class StateProxyContract5(ARC4Contract):
     def __init__(self) -> None:
+        dynamic = String("dynamic")
+        self._global = GlobalState(UInt64, key=dynamic) ## E: assigning algopy.GlobalState[algopy.UInt64] to a member variable requires a constant value for key
+        self.local_ = LocalState(UInt64, key=dynamic) ## E: assigning algopy.LocalState[algopy.UInt64] to a member variable requires a constant value for key
+
+
+## case: test_global_stubs
+from algopy import *
+
+class StateProxyContract6(ARC4Contract):
+    def __init__(self) -> None:
         self.global_ = GlobalState(UInt64(0), key=String("global3")) ## E: No overload variant of "GlobalState" matches argument types "UInt64", "String"  [call-overload] \
                                                                      ## N: def [_TState] __init__(self, _TState, /, *, key: bytes | str = ..., description: str = ...) -> GlobalState[_TState] \
                                                                      ## N: def [_TState] __init__(self, type[_TState], /, *, key: String | Bytes | bytes | str = ..., description: str = ...) -> GlobalState[_TState] \

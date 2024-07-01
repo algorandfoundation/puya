@@ -185,7 +185,8 @@ class BoxProxyConstructorResult(StorageProxyConstructorResult, abc.ABC):
         key_override = self.resolve()
         if not isinstance(key_override, BytesConstant):
             logger.error(
-                f"assigning {typ} to a member variable requires a constant value for key",
+                f"assigning {typ} to a member variable requires a constant value for"
+                f" key{'_prefix' if isinstance(typ, pytypes.StorageMapProxyType) else ''}",
                 location=location,
             )
             key_override = BytesConstant(
