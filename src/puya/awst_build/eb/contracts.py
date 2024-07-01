@@ -64,12 +64,10 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         raise CodeError("cannot instantiate contract classes", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         node = resolve_member_node(self._type_info, name, location)
         if node is None:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
         if symbol_node_is_function(node):
             func_mypy_type = require_callable_type(node, location)
             func_type = self.context.type_to_pytype(func_mypy_type, source_location=location)
@@ -104,9 +102,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
         return self._pytype
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         node = resolve_member_node(self._type_info, name, location)
         if node is None:
             raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)

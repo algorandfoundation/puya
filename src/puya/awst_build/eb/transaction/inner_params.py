@@ -166,16 +166,14 @@ class InnerTxnParamsExpressionBuilder(
         raise CodeError("cannot serialize inner transaction fieldset", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "submit":
             return _Submit(self.resolve(), self.pytype.transaction_type, location)
         elif name == "set":
             return _Set(self.resolve(), location)
         elif name == "copy":
             return _Copy(self.resolve(), self.pytype, location)
-        return super().member_access(name, expr, location)
+        return super().member_access(name, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

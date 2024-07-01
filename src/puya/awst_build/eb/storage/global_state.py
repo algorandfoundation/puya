@@ -157,9 +157,7 @@ class GlobalStateExpressionBuilder(
         return BoolExpressionBuilder(expr)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         field = self._build_field(location)
         match name:
             case "value":
@@ -169,7 +167,7 @@ class GlobalStateExpressionBuilder(
             case "maybe":
                 return _Maybe(self.pytype.content, field, location=self.source_location)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     def _build_field(self, location: SourceLocation) -> AppStateExpression:
         if self._member_name:

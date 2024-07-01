@@ -98,12 +98,10 @@ class ARC4ClientTypeBuilder(TypeBuilder):
         raise CodeError("ARC4Client subclasses cannot be instantiated", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         node = resolve_member_node(self.type_info, name, location)
         if node is None:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
         if symbol_node_is_function(node):
             return ARC4ClientMethodExpressionBuilder(self.context, node, location)
         raise CodeError("static references are only supported for methods", location)

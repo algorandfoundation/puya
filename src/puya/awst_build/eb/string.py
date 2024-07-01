@@ -97,9 +97,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
         super().__init__(pytypes.StringType, expr)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "startswith":
                 return _StringStartsOrEndsWith(self, location, at_start=True)
@@ -108,7 +106,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
             case "join":
                 return _StringJoin(self, location)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     @typing.override
     def augmented_assignment(

@@ -1,8 +1,6 @@
 import abc
 import typing
 
-import mypy.nodes
-
 from puya.awst.nodes import TXN_FIELDS, Expression, TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
@@ -33,12 +31,10 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
     ) -> NodeBuilder: ...
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         field_data = _PYTHON_MEMBER_FIELD_MAP.get(name)
         if field_data is None:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
         field, typ = field_data
         if field.is_array:
             return self.get_array_member(field, typ, location)

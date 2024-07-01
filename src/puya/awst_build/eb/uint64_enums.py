@@ -42,11 +42,9 @@ class _UInt64EnumTypeBuilder(TypeBuilder):
         raise CodeError("cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if (data := self.enum_data.get(name)) is None:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
         if isinstance(data, enum.IntEnum):
             teal_alias = data.name
             value = data.value
