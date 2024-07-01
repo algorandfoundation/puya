@@ -16,13 +16,13 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
     Iteration,
-    LiteralBuilder,
     NodeBuilder,
     StorageProxyConstructorResult,
     TypeBuilder,
@@ -173,39 +173,29 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
 def extract_key_override(
     key_arg: NodeBuilder | None, location: SourceLocation, *, typ: wtypes.WType
 ) -> Expression | None:
-    key_override: Expression | None
-    eb: InstanceBuilder
-    match key_arg:
-        case None:
-            return None
-        case InstanceBuilder(
-            pytype=pytypes.StringType
-            | pytypes.StrLiteralType
-            | pytypes.BytesType
-            | pytypes.BytesLiteralType
-        ) as eb:
-            key_override = eb.to_bytes(eb.source_location)
-        case _:
-            logger.error("unexpected argument type", location=key_arg.source_location)
-            key_override = BytesConstant(
-                value=b"0",
-                wtype=wtypes.bytes_wtype,
-                encoding=BytesEncoding.unknown,
-                source_location=key_arg.source_location,
-            )
-    if isinstance(key_override, BytesConstant):
-        return attrs.evolve(key_override, wtype=typ)
-    return ReinterpretCast(expr=key_override, wtype=typ, source_location=location)
+    if key_arg is None:
+        return None
+    if isinstance(key_arg, InstanceBuilder) and key_arg.pytype in (
+        pytypes.StringType,
+        pytypes.StrLiteralType,
+        pytypes.BytesType,
+        pytypes.BytesLiteralType,
+    ):
+        key_override = key_arg.to_bytes(key_arg.source_location)
+        if isinstance(key_override, BytesConstant):
+            return attrs.evolve(key_override, wtype=typ)
+        else:
+            return ReinterpretCast(expr=key_override, wtype=typ, source_location=location)
+    logger.error("unexpected argument type", location=key_arg.source_location)
+    return BytesConstant(
+        value=b"0",
+        wtype=typ,
+        encoding=BytesEncoding.unknown,
+        source_location=key_arg.source_location,
+    )
 
 
 def extract_description(descr_arg: NodeBuilder | None) -> str | None:
-    match descr_arg:
-        case None:
-            return None
-        case LiteralBuilder(value=str(str_value)):
-            return str_value
-        case _:
-            logger.error(
-                "description must be a simple str literal", location=descr_arg.source_location
-            )
-            return None
+    if descr_arg is None:
+        return None
+    return expect.simple_string_literal(descr_arg, default=expect.default_none)
