@@ -26,7 +26,7 @@ from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, e
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import get_arg_mapping, require_instance_builder
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -122,7 +122,7 @@ class BoxMapProxyExpressionBuilder(
     def _build_box_value(
         self, key: InstanceBuilder, location: SourceLocation
     ) -> BoxValueExpression:
-        key_data = require_instance_builder(key).to_bytes(location)
+        key_data = key.to_bytes(location)
         key_prefix = self.resolve()
         content_wtype = self.pytype.content.wtype
         full_key = intrinsic_factory.concat(
