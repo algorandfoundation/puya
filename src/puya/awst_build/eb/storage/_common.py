@@ -79,13 +79,11 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxV
         return StateDelete(field=self.resolve(), source_location=location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "bytes":
             return _ValueBytes(self.resolve(), location)
         else:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -114,14 +112,12 @@ class _ValueBytes(ValueProxyExpressionBuilder):
         super().__init__(pytypes.BytesType, cast_to_bytes(expr, location))
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
                 return UInt64ExpressionBuilder(box_length_checked(self._typed, location))
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

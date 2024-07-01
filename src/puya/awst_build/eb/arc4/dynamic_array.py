@@ -108,9 +108,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         return UInt64ExpressionBuilder(length)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "append":
                 return _Append(self.resolve(), self.pytype, location)
@@ -119,7 +117,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             case "pop":
                 return _Pop(self.resolve(), self.pytype, location)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     @typing.override
     def augmented_assignment(

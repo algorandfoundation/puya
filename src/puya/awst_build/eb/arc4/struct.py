@@ -67,9 +67,7 @@ class ARC4StructExpressionBuilder(
         assert isinstance(typ, pytypes.StructType)
         super().__init__(typ, expr)
 
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case field_name if field := self.pytype.fields.get(field_name):
                 result_expr = FieldExpression(
@@ -82,7 +80,7 @@ class ARC4StructExpressionBuilder(
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation

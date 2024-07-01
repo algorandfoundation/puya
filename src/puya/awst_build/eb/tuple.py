@@ -120,9 +120,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
         return self._items
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> typing.Never:
+    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)
@@ -246,9 +244,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> typing.Never:
+    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)

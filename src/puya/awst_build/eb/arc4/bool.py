@@ -79,14 +79,12 @@ class ARC4BoolExpressionBuilder(
         )
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 return self._native(location)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     def _native(self, location: SourceLocation) -> BoolExpressionBuilder:
         result_expr: Expression = ARC4Decode(

@@ -83,9 +83,7 @@ class BoxRefProxyExpressionBuilder(
         )
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "create":
                 return _Create(location, box_proxy=self.resolve())
@@ -149,7 +147,7 @@ class BoxRefProxyExpressionBuilder(
                     box_length_checked(self._box_key_expr(location), location)
                 )
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
 
 class _BoxRefProxyExpressionBuilderFromConstructor(

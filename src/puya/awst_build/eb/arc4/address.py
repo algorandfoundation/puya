@@ -119,14 +119,12 @@ class AddressExpressionBuilder(StaticArrayExpressionBuilder):
         return compare_expr_bytes(lhs=self.resolve(), op=op, rhs=rhs, source_location=location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 return AccountExpressionBuilder(_address_to_native(self))
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
 
 def _zero_address(location: SourceLocation) -> Expression:
