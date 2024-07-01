@@ -246,7 +246,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             self._error(
                 f"Unsupported class declaration."
                 f" Contract classes must inherit either directly"
-                f" or indirectly from {constants.CONTRACT_BASE_ALIAS}.",
+                f" or indirectly from {pytypes.ContractBaseType}.",
                 location=cdef_loc,
             )
             return []
