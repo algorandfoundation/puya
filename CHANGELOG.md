@@ -1,4 +1,14 @@
 # CHANGELOG
+## v2.1.1 (2024-07-01)
+
+### Fix
+
+* prevent assertion error when using dynamic key with storage proxy and assinging to self member ([`351b51e`](https://github.com/algorandfoundation/puya/commit/351b51e46ac30de5a01ff43b5b70d18818d2c478))
+
+* add dynamic key types to stubs for LocalState and GlobalState ([`0aade7a`](https://github.com/algorandfoundation/puya/commit/0aade7ae1a724bc89a02c96f6bcafe8eb08fe605))
+
+  also add this use cases to tests
+
 ## v2.1.0 (2024-06-25)
 
 ### Feature
