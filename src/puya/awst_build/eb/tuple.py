@@ -34,6 +34,7 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
+from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import determine_base_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -500,9 +501,9 @@ def _make_indexer(
 def _iterable_item_type(
     pytype: pytypes.TupleType, source_location: SourceLocation
 ) -> pytypes.PyType:
-    common_base_type = determine_base_type(*pytype.items, location=source_location)
-    if common_base_type is None:
+    try:
+        return determine_base_type(*pytype.items, location=source_location)
+    except TypeUnionError as ex:
         raise CodeError(
             "unable to iterate heterogeneous tuple without common base type", source_location
-        )
-    return common_base_type
+        ) from ex

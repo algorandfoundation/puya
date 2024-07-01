@@ -79,8 +79,12 @@ class UInt64TypeBuilder(TypeBuilder):
 
 
 class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
-    def __init__(self, expr: Expression):
-        super().__init__(pytypes.UInt64Type, expr)
+    def __init__(self, expr: Expression, enum_type: pytypes.UInt64EnumType | None = None):
+        if enum_type is None:
+            pytype = pytypes.UInt64Type
+        else:
+            pytype = enum_type
+        super().__init__(pytype, expr)
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
@@ -124,7 +128,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = _resolve_literal_and_upcast_bool(other)
-        if other.pytype != self.pytype:
+        if not _is_uint64_or_enum_type(other):
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
             source_location=location,
@@ -147,7 +151,7 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
         if uint64_op is None:
             return NotImplemented
         other = _resolve_literal_and_upcast_bool(other)
-        if other.pytype != self.pytype:
+        if not _is_uint64_or_enum_type(other):
             return NotImplemented
 
         lhs = self.resolve()
@@ -168,7 +172,8 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
         rhs = _resolve_literal_and_upcast_bool(rhs)
-        rhs = expect.argument_of_type_else_dummy(rhs, self.pytype)
+        # note: don't check for enum types here, mypy errors anyway
+        rhs = expect.argument_of_type_else_dummy(rhs, pytypes.UInt64Type)
         target = self.resolve_lvalue()
         return UInt64AugmentedAssignment(
             target=target, op=uint64_op, value=rhs.resolve(), source_location=location
@@ -211,3 +216,7 @@ def _upcast_bool(
         )
         return UInt64ExpressionBuilder(expr)
     return builder
+
+
+def _is_uint64_or_enum_type(other: InstanceBuilder) -> bool:
+    return other.pytype == pytypes.UInt64Type or isinstance(other.pytype, pytypes.UInt64EnumType)

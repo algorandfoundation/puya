@@ -130,3 +130,11 @@ class TupleContract(Contract): ## W: Class test_tuple_errors.TupleContract is im
     def test_index2(self) -> None:
         tip = UInt64(), Bytes()
         top = tip[UInt64(1)] ## E: tuples can only be indexed by int constants
+
+    @subroutine
+    def iterate_tuple(self, base: gtxn.TransactionBase) -> None:
+        for a in (base, gtxn.PaymentTransaction(1)):
+            assert a.fee > 0
+        for b in (gtxn.PaymentTransaction(1), gtxn.KeyRegistrationTransaction(2)): ## E: unable to iterate heterogeneous tuple without common base type
+            assert b.fee > 0
+

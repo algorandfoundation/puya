@@ -1002,7 +1002,7 @@ class ConditionalExpression(Expression):
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     true_expr: Expression
     false_expr: Expression
-    wtype: WType = attrs.field(init=False)
+    wtype: WType = attrs.field()
 
     @wtype.default
     def _wtype(self) -> WType:

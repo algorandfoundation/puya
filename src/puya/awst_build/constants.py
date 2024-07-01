@@ -1,7 +1,5 @@
 import enum
 
-from puya.models import OnCompletionAction
-
 ARC4_CONTRACT_BASE = "algopy.arc4.ARC4Contract"
 CONTRACT_BASE = "algopy._contract.Contract"
 STRUCT_META = "algopy._struct._StructMeta"
@@ -41,25 +39,3 @@ class TransactionType(enum.IntEnum):
     axfer = 4
     afrz = 5
     appl = 6
-
-
-ENUM_CLS_ON_COMPLETE_ACTION = "algopy._constants.OnCompleteAction"
-ENUM_CLS_TRANSACTION_TYPE = "algopy._constants.TransactionType"
-NAMED_INT_CONST_ENUM_DATA: dict[str, dict[str, enum.IntEnum]] = {
-    ENUM_CLS_ON_COMPLETE_ACTION: {
-        "NoOp": OnCompletionAction.NoOp,
-        "OptIn": OnCompletionAction.OptIn,
-        "CloseOut": OnCompletionAction.CloseOut,
-        "ClearState": OnCompletionAction.ClearState,
-        "UpdateApplication": OnCompletionAction.UpdateApplication,
-        "DeleteApplication": OnCompletionAction.DeleteApplication,
-    },
-    ENUM_CLS_TRANSACTION_TYPE: {
-        "Payment": TransactionType.pay,
-        "KeyRegistration": TransactionType.keyreg,
-        "AssetConfig": TransactionType.acfg,
-        "AssetTransfer": TransactionType.axfer,
-        "AssetFreeze": TransactionType.afrz,
-        "ApplicationCall": TransactionType.appl,
-    },
-}
