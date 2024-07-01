@@ -1,6 +1,6 @@
 # TODO: eliminate usage of require_instance_builder or make non-throwing
 import typing
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Collection, Iterable, Sequence
 from itertools import zip_longest
 
 from puya import log
@@ -231,8 +231,15 @@ def _type_match_and_instance(
     return False
 
 
-def is_type_or_subtype(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
-    if not _type_match(builder, target_type):
+def is_type_or_subtype(builder: NodeBuilder, of: Iterable[pytypes.PyType]) -> bool:
+    if not any(_type_match(builder, target_type) for target_type in of):
         logger.error("unexpected argument type", location=builder.source_location)
+        return False
+    return True
+
+
+def instance_builder(builder: NodeBuilder) -> typing.TypeGuard[InstanceBuilder]:
+    if not isinstance(builder, InstanceBuilder):
+        logger.error("expression is not a value", location=builder.source_location)
         return False
     return True

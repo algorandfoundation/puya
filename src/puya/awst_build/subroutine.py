@@ -34,7 +34,6 @@ from puya.awst.nodes import (
     Subroutine,
     SubroutineArgument,
     Switch,
-    UInt64Constant,
     VarExpression,
     WhileLoop,
 )
@@ -68,7 +67,7 @@ from puya.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
     determine_base_type,
     extract_bytes_literal_from_mypy,
@@ -812,26 +811,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
     def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
-        if isinstance(expr.expr, mypy.nodes.RefExpr):
-            if isinstance(expr.expr.node, mypy.nodes.MypyFile):
-                # special case for module attribute access
-                return self._visit_ref_expr(expr)
-            unaliased_base_fullname = get_unaliased_fullname(expr.expr)
-            # TODO: allow UInt64Constant values in context.constants, and then put these there
-            if enum_cls_data := constants.NAMED_INT_CONST_ENUM_DATA.get(unaliased_base_fullname):
-                try:
-                    int_enum = enum_cls_data[expr.name]
-                except KeyError as ex:
-                    raise CodeError(
-                        "Unable to resolve constant value for"
-                        f" {unaliased_base_fullname}.{expr.name}",
-                        expr_loc,
-                    ) from ex
-                return UInt64ExpressionBuilder(
-                    UInt64Constant(
-                        value=int_enum.value, source_location=expr_loc, teal_alias=int_enum.name
-                    )
-                )
+        if isinstance(expr.expr, mypy.nodes.RefExpr) and isinstance(
+            expr.expr.node, mypy.nodes.MypyFile
+        ):
+            # special case for module attribute access
+            return self._visit_ref_expr(expr)
 
         base = expr.expr.accept(self)
         return base.member_access(expr.name, expr, expr_loc)
@@ -961,7 +945,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # this would fail to compile, due to (a and b) being wtype of bool.
         # this is fine and expected, there's no issues of semantic compatibility since we
         # reject compiling the program altogether.
-        target_pytyp = determine_base_type(lhs.pytype, rhs.pytype, location=location)
+        target_pytyp: pytypes.PyType | None
+        try:
+            target_pytyp = determine_base_type(lhs.pytype, rhs.pytype, location=location)
+        except TypeUnionError:
+            target_pytyp = None
         if target_pytyp is None:
             if not self._is_bool_context:
                 raise CodeError(
@@ -983,10 +971,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
             condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).resolve()
             expr_result = ConditionalExpression(
-                source_location=location,
                 condition=condition,
                 true_expr=lhs.resolve(),
                 false_expr=rhs.resolve(),
+                wtype=target_pytyp.wtype,
+                source_location=location,
             )
         return builder_for_instance(target_pytyp, expr_result)
 

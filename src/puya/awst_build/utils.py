@@ -27,7 +27,7 @@ from puya.awst_build.eb.interface import (
 from puya.awst_build.exceptions import TypeUnionError
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import StableSet
+from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
@@ -346,38 +346,11 @@ def maybe_resolve_literal(
 
 def determine_base_type(
     first: pytypes.PyType, *rest: pytypes.PyType, location: SourceLocation
-) -> pytypes.PyType | None:
-    if len({first, *rest}) == 1:
+) -> pytypes.PyType:
+    operands = unique((first, *rest))
+    if len(operands) == 1:
         return first
-    # the intersection of the MRO lists gives us all potential candidates
-    # of overlapping base types
-    mro_intersection = StableSet[pytypes.PyType](first, *first.mro)
-    for operand in rest:
-        operand_mro = StableSet(operand, *operand.mro)
-        mro_intersection = mro_intersection.intersection(operand_mro)
-        if not mro_intersection:
-            return None
-    assert mro_intersection
-    if len(mro_intersection) == 1:
-        (result,) = mro_intersection
-        return result
-    mro_intersection_list = list(mro_intersection)
-    most_derived = []
-    for idx, candidate in enumerate(mro_intersection_list):
-        for other in mro_intersection_list[idx + 1 :]:
-            # if candidate is an ancestor of another candidate,
-            # it's not a most-derived
-            if candidate in other.mro:
-                break
-        else:
-            most_derived.append(candidate)
-    if not most_derived:
-        # shouldn't happen??
-        raise InternalError(
-            f"unable to find any most derived from MRO intersection: {mro_intersection_list}",
-            location,
-        )
-    if len(most_derived) > 1:
-        raise TypeUnionError(most_derived, location)
-    (result,) = most_derived
-    return result
+    for candidate in operands:
+        if all(candidate == operand or candidate in operand.mro for operand in operands):
+            return candidate
+    raise TypeUnionError(operands, location)

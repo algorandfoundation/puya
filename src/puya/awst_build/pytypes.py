@@ -383,11 +383,30 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     wtype=wtypes.application_wtype,
 )
 
-_register_builtin(UInt64Type, alias=constants.ENUM_CLS_ON_COMPLETE_ACTION)
-_register_builtin(UInt64Type, alias=constants.ENUM_CLS_TRANSACTION_TYPE)
-OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(  # TODO: replace with alias as above
+
+@attrs.frozen(init=False)
+class UInt64EnumType(PyType):
+    def __init__(self, name: str):
+        self.__attrs_init__(
+            name=name,
+            bases=[UInt64Type],
+            mro=[UInt64Type],
+        )
+        _register_builtin(self)
+
+    @property
+    def wtype(self) -> wtypes.WType:
+        return wtypes.uint64_wtype
+
+
+OnCompleteActionType: typing.Final = UInt64EnumType(
+    name="algopy._constants.OnCompleteAction",
+)
+TransactionTypeType: typing.Final = UInt64EnumType(
+    name="algopy._constants.TransactionType",
+)
+OpUpFeeSourceType: typing.Final = UInt64EnumType(
     name="algopy._util.OpUpFeeSource",
-    wtype=wtypes.uint64_wtype,
 )
 
 ARC4StringType: typing.Final[PyType] = _SimpleType(
