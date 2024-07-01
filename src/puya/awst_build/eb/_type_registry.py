@@ -35,13 +35,13 @@ __all__ = [
 CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
-    constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
-    constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
-    constants.LOG: log.LogBuilder,
-    constants.EMIT: arc4.EmitBuilder,
-    constants.SUBMIT_TXNS: transaction.SubmitInnerTransactionExpressionBuilder,
+    "algopy.arc4.arc4_signature": intrinsics.Arc4SignatureBuilder,
+    "algopy._util.ensure_budget": ensure_budget.EnsureBudgetBuilder,
+    "algopy._util.log": log.LogBuilder,
+    "algopy.arc4.emit": arc4.EmitBuilder,
+    "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericTypeBuilder,
-    constants.CLS_TEMPLATE_VAR_METHOD: (
+    "algopy._template_variables.TemplateVar": (
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
     **{
