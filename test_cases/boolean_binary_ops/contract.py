@@ -1,10 +1,11 @@
-from algopy import Bytes, Contract, log, subroutine
+from algopy import Bytes, Contract, OnCompleteAction, TransactionType, UInt64, log, subroutine
 
 
 class BooleanBinaryOps(Contract):
     def approval_program(self) -> bool:
         test_boolean_binary_ops(true=True, false=False)
         test_boolean_shortcircuit_binary_ops()
+        type_coercion()
         return True
 
     def clear_state_program(self) -> bool:
@@ -50,3 +51,11 @@ def test_boolean_shortcircuit_binary_ops() -> None:
 def log_and_return(x: bool, msg: Bytes) -> bool:
     log(msg)
     return x
+
+
+@subroutine
+def type_coercion() -> None:
+    b = UInt64(0) or OnCompleteAction.OptIn
+    assert b > 0
+    c = TransactionType.ApplicationCall or UInt64(0) or OnCompleteAction.OptIn
+    assert c == TransactionType.ApplicationCall

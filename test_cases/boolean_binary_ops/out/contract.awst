@@ -4,6 +4,7 @@ contract BooleanBinaryOps
   {
     test_cases.boolean_binary_ops.contract::test_boolean_binary_ops(true=true, false=false)
     test_cases.boolean_binary_ops.contract::test_boolean_shortcircuit_binary_ops()
+    test_cases.boolean_binary_ops.contract::type_coercion()
     return true
   }
   
@@ -49,4 +50,12 @@ subroutine log_and_return(x: bool, msg: bytes): bool
 {
   log(msg)
   return x
+}
+
+subroutine type_coercion(): void
+{
+  b: uint64 = (reinterpret_cast<bool>(0u)) ? (0u) : (OptIn)
+  assert(b > 0u)
+  c: uint64 = (reinterpret_cast<bool>(appl)) ? (appl) : ((reinterpret_cast<bool>(0u)) ? (0u) : (OptIn))
+  assert(c == appl)
 }
