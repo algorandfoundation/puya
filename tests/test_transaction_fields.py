@@ -1,17 +1,13 @@
-from __future__ import annotations
-
 import json
 import typing
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 import attrs
 import mypy.nodes
 import mypy.types
 from puya.awst import wtypes
 from puya.awst.nodes import INNER_PARAM_TXN_FIELDS, TXN_FIELDS
-from puya.awst_build import constants
+from puya.awst_build import pytypes
 from puya.awst_build.eb.transaction import get_field_python_name
 
 from tests import EXAMPLES_DIR, VCS_ROOT
@@ -37,7 +33,7 @@ class FieldType:
     is_array: bool
     field_types: Sequence[wtypes.WType | type[wtypes.WType]]
 
-    def is_compatible(self, other: FieldType) -> bool:
+    def is_compatible(self, other: typing.Self) -> bool:
         return self.is_array == other.is_array and set(self.field_types).issubset(
             other.field_types
         )
@@ -65,8 +61,8 @@ def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
 
 
 def test_group_transaction_members() -> None:
-    gtxn_types = [t.gtxn for t in constants.TRANSACTION_TYPE_TO_CLS.values()]
-    gtxn_types.append(constants.CLS_TRANSACTION_BASE)
+    gtxn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
+    gtxn_types.append(pytypes.GroupTransactionBaseType.name)
     for type_info in _get_type_infos(gtxn_types):
         unknown = sorted(set(type_info.protocol_members) - _ALL_PYTHON_TXN_FIELD_NAMES.keys())
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
@@ -75,7 +71,7 @@ def test_group_transaction_members() -> None:
 def test_inner_transaction_field_setters() -> None:
     unmapped = _INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES - _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS
     for type_info in _get_type_infos(
-        t.itxn_fields for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+        t.name for t in pytypes.InnerTransactionFieldsetTypes.values()
     ):
         init_args: set[str] | None = None
         for member in ("__init__", "set"):
@@ -98,18 +94,16 @@ def test_inner_transaction_field_setters() -> None:
 
 
 def test_inner_transaction_members() -> None:
-    for type_info in _get_type_infos(
-        t.itxn_result for t in constants.TRANSACTION_TYPE_TO_CLS.values()
-    ):
+    for type_info in _get_type_infos(t.name for t in pytypes.InnerTransactionResultTypes.values()):
         unknown = sorted(set(type_info.protocol_members) - _ALL_PYTHON_TXN_FIELD_NAMES.keys())
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
 
 def test_txn_fields() -> None:
     # collect all fields that are protocol members
-    txn_types = [t.gtxn for t in constants.TRANSACTION_TYPE_TO_CLS.values()]
-    txn_types.append(constants.CLS_TRANSACTION_BASE)
-    txn_types.extend(t.itxn_result for t in constants.TRANSACTION_TYPE_TO_CLS.values())
+    txn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
+    txn_types.append(pytypes.GroupTransactionBaseType.name)
+    txn_types.extend(t.name for t in pytypes.InnerTransactionResultTypes.values())
     seen_fields = set[str]()
     invalid_types = ""
     for type_info in _get_type_infos(txn_types):
@@ -131,7 +125,7 @@ def test_txn_fields() -> None:
 
     # add fields that are arguments
     for type_info in _get_type_infos(
-        t.itxn_fields for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+        t.name for t in pytypes.InnerTransactionFieldsetTypes.values()
     ):
         for member in ("__init__", "set"):
             func_def = type_info.names[member].node
@@ -220,21 +214,6 @@ def _arg_to_field_type(typ: mypy.types.ProperType | None, arg_name: str) -> Fiel
     return FieldType(is_array=is_array, field_types=_instance_types_to_wtypes(new_types))
 
 
-_TYPES_TO_WTYPES: dict[str, Sequence[wtypes.WType | type[wtypes.WType]]] = {
-    "builtins.bool": (wtypes.bool_wtype,),
-    "builtins.object": (wtypes.bytes_wtype,),  # app args
-    constants.CLS_BYTES: (wtypes.bytes_wtype,),
-    constants.CLS_BYTES_BACKED: (wtypes.account_wtype, wtypes.biguint_wtype, wtypes.ARC4Type),
-    constants.CLS_UINT64: (wtypes.uint64_wtype,),
-    constants.CLS_ACCOUNT: (wtypes.account_wtype,),
-    constants.CLS_ASSET: (wtypes.asset_wtype,),
-    constants.CLS_APPLICATION: (wtypes.application_wtype,),
-    constants.CLS_STRING: (wtypes.string_wtype,),
-    constants.ENUM_CLS_TRANSACTION_TYPE: (wtypes.uint64_wtype,),
-    constants.ENUM_CLS_ON_COMPLETE_ACTION: (wtypes.uint64_wtype,),
-}
-
-
 def _member_to_field_type(typ: mypy.types.Type) -> FieldType:
     is_array = False
     if isinstance(typ, mypy.types.CallableType):
@@ -247,12 +226,18 @@ def _member_to_field_type(typ: mypy.types.Type) -> FieldType:
 def _instance_types_to_wtypes(
     types: Sequence[mypy.types.Type],
 ) -> tuple[wtypes.WType | type[wtypes.WType], ...]:
-    fullnames = []
+    reg = pytypes.builtins_registry()
+
+    result = list[wtypes.WType | type[wtypes.WType]]()
     for typ in types:
         assert isinstance(typ, mypy.types.Instance)
         fullname = typ.type.fullname
+        pytyp = reg[fullname]
+        if pytyp == pytypes.BytesBackedType:
+            result.extend((wtypes.account_wtype, wtypes.biguint_wtype, wtypes.ARC4Type))
+        elif pytyp == pytypes.ObjectType:
+            result.append(wtypes.bytes_wtype)
         # ignoring literal types for now
-        if fullname in ("builtins.int", "builtins.str", "builtins.bytes"):
-            continue
-        fullnames.append(fullname)
-    return tuple(t for n in fullnames for t in _TYPES_TO_WTYPES[n])
+        elif not isinstance(pytyp, pytypes.LiteralOnlyType):
+            result.append(pytyp.wtype)
+    return tuple(result)
