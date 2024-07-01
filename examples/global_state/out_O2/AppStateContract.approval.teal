@@ -41,6 +41,11 @@ main_entrypoint@2:
     int 44
     ==
     assert
+    byte 0x676c6f62616c5f696e745f6e6f5f64656661756c74
+    callsub read_global_uint64
+    int 44
+    ==
+    assert
     int 0
     byte "global_bytes_simplified"
     app_global_get_ex
@@ -82,6 +87,11 @@ main_entrypoint@2:
     byte "global_bytes_no_default"
     app_global_get_ex
     assert
+    byte 0x576f726c64
+    ==
+    assert
+    byte "global_bytes_no_default"
+    callsub read_global_bytes
     byte 0x576f726c64
     ==
     assert
@@ -139,6 +149,26 @@ main_entrypoint@2:
     assert
     int 1
     return
+
+
+// examples.global_state.contract.read_global_uint64(key: bytes) -> uint64:
+read_global_uint64:
+    proto 1 1
+    int 0
+    frame_dig -1
+    app_global_get_ex
+    assert // check GlobalState exists
+    retsub
+
+
+// examples.global_state.contract.read_global_bytes(key: bytes) -> bytes:
+read_global_bytes:
+    proto 1 1
+    int 0
+    frame_dig -1
+    app_global_get_ex
+    assert // check GlobalState exists
+    retsub
 
 
 // examples.global_state.contract.get_global_state_plus_1(state: bytes) -> uint64:

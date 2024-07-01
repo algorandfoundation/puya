@@ -64,6 +64,8 @@ contract LocalStateContract
   {
     result: bytes = LocalState['local', for_account]
     assert(len(result) == examples.local_state.local_state_contract::get_local_state_length('local', for_account))
+    assert(examples.local_state.local_state_contract::local_bytes_exists(for_account, hex<"6C6F63616C">))
+    assert(examples.local_state.local_state_contract::read_local_bytes(for_account, 'local') == result)
     return result
   }
   
@@ -93,4 +95,14 @@ contract LocalStateContract
 subroutine get_local_state_length(state: state_key, account: account): uint64
 {
   return len(LocalState[state, account])
+}
+
+subroutine local_bytes_exists(account: account, key: bytes): bool
+{
+  return STATE_EXISTS(LocalState[reinterpret_cast<state_key>(key), account])
+}
+
+subroutine read_local_bytes(account: account, key: string): bytes
+{
+  return LocalState[reinterpret_cast<state_key>(reinterpret_cast<bytes>(key)), account]
 }

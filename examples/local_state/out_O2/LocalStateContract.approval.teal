@@ -103,6 +103,16 @@ get_guaranteed_data:
     callsub get_local_state_length
     ==
     assert
+    frame_dig -1
+    byte 0x6c6f63616c
+    callsub local_bytes_exists
+    assert
+    frame_dig -1
+    byte "local"
+    callsub read_local_bytes
+    dig 1
+    ==
+    assert
     retsub
 
 
@@ -115,6 +125,28 @@ get_local_state_length:
     app_local_get_ex
     assert // check LocalState exists for account
     len
+    retsub
+
+
+// examples.local_state.local_state_contract.local_bytes_exists(account: bytes, key: bytes) -> uint64:
+local_bytes_exists:
+    proto 2 1
+    frame_dig -2
+    int 0
+    frame_dig -1
+    app_local_get_ex
+    bury 1
+    retsub
+
+
+// examples.local_state.local_state_contract.read_local_bytes(account: bytes, key: bytes) -> bytes:
+read_local_bytes:
+    proto 2 1
+    frame_dig -2
+    int 0
+    frame_dig -1
+    app_local_get_ex
+    assert // check LocalState exists for account
     retsub
 
 

@@ -35,6 +35,7 @@ contract AppStateContract
     (i_value, i_exists): tuple<uint64,bool> = STATE_GET_EX(GlobalState['global_int_no_default'])
     assert(i_exists)
     assert(i_value == 44u)
+    assert(examples.global_state.contract::read_global_uint64(hex<"676C6F62616C5F696E745F6E6F5F64656661756C74">) == 44u)
     assert(GlobalState['global_bytes_simplified'] == hex<"48656C6C6F">)
     assert(STATE_EXISTS(GlobalState['global_bytes_full']))
     assert(GlobalState['global_bytes_full'] == hex<"48656C6C6F">)
@@ -44,6 +45,7 @@ contract AppStateContract
     (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(GlobalState['global_bytes_no_default'])
     assert(b_exists)
     assert(b_value == hex<"576F726C64">)
+    assert(examples.global_state.contract::read_global_bytes('global_bytes_no_default') == hex<"576F726C64">)
     STATE_DELETE(GlobalState['global_bytes_no_default'])
     (b_value, b_exists): tuple<bytes,bool> = STATE_GET_EX(GlobalState['global_bytes_no_default'])
     assert(!(b_exists))
@@ -67,4 +69,14 @@ contract AppStateContract
 subroutine get_global_state_plus_1(state: state_key): uint64
 {
   return GlobalState[state] + 1u
+}
+
+subroutine read_global_uint64(key: bytes): uint64
+{
+  return GlobalState[reinterpret_cast<state_key>(key)]
+}
+
+subroutine read_global_bytes(key: string): bytes
+{
+  return GlobalState[reinterpret_cast<state_key>(reinterpret_cast<bytes>(key))]
 }

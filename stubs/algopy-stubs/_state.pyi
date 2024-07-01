@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Account, Bytes, UInt64
+from algopy import Account, Bytes, String, UInt64
 
 _TState = typing.TypeVar("_TState")
 
@@ -12,7 +12,7 @@ class LocalState(typing.Generic[_TState]):
         type_: type[_TState],
         /,
         *,
-        key: bytes | str = ...,
+        key: String | Bytes | bytes | str = ...,
         description: str = "",
     ) -> None:
         """Declare the local state key and it's associated type
@@ -96,7 +96,7 @@ class GlobalState(typing.Generic[_TState]):
         type_: type[_TState],
         /,
         *,
-        key: bytes | str = ...,
+        key: String | Bytes | bytes | str = ...,
         description: str = "",
     ) -> None:
         """Declare the global state key and its type without initializing its value"""
