@@ -37,7 +37,6 @@ class AppStorageDeclaration:
             case invalid_kind:
                 typing.assert_never(invalid_kind)
         if self.key_override is not None:
-            assert self.key_override.wtype == wtype
             bytes_const = self.key_override
         else:
             bytes_const = BytesConstant(
