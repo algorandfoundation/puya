@@ -5,7 +5,7 @@ from puya.parse import SourceLocation
 from puya.teal import models
 
 
-def emit_teal(context: CompileContext, program: models.TealProgram) -> list[str]:
+def emit_teal(context: CompileContext, program: models.TealProgram) -> str:
     indent = " " * 4
 
     result = [
@@ -36,4 +36,4 @@ def emit_teal(context: CompileContext, program: models.TealProgram) -> list[str]
 
                 result.append(f"{indent}{teal_op.teal()}")
             result.append("")
-    return result
+    return "\n".join(result)

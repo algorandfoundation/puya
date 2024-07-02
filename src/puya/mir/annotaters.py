@@ -6,7 +6,7 @@ import attrs
 
 from puya.errors import InternalError
 from puya.mir import models
-from puya.mir.context import ProgramCodeGenContext
+from puya.mir.context import ProgramMIRContext
 from puya.mir.stack import Stack
 from puya.mir.vla import VariableLifetimeAnalysis
 
@@ -112,7 +112,7 @@ class SimpleOpAnnotater(OpAnnotater):
 
 
 @attrs.frozen(kw_only=True)
-class EmitProgramContext(ProgramCodeGenContext):
+class EmitProgramContext(ProgramMIRContext):
     annotaters: "list[MIRAnnotater]"
     writer: AlignedWriter = attrs.field(factory=AlignedWriter)
     stack: Stack = attrs.field()

@@ -44,7 +44,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
     ):
         super().__init__(pytype, location)
         self.context = context
-        self._type_info = type_info
+        self.type_info = type_info
         self._cref = qualified_class_name(type_info)
 
     @typing.override
@@ -64,7 +64,7 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         pytype = self.context.mypy_expr_node_type(expr)
         if not isinstance(pytype, pytypes.FuncType):
             raise CodeError("static references are only supported for methods", location)
-        func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
+        func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
         if func_or_dec is None:
             return super().member_access(name, expr, location)
         target = BaseClassSubroutineTarget(self._cref, name)

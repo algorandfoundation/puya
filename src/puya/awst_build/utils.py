@@ -14,7 +14,6 @@ from mypy.types import get_proper_type, is_named_instance
 from puya import log
 from puya.awst.nodes import (
     ConstantValue,
-    ContractReference,
 )
 from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
@@ -25,6 +24,7 @@ from puya.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puya.errors import CodeError, InternalError
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

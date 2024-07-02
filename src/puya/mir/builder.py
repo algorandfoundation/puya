@@ -8,7 +8,7 @@ from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
 from puya.mir import models
-from puya.mir.context import ProgramCodeGenContext
+from puya.mir.context import ProgramMIRContext
 from puya.utils import biguint_bytes_eval
 
 logger = log.get_logger(__name__)
@@ -16,7 +16,7 @@ logger = log.get_logger(__name__)
 
 @attrs.define
 class MemoryIRBuilder(IRVisitor[None]):
-    context: ProgramCodeGenContext = attrs.field(on_setattr=attrs.setters.frozen)
+    context: ProgramMIRContext = attrs.field(on_setattr=attrs.setters.frozen)
     current_subroutine: ir.Subroutine
     is_main: bool
     current_ops: list[models.BaseOp] = attrs.field(factory=list)
@@ -81,7 +81,7 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(
-            models.PushTemplateVar(
+            models.TemplateVar(
                 name=deploy_var.name,
                 atype=deploy_var.atype,
                 source_location=deploy_var.source_location,
@@ -90,7 +90,7 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_uint64_constant(self, const: ir.UInt64Constant) -> None:
         self._add_op(
-            models.PushInt(
+            models.Int(
                 const.value if not const.teal_alias else const.teal_alias,
                 source_location=const.source_location,
             )
@@ -99,7 +99,7 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_biguint_constant(self, const: ir.BigUIntConstant) -> None:
         big_uint_bytes = biguint_bytes_eval(const.value)
         self._add_op(
-            models.PushBytes(
+            models.Byte(
                 big_uint_bytes,
                 source_location=const.source_location,
                 comment=str(const.value),
@@ -109,14 +109,14 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_bytes_constant(self, const: ir.BytesConstant) -> None:
         self._add_op(
-            models.PushBytes(
+            models.Byte(
                 const.value, encoding=const.encoding, source_location=const.source_location
             )
         )
 
     def visit_address_constant(self, const: ir.AddressConstant) -> None:
         self._add_op(
-            models.PushAddress(
+            models.Address(
                 const.value,
                 source_location=const.source_location,
             )
@@ -124,7 +124,7 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_method_constant(self, const: ir.MethodConstant) -> None:
         self._add_op(
-            models.PushMethod(
+            models.Method(
                 const.value,
                 source_location=const.source_location,
             )
@@ -297,6 +297,12 @@ class MemoryIRBuilder(IRVisitor[None]):
             successors=successors,
             source_location=block.source_location,
         )
+
+    def visit_compiled_contract_reference(self, const: ir.CompiledContractReference) -> None:
+        _unexpected_node(const)
+
+    def visit_compiled_logicsig_reference(self, const: ir.CompiledLogicSigReference) -> None:
+        _unexpected_node(const)
 
     def visit_value_tuple(self, tup: ir.ValueTuple) -> None:
         _unexpected_node(tup)

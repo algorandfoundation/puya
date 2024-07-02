@@ -9,6 +9,7 @@ from puya.awst_build.eb import (
     biguint,
     bool as bool_,
     bytes as bytes_,
+    compile,
     ensure_budget,
     intrinsics,
     log,
@@ -36,6 +37,8 @@ CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
+    constants.COMPILE_LOGICSIG: compile.CompileLogicSigFunctionBuilder,
+    constants.COMPILE_CONTRACT: compile.CompileContractFunctionBuilder,
     constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
     constants.LOG: log.LogBuilder,
     constants.EMIT: arc4.EmitBuilder,
@@ -159,6 +162,8 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.BigUIntType: biguint.BigUIntExpressionBuilder,
     pytypes.BoolType: bool_.BoolExpressionBuilder,
     pytypes.BytesType: bytes_.BytesExpressionBuilder,
+    pytypes.CompiledContractType: compile.CompiledContractExpressionBuilder,
+    pytypes.CompiledLogicSigType: compile.CompiledLogicSigExpressionBuilder,
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
     pytypes.NoneType: none.NoneExpressionBuilder,

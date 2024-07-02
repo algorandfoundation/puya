@@ -40,11 +40,11 @@ def typed_ok() -> None:
 
 @subroutine
 def abi_call_tuple_ok() -> None:
-    event, txn = arc4.abi_call[Event]("foo()(string,uint8)")
+    event, txn = arc4.abi_call[Event]("foo()(string,uint8)", app_id=1)
 
 @subroutine
 def abi_call_wrong_return() -> None:
-    event, txn = arc4.abi_call[Event]("foo()(string,uint64)") ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
+    event, txn = arc4.abi_call[Event]("foo()(string,uint64)", app_id=1) ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
 
 @subroutine
 def wrong_arg_type1() -> None:
@@ -484,6 +484,7 @@ def test_txn_arg_with_literal() -> None:
     arc4.abi_call(
         Logger.acfg_arg,
         1, ## E: transaction arguments are not supported for contract to contract calls
+        app_id=1,
     )
 
 @subroutine
@@ -492,6 +493,7 @@ def test_txn_arg_with_wrong_literal_type() -> None:
         Logger.acfg_arg,
         "", ## E: can't covert literal to algopy.gtxn.AssetConfigTransaction \
             ## E: transaction arguments are not supported for contract to contract calls
+        app_id=1,
     )
 
 @subroutine
@@ -499,6 +501,7 @@ def test_primitive_types() -> None:
     arc4.abi_call(
         Logger.primitive_types,
         1, 2, b"3", "4", 5, True,
+        app_id=1,
     )
 
 @subroutine
@@ -506,6 +509,7 @@ def test_dynamic_bytes_bad_literal() -> None:
     arc4.abi_call(
         Logger.dynamic_bytes,
         1, ## E: can't covert literal to algopy.arc4.DynamicBytes
+        app_id=1,
     )
 
 @subroutine
@@ -513,6 +517,7 @@ def test_static_bytes_bad_literal() -> None:
     arc4.abi_call(
         Logger.static_bytes,
         2, ## E: can't covert literal to algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]]
+        app_id=1,
     )
 
 

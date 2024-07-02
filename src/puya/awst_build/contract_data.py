@@ -9,10 +9,10 @@ from puya.awst.nodes import (
     AppStorageKind,
     BytesConstant,
     BytesEncoding,
-    ContractReference,
     StateTotals,
 )
 from puya.awst_build import pytypes
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 

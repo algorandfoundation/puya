@@ -18,7 +18,6 @@ from puya.awst.nodes import (
     UpdateInnerTransaction,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
@@ -29,6 +28,7 @@ from puya.awst_build.eb.transaction.inner import InnerTransactionExpressionBuild
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
 from puya.errors import CodeError, InternalError
+from puya.models import TransactionType
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

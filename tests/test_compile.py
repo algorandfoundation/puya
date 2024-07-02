@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import typing
 from collections.abc import Iterable
 from fnmatch import fnmatch
 from pathlib import Path
@@ -11,8 +12,14 @@ from _pytest.mark import ParameterSet
 from puya import log
 from puya.options import PuyaOptions
 
-from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
-from tests.utils import APPROVAL_EXTENSIONS, CompilationResult, compile_src, get_relative_path
+from tests import VCS_ROOT
+from tests.utils import (
+    APPROVAL_EXTENSIONS,
+    PuyaExample,
+    compile_src_from_options,
+    get_all_examples,
+    get_relative_path,
+)
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
@@ -21,20 +28,6 @@ ENV_WITH_NO_COLOR = dict(os.environ) | {
 SUFFIX_O0 = "_unoptimized"
 SUFFIX_O1 = ""
 SUFFIX_O2 = "_O2"
-
-
-@attrs.frozen
-class PuyaExample:
-    root: Path
-    name: str
-
-    @property
-    def path(self) -> Path:
-        return self.root / self.name
-
-    @property
-    def id(self) -> str:
-        return f"{self.root.stem}_{self.name}"
 
 
 def _should_output(path: Path, puya_options: PuyaOptions) -> bool:
@@ -53,66 +46,43 @@ def _should_output(path: Path, puya_options: PuyaOptions) -> bool:
 
 
 def compile_test_case(
-    test_case: PuyaExample, *, puya_options: PuyaOptions, write_logs: bool, suffix: str
+    test_case: PuyaExample, suffix: str, log_path: Path | None = None, **options: typing.Any
 ) -> None:
-    path = test_case.path
+    path = test_case.path.resolve()
     if path.is_dir():
         dst_out_dir = path / ("out" + suffix)
     else:
         dst_out_dir = path.parent / f"{path.stem}_out{suffix}"
 
-    puya_options.out_dir = dst_out_dir
-
-    compile_result = compile_src(
-        path,
-        optimization_level=puya_options.optimization_level,
-        debug_level=puya_options.debug_level,
+    puya_options = PuyaOptions(
+        paths=(test_case.path,),
+        out_dir=dst_out_dir,
+        log_level=log.LogLevel.debug,
+        template_vars_path=test_case.template_vars_path,
+        **options,
     )
+    compile_result = compile_src_from_options(puya_options)
 
-    dst_out_dir = puya_options.out_dir
-    for output_path, output_content in compile_result.output_files.items():
-        if _should_output(output_path, puya_options):
-            file_out = dst_out_dir / output_path
-            file_out.parent.mkdir(parents=True, exist_ok=True)
-            file_out.write_text(output_content, "utf8")
-
-    if write_logs:
-        if path.is_dir():
-            log_path = path / f"puya{suffix}.log"
-        else:
-            log_path = path.with_suffix(f".puya{suffix}.log")
-        log_options = attrs.evolve(puya_options, out_dir=None, paths=(Path(test_case.name),))
-        logs = "\n".join(
-            (
-                f"debug: {log_options}",
-                *_stabilise_logs(
-                    compile_result,
-                ),
-            )
+    if log_path:
+        root_dir = compile_result.root_dir
+        log_options = attrs.evolve(puya_options, paths=(Path(test_case.name),))
+        logs = [_log_to_str(log_, root_dir) for log_ in compile_result.logs]
+        logs.insert(0, f"debug: {log_options}")
+        log_path.write_text(
+            "\n".join(map(_normalize_log, logs)),
+            encoding="utf8",
         )
-        log_path.write_text(logs, encoding="utf8")
 
 
 def _normalize_path(path: Path | str) -> str:
     return str(path).replace("\\", "/")
 
 
-def _stabilise_logs(compiled_result: CompilationResult) -> Iterable[str]:
-    root_dir = compiled_result.root_dir.resolve()
-    actual_path = compiled_result.src_path.resolve()
-    normalized_vcs = _normalize_path(VCS_ROOT)
-    normalized_tmp = _normalize_path(compiled_result.tmp_dir)
-    normalized_root = _normalize_path(root_dir) + "/"
-    actual_dir = actual_path if actual_path.is_dir() else actual_path.parent
-    normalized_out = _normalize_path(actual_dir / "out")
-    return (
-        _log_to_str(log_, root_dir)
-        .replace("\\", "/")
-        .replace(normalized_tmp, normalized_out)
-        .replace(normalized_root, "")
-        .replace(normalized_vcs, "<git root>")
-        for log_ in compiled_result.logs
-    )
+_NORMALIZED_VCS = _normalize_path(VCS_ROOT)
+
+
+def _normalize_log(log: str) -> str:
+    return log.replace("\\", "/").replace(_NORMALIZED_VCS, "<git root>")
 
 
 def _log_to_str(log: log.Log, root_dir: Path) -> str:
@@ -128,66 +98,50 @@ def _log_to_str(log: log.Log, root_dir: Path) -> str:
 def compile_no_optimization(test_case: PuyaExample) -> None:
     compile_test_case(
         test_case,
-        puya_options=PuyaOptions(
-            paths=[test_case.path],
-            optimization_level=0,
-            output_teal=True,
-            output_awst=False,
-            output_destructured_ir=True,
-            output_arc32=False,
-        ),
-        write_logs=False,
-        suffix=SUFFIX_O0,
+        SUFFIX_O0,
+        optimization_level=0,
+        output_teal=True,
+        output_bytecode=True,
+        output_awst=False,
+        output_destructured_ir=True,
+        output_arc32=False,
     )
 
 
 def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
     compile_test_case(
         test_case,
-        puya_options=PuyaOptions(
-            paths=[test_case.path],
-            optimization_level=1,
-            log_level=log.LogLevel.debug,
-            output_teal=True,
-            output_arc32=True,
-            output_awst=True,
-            output_ssa_ir=True,
-            output_optimization_ir=True,
-            output_destructured_ir=True,
-            output_memory_ir=True,
-            output_client=True,
-        ),
-        write_logs=True,
-        suffix=SUFFIX_O1,
+        SUFFIX_O1,
+        log_path=test_case.path / "puya.log",
+        optimization_level=1,
+        output_teal=True,
+        output_bytecode=True,
+        output_arc32=True,
+        output_awst=True,
+        output_ssa_ir=True,
+        output_optimization_ir=True,
+        output_destructured_ir=True,
+        output_memory_ir=True,
+        output_client=True,
     )
 
 
 def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
     compile_test_case(
         test_case,
-        puya_options=PuyaOptions(
-            paths=[test_case.path],
-            optimization_level=2,
-            debug_level=0,
-            output_teal=True,
-            output_arc32=False,
-            output_destructured_ir=True,
-            log_level=log.LogLevel.debug,
-            output_optimization_ir=False,
-        ),
-        write_logs=False,
-        suffix=SUFFIX_O2,
+        SUFFIX_O2,
+        optimization_level=2,
+        debug_level=0,
+        output_teal=True,
+        output_bytecode=True,
+        output_arc32=False,
+        output_destructured_ir=True,
+        output_optimization_ir=False,
     )
 
 
 def get_test_cases() -> Iterable[ParameterSet]:
-    all_examples = [
-        PuyaExample(root, item.name)
-        for root in (EXAMPLES_DIR, TEST_CASES_DIR)
-        for item in root.iterdir()
-        if item.is_dir() and any(item.glob("*.py"))
-    ]
-    for example in all_examples:
+    for example in get_all_examples():
         if example.name == "stress_tests":
             marks = [pytest.mark.slow]
         else:

@@ -2,13 +2,13 @@ import typing
 
 from puya import log
 from puya.awst import nodes as awst_nodes
+from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.nodes import (
     BaseClassSubroutineTarget,
-    ContractReference,
     FreeSubroutineTarget,
     InstanceSubroutineTarget,
 )
-from puya.awst_build.validation.awst_traverser import AWSTTraverser
+from puya.models import ContractReference
 
 logger = log.get_logger(__name__)
 

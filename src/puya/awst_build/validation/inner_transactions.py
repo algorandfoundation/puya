@@ -6,8 +6,8 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
-from puya.awst_build.validation.awst_traverser import AWSTTraverser
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

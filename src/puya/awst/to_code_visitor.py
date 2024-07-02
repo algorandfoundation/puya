@@ -2,6 +2,7 @@ import base64
 import typing as t
 from collections.abc import Iterable
 
+import puya.models
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
@@ -104,7 +105,9 @@ class ToCodeVisitor(
                 target = f"this::{instance_sub.name}"
             case nodes.BaseClassSubroutineTarget(
                 name=func_name,
-                base_class=nodes.ContractReference(module_name=module_name, class_name=class_name),
+                base_class=puya.models.ContractReference(
+                    module_name=module_name, class_name=class_name
+                ),
             ):
                 target = "::".join((module_name, class_name, func_name))
             case nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
@@ -372,6 +375,14 @@ class ToCodeVisitor(
 
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:
         return f'Address("{expr.value}")'
+
+    def visit_compiled_contract(self, expr: nodes.CompiledContract) -> str:
+        # TODO: add template values
+        return f"compiled_contract({expr.contract.full_name!r})"
+
+    def visit_compiled_logicsig(self, expr: nodes.CompiledLogicSig) -> str:
+        # TODO: add template values
+        return f"compiled_logicsig({expr.logic_sig!r})"
 
     def visit_conditional_expression(self, expr: nodes.ConditionalExpression) -> str:
         condition = expr.condition.accept(self)

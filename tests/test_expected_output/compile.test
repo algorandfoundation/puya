@@ -1,0 +1,73 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+## case: test_non_constant_templates
+## template: SOME_VAR="test"
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def log(self) -> None:
+        log(TemplateVar[String]("SOME_VAR"))
+
+
+class Factory(ARC4Contract):
+
+    @arc4.abimethod
+    def compile(self) -> None:
+        compiled = compile_contract(MyContract, template_vars={"SOME_VAR": get_non_const()}) ## E: non-constant template value
+        log(compiled.extra_program_pages)
+
+@subroutine
+def get_non_const() -> String:
+    return String("uh oh")
+
+## case: test_wrong_template_variable_types_expression
+## template: SOME_VAR="test"
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def log(self) -> None:
+        log(TemplateVar[String]("SOME_VAR"))
+
+class Factory(ARC4Contract):
+
+    @arc4.abimethod
+    def compile(self) -> None:
+        compiled = compile_contract(MyContract, template_vars={"SOME_VAR": UInt64(2)}) ## E: invalid template value type for 'TMPL_SOME_VAR', expected bytes
+        log(compiled.extra_program_pages)
+
+## case: test_wrong_template_variable_types_cli
+## template: SOME_VAR=2
+from algopy import *
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def log(self) -> None:
+        log(TemplateVar[String]("SOME_VAR")) ## E: invalid template value type for 'TMPL_SOME_VAR', expected bytes
+
+## case: recursive_compile
+from algopy import *
+
+class Contract1(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.abi_call(Contract2.create, compiled=compile_contract(Contract2)) ## E: cyclical program reference: recursive_compile.Contract1 -> recursive_compile.Contract2 -> recursive_compile.Contract3 -> recursive_compile.Contract1
+
+class Contract2(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.abi_call(Contract3.create, compiled=compile_contract(Contract3))
+
+
+class Contract3(arc4.ARC4Contract):
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        arc4.abi_call(Contract1.create, compiled=compile_contract(Contract1))

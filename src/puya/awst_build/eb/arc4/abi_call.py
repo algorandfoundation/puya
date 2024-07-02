@@ -1,6 +1,9 @@
+from __future__ import annotations
+
+import contextlib
 import operator
 import typing
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from functools import reduce
 
 import attrs
@@ -19,6 +22,7 @@ from puya.awst.nodes import (
     BytesEncoding,
     CreateInnerTransaction,
     Expression,
+    IntegerConstant,
     MethodConstant,
     SubmitInnerTransaction,
     TupleExpression,
@@ -29,6 +33,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
@@ -40,13 +45,27 @@ from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder, UInt64TypeBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
     require_instance_builder,
     resolve_method_from_type_info,
 )
 from puya.errors import CodeError, InternalError
+from puya.models import (
+    ARC4CreateOption,
+    ARC4MethodConfig,
+    CompiledReferenceField,
+    OnCompletionAction,
+    TransactionType,
+)
 from puya.parse import SourceLocation
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from puya.awst_build.context import ASTConversionModuleContext
+    from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -70,6 +89,17 @@ _APP_TRANSACTION_FIELDS = {
             "RekeyTo",
         )
     )
+}
+_CREATE_OR_UPDATE_ARGS = {
+    "approval_program": CompiledReferenceField.approval,
+    "clear_state_program": CompiledReferenceField.clear_state,
+}
+_CREATE_ONLY_ARGS = {
+    "global_num_bytes": CompiledReferenceField.global_bytes,
+    "global_num_uint": CompiledReferenceField.global_uints,
+    "local_num_bytes": CompiledReferenceField.local_bytes,
+    "local_num_uint": CompiledReferenceField.local_uints,
+    "extra_program_pages": CompiledReferenceField.extra_program_pages,
 }
 
 
@@ -171,30 +201,40 @@ def _abi_call(
     method: NodeBuilder | None = None
     abi_args = list[InstanceBuilder]()
     transaction_kwargs = dict[str, InstanceBuilder]()
+    compiled: InstanceBuilder | None = None
     for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
         if arg_name is None:
             if idx == 0:
                 method = arg
             else:
                 abi_args.append(require_instance_builder(arg))
-        else:
+        elif arg_name in _APP_TRANSACTION_FIELDS:
             transaction_kwargs[arg_name] = require_instance_builder(arg)
+        elif arg_name == "compiled":
+            compiled = expect.exactly_one_arg_of_type_else_dummy(
+                [arg], pytypes.CompiledContractType, arg.source_location
+            )
+        else:
+            logger.error("unexpected argument", location=arg.source_location)
 
     declared_result_type: pytypes.PyType | None
+    arc4_config = None
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
-        case ARC4ClientMethodExpressionBuilder(
-            context=context, node=node
-        ) | BaseClassSubroutineInvokerExpressionBuilder(context=context, node=node):
+        case (
+            ARC4ClientMethodExpressionBuilder()
+            | BaseClassSubroutineInvokerExpressionBuilder() as eb
+        ):
             # in this case the arc4 signature and declared return type are inferred
             # TODO: in order to remove the usage of context, we should defer method body evaluation
             #       like we do for function body evaluation, and then these types should make the
             #       resulting metadata (decorator args, function signature) available on them,
             #       instead of shunting the context object around
-            signature, declared_result_type = _get_arc4_signature_and_return_pytype(
-                context, node, location
+            signature, arc4_config, declared_result_type = (
+                _get_arc4_signature_config_and_return_pytype(eb.context, eb.node, location)
             )
+
             if (
                 return_type_annotation is not None
                 and return_type_annotation != declared_result_type
@@ -223,7 +263,8 @@ def _abi_call(
         raise InternalError("expected ARC4Signature.return_type to be defined", location)
 
     arc4_args = signature.convert_args(abi_args, location)
-
+    _add_default_transaction_args(transaction_kwargs, arc4_config, compiled, location)
+    _validate_transaction_kwargs(transaction_kwargs, arc4_config, location)
     return _create_abi_call_expr(
         method_selector=signature.method_selector,
         signature_return_type=signature.return_type,
@@ -234,11 +275,11 @@ def _abi_call(
     )
 
 
-def _get_arc4_signature_and_return_pytype(
+def _get_arc4_signature_config_and_return_pytype(
     context: ASTConversionModuleContext,
     func_or_dec: mypy.nodes.FuncBase | mypy.nodes.Decorator,
     location: SourceLocation,
-) -> tuple[ARC4Signature, pytypes.PyType]:
+) -> tuple[ARC4Signature, ARC4MethodConfig, pytypes.PyType]:
     if isinstance(func_or_dec, mypy.nodes.Decorator):
         decorators = get_decorators_by_fullname(context, func_or_dec)
         abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
@@ -250,6 +291,7 @@ def _get_arc4_signature_and_return_pytype(
             name = arc4_method_data.config.name
             return (
                 ARC4Signature(name, arc4_arg_types, arc4_return_type),
+                arc4_method_data.config,
                 arc4_method_data.return_type,
             )
     raise CodeError("not a valid ARC4 method", location)
@@ -302,7 +344,7 @@ def _create_abi_call_expr(
                 arg_expr = arg_b.resolve()
         array_fields[TxnFields.app_args].append(arg_expr)
 
-    txn_type_appl = constants.TransactionType.appl
+    txn_type_appl = TransactionType.appl
     fields: dict[TxnField, Expression] = {
         TxnFields.fee: UInt64Constant(value=0, source_location=location),
         TxnFields.type: UInt64Constant(
@@ -369,3 +411,179 @@ def _arc4_tuple_from_items(
         wtype=wtypes.ARC4Tuple(args_tuple.wtype.types, source_location),
         source_location=source_location,
     )
+
+
+def _validate_transaction_kwargs(
+    transaction_kwargs: dict[str, InstanceBuilder],
+    arc4_config: ARC4MethodConfig | None,
+    location: SourceLocation,
+) -> None:
+    # note these values may be None which indicates their value is unknown at compile time
+    on_complete = _get_singular_on_complete(transaction_kwargs, arc4_config)
+    is_creating = _is_creating(transaction_kwargs)
+    has_error = False
+
+    # app_id not provided but method doesn't support creating
+    if is_creating and arc4_config and arc4_config.create == ARC4CreateOption.disallow:
+        logger.error("app_id not provided but method does not support creating", location=location)
+        has_error = True
+    # programs not provided when creating or updating
+    elif is_creating:
+        # if all required params are truthy, then all ok
+        # if some create or optional args are truthy, probably forgot an arg
+        # if none are truthy, probably forgot app_id
+        required_create_args = {
+            arg_name: transaction_kwargs.get(arg_name) for arg_name in _CREATE_OR_UPDATE_ARGS
+        }
+        optional_create_args = [transaction_kwargs.get(arg_name) for arg_name in _CREATE_ONLY_ARGS]
+        # all required params defined
+        if all(required_create_args.values()):
+            pass
+        # some required or optional params are defined
+        elif any([*optional_create_args, *required_create_args.values()]):
+            missing = [
+                arg_name for arg_name, arg_value in required_create_args.items() if not arg_value
+            ]
+            logger.error(
+                f"missing required parameters for creation: {', '.join(missing)}",
+                location=location,
+            )
+            has_error = True
+        # no params are defined
+        else:
+            logger.error("missing app_id", location=location)
+            has_error = True
+    elif on_complete == OnCompletionAction.UpdateApplication:
+        missing = [
+            arg_name for arg_name in _CREATE_OR_UPDATE_ARGS if arg_name not in transaction_kwargs
+        ]
+        if missing:
+            logger.error(
+                f"missing required parameters for update: {', '.join(missing)}",
+                location=location,
+            )
+            has_error = True
+    # programs provided when known not to be creating or updating
+    if is_creating is False and on_complete not in (None, OnCompletionAction.UpdateApplication):
+        for arg_name in _CREATE_OR_UPDATE_ARGS:
+            try:
+                arg = transaction_kwargs[arg_name]
+            except KeyError:
+                continue
+            logger.error(
+                f"{arg_name} provided but transaction is not"
+                f" creating or updating an application",
+                location=arg.source_location,
+            )
+            has_error = True
+
+    # app allocation args provided when known not to be creating
+    if is_creating is False:
+        for arg_name in _CREATE_ONLY_ARGS:
+            try:
+                arg = transaction_kwargs[arg_name]
+            except KeyError:
+                continue
+            logger.error(
+                f"{arg_name} provided but transaction is not creating an application",
+                location=arg.source_location,
+            )
+            has_error = True
+
+    # on_complete not valid for arc4_config
+    if (
+        on_complete is not None
+        and arc4_config
+        and on_complete not in arc4_config.allowed_completion_types
+    ):
+        arg = transaction_kwargs["on_completion"]
+        logger.error(
+            "on_completion value is not supported by ARC4 method being called",
+            location=arg.source_location,
+        )
+        has_error = True
+
+    if has_error and arc4_config:
+        logger.info("ARC4 method definition", location=arc4_config.source_location)
+
+
+def _add_default_transaction_args(
+    transaction_kwargs: dict[str, InstanceBuilder],
+    arc4_config: ARC4MethodConfig | None,
+    compiled: InstanceBuilder | None,
+    location: SourceLocation,
+) -> None:
+    on_complete = _get_singular_on_complete(transaction_kwargs, arc4_config)
+
+    if on_complete and "on_completion" not in transaction_kwargs:
+        transaction_kwargs["on_completion"] = UInt64ExpressionBuilder(
+            UInt64Constant(
+                source_location=location, value=on_complete.value, teal_alias=on_complete.name
+            )
+        )
+
+    if not compiled:
+        return
+
+    is_creating = _is_creating(transaction_kwargs)
+
+    if is_creating or on_complete == OnCompletionAction.UpdateApplication:
+        for arg in _CREATE_OR_UPDATE_ARGS:
+            if arg in transaction_kwargs:
+                continue
+            transaction_kwargs[arg] = require_instance_builder(
+                compiled.member_access(
+                    arg,
+                    mypy.nodes.FakeExpression(),  # TODO: remove hack
+                    location,
+                )
+            )
+    if not is_creating:
+        return
+    # add all create kwargs not already defined
+    for arg in _CREATE_ONLY_ARGS:
+        if arg in transaction_kwargs:
+            continue
+        transaction_kwargs[arg] = require_instance_builder(
+            compiled.member_access(
+                arg,
+                mypy.nodes.FakeExpression(),  # TODO: remove hack
+                location,
+            )
+        )
+
+
+def _get_singular_on_complete(
+    args: Mapping[str, NodeBuilder], config: ARC4MethodConfig | None
+) -> OnCompletionAction | None:
+    """
+    Returns OnCompletionAction value if it is constant or can be inferred from config
+    Returns None if a non-constant value is provided or more than one action is allowed
+    """
+    on_complete: OnCompletionAction | None = None
+    arg = args.get("on_completion")
+    if isinstance(arg, InstanceBuilder):
+        value = arg.resolve()
+        if isinstance(value, IntegerConstant):
+            on_complete = OnCompletionAction(value.value)
+    elif arg is None and config:
+        with contextlib.suppress(ValueError):
+            (on_complete,) = config.allowed_completion_types
+    return on_complete
+
+
+def _is_creating(args: Mapping[str, NodeBuilder]) -> bool | None:
+    """
+    Returns True if no app_id specified, or is specified as a constant zero
+    Returns False if a constant non-zero app_id is provided
+    Returns None if unable to statically infer whether it is creating
+    """
+    arg = args.get("app_id")
+    match arg:
+        case None:
+            return True
+        case InstanceBuilder() as eb:
+            value = eb.resolve_literal(UInt64TypeBuilder(arg.source_location))
+            if isinstance(value, IntegerConstant):
+                return value.value == 0
+    return None

@@ -44,6 +44,14 @@ class FunctionTraverser(
     def visit_string_constant(self, expr: awst_nodes.StringConstant) -> None:
         pass
 
+    def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> None:
+        for value in expr.template_variables.values():
+            value.accept(self)
+
+    def visit_compiled_logicsig(self, expr: awst_nodes.CompiledLogicSig) -> None:
+        for value in expr.template_variables.values():
+            value.accept(self)
+
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> None:
         expr.value.accept(self)
 

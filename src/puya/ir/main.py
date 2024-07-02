@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -14,6 +14,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
@@ -29,6 +30,7 @@ from puya.ir.models import (
     Program,
     Subroutine,
 )
+from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
@@ -39,8 +41,10 @@ from puya.models import (
     ARC4Method,
     ARC4MethodConfig,
     ContractMetaData,
+    ContractReference,
     ContractState,
     LogicSignatureMetaData,
+    LogicSigReference,
     StateTotals,
 )
 from puya.parse import EMBEDDED_MODULES, SourceLocation
@@ -50,6 +54,29 @@ logger = log.get_logger(__name__)
 
 
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]
+
+
+class ArtifactReferenceCollector(AWSTTraverser):
+    def __init__(self, modules: Iterable[str]) -> None:
+        super().__init__()
+        self.modules = StableSet(*modules)
+
+    def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> None:
+        super().visit_compiled_contract(expr)
+        self.modules.add(expr.contract.module_name)
+
+    def visit_compiled_logicsig(self, expr: awst_nodes.CompiledLogicSig) -> None:
+        super().visit_compiled_logicsig(expr)
+        self.modules.add(expr.logic_sig.module_name)
+
+    @classmethod
+    def extend(cls, modules: Iterable[str], asts: Mapping[str, awst_nodes.Module]) -> list[str]:
+        visitor = cls(modules)
+        for module_name in modules:
+            module = asts[module_name]
+            for stmt in module.body:
+                stmt.accept(visitor)
+        return list(visitor.modules)
 
 
 def build_module_irs(
@@ -71,11 +98,14 @@ def build_module_irs(
     _build_embedded_ir(build_context)
 
     result = {}
-    for source in context.parse_result.sources:
-        artifacts = result[source.module_name] = list[ModuleArtifact]()
+    module_names = ArtifactReferenceCollector.extend(
+        [source.module_name for source in context.parse_result.sources], module_asts
+    )
+    for module_name in module_names:
+        artifacts = result[module_name] = list[ModuleArtifact]()
         concrete_contract_nodes = [
             node
-            for node in module_asts[source.module_name].body
+            for node in module_asts[module_name].body
             if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
         ]
         for contract_node in concrete_contract_nodes:
@@ -86,7 +116,7 @@ def build_module_irs(
 
         logic_signature_nodes = [
             node
-            for node in module_asts[source.module_name].body
+            for node in module_asts[module_name].body
             if isinstance(node, awst_nodes.LogicSignature)
         ]
         for logic_signature in logic_signature_nodes:
@@ -98,7 +128,7 @@ def build_module_irs(
 
 
 def optimize_and_destructure_ir(
-    context: CompileContext, artifact_ir: ModuleArtifact, artifact_ir_base_path: Path
+    context: IROptimizeContext, artifact_ir: ModuleArtifact, artifact_ir_base_path: Path
 ) -> ModuleArtifact:
     remove_unused_subroutines(context, artifact_ir)
     if context.options.output_ssa_ir:
@@ -173,12 +203,14 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
         folded.approval_program,
         StableSet(*approval_subs_srefs, *ctx.embedded_funcs),
         on_create=folded.init,
+        id=f"{contract.module_name}.{contract.name}.approval",
     )
     clear_state_ir = _make_program(
         ctx,
         folded.clear_program,
         StableSet(*clear_subs_srefs, *ctx.embedded_funcs),
         on_create=None,
+        id=f"{contract.module_name}.{contract.name}.clear_state",
     )
     result = Contract(
         source_location=contract.source_location,
@@ -187,8 +219,7 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
         metadata=ContractMetaData(
             description=contract.docstring,
             name_override=contract.name_override,
-            module_name=contract.module_name,
-            class_name=contract.name,
+            ref=ContractReference(contract.module_name, contract.name),
             arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),
@@ -221,13 +252,13 @@ def _build_logic_sig_ir(
         logic_sig.program,
         StableSet(*program_sub_refs, *ctx.embedded_funcs),
         on_create=None,
+        id=f"{logic_sig.module_name}.{logic_sig.name}",
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
         program=sig_ir,
         metadata=LogicSignatureMetaData(
-            module_name=logic_sig.module_name,
-            name=logic_sig.name,
+            ref=LogicSigReference(logic_sig.module_name, logic_sig.name),
             description=logic_sig.program.docstring,
         ),
     )
@@ -302,6 +333,7 @@ def _make_program(
     main: awst_nodes.Function,
     references: Iterable[awst_nodes.Function],
     on_create: awst_nodes.Function | None,
+    id: str,
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -322,6 +354,7 @@ def _make_program(
         on_create_sub = ctx.subroutines[on_create]
     FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub, on_create=on_create_sub)
     return Program(
+        id=id,
         main=main_sub,
         subroutines=[ctx.subroutines[ref] for ref in references],
     )
