@@ -159,177 +159,186 @@ class ASTConversionModuleContext(ASTConversionContext):
         self,
         mypy_type: mypy.types.Type,
         *,
-        source_location: SourceLocation | mypy.nodes.Context,
+        source_location: mypy.nodes.Context | SourceLocation,
         in_type_args: bool = False,
-        in_func_sig: bool = False,
     ) -> pytypes.PyType:
-        loc = self._maybe_convert_location(source_location)
-        proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
-        if isinstance(mypy_type, mypy.types.TypeAliasType):
-            proper_type_or_alias = mypy_type
-        else:
-            proper_type_or_alias = mypy.types.get_proper_type(mypy_type)
-        recurse = functools.partial(
-            self.type_to_pytype,
-            source_location=loc,
+        return type_to_pytype(
+            self._pytypes,
+            mypy_type,
+            source_location=self._maybe_convert_location(source_location),
             in_type_args=in_type_args,
-            in_func_sig=in_func_sig,
         )
-        match proper_type_or_alias:
-            case mypy.types.TypeAliasType(alias=alias, args=args):
-                if alias is None:
-                    raise InternalError("mypy type alias type missing alias reference", loc)
-                result = self._pytypes.get(alias.fullname)
-                if result is None:
-                    return recurse(mypy.types.get_proper_type(proper_type_or_alias))
-                return self._maybe_parameterise_pytype(result, args, loc)
-            # this is how variadic tuples are represented in mypy types...
-            case mypy.types.Instance(
-                type=mypy.nodes.TypeInfo(fullname="builtins.tuple"), args=args
-            ):
-                try:
-                    (arg,) = args
-                except ValueError:
-                    raise InternalError(
-                        f"mypy tuple type as instance had unrecognised args: {args}", loc
-                    ) from None
-                if not in_func_sig:
-                    raise CodeError("variadic tuples are not supported", loc)
-                return pytypes.VariadicTupleType(items=recurse(arg))
-            case mypy.types.Instance(args=args) as inst:
-                fullname = inst.type.fullname
-                result = self._pytypes.get(fullname)
-                if result is None:
-                    if fullname.startswith("builtins."):
-                        msg = f"Unsupported builtin type: {fullname.removeprefix('builtins.')}"
-                    else:
-                        msg = f"Unknown type: {fullname}"
-                    raise CodeError(msg, loc)
-                return self._maybe_parameterise_pytype(result, args, loc)
-            case mypy.types.TupleType(items=items, partial_fallback=true_type):
-                generic = self._pytypes.get(true_type.type.fullname)
-                if generic is None:
-                    raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
-                return self._maybe_parameterise_pytype(generic, items, loc)
-            case mypy.types.LiteralType(
-                fallback=fallback, value=literal_value
-            ) as mypy_literal_type:
-                if not in_type_args:
-                    # this is a bit clumsy, but exists for some reason, bool types
-                    # can be "narrowed" down to a typing.Literal. e.g. in the case of:
-                    #   assert a
-                    #   assert a or b
-                    # then the type of `a or b` becomes typing.Literal[True]
-                    return recurse(fallback)
-                if mypy_literal_type.is_enum_literal():
-                    raise CodeError("typing literals of enum are not supported", loc)
-                our_literal_value: pytypes.TypingLiteralValue
-                if fallback.type.fullname == "builtins.bytes":  # WHY^2
-                    bytes_literal_value = ast.literal_eval("b" + repr(literal_value))
-                    assert isinstance(bytes_literal_value, bytes)
-                    our_literal_value = bytes_literal_value
-                elif isinstance(literal_value, float):  # WHY
-                    raise CodeError("typing literals with float values are not supported", loc)
+
+
+def type_to_pytype(
+    registry: Mapping[str, pytypes.PyType],
+    mypy_type: mypy.types.Type,
+    *,
+    source_location: SourceLocation | None,
+    in_type_args: bool = False,
+    in_func_sig: bool = False,
+) -> pytypes.PyType:
+    loc = source_location
+    proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
+    if isinstance(mypy_type, mypy.types.TypeAliasType):
+        proper_type_or_alias = mypy_type
+    else:
+        proper_type_or_alias = mypy.types.get_proper_type(mypy_type)
+    recurse = functools.partial(
+        type_to_pytype,
+        registry,
+        source_location=loc,
+        in_type_args=in_type_args,
+        in_func_sig=in_func_sig,
+    )
+    match proper_type_or_alias:
+        case mypy.types.TypeAliasType(alias=alias, args=args):
+            if alias is None:
+                raise InternalError("mypy type alias type missing alias reference", loc)
+            result = registry.get(alias.fullname)
+            if result is None:
+                return recurse(mypy.types.get_proper_type(proper_type_or_alias))
+            return _maybe_parameterise_pytype(registry, result, args, loc)
+        # this is how variadic tuples are represented in mypy types...
+        case mypy.types.Instance(type=mypy.nodes.TypeInfo(fullname="builtins.tuple"), args=args):
+            try:
+                (arg,) = args
+            except ValueError:
+                raise InternalError(
+                    f"mypy tuple type as instance had unrecognised args: {args}", loc
+                ) from None
+            if not in_func_sig:
+                raise CodeError("variadic tuples are not supported", loc)
+            return pytypes.VariadicTupleType(items=recurse(arg))
+        case mypy.types.Instance(args=args) as inst:
+            fullname = inst.type.fullname
+            result = registry.get(fullname)
+            if result is None:
+                if fullname.startswith("builtins."):
+                    msg = f"Unsupported builtin type: {fullname.removeprefix('builtins.')}"
                 else:
-                    our_literal_value = literal_value
-                return pytypes.TypingLiteralType(value=our_literal_value, source_location=loc)
-            case mypy.types.UnionType(items=items):
-                types = [recurse(it) for it in items]
-                if not types:
-                    raise CodeError("Cannot resolve empty type", loc)
-                if len(types) == 1:
-                    return types[0]
-                else:
-                    raise TypeUnionError(types, loc)
-            case mypy.types.NoneType() | mypy.types.PartialType(type=None):
-                return pytypes.NoneType
-            case mypy.types.UninhabitedType():
-                return pytypes.NoneType  # TODO: make this it's own type
-            case mypy.types.AnyType(type_of_any=type_of_any):
-                msg = _type_of_any_to_error_message(type_of_any, loc)
+                    msg = f"Unknown type: {fullname}"
                 raise CodeError(msg, loc)
-            case mypy.types.TypeType(item=inner_type):
-                inner_pytype = recurse(inner_type)
-                return pytypes.TypeType(inner_pytype)
-            case mypy.types.FunctionLike() as func_like:
-                if func_like.is_type_obj():
-                    # note sure if this will always work for overloads, but the only overloaded
-                    # constructor we have is arc4.StaticArray, so...
-                    ret_type = func_like.items[0].ret_type
-                    cls_typ = recurse(ret_type)
-                    return pytypes.TypeType(cls_typ)
-                else:
-                    if not isinstance(func_like, mypy.types.CallableType):  # vs Overloaded
-                        raise CodeError(
-                            "References to overloaded functions are not supported", loc
-                        )
-                    ret_pytype = recurse(func_like.ret_type)
-                    func_args = []
-                    for at, name, kind in zip(
-                        func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
-                    ):
-                        try:
-                            pt = self.type_to_pytype(
-                                at,
-                                source_location=loc,
-                                in_type_args=in_type_args,
-                                in_func_sig=True,
-                            )
-                        except TypeUnionError as union:
-                            pts = union.types
-                        else:
-                            pts = [pt]
-                        func_args.append(pytypes.FuncArg(types=pts, kind=kind, name=name))
-                    if None in func_like.bound_args:
-                        logger.debug(
-                            "None contained in bound args for function reference", location=loc
-                        )
-                    bound_args = [
-                        self.type_to_pytype(
-                            ba,
+            return _maybe_parameterise_pytype(registry, result, args, loc)
+        case mypy.types.TupleType(items=items, partial_fallback=true_type):
+            generic = registry.get(true_type.type.fullname)
+            if generic is None:
+                raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
+            return _maybe_parameterise_pytype(registry, generic, items, loc)
+        case mypy.types.LiteralType(fallback=fallback, value=literal_value) as mypy_literal_type:
+            if not in_type_args:
+                # this is a bit clumsy, but exists for some reason, bool types
+                # can be "narrowed" down to a typing.Literal. e.g. in the case of:
+                #   assert a
+                #   assert a or b
+                # then the type of `a or b` becomes typing.Literal[True]
+                return recurse(fallback)
+            if mypy_literal_type.is_enum_literal():
+                raise CodeError("typing literals of enum are not supported", loc)
+            our_literal_value: pytypes.TypingLiteralValue
+            if fallback.type.fullname == "builtins.bytes":  # WHY^2
+                bytes_literal_value = ast.literal_eval("b" + repr(literal_value))
+                assert isinstance(bytes_literal_value, bytes)
+                our_literal_value = bytes_literal_value
+            elif isinstance(literal_value, float):  # WHY
+                raise CodeError("typing literals with float values are not supported", loc)
+            else:
+                our_literal_value = literal_value
+            return pytypes.TypingLiteralType(value=our_literal_value, source_location=loc)
+        case mypy.types.UnionType(items=items):
+            types = [recurse(it) for it in items]
+            if not types:
+                raise CodeError("Cannot resolve empty type", loc)
+            if len(types) == 1:
+                return types[0]
+            else:
+                raise TypeUnionError(types, loc)
+        case mypy.types.NoneType() | mypy.types.PartialType(type=None):
+            return pytypes.NoneType
+        case mypy.types.UninhabitedType():
+            return pytypes.NoneType  # TODO: make this it's own type
+        case mypy.types.AnyType(type_of_any=type_of_any):
+            msg = _type_of_any_to_error_message(type_of_any, loc)
+            raise CodeError(msg, loc)
+        case mypy.types.TypeType(item=inner_type):
+            inner_pytype = recurse(inner_type)
+            return pytypes.TypeType(inner_pytype)
+        case mypy.types.FunctionLike() as func_like:
+            if func_like.is_type_obj():
+                # note sure if this will always work for overloads, but the only overloaded
+                # constructor we have is arc4.StaticArray, so...
+                ret_type = func_like.items[0].ret_type
+                cls_typ = recurse(ret_type)
+                return pytypes.TypeType(cls_typ)
+            else:
+                if not isinstance(func_like, mypy.types.CallableType):  # vs Overloaded
+                    raise CodeError("References to overloaded functions are not supported", loc)
+                ret_pytype = recurse(func_like.ret_type)
+                func_args = []
+                for at, name, kind in zip(
+                    func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
+                ):
+                    try:
+                        pt = type_to_pytype(
+                            registry,
+                            at,
                             source_location=loc,
                             in_type_args=in_type_args,
                             in_func_sig=True,
                         )
-                        for ba in func_like.bound_args
-                        if ba is not None
-                    ]
-                    if func_like.definition is not None:
-                        name = func_like.definition.fullname
+                    except TypeUnionError as union:
+                        pts = union.types
                     else:
-                        name = repr(func_like)
-                    return pytypes.FuncType(
-                        name=name,
-                        args=func_args,
-                        ret_type=ret_pytype,
-                        bound_arg_types=bound_args,
+                        pts = [pt]
+                    func_args.append(pytypes.FuncArg(types=pts, kind=kind, name=name))
+                if None in func_like.bound_args:
+                    logger.debug(
+                        "None contained in bound args for function reference", location=loc
                     )
-            case _:
-                raise CodeError(
-                    f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc
+                bound_args = [
+                    type_to_pytype(
+                        registry,
+                        ba,
+                        source_location=loc,
+                        in_type_args=in_type_args,
+                        in_func_sig=True,
+                    )
+                    for ba in func_like.bound_args
+                    if ba is not None
+                ]
+                if func_like.definition is not None:
+                    name = func_like.definition.fullname
+                else:
+                    name = repr(func_like)
+                return pytypes.FuncType(
+                    name=name,
+                    args=func_args,
+                    ret_type=ret_pytype,
+                    bound_arg_types=bound_args,
                 )
-
-    def _maybe_parameterise_pytype(
-        self,
-        maybe_generic: pytypes.PyType,
-        mypy_type_args: Sequence[mypy.types.Type],
-        loc: SourceLocation,
-    ) -> pytypes.PyType:
-        if not mypy_type_args:
-            return maybe_generic
-        if all(
-            isinstance(t, mypy.types.TypeVarType | mypy.types.UnpackType) for t in mypy_type_args
-        ):
-            return maybe_generic
-        type_args_resolved = [
-            self.type_to_pytype(mta, source_location=loc, in_type_args=True)
-            for mta in mypy_type_args
-        ]
-        result = maybe_generic.parameterise(type_args_resolved, loc)
-        return result
+        case _:
+            raise CodeError(f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc)
 
 
-def _type_of_any_to_error_message(type_of_any: int, source_location: SourceLocation) -> str:
+def _maybe_parameterise_pytype(
+    registry: Mapping[str, pytypes.PyType],
+    maybe_generic: pytypes.PyType,
+    mypy_type_args: Sequence[mypy.types.Type],
+    loc: SourceLocation | None,
+) -> pytypes.PyType:
+    if not mypy_type_args:
+        return maybe_generic
+    if all(isinstance(t, mypy.types.TypeVarType | mypy.types.UnpackType) for t in mypy_type_args):
+        return maybe_generic
+    type_args_resolved = [
+        type_to_pytype(registry, mta, source_location=loc, in_type_args=True)
+        for mta in mypy_type_args
+    ]
+    result = maybe_generic.parameterise(type_args_resolved, loc)
+    return result
+
+
+def _type_of_any_to_error_message(type_of_any: int, source_location: SourceLocation | None) -> str:
     from mypy.types import TypeOfAny
 
     match type_of_any:

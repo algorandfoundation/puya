@@ -3,7 +3,8 @@ from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst.nodes import Expression, InnerTransactionField, SubmitInnerTransaction, TxnField
+from puya.awst.nodes import Expression, InnerTransactionField, SubmitInnerTransaction
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder

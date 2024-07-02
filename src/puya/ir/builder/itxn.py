@@ -3,6 +3,7 @@ from collections.abc import Mapping, Sequence
 
 import attrs
 
+import puya.awst.txn_fields
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -32,13 +33,13 @@ from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
-_INNER_TRANSACTION_NON_ARRAY_FIELDS = [f for f in awst_nodes.TXN_FIELDS if not f.is_array]
+_INNER_TRANSACTION_NON_ARRAY_FIELDS = [f for f in puya.awst.txn_fields.TxnField if not f.is_array]
 
 
 @attrs.frozen(kw_only=True)
 class CreateInnerTransactionFieldData:
     var_name: str
-    field: awst_nodes.TxnField
+    field: puya.awst.txn_fields.TxnField
     field_counts: set[int] = attrs.field(factory=set)
     """The observed number of values for this field
     For non-array fields this will be either 0 or 1
@@ -58,11 +59,13 @@ class CreateInnerTransactionFieldData:
 @attrs.frozen(kw_only=True)
 class CreateInnerTransactionData:
     var_name: str
-    fields: dict[awst_nodes.TxnField, CreateInnerTransactionFieldData] = attrs.field(
+    fields: dict[puya.awst.txn_fields.TxnField, CreateInnerTransactionFieldData] = attrs.field(
         factory=dict, init=False
     )
 
-    def get_or_add_field_data(self, field: awst_nodes.TxnField) -> CreateInnerTransactionFieldData:
+    def get_or_add_field_data(
+        self, field: puya.awst.txn_fields.TxnField
+    ) -> CreateInnerTransactionFieldData:
         try:
             field_data = self.fields[field]
         except KeyError:
@@ -449,7 +452,7 @@ class InnerTransactionBuilder:
     def _set_inner_transaction_fields(
         self,
         var_name: str,
-        inner_txn_fields: Mapping[awst_nodes.TxnField, awst_nodes.Expression],
+        inner_txn_fields: Mapping[puya.awst.txn_fields.TxnField, awst_nodes.Expression],
         var_loc: SourceLocation,
         *,
         update: bool = False,
@@ -472,8 +475,8 @@ class InnerTransactionBuilder:
         fields = StableSet.from_iter(inner_txn_fields)
         if not update:
             # add missing fields to end
-            for field in awst_nodes.INNER_PARAM_TXN_FIELDS:
-                if field not in fields:
+            for field in puya.awst.txn_fields.TxnField:
+                if field.is_inner_param and field not in fields:
                     fields.add(field)
         for field in fields:
             field_data = param_data.get_or_add_field_data(field)
@@ -512,7 +515,9 @@ class InnerTransactionBuilder:
         dest_params_data = self._inner_txn_fields_data.setdefault(
             dest_var_name, CreateInnerTransactionData(var_name=dest_var_name)
         )
-        for field in awst_nodes.INNER_PARAM_TXN_FIELDS:
+        for field in puya.awst.txn_fields.TxnField:
+            if not field.is_inner_param:
+                continue
             src_field_data = src_params_data.get_or_add_field_data(field)
 
             dest_field_data = dest_params_data.get_or_add_field_data(field)

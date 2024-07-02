@@ -188,7 +188,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     },
     **{
         itxn_fieldset_pytyp: functools.partial(
-            transaction.InnerTxnParamsExpressionBuilder, typ=itxn_fieldset_pytyp
+            transaction.InnerTxnParamsExpressionBuilder, itxn_fieldset_pytyp
         )
         for itxn_fieldset_pytyp in pytypes.InnerTransactionFieldsetTypes.values()
     },
