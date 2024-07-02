@@ -12,9 +12,9 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
-    TxnField,
     UInt64Constant,
 )
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder

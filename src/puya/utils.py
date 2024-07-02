@@ -263,3 +263,8 @@ def set_add(set_: MutableSet[T], value: T) -> bool:
     added = value not in set_
     set_.add(value)
     return added
+
+
+def not_none(arg: T | None) -> T:
+    assert arg is not None
+    return arg

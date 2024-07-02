@@ -1,42 +1,52 @@
-from puya.awst.nodes import TxnField
+from puya.awst.txn_fields import TxnField
 from puya.awst_build.utils import snake_case
 
 _IMMEDIATE_TO_PYTHON_OVERRIDES = {
-    "VotePK": "vote_key",
-    "SelectionPK": "selection_key",
-    "Type": "type_bytes",
-    "TypeEnum": "type",
-    "TxID": "txn_id",
-    "ApplicationID": "app_id",
-    "ConfigAssetTotal": "total",
-    "ConfigAssetDecimals": "decimals",
-    "ConfigAssetDefaultFrozen": "default_frozen",
-    "ConfigAssetUnitName": "unit_name",
-    "ConfigAssetName": "asset_name",
-    "ConfigAssetURL": "url",
-    "ConfigAssetMetadataHash": "metadata_hash",
-    "ConfigAssetManager": "manager",
-    "ConfigAssetReserve": "reserve",
-    "ConfigAssetFreeze": "freeze",
-    "ConfigAssetClawback": "clawback",
-    "FreezeAssetAccount": "freeze_account",
-    "FreezeAssetFrozen": "frozen",
-    "NumApplications": "num_apps",
-    "GlobalNumByteSlice": "global_num_bytes",
-    "LocalNumByteSlice": "local_num_bytes",
-    "Nonparticipation": "non_participation",
-    "CreatedAssetID": "created_asset",
-    "CreatedApplicationID": "created_app",
-    "StateProofPK": "state_proof_key",
-    "ApplicationArgs": "app_args",
-    "Applications": "apps",
+    TxnField.VotePK: "vote_key",
+    TxnField.SelectionPK: "selection_key",
+    TxnField.Type: "type_bytes",
+    TxnField.TypeEnum: "type",
+    TxnField.TxID: "txn_id",
+    TxnField.ApplicationID: "app_id",
+    TxnField.ConfigAssetTotal: "total",
+    TxnField.ConfigAssetDecimals: "decimals",
+    TxnField.ConfigAssetDefaultFrozen: "default_frozen",
+    TxnField.ConfigAssetUnitName: "unit_name",
+    TxnField.ConfigAssetName: "asset_name",
+    TxnField.ConfigAssetURL: "url",
+    TxnField.ConfigAssetMetadataHash: "metadata_hash",
+    TxnField.ConfigAssetManager: "manager",
+    TxnField.ConfigAssetReserve: "reserve",
+    TxnField.ConfigAssetFreeze: "freeze",
+    TxnField.ConfigAssetClawback: "clawback",
+    TxnField.FreezeAssetAccount: "freeze_account",
+    TxnField.FreezeAssetFrozen: "frozen",
+    TxnField.NumApplications: "num_apps",
+    TxnField.GlobalNumByteSlice: "global_num_bytes",
+    TxnField.LocalNumByteSlice: "local_num_bytes",
+    TxnField.Nonparticipation: "non_participation",
+    TxnField.CreatedAssetID: "created_asset",
+    TxnField.CreatedApplicationID: "created_app",
+    TxnField.StateProofPK: "state_proof_key",
+    TxnField.ApplicationArgs: "app_args",
+    TxnField.Applications: "apps",
 }
 
 
 def get_field_python_name(field: TxnField) -> str:
-    immediate = field.immediate
     try:
-        return _IMMEDIATE_TO_PYTHON_OVERRIDES[immediate]
+        return _IMMEDIATE_TO_PYTHON_OVERRIDES[field]
     except KeyError:
         pass
-    return snake_case(immediate)
+    return snake_case(field.immediate)
+
+
+def get_argument_python_name(field: TxnField) -> str | None:
+    match field:
+        case TxnField.ApprovalProgram | TxnField.ClearStateProgram:
+            return None
+        case TxnField.ApprovalProgramPages:
+            field = TxnField.ApprovalProgram
+        case TxnField.ClearStateProgramPages:
+            field = TxnField.ClearStateProgram
+    return get_field_python_name(field)

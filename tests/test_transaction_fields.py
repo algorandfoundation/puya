@@ -1,20 +1,26 @@
 import json
 import typing
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 
 import attrs
 import mypy.nodes
 import mypy.types
+import pytest
 from puya.awst import wtypes
-from puya.awst.nodes import INNER_PARAM_TXN_FIELDS, TXN_FIELDS
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
-from puya.awst_build.eb.transaction import get_field_python_name
+from puya.awst_build.context import type_to_pytype
+from puya.awst_build.eb.transaction import get_argument_python_name, get_field_python_name
 
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import get_awst_cache
 
-_ALL_PYTHON_TXN_FIELD_NAMES = {get_field_python_name(f): f for f in TXN_FIELDS}
-_INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES = set(map(get_field_python_name, INNER_PARAM_TXN_FIELDS))
+_ALL_PYTHON_TXN_FIELD_NAMES = {get_field_python_name(f): f for f in TxnField}
+_INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES = {
+    arg_name
+    for f in TxnField
+    if f.is_inner_param and (arg_name := get_argument_python_name(f)) is not None
+}
 # the need to use approval / clear_state pages is abstracted away by
 # allowing a tuple of pages in the stubs layer
 _MAPPED_INNER_TXN_FIELDS = {
@@ -22,7 +28,7 @@ _MAPPED_INNER_TXN_FIELDS = {
     "clear_state_program": "clear_state_program_pages",
 }
 _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS = {
-    *_MAPPED_INNER_TXN_FIELDS.values(),
+    *_MAPPED_INNER_TXN_FIELDS.keys(),
     # only allow enum version of type
     "type_bytes",
 }
@@ -58,6 +64,11 @@ def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
         node = symbol.node
         assert isinstance(node, mypy.nodes.TypeInfo), f"{type_name} not found in {module}"
         yield node
+
+
+@pytest.fixture(scope="session")
+def builtins_registry() -> Mapping[str, pytypes.PyType]:
+    return pytypes.builtins_registry()
 
 
 def test_group_transaction_members() -> None:
@@ -99,7 +110,7 @@ def test_inner_transaction_members() -> None:
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
 
-def test_txn_fields() -> None:
+def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
     # collect all fields that are protocol members
     txn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
     txn_types.append(pytypes.GroupTransactionBaseType.name)
@@ -130,25 +141,37 @@ def test_txn_fields() -> None:
         for member in ("__init__", "set"):
             func_def = type_info.names[member].node
             assert isinstance(func_def, mypy.nodes.FuncDef)
-            for arg in func_def.arg_names:
-                if arg is None or arg == "self":
+            assert func_def.type is not None
+            func_type = type_to_pytype(builtins_registry, func_def.type, source_location=None)
+            assert isinstance(func_type, pytypes.FuncType)
+            for arg in func_type.args:
+                assert arg.name is not None
+                if arg.name == "self":
                     continue
-                arg_type = _arg_to_field_type(func_def.type, arg)
-                txn_field = _ALL_PYTHON_TXN_FIELD_NAMES[_MAPPED_INNER_TXN_FIELDS.get(arg, arg)]
-                field_type = FieldType(
-                    is_array=txn_field.is_array,
-                    field_types=(
-                        txn_field.wtype,
-                        *txn_field.additional_input_wtypes,
-                    ),  # setters are covariant
-                )
-                if not arg_type.is_compatible(field_type):
+                seen_fields.add(arg.name)
+                txn_field = _ALL_PYTHON_TXN_FIELD_NAMES[
+                    _MAPPED_INNER_TXN_FIELDS.get(arg.name, arg.name)
+                ]
+                # if txn_field != TxnField.ApplicationArgs:
+                txn_field_pytype = pytypes.from_basic_wtype(txn_field.wtype)
+                arg_types = arg.types
+                if txn_field.is_array:
+                    arg_types = [
+                        vt.items for vt in arg_types if isinstance(vt, pytypes.VariadicTupleType)
+                    ]
+                for stub_arg_typ in arg_types:
+                    if stub_arg_typ == pytypes.ObjectType:
+                        # escape hatch
+                        break
+                    if stub_arg_typ == txn_field_pytype or txn_field_pytype in stub_arg_typ.bases:
+                        break
+                else:
                     invalid_types += (
-                        f"Invalid arg type for {type_info.fullname}.{member}({arg})."
-                        f" TxnField: {field_type},"
-                        f" Stubs: {arg_type}\n"
+                        f"Invalid arg type for {type_info.fullname}.{member}({arg.name})."
+                        f" field: {txn_field!r},"
+                        f" implied: {txn_field_pytype},"
+                        f" argument type: {' | '.join(map(str, arg.types))}\n"
                     )
-                seen_fields.add(arg)
 
     # anything missing is an error
     missing_fields = sorted(_ALL_PYTHON_TXN_FIELD_NAMES.keys() - seen_fields)
@@ -168,50 +191,24 @@ def test_mismatched_langspec_txn_fields() -> None:
     inner_txn_fields = {field["name"] for field in arg_enums["itxn_field"]}
 
     assert not _set_difference(
-        all_txn_fields, [f.immediate for f in TXN_FIELDS]
+        all_txn_fields, [f.immediate for f in TxnField]
     ), "txn field mismatch"
 
     assert not _set_difference(
-        txn_single_fields, [f.immediate for f in TXN_FIELDS if not f.is_array]
+        txn_single_fields, [f.immediate for f in TxnField if not f.is_array]
     ), "single txn field mismatch"
 
     assert not _set_difference(
-        txn_array_fields, [f.immediate for f in TXN_FIELDS if f.is_array]
+        txn_array_fields, [f.immediate for f in TxnField if f.is_array]
     ), "array txn field mismatch"
 
     assert not _set_difference(
-        inner_txn_fields, [f.immediate for f in TXN_FIELDS if f.is_inner_param]
+        inner_txn_fields, [f.immediate for f in TxnField if f.is_inner_param]
     ), "inner txn field mismatch"
 
 
 def _set_difference(expected: set[str], actual: list[str]) -> list[str]:
     return list(expected.symmetric_difference(actual))
-
-
-def _arg_to_field_type(typ: mypy.types.ProperType | None, arg_name: str) -> FieldType:
-    assert isinstance(typ, mypy.types.CallableType)
-    arg_type = next(typ.arg_types[i] for i, name in enumerate(typ.arg_names) if name == arg_name)
-    is_array = False
-    if isinstance(arg_type, mypy.types.UnionType):
-        typs = arg_type.items
-    else:
-        typs = [arg_type]
-
-    new_types = []
-    for outer_type in typs:
-        if (
-            isinstance(outer_type, mypy.types.Instance)
-            and outer_type.type.fullname == "builtins.tuple"
-        ):
-            (outer_type,) = outer_type.args
-            is_array = True
-        for inner_typ in (
-            outer_type.items if isinstance(outer_type, mypy.types.UnionType) else [outer_type]
-        ):
-            if inner_typ not in new_types:
-                new_types.append(inner_typ)
-
-    return FieldType(is_array=is_array, field_types=_instance_types_to_wtypes(new_types))
 
 
 def _member_to_field_type(typ: mypy.types.Type) -> FieldType:
