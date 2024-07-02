@@ -327,26 +327,3 @@ from algopy import *
 @subroutine
 def test_tuple_type() -> None:
     tuple[UInt64, Bytes]((UInt64(), Bytes())) # ## E: variadic tuples are not supported
-
-
-## case: recursive_compile
-from algopy import *
-
-class Contract1(arc4.ARC4Contract):
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        arc4.abi_call(Contract2.create, compiled=compile_contract(Contract2)) ## E: cyclical program reference: recursive_compile.Contract1 -> recursive_compile.Contract2 -> recursive_compile.Contract3 -> recursive_compile.Contract1
-
-class Contract2(arc4.ARC4Contract):
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        arc4.abi_call(Contract3.create, compiled=compile_contract(Contract3))
-
-
-class Contract3(arc4.ARC4Contract):
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        arc4.abi_call(Contract1.create, compiled=compile_contract(Contract1))

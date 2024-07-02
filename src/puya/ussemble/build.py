@@ -47,23 +47,38 @@ def lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
             if not address.is_valid:
                 raise InternalError(f"Invalid address literal: {address_value}", loc)
             return models.PushBytes(value=address.public_key, source_location=loc)
-        case teal.TemplateVar(name=name, op_code=op_code, source_location=loc):
+        case teal.TemplateVar(name=name, op_code=op_code, source_location=var_loc):
             try:
-                value = ctx.template_variables[name]
+                maybe_value = ctx.template_variables[name]
             except KeyError as ex:
-                raise CodeError(f"template value not defined: {name!r}", loc) from ex
+                raise CodeError(f"template value not defined: {name!r}", var_loc) from ex
             else:
+                if isinstance(maybe_value, tuple):
+                    value, value_loc = maybe_value
+                else:
+                    value = maybe_value
+                    value_loc = None
                 match value, op_code:
                     case int(int_value), "int":
                         if int_value < 0 or int_value.bit_length() > 64:
-                            logger.error(f"template uint64 value out of range: {name!r}")
-                        return models.PushInt(value=int_value, source_location=loc)
+                            logger.error(
+                                f"template uint64 value out of range: {name!r}", location=value_loc
+                            )
+                            logger.info("affected variable", location=var_loc)
+                        return models.PushInt(value=int_value, source_location=var_loc)
                     case bytes(byte_value), "byte":
                         if len(byte_value) > algo_constants.MAX_BYTES_LENGTH:
-                            logger.error(f"template bytes value too long: {name!r}")
-                        return models.PushBytes(value=byte_value, source_location=loc)
+                            logger.error(
+                                f"template bytes value too long: {name!r}", location=value_loc
+                            )
+                            logger.info("affected variable", location=var_loc)
+                        return models.PushBytes(value=byte_value, source_location=var_loc)
                     case _:
-                        raise CodeError(f"invalid template value type: {name!r}")
+                        expected = "uint64" if op_code == "int" else "bytes"
+                        raise CodeError(
+                            f"invalid template value type for {name!r}, expected {expected}",
+                            value_loc or var_loc,
+                        )
         case teal.CallSub(target=label_id, op_code=op_code, source_location=loc):
             return models.Jump(
                 op_code=op_code, label=models.Label(name=label_id), source_location=loc

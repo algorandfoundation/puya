@@ -44,6 +44,7 @@ from puya.models import (
     ContractReference,
     LogicSignatureMetaData,
     LogicSigReference,
+    TemplateValue,
 )
 from puya.options import PuyaOptions
 from puya.parse import (
@@ -86,7 +87,7 @@ def awst_to_teal(
     log_ctx.exit_if_errors()
     module_irs = build_module_irs(context, module_asts)
     log_ctx.exit_if_errors()
-    compiled_contracts = module_irs_to_teal(context, module_irs)
+    compiled_contracts = module_irs_to_teal(log_ctx, context, module_irs)
     log_ctx.exit_if_errors()
     return compiled_contracts
 
@@ -152,6 +153,7 @@ def get_mypy_options() -> mypy.options.Options:
 
 
 def module_irs_to_teal(
+    log_ctx: LoggingContext,
     context: CompileContext,
     module_irs: dict[str, list[ModuleArtifact]],
 ) -> dict[Path, list[CompilationArtifact]]:
@@ -180,7 +182,7 @@ def module_irs_to_teal(
     def get_program_bytecode(
         ref: ContractReference | LogicSigReference,
         kind: typing.Literal["approval", "clear_state", "logic_sig"],
-        template_constants: Mapping[str, int | bytes],
+        template_constants: Mapping[str, TemplateValue],
     ) -> bytes:
         try:
             comp_ref = compiled_artifacts[ref]
@@ -223,6 +225,8 @@ def module_irs_to_teal(
         artifact_ir = optimize_and_destructure_ir(
             optimize_context, artifact.ir, artifact_ir_base_path
         )
+        # IR validation may reveal further errors
+        log_ctx.exit_if_errors()
 
         if existing := artifacts_by_output_base.get(artifact_ir_base_path):
             logger.error(f"Duplicate contract name {name}", location=artifact_ir.source_location)

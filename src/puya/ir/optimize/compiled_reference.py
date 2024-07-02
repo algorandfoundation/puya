@@ -11,7 +11,9 @@ from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor_mutator import IRMutator
 from puya.models import (
     CompiledReferenceField,
+    TemplateValue,
 )
+from puya.parse import SourceLocation
 from puya.utils import Address, sha512_256_hash
 
 logger = log.get_logger(__name__)
@@ -119,19 +121,23 @@ def _is_constant(template_variables: Mapping[str, ir.Value]) -> bool:
 
 def _get_template_constants(
     global_consts: Mapping[str, int | bytes], template_variables: Mapping[str, ir.Value]
-) -> Mapping[str, int | bytes]:
-    template_consts = dict(global_consts)
+) -> Mapping[str, TemplateValue]:
+    template_consts = dict[str, TemplateValue](global_consts)
     for var, value in template_variables.items():
         match value:
             case ir.UInt64Constant() | ir.BytesConstant() as const:
-                template_consts[var] = const.value
-            case ir.BigUIntConstant(value=biguint):
-                template_consts[var] = biguint.to_bytes(algo_constants.MAX_BIGUINT_BYTES)
-            case ir.AddressConstant(value=addr):
+                template_consts[var] = _template_value(const.value, const.source_location)
+            case ir.BigUIntConstant(value=biguint, source_location=loc):
+                template_consts[var] = _template_value(
+                    biguint.to_bytes(algo_constants.MAX_BIGUINT_BYTES), loc
+                )
+            case ir.AddressConstant(value=addr, source_location=loc):
                 address = Address.parse(addr)
-                template_consts[var] = address.public_key
-            case ir.MethodConstant(value=method):
-                template_consts[var] = sha512_256_hash(method.encode("utf8"))[:4]
+                template_consts[var] = _template_value(address.public_key, loc)
+            case ir.MethodConstant(value=method, source_location=loc):
+                template_consts[var] = _template_value(
+                    sha512_256_hash(method.encode("utf8"))[:4], loc
+                )
             case ir.ITxnConstant():
                 logger.error(
                     "inner transactions cannot be used as a template variable",
@@ -145,3 +151,10 @@ def _get_template_constants(
                     location=value.source_location,
                 )
     return template_consts
+
+
+def _template_value(value: int | bytes, loc: SourceLocation | None) -> TemplateValue:
+    if loc is None:
+        return value
+    else:
+        return value, loc

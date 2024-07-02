@@ -3,6 +3,7 @@ from collections.abc import Mapping
 import attrs
 
 from puya.context import CompileContext
+from puya.models import TemplateValue
 from puya.parse import SourceLocation
 from puya.teal import models as teal
 from puya.ussemble.build import lower_ops
@@ -20,7 +21,7 @@ class AssembledProgram:
 
 
 def assemble_program(
-    ctx: CompileContext, program: teal.TealProgram, template_variables: Mapping[str, int | bytes]
+    ctx: CompileContext, program: teal.TealProgram, template_variables: Mapping[str, TemplateValue]
 ) -> AssembledProgram:
     # TODO: cache result?
     assemble_ctx = attrs_extend(

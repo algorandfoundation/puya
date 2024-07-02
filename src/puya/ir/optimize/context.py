@@ -4,7 +4,7 @@ from collections.abc import Mapping
 import attrs
 
 from puya.context import CompileContext
-from puya.models import ContractReference, LogicSigReference, StateTotals
+from puya.models import ContractReference, LogicSigReference, StateTotals, TemplateValue
 
 
 class ProgramBytecodeProtocol(typing.Protocol):
@@ -13,7 +13,7 @@ class ProgramBytecodeProtocol(typing.Protocol):
         self,
         ref: ContractReference | LogicSigReference,
         kind: typing.Literal["approval", "clear_state", "logic_sig"],
-        template_constants: Mapping[str, int | bytes],
+        template_constants: Mapping[str, TemplateValue],
     ) -> bytes: ...
 
 

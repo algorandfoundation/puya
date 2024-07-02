@@ -7,11 +7,12 @@ import typing
 import attrs
 from immutabledict import immutabledict
 
+from puya.parse import SourceLocation
+
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     from puya.avm_type import AVMType
-    from puya.parse import SourceLocation
 
 
 # values and names are matched to AVM definitions
@@ -236,3 +237,7 @@ class CompiledReferenceField(enum.StrEnum):
     global_bytes = enum.auto()
     local_uints = enum.auto()
     local_bytes = enum.auto()
+
+
+TemplateConstant = int | bytes
+TemplateValue = TemplateConstant | tuple[TemplateConstant, SourceLocation]
