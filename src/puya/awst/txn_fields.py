@@ -1,0 +1,141 @@
+# ruff: noqa: PIE796
+import enum
+
+from puya.awst import wtypes
+
+__all__ = ["TxnField"]
+
+
+class _TxnFieldData:
+    def __init__(
+        self,
+        wtype_or_instance: "wtypes.WType | _TxnFieldData",
+        *,
+        num_values: int = 1,
+        is_inner_param: bool = True,
+    ):
+        if type(wtype_or_instance) is _TxnFieldData:
+            self.__dict__.update(wtype_or_instance.__dict__)
+        else:
+            assert isinstance(wtype_or_instance, wtypes.WType)
+            assert num_values >= 1
+            self._wtype = wtype_or_instance
+            self._num_values = num_values
+            self._is_inner_param = is_inner_param
+
+    @property
+    def wtype(self) -> wtypes.WType:
+        return self._wtype
+
+    @property
+    def num_values(self) -> int:
+        return self._num_values
+
+    @property
+    def is_inner_param(self) -> bool:
+        return self._is_inner_param
+
+    @property
+    def is_array(self) -> bool:
+        return self.num_values > 1
+
+    def valid_type(self, wtype: wtypes.WType) -> bool:
+        return wtype.scalar_type == self.wtype.scalar_type
+
+
+@enum.unique
+class TxnField(_TxnFieldData, enum.Enum):
+    @property
+    def immediate(self) -> str:
+        return self._name_
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}("
+            f"immediate={self.immediate!r},"
+            f" wtype={self.wtype},"
+            f" num_values={self.num_values!r},"
+            f" is_inner_param={self.is_inner_param!r}"
+            ")"
+        )
+
+    Sender = _TxnFieldData(wtypes.account_wtype)
+    Fee = _TxnFieldData(wtypes.uint64_wtype)
+    FirstValid = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    FirstValidTime = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    LastValid = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    Note = _TxnFieldData(wtypes.bytes_wtype)
+    Lease = _TxnFieldData(wtypes.bytes_wtype, is_inner_param=False)
+    Receiver = _TxnFieldData(wtypes.account_wtype)
+    Amount = _TxnFieldData(wtypes.uint64_wtype)
+    CloseRemainderTo = _TxnFieldData(wtypes.account_wtype)
+    VotePK = _TxnFieldData(wtypes.bytes_wtype)
+    SelectionPK = _TxnFieldData(wtypes.bytes_wtype)
+    VoteFirst = _TxnFieldData(wtypes.uint64_wtype)
+    VoteLast = _TxnFieldData(wtypes.uint64_wtype)
+    VoteKeyDilution = _TxnFieldData(wtypes.uint64_wtype)
+    Type = _TxnFieldData(wtypes.bytes_wtype)
+    TypeEnum = _TxnFieldData(wtypes.uint64_wtype)
+    XferAsset = _TxnFieldData(wtypes.asset_wtype)
+    AssetAmount = _TxnFieldData(wtypes.uint64_wtype)
+    AssetSender = _TxnFieldData(wtypes.account_wtype)
+    AssetReceiver = _TxnFieldData(wtypes.account_wtype)
+    AssetCloseTo = _TxnFieldData(wtypes.account_wtype)
+    GroupIndex = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    TxID = _TxnFieldData(wtypes.bytes_wtype, is_inner_param=False)
+    # v2
+    ApplicationID = _TxnFieldData(wtypes.application_wtype)
+    OnCompletion = _TxnFieldData(wtypes.uint64_wtype)
+    NumAppArgs = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    NumAccounts = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    ApprovalProgram = _TxnFieldData(wtypes.bytes_wtype)
+    ClearStateProgram = _TxnFieldData(wtypes.bytes_wtype)
+    RekeyTo = _TxnFieldData(wtypes.account_wtype)
+    ConfigAsset = _TxnFieldData(wtypes.asset_wtype)
+    ConfigAssetTotal = _TxnFieldData(wtypes.uint64_wtype)
+    ConfigAssetDecimals = _TxnFieldData(wtypes.uint64_wtype)
+    ConfigAssetDefaultFrozen = _TxnFieldData(wtypes.bool_wtype)
+    ConfigAssetUnitName = _TxnFieldData(wtypes.bytes_wtype)
+    ConfigAssetName = _TxnFieldData(wtypes.bytes_wtype)
+    ConfigAssetURL = _TxnFieldData(wtypes.bytes_wtype)
+    ConfigAssetMetadataHash = _TxnFieldData(wtypes.bytes_wtype)
+    ConfigAssetManager = _TxnFieldData(wtypes.account_wtype)
+    ConfigAssetReserve = _TxnFieldData(wtypes.account_wtype)
+    ConfigAssetFreeze = _TxnFieldData(wtypes.account_wtype)
+    ConfigAssetClawback = _TxnFieldData(wtypes.account_wtype)
+    FreezeAsset = _TxnFieldData(wtypes.asset_wtype)
+    FreezeAssetAccount = _TxnFieldData(wtypes.account_wtype)
+    FreezeAssetFrozen = _TxnFieldData(wtypes.bool_wtype)
+    # v3
+    NumAssets = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    NumApplications = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    GlobalNumUint = _TxnFieldData(wtypes.uint64_wtype)
+    GlobalNumByteSlice = _TxnFieldData(wtypes.uint64_wtype)
+    LocalNumUint = _TxnFieldData(wtypes.uint64_wtype)
+    LocalNumByteSlice = _TxnFieldData(wtypes.uint64_wtype)
+    # v4
+    ExtraProgramPages = _TxnFieldData(wtypes.uint64_wtype)
+    # v5
+    Nonparticipation = _TxnFieldData(wtypes.bool_wtype)
+    NumLogs = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    CreatedAssetID = _TxnFieldData(wtypes.asset_wtype, is_inner_param=False)
+    CreatedApplicationID = _TxnFieldData(wtypes.application_wtype, is_inner_param=False)
+    # v6
+    LastLog = _TxnFieldData(wtypes.bytes_wtype, is_inner_param=False)
+    StateProofPK = _TxnFieldData(wtypes.bytes_wtype)
+    # v7
+    NumApprovalProgramPages = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    NumClearStateProgramPages = _TxnFieldData(wtypes.uint64_wtype, is_inner_param=False)
+    # array fields
+    # TODO: allow configuring as these are consensus values
+    # v2
+    ApplicationArgs = _TxnFieldData(wtypes.bytes_wtype, num_values=16)
+    Accounts = _TxnFieldData(wtypes.account_wtype, num_values=4)
+    # v3
+    Assets = _TxnFieldData(wtypes.asset_wtype, num_values=8)
+    Applications = _TxnFieldData(wtypes.application_wtype, num_values=8)
+    # v5
+    Logs = _TxnFieldData(wtypes.bytes_wtype, num_values=32, is_inner_param=False)
+    # v7
+    ApprovalProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=4)
+    ClearStateProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=4)

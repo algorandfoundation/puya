@@ -21,7 +21,7 @@ class UnsupportedASTError(CodeError):
 class TypeUnionError(CodeError):
     """Specific instance of CodeError that may be recoverable in some situations"""
 
-    def __init__(self, types: Sequence[pytypes.PyType], location: SourceLocation):
+    def __init__(self, types: Sequence[pytypes.PyType], location: SourceLocation | None):
         assert len(types) > 1
         super().__init__(msg="type unions are unsupported at this location", location=location)
         self.types = types

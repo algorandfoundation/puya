@@ -1,7 +1,8 @@
 import abc
 import typing
 
-from puya.awst.nodes import TXN_FIELDS, Expression, TxnField
+from puya.awst.nodes import Expression
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
@@ -12,7 +13,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 _PYTHON_MEMBER_FIELD_MAP = {
-    get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype)) for f in TXN_FIELDS
+    get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype)) for f in TxnField
 }
 
 
