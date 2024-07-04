@@ -33,7 +33,7 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
-from puya.awst_build.eb.transaction.fields import get_argument_python_name
+from puya.awst_build.eb.transaction.fields import ITXN_FIELD_PARAMS
 from puya.awst_build.eb.transaction.inner_params import map_field_expr
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
@@ -44,13 +44,14 @@ from puya.awst_build.utils import (
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import not_none
 
 logger = log.get_logger(__name__)
 
 _APP_TRANSACTION_FIELDS = {
-    not_none(get_argument_python_name(field)): field
-    for field in (
+    argument_name: params
+    for argument_name, params in ITXN_FIELD_PARAMS.items()
+    if params.field
+    in (
         TxnField.ApplicationID,
         TxnField.OnCompletion,
         TxnField.ApprovalProgramPages,

@@ -115,7 +115,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
 
             arg = arg_map[arg_map_name]
             if pytypes.ContractBaseType in arg_typ.mro:
-                expect.is_type_or_subtype(arg, [arg_typ])
+                expect.argument_of_type(arg, arg_typ, default=expect.default_none)
             else:
                 arg = expect.argument_of_type_else_dummy(arg, arg_typ)
                 passed_name = arg_map_name if arg_map_name in arg_names else None

@@ -1,53 +1,43 @@
 # ruff: noqa: PIE796
 import enum
+import typing
 
+import attrs
+
+from puya.avm_type import AVMType
 from puya.awst import wtypes
 
-__all__ = ["TxnField"]
+__all__ = [
+    "TxnField",
+]
 
 
+@attrs.frozen(eq=False, hash=False)
 class _TxnFieldData:
-    def __init__(
-        self,
-        wtype_or_instance: "wtypes.WType | _TxnFieldData",
-        *,
-        num_values: int = 1,
-        is_inner_param: bool = True,
-    ):
-        if type(wtype_or_instance) is _TxnFieldData:
-            self.__dict__.update(wtype_or_instance.__dict__)
-        else:
-            assert isinstance(wtype_or_instance, wtypes.WType)
-            assert num_values >= 1
-            self._wtype = wtype_or_instance
-            self._num_values = num_values
-            self._is_inner_param = is_inner_param
+    wtype: wtypes.WType
+    num_values: int = attrs.field(default=1, validator=attrs.validators.ge(1), kw_only=True)
+    is_inner_param: bool = attrs.field(default=True, kw_only=True)
 
-    @property
-    def wtype(self) -> wtypes.WType:
-        return self._wtype
 
-    @property
-    def num_values(self) -> int:
-        return self._num_values
-
-    @property
-    def is_inner_param(self) -> bool:
-        return self._is_inner_param
+@enum.unique
+class TxnField(enum.Enum):
+    def __init__(self, data: _TxnFieldData):
+        # _name_ is set by the EnumType metaclass during construction,
+        # and refers to the class member name
+        self.immediate: typing.Final = self._name_
+        assert data.wtype.scalar_type is not None
+        self.avm_type: typing.Final = data.wtype.scalar_type
+        typing.assert_type(self.avm_type, typing.Literal[AVMType.uint64, AVMType.bytes])
+        self.wtype: typing.Final = data.wtype
+        self.num_values: typing.Final = data.num_values
+        self.is_inner_param: typing.Final = data.is_inner_param
 
     @property
     def is_array(self) -> bool:
         return self.num_values > 1
 
     def valid_type(self, wtype: wtypes.WType) -> bool:
-        return wtype.scalar_type == self.wtype.scalar_type
-
-
-@enum.unique
-class TxnField(_TxnFieldData, enum.Enum):
-    @property
-    def immediate(self) -> str:
-        return self._name_
+        return wtype.scalar_type == self.avm_type
 
     def __repr__(self) -> str:
         return (
