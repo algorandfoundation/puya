@@ -85,17 +85,18 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         return DynamicBytesExpressionBuilder(encode_expr)
 
 
-def _coerce_to_byte(arg: NodeBuilder) -> InstanceBuilder:
-    if not expect.instance_builder(arg):
-        return dummy_value(pytypes.ARC4ByteType, arg.source_location)
-    else:
-        arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
-        match arg:
-            case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
-                return arg
-            case _:
-                logger.error("invalid argument type", location=arg.source_location)
-                return dummy_value(pytypes.ARC4ByteType, arg.source_location)
+def _coerce_to_byte(builder: NodeBuilder) -> InstanceBuilder:
+    arg = expect.instance_builder(
+        builder, default=expect.default_dummy_value(pytypes.ARC4ByteType)
+    )
+    arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
+    match arg:
+        # can't use expect.argument_of_type here, we need a match statement
+        case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
+            return arg
+        case _:
+            logger.error("invalid argument type", location=arg.source_location)
+            return dummy_value(pytypes.ARC4ByteType, arg.source_location)
 
 
 class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):

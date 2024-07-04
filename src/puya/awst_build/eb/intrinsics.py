@@ -149,8 +149,9 @@ def _map_call(
 
     immediates = list(op_mapping.immediates)
     stack_args = list[InstanceBuilder]()
-    for arg_in, arg_data in zip(args, op_mapping.args, strict=True):
-        if not expect.instance_builder(arg_in):
+    for arg, arg_data in zip(args, op_mapping.args, strict=True):
+        arg_in = expect.instance_builder(arg, default=expect.default_none)
+        if arg_in is None:
             pass
         elif isinstance(arg_data, int):
             immediates_index = arg_data
@@ -180,8 +181,7 @@ def _map_call(
                         else:
                             arg_in = converted
                             break
-            if expect.is_type_or_subtype(arg_in, allowed_pytypes):
-                stack_args.append(arg_in)
+            stack_args.append(expect.argument_of_type_else_dummy(arg_in, *allowed_pytypes))
     return IntrinsicCall(
         op_code=op_mapping.op_code,
         wtype=ast_mapper.result.wtype,

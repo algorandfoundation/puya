@@ -54,7 +54,7 @@ class ARC4Signature:
 def get_arc4_signature(
     method: NodeBuilder, native_args: Sequence[InstanceBuilder], loc: SourceLocation
 ) -> tuple[str, ARC4Signature]:
-    method = expect.argument_of_type_else_die(method, pytypes.StrLiteralType)
+    method = expect.argument_of_type(method, pytypes.StrLiteralType, default=expect.default_raise)
     match method:
         case LiteralBuilder(value=str(method_sig)):
             pass
@@ -96,10 +96,7 @@ def _implicit_arc4_conversion(
 ) -> InstanceBuilder:
     from puya.awst.wtypes import ARC4Type
 
-    if expect.instance_builder(operand):
-        instance = operand
-    else:
-        return dummy_value(target_type, operand.source_location)
+    instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
     instance = maybe_resolve_literal(instance, target_type)
     if instance.pytype == target_type:
         return instance

@@ -196,6 +196,12 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         """wrap any underlying expressions etc. (if applicable) to avoid multiple evaluations"""
 
 
+class StaticSizedCollectionBuilder(NodeBuilder, abc.ABC):
+    @abc.abstractmethod
+    def iterate_static(self) -> Sequence[InstanceBuilder]:
+        ...
+
+
 class LiteralBuilder(InstanceBuilder, abc.ABC):
     @property
     @abc.abstractmethod

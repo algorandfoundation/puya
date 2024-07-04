@@ -22,7 +22,7 @@ from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpress
 from puya.awst_build.eb._utils import constant_bool_and_error, dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.none import NoneExpressionBuilder
-from puya.awst_build.eb.transaction.fields import get_argument_python_name
+from puya.awst_build.eb.transaction.fields import PythonTxnFieldParam
 from puya.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import maybe_resolve_literal
@@ -30,16 +30,11 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-_parameter_mapping: typing.Final = {
-    get_argument_python_name(f): f for f in TxnField if f.is_inner_param
-}
-_parameter_types: typing.Final = {
-    f: pytypes.from_basic_wtype(f.wtype) for f in TxnField if f.is_inner_param
-}
 
 
-def map_field_expr(field: TxnField, builder: NodeBuilder) -> Expression:
-    field_pytype = _parameter_types[field]
+def map_field_expr(params: PythonTxnFieldParam, builder: NodeBuilder) -> Expression:
+    field = params.field
+    field_pytype = params.type
 
     def dummy_result() -> Expression:
         if not field.is_array:
