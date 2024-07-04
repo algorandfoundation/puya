@@ -480,13 +480,17 @@ class ToCodeVisitor(
 
     def visit_switch(self, statement: nodes.Switch) -> list[str]:
         match_block = [f"switch ({statement.value.accept(self)}) {{"]
-        for case_value, case_block in statement.cases.items():
-            value = case_value.accept(self)
-            block = case_block.accept(self)
+        for case_block in statement.cases:
+            block = case_block.block.accept(self)
+
+            clauses = [f"case {c.accept(self)}:" for c in case_block.clauses]
+
+            clauses[-1] += " {"
+
             match_block.extend(
                 _indent(
                     [
-                        f"case {value}: {{",
+                        *clauses,
                         *_indent(block),
                         "}",
                     ]

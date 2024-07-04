@@ -669,7 +669,7 @@ class Switch(ControlOp):
         )
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.cases.values(), *self.default.targets()]
+        return [*unique(self.cases.values()), *self.default.targets()]
 
     @property
     def can_exit(self) -> bool:

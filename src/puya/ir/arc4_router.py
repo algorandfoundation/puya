@@ -138,11 +138,14 @@ def create_oca_switch(
     return awst_nodes.Switch(
         source_location=location,
         value=on_completion(location),
-        cases={
-            awst_nodes.UInt64Constant(value=oca.value, source_location=location): block
+        cases=[
+            awst_nodes.SwitchCaseBlock(
+                clauses=(awst_nodes.UInt64Constant(value=oca.value, source_location=location),),
+                block=block,
+            )
             for oca, block in block_mapping.items()
             if block is not default_case
-        },
+        ],
         default_case=default_case,
     )
 
@@ -505,7 +508,7 @@ def route_abi_methods(
 ) -> awst_nodes.Block:
     if not methods:
         return create_block(location, "reject_abi_methods", reject(location))
-    method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
+    method_routing_cases = list[awst_nodes.SwitchCaseBlock]()
     seen_signatures = set[str]()
     for method, config in methods.items():
         abi_loc = config.source_location or location
@@ -539,7 +542,12 @@ def route_abi_methods(
         method_selector_value = awst_nodes.MethodConstant(
             source_location=location, value=arc4_signature
         )
-        method_routing_cases[method_selector_value] = method_routing_block
+        method_routing_cases.append(
+            awst_nodes.SwitchCaseBlock(
+                clauses=(method_selector_value,),
+                block=method_routing_block,
+            )
+        )
     return create_block(
         location,
         "abi_routing",

@@ -173,10 +173,26 @@ class IfElse(Statement):
         return visitor.visit_if_else(self)
 
 
+@attrs.frozen(init=False)
+class SwitchCaseBlock(Node):
+    clauses: Sequence[Expression]
+    block: Block
+
+    def __init__(self, clauses: Sequence[Expression], block: Block):
+        location = block.source_location
+        for c in clauses:
+            location += c.source_location
+
+        if len(clauses) == 0:
+            raise ValueError("SwitchCaseBlock must have at least one clause")
+
+        self.__attrs_init__(clauses=clauses, block=block, source_location=location)
+
+
 @attrs.frozen
 class Switch(Statement):
     value: Expression
-    cases: Mapping[Expression, Block] = attrs.field(converter=immutabledict)
+    cases: Sequence[SwitchCaseBlock] = attrs.field(converter=tuple[SwitchCaseBlock, ...])
     default_case: Block | None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
