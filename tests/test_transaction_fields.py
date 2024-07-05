@@ -13,13 +13,16 @@ from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS, PYTHON_
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import get_awst_cache
 
+# the need to use approval / clear_state pages is abstracted away by
+# allowing a tuple of pages in the stubs layer
+_MAPPED_INNER_TXN_FIELDS = {
+    TxnField.ApprovalProgramPages: TxnField.ApprovalProgram,
+    TxnField.ClearStateProgramPages: TxnField.ClearStateProgram,
+}
 _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS = {
+    *_MAPPED_INNER_TXN_FIELDS.values(),
     # only allow enum version of type
     TxnField.Type,
-    # the need to use approval / clear_state pages is abstracted away by
-    # allowing a tuple of pages in the stubs layer
-    TxnField.ApprovalProgram,
-    TxnField.ClearStateProgram,
 }
 
 
@@ -53,6 +56,16 @@ def test_group_transaction_members() -> None:
     for type_info in _get_type_infos(gtxn_types):
         unknown = sorted(set(type_info.protocol_members) - PYTHON_TXN_FIELDS.keys())
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
+
+
+def test_field_vs_argument_name_consistency() -> None:
+    itxn_args = {
+        (_MAPPED_INNER_TXN_FIELDS.get(params.field, params.field), name)
+        for name, params in PYTHON_ITXN_ARGUMENTS.items()
+    }
+    txn_fields = {(f.field, name) for name, f in PYTHON_TXN_FIELDS.items()}
+    bad_itxn_args = itxn_args - txn_fields
+    assert not bad_itxn_args
 
 
 def test_inner_transaction_field_setters() -> None:
