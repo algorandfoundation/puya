@@ -5,7 +5,7 @@ import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, NewArray, UInt64Constant, IndexExpression
+from puya.awst.nodes import Expression, IndexExpression, NewArray, UInt64Constant
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder
@@ -107,11 +107,14 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedColle
         base = self.single_eval().resolve()
         item_type = self.pytype.items
         return [
-            builder_for_instance(item_type, IndexExpression(
-                base=base,
-                index=UInt64Constant(value=idx, source_location=self.source_location),
-                wtype=item_type.wtype,
-                source_location=self.source_location
-            ))
+            builder_for_instance(
+                item_type,
+                IndexExpression(
+                    base=base,
+                    index=UInt64Constant(value=idx, source_location=self.source_location),
+                    wtype=item_type.wtype,
+                    source_location=self.source_location,
+                ),
+            )
             for idx in range(self._size)
         ]

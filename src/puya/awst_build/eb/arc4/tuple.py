@@ -17,7 +17,8 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
     LiteralBuilder,
-    NodeBuilder, StaticSizedCollectionBuilder,
+    NodeBuilder,
+    StaticSizedCollectionBuilder,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.errors import CodeError
@@ -75,7 +76,9 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
         )
 
 
-class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
+class ARC4TupleExpressionBuilder(
+    BytesBackedInstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
         assert typ.generic == pytypes.GenericARC4TupleType
@@ -143,11 +146,10 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
     def iterate_static(self) -> Sequence[InstanceBuilder]:
         base = self.single_eval().resolve()
         return [
-            builder_for_instance(item_type, TupleItemExpression(
-                base=base,
-                index=idx,
-                source_location=self.source_location
-            ))
+            builder_for_instance(
+                item_type,
+                TupleItemExpression(base=base, index=idx, source_location=self.source_location),
+            )
             for idx, item_type in enumerate(self.pytype.items)
         ]
 

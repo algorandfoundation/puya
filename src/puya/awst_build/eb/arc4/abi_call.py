@@ -33,8 +33,7 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
-from puya.awst_build.eb.transaction.fields import ITXN_FIELD_PARAMS
-from puya.awst_build.eb.transaction.inner_params import map_field_expr
+from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
@@ -49,7 +48,7 @@ logger = log.get_logger(__name__)
 
 _APP_TRANSACTION_FIELDS = {
     argument_name: params
-    for argument_name, params in ITXN_FIELD_PARAMS.items()
+    for argument_name, params in PYTHON_ITXN_ARGUMENTS.items()
     if params.field
     in (
         TxnField.ApplicationID,
@@ -316,13 +315,13 @@ def _create_abi_call_expr(
             fields[arr_field] = TupleExpression.from_items(
                 arr_field_values, _combine_locs(arr_field_values)
             )
-    for field_python_name, field in _APP_TRANSACTION_FIELDS.items():
-        if value := transaction_kwargs.pop(field_python_name, None):
-            fields[field] = map_field_expr(field, value)
 
-    if transaction_kwargs:
-        bad_args = "', '".join(transaction_kwargs)
-        logger.error(f"unexpected keyword arguments: '{bad_args}'", location=location)
+    for kwarg_name, kwarg_value in transaction_kwargs.items():
+        params = _APP_TRANSACTION_FIELDS.get(kwarg_name)
+        if params is None:
+            logger.error("unrecognised keyword argument", location=kwarg_value.source_location)
+        else:
+            fields[params.field] = params.validate_and_convert(kwarg_value).resolve()
 
     itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
     create_itxn = CreateInnerTransaction(

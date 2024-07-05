@@ -17,7 +17,6 @@ from puya.awst.nodes import (
     Statement,
     StringConstant,
     SubroutineCallExpression,
-    TupleItemExpression,
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory, pytypes
@@ -36,8 +35,8 @@ from puya.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
     NodeBuilder,
+    StaticSizedCollectionBuilder,
 )
-from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -277,27 +276,16 @@ class _StringJoin(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect.exactly_one_arg(args, location, default=expect.default_none)
-        match arg:
-            case TupleLiteralBuilder(items=item_builders):
-                items = [
-                    expect.argument_of_type_else_dummy(
-                        ib, pytypes.StringType, resolve_literal=True
-                    ).resolve()
-                    for ib in item_builders
-                ]
-            case InstanceBuilder(pytype=pytypes.TupleType(items=item_types)) if all(
-                tt == pytypes.StringType for tt in item_types
-            ):
-                tuple_arg = arg.single_eval().resolve()
-                items = [
-                    TupleItemExpression(tuple_arg, index=i, source_location=location)
-                    for i, _ in enumerate(item_types)
-                ]
-            case other:
-                if other is not None:
-                    logger.error("unexpected argument type", location=other.source_location)
-                return dummy_value(pytypes.StringType, location)
-
+        if not isinstance(arg, StaticSizedCollectionBuilder):
+            if arg is not None:  # if None, already have an error logged
+                logger.error("unexpected argument type", location=arg.source_location)
+            return dummy_value(pytypes.StringType, location)
+        items = [
+            expect.argument_of_type_else_dummy(
+                ib, pytypes.StringType, resolve_literal=True
+            ).resolve()
+            for ib in arg.iterate_static()
+        ]
         sep = self._base.single_eval().resolve()
         joined_value: Expression | None = None
         for item_expr in items:
