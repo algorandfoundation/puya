@@ -474,6 +474,12 @@ class CreateInnerTransaction(Expression):
     wtype: wtypes.WInnerTransactionFields
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
 
+    @fields.validator
+    def _validate_fields(self, _attribute: object, fields: Mapping[TxnField, Expression]) -> None:
+        for field, value in fields.items():
+            if not field.valid_argument_type(value.wtype):
+                raise CodeError("invalid type for field", value.source_location)
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_create_inner_transaction(self)
 
@@ -483,6 +489,12 @@ class UpdateInnerTransaction(Expression):
     itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransactionFields))
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    @fields.validator
+    def _validate_fields(self, _attribute: object, fields: Mapping[TxnField, Expression]) -> None:
+        for field, value in fields.items():
+            if not field.valid_argument_type(value.wtype):
+                raise CodeError("invalid type for field", value.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_update_inner_transaction(self)
@@ -595,19 +607,24 @@ class VarExpression(Expression):
         return visitor.visit_var_expression(self)
 
 
-@attrs.define
+@attrs.frozen(kw_only=True)
 class InnerTransactionField(Expression):
     itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransaction))
     field: TxnField
-    array_index: Expression | None = attrs.field(default=None)
+    array_index: Expression | None = None
 
-    @array_index.validator
-    def _validate_array_index(self, _attribute: object, value: Expression | None) -> None:
-        has_array = value is not None
+    def __attrs_post_init__(self) -> None:
+        has_array = self.array_index is not None
         if has_array != self.field.is_array:
             raise InternalError(
                 f"Inconsistent field and array_index combination: "
                 f"{self.field} and {'' if has_array else 'no '} array provided",
+                self.source_location,
+            )
+        if self.wtype.scalar_type != self.field.avm_type:
+            raise InternalError(
+                f"wtype of field {self.field.immediate} is {self.field.wtype}"
+                f" which is not compatible with specified result type {self.wtype}",
                 self.source_location,
             )
 

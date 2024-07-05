@@ -36,8 +36,13 @@ class TxnField(enum.Enum):
     def is_array(self) -> bool:
         return self.num_values > 1
 
-    def valid_type(self, wtype: wtypes.WType) -> bool:
-        return wtype.scalar_type == self.avm_type
+    def valid_argument_type(self, wtype: wtypes.WType) -> bool:
+        if not self.is_array:
+            return wtype.scalar_type == self.avm_type
+        else:
+            return isinstance(wtype, wtypes.WTuple) and all(
+                item_wtype.scalar_type == self.avm_type for item_wtype in wtype.types
+            )
 
     def __repr__(self) -> str:
         return (
