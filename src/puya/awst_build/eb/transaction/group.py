@@ -17,14 +17,8 @@ from puya.awst.nodes import (
 from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
-from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import (
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-    TypeBuilder,
-)
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.parse import SourceLocation
@@ -86,56 +80,37 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
         )
         super().__init__(typ, expr)
 
-    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
-        return IntrinsicCall(  # TODO: use (+rename) InnerTransactionField
+    @typing.override
+    def get_field_value(
+        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+    ) -> InstanceBuilder:
+        expr = IntrinsicCall(  # TODO: use (+rename) InnerTransactionField
             op_code="gtxns",
             immediates=[field.immediate],
             stack_args=[self.resolve()],
-            wtype=field.wtype,
+            wtype=typ.wtype,
             source_location=location,
         )
-
-    def get_array_member(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> NodeBuilder:
-        return _ArrayItem(self.resolve(), field, typ, location)
-
-
-class _ArrayItem(FunctionBuilder):
-    def __init__(
-        self,
-        transaction: Expression,
-        field: TxnField,
-        typ: pytypes.PyType,
-        location: SourceLocation,
-    ):
-        super().__init__(location)
-        self.typ = typ
-        self.transaction = transaction
-        self.field = field
+        return builder_for_instance(typ, expr)
 
     @typing.override
-    def call(
+    def get_array_field_value(
         self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
+        field: TxnField,
+        typ: pytypes.PyType,
+        index: InstanceBuilder,
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.exactly_one_arg_of_type_else_dummy(
-            args,
-            pytypes.UInt64Type,
-            location,
-            resolve_literal=True,
-        )
+        assert index.pytype == pytypes.UInt64Type
         expr = IntrinsicCall(
             op_code="gtxnsas",
-            immediates=[self.field.immediate],
-            stack_args=[self.transaction, arg.resolve()],
-            wtype=self.typ.wtype,
+            immediates=[field.immediate],
+            stack_args=[self.resolve(), index.resolve()],
+            wtype=typ.wtype,
             source_location=location,
         )
-        return builder_for_instance(self.typ, expr)
+
+        return builder_for_instance(typ, expr)
 
 
 def check_transaction_type(  # TODO: introduce GroupTransaction node and push this down to IR

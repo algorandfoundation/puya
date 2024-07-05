@@ -28,7 +28,6 @@ from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
-from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
@@ -337,7 +336,7 @@ def _create_abi_call_expr(
         return itxn_builder
     itxn_tmp = itxn_builder.single_eval()
     assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)
-    last_log = BytesExpressionBuilder(itxn_tmp.get_field_value(TxnField.LastLog, location))
+    last_log = itxn_tmp.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
     abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature_return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
