@@ -1,6 +1,6 @@
 import itertools
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -81,22 +81,22 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
     if arg is None:
         return TupleLiteralBuilder(items=[], location=location)
 
-    # TODO: generalise statically-iterable expressions at InstanceBuilder level
-    #       e.g. arc4.StaticArray, sequence literals, all should support an "iterate_static"
-    #       method that returns a sequence of builders.
-    #       This will not just maintain a better cohesion, putting that code closer to the
-    #       supporting type, rather than having to update the code here if a new type is added etc.
-    #       but will also mean we could use that function in other places, for example we can
-    #       easily add support for * unpacking like (*my_static_arr, ...)
     match arg:
         case StaticSizedCollectionBuilder() as static_builder:
             return TupleLiteralBuilder(items=static_builder.iterate_static(), location=location)
+        # TODO: maybe LiteralBuilderImpl should be split for str and bytes, so it can
+        #       implement StaticSizedCollectionBuilder?
         case LiteralBuilder(value=bytes() | str() as bytes_or_str):
             return TupleLiteralBuilder(
-                items=[LiteralBuilderImpl(value=item, source_location=arg.source_location) for item in bytes_or_str], location=location
+                items=[
+                    LiteralBuilderImpl(value=item, source_location=arg.source_location)
+                    for item in bytes_or_str
+                ],
+                location=location,
             )
         case _:
             raise CodeError("unhandled argument type", arg.source_location)
+
 
 class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
     def __init__(self, items: Sequence[InstanceBuilder], location: SourceLocation):
@@ -228,7 +228,9 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
         )
 
 
-class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
+class TupleExpressionBuilder(
+    InstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, expr)
@@ -345,11 +347,10 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType], Stati
     def iterate_static(self) -> Sequence[InstanceBuilder]:
         base = self.single_eval().resolve()
         return [
-            builder_for_instance(item_type, TupleItemExpression(
-                base=base,
-                index=idx,
-                source_location=self.source_location
-            ))
+            builder_for_instance(
+                item_type,
+                TupleItemExpression(base=base, index=idx, source_location=self.source_location),
+            )
             for idx, item_type in enumerate(self.pytype.items)
         ]
 
@@ -472,10 +473,7 @@ def _concat(
     assert isinstance(rhs, StaticSizedCollectionBuilder)
     rhs_items = rhs.iterate_static()
 
-    items = [
-        *lhs_items,
-        *rhs_items
-    ]
+    items = [*lhs_items, *rhs_items]
     return TupleLiteralBuilder(items, location)
 
 

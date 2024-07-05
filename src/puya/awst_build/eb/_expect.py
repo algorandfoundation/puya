@@ -1,6 +1,6 @@
 # TODO: eliminate usage of require_instance_builder or make non-throwing
 import typing
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Sequence
 from itertools import zip_longest
 
 from puya import log
@@ -31,7 +31,7 @@ def at_most_one_arg(
 
 
 def at_most_one_arg_of_type(
-    args: Sequence[NodeBuilder], valid_types: Collection[pytypes.PyType], location: SourceLocation
+    args: Sequence[NodeBuilder], valid_types: Sequence[pytypes.PyType], location: SourceLocation
 ) -> InstanceBuilder | None:
     if not args:
         return None

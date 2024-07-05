@@ -198,8 +198,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
 class StaticSizedCollectionBuilder(NodeBuilder, abc.ABC):
     @abc.abstractmethod
-    def iterate_static(self) -> Sequence[InstanceBuilder]:
-        ...
+    def iterate_static(self) -> Sequence[InstanceBuilder]: ...
 
 
 class LiteralBuilder(InstanceBuilder, abc.ABC):

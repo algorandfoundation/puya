@@ -8,13 +8,9 @@ from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.transaction.fields import get_field_python_name
+from puya.awst_build.eb.transaction.fields import PYTHON_TXN_FIELDS
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
-_PYTHON_MEMBER_FIELD_MAP = {
-    get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype)) for f in TxnField
-}
 
 
 class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
@@ -33,10 +29,10 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        field_data = _PYTHON_MEMBER_FIELD_MAP.get(name)
+        field_data = PYTHON_TXN_FIELDS.get(name)
         if field_data is None:
             return super().member_access(name, location)
-        field, typ = field_data
+        field, typ = field_data.field, field_data.type
         if field.is_array:
             return self.get_array_member(field, typ, location)
         else:

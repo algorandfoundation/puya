@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     CreateInnerTransaction,
     Expression,
     SubmitInnerTransaction,
-    TupleExpression,
     UInt64Constant,
     UpdateInnerTransaction,
 )
@@ -19,78 +18,15 @@ from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import constant_bool_and_error, dummy_value
+from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.none import NoneExpressionBuilder
-from puya.awst_build.eb.transaction.fields import PythonTxnFieldParam
+from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
-from puya.awst_build.eb.tuple import TupleLiteralBuilder
-from puya.awst_build.utils import maybe_resolve_literal
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-
-
-def map_field_expr(params: PythonTxnFieldParam, builder: NodeBuilder) -> Expression:
-    field = params.field
-    field_pytype = params.type
-
-    def dummy_result() -> Expression:
-        if not field.is_array:
-            dummy_pytype = field_pytype
-        else:
-            dummy_pytype = pytypes.GenericTupleType.parameterise(
-                [field_pytype] * field.num_values, builder.source_location
-            )
-        return dummy_value(dummy_pytype, builder.source_location).resolve()
-
-    if expect.instance_builder(builder):
-        arg = builder
-    else:
-        return dummy_result()
-    if field.is_array:
-        match arg:
-            case TupleLiteralBuilder(
-                items=items, source_location=tup_loc
-            ) if field == TxnField.ApplicationArgs:
-                for item in items:
-                    if item.pytype == pytypes.AccountType:
-                        logger.warning(
-                            f"{item.pytype} will not be added to foreign array,"
-                            f" use .bytes to suppress this warning",
-                            location=item.source_location,
-                        )
-                    elif item.pytype in (pytypes.AssetType, pytypes.ApplicationType):
-                        logger.warning(
-                            f"{item.pytype} will not be added to foreign array,"
-                            f" use .id to suppress this warning",
-                            location=item.source_location,
-                        )
-                return TupleExpression.from_items(
-                    [item.to_bytes(item.source_location) for item in items], tup_loc
-                )
-            case InstanceBuilder(
-                pytype=pytypes.TupleType(items=tuple_item_types)
-            ) as tup_builder if all(field.valid_type(t.wtype) for t in tuple_item_types):
-                return tup_builder.resolve()
-            case _:
-                return expect.argument_of_type_else_dummy(
-                    arg, field_pytype, resolve_literal=True
-                ).resolve()
-    elif field.wtype == wtypes.bytes_wtype and arg.pytype in (
-        pytypes.StrLiteralType,
-        pytypes.StringType,
-    ):
-        # this handles the overlapping case of allowing Bytes && String to a single field
-        field_expr = arg.to_bytes(arg.source_location)
-    else:
-        arg = maybe_resolve_literal(arg, field_pytype)
-        if not field.valid_type(arg.pytype.wtype):
-            logger.error("unexpected argument type", location=arg.source_location)
-            return dummy_result()
-        field_expr = arg.resolve()
-    return field_expr
 
 
 class InnerTxnParamsTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
@@ -205,9 +141,8 @@ def _map_itxn_args(
     for arg_name, arg in zip(arg_names, args, strict=True):
         if arg_name is None:
             logger.error("unexpected positional argument", location=arg.source_location)
-        elif (field := _parameter_mapping.get(arg_name)) is None:
+        elif (params := PYTHON_ITXN_ARGUMENTS.get(arg_name)) is None:
             logger.error("unrecognised keyword argument", location=arg.source_location)
         else:
-            expression = map_field_expr(field, arg)
-            transaction_fields[field] = expression
+            transaction_fields[params.field] = params.validate_and_convert(arg).resolve()
     return transaction_fields
