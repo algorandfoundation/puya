@@ -805,7 +805,7 @@ class FunctionIRBuilder(
         flow_control.handle_while_loop(self.context, statement)
 
     def visit_break_statement(self, statement: awst_nodes.BreakStatement) -> TStatement:
-        self.context.block_builder.loop_break(statement.source_location)
+        self.context.block_builder.on_break(statement.label, statement.source_location)
 
     def visit_return_statement(self, statement: awst_nodes.ReturnStatement) -> TStatement:
         if statement.value is not None:
@@ -844,7 +844,7 @@ class FunctionIRBuilder(
         )
 
     def visit_continue_statement(self, statement: awst_nodes.ContinueStatement) -> TStatement:
-        self.context.block_builder.loop_continue(statement.source_location)
+        self.context.block_builder.on_continue(statement.label, statement.source_location)
 
     def visit_expression_statement(self, statement: awst_nodes.ExpressionStatement) -> TStatement:
         # NOTE: popping of ignored return values should happen at code gen time

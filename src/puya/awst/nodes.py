@@ -173,11 +173,26 @@ class IfElse(Statement):
         return visitor.visit_if_else(self)
 
 
+class SwitchFallthroughBehaviour(enum.StrEnum):
+    next_case = "next_case"
+    after_switch = "after_switch"
+
+
+class SwitchOnBreakBehaviour(enum.StrEnum):
+    ignore = "ignore"
+    goto_next = "goto_next"
+
+
 @attrs.frozen
 class Switch(Statement):
     value: Expression
-    cases: Mapping[Expression, Block] = attrs.field(converter=immutabledict)
+    cases: Sequence[tuple[Expression, Block]] = attrs.field(
+        converter=tuple[tuple[Expression, Block], ...]
+    )
     default_case: Block | None
+    label: str | None = None
+    fallthrough_behaviour: SwitchFallthroughBehaviour = SwitchFallthroughBehaviour.after_switch
+    on_break_behaviour: SwitchOnBreakBehaviour = SwitchOnBreakBehaviour.ignore
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_switch(self)
@@ -187,6 +202,7 @@ class Switch(Statement):
 class WhileLoop(Statement):
     condition: Expression = attrs.field(validator=[wtype_is_bool])
     loop_body: Block
+    label: str | None = None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_while_loop(self)
@@ -194,12 +210,16 @@ class WhileLoop(Statement):
 
 @attrs.frozen
 class BreakStatement(Statement):
+    label: str | None = None
+
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_break_statement(self)
 
 
 @attrs.frozen
 class ContinueStatement(Statement):
+    label: str | None = None
+
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_continue_statement(self)
 
@@ -1487,6 +1507,7 @@ class ForInLoop(Statement):
     sequence: Expression | Range
     items: Lvalue  # item variable(s)
     loop_body: Block
+    label: str | None = None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_for_in_loop(self)

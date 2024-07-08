@@ -1,10 +1,11 @@
 import contextlib
+import typing
 from collections.abc import Iterator, Sequence
 
 import attrs
 
 from puya import log
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir.models import (
     Assignment,
     BasicBlock,
@@ -25,6 +26,16 @@ logger = log.get_logger(__name__)
 class _LoopTargets:
     on_break: BasicBlock
     on_continue: BasicBlock
+    label: str | None
+
+
+@attrs.frozen(kw_only=True)
+class _SwitchTargets:
+    on_break: BasicBlock
+    label: str | None
+
+
+_BreakContinueTarget: typing.TypeAlias = _LoopTargets | _SwitchTargets
 
 
 class BlocksBuilder:
@@ -34,7 +45,7 @@ class BlocksBuilder:
         default_source_location: SourceLocation,
     ) -> None:
         self._default_source_location = default_source_location
-        self._loop_targets_stack: list[_LoopTargets] = []
+        self._break_continue_targets_stack: list[_BreakContinueTarget] = []
         blocks = [BasicBlock(id=0, source_location=default_source_location)]
         self._blocks = blocks
         # initialize ssa
@@ -142,25 +153,48 @@ class BlocksBuilder:
             )
 
     @contextlib.contextmanager
-    def enter_loop(self, on_continue: BasicBlock, on_break: BasicBlock) -> Iterator[None]:
-        self._loop_targets_stack.append(_LoopTargets(on_continue=on_continue, on_break=on_break))
+    def enter_loop(
+        self, on_continue: BasicBlock, on_break: BasicBlock, label: str | None
+    ) -> Iterator[None]:
+        self._break_continue_targets_stack.append(
+            _LoopTargets(on_continue=on_continue, on_break=on_break, label=label)
+        )
         try:
             yield
         finally:
-            self._loop_targets_stack.pop()
+            self._break_continue_targets_stack.pop()
 
-    def loop_break(self, source_location: SourceLocation) -> None:
-        try:
-            targets = self._loop_targets_stack[-1]
-        except IndexError as ex:
-            # TODO: this might be a code error or an internal error
-            raise InternalError("break outside of loop", source_location) from ex
-        self.goto(target=targets.on_break, source_location=source_location)
+    @contextlib.contextmanager
+    def enter_switch(self, on_break: BasicBlock | None, label: str | None) -> Iterator[None]:
+        if on_break:
+            self._break_continue_targets_stack.append(
+                _SwitchTargets(on_break=on_break, label=label)
+            )
 
-    def loop_continue(self, source_location: SourceLocation) -> None:
         try:
-            targets = self._loop_targets_stack[-1]
-        except IndexError as ex:
-            # TODO: this might be a code error or an internal error
-            raise InternalError("continue outside of loop", source_location) from ex
-        self.goto(target=targets.on_continue, source_location=source_location)
+            yield
+        finally:
+            if on_break:
+                self._break_continue_targets_stack.pop()
+
+    def on_break(self, label: str | None, source_location: SourceLocation) -> None:
+        try:
+            target = next(
+                t.on_break
+                for t in reversed(self._break_continue_targets_stack)
+                if label is None or t.label == label
+            )
+        except StopIteration as ex:
+            raise CodeError("break outside of loop or switch", source_location) from ex
+        self.goto(target=target, source_location=source_location)
+
+    def on_continue(self, label: str | None, source_location: SourceLocation) -> None:
+        try:
+            target = next(
+                t.on_continue
+                for t in reversed(self._break_continue_targets_stack)
+                if isinstance(t, _LoopTargets) and (label is None or t.label == label)
+            )
+        except StopIteration as ex:
+            raise CodeError("continue outside of loop or switch", source_location) from ex
+        self.goto(target=target, source_location=source_location)

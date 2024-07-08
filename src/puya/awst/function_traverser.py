@@ -199,7 +199,7 @@ class FunctionTraverser(
 
     def visit_switch(self, statement: awst_nodes.Switch) -> None:
         statement.value.accept(self)
-        for case, block in statement.cases.items():
+        for case, block in statement.cases:
             case.accept(self)
             block.accept(self)
         if statement.default_case:

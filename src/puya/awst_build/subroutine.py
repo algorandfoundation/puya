@@ -38,6 +38,7 @@ from puya.awst.nodes import (
     UInt64Constant,
     VarExpression,
     WhileLoop,
+    SwitchFallthroughBehaviour,
 )
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
@@ -515,7 +516,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         subject_eb = require_instance_builder(stmt.subject.accept(self))
         subject_typ = subject_eb.pytype
         subject = subject_eb.single_eval().resolve()
-        case_block_map = dict[Expression, Block]()
+        case_blocks = list[tuple[Expression, Block]]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
             match pattern, guard:
@@ -523,13 +524,13 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     case_value_builder_or_literal = case_expr.accept(self)
                     case_value = require_instance_builder(case_value_builder_or_literal).resolve()
                     case_block = self.visit_block(block)
-                    case_block_map[case_value] = case_block
+                    case_blocks.append((case_value, case_block))
                 case mypy.patterns.SingletonPattern(value=bool() as bool_literal), None:
                     case_value = BoolConstant(
                         value=bool_literal, source_location=self._location(pattern)
                     )
                     case_block = self.visit_block(block)
-                    case_block_map[case_value] = case_block
+                    case_blocks.append((case_value, case_block))
                 case (
                     mypy.patterns.ClassPattern(
                         positionals=[mypy.patterns.ValuePattern(expr=inner_literal_expr)],
@@ -550,7 +551,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         case_value_builder_or_literal, subject_typ
                     ).resolve()
                     case_block = self.visit_block(block)
-                    case_block_map[case_value] = case_block
+                    case_blocks.append((case_value, case_block))
                 case mypy.patterns.AsPattern(name=None, pattern=None), None:
                     default_block = self.visit_block(block)
                 case _:
@@ -573,7 +574,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             return Switch(
                 source_location=loc,
                 value=subject,
-                cases=case_block_map,
+                cases=case_blocks,
                 default_case=default_block,
             )
         return None

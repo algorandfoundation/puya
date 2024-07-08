@@ -3,6 +3,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.nodes import SwitchFallthroughBehaviour, SwitchOnBreakBehaviour
 from puya.errors import InternalError
 from puya.ir.builder._utils import assign, mkblocks
 from puya.ir.context import IRFunctionBuildContext
@@ -66,7 +67,7 @@ def handle_if_else(context: IRFunctionBuildContext, stmt: awst_nodes.IfElse) -> 
 def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch) -> None:
     case_blocks = dict[Value, BasicBlock]()
     ir_blocks = dict[awst_nodes.Block, BasicBlock]()
-    for value, block in statement.cases.items():
+    for value, block in statement.cases:
         ir_value = context.visitor.visit_and_materialise_single(value)
         case_blocks[ir_value] = lazy_setdefault(
             ir_blocks,
@@ -97,15 +98,38 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
             source_location=statement.source_location,
         )
     )
-    for ir_block in (default_block, *ir_blocks.values()):
-        context.ssa.seal_block(ir_block)
-    for block, ir_block in ir_blocks.items():
-        _branch(context, ir_block, block, next_block)
-    if statement.default_case:
-        _branch(context, default_block, statement.default_case, next_block)
-    else:
-        context.block_builder.activate_block(default_block)
-        context.block_builder.goto(next_block)
+    with context.block_builder.enter_switch(
+        label=statement.label,
+        on_break=(
+            next_block
+            if statement.on_break_behaviour == SwitchOnBreakBehaviour.goto_next
+            else None
+        ),
+    ):
+        if statement.fallthrough_behaviour == SwitchFallthroughBehaviour.after_switch:
+            for ir_block in (default_block, *ir_blocks.values()):
+                context.ssa.seal_block(ir_block)
+            for block, ir_block in ir_blocks.items():
+                _branch(context, ir_block, block, next_block)
+        elif statement.fallthrough_behaviour == SwitchFallthroughBehaviour.next_case:
+            ordered_blocks = [b for e, b in statement.cases]
+            for c_block, next_case_block in zip(
+                ordered_blocks,
+                [
+                    *[ir_blocks[b] for b in ordered_blocks[1:]],
+                    default_block,
+                ],
+                strict=True,
+            ):
+                _branch(context, ir_blocks[c_block], c_block, next_case_block)
+            for ir_block in (default_block, *ir_blocks.values()):
+                context.ssa.seal_block(ir_block)
+
+        if statement.default_case:
+            _branch(context, default_block, statement.default_case, next_block)
+        else:
+            context.block_builder.activate_block(default_block)
+            context.block_builder.goto(next_block)
     if next_block.predecessors:
         # Activate the "next" block if it is reachable.
         # This might not be the case if all paths within the "if" and "else" branches
@@ -179,7 +203,9 @@ def handle_while_loop(context: IRFunctionBuildContext, statement: awst_nodes.Whi
         "after_while",
     )
 
-    with context.block_builder.enter_loop(on_continue=top, on_break=next_block):
+    with context.block_builder.enter_loop(
+        on_continue=top, on_break=next_block, label=statement.label
+    ):
         context.block_builder.goto_and_activate(top)
         process_conditional(
             context,

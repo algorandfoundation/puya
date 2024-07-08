@@ -88,6 +88,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 range_loc=range_loc,
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
+                loop_label=statement.label,
             )
         case awst_nodes.Expression(wtype=wtypes.WTuple()) as tuple_expression:
             tuple_items = context.visitor.visit_and_materialise(tuple_expression)
@@ -103,6 +104,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     statement_loc=statement.source_location,
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
+                    loop_label=statement.label,
                 )
         case awst_nodes.Expression(wtype=wtypes.bytes_wtype) as bytes_expression:
             bytes_value = context.visitor.visit_and_materialise_single(bytes_expression)
@@ -138,6 +140,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 statement_loc=statement.source_location,
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
+                loop_label=statement.label,
             )
         case awst_nodes.Expression(
             wtype=wtypes.ARC4Array(element_type=wtypes.WType(immutable=False))
@@ -165,6 +168,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 statement_loc=statement.source_location,
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
+                loop_label=statement.label,
             )
         case _:
             raise InternalError("Unsupported for in loop sequence", statement.source_location)
@@ -211,6 +215,7 @@ def _iterate_urange(
     range_loc: SourceLocation,
     reverse_items: bool,
     reverse_index: bool,
+    loop_label: str | None,
 ) -> None:
     header, body, footer, increment_block, next_block = mkblocks(
         statement_loc,
@@ -408,7 +413,9 @@ def _iterate_urange(
                 assignment_location=index_var.source_location,
             )
 
-    with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+    with context.block_builder.enter_loop(
+        on_continue=footer, on_break=next_block, label=loop_label
+    ):
         loop_body.accept(context.visitor)
     context.block_builder.goto_and_activate(footer)
     context.ssa.seal_block(footer)
@@ -478,6 +485,7 @@ def _iterate_indexable(
     get_value_at_index: typing.Callable[[Register], ValueProvider],
     reverse_items: bool,
     reverse_index: bool,
+    loop_label: str | None,
 ) -> None:
     header, body, footer, next_block = mkblocks(
         statement_loc,
@@ -566,7 +574,9 @@ def _iterate_indexable(
                 assignment_location=index_var.source_location,
             )
 
-    with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+    with context.block_builder.enter_loop(
+        on_continue=footer, on_break=next_block, label=loop_label
+    ):
         loop_body.accept(context.visitor)
     context.block_builder.goto_and_activate(footer)
     context.ssa.seal_block(footer)
@@ -597,6 +607,7 @@ def _iterate_tuple(
     statement_loc: SourceLocation,
     reverse_index: bool,
     reverse_items: bool,
+    loop_label: str | None,
 ) -> None:
     headers = [
         BasicBlock(comment=f"for_header_{index}", source_location=statement_loc)
@@ -664,7 +675,9 @@ def _iterate_tuple(
                 assignment_location=index_var.source_location,
             )
 
-    with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+    with context.block_builder.enter_loop(
+        on_continue=footer, on_break=next_block, label=loop_label
+    ):
         loop_body.accept(context.visitor)
 
     context.block_builder.goto_and_activate(footer)
