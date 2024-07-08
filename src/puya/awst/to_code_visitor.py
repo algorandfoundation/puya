@@ -463,7 +463,13 @@ class ToCodeVisitor(
         return f"{expr.base.accept(self)}[{start}:{stop}]"
 
     def visit_block(self, statement: nodes.Block) -> list[str]:
-        return [line for statement in statement.body for line in statement.accept(self)]
+        statements = [line for statement in statement.body for line in statement.accept(self)]
+        if statement.label:
+            return [f"{statement.label}:", *statements]
+        return statements
+
+    def visit_goto(self, statement: nodes.Goto) -> list[str]:
+        return [f"goto {statement.label}"]
 
     def visit_if_else(self, statement: nodes.IfElse) -> list[str]:
         if_branch = statement.if_branch.accept(self)

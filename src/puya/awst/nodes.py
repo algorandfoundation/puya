@@ -157,11 +157,38 @@ wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
 
 @attrs.frozen
 class Block(Statement):
+    """
+    A (non-basic) block used to group statements. Can contain nested blocks, loops, and branching
+    structures. No lexical scoping is offered or implied by this block.
+
+    body: A sequence of statements which represent this block
+    description: An optional description of what this block represents. Only influences
+                 non-functional output
+    label: An optional label for this block allowing goto statements to jump to this block.
+           Must be unique per subroutine.
+    """
+
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
     description: str | None = None
+    label: str | None = None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_block(self)
+
+
+@attrs.frozen
+class Goto(Statement):
+    """
+    Branch unconditionally to the block with the specified label.
+
+    label: The label of a block within the same subroutine
+    """
+
+    label: str
+    description: str | None = None
+
+    def accept(self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_goto(self)
 
 
 @attrs.frozen

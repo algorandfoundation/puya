@@ -93,6 +93,8 @@ class FunctionIRBuilder(
             function.body.accept(builder)
             if function.return_type == wtypes.void_wtype:
                 func_ctx.block_builder.maybe_add_implicit_subroutine_return(subroutine.parameters)
+            func_ctx.block_builder.seal_all_labelled_blocks()
+
             func_ctx.ssa.verify_complete()
             func_ctx.block_builder.validate_block_predecessors()
             result = list(func_ctx.block_builder.blocks)
@@ -792,8 +794,16 @@ class FunctionIRBuilder(
         return target
 
     def visit_block(self, block: awst_nodes.Block) -> TStatement:
+        if block.label:
+            self.context.block_builder.make_labelled_block(
+                block.label, block.source_location, description=block.description
+            )
+
         for stmt in block.body:
             stmt.accept(self)
+
+    def visit_goto(self, statement: puya.awst.nodes.Goto) -> TStatement:
+        self.context.block_builder.goto_label(statement.label, statement.source_location)
 
     def visit_if_else(self, stmt: awst_nodes.IfElse) -> TStatement:
         flow_control.handle_if_else(self.context, stmt)
