@@ -41,6 +41,8 @@ class BlocksBuilder:
         self.ssa = BraunSSA(blocks, parameters, self.active_block)
         self.ssa.seal_block(self.active_block)
 
+        self._labelled_blocks = dict[str, BasicBlock]()
+
     @property
     def blocks(self) -> Sequence[BasicBlock]:
         return self._blocks
@@ -171,3 +173,33 @@ class BlocksBuilder:
             # TODO: this might be a code error or an internal error
             raise InternalError("continue outside of loop", source_location) from ex
         self.goto(target=targets.on_continue, source_location=source_location)
+
+    def make_labelled_block(
+        self, label: str, source_location: SourceLocation, description: str | None
+    ) -> BasicBlock:
+        try:
+            new_block = self._labelled_blocks[label]
+        except KeyError:
+            new_block = self._labelled_blocks[label] = BasicBlock(
+                source_location=source_location, comment=description
+            )
+        else:
+            new_block.source_location = source_location
+            new_block.comment = description
+        self.goto(new_block)
+        self.activate_block(new_block, ignore_predecessor_check=True)
+        return new_block
+
+    def seal_all_labelled_blocks(self) -> None:
+        for block in self._labelled_blocks.values():
+            self.ssa.seal_block(block)
+
+    def goto_label(self, label: str, source_location: SourceLocation) -> None:
+        try:
+            target = self._labelled_blocks[label]
+            self.goto(target, source_location)
+        except KeyError:
+            target = self._labelled_blocks[label] = BasicBlock(
+                source_location=source_location, comment="Temp"
+            )
+            self.goto(target)
