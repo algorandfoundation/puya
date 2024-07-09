@@ -1,5 +1,7 @@
+import abc
+import functools
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 
 import mypy.nodes
 import mypy.types
@@ -131,54 +133,18 @@ class LocalStateExpressionBuilder(
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericLocalStateType
-        self._member_name = member_name
+        self.member_name: typing.Final = member_name
         super().__init__(typ, expr)
-
-    def _build_field(
-        self,
-        index: NodeBuilder,
-        location: SourceLocation,
-    ) -> AppAccountStateExpression:
-        # TODO: maybe resolve literal should allow functions, so we can validate
-        #       constant values inside e.g. conditional expressions, not just plain constants
-        #       like we check below with matching on IntegerConstant
-        match index:
-            case InstanceBuilder(pytype=pytypes.AccountType) as account_builder:
-                index_expr = account_builder.resolve()
-            case _:
-                index_expr = expect.argument_of_type_else_dummy(
-                    index, pytypes.UInt64Type, resolve_literal=True
-                ).resolve()
-                # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
-                # Note that the sender address is implicitly included in the array,
-                # but doesn't count towards the limit of 4, so the <= 4 below is correct
-                # and intended
-                if isinstance(index_expr, IntegerConstant) and not (0 <= index_expr.value <= 4):
-                    logger.error(
-                        "account index should be between 0 and 4 inclusive",
-                        location=index.source_location,
-                    )
-        if self._member_name:
-            exists_assertion_message = f"check self.{self._member_name} exists for account"
-        else:
-            exists_assertion_message = "check LocalState exists for account"
-        return AppAccountStateExpression(
-            key=self.resolve(),
-            account=index_expr,
-            wtype=self.pytype.content.wtype,
-            exists_assertion_message=exists_assertion_message,
-            source_location=location,
-        )
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        expr = self._build_field(index, location)
+        expr = _build_field(self, index, location)
         return _Value(self.pytype.content, expr)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         exists_expr = StateExists(
-            field=self._build_field(item, location), source_location=location
+            field=_build_field(self, item, location), source_location=location
         )
         return BoolExpressionBuilder(exists_expr)
 
@@ -186,9 +152,9 @@ class LocalStateExpressionBuilder(
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "get":
-                return _Get(self.pytype.content, self._build_field, location)
+                return _Get(self, location)
             case "maybe":
-                return _Maybe(self.pytype.content, self._build_field, location)
+                return _Maybe(self, location)
         return super().member_access(name, location)
 
     @typing.override
@@ -212,6 +178,44 @@ class LocalStateExpressionBuilder(
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         raise CodeError("cannot determine if a LocalState is empty or not", location)
+
+
+def _build_field(
+    self: LocalStateExpressionBuilder,
+    index: NodeBuilder,
+    location: SourceLocation,
+) -> AppAccountStateExpression:
+    # TODO: maybe resolve literal should allow functions, so we can validate
+    #       constant values inside e.g. conditional expressions, not just plain constants
+    #       like we check below with matching on IntegerConstant
+    index_expr = expect.argument_of_type_else_dummy(
+        index,
+        # UInt64 comes first since we want to resolve int literals,
+        # str literals for account not currently supported
+        pytypes.UInt64Type,
+        pytypes.AccountType,
+        resolve_literal=True,
+    ).resolve()
+    # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
+    # Note that the sender address is implicitly included in the array,
+    # but doesn't count towards the limit of 4, so the <= 4 below is correct
+    # and intended
+    if isinstance(index_expr, IntegerConstant) and not (0 <= index_expr.value <= 4):
+        logger.error(
+            "account index should be between 0 and 4 inclusive",
+            location=index.source_location,
+        )
+    if self.member_name:
+        exists_assertion_message = f"check self.{self.member_name} exists for account"
+    else:
+        exists_assertion_message = "check LocalState exists for account"
+    return AppAccountStateExpression(
+        key=self.resolve(),
+        account=index_expr,
+        wtype=self.pytype.content.wtype,
+        exists_assertion_message=exists_assertion_message,
+        source_location=location,
+    )
 
 
 class _LocalStateExpressionBuilderFromConstructor(
@@ -258,17 +262,13 @@ class _LocalStateExpressionBuilderFromConstructor(
         )
 
 
-FieldBuilder = Callable[[NodeBuilder, SourceLocation], AppAccountStateExpression]
-
-
-class _Get(FunctionBuilder):
-    def __init__(
-        self, content_typ: pytypes.PyType, field_builder: FieldBuilder, location: SourceLocation
-    ):
+class _MemberFunction(FunctionBuilder, abc.ABC):
+    def __init__(self, base: LocalStateExpressionBuilder, location: SourceLocation):
         super().__init__(location)
-        self._content_typ = content_typ
-        self._build_field = field_builder
+        self._base = base
 
+
+class _Get(_MemberFunction):
     @typing.override
     def call(
         self,
@@ -277,6 +277,7 @@ class _Get(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        content_typ = self._base.pytype.content
         key_arg_name = "key"
         default_arg_name = "default"
         args_map, any_missing = get_arg_mapping(
@@ -287,25 +288,16 @@ class _Get(FunctionBuilder):
             raise_on_missing=False,
         )
         if any_missing:
-            return dummy_value(self._content_typ, location)
+            return dummy_value(content_typ, location)
         item = args_map[key_arg_name]
-        default_arg = expect.argument_of_type_else_dummy(
-            args_map[default_arg_name], self._content_typ
-        )
-        key = self._build_field(item, location)
+        default_arg = expect.argument_of_type_else_dummy(args_map[default_arg_name], content_typ)
+        key = _build_field(self._base, item, location)
         default = default_arg.resolve()
         expr = StateGet(field=key, default=default, source_location=location)
-        return builder_for_instance(self._content_typ, expr)
+        return builder_for_instance(content_typ, expr)
 
 
-class _Maybe(FunctionBuilder):
-    def __init__(
-        self, content_typ: pytypes.PyType, field_builder: FieldBuilder, location: SourceLocation
-    ):
-        super().__init__(location)
-        self._content_typ = content_typ
-        self._build_field = field_builder
-
+class _Maybe(_MemberFunction):
     @typing.override
     def call(
         self,
@@ -314,14 +306,15 @@ class _Maybe(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        content_typ = self._base.pytype.content
         result_typ = pytypes.GenericTupleType.parameterise(
-            [self._content_typ, pytypes.BoolType], location
+            [content_typ, pytypes.BoolType], location
         )
         arg = expect.exactly_one_arg(args, location, default=expect.default_fixed_value(None))
         if arg is None:
             return dummy_value(result_typ, location)
 
-        field = self._build_field(arg, location)
+        field = _build_field(self._base, arg, location)
         app_local_get_ex = StateGetEx(field=field, source_location=location)
         return TupleExpressionBuilder(app_local_get_ex, result_typ)
 
