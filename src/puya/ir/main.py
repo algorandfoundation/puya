@@ -399,6 +399,11 @@ def fold_state_and_special_methods(
             result.approval_program = c.approval_program
         if result.clear_program is None:
             result.clear_program = c.clear_program
+        for cm in c.subroutines:
+            if cm.arc4_method_config:
+                maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
+            else:
+                maybe_arc4_method_refs.setdefault(cm.name, None)
         for state in c.app_state.values():
             storage_type = wtypes.persistable_stack_type(
                 state.storage_wtype, state.source_location
@@ -437,11 +442,6 @@ def fold_state_and_special_methods(
                     pass  # TODO: forward these on
                 case _:
                     typing.assert_never(state.kind)
-        for cm in c.subroutines:
-            if cm.arc4_method_config:
-                maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
-            else:
-                maybe_arc4_method_refs.setdefault(cm.name, None)
     if not (c.init and c.init.body.body):
         result.init = None
     arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
