@@ -165,20 +165,6 @@ def fold_binary_expr(
     return typing.cast(ConstantValue, result)
 
 
-def require_instance_builder(
-    builder_or_literal: NodeBuilder,
-    *,
-    non_instance_msg: str = "expression is not a value",
-) -> InstanceBuilder:
-    match builder_or_literal:
-        case InstanceBuilder() as builder:
-            return builder
-        case NodeBuilder(source_location=non_value_location):
-            raise CodeError(non_instance_msg, non_value_location)
-        case _:
-            typing.assert_never(builder_or_literal)
-
-
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:
     assert type_info.mro[0].defn is type_info.defn, "first MRO entry should always be class itself"
     for base_type in type_info.mro[1:]:

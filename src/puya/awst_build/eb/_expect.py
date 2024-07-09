@@ -1,4 +1,3 @@
-# TODO: eliminate usage of require_instance_builder or make non-throwing
 import typing
 from collections.abc import Callable, Sequence
 from itertools import zip_longest
@@ -7,14 +6,11 @@ from puya import log
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import (
-    is_type_or_subtype,
-    maybe_resolve_literal,
-    require_instance_builder,
-)
+from puya.awst_build.utils import is_type_or_subtype, maybe_resolve_literal
 from puya.parse import SourceLocation
 
 _T = typing.TypeVar("_T")
+_TBuilder = typing.TypeVar("_TBuilder", bound=NodeBuilder)
 
 logger = log.get_logger(__name__)
 
@@ -24,10 +20,10 @@ def at_most_one_arg(
 ) -> InstanceBuilder | None:
     if not args:
         return None
-    eb, *extra = map(require_instance_builder, args)
-    if extra:
+    first, *rest = args
+    if rest:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
-    return eb
+    return instance_builder(first, default=default_none)
 
 
 def at_most_one_arg_of_type(
@@ -72,18 +68,18 @@ def default_dummy_value(
 
 
 def at_least_one_arg(
-    args: Sequence[NodeBuilder],
+    args: Sequence[_TBuilder],
     location: SourceLocation,
     *,
     default: Callable[[str, SourceLocation], _T],
-) -> tuple[InstanceBuilder | _T, Sequence[InstanceBuilder]]:
+) -> tuple[InstanceBuilder | _T, Sequence[_TBuilder]]:
     if not args:
         msg = "expected at least 1 argument, got 0"
         result = default(msg, location)
         logger.error(msg, location=location)
         return result, []
-    first, *rest = map(require_instance_builder, args)
-    return first, rest
+    first, *rest = args
+    return instance_builder(first, default=default), rest
 
 
 def exactly_one_arg(
@@ -97,10 +93,10 @@ def exactly_one_arg(
         result = default(msg, location)
         logger.error(msg, location=location)
         return result
-    eb, *extra = map(require_instance_builder, args)
-    if extra:
+    first, *rest = args
+    if rest:
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
-    return eb
+    return instance_builder(first, default=default)
 
 
 def exactly_one_arg_of_type(
