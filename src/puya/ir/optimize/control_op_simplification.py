@@ -43,6 +43,11 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
     for block in subroutine.body:
         terminator = block.terminator
         match terminator:
+            case models.ProgramExit(result=models.UInt64Constant(value=0)):
+                logger.debug("simplifying exit 0 to err")
+                block.terminator = models.Fail(
+                    source_location=terminator.source_location, comment=None
+                )
             case models.ConditionalBranch(
                 condition=models.UInt64Constant(value=value), zero=zero, non_zero=non_zero
             ):
