@@ -11,9 +11,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.arc4_util import split_tuple_types
-from puya.awst import (
-    wtypes,
-)
+from puya.awst import wtypes
 from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
