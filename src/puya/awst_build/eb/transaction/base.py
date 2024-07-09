@@ -11,7 +11,7 @@ from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.transaction.fields import PYTHON_TXN_FIELDS, PythonTxnField
+from puya.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS, PythonTxnField
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

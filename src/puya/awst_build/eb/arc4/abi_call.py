@@ -32,7 +32,7 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
-from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS
+from puya.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
