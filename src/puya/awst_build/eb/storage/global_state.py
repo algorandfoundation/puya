@@ -1,3 +1,4 @@
+import abc
 import typing
 from collections.abc import Sequence
 
@@ -144,12 +145,13 @@ class GlobalStateExpressionBuilder(
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageProxyType)
         assert typ.generic == pytypes.GenericGlobalStateType
-        self._member_name = member_name
+        self.member_name: typing.Final = member_name
         super().__init__(typ, expr)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        exists_expr = StateExists(field=self._build_field(location), source_location=location)
+        field = _build_field(self, location)
+        exists_expr = StateExists(field=field, source_location=location)
         if negate:
             expr: Expression = Not(location, exists_expr)
         else:
@@ -158,28 +160,31 @@ class GlobalStateExpressionBuilder(
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        field = self._build_field(location)
         match name:
             case "value":
+                field = _build_field(self, location)
                 return _Value(self.pytype.content, field)
             case "get":
-                return _Get(field, self.pytype.content, location=self.source_location)
+                return _Get(self, location)
             case "maybe":
-                return _Maybe(self.pytype.content, field, location=self.source_location)
+                return _Maybe(self, location)
             case _:
                 return super().member_access(name, location)
 
-    def _build_field(self, location: SourceLocation) -> AppStateExpression:
-        if self._member_name:
-            exists_assertion_message = f"check self.{self._member_name} exists"
-        else:
-            exists_assertion_message = "check GlobalState exists"
-        return AppStateExpression(
-            key=self.resolve(),
-            wtype=self.pytype.content.wtype,
-            exists_assertion_message=exists_assertion_message,
-            source_location=location,
-        )
+
+def _build_field(
+    self: GlobalStateExpressionBuilder, location: SourceLocation
+) -> AppStateExpression:
+    if self.member_name:
+        exists_assertion_message = f"check self.{self.member_name} exists"
+    else:
+        exists_assertion_message = "check GlobalState exists"
+    return AppStateExpression(
+        key=self.resolve(),
+        wtype=self.pytype.content.wtype,
+        exists_assertion_message=exists_assertion_message,
+        source_location=location,
+    )
 
 
 class _GlobalStateExpressionBuilderFromConstructor(
@@ -241,14 +246,13 @@ class _GlobalStateExpressionBuilderFromConstructor(
         )
 
 
-class _Maybe(FunctionBuilder):
-    def __init__(
-        self, content_type: pytypes.PyType, field: AppStateExpression, location: SourceLocation
-    ) -> None:
+class _MemberFunction(FunctionBuilder, abc.ABC):
+    def __init__(self, base: GlobalStateExpressionBuilder, location: SourceLocation):
         super().__init__(location)
-        self._typ = content_type
-        self.field = field
+        self._base = base
 
+
+class _Maybe(_MemberFunction):
     @typing.override
     def call(
         self,
@@ -257,20 +261,17 @@ class _Maybe(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
+        content_typ = self._base.pytype.content
         expect.no_args(args, location)
-        expr = StateGetEx(field=self.field, source_location=location)
-        result_typ = pytypes.GenericTupleType.parameterise([self._typ, pytypes.BoolType], location)
+        field = _build_field(self._base, self.source_location)
+        expr = StateGetEx(field=field, source_location=location)
+        result_typ = pytypes.GenericTupleType.parameterise(
+            [content_typ, pytypes.BoolType], location
+        )
         return TupleExpressionBuilder(expr, result_typ)
 
 
-class _Get(FunctionBuilder):
-    def __init__(
-        self, field: AppStateExpression, content_type: pytypes.PyType, location: SourceLocation
-    ) -> None:
-        super().__init__(location)
-        self.field = field
-        self.content_type = content_type
-
+class _Get(_MemberFunction):
     @typing.override
     def call(
         self,
@@ -279,10 +280,12 @@ class _Get(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        default_arg = expect.exactly_one_arg_of_type_else_dummy(args, self.content_type, location)
+        content_typ = self._base.pytype.content
+        default_arg = expect.exactly_one_arg_of_type_else_dummy(args, content_typ, location)
         default_expr = default_arg.resolve()
-        expr = StateGet(field=self.field, default=default_expr, source_location=location)
-        return builder_for_instance(self.content_type, expr)
+        field = _build_field(self._base, self.source_location)
+        expr = StateGet(field=field, default=default_expr, source_location=location)
+        return builder_for_instance(content_typ, expr)
 
 
 class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppStateExpression]):
