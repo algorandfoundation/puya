@@ -1,0 +1,81 @@
+#pragma version 10
+
+test_cases.diamond_mro.base1.Base1.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.diamond_mro.base1.Base1.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@7
+    method "method()void"
+    method "create()void"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___method_route@2 __puya_arc4_router___create_route@3
+    int 0
+    retsub
+
+__puya_arc4_router___method_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub method
+    int 1
+    retsub
+
+__puya_arc4_router___create_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@7:
+    int 0
+    retsub
+
+
+// test_cases.diamond_mro.base1.Base1.method() -> void:
+method:
+    proto 0 0
+    byte "base1.method"
+    log
+    callsub test_cases.diamond_mro.gp.GP.method
+    retsub
+
+
+// test_cases.diamond_mro.gp.GP.method() -> void:
+test_cases.diamond_mro.gp.GP.method:
+    proto 0 0
+    byte "gp.method"
+    log
+    retsub
+
+
+// test_cases.diamond_mro.base1.Base1.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "base1.__init__"
+    log
+    callsub test_cases.diamond_mro.gp.GP.__init__
+    retsub
+
+
+// test_cases.diamond_mro.gp.GP.__init__() -> void:
+test_cases.diamond_mro.gp.GP.__init__:
+    proto 0 0
+    byte "gp.__init__"
+    log
+    retsub

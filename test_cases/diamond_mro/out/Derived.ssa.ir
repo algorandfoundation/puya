@@ -1,0 +1,102 @@
+contract test_cases.diamond_mro.derived.Derived:
+    program approval:
+        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+            block@0: // L-1
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L8
+                test_cases.diamond_mro.derived.Derived.__init__()
+                goto block@2
+            block@2: // entrypoint_L8
+                let tmp%0#0: bool = test_cases.diamond_mro.derived.Derived.__puya_arc4_router__()
+                return tmp%0#0
+        
+        subroutine test_cases.diamond_mro.derived.Derived.__puya_arc4_router__() -> bool:
+            block@0: // L7
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bool = (!= tmp%0#0 0u)
+                goto tmp%1#0 ? block@1 : block@6
+            block@1: // abi_routing_L7
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%2#0 {method "method()void" => block@2, method "create()void" => block@3, * => block@4}
+            block@2: // method_route_L12
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let tmp%4#0: bool = (== tmp%3#0 NoOp)
+                (assert tmp%4#0) // OnCompletion is NoOp
+                let tmp%5#0: uint64 = (txn ApplicationID)
+                let tmp%6#0: bool = (!= tmp%5#0 0u)
+                (assert tmp%6#0) // is not creating
+                test_cases.diamond_mro.derived.Derived.method()
+                return 1u
+            block@3: // create_route_L11
+                let tmp%7#0: uint64 = (txn OnCompletion)
+                let tmp%8#0: bool = (== tmp%7#0 NoOp)
+                (assert tmp%8#0) // OnCompletion is NoOp
+                let tmp%9#0: uint64 = (txn ApplicationID)
+                let tmp%10#0: bool = (== tmp%9#0 0u)
+                (assert tmp%10#0) // is creating
+                test_cases.diamond_mro.gp.GP.create()
+                return 1u
+            block@4: // switch_case_default_L7
+                goto block@5
+            block@5: // switch_case_next_L7
+                goto block@7
+            block@6: // bare_routing_L7
+                goto block@7
+            block@7: // after_if_else_L7
+                return 0u
+        
+        subroutine test_cases.diamond_mro.derived.Derived.method() -> void:
+            block@0: // L12
+                (log "derived.method")
+                test_cases.diamond_mro.base1.Base1.method()
+                return 
+        
+        subroutine test_cases.diamond_mro.base1.Base1.method() -> void:
+            block@0: // L11
+                (log "base1.method")
+                test_cases.diamond_mro.base2.Base2.method()
+                return 
+        
+        subroutine test_cases.diamond_mro.base2.Base2.method() -> void:
+            block@0: // L11
+                (log "base2.method")
+                test_cases.diamond_mro.gp.GP.method()
+                return 
+        
+        subroutine test_cases.diamond_mro.gp.GP.method() -> void:
+            block@0: // L15
+                (log "gp.method")
+                return 
+        
+        subroutine test_cases.diamond_mro.gp.GP.create() -> void:
+            block@0: // L11
+                return 
+        
+        subroutine test_cases.diamond_mro.derived.Derived.__init__() -> void:
+            block@0: // L8
+                (log "derived.__init__")
+                test_cases.diamond_mro.base1.Base1.__init__()
+                return 
+        
+        subroutine test_cases.diamond_mro.base1.Base1.__init__() -> void:
+            block@0: // L7
+                (log "base1.__init__")
+                test_cases.diamond_mro.base2.Base2.__init__()
+                return 
+        
+        subroutine test_cases.diamond_mro.base2.Base2.__init__() -> void:
+            block@0: // L7
+                (log "base2.__init__")
+                test_cases.diamond_mro.gp.GP.__init__()
+                return 
+        
+        subroutine test_cases.diamond_mro.gp.GP.__init__() -> void:
+            block@0: // L7
+                (log "gp.__init__")
+                return 
+    
+    program clear-state:
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L-1
+                return 1u
