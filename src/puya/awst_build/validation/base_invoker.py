@@ -20,6 +20,7 @@ class BaseInvokerValidator(AWSTTraverser):
         for module_statement in module.body:
             module_statement.accept(validator)
 
+    @typing.override
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
         match expr.target:
@@ -29,14 +30,14 @@ class BaseInvokerValidator(AWSTTraverser):
             case InstanceSubroutineTarget():
                 if self.contract is None:
                     logger.error(
-                        "Invocation of instance method outside of a contract method",
+                        "invocation of instance method outside of a contract method",
                         location=expr.source_location,
                     )
             case BaseClassSubroutineTarget(base_class=target_class):
                 caller_class = self.contract
                 if caller_class is None:
                     logger.error(
-                        "Invocation of instance method outside of a contract method",
+                        "invocation of instance method outside of a contract method",
                         location=expr.source_location,
                     )
                 else:
@@ -45,7 +46,7 @@ class BaseInvokerValidator(AWSTTraverser):
                     )
                     if target_class != caller_ref and target_class not in caller_class.bases:
                         logger.error(
-                            "Invocation of a base method outside of current hierarchy",
+                            "invocation of a base method outside of current hierarchy",
                             location=expr.source_location,
                         )
             case _:
