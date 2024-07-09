@@ -1572,3 +1572,45 @@ def test_state_mutations(
     app_client.call("append", transaction_parameters=txn_params)
     response = app_client.call("get", transaction_parameters=txn_params)
     assert response.return_value == [[1, "modified"], [1, "baz"]]
+
+
+@pytest.mark.parametrize(
+    ("file_name", "expected_init_log", "expected_method_log"),
+    [
+        (
+            "base1",
+            ["base1.__init__", "gp.__init__"],
+            ["base1.method", "gp.method"],
+        ),
+        (
+            "base2",
+            ["base2.__init__", "gp.__init__"],
+            ["base2.method", "gp.method"],
+        ),
+        (
+            "derived",
+            ["derived.__init__", "base1.__init__", "base2.__init__", "gp.__init__"],
+            ["derived.method", "base1.method", "base2.method", "gp.method"],
+        ),
+    ],
+)
+def test_diamond_mro(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+    file_name: str,
+    expected_init_log: list[str],
+    expected_method_log: list[str],
+) -> None:
+    example = TEST_CASES_DIR / "diamond_mro" / f"{file_name}.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    init_response = app_client.create(call_abi_method=True)
+    init_logs_raw = init_response.tx_info["logs"]
+    init_logs = decode_logs(init_logs_raw, len(init_logs_raw) * "u")
+    assert init_logs == expected_init_log
+
+    method_response = app_client.call(call_abi_method="method")
+    method_logs_raw = method_response.tx_info["logs"]
+    method_logs = decode_logs(method_logs_raw, len(method_logs_raw) * "u")
+    assert method_logs == expected_method_log

@@ -1,0 +1,62 @@
+contract GP extends (algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    log('gp.__init__')
+    void
+  }
+  
+  abimethod create(): void
+  {
+  }
+  
+  abimethod method(): void
+  {
+    log('gp.method')
+  }
+}
+
+contract Base2 extends (test_cases.diamond_mro.gp.GP, algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    log('base2.__init__')
+    super::__init__()
+  }
+  
+  abimethod method(): void
+  {
+    log('base2.method')
+    super::method()
+  }
+}
+
+contract Base1 extends (test_cases.diamond_mro.gp.GP, algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    log('base1.__init__')
+    super::__init__()
+  }
+  
+  abimethod method(): void
+  {
+    log('base1.method')
+    super::method()
+  }
+}
+
+contract Derived extends (test_cases.diamond_mro.base1.Base1, test_cases.diamond_mro.base2.Base2, test_cases.diamond_mro.gp.GP, algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    log('derived.__init__')
+    super::__init__()
+  }
+  
+  abimethod method(): void
+  {
+    log('derived.method')
+    super::method()
+  }
+}
