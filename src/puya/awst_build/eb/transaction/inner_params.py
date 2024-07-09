@@ -21,8 +21,8 @@ from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpress
 from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.none import NoneExpressionBuilder
-from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
+from puya.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 

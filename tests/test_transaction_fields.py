@@ -8,7 +8,8 @@ import pytest
 from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.context import type_to_pytype
-from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS, PYTHON_TXN_FIELDS
+from puya.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
+from puya.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
 
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import get_awst_cache
