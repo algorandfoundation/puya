@@ -122,7 +122,8 @@ class MyContract(Contract):
         return self.box_a.value[4] == arc4.UInt32(2)    
 ```
 
-`BoxMap` is similar to the `Box` type, but allows for grouping a set of boxes with a common key and content type. A `key_prefix` can optionally be provided. 
+`BoxMap` is similar to the `Box` type, but allows for grouping a set of boxes with a common key and content type. 
+A custom `key_prefix` can optionally be provided, with the default being to use the variable name as the prefix. 
 The key can be a `Bytes` value, or anything that can be converted to `Bytes`. The final box name is the combination of `key_prefix + key`.
 
 ```python
