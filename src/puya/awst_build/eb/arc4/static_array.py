@@ -16,7 +16,6 @@ from puya.awst_build.eb.arc4._utils import no_literal_items
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, StaticSizedCollectionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -40,7 +39,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = require_instance_builder(args[0]).pytype
+        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
         array_size = len(args)
         typ = pytypes.GenericARC4StaticArrayType.parameterise(
             [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],

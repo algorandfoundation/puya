@@ -76,7 +76,6 @@ from puya.awst_build.utils import (
     maybe_resolve_literal,
     qualified_class_name,
     require_callable_type,
-    require_instance_builder,
     resolve_member_node,
     symbol_node_is_function,
 )
@@ -1225,3 +1224,17 @@ def is_self_member(
         case mypy.nodes.MemberExpr(expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))):
             return True
     return False
+
+
+def require_instance_builder(
+    builder_or_literal: NodeBuilder,
+    *,
+    non_instance_msg: str = "expression is not a value",
+) -> InstanceBuilder:
+    match builder_or_literal:
+        case InstanceBuilder() as builder:
+            return builder
+        case NodeBuilder(source_location=non_value_location):
+            raise CodeError(non_instance_msg, non_value_location)
+        case _:
+            typing.assert_never(builder_or_literal)

@@ -32,7 +32,6 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.none import NoneExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -56,7 +55,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = require_instance_builder(args[0]).pytype
+        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
         typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
         no_literal_items(typ, location)
         values = tuple(expect.argument_of_type_else_dummy(a, element_type).resolve() for a in args)

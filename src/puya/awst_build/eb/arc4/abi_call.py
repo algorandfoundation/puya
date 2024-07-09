@@ -36,7 +36,6 @@ from puya.awst_build.eb.transaction.fields import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
-    require_instance_builder,
     resolve_member_node,
     symbol_node_is_function,
 )
@@ -163,14 +162,14 @@ def _abi_call(
     return_type_annotation: pytypes.PyType | None,
 ) -> InstanceBuilder:
     method: NodeBuilder | None = None
-    abi_args = list[InstanceBuilder]()
+    abi_args = list[NodeBuilder]()
     transaction_kwargs = dict[str, NodeBuilder]()
     for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
         if arg_name is None:
             if idx == 0:
                 method = arg
             else:
-                abi_args.append(require_instance_builder(arg))
+                abi_args.append(arg)
         else:
             transaction_kwargs[arg_name] = arg
 
