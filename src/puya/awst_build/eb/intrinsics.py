@@ -57,13 +57,11 @@ class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):
         raise CodeError("cannot instantiate enumeration type", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         produces = self.produces()
         value = produces.members.get(name)
         if value is None:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
         return LiteralBuilderImpl(value=value, source_location=location)
 
 
@@ -79,13 +77,11 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
         raise CodeError("cannot instantiate namespace type", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         produces = self.produces()
         mapping = produces.members.get(name)
         if mapping is None:
-            return super().member_access(name, expr, location)
+            return super().member_access(name, location)
         if isinstance(mapping, PropertyOpMapping):
             intrinsic_expr = IntrinsicCall(
                 op_code=mapping.op_code,
@@ -153,8 +149,11 @@ def _map_call(
 
     immediates = list(op_mapping.immediates)
     stack_args = list[InstanceBuilder]()
-    for arg_in, arg_data in zip(args, op_mapping.args, strict=True):
-        if isinstance(arg_data, int):
+    for arg, arg_data in zip(args, op_mapping.args, strict=True):
+        arg_in = expect.instance_builder(arg, default=expect.default_none)
+        if arg_in is None:
+            pass
+        elif isinstance(arg_data, int):
             immediates_index = arg_data
             literal_type = typing.cast(type[str | int], immediates[immediates_index])
             if not (
@@ -171,27 +170,18 @@ def _map_call(
                 immediates[immediates_index] = arg_value
         else:
             allowed_pytypes = arg_data
-            if not isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
-                if not (isinstance(arg_in, InstanceBuilder) and arg_in.pytype in allowed_pytypes):
-                    logger.error("unexpected argument type", location=arg_in.source_location)
-                else:
-                    stack_args.append(arg_in)
-            else:
+            if isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
                 for allowed_type in allowed_pytypes:
                     type_builder = builder_for_type(allowed_type, arg_in.source_location)
-                    if isinstance(arg_in, InstanceBuilder) and isinstance(
-                        type_builder, TypeBuilder
-                    ):
+                    if isinstance(type_builder, TypeBuilder):
                         try:
                             converted = arg_in.resolve_literal(type_builder)
                         except CodeError:  # TODO: fixme, need a try version or something here
                             pass
                         else:
-                            stack_args.append(converted)
+                            arg_in = converted
                             break
-                else:
-                    logger.error("unexpected argument type", location=arg_in.source_location)
-
+            stack_args.append(expect.argument_of_type_else_dummy(arg_in, *allowed_pytypes))
     return IntrinsicCall(
         op_code=op_mapping.op_code,
         wtype=ast_mapper.result.wtype,

@@ -20,6 +20,7 @@ from puya.awst_build.eb import (
     transaction,
     tuple as tuple_,
     uint64,
+    uint64_enums,
     unsigned_builtins,
 )
 from puya.awst_build.eb.interface import CallableBuilder, InstanceBuilder
@@ -35,13 +36,13 @@ __all__ = [
 CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
-    constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
-    constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
-    constants.LOG: log.LogBuilder,
-    constants.EMIT: arc4.EmitBuilder,
-    constants.SUBMIT_TXNS: transaction.SubmitInnerTransactionExpressionBuilder,
+    "algopy.arc4.arc4_signature": intrinsics.Arc4SignatureBuilder,
+    "algopy._util.ensure_budget": ensure_budget.EnsureBudgetBuilder,
+    "algopy._util.log": log.LogBuilder,
+    "algopy.arc4.emit": arc4.EmitBuilder,
+    "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericTypeBuilder,
-    constants.CLS_TEMPLATE_VAR_METHOD: (
+    "algopy._template_variables.TemplateVar": (
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
     **{
@@ -63,7 +64,7 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.uenumerateGenericType: functools.partial(
         unsigned_builtins.UnsignedEnumerateBuilder, None
     ),
-    pytypes.OpUpFeeSourceType: ensure_budget.OpUpFeeSourceTypeBuilder,
+    pytypes.OpUpFeeSourceType: uint64_enums.OpUpFeeSourceTypeBuilder,
     pytypes.GenericBoxType: storage.BoxGenericTypeExpressionBuilder,
     pytypes.BoxRefType: storage.BoxRefTypeBuilder,
     pytypes.GenericBoxMapType: storage.BoxMapGenericTypeExpressionBuilder,
@@ -85,6 +86,8 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.BytesType: bytes_.BytesTypeBuilder,
     pytypes.StringType: string.StringTypeBuilder,
     pytypes.UInt64Type: uint64.UInt64TypeBuilder,
+    pytypes.TransactionTypeType: uint64_enums.TransactionTypeTypeBuilder,
+    pytypes.OnCompleteActionType: uint64_enums.OnCompletionActionTypeBuilder,
     **{
         op_enum_typ: functools.partial(intrinsics.IntrinsicEnumTypeBuilder, op_enum_typ)
         for op_enum_typ in pytypes.OpEnumTypes
@@ -165,6 +168,16 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.BoxRefType: storage.BoxRefProxyExpressionBuilder,
     # bound
     **{
+        uint64_enum_typ: functools.partial(
+            uint64.UInt64ExpressionBuilder, enum_type=uint64_enum_typ
+        )
+        for uint64_enum_typ in (
+            pytypes.OpUpFeeSourceType,
+            pytypes.TransactionTypeType,
+            pytypes.OnCompleteActionType,
+        )
+    },
+    **{
         gtxn_pytyp: functools.partial(
             transaction.GroupTransactionExpressionBuilder, typ=gtxn_pytyp
         )
@@ -175,7 +188,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     },
     **{
         itxn_fieldset_pytyp: functools.partial(
-            transaction.InnerTxnParamsExpressionBuilder, typ=itxn_fieldset_pytyp
+            transaction.InnerTxnParamsExpressionBuilder, itxn_fieldset_pytyp
         )
         for itxn_fieldset_pytyp in pytypes.InnerTransactionFieldsetTypes.values()
     },

@@ -20,13 +20,13 @@ from puya.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilde
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, Iteration, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.storage._common import BoxValueExpressionBuilder
 from puya.awst_build.eb.storage._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.storage._util import BoxProxyConstructorResult, box_length_checked
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import get_arg_mapping, require_instance_builder
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -122,7 +122,7 @@ class BoxMapProxyExpressionBuilder(
     def _build_box_value(
         self, key: InstanceBuilder, location: SourceLocation
     ) -> BoxValueExpression:
-        key_data = require_instance_builder(key).to_bytes(location)
+        key_data = key.to_bytes(location)
         key_prefix = self.resolve()
         content_wtype = self.pytype.content.wtype
         full_key = intrinsic_factory.concat(
@@ -146,9 +146,7 @@ class BoxMapProxyExpressionBuilder(
         )
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
                 return _Length(location, self._build_box_value, self.pytype)
@@ -157,7 +155,7 @@ class BoxMapProxyExpressionBuilder(
             case "get":
                 return _Get(location, self._build_box_value, self.pytype)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -177,8 +175,12 @@ class BoxMapProxyExpressionBuilder(
         raise CodeError("slicing of BoxMap is not supported", location)
 
     @typing.override
-    def iterate(self) -> Iteration:  # pragma: no cover
+    def iterate(self) -> typing.Never:  # pragma: no cover
         raise CodeError("iteration of BoxMap is not supported", self.source_location)
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

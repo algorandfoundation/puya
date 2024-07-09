@@ -1,7 +1,5 @@
 import typing
 
-import mypy.nodes
-
 from puya import log
 from puya.awst.nodes import (
     BoolConstant,
@@ -18,7 +16,6 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     TypeBuilder,
 )
@@ -30,7 +27,6 @@ logger = log.get_logger(__name__)
 
 
 class LiteralBuilderImpl(LiteralBuilder):
-
     def __init__(self, value: ConstantValue, source_location: SourceLocation):
         super().__init__(source_location)
         self._value = value
@@ -137,8 +133,12 @@ class LiteralBuilderImpl(LiteralBuilder):
         return LiteralBuilderImpl(value=folded, source_location=location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         raise CodeError("cannot iterate literal")
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> LiteralBuilder:
@@ -175,9 +175,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         return LiteralBuilderImpl(value=folded, source_location=location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> LiteralBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> LiteralBuilder:
         # TODO: support stuff like int.from_bytes etc
         raise CodeError("unsupported member access from literal", location)
 

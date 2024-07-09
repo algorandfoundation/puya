@@ -19,7 +19,7 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import get_arg_mapping
+from puya.awst_build.utils import get_arg_mapping, is_type_or_subtype
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -115,7 +115,8 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
 
             arg = arg_map[arg_map_name]
             if pytypes.ContractBaseType in arg_typ.mro:
-                expect.is_type_or_subtype(arg, arg_typ)
+                if not is_type_or_subtype(arg.pytype, of=arg_typ):
+                    logger.error("unexpected argument type", location=arg.source_location)
             else:
                 arg = expect.argument_of_type_else_dummy(arg, arg_typ)
                 passed_name = arg_map_name if arg_map_name in arg_names else None

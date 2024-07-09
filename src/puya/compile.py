@@ -92,7 +92,6 @@ def get_mypy_options() -> mypy.options.Options:
     # set python_executable so third-party packages can be found
     mypy_opts.python_executable = _get_python_executable()
 
-    mypy_opts.export_types = True
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True
     # next two options disable caching entirely.

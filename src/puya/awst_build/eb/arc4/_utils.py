@@ -12,7 +12,7 @@ from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
+from puya.awst_build.utils import maybe_resolve_literal
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -34,7 +34,7 @@ class ARC4Signature:
         return f"{self.method_name}({args}){return_type}"
 
     def convert_args(
-        self, native_args: Sequence[InstanceBuilder], location: SourceLocation
+        self, native_args: Sequence[NodeBuilder], location: SourceLocation
     ) -> Sequence[InstanceBuilder]:
         num_args = len(native_args)
         num_sig_args = len(self.arg_types)
@@ -52,9 +52,9 @@ class ARC4Signature:
 
 
 def get_arc4_signature(
-    method: NodeBuilder, native_args: Sequence[InstanceBuilder], loc: SourceLocation
+    method: NodeBuilder, native_args: Sequence[NodeBuilder], loc: SourceLocation
 ) -> tuple[str, ARC4Signature]:
-    method = expect.argument_of_type_else_die(method, pytypes.StrLiteralType)
+    method = expect.argument_of_type(method, pytypes.StrLiteralType, default=expect.default_raise)
     match method:
         case LiteralBuilder(value=str(method_sig)):
             pass
@@ -63,7 +63,12 @@ def get_arc4_signature(
 
     method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:
-        arg_types = [_implicit_arc4_type_conversion(na.pytype, loc) for na in native_args]
+        arg_types = [
+            _implicit_arc4_type_conversion(
+                expect.instance_builder(na, default=expect.default_raise).pytype, loc
+            )
+            for na in native_args
+        ]
     elif maybe_args:
         arg_types = [
             arc4_utils.arc4_to_pytype(a, loc) for a in arc4_util.split_tuple_types(maybe_args)
@@ -96,7 +101,7 @@ def _implicit_arc4_conversion(
 ) -> InstanceBuilder:
     from puya.awst.wtypes import ARC4Type
 
-    instance = require_instance_builder(operand)
+    instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
     instance = maybe_resolve_literal(instance, target_type)
     if instance.pytype == target_type:
         return instance

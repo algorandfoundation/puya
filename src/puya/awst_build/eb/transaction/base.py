@@ -1,21 +1,19 @@
 import abc
 import typing
+from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst.nodes import TXN_FIELDS, Expression, TxnField
+from puya.awst.nodes import Expression
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
-from puya.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
-from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.eb.transaction.fields import get_field_python_name
+from puya.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS, PythonTxnField
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
-_PYTHON_MEMBER_FIELD_MAP = {
-    get_field_python_name(f): (f, pytypes.from_basic_wtype(f.wtype)) for f in TXN_FIELDS
-}
 
 
 class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.ABC):
@@ -25,27 +23,59 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
         raise CodeError("cannot serialize transaction type", location)
 
     @abc.abstractmethod
-    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression: ...
+    def get_field_value(
+        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+    ) -> InstanceBuilder: ...
 
     @abc.abstractmethod
-    def get_array_member(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
-    ) -> NodeBuilder: ...
+    def get_array_field_value(
+        self,
+        field: TxnField,
+        typ: pytypes.PyType,
+        index: InstanceBuilder,
+        location: SourceLocation,
+    ) -> InstanceBuilder: ...
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
-        field_data = _PYTHON_MEMBER_FIELD_MAP.get(name)
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        field_data = PYTHON_TXN_FIELDS.get(name)
         if field_data is None:
-            return super().member_access(name, expr, location)
-        field, typ = field_data
-        if field.is_array:
-            return self.get_array_member(field, typ, location)
+            return super().member_access(name, location)
+        if field_data.field.is_array:
+            return _ArrayItem(base=self, field_data=field_data, location=location)
         else:
-            field_expr = self.get_field_value(field, location)
-            return builder_for_instance(typ, field_expr)
+            return self.get_field_value(field_data.field, field_data.type, location)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return constant_bool_and_error(value=True, location=location, negate=negate)
+
+
+class _ArrayItem(FunctionBuilder):
+    def __init__(
+        self,
+        base: BaseTransactionExpressionBuilder,
+        field_data: PythonTxnField,
+        location: SourceLocation,
+    ):
+        super().__init__(location)
+        self.base = base
+        self.field_data = field_data
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        arg = expect.exactly_one_arg_of_type_else_dummy(
+            args,
+            pytypes.UInt64Type,
+            location,
+            resolve_literal=True,
+        )
+        return self.base.get_array_field_value(
+            self.field_data.field, self.field_data.type, arg, location
+        )

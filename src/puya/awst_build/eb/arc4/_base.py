@@ -47,14 +47,12 @@ _TPyType_co = typing_extensions.TypeVar(
 
 
 class ARC4TypeBuilder(BytesBackedTypeBuilder[_TPyType_co], abc.ABC):
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "from_log":
                 return ARC4FromLogBuilder(location, self.produces())
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
 
 class ARC4FromLogBuilder(FunctionBuilder):
@@ -149,6 +147,10 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         return self.resolve()
 
     @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return self.pytype.items
+
+    @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         array_length = self.length(index.source_location)
         index = resolve_negative_literal_index(index, array_length, location)
@@ -164,16 +166,14 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
     def length(self, location: SourceLocation) -> InstanceBuilder: ...
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "length":
                 return self.length(location)
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     @typing.override
     def compare(

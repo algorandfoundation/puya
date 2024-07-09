@@ -181,7 +181,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 if invalid_dec := dec_by_fullname.pop(arc4_only_dec_name, None):
                     self._error(
                         f"decorator is only valid in subclasses of"
-                        f" {constants.ARC4_CONTRACT_BASE_ALIAS}",
+                        f" {pytypes.ARC4ContractBaseType}",
                         invalid_dec,
                     )
             if not dec_by_fullname.pop(constants.SUBROUTINE_HINT, None):

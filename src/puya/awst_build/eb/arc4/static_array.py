@@ -5,7 +5,7 @@ import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, NewArray, UInt64Constant
+from puya.awst.nodes import Expression, IndexExpression, NewArray, UInt64Constant
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder
@@ -13,9 +13,9 @@ from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
 from puya.awst_build.eb.arc4._utils import no_literal_items
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, StaticSizedCollectionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -39,7 +39,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = require_instance_builder(args[0]).pytype
+        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
         array_size = len(args)
         typ = pytypes.GenericARC4StaticArrayType.parameterise(
             [element_type, pytypes.TypingLiteralType(value=array_size, source_location=None)],
@@ -85,7 +85,7 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         )
 
 
-class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
+class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedCollectionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         size = typ.size
@@ -100,3 +100,20 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         return constant_bool_and_error(value=self._size > 0, location=location, negate=negate)
+
+    @typing.override
+    def iterate_static(self) -> Sequence[InstanceBuilder]:
+        base = self.single_eval().resolve()
+        item_type = self.pytype.items
+        return [
+            builder_for_instance(
+                item_type,
+                IndexExpression(
+                    base=base,
+                    index=UInt64Constant(value=idx, source_location=self.source_location),
+                    wtype=item_type.wtype,
+                    source_location=self.source_location,
+                ),
+            )
+            for idx in range(self._size)
+        ]

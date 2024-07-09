@@ -16,9 +16,9 @@ from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
+    StaticSizedCollectionBuilder,
 )
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.errors import CodeError
@@ -76,9 +76,12 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
         )
 
 
-class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.TupleType]):
+class ARC4TupleExpressionBuilder(
+    BytesBackedInstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
+        assert typ.generic == pytypes.GenericARC4TupleType
         super().__init__(typ, expr)
 
     @typing.override
@@ -108,9 +111,7 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
         return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
@@ -121,7 +122,7 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
                 )
                 return TupleExpressionBuilder(result_expr, native_pytype)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
     @typing.override
     def compare(
@@ -137,9 +138,24 @@ class ARC4TupleExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.Tu
         return dummy_value(pytypes.BoolType, location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         # could only support for homogenous types anyway, in which case use a StaticArray?
         raise CodeError("iterating ARC4 tuples is currently unsupported", self.source_location)
+
+    @typing.override
+    def iterate_static(self) -> Sequence[InstanceBuilder]:
+        base = self.single_eval().resolve()
+        return [
+            builder_for_instance(
+                item_type,
+                TupleItemExpression(base=base, index=idx, source_location=self.source_location),
+            )
+            for idx, item_type in enumerate(self.pytype.items)
+        ]
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def slice_index(

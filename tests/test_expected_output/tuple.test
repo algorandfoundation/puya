@@ -39,12 +39,11 @@ class TupleContract(Contract): ## W: Class test_tuple_errors.TupleContract is im
     @subroutine
     def test_tuple3(self) -> None:
         tup = UInt64(), Bytes()
-        tup2 = tup * UInt64(2) ## E: can't multiple sequence by non-int-literal
+        tup2 = tup * UInt64(2) ## E: can't multiply sequence by non-int-literal
 
     @subroutine
     def test_tuple3b(self) -> None:
-        tup = (UInt64(), Bytes()) * UInt64(2) ## E: can't multiple sequence by non-int-literal
-
+        tup = (UInt64(), Bytes()) * UInt64(2) ## E: can't multiply sequence by non-int-literal
 
     @subroutine
     def test_tuple4(self) -> None:
@@ -130,3 +129,11 @@ class TupleContract(Contract): ## W: Class test_tuple_errors.TupleContract is im
     def test_index2(self) -> None:
         tip = UInt64(), Bytes()
         top = tip[UInt64(1)] ## E: tuples can only be indexed by int constants
+
+    @subroutine
+    def iterate_tuple(self, base: gtxn.TransactionBase) -> None:
+        for a in (base, gtxn.PaymentTransaction(1)):
+            assert a.fee > 0
+        for b in (gtxn.PaymentTransaction(1), gtxn.KeyRegistrationTransaction(2)): ## E: unable to iterate heterogeneous tuple without common base type
+            assert b.fee > 0
+

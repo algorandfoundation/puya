@@ -1,7 +1,5 @@
 import typing
 
-import mypy.nodes
-
 from puya.awst.nodes import ConditionalExpression, Expression, Lvalue, Statement
 from puya.awst_build import pytypes
 from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -11,7 +9,6 @@ from puya.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
     TypeBuilder,
@@ -149,11 +146,9 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
-        transformed_true = self._true_literal.member_access(name, expr, location)
-        transformed_false = self._false_literal.member_access(name, expr, location)
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        transformed_true = self._true_literal.member_access(name, location)
+        transformed_false = self._false_literal.member_access(name, location)
         return ConditionalLiteralBuilder(
             true_literal=transformed_true,
             false_literal=transformed_false,
@@ -188,8 +183,12 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         )
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> typing.Never:
         raise CodeError("cannot iterate literal")
+
+    @typing.override
+    def iterable_item_type(self) -> typing.Never:
+        self.iterate()
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

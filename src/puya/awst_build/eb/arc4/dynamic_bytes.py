@@ -14,13 +14,13 @@ from puya.awst.nodes import (
     NewArray,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.arc4.dynamic_array import DynamicArrayExpressionBuilder
 from puya.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
-from puya.awst_build.utils import require_instance_builder
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -85,10 +85,13 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         return DynamicBytesExpressionBuilder(encode_expr)
 
 
-def _coerce_to_byte(arg: NodeBuilder) -> InstanceBuilder:
-    arg = require_instance_builder(arg)
+def _coerce_to_byte(builder: NodeBuilder) -> InstanceBuilder:
+    arg = expect.instance_builder(
+        builder, default=expect.default_dummy_value(pytypes.ARC4ByteType)
+    )
     arg = arg.resolve_literal(UIntNTypeBuilder(pytypes.ARC4ByteType, arg.source_location))
     match arg:
+        # can't use expect.argument_of_type here, we need a match statement
         case InstanceBuilder(pytype=pytypes.ARC4UIntNType(bits=8)):
             return arg
         case _:
@@ -100,9 +103,7 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(expr, pytypes.ARC4DynamicBytesType)
 
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "native":
                 return BytesExpressionBuilder(
@@ -111,4 +112,4 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
                     )
                 )
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)

@@ -55,7 +55,7 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
             result = self._str_to_decimal_constant("0.0", location=location)
             return UFixedNxMExpressionBuilder(result, self.produces())
 
-        arg = expect.argument_of_type_else_die(arg, pytypes.StrLiteralType)
+        arg = expect.argument_of_type(arg, pytypes.StrLiteralType, default=expect.default_raise)
         return arg.resolve_literal(UFixedNxMTypeBuilder(self.produces(), location))
 
     def _str_to_decimal_constant(

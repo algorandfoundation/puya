@@ -126,11 +126,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             info = self._process_logic_sig_decorator(logicsig_dec)
 
             def deferred(ctx: ASTConversionModuleContext) -> ModuleStatement:
-                program = FunctionASTConverter.convert(
-                    ctx,
-                    func_def,
-                    source_location,
-                )
+                program = FunctionASTConverter.convert(ctx, func_def, source_location)
                 return LogicSignature(
                     module_name=ctx.module_name,
                     program=program,
@@ -250,7 +246,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             self._error(
                 f"Unsupported class declaration."
                 f" Contract classes must inherit either directly"
-                f" or indirectly from {constants.CONTRACT_BASE_ALIAS}.",
+                f" or indirectly from {pytypes.ContractBaseType}.",
                 location=cdef_loc,
             )
             return []

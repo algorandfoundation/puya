@@ -16,7 +16,6 @@ from puya.awst.nodes import (
     BaseClassSubroutineTarget,
     BinaryBooleanOperator,
     Block,
-    BoolConstant,
     BooleanBinaryOperation,
     BreakStatement,
     ConditionalExpression,
@@ -35,7 +34,6 @@ from puya.awst.nodes import (
     Subroutine,
     SubroutineArgument,
     Switch,
-    UInt64Constant,
     VarExpression,
     WhileLoop,
 )
@@ -69,21 +67,21 @@ from puya.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
-    expect_operand_type,
+    determine_base_type,
     extract_bytes_literal_from_mypy,
     get_unaliased_fullname,
     iterate_user_bases,
+    maybe_resolve_literal,
     qualified_class_name,
-    require_instance_builder,
-    resolve_method_from_type_info,
+    require_callable_type,
+    resolve_member_node,
+    symbol_node_is_function,
 )
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
-from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
 
@@ -104,7 +102,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         source_location: SourceLocation,
     ):
         super().__init__(context=context)
-        func_loc = self._location(func_def)
+        func_loc = self._location(func_def)  # TODO: why not source_location ??
         self.contract_method_info = contract_method_info
         self._is_bool_context = False
         self.func_def = func_def
@@ -302,21 +300,22 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 return []
         match stmt.rvalue:
             case mypy.nodes.TempNode(no_rhs=True):
-                match stmt.lvalues:
-                    case [mypy.nodes.NameExpr(name=var_name)]:
-                        if stmt.type is not None:  # should always be the case, but ...
-                            self._symtable[var_name] = self.context.type_to_pytype(
-                                stmt.type, source_location=stmt_loc
-                            )
-                        # forward type-declaration only, no-op
-                        return []
-                    case _:
-                        raise InternalError(
-                            "Forward type declarations should only have one target,"
-                            " and it should be a NameExpr",
-                            stmt_loc,
-                        )
+                assert (
+                    len(stmt.lvalues) == 1
+                ), "mypy should guarantee that an annotation assigment has only a single lvalue"
+                (lvalue,) = stmt.lvalues
+                assert (
+                    stmt.type is not None
+                ), "mypy should guarantee that an annotation assignment has a type set"
+                annotated_type = self.context.type_to_pytype(stmt.type, source_location=stmt_loc)
+                self._assign_type(lvalue, annotated_type)
+                # forward type-declaration only, no-op
+                return []
         rvalue = require_instance_builder(stmt.rvalue.accept(self))
+        if not all(self._assign_type(lvalue, rvalue.pytype) for lvalue in stmt.lvalues):
+            # already a typing error, don't need a second one
+            return []
+
         if isinstance(rvalue, StorageProxyConstructorResult):
             try:
                 (lvalue,) = stmt.lvalues
@@ -349,6 +348,63 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             )
             for lvalue in reversed(stmt.lvalues)
         ]
+
+    def _assign_type(
+        self,
+        lvalue: mypy.nodes.Expression,
+        typ: pytypes.PyType,
+    ) -> bool:
+        match lvalue:
+            case mypy.nodes.NameExpr(name=var_name):
+                if var_name == "_":
+                    raise CodeError(
+                        "_ is not currently supported as a variable name", self._location(lvalue)
+                    )
+                current_type = self._symtable.get(var_name)
+                if not (current_type is None or current_type == typ or current_type in typ.mro):
+                    logger.error(
+                        f"{var_name!r} already has type {current_type}"
+                        f" which is not compatible with {typ}",
+                        location=self._location(lvalue),
+                    )
+                    return False
+                else:
+                    self._symtable[var_name] = typ
+                    return True
+            case mypy.nodes.TupleExpr(items=lval_items) | mypy.nodes.ListExpr(items=lval_items):
+                if star_expr := next(
+                    (
+                        lval_item
+                        for lval_item in lval_items
+                        if isinstance(lval_item, mypy.nodes.StarExpr)
+                    ),
+                    None,
+                ):
+                    raise CodeError(
+                        "star expressions are not supported", self._location(star_expr)
+                    )
+                match typ:
+                    case pytypes.ArrayType(items=homogenous_type) | pytypes.VariadicTupleType(
+                        items=homogenous_type
+                    ):
+                        tuple_item_types = (homogenous_type,) * len(lval_items)
+                    case pytypes.TupleType(items=tuple_item_types):
+                        if len(tuple_item_types) != len(lval_items):
+                            raise CodeError(
+                                f"length mismatch source size of {len(tuple_item_types)}"
+                                f" and target size of {len(lval_items)}",
+                                self._location(lvalue),
+                            )
+                    case _:
+                        raise CodeError(
+                            "source type not supported for unpacking", self._location(lvalue)
+                        )
+                return all(
+                    self._assign_type(lval_item, inner_typ)
+                    for lval_item, inner_typ in zip(lval_items, tuple_item_types, strict=True)
+                )
+            case _:
+                return True
 
     def _handle_proxy_assignment(
         self,
@@ -395,7 +451,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         builder = require_instance_builder(builder_or_literal)
         return builder.resolve_lvalue()
 
-    def empty_statement(self, _tmt: mypy.nodes.Statement) -> None:
+    @typing.override
+    def empty_statement(self, stmt: mypy.nodes.Statement) -> None:
         return None
 
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> Statement:
@@ -454,6 +511,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             self._error("else clause on for loop not supported", stmt_loc)
         sequence_builder = require_instance_builder(stmt.expr.accept(self))
         sequence = sequence_builder.iterate()
+        iter_item_type = sequence_builder.iterable_item_type()
+        self._assign_type(stmt.index, iter_item_type)
         items = self.resolve_lvalue(stmt.index)
         loop_body = self.visit_block(stmt.body)
         return ForInLoop(
@@ -512,71 +571,73 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
-        subject_eb = require_instance_builder(stmt.subject.accept(self))
-        subject_typ = subject_eb.pytype
-        subject = subject_eb.single_eval().resolve()
+        subject = require_instance_builder(stmt.subject.accept(self))
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
-            match pattern, guard:
-                case mypy.patterns.ValuePattern(expr=case_expr), None:
-                    case_value_builder_or_literal = case_expr.accept(self)
-                    case_value = require_instance_builder(case_value_builder_or_literal).resolve()
-                    case_block = self.visit_block(block)
-                    case_block_map[case_value] = case_block
-                case mypy.patterns.SingletonPattern(value=bool() as bool_literal), None:
-                    case_value = BoolConstant(
-                        value=bool_literal, source_location=self._location(pattern)
+            if guard is not None:
+                self._error("guard clauses are not supported", guard)
+            if default_block is not None:
+                self._error("default case already encountered", pattern)
+                continue
+            case_block = self.visit_block(block)
+            pattern_loc = self._location(pattern)
+            case_value_builder: InstanceBuilder | None = None
+            match pattern:
+                case mypy.patterns.AsPattern(name=None, pattern=None):
+                    default_block = case_block
+                case mypy.patterns.ValuePattern(expr=case_expr):
+                    case_value_builder = require_instance_builder(case_expr.accept(self))
+                    case_value_builder = maybe_resolve_literal(case_value_builder, subject.pytype)
+                case mypy.patterns.SingletonPattern(value=bool(bool_literal)):
+                    case_value_builder = LiteralBuilderImpl(
+                        value=bool_literal, source_location=pattern_loc
                     )
-                    case_block = self.visit_block(block)
-                    case_block_map[case_value] = case_block
-                case (
-                    mypy.patterns.ClassPattern(
-                        positionals=[mypy.patterns.ValuePattern(expr=inner_literal_expr)],
-                        class_ref=mypy.nodes.RefExpr(fullname=fullname),
-                    ),
-                    None,
-                ) if fullname in (
-                    constants.CLS_UINT64,
-                    constants.CLS_BIGUINT,
-                    constants.CLS_BYTES,
-                    constants.CLS_STRING,
-                    constants.CLS_ACCOUNT,
-                ):
-                    case_value_builder_or_literal = require_instance_builder(
-                        inner_literal_expr.accept(self)
-                    )
-                    case_value = expect_operand_type(
-                        case_value_builder_or_literal, subject_typ
-                    ).resolve()
-                    case_block = self.visit_block(block)
-                    case_block_map[case_value] = case_block
-                case mypy.patterns.AsPattern(name=None, pattern=None), None:
-                    default_block = self.visit_block(block)
-                case _:
-                    supported_types = ", ".join(
-                        (
-                            constants.CLS_UINT64_ALIAS,
-                            constants.CLS_BIGUINT_ALIAS,
-                            constants.CLS_BYTES_ALIAS,
-                            constants.CLS_STRING_ALIAS,
-                            constants.CLS_ACCOUNT_ALIAS,
+                    case_value_builder = maybe_resolve_literal(case_value_builder, subject.pytype)
+                case mypy.patterns.ClassPattern() as cls_pattern:
+                    class_builder = cls_pattern.class_ref.accept(self)
+                    if not isinstance(class_builder, CallableBuilder):
+                        logger.error("expected a type", location=class_builder.source_location)
+                    elif cls_pattern.keyword_values:
+                        self._error(
+                            "attribute matching is not supported", cls_pattern.keyword_values[0]
                         )
+                    else:
+                        cls_args = []
+                        has_error = False
+                        for pos_case in cls_pattern.positionals:
+                            if isinstance(pos_case, mypy.patterns.ValuePattern):
+                                cls_args.append(pos_case.expr.accept(self))
+                            else:
+                                has_error = True
+                                self._error("expected a value pattern", pos_case)
+                        if not has_error:
+                            case_value_builder = class_builder.call(
+                                args=cls_args,
+                                arg_kinds=[mypy.nodes.ARG_POS] * len(cls_args),
+                                arg_names=[None] * len(cls_args),
+                                location=pattern_loc,
+                            )
+
+                case _:
+                    logger.error("unsupported case pattern", location=pattern_loc)
+            if case_value_builder is not None:
+                if case_value_builder.pytype != subject.pytype:
+                    # TODO: what about other comparable types?
+                    logger.error(
+                        "type mismatch,"
+                        " case values must be the exact same type as the subject type",
+                        location=pattern_loc,
                     )
-                    self._error(
-                        f"match statements only support class patterns for {supported_types}"
-                        ", value patterns or bool literals",
-                        pattern,
-                    )
-                    break
-        else:
-            return Switch(
-                source_location=loc,
-                value=subject,
-                cases=case_block_map,
-                default_case=default_block,
-            )
-        return None
+                else:
+                    case_block_map[case_value_builder.resolve()] = case_block
+
+        return Switch(
+            source_location=loc,
+            value=subject.resolve(),
+            cases=case_block_map,
+            default_case=default_block,
+        )
 
     # Unsupported statements
 
@@ -639,7 +700,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     pytype=contract_type,
                     location=expr_loc,
                 )
-            case mypy.nodes.RefExpr(node=mypy.nodes.Decorator(decorators=decorators)) if any(
+            case mypy.nodes.RefExpr(
+                node=mypy.nodes.Decorator(decorators=decorators) as dec
+            ) if any(
                 get_unaliased_fullname(de) == constants.SUBROUTINE_HINT
                 for de in decorators
                 if isinstance(de, mypy.nodes.RefExpr)  # TODO: why wouldn't this be a RefExpr
@@ -649,7 +712,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 self._precondition(
                     bool(module_name), "unqualified name found in call to function", expr_loc
                 )
-                func_type = self.context.mypy_expr_node_type(expr)
+                mypy_func_type = require_callable_type(dec, expr_loc)
+                func_type = self.context.type_to_pytype(mypy_func_type, source_location=expr_loc)
                 if not isinstance(func_type, pytypes.FuncType):
                     raise CodeError("decorated function has non-function type", expr_loc)
                 return SubroutineInvokerExpressionBuilder(
@@ -693,14 +757,12 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     " as a singular lvalue in an assignment statement",
                     expr_loc,
                 )
-                if var_name == "_":
-                    # TODO: ignore "_"
-                    raise CodeError("_ is not currently supported as a variable name", expr_loc)
-                local_type = lazy_setdefault(
-                    self._symtable,
-                    key=var_name,
-                    default=lambda _: self.context.mypy_expr_node_type(name_expr),
-                )
+                local_type = self._symtable.get(var_name)
+                if local_type is None:
+                    raise CodeError(
+                        "local variable type is unknown - possible use before definition?",
+                        expr_loc,
+                    )
                 var_expr = VarExpression(
                     name=var_name, wtype=local_type.wtype, source_location=expr_loc
                 )
@@ -748,29 +810,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
     def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
-        if isinstance(expr.expr, mypy.nodes.RefExpr):
-            if isinstance(expr.expr.node, mypy.nodes.MypyFile):
-                # special case for module attribute access
-                return self._visit_ref_expr(expr)
-            unaliased_base_fullname = get_unaliased_fullname(expr.expr)
-            # TODO: allow UInt64Constant values in context.constants, and then put these there
-            if enum_cls_data := constants.NAMED_INT_CONST_ENUM_DATA.get(unaliased_base_fullname):
-                try:
-                    int_enum = enum_cls_data[expr.name]
-                except KeyError as ex:
-                    raise CodeError(
-                        "Unable to resolve constant value for"
-                        f" {unaliased_base_fullname}.{expr.name}",
-                        expr_loc,
-                    ) from ex
-                return UInt64ExpressionBuilder(
-                    UInt64Constant(
-                        value=int_enum.value, source_location=expr_loc, teal_alias=int_enum.name
-                    )
-                )
+        if isinstance(expr.expr, mypy.nodes.RefExpr) and isinstance(
+            expr.expr.node, mypy.nodes.MypyFile
+        ):
+            # special case for module attribute access
+            return self._visit_ref_expr(expr)
 
         base = expr.expr.accept(self)
-        return base.member_access(expr.name, expr, expr_loc)
+        return base.member_access(expr.name, expr_loc)
 
     def visit_call_expr(self, call: mypy.nodes.CallExpr) -> NodeBuilder:
         if call.analyzed is not None:
@@ -837,27 +884,21 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         rhs = require_instance_builder(node.right.accept(self))
 
         # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
-        if node.op in ("and", "or"):
+        if node.op in BinaryBooleanOperator:
+            bool_op = BinaryBooleanOperator(node.op)
             if isinstance(lhs, LiteralBuilder) and isinstance(rhs, LiteralBuilder):
-                match node.op:
-                    case "and":
+                match bool_op:
+                    case BinaryBooleanOperator.and_:
                         return LiteralBuilderImpl(
                             value=lhs.value and rhs.value, source_location=node_loc
                         )
-                    case "or":
+                    case BinaryBooleanOperator.or_:
                         return LiteralBuilderImpl(
                             value=lhs.value or rhs.value, source_location=node_loc
                         )
-            bool_op = BinaryBooleanOperator(node.op)
-            try:
-                result_pytype = self.context.mypy_expr_node_type(node)
-            except TypeUnionError as union_ex:
-                result_pytypes = union_ex.types
-            else:
-                result_pytypes = [result_pytype]
-            return self._visit_bool_op_expr(
-                bool_op, result_pytypes, lhs=lhs, rhs=rhs, location=node_loc
-            )
+                    case _:
+                        typing.assert_never(bool_op)
+            return self._visit_bool_op_expr(bool_op, lhs=lhs, rhs=rhs, location=node_loc)
 
         try:
             op = BuilderBinaryOp(node.op)
@@ -876,7 +917,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def _visit_bool_op_expr(
         self,
         op: BinaryBooleanOperator,
-        result_pytypes: Sequence[pytypes.PyType],
         lhs: InstanceBuilder,
         rhs: InstanceBuilder,
         location: SourceLocation,
@@ -904,7 +944,12 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # this would fail to compile, due to (a and b) being wtype of bool.
         # this is fine and expected, there's no issues of semantic compatibility since we
         # reject compiling the program altogether.
-        if len(result_pytypes) > 1:
+        target_pytyp: pytypes.PyType | None
+        try:
+            target_pytyp = determine_base_type(lhs.pytype, rhs.pytype, location=location)
+        except TypeUnionError:
+            target_pytyp = None
+        if target_pytyp is None:
             if not self._is_bool_context:
                 raise CodeError(
                     "expression would produce a union type,"
@@ -914,10 +959,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             target_pytyp = pytypes.BoolType
             lhs = lhs.bool_eval(location)
             rhs = rhs.bool_eval(location)
-        else:
-            (target_pytyp,) = result_pytypes
-            lhs = expect_operand_type(lhs, target_pytyp)
-            rhs = expect_operand_type(rhs, target_pytyp)
 
         if target_pytyp == pytypes.BoolType:
             expr_result: Expression = BooleanBinaryOperation(
@@ -929,10 +970,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
             condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).resolve()
             expr_result = ConditionalExpression(
-                source_location=location,
                 condition=condition,
                 true_expr=lhs.resolve(),
                 false_expr=rhs.resolve(),
+                wtype=target_pytyp.wtype,
+                source_location=location,
             )
         return builder_for_instance(target_pytyp, expr_result)
 
@@ -949,15 +991,24 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 pass
             case mypy.nodes.TypeAliasExpr():
                 raise CodeError("type aliases are not supported inside subroutines", expr_location)
-            case mypy.nodes.TypeApplication():
-                type_type = self.context.mypy_expr_node_type(expr)
-                if not isinstance(type_type, pytypes.TypeType):
-                    raise InternalError(
-                        "expected resolved PyType of and IndexExpr where analyzed"
-                        " is a TypeApplication to be a TypeType",
-                        expr_location,
-                    )
-                return builder_for_type(type_type.typ, expr_location)
+            case mypy.nodes.TypeApplication(types=type_args):
+                # TODO: resolve expr to generic type builder instead
+                assert isinstance(
+                    expr.base, mypy.nodes.RefExpr
+                ), "expect base of type application to be RefExpr"
+                pytyp = self.context.lookup_pytype(expr.base.fullname)
+                if pytyp is None:
+                    raise CodeError("unknown base type", expr_location)
+                param_typ = pytyp.parameterise(
+                    [
+                        self.context.type_to_pytype(
+                            t, in_type_args=True, source_location=expr_location
+                        )
+                        for t in type_args
+                    ],
+                    expr_location,
+                )
+                return builder_for_type(param_typ, expr_location)
             case _:
                 typing.assert_never(expr.analyzed)
 
@@ -1094,6 +1145,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # TODO: test if self. assignment?
         with self._leave_bool_context():
             source = require_instance_builder(expr.value.accept(self))
+        if not self._assign_type(expr.target, source.pytype):
+            # typing error, just return the source to continue with
+            return source
         value = source.resolve()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
@@ -1114,20 +1168,32 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 "only the zero-arguments version of super() is supported",
                 self._location(super_expr.call),
             )
-        func_type = self.context.mypy_expr_node_type(super_expr)
-        if not isinstance(func_type, pytypes.FuncType):
-            raise CodeError("super() is only supported for calling functions", super_loc)
         for base in iterate_user_bases(self.contract_method_info.type_info):
-            base_method = resolve_method_from_type_info(base, super_expr.name, super_loc)
-            if base_method is not None:
-                base_class = qualified_class_name(base)
-                break
+            base_member_node = resolve_member_node(base, super_expr.name, super_loc)
+            if base_member_node is not None:
+                if symbol_node_is_function(base_member_node):
+                    base_func_node = base_member_node
+                    base_class = qualified_class_name(base)
+                    break
+                raise CodeError("super() is only supported for calling functions", super_loc)
         else:
             raise CodeError(
                 f"unable to locate method {super_expr.name}"
                 f" in bases of {self.contract_method_info.cref.full_name}",
                 super_loc,
             )
+
+        func_mypy_type = require_callable_type(base_func_node, super_loc)
+        func_type = self.context.type_to_pytype(func_mypy_type, source_location=super_loc)
+        assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
+        is_static = (
+            base_func_node.func.is_static
+            if isinstance(base_func_node, mypy.nodes.Decorator)
+            else base_func_node.is_static
+        )
+        if not is_static:
+            func_type = attrs.evolve(func_type, args=func_type.args[1:])
+
         super_target = BaseClassSubroutineTarget(base_class, name=super_expr.name)
         return SubroutineInvokerExpressionBuilder(
             target=super_target, func_type=func_type, location=super_loc
@@ -1158,3 +1224,17 @@ def is_self_member(
         case mypy.nodes.MemberExpr(expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))):
             return True
     return False
+
+
+def require_instance_builder(
+    builder_or_literal: NodeBuilder,
+    *,
+    non_instance_msg: str = "expression is not a value",
+) -> InstanceBuilder:
+    match builder_or_literal:
+        case InstanceBuilder() as builder:
+            return builder
+        case NodeBuilder(source_location=non_value_location):
+            raise CodeError(non_instance_msg, non_value_location)
+        case _:
+            typing.assert_never(builder_or_literal)

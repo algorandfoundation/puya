@@ -295,11 +295,12 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         expr_loc = self.context.node_location(o)
         if isinstance(o.expr, mypy.nodes.RefExpr):
             unaliased_base_fullname = get_unaliased_fullname(o.expr)
-            if unaliased_base_fullname == constants.ENUM_CLS_ON_COMPLETE_ACTION:
-                if (
-                    o.name
-                    in constants.NAMED_INT_CONST_ENUM_DATA[constants.ENUM_CLS_ON_COMPLETE_ACTION]
-                ):
+            if unaliased_base_fullname == pytypes.OnCompleteActionType.name:
+                try:
+                    OnCompletionAction[o.name]
+                except KeyError:
+                    pass
+                else:
                     return o.name
                 raise CodeError(
                     f"Unable to resolve constant value for {unaliased_base_fullname}.{o.name}",
@@ -308,7 +309,6 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
         return self._resolve_constant_reference(o)
 
     def _resolve_constant_reference(self, expr: mypy.nodes.RefExpr) -> object:
-
         try:
             return self.context.constants[expr.fullname]
         except KeyError:

@@ -93,9 +93,7 @@ class BytesTypeBuilder(TypeBuilder):
                 return dummy_value(self.produces(), location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         """Handle self.name"""
         match name:
             case "from_base32":
@@ -105,7 +103,7 @@ class BytesTypeBuilder(TypeBuilder):
             case "from_hex":
                 return _FromEncodedStr(location, BytesEncoding.base16)
             case _:
-                return super().member_access(name, expr, location)
+                return super().member_access(name, location)
 
 
 class _FromEncodedStr(FunctionBuilder):
@@ -173,9 +171,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return UInt64ExpressionBuilder(len_call)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> InstanceBuilder:
+    def member_access(self, name: str, location: SourceLocation) -> InstanceBuilder:
         match name:
             case "length":
                 return self.length(location)
@@ -216,6 +212,10 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
     @typing.override
     def iterate(self) -> Iteration:
         return self.resolve()
+
+    @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return pytypes.BytesType
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

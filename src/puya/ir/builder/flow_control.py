@@ -68,14 +68,17 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
     ir_blocks = dict[awst_nodes.Block, BasicBlock]()
     for value, block in statement.cases.items():
         ir_value = context.visitor.visit_and_materialise_single(value)
-        case_blocks[ir_value] = lazy_setdefault(
-            ir_blocks,
-            block,
-            lambda b: BasicBlock(
-                source_location=b.source_location,
-                comment=b.description or f"switch_case_{len(ir_blocks)}",
-            ),
-        )
+        if ir_value in case_blocks:
+            logger.error("code block is unreachable", location=block.source_location)
+        else:
+            case_blocks[ir_value] = lazy_setdefault(
+                ir_blocks,
+                block,
+                lambda b: BasicBlock(
+                    source_location=b.source_location,
+                    comment=b.description or f"switch_case_{len(ir_blocks)}",
+                ),
+            )
     default_block, next_block = mkblocks(
         statement.source_location,
         (statement.default_case and statement.default_case.description) or "switch_case_default",

@@ -41,7 +41,8 @@ class Box(typing.Generic[_TValue]):
         """
         Retrieve the contents of the box, or return the default value if the box has not been
         created.
-        @param default: The default value to return if the box has not been created
+
+        :arg default: The default value to return if the box has not been created
         """
 
     def maybe(self) -> tuple[_TValue, bool]:
@@ -91,25 +92,26 @@ class BoxRef:
         Extract a slice of bytes from the box.
 
         Fails if the box does not exist, or if `start_index + length > len(box)`
-        @param start_index: The offset to start extracting bytes from
-        @param length: The number of bytes to extract
-        @return:
+
+        :arg start_index: The offset to start extracting bytes from
+        :arg length: The number of bytes to extract
         """
 
     def resize(self, new_size: UInt64 | int) -> None:
         """
         Resizes the box the specified `new_size`. Truncating existing data if the new value is
         shorter or padding with zero bytes if it is longer.
-        @param new_size: The new size of the box
-        @return:
+
+        :arg new_size: The new size of the box
         """
 
     def replace(self, start_index: UInt64 | int, value: Bytes | bytes) -> None:
         """
         Write `value` to the box starting at `start_index`. Fails if the box does not exist,
         or if `start_index + len(value) > len(box)`
-        @param start_index: The offset to start writing bytes from
-        @param value: The bytes to be written
+
+        :arg start_index: The offset to start writing bytes from
+        :arg value: The bytes to be written
         """
 
     def splice(
@@ -123,23 +125,25 @@ class BoxRef:
         If the new value is longer than the box size, it will be truncated.
         If the new value is shorter than the box size, it will be padded with zero bytes
 
-        @param start_index: The index to start inserting `value`
-        @param length: The number of bytes after `start_index` to omit from the new value
-        @param value: The `value` to be inserted.
+        :arg start_index: The index to start inserting `value`
+        :arg length: The number of bytes after `start_index` to omit from the new value
+        :arg value: The `value` to be inserted.
         """
 
     def get(self, *, default: Bytes | bytes) -> Bytes:
         """
         Retrieve the contents of the box, or return the default value if the box has not been
         created.
-        @param default: The default value to return if the box has not been created
+
+        :arg default: The default value to return if the box has not been created
         """
 
     def put(self, value: Bytes | bytes) -> None:
         """
         Replaces the contents of box with value. Fails if box exists and len(box) != len(value).
         Creates box if it does not exist
-        @param value: The value to write to the box
+
+        :arg value: The value to write to the box
         """
 
     def maybe(self) -> tuple[Bytes, bool]:
@@ -168,7 +172,17 @@ class BoxMap(typing.Generic[_TKey, _TValue]):
         /,
         *,
         key_prefix: bytes | str | Bytes | String = ...,
-    ) -> None: ...
+    ) -> None:
+        """Declare a box map.
+
+        :arg key_type: The type of the keys
+        :arg value_type: The type of the values
+        :arg key_prefix: The value used as a prefix to key data, can be empty.
+                         When the BoxMap is being assigned to a member variable,
+                         this argument is optional and defaults to the member variable name,
+                         and if a custom value is supplied it must be static.
+        """
+
     @property
     def key_prefix(self) -> Bytes:
         """Provides access to the raw storage key-prefix"""
@@ -194,20 +208,22 @@ class BoxMap(typing.Generic[_TKey, _TValue]):
         """
         Retrieve the contents of a keyed box, or return the default value if the box has not been
         created.
-        @param key: The key of the box to get
-        @param default: The default value to return if the box has not been created.
+
+        :arg key: The key of the box to get
+        :arg default: The default value to return if the box has not been created.
         """
 
     def maybe(self, key: _TKey) -> tuple[_TValue, bool]:
         """
         Retrieve the contents of a keyed box if it exists, and return a boolean indicating if the
         box exists.
-        @param key: The key of the box to get
+
+        :arg key: The key of the box to get
         """
 
     def length(self, key: _TKey) -> UInt64:
         """
         Get the length of an item in this BoxMap. Fails if the box does not exist
 
-        @param key: The key of the box to get
+        :arg key: The key of the box to get
         """

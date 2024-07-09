@@ -8,13 +8,10 @@ import mypy.nodes
 import mypy.types
 
 from puya import log
-from puya.awst import (
-    nodes as awst_nodes,
-    wtypes,
-)
+from puya.awst import wtypes
 from puya.awst.nodes import (
-    TXN_FIELDS_BY_IMMEDIATE,
     ARC4Decode,
+    ARC4Encode,
     BytesConstant,
     BytesEncoding,
     CreateInnerTransaction,
@@ -22,28 +19,25 @@ from puya.awst.nodes import (
     MethodConstant,
     SubmitInnerTransaction,
     TupleExpression,
-    TxnField,
-    TxnFields,
     UInt64Constant,
 )
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_abimethod_data
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
-from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
-from puya.awst_build.eb.transaction.fields import get_field_python_name
-from puya.awst_build.eb.transaction.inner_params import get_field_expr
+from puya.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
-    require_instance_builder,
-    resolve_method_from_type_info,
+    resolve_member_node,
+    symbol_node_is_function,
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -51,24 +45,23 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 _APP_TRANSACTION_FIELDS = {
-    get_field_python_name(field): field
-    for field in (
-        TXN_FIELDS_BY_IMMEDIATE[immediate]
-        for immediate in (
-            "ApplicationID",
-            "OnCompletion",
-            "ApprovalProgram",
-            "ClearStateProgram",
-            "GlobalNumUint",
-            "GlobalNumByteSlice",
-            "LocalNumUint",
-            "LocalNumByteSlice",
-            "ExtraProgramPages",
-            "Fee",
-            "Sender",
-            "Note",
-            "RekeyTo",
-        )
+    argument_name: params
+    for argument_name, params in PYTHON_ITXN_ARGUMENTS.items()
+    if params.field
+    in (
+        TxnField.ApplicationID,
+        TxnField.OnCompletion,
+        TxnField.ApprovalProgramPages,
+        TxnField.ClearStateProgramPages,
+        TxnField.GlobalNumUint,
+        TxnField.GlobalNumByteSlice,
+        TxnField.LocalNumUint,
+        TxnField.LocalNumByteSlice,
+        TxnField.ExtraProgramPages,
+        TxnField.Fee,
+        TxnField.Sender,
+        TxnField.Note,
+        TxnField.RekeyTo,
     )
 }
 
@@ -97,13 +90,13 @@ class ARC4ClientTypeBuilder(TypeBuilder):
         raise CodeError("ARC4Client subclasses cannot be instantiated", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> NodeBuilder:
-        func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
-        if func_or_dec is None:
-            raise CodeError(f"unknown member {name!r} of {self.type_info.fullname!r}", location)
-        return ARC4ClientMethodExpressionBuilder(self.context, func_or_dec, location)
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        node = resolve_member_node(self.type_info, name, location)
+        if node is None:
+            return super().member_access(name, location)
+        if symbol_node_is_function(node):
+            return ARC4ClientMethodExpressionBuilder(self.context, node, location)
+        raise CodeError("static references are only supported for methods", location)
 
 
 class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
@@ -169,16 +162,16 @@ def _abi_call(
     return_type_annotation: pytypes.PyType | None,
 ) -> InstanceBuilder:
     method: NodeBuilder | None = None
-    abi_args = list[InstanceBuilder]()
-    transaction_kwargs = dict[str, InstanceBuilder]()
+    abi_args = list[NodeBuilder]()
+    transaction_kwargs = dict[str, NodeBuilder]()
     for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
         if arg_name is None:
             if idx == 0:
                 method = arg
             else:
-                abi_args.append(require_instance_builder(arg))
+                abi_args.append(arg)
         else:
-            transaction_kwargs[arg_name] = require_instance_builder(arg)
+            transaction_kwargs[arg_name] = arg
 
     declared_result_type: pytypes.PyType | None
     match method:
@@ -261,20 +254,21 @@ def _create_abi_call_expr(
     signature_return_type: pytypes.PyType,
     abi_args: Sequence[InstanceBuilder],
     declared_result_type: pytypes.PyType | None,
-    transaction_kwargs: dict[str, InstanceBuilder],
+    transaction_kwargs: dict[str, NodeBuilder],
     location: SourceLocation,
 ) -> InstanceBuilder:
-
     array_fields: dict[TxnField, list[Expression]] = {
-        TxnFields.app_args: [MethodConstant(value=method_selector, source_location=location)],
-        TxnFields.accounts: [],
-        TxnFields.apps: [],
-        TxnFields.assets: [],
+        TxnField.ApplicationArgs: [
+            MethodConstant(value=method_selector, source_location=location)
+        ],
+        TxnField.Accounts: [],
+        TxnField.Applications: [],
+        TxnField.Assets: [],
     }
 
     def ref_to_arg(ref_field: TxnField, arg: InstanceBuilder) -> Expression:
         # TODO: what about references that are used more than once?
-        implicit_offset = 1 if ref_field in (TxnFields.accounts, TxnFields.apps) else 0
+        implicit_offset = 1 if ref_field in (TxnField.Accounts, TxnField.Applications) else 0
         ref_list = array_fields[ref_field]
         ref_index = len(ref_list)
         ref_list.append(arg.resolve())
@@ -293,25 +287,25 @@ def _create_abi_call_expr(
                 )
                 continue
             case pytypes.AssetType:
-                arg_expr = ref_to_arg(TxnFields.assets, arg_b)
+                arg_expr = ref_to_arg(TxnField.Assets, arg_b)
             case pytypes.AccountType:
-                arg_expr = ref_to_arg(TxnFields.accounts, arg_b)
+                arg_expr = ref_to_arg(TxnField.Accounts, arg_b)
             case pytypes.ApplicationType:
-                arg_expr = ref_to_arg(TxnFields.apps, arg_b)
+                arg_expr = ref_to_arg(TxnField.Applications, arg_b)
             case _:
                 arg_expr = arg_b.resolve()
-        array_fields[TxnFields.app_args].append(arg_expr)
+        array_fields[TxnField.ApplicationArgs].append(arg_expr)
 
     txn_type_appl = constants.TransactionType.appl
     fields: dict[TxnField, Expression] = {
-        TxnFields.fee: UInt64Constant(value=0, source_location=location),
-        TxnFields.type: UInt64Constant(
+        TxnField.Fee: UInt64Constant(value=0, source_location=location),
+        TxnField.TypeEnum: UInt64Constant(
             value=txn_type_appl.value, teal_alias=txn_type_appl.name, source_location=location
         ),
     }
     for arr_field, arr_field_values in array_fields.items():
         if arr_field_values:
-            if arr_field == TxnFields.app_args and len(arr_field_values) > 16:
+            if arr_field == TxnField.ApplicationArgs and len(arr_field_values) > 16:
                 args_to_pack = arr_field_values[15:]
                 arr_field_values[15:] = [
                     _arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
@@ -319,14 +313,13 @@ def _create_abi_call_expr(
             fields[arr_field] = TupleExpression.from_items(
                 arr_field_values, _combine_locs(arr_field_values)
             )
-    for field_python_name, field in _APP_TRANSACTION_FIELDS.items():
-        if value := transaction_kwargs.pop(field_python_name, None):
-            field, field_expr = get_field_expr(field_python_name, value)
-            fields[field] = field_expr
 
-    if transaction_kwargs:
-        bad_args = "', '".join(transaction_kwargs)
-        logger.error(f"unexpected keyword arguments: '{bad_args}'", location=location)
+    for kwarg_name, kwarg_value in transaction_kwargs.items():
+        params = _APP_TRANSACTION_FIELDS.get(kwarg_name)
+        if params is None:
+            logger.error("unrecognised keyword argument", location=kwarg_value.source_location)
+        else:
+            fields[params.field] = params.validate_and_convert(kwarg_value).resolve()
 
     itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
     create_itxn = CreateInnerTransaction(
@@ -342,7 +335,7 @@ def _create_abi_call_expr(
         return itxn_builder
     itxn_tmp = itxn_builder.single_eval()
     assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)
-    last_log = BytesExpressionBuilder(itxn_tmp.get_field_value(TxnFields.last_log, location))
+    last_log = itxn_tmp.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
     abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature_return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
@@ -360,11 +353,11 @@ def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
 
 
 def _arc4_tuple_from_items(
-    items: Sequence[awst_nodes.Expression], source_location: SourceLocation
-) -> awst_nodes.ARC4Encode:
-    # TODO: should we just allow TuplExpression to have an ARCTuple wtype?
-    args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
-    return awst_nodes.ARC4Encode(
+    items: Sequence[Expression], source_location: SourceLocation
+) -> ARC4Encode:
+    # TODO: should we just allow TupleExpression to have an ARCTuple wtype?
+    args_tuple = TupleExpression.from_items(items, source_location)
+    return ARC4Encode(
         value=args_tuple,
         wtype=wtypes.ARC4Tuple(args_tuple.wtype.types, source_location),
         source_location=source_location,

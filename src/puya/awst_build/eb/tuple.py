@@ -1,6 +1,6 @@
 import itertools
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 
 import mypy.nodes
 
@@ -32,8 +32,11 @@ from puya.awst_build.eb.interface import (
     Iteration,
     LiteralBuilder,
     NodeBuilder,
+    StaticSizedCollectionBuilder,
     TypeBuilder,
 )
+from puya.awst_build.exceptions import TypeUnionError
+from puya.awst_build.utils import determine_base_type
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp, positive_index
@@ -78,31 +81,24 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
     if arg is None:
         return TupleLiteralBuilder(items=[], location=location)
 
-    # TODO: generalise statically-iterable expressions at InstanceBuilder level
-    #       e.g. arc4.StaticArray, sequence literals, all should support an "iterate_static"
-    #       method that returns a sequence of builders.
-    #       This will not just maintain a better cohesion, putting that code closer to the
-    #       supporting type, rather than having to update the code here if a new type is added etc.
-    #       but will also mean we could use that function in other places, for example we can
-    #       easily add support for * unpacking like (*my_static_arr, ...)
     match arg:
-        case InstanceBuilder(pytype=pytypes.TupleType(items=t_items)):
-            fixed_size = len(t_items)
-        case InstanceBuilder(pytype=pytypes.ArrayType(size=int(fixed_size))):
-            pass
-        case LiteralBuilder(value=bytes(bytes_lit)):
-            fixed_size = len(bytes_lit)
-        case LiteralBuilder(value=str(str_lit)):
-            fixed_size = len(str_lit)
+        case StaticSizedCollectionBuilder() as static_builder:
+            return TupleLiteralBuilder(items=static_builder.iterate_static(), location=location)
+        # TODO: maybe LiteralBuilderImpl should be split for str and bytes, so it can
+        #       implement StaticSizedCollectionBuilder?
+        case LiteralBuilder(value=bytes() | str() as bytes_or_str):
+            return TupleLiteralBuilder(
+                items=[
+                    LiteralBuilderImpl(value=item, source_location=arg.source_location)
+                    for item in bytes_or_str
+                ],
+                location=location,
+            )
         case _:
             raise CodeError("unhandled argument type", arg.source_location)
-    indexer = _make_indexer(arg, location)
-    return TupleLiteralBuilder(
-        items=[indexer(idx) for idx in range(fixed_size)], location=location
-    )
 
 
-class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
+class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
     def __init__(self, items: Sequence[InstanceBuilder], location: SourceLocation):
         super().__init__(location)
         self._items = tuple(items)
@@ -113,14 +109,12 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
     def pytype(self) -> pytypes.TupleType:
         return self._pytype
 
-    @property
-    def items(self) -> Sequence[InstanceBuilder]:
+    @typing.override
+    def iterate_static(self) -> Sequence[InstanceBuilder]:
         return self._items
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> typing.Never:
+    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)
@@ -141,7 +135,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
 
     @typing.override
     def resolve(self) -> TupleExpression:
-        item_exprs = [i.resolve() for i in self.items]
+        item_exprs = [i.resolve() for i in self.iterate_static()]
         return TupleExpression.from_items(item_exprs, self.source_location)
 
     @typing.override
@@ -186,7 +180,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
                     case LiteralBuilder(value=int(mult_literal)):
                         return TupleLiteralBuilder(self._items * mult_literal, location)
                     case _:
-                        raise CodeError("can't multiple sequence by non-int-literal", location)
+                        raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
                 return NotImplemented
 
@@ -199,6 +193,10 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
     @typing.override
     def iterate(self) -> Iteration:
         return self.resolve()
+
+    @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return _iterable_item_type(self.pytype, self.source_location)
 
     def _expr_builder(self) -> InstanceBuilder:
         # used to maintain semantic compatibility, we must resolve this so all elements
@@ -230,7 +228,9 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType]):
         )
 
 
-class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
+class TupleExpressionBuilder(
+    InstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, expr)
@@ -240,9 +240,7 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override
-    def member_access(
-        self, name: str, expr: mypy.nodes.Expression, location: SourceLocation
-    ) -> typing.Never:
+    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)
@@ -263,11 +261,10 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
                 match other:
                     # can't handle non-simple literals here
                     case LiteralBuilder(value=int(mult_literal)):
-                        indexer = _make_indexer(self, location)
-                        items = [indexer(idx) for idx in range(len(self.pytype.items))]
+                        items = tuple(self.iterate_static())
                         return TupleLiteralBuilder(items * mult_literal, location)
                     case _:
-                        raise CodeError("can't multiple sequence by non-int-literal", location)
+                        raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
                 return NotImplemented
 
@@ -347,6 +344,21 @@ class TupleExpressionBuilder(InstanceExpressionBuilder[pytypes.TupleType]):
         return self.resolve()
 
     @typing.override
+    def iterate_static(self) -> Sequence[InstanceBuilder]:
+        base = self.single_eval().resolve()
+        return [
+            builder_for_instance(
+                item_type,
+                TupleItemExpression(base=base, index=idx, source_location=self.source_location),
+            )
+            for idx, item_type in enumerate(self.pytype.items)
+        ]
+
+    @typing.override
+    def iterable_item_type(self) -> pytypes.PyType:
+        return _iterable_item_type(self.pytype, self.source_location)
+
+    @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         contains_expr = Contains(
             sequence=self.resolve(),
@@ -394,11 +406,11 @@ def _compare(
             raise CodeError(
                 f"the {op.value!r} operator is not currently supported with tuples", location
             )
-    lhs_indexer = _make_indexer(lhs, location)
-    rhs_indexer = _make_indexer(rhs, location)
 
-    lhs_items = [lhs_indexer(idx) for idx, _ in enumerate(lhs.pytype.items)]
-    rhs_items = [rhs_indexer(idx) for idx, _ in enumerate(rhs.pytype.items)]
+    assert isinstance(lhs, StaticSizedCollectionBuilder)
+    lhs_items = lhs.iterate_static()
+    assert isinstance(rhs, StaticSizedCollectionBuilder)
+    rhs_items = rhs.iterate_static()
 
     result_exprs = []
     for idx, (lhs_item, rhs_item) in enumerate(itertools.zip_longest(lhs_items, rhs_items)):
@@ -456,33 +468,21 @@ def _concat(
     else:
         lhs, rhs = other, this
 
-    lhs_indexer = _make_indexer(lhs, location)
-    rhs_indexer = _make_indexer(rhs, location)
+    assert isinstance(lhs, StaticSizedCollectionBuilder)
+    lhs_items = lhs.iterate_static()
+    assert isinstance(rhs, StaticSizedCollectionBuilder)
+    rhs_items = rhs.iterate_static()
 
-    items = [
-        *(lhs_indexer(idx) for idx in range(len(lhs.pytype.items))),
-        *(rhs_indexer(idx) for idx in range(len(rhs.pytype.items))),
-    ]
+    items = [*lhs_items, *rhs_items]
     return TupleLiteralBuilder(items, location)
 
 
-def _make_indexer(
-    builder: InstanceBuilder, location: SourceLocation
-) -> Callable[[int], InstanceBuilder]:
-    """this function should ONLY be used if ALL elements are going to be visited"""
-
-    if isinstance(builder, TupleLiteralBuilder):
-        # this is why this function exists, going through .index() would evaluate to
-        # an expression in the general case, but this way we can support comparisons with
-        # literal items in tuples naturally
-        captured = builder
-        return lambda idx: captured.items[idx]
-
-    # in case the tuple expression has side effects
-    builder = builder.single_eval()
-
-    def indexer(idx: int) -> InstanceBuilder:
-        index_lit = LiteralBuilderImpl(value=idx, source_location=location)
-        return builder.index(index_lit, location)
-
-    return indexer
+def _iterable_item_type(
+    pytype: pytypes.TupleType, source_location: SourceLocation
+) -> pytypes.PyType:
+    try:
+        return determine_base_type(*pytype.items, location=source_location)
+    except TypeUnionError as ex:
+        raise CodeError(
+            "unable to iterate heterogeneous tuple without common base type", source_location
+        ) from ex

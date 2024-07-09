@@ -24,8 +24,10 @@ from puya.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
+from puya.awst_build.exceptions import TypeUnionError
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
+from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
@@ -163,42 +165,6 @@ def fold_binary_expr(
     return typing.cast(ConstantValue, result)
 
 
-def require_instance_builder(
-    builder_or_literal: NodeBuilder,
-    *,
-    non_instance_msg: str = "expression is not a value",
-) -> InstanceBuilder:
-    match builder_or_literal:
-        case InstanceBuilder() as builder:
-            return builder
-        case NodeBuilder(source_location=non_value_location):
-            raise CodeError(non_instance_msg, non_value_location)
-        case _:
-            typing.assert_never(builder_or_literal)
-
-
-def expect_operand_type(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
-    instance = require_instance_builder(operand)
-    instance = maybe_resolve_literal(instance, target_type)
-    if instance.pytype != target_type:
-        raise CodeError(
-            f"Expected type {target_type}, got type {instance.pytype}", instance.source_location
-        )
-    return instance
-
-
-def require_instance_builder_of_type(
-    builder: NodeBuilder, target_type: pytypes.PyType
-) -> InstanceBuilder:
-    builder = require_instance_builder(builder)
-    if builder.pytype != target_type:
-        raise CodeError(
-            f"Expected type {target_type}, got type {builder.pytype}",
-            builder.source_location,
-        )
-    return builder
-
-
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:
     assert type_info.mro[0].defn is type_info.defn, "first MRO entry should always be class itself"
     for base_type in type_info.mro[1:]:
@@ -306,37 +272,40 @@ def snake_case(s: str) -> str:
     return re.sub(r"[-\s]", "_", s).lower()
 
 
-def resolve_method_from_type_info(
+def resolve_member_node(
     type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
-) -> mypy.nodes.FuncBase | mypy.nodes.Decorator | None:
-    """Get a function member from TypeInfo, or return None.
-
-    Differs from TypeInfo.get_method() if there are conflicting definitions of name,
-    one being a method and another being an attribute.
-    This is important for semantic compatibility.
-
-    If the found member is not a function, an exception is raised.
-    Also raises if the SymbolTableNode is unresolved (it shouldn't be once we can see it).
-    """
+) -> mypy.nodes.SymbolNode | None:
     member = type_info.get(name)
     if member is None:
         return None
-    match member.node:
-        case None:
-            raise InternalError(
-                "mypy cross reference remains unresolved:"
-                f" member {name!r} of {type_info.fullname!r}",
-                location,
-            )
-        # matching types taken from mypy.nodes.TypeInfo.get_method
-        case mypy.nodes.FuncBase() | mypy.nodes.Decorator() as func_or_dec:
-            return func_or_dec
-        case other_node:
-            logger.debug(
-                f"Non-function member: type={type(other_node).__name__!r}, value={other_node}",
-                location=location,
-            )
-            raise CodeError(f"unsupported reference to non-function member {name!r}", location)
+    if member.node is None:
+        raise InternalError(
+            "mypy cross reference remains unresolved:"
+            f" member {name!r} of {type_info.fullname!r}",
+            location,
+        )
+    return member.node
+
+
+def symbol_node_is_function(
+    node: mypy.nodes.SymbolNode,
+) -> typing.TypeGuard[mypy.nodes.FuncBase | mypy.nodes.Decorator]:
+    # matching types taken from mypy.nodes.TypeInfo.get_method
+    return isinstance(node, mypy.nodes.FuncBase | mypy.nodes.Decorator)
+
+
+def require_callable_type(
+    node: mypy.nodes.FuncBase | mypy.nodes.Decorator, location: SourceLocation
+) -> mypy.types.CallableType:
+    if isinstance(node, mypy.nodes.Decorator):
+        typ = node.var.type
+    else:
+        typ = node.type
+    if typ is None:
+        raise InternalError(f"unable to resolve type of {node.fullname}", location)
+    if not isinstance(typ, mypy.types.CallableType):
+        raise CodeError("expected a callable type", location)
+    return typ
 
 
 def maybe_resolve_literal(
@@ -349,3 +318,48 @@ def maybe_resolve_literal(
         if isinstance(target_type_builder, TypeBuilder):
             return operand.resolve_literal(target_type_builder)
     return operand
+
+
+def resolve_literal(operand: InstanceBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
+    target_type_builder = builder_for_type(target_type, operand.source_location)
+    assert isinstance(target_type_builder, TypeBuilder)
+    return operand.resolve_literal(target_type_builder)
+
+
+def determine_base_type(
+    first: pytypes.PyType, *rest: pytypes.PyType, location: SourceLocation
+) -> pytypes.PyType:
+    operands = unique((first, *rest))
+    if len(operands) == 1:
+        return first
+    for candidate in operands:
+        if all(is_type_or_subtype(operand, of=candidate) for operand in operands):
+            return candidate
+    raise TypeUnionError(operands, location)
+
+
+@typing.overload
+def is_type_or_subtype(typ: pytypes.PyType | None, *, of: pytypes.PyType) -> bool: ...
+
+
+@typing.overload
+def is_type_or_subtype(
+    typ: pytypes.PyType | None, *, of_any: Sequence[pytypes.PyType]
+) -> bool: ...
+
+
+def is_type_or_subtype(
+    typ: pytypes.PyType | None,
+    *,
+    of: pytypes.PyType | None = None,
+    of_any: Sequence[pytypes.PyType] | None = None,
+) -> bool:
+    if typ is None:
+        return False
+    if of is not None:
+        target = of
+        return typ == target or target in typ.mro
+    else:
+        assert of_any is not None
+        targets = of_any
+        return typ in targets or any(target in typ.mro for target in targets)

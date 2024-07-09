@@ -1,16 +1,16 @@
-# TODO: eliminate usage of require_instance_builder or make non-throwing
 import typing
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Sequence
 from itertools import zip_longest
 
 from puya import log
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import maybe_resolve_literal, require_instance_builder
+from puya.awst_build.utils import is_type_or_subtype, maybe_resolve_literal
 from puya.parse import SourceLocation
 
 _T = typing.TypeVar("_T")
+_TBuilder = typing.TypeVar("_TBuilder", bound=NodeBuilder)
 
 logger = log.get_logger(__name__)
 
@@ -20,23 +20,22 @@ def at_most_one_arg(
 ) -> InstanceBuilder | None:
     if not args:
         return None
-    eb, *extra = map(require_instance_builder, args)
-    if extra:
+    first, *rest = args
+    if rest:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
-    return eb
+    return instance_builder(first, default=default_none)
 
 
 def at_most_one_arg_of_type(
-    args: Sequence[NodeBuilder], valid_types: Collection[pytypes.PyType], location: SourceLocation
+    args: Sequence[NodeBuilder], valid_types: Sequence[pytypes.PyType], location: SourceLocation
 ) -> InstanceBuilder | None:
     if not args:
         return None
     first, *rest = args
     if rest:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
-    for valid_type in valid_types:
-        if _type_match_and_instance(first, valid_type):
-            return first
+    if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of_any=valid_types):
+        return first
     logger.error("unexpected argument type", location=first.source_location)
     return None
 
@@ -69,18 +68,18 @@ def default_dummy_value(
 
 
 def at_least_one_arg(
-    args: Sequence[NodeBuilder],
+    args: Sequence[_TBuilder],
     location: SourceLocation,
     *,
     default: Callable[[str, SourceLocation], _T],
-) -> tuple[InstanceBuilder | _T, Sequence[InstanceBuilder]]:
+) -> tuple[InstanceBuilder | _T, Sequence[_TBuilder]]:
     if not args:
         msg = "expected at least 1 argument, got 0"
         result = default(msg, location)
         logger.error(msg, location=location)
         return result, []
-    first, *rest = map(require_instance_builder, args)
-    return first, rest
+    first, *rest = args
+    return instance_builder(first, default=default), rest
 
 
 def exactly_one_arg(
@@ -94,10 +93,10 @@ def exactly_one_arg(
         result = default(msg, location)
         logger.error(msg, location=location)
         return result
-    eb, *extra = map(require_instance_builder, args)
-    if extra:
+    first, *rest = args
+    if rest:
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
-    return eb
+    return instance_builder(first, default=default)
 
 
 def exactly_one_arg_of_type(
@@ -118,7 +117,7 @@ def exactly_one_arg_of_type(
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     if resolve_literal:
         first = maybe_resolve_literal(first, pytype)
-    if _type_match_and_instance(first, pytype):
+    if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of=pytype):
         return first
     msg = "unexpected argument type"
     result = default(msg, first.source_location)
@@ -171,31 +170,39 @@ def exactly_n_args(args: Sequence[NodeBuilder], location: SourceLocation, num_ar
     return False
 
 
-def argument_of_type_else_dummy(
+def argument_of_type(
     builder: NodeBuilder,
     target_type: pytypes.PyType,
-    *,
+    *additional_types: pytypes.PyType,
     resolve_literal: bool = False,
-) -> InstanceBuilder:
-    assert not isinstance(target_type, pytypes.LiteralOnlyType)
-
+    default: Callable[[str, SourceLocation], _T],
+) -> InstanceBuilder | _T:
     if resolve_literal:
         builder = maybe_resolve_literal(builder, target_type)
 
-    if _type_match_and_instance(builder, target_type):
+    if isinstance(builder, InstanceBuilder) and is_type_or_subtype(
+        builder.pytype, of_any=(target_type, *additional_types)
+    ):
         return builder
-    logger.error("unexpected argument type", location=builder.source_location)
-    return dummy_value(target_type, builder.source_location)
+    msg = "unexpected argument type"
+    result = default(msg, builder.source_location)
+    logger.error(msg, location=builder.source_location)
+    return result
 
 
-def argument_of_type_else_die(
-    builder: NodeBuilder, target_type: pytypes.PyType
+def argument_of_type_else_dummy(
+    builder: NodeBuilder,
+    target_type: pytypes.PyType,
+    *additional_types: pytypes.PyType,
+    resolve_literal: bool = False,
 ) -> InstanceBuilder:
-    from puya.errors import CodeError
-
-    if _type_match_and_instance(builder, target_type):
-        return builder
-    raise CodeError("unexpected argument type", builder.source_location)
+    return argument_of_type(
+        builder,
+        target_type,
+        *additional_types,
+        resolve_literal=resolve_literal,
+        default=default_dummy_value(target_type),
+    )
 
 
 def simple_string_literal(
@@ -217,22 +224,12 @@ def simple_string_literal(
     return result
 
 
-def _type_match(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
-    return builder.pytype == target_type or (
-        builder.pytype is not None and target_type in builder.pytype.mro
-    )
-
-
-def _type_match_and_instance(
-    builder: NodeBuilder, target_type: pytypes.PyType
-) -> typing.TypeGuard[InstanceBuilder]:
-    if isinstance(builder, InstanceBuilder) and _type_match(builder, target_type):
-        return True
-    return False
-
-
-def is_type_or_subtype(builder: NodeBuilder, target_type: pytypes.PyType) -> bool:
-    if not _type_match(builder, target_type):
-        logger.error("unexpected argument type", location=builder.source_location)
-        return False
-    return True
+def instance_builder(
+    builder: NodeBuilder, *, default: Callable[[str, SourceLocation], _T]
+) -> InstanceBuilder | _T:
+    if isinstance(builder, InstanceBuilder):
+        return builder
+    msg = "expression is not a value"
+    result = default(msg, builder.source_location)
+    logger.error(msg, location=builder.source_location)
+    return result
