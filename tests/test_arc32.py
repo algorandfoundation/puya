@@ -940,7 +940,7 @@ def test_typed_abi_call(
 def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(
         algod_client,
-        algokit_utils.ApplicationSpecification.from_json(compile_arc32(EXAMPLES_DIR / "arc-28")),
+        algokit_utils.ApplicationSpecification.from_json(compile_arc32(EXAMPLES_DIR / "arc_28")),
         signer=account,
     )
     app_client.create()
