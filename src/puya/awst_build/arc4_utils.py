@@ -469,7 +469,7 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
     if ufixed := _UFIXED_REGEX.match(typ):
         n, m = map(int, ufixed.group("n", "m"))
         n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
-        m_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        m_typ = pytypes.TypingLiteralType(value=m, source_location=None)
         if n <= 64:
             return pytypes.GenericARC4UFixedNxMType.parameterise([n_typ, m_typ], location)
         else:
