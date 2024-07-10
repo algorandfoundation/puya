@@ -1,4 +1,20 @@
 # CHANGELOG
+## v2.1.2 (2024-07-10)
+
+### Fix
+
+* corrected parsing of ARC4 ufixed types when provided via string literals in `algopy.arc4.abi_call` and `algopy.arc4.emit` ([`43ffe8e`](https://github.com/algorandfoundation/puya/commit/43ffe8e57fa2365dd5d56d24fb7bf09227759478))
+
+* in the case of overlapping values in a Switch (ie Python match-case), mark subsequent cases as unreachable to prevent a critical error from occurring (&#34;Attempted to add a (non-entry) block with no predecessors&#34;) ([`f21efc1`](https://github.com/algorandfoundation/puya/commit/f21efc1e0e4ef396e2b02e0ace1821ce9abc40ea))
+
+### Documentation
+
+* clarify default behaviour of key_prefix in BoxMap ([`786e9b5`](https://github.com/algorandfoundation/puya/commit/786e9b552916736ce93ac4e08ec6f36abec995ac))
+
+  also fix existing invalid doc syntax for arguments
+
+* fix documentation of arc4.Tuple native property ([`172934b`](https://github.com/algorandfoundation/puya/commit/172934bd4163a3ec4595a3c1e8709e29d54d2675))
+
 ## v2.1.1 (2024-07-01)
 
 ### Fix
