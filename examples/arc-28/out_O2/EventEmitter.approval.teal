@@ -2,10 +2,11 @@
 
 contract.EventEmitter.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@5
+    bz main_bare_routing@6
     method "emit_swapped(uint64,uint64)void"
+    method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
-    match main_emit_swapped_route@2
+    match main_emit_swapped_route@2 main_emit_ufixed_route@3
     err // reject transaction
 
 main_emit_swapped_route@2:
@@ -20,7 +21,19 @@ main_emit_swapped_route@2:
     int 1
     return
 
-main_bare_routing@5:
+main_emit_ufixed_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub emit_ufixed
+    int 1
+    return
+
+main_bare_routing@6:
     txn OnCompletion
     !
     assert // reject transaction
@@ -44,5 +57,18 @@ emit_swapped:
     log
     dup
     log
+    log
+    retsub
+
+
+// contract.EventEmitter.emit_ufixed(a: bytes, b: bytes) -> void:
+emit_ufixed:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    concat
+    method "AnEvent(ufixed256x16,ufixed64x2)"
+    swap
+    concat
     log
     retsub
