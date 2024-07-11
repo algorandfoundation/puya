@@ -4,7 +4,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder._utils import assign, mkblocks
+from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -22,50 +22,31 @@ logger = log.get_logger(__name__)
 
 
 def handle_if_else(context: IRFunctionBuildContext, stmt: awst_nodes.IfElse) -> None:
-    # else_body might be unused, if so won't be added, so all good
-    if_body, else_body, next_block = mkblocks(
-        stmt.source_location,
-        stmt.if_branch.description or "if_body",
-        (stmt.else_branch and stmt.else_branch.description) or "else_body",
-        "after_if_else",
-    )
+    if_body = context.block_builder.mkblock(stmt.if_branch, "if_body")
+    else_body = None
+    if stmt.else_branch:
+        else_body = context.block_builder.mkblock(stmt.else_branch, "else_body")
+    next_block = context.block_builder.mkblock(stmt.source_location, "after_if_else")
 
     process_conditional(
         context,
         stmt.condition,
         true=if_body,
-        false=else_body if stmt.else_branch else next_block,
+        false=else_body or next_block,
         loc=stmt.source_location,
     )
-    context.ssa.seal_block(if_body)
-    context.ssa.seal_block(else_body)
-    _branch(
-        context,
-        ir_block=if_body,
-        ast_block=stmt.if_branch,
-        next_ir_block=next_block,
-    )
-    if stmt.else_branch:
-        _branch(
-            context,
-            ir_block=else_body,
-            ast_block=stmt.else_branch,
-            next_ir_block=next_block,
-        )
-    if next_block.predecessors:
-        # Activate the "next" block if it is reachable.
-        # This might not be the case if all paths within the "if" and "else" branches
-        # return early.
-        context.block_builder.activate_block(next_block)
-    elif next_block.phis or next_block.ops or next_block.terminated:
-        # here as a sanity - there shouldn't've been any modifications of "next" block contents
-        raise InternalError("next block has no predecessors but does have op(s)")
-    context.ssa.seal_block(next_block)
+    _branch(context, if_body, stmt.if_branch, next_block)
+    if else_body:
+        assert stmt.else_branch
+        _branch(context, else_body, stmt.else_branch, next_block)
+    # activate the "next" block if it is reachable, which  might not be the case
+    # if all paths within the "if" and "else" branches return early
+    context.block_builder.try_activate_block(next_block)
 
 
 def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch) -> None:
     case_blocks = dict[Value, BasicBlock]()
-    ir_blocks = dict[awst_nodes.Block, BasicBlock]()
+    ir_blocks = dict[awst_nodes.Block | None, BasicBlock]()
     for value, block in statement.cases.items():
         ir_value = context.visitor.visit_and_materialise_single(value)
         if ir_value in case_blocks:
@@ -74,16 +55,20 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
             case_blocks[ir_value] = lazy_setdefault(
                 ir_blocks,
                 block,
-                lambda b: BasicBlock(
-                    source_location=b.source_location,
-                    comment=b.description or f"switch_case_{len(ir_blocks)}",
+                lambda _: context.block_builder.mkblock(
+                    block,  # noqa: B023
+                    f"switch_case_{len(ir_blocks)}",
                 ),
             )
-    default_block, next_block = mkblocks(
-        statement.source_location,
-        (statement.default_case and statement.default_case.description) or "switch_case_default",
-        "switch_case_next",
+    default_block = lazy_setdefault(
+        ir_blocks,
+        statement.default_case,
+        lambda b: context.block_builder.mkblock(
+            b, "switch_case_default", fallback_location=statement.source_location
+        ),
     )
+    next_block = context.block_builder.mkblock(statement.source_location, "switch_case_next")
+
     switch_value = context.visitor.visit_and_materialise_single(statement.value)
     goto_default = Goto(
         target=default_block,
@@ -100,34 +85,23 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
             source_location=statement.source_location,
         )
     )
-    for ir_block in (default_block, *ir_blocks.values()):
-        context.ssa.seal_block(ir_block)
-    for block, ir_block in ir_blocks.items():
-        _branch(context, ir_block, block, next_block)
-    if statement.default_case:
-        _branch(context, default_block, statement.default_case, next_block)
-    else:
-        context.block_builder.activate_block(default_block)
-        context.block_builder.goto(next_block)
-    if next_block.predecessors:
-        # Activate the "next" block if it is reachable.
-        # This might not be the case if all paths within the "if" and "else" branches
-        # return early.
-        context.block_builder.activate_block(next_block)
-    elif next_block.phis or next_block.ops or next_block.terminated:
-        # here as a sanity - there shouldn't've been any modifications of "next" block contents
-        raise InternalError("next block has no predecessors but does have op(s)")
-    context.ssa.seal_block(next_block)
+    for block_, ir_block in ir_blocks.items():
+        _branch(context, ir_block, block_, next_block)
+
+    # activate the "next" block if it is reachable, which  might not be the case
+    # if all code paths within the cases return early
+    context.block_builder.try_activate_block(next_block)
 
 
 def _branch(
     context: IRFunctionBuildContext,
     ir_block: BasicBlock,
-    ast_block: awst_nodes.Block,
+    ast_block: awst_nodes.Block | None,
     next_ir_block: BasicBlock,
 ) -> None:
     context.block_builder.activate_block(ir_block)
-    ast_block.accept(context.visitor)
+    if ast_block is not None:
+        ast_block.accept(context.visitor)
     context.block_builder.goto(next_ir_block)
 
 
@@ -148,7 +122,7 @@ def process_conditional(
             op=bool_op, left=lhs, right=rhs, source_location=loc
         ):
             # Short circuit boolean binary operators in a conditional context.
-            contd = BasicBlock(source_location=loc, comment=f"{bool_op}_contd")
+            contd = context.block_builder.mkblock(loc, f"{bool_op}_contd")
             if bool_op == "and":
                 process_conditional(context, lhs, true=contd, false=false, loc=loc)
             elif bool_op == "or":
@@ -157,7 +131,6 @@ def process_conditional(
                 raise InternalError(
                     f"Unhandled boolean operator for short circuiting: {bool_op}", loc
                 )
-            context.ssa.seal_block(contd)
             context.block_builder.activate_block(contd)
             process_conditional(context, rhs, true=true, false=false, loc=loc)
         case awst_nodes.Not(expr=expr, source_location=loc):
@@ -175,15 +148,12 @@ def process_conditional(
 
 
 def handle_while_loop(context: IRFunctionBuildContext, statement: awst_nodes.WhileLoop) -> None:
-    top, body, next_block = mkblocks(
-        statement.source_location,
-        "while_top",
-        statement.loop_body.description or "while_body",
-        "after_while",
+    top, next_block = context.block_builder.mkblocks(
+        "while_top", "after_while", source_location=statement.source_location
     )
-
-    with context.block_builder.enter_loop(on_continue=top, on_break=next_block):
-        context.block_builder.goto_and_activate(top)
+    body = context.block_builder.mkblock(statement.loop_body, "while_body")
+    context.block_builder.goto(top)
+    with context.block_builder.activate_open_block(top):
         process_conditional(
             context,
             statement.condition,
@@ -191,13 +161,11 @@ def handle_while_loop(context: IRFunctionBuildContext, statement: awst_nodes.Whi
             false=next_block,
             loc=statement.source_location,
         )
-        context.ssa.seal_block(body)
-
         context.block_builder.activate_block(body)
-        statement.loop_body.accept(context.visitor)
+        with context.block_builder.enter_loop(on_continue=top, on_break=next_block):
+            statement.loop_body.accept(context.visitor)
         context.block_builder.goto(top)
-    context.ssa.seal_block(top)
-    context.ssa.seal_block(next_block)
+
     context.block_builder.activate_block(next_block)
 
 
@@ -207,8 +175,8 @@ def handle_conditional_expression(
     # TODO: if expr.true_value and exr.false_value are var expressions,
     #       we can optimize with the `select` op
 
-    true_block, false_block, merge_block = mkblocks(
-        expr.source_location, "ternary_true", "ternary_false", "ternary_merge"
+    true_block, false_block, merge_block = context.block_builder.mkblocks(
+        "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location
     )
     process_conditional(
         context,
@@ -217,8 +185,6 @@ def handle_conditional_expression(
         false=false_block,
         loc=expr.source_location,
     )
-    context.ssa.seal_block(true_block)
-    context.ssa.seal_block(false_block)
 
     tmp_var_name = context.next_tmp_name("ternary_result")
 
@@ -240,8 +206,8 @@ def handle_conditional_expression(
         names=[(tmp_var_name, expr.false_expr.source_location)],
         source_location=expr.source_location,
     )
-    context.block_builder.goto_and_activate(merge_block)
-    context.ssa.seal_block(merge_block)
+    context.block_builder.goto(merge_block)
+    context.block_builder.activate_block(merge_block)
     result = context.ssa.read_variable(
         variable=tmp_var_name, ir_type=wtype_to_ir_type(expr), block=merge_block
     )

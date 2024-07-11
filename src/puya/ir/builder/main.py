@@ -20,7 +20,6 @@ from puya.ir.builder._utils import (
     assign,
     assign_targets,
     extract_const_int,
-    mkblocks,
     mktemp,
 )
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
@@ -94,23 +93,29 @@ class FunctionIRBuilder(
             if on_create is not None:
                 insert_on_create_call(func_ctx, to=on_create)
             function.body.accept(builder)
-            if function.return_type == wtypes.void_wtype:
-                func_ctx.block_builder.maybe_add_implicit_subroutine_return(subroutine.parameters)
-            func_ctx.block_builder.seal_all_labelled_blocks()
-
-            func_ctx.ssa.verify_complete()
-            func_ctx.block_builder.validate_block_predecessors()
-            result = list(func_ctx.block_builder.blocks)
-            if not result[-1].terminated:
-                raise CodeError(
-                    "Expected a return statement",
-                    (
-                        function.body.body[-1].source_location
-                        if function.body.body
-                        else function.source_location
-                    ),
+            block_builder = func_ctx.block_builder
+            final_block = block_builder.active_block
+            if not final_block.terminated:
+                if function.return_type != wtypes.void_wtype:
+                    raise CodeError(
+                        "expected a return statement",
+                        (
+                            function.body.body[-1].source_location
+                            if function.body.body
+                            else function.source_location
+                        ),
+                    )
+                block_builder.terminate(
+                    SubroutineReturn(
+                        result=[
+                            block_builder.ssa.read_variable(p.name, p.ir_type, final_block)
+                            for p in subroutine.parameters
+                            if p.implicit_return
+                        ],
+                        source_location=None,
+                    )
                 )
-            subroutine.body = result
+            subroutine.body = block_builder.finalise()
             subroutine.validate_with_ssa()
 
     def visit_copy(self, expr: puya.awst.nodes.Copy) -> TExpression:
@@ -774,17 +779,14 @@ class FunctionIRBuilder(
         self, expr: awst_nodes.BooleanBinaryOperation
     ) -> TExpression:
         if not isinstance(expr.right, awst_nodes.VarExpression | awst_nodes.BoolConstant):
-            true_block, false_block, merge_block = mkblocks(
-                expr.source_location, "bool_true", "bool_false", "bool_merge"
+            true_block, false_block, merge_block = self.context.block_builder.mkblocks(
+                "bool_true", "bool_false", "bool_merge", source_location=expr.source_location
             )
+            tmp_name = self.context.next_tmp_name(f"{expr.op}_result")
 
             flow_control.process_conditional(
                 self.context, expr, true=true_block, false=false_block, loc=expr.source_location
             )
-            self.context.ssa.seal_block(true_block)
-            self.context.ssa.seal_block(false_block)
-
-            tmp_name = self.context.next_tmp_name(f"{expr.op}_result")
             self.context.block_builder.activate_block(true_block)
             assign(
                 self.context,
@@ -801,8 +803,8 @@ class FunctionIRBuilder(
                 names=[(tmp_name, None)],
                 source_location=None,
             )
-            self.context.block_builder.goto_and_activate(merge_block)
-            self.context.ssa.seal_block(merge_block)
+            self.context.block_builder.goto(merge_block)
+            self.context.block_builder.activate_block(merge_block)
             return self.context.ssa.read_variable(
                 variable=tmp_name, ir_type=IRType.bool, block=merge_block
             )
@@ -914,15 +916,15 @@ class FunctionIRBuilder(
 
     def visit_block(self, block: awst_nodes.Block) -> TStatement:
         if block.label:
-            self.context.block_builder.make_labelled_block(
-                block.label, block.source_location, description=block.description
-            )
+            ir_block = self.context.block_builder.mkblock(block)
+            self.context.block_builder.goto(ir_block)
+            self.context.block_builder.activate_block(ir_block)
 
         for stmt in block.body:
             stmt.accept(self)
 
     def visit_goto(self, statement: puya.awst.nodes.Goto) -> TStatement:
-        self.context.block_builder.goto_label(statement.label, statement.source_location)
+        self.context.block_builder.goto_label(statement.target, statement.source_location)
 
     def visit_if_else(self, stmt: awst_nodes.IfElse) -> TStatement:
         flow_control.handle_if_else(self.context, stmt)
@@ -1240,8 +1242,10 @@ def insert_on_create_call(context: IRFunctionBuildContext, to: Subroutine) -> No
         temp_description="app_id",
         source_location=None,
     )
-    on_create_block, entrypoint_block = mkblocks(
-        to.source_location or context.function.source_location, "on_create", "entrypoint"
+    on_create_block, entrypoint_block = context.block_builder.mkblocks(
+        "on_create",
+        "entrypoint",
+        source_location=to.source_location or context.function.source_location,
     )
     context.block_builder.terminate(
         ConditionalBranch(
@@ -1251,8 +1255,7 @@ def insert_on_create_call(context: IRFunctionBuildContext, to: Subroutine) -> No
             non_zero=entrypoint_block,
         )
     )
-    context.ssa.seal_block(on_create_block)
     context.block_builder.activate_block(on_create_block)
     context.block_builder.add(InvokeSubroutine(source_location=None, target=to, args=[]))
-    context.block_builder.goto_and_activate(entrypoint_block)
-    context.ssa.seal_block(entrypoint_block)
+    context.block_builder.goto(entrypoint_block)
+    context.block_builder.activate_block(entrypoint_block)

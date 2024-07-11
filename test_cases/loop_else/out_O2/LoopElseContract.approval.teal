@@ -1,0 +1,80 @@
+#pragma version 10
+
+test_cases.loop_else.loop_else.LoopElseContract.approval_program:
+    byte ""
+    dup
+    int 0
+
+main_while_top@1:
+    txn NumAppArgs
+    dig 1
+    dup
+    uncover 2
+    <
+    assert // access denied, missing secret argument
+    txnas ApplicationArgs
+    byte 0x7768696c655f736563726574
+    ==
+    bz main_after_if_else@16
+    txn NumAccounts
+    bury 2
+    int 0
+    bury 3
+
+main_for_header@9:
+    dig 2
+    dup
+    dig 3
+    <
+    assert // access denied, missing secret account
+    txnas Accounts
+    global ZeroAddress
+    ==
+    bz main_after_if_else@12
+    dup
+    int 48
+    +
+    itob
+    dup
+    len
+    int 1
+    -
+    dup
+    int 1
+    +
+    substring3
+    byte "found secret argument at idx="
+    swap
+    concat
+    byte " and secret account at idx="
+    concat
+    dig 3
+    int 48
+    +
+    itob
+    dup
+    len
+    int 1
+    -
+    dup
+    int 1
+    +
+    substring3
+    concat
+    log
+    int 1
+    return
+
+main_after_if_else@12:
+    dig 2
+    int 1
+    +
+    bury 3
+    b main_for_header@9
+
+main_after_if_else@16:
+    dup
+    int 1
+    +
+    bury 1
+    b main_while_top@1

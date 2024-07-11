@@ -39,7 +39,7 @@ def handle_assignment(
     context: IRFunctionBuildContext,
     target: awst_nodes.Expression,
     value: ValueProvider,
-    assignment_location: SourceLocation,
+    assignment_location: SourceLocation | None,
     *,
     is_mutation: bool = False,
 ) -> Sequence[Value]:
@@ -47,7 +47,13 @@ def handle_assignment(
     # all LValue types are covered
     if not isinstance(target, awst_nodes.Lvalue):
         raise CodeError("expression is not valid as an assignment target", target.source_location)
-    return _handle_assignment(context, target, value, assignment_location, is_mutation=is_mutation)
+    return _handle_assignment(
+        context,
+        target,
+        value,
+        assignment_location or target.source_location,
+        is_mutation=is_mutation,
+    )
 
 
 def _handle_assignment(

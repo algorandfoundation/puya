@@ -124,7 +124,7 @@ contract examples.voting.voting.VotingRoundApp:
             block@1: // for_header_L223
                 let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L223
+            block@2: // for_body_L224
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
                 let item_offset%0#0: uint64 = (* item_index_internal%0#0 1u)
                 let item#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
@@ -205,27 +205,27 @@ contract examples.voting.voting.VotingRoundApp:
                 goto block@1
             block@1: // for_header_L132
                 let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
-                goto continue_looping%0#0 ? block@2 : block@15
-            block@2: // for_body_L132
+                goto continue_looping%0#0 ? block@2 : block@14
+            block@2: // for_body_L133
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%6#0)
                 let item_offset%0#0: uint64 = (* item_index_internal%0#0 1u)
                 let question_options#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 let question_index#0: uint64 = item_index_internal%0#0
                 let tmp%12#0: bool = (> question_index#0 0u)
-                let note#18: bytes = note#0
+                let note#17: bytes = note#0
                 goto tmp%12#0 ? block@3 : block@4
-            block@3: // if_body_L133
+            block@3: // if_body_L134
                 let note#0: bytes = (concat note#0 ",")
-                let note#18: bytes = note#0
+                let note#17: bytes = note#0
                 goto block@4
             block@4: // after_if_else_L133
-                let note#0: bytes = note#18
+                let note#0: bytes = note#17
                 let reinterpret_biguint%0#0: biguint = question_options#0
                 let tmp%13#0: bool = (b> reinterpret_biguint%0#0 0x00)
-                let current_index#16: uint64 = current_index#0
-                let note#18: bytes = note#0
-                goto tmp%13#0 ? block@5 : block@13
-            block@5: // if_body_L135
+                let current_index#15: uint64 = current_index#0
+                let note#17: bytes = note#0
+                goto tmp%13#0 ? block@5 : block@12
+            block@5: // if_body_L136
                 let note#0: bytes = (concat note#0 "[")
                 let tmp%14#0: uint64 = (btoi question_options#0)
                 (assert 1u) // Step cannot be zero
@@ -233,41 +233,39 @@ contract examples.voting.voting.VotingRoundApp:
                 goto block@6
             block@6: // for_header_L137
                 let continue_looping%1#0: bool = (< range_item%0#0 tmp%14#0)
-                goto continue_looping%1#0 ? block@7 : block@12
-            block@7: // for_body_L137
+                goto continue_looping%1#0 ? block@7 : block@11
+            block@7: // for_body_L138
                 let option_index#0: uint64 = range_item%0#0
                 let tmp%15#0: bool = (> option_index#0 0u)
-                let note#18: bytes = note#0
+                let note#17: bytes = note#0
                 goto tmp%15#0 ? block@8 : block@9
-            block@8: // if_body_L138
+            block@8: // if_body_L139
                 let note#0: bytes = (concat note#0 ",")
-                let note#18: bytes = note#0
+                let note#17: bytes = note#0
                 goto block@9
             block@9: // after_if_else_L138
-                let note#0: bytes = note#18
+                let note#0: bytes = note#17
                 let votes_for_option#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(current_index#0)
                 let tmp%16#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
                 let note#0: bytes = (concat note#0 tmp%16#0)
                 let current_index#0: uint64 = (+ current_index#0 1u)
                 goto block@10
             block@10: // for_footer_L137
-                goto block@11
-            block@11: // for_increment_L137
                 let range_item%0#0: uint64 = (+ range_item%0#0 1u)
                 goto block@6
-            block@12: // after_for_L137
+            block@11: // after_for_L137
                 let note#0: bytes = (concat note#0 "]")
-                let current_index#16: uint64 = current_index#0
-                let note#18: bytes = note#0
+                let current_index#15: uint64 = current_index#0
+                let note#17: bytes = note#0
+                goto block@12
+            block@12: // after_if_else_L135
+                let current_index#0: uint64 = current_index#15
+                let note#0: bytes = note#17
                 goto block@13
-            block@13: // after_if_else_L135
-                let current_index#0: uint64 = current_index#16
-                let note#0: bytes = note#18
-                goto block@14
-            block@14: // for_footer_L132
+            block@13: // for_footer_L132
                 let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
                 goto block@1
-            block@15: // after_for_L132
+            block@14: // after_for_L132
                 let note#0: bytes = (concat note#0 "]}}")
                 itxn_begin
                 let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
@@ -287,8 +285,8 @@ contract examples.voting.voting.VotingRoundApp:
                 ((itxn_field ConfigAssetTotal) 1u)
                 ((itxn_field TypeEnum) acfg)
                 ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
-                goto block@16
-            block@16: // next_txn_L146
+                goto block@15
+            block@15: // next_txn_L146
                 itxn_submit
                 let new_state_value%1#0: uint64 = (itxn CreatedAssetID)
                 (app_global_put "nft_asset_id" new_state_value%1#0)
@@ -302,7 +300,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%0#0: uint64 = (global OpcodeBudget)
                 let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
                 goto tmp%1#0 ? block@2 : block@7
-            block@2: // while_body_L19
+            block@2: // while_body_L20
                 itxn_begin
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field OnCompletion) DeleteApplication)
@@ -329,7 +327,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let radix#0: uint64 = (len 0x30313233343536373839)
                 let tmp%0#0: bool = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
-            block@1: // if_body_L253
+            block@1: // if_body_L254
                 let index_plus_1%0#0: uint64 = (+ i#0 1u)
                 let tmp%1#0: bytes = (substring3 0x30313233343536373839 i#0 index_plus_1%0#0)
                 return tmp%1#0
@@ -444,8 +442,8 @@ contract examples.voting.voting.VotingRoundApp:
                 goto block@1
             block@1: // for_header_L195
                 let continue_looping%0#0: bool = (< range_item%0#0 questions_count#0)
-                goto continue_looping%0#0 ? block@2 : block@5
-            block@2: // for_body_L195
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L196
                 let question_index#0: uint64 = range_item%0#0
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) answer_ids#0)
                 let item_offset%0#0: uint64 = (* question_index#0 1u)
@@ -473,11 +471,9 @@ contract examples.voting.voting.VotingRoundApp:
                 (app_global_put "voter_count" new_state_value%0#0)
                 goto block@3
             block@3: // for_footer_L195
-                goto block@4
-            block@4: // for_increment_L195
                 let range_item%0#0: uint64 = (+ range_item%0#0 1u)
                 goto block@1
-            block@5: // after_for_L195
+            block@4: // after_for_L195
                 return 
         
         subroutine examples.voting.voting.VotingRoundApp.increment_vote_in_box(index: uint64) -> void:

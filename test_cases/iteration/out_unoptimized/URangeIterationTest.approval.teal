@@ -82,7 +82,7 @@ test_forwards_for_header@1:
     frame_dig 0
     int 7
     <
-    bz test_forwards_after_for@5
+    bz test_forwards_after_for@4
     frame_dig 0
     // iteration/iterate_urange.py:14
     // log(values[i])
@@ -106,7 +106,7 @@ test_forwards_for_header@1:
     frame_bury 0
     b test_forwards_for_header@1
 
-test_forwards_after_for@5:
+test_forwards_after_for@4:
     retsub
 
 
@@ -125,22 +125,14 @@ test_reversed:
     int 1
     int 7
     <
-    bz test_reversed_after_for@6
+    bz test_reversed_after_for@5
     int 7
     int 1
     -
-    dup
-    int 2
-    %
-    int 0
-    !=
-    uncover 1
-    int 2
-    /
-    uncover 1
-    +
     int 1
     -
+    int 2
+    /
     int 2
     uncover 1
     *
@@ -148,12 +140,8 @@ test_reversed:
     uncover 1
     +
     frame_bury 0
-    frame_dig 0
-    int 1
-    >=
-    bz test_reversed_after_for@6
 
-test_reversed_for_body@3:
+test_reversed_for_body@2:
     // iteration/iterate_urange.py:20
     // for i in reversed(urange(1, 7, 2)):
     frame_dig 0
@@ -173,17 +161,17 @@ test_reversed_for_body@3:
     log
     // iteration/iterate_urange.py:20
     // for i in reversed(urange(1, 7, 2)):
-    frame_dig 0
     int 1
-    >
-    bz test_reversed_after_for@6
+    frame_dig 0
+    <
+    bz test_reversed_after_for@5
     frame_dig 0
     int 2
     -
     frame_bury 0
-    b test_reversed_for_body@3
+    b test_reversed_for_body@2
 
-test_reversed_after_for@6:
+test_reversed_after_for@5:
     retsub
 
 
@@ -207,7 +195,7 @@ test_forwards_with_forwards_index_for_header@1:
     frame_dig 0
     int 7
     <
-    bz test_forwards_with_forwards_index_after_for@5
+    bz test_forwards_with_forwards_index_after_for@4
     frame_dig 0
     frame_dig 1
     cover 1
@@ -237,7 +225,7 @@ test_forwards_with_forwards_index_for_header@1:
     frame_bury 1
     b test_forwards_with_forwards_index_for_header@1
 
-test_forwards_with_forwards_index_after_for@5:
+test_forwards_with_forwards_index_after_for@4:
     retsub
 
 
@@ -284,39 +272,30 @@ test_forwards_with_reverse_index:
     int 1
     int 7
     <
-    bz test_forwards_with_reverse_index_after_for@6
+    bz test_forwards_with_reverse_index_after_for@5
     int 7
     int 1
     -
-    dup
-    int 2
-    %
-    int 0
-    !=
-    uncover 1
-    int 2
-    /
-    uncover 1
-    +
     int 1
     -
+    int 2
+    /
+    int 2
+    dig 1
+    *
+    int 1
+    uncover 1
+    +
     frame_bury 0
     int 1
     frame_bury 2
-    int 0
     frame_bury 1
 
-test_forwards_with_reverse_index_for_header@2:
+test_forwards_with_reverse_index_for_body@2:
     // iteration/iterate_urange.py:34
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     frame_dig 2
-    int 7
-    <
-    bz test_forwards_with_reverse_index_after_for@6
-    frame_dig 2
-    frame_dig 0
     frame_dig 1
-    -
     cover 1
     // iteration/iterate_urange.py:35
     // self._log_with_index(idx, values[i])
@@ -335,16 +314,20 @@ test_forwards_with_reverse_index_for_header@2:
     // iteration/iterate_urange.py:34
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     frame_dig 2
+    frame_dig 0
+    <
+    bz test_forwards_with_reverse_index_after_for@5
+    frame_dig 2
     int 2
     +
     frame_bury 2
     frame_dig 1
     int 1
-    +
+    -
     frame_bury 1
-    b test_forwards_with_reverse_index_for_header@2
+    b test_forwards_with_reverse_index_for_body@2
 
-test_forwards_with_reverse_index_after_for@6:
+test_forwards_with_reverse_index_after_for@5:
     retsub
 
 
@@ -364,22 +347,14 @@ test_reverse_with_forwards_index:
     int 1
     int 7
     <
-    bz test_reverse_with_forwards_index_after_for@6
+    bz test_reverse_with_forwards_index_after_for@5
     int 7
     int 1
     -
-    dup
-    int 2
-    %
-    int 0
-    !=
-    uncover 1
-    int 2
-    /
-    uncover 1
-    +
     int 1
     -
+    int 2
+    /
     int 2
     uncover 1
     *
@@ -389,12 +364,8 @@ test_reverse_with_forwards_index:
     frame_bury 1
     int 0
     frame_bury 0
-    frame_dig 1
-    int 1
-    >=
-    bz test_reverse_with_forwards_index_after_for@6
 
-test_reverse_with_forwards_index_for_body@3:
+test_reverse_with_forwards_index_for_body@2:
     // iteration/iterate_urange.py:41
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     frame_dig 1
@@ -416,10 +387,10 @@ test_reverse_with_forwards_index_for_body@3:
     callsub _log_with_index
     // iteration/iterate_urange.py:41
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
-    frame_dig 1
     int 1
-    >
-    bz test_reverse_with_forwards_index_after_for@6
+    frame_dig 1
+    <
+    bz test_reverse_with_forwards_index_after_for@5
     frame_dig 1
     int 2
     -
@@ -428,9 +399,9 @@ test_reverse_with_forwards_index_for_body@3:
     int 1
     +
     frame_bury 0
-    b test_reverse_with_forwards_index_for_body@3
+    b test_reverse_with_forwards_index_for_body@2
 
-test_reverse_with_forwards_index_after_for@6:
+test_reverse_with_forwards_index_after_for@5:
     retsub
 
 
@@ -442,7 +413,7 @@ test_reverse_with_reverse_index:
     // def test_reverse_with_reverse_index(self) -> None:
     proto 0 0
     byte ""
-    dupn 2
+    dup
     // iteration/iterate_urange.py:48
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     int 2
@@ -450,45 +421,28 @@ test_reverse_with_reverse_index:
     int 1
     int 7
     <
-    bz test_reverse_with_reverse_index_after_for@6
+    bz test_reverse_with_reverse_index_after_for@5
     int 7
     int 1
     -
-    dup
-    int 2
-    %
-    int 0
-    !=
-    uncover 1
-    int 2
-    /
-    uncover 1
-    +
     int 1
     -
-    dup
-    frame_bury 0
     int 2
-    uncover 1
+    /
+    int 2
+    dig 1
     *
     int 1
     uncover 1
     +
-    frame_bury 2
-    int 0
     frame_bury 1
-    frame_dig 2
-    int 1
-    >=
-    bz test_reverse_with_reverse_index_after_for@6
+    frame_bury 0
 
-test_reverse_with_reverse_index_for_body@3:
+test_reverse_with_reverse_index_for_body@2:
     // iteration/iterate_urange.py:48
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
-    frame_dig 2
-    frame_dig 0
     frame_dig 1
-    -
+    frame_dig 0
     cover 1
     // iteration/iterate_urange.py:49
     // self._log_with_index(idx, values[i])
@@ -506,21 +460,21 @@ test_reverse_with_reverse_index_for_body@3:
     callsub _log_with_index
     // iteration/iterate_urange.py:48
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
-    frame_dig 2
     int 1
-    >
-    bz test_reverse_with_reverse_index_after_for@6
-    frame_dig 2
+    frame_dig 1
+    <
+    bz test_reverse_with_reverse_index_after_for@5
+    frame_dig 1
     int 2
     -
-    frame_bury 2
-    frame_dig 1
-    int 1
-    +
     frame_bury 1
-    b test_reverse_with_reverse_index_for_body@3
+    frame_dig 0
+    int 1
+    -
+    frame_bury 0
+    b test_reverse_with_reverse_index_for_body@2
 
-test_reverse_with_reverse_index_after_for@6:
+test_reverse_with_reverse_index_after_for@5:
     retsub
 
 
@@ -532,7 +486,7 @@ test_empty:
     // def test_empty(self) -> None:
     proto 0 0
     byte ""
-    dupn 10
+    dupn 9
     // iteration/iterate_urange.py:54
     // for i in urange(0):
     int 1
@@ -542,24 +496,24 @@ test_empty:
 test_empty_for_header@1:
     // iteration/iterate_urange.py:54
     // for i in urange(0):
-    frame_dig 11
+    frame_dig 10
     int 0
     <
-    bz test_empty_after_for@5
-    frame_dig 11
+    bz test_empty_after_for@4
+    frame_dig 10
     // iteration/iterate_urange.py:55
     // log(i)
     itob
     log
     // iteration/iterate_urange.py:54
     // for i in urange(0):
-    frame_dig 11
+    frame_dig 10
     int 1
     +
-    frame_bury 11
+    frame_bury 10
     b test_empty_for_header@1
 
-test_empty_after_for@5:
+test_empty_after_for@4:
     // iteration/iterate_urange.py:56
     // for i in reversed(urange(0)):
     int 1
@@ -567,73 +521,61 @@ test_empty_after_for@5:
     int 0
     int 0
     <
-    bz test_empty_after_for@11
+    bz test_empty_after_for@9
     int 0
     int 0
     -
-    dup
     int 1
-    %
-    int 0
-    !=
-    uncover 1
+    -
     int 1
     /
-    uncover 1
-    +
-    int 1
-    -
     int 1
     uncover 1
     *
     int 0
     uncover 1
     +
-    frame_bury 6
-    frame_dig 6
-    int 0
-    >=
-    bz test_empty_after_for@11
+    frame_bury 5
 
-test_empty_for_body@8:
+test_empty_for_body@6:
     // iteration/iterate_urange.py:56
     // for i in reversed(urange(0)):
-    frame_dig 6
+    frame_dig 5
     // iteration/iterate_urange.py:57
     // log(i)
     itob
     log
     // iteration/iterate_urange.py:56
     // for i in reversed(urange(0)):
-    frame_dig 6
     int 0
-    >
-    bz test_empty_after_for@11
-    frame_dig 6
+    frame_dig 5
+    <
+    bz test_empty_after_for@9
+    frame_dig 5
     int 1
     -
-    frame_bury 6
-    b test_empty_for_body@8
+    frame_bury 5
+    b test_empty_for_body@6
 
-test_empty_after_for@11:
+test_empty_after_for@9:
     // iteration/iterate_urange.py:58
     // for idx, i in uenumerate(urange(0)):
     int 1
     assert // Step cannot be zero
     int 0
-    frame_bury 7
+    frame_bury 6
     int 0
-    frame_bury 2
+    frame_bury 1
 
-test_empty_for_header@12:
+test_empty_for_header@10:
     // iteration/iterate_urange.py:58
     // for idx, i in uenumerate(urange(0)):
-    frame_dig 7
+    frame_dig 6
     int 0
     <
-    bz test_empty_after_for@16
-    frame_dig 7
-    frame_dig 2
+    bz test_empty_after_for@13
+    frame_dig 6
+    frame_dig 1
     // iteration/iterate_urange.py:59
     // log(idx, i)
     itob
@@ -645,17 +587,17 @@ test_empty_for_header@12:
     log
     // iteration/iterate_urange.py:58
     // for idx, i in uenumerate(urange(0)):
-    frame_dig 7
+    frame_dig 6
     int 1
     +
-    frame_bury 7
-    frame_dig 2
+    frame_bury 6
+    frame_dig 1
     int 1
     +
-    frame_bury 2
-    b test_empty_for_header@12
+    frame_bury 1
+    b test_empty_for_header@10
 
-test_empty_after_for@16:
+test_empty_after_for@13:
     // iteration/iterate_urange.py:60
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
     int 1
@@ -663,39 +605,30 @@ test_empty_after_for@16:
     int 0
     int 0
     <
-    bz test_empty_after_for@22
+    bz test_empty_after_for@18
     int 0
     int 0
     -
-    dup
     int 1
-    %
-    int 0
-    !=
-    uncover 1
+    -
     int 1
     /
+    int 1
+    dig 1
+    *
+    int 0
     uncover 1
     +
-    int 1
-    -
     frame_bury 0
     int 0
-    frame_bury 8
-    int 0
-    frame_bury 3
+    frame_bury 7
+    frame_bury 2
 
-test_empty_for_header@18:
+test_empty_for_body@15:
     // iteration/iterate_urange.py:60
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
-    frame_dig 8
-    int 0
-    <
-    bz test_empty_after_for@22
-    frame_dig 8
-    frame_dig 0
-    frame_dig 3
-    -
+    frame_dig 7
+    frame_dig 2
     // iteration/iterate_urange.py:61
     // log(idx, i)
     itob
@@ -707,17 +640,21 @@ test_empty_for_header@18:
     log
     // iteration/iterate_urange.py:60
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
-    frame_dig 8
+    frame_dig 7
+    frame_dig 0
+    <
+    bz test_empty_after_for@18
+    frame_dig 7
     int 1
     +
-    frame_bury 8
-    frame_dig 3
+    frame_bury 7
+    frame_dig 2
     int 1
-    +
-    frame_bury 3
-    b test_empty_for_header@18
+    -
+    frame_bury 2
+    b test_empty_for_body@15
 
-test_empty_after_for@22:
+test_empty_after_for@18:
     // iteration/iterate_urange.py:62
     // for idx, i in uenumerate(reversed(urange(0))):
     int 1
@@ -725,41 +662,29 @@ test_empty_after_for@22:
     int 0
     int 0
     <
-    bz test_empty_after_for@28
+    bz test_empty_after_for@23
     int 0
     int 0
     -
-    dup
     int 1
-    %
-    int 0
-    !=
-    uncover 1
+    -
     int 1
     /
-    uncover 1
-    +
-    int 1
-    -
     int 1
     uncover 1
     *
     int 0
     uncover 1
     +
-    frame_bury 9
+    frame_bury 8
     int 0
-    frame_bury 4
-    frame_dig 9
-    int 0
-    >=
-    bz test_empty_after_for@28
+    frame_bury 3
 
-test_empty_for_body@25:
+test_empty_for_body@20:
     // iteration/iterate_urange.py:62
     // for idx, i in uenumerate(reversed(urange(0))):
-    frame_dig 9
-    frame_dig 4
+    frame_dig 8
+    frame_dig 3
     // iteration/iterate_urange.py:63
     // log(idx, i)
     itob
@@ -771,21 +696,21 @@ test_empty_for_body@25:
     log
     // iteration/iterate_urange.py:62
     // for idx, i in uenumerate(reversed(urange(0))):
-    frame_dig 9
     int 0
-    >
-    bz test_empty_after_for@28
-    frame_dig 9
+    frame_dig 8
+    <
+    bz test_empty_after_for@23
+    frame_dig 8
     int 1
     -
-    frame_bury 9
-    frame_dig 4
+    frame_bury 8
+    frame_dig 3
     int 1
     +
-    frame_bury 4
-    b test_empty_for_body@25
+    frame_bury 3
+    b test_empty_for_body@20
 
-test_empty_after_for@28:
+test_empty_after_for@23:
     // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(0))):
     int 1
@@ -793,45 +718,28 @@ test_empty_after_for@28:
     int 0
     int 0
     <
-    bz test_empty_after_for@34
+    bz test_empty_after_for@28
     int 0
     int 0
     -
-    dup
     int 1
-    %
-    int 0
-    !=
-    uncover 1
+    -
     int 1
     /
-    uncover 1
-    +
     int 1
-    -
-    dup
-    frame_bury 1
-    int 1
-    uncover 1
+    dig 1
     *
     int 0
     uncover 1
     +
-    frame_bury 10
-    int 0
-    frame_bury 5
-    frame_dig 10
-    int 0
-    >=
-    bz test_empty_after_for@34
+    frame_bury 9
+    frame_bury 4
 
-test_empty_for_body@31:
+test_empty_for_body@25:
     // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(0))):
-    frame_dig 10
-    frame_dig 1
-    frame_dig 5
-    -
+    frame_dig 9
+    frame_dig 4
     // iteration/iterate_urange.py:65
     // log(idx, i)
     itob
@@ -843,21 +751,21 @@ test_empty_for_body@31:
     log
     // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(0))):
-    frame_dig 10
     int 0
-    >
-    bz test_empty_after_for@34
-    frame_dig 10
+    frame_dig 9
+    <
+    bz test_empty_after_for@28
+    frame_dig 9
     int 1
     -
-    frame_bury 10
-    frame_dig 5
+    frame_bury 9
+    frame_dig 4
     int 1
-    +
-    frame_bury 5
-    b test_empty_for_body@31
+    -
+    frame_bury 4
+    b test_empty_for_body@25
 
-test_empty_after_for@34:
+test_empty_after_for@28:
     retsub
 
 

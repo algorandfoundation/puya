@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 
 import attrs
 
@@ -9,7 +9,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     Assignment,
-    BasicBlock,
     BytesConstant,
     Intrinsic,
     InvokeSubroutine,
@@ -221,11 +220,6 @@ def assert_value(
             comment=comment,
         )
     )
-
-
-def mkblocks(loc: SourceLocation, *comments: str | None) -> Iterator[BasicBlock]:
-    for c in comments:
-        yield BasicBlock(comment=c, source_location=loc)
 
 
 def extract_const_int(expr: awst_nodes.Expression | int | None) -> int | None:

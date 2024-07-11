@@ -6,6 +6,7 @@ from puya.awst_build.validation.inner_transactions import (
     InnerTransactionUsedInALoopValidator,
     StaleInnerTransactionsValidator,
 )
+from puya.awst_build.validation.labels import LabelsValidator
 from puya.awst_build.validation.scratch_slots import ScratchSlotReservationValidator
 from puya.awst_build.validation.storage import StorageTypesValidator
 
@@ -18,3 +19,4 @@ def validate_awst(module: awst_nodes.Module) -> None:
     StaleInnerTransactionsValidator.validate(module)
     BaseInvokerValidator.validate(module)
     StorageTypesValidator.validate(module)
+    LabelsValidator.validate(module)
