@@ -60,7 +60,7 @@ ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS = {
 def create_block(
     location: SourceLocation, description: str | None, *stmts: awst_nodes.Statement
 ) -> awst_nodes.Block:
-    return awst_nodes.Block(source_location=location, body=stmts, description=description)
+    return awst_nodes.Block(source_location=location, body=stmts, comment=description)
 
 
 def call(

@@ -1,0 +1,63 @@
+contract test_cases.loop_else.loop_else.LoopElseContract:
+    program approval:
+        subroutine test_cases.loop_else.loop_else.LoopElseContract.approval_program() -> bool:
+            block@0: // L6
+                let arg_idx#0: uint64 = 0u
+                goto block@1
+            block@1: // while_top_L8
+                let arg_idx#1: uint64 = φ(arg_idx#0 <- block@0, arg_idx#3 <- block@16)
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bool = (< arg_idx#1 tmp%0#0)
+                (assert tmp%1#0) // access denied, missing secret argument
+                let continue_looping%0#0: bool = 1u
+                goto continue_looping%0#0 ? block@4 : block@7
+            block@4: // for_body_L10
+                let tmp%2#0: bool = 1u
+                (assert tmp%2#0) // unreachable
+                goto block@7
+            block@7: // after_for_L9
+                let tmp%3#0: bytes = ((txnas ApplicationArgs) arg_idx#1)
+                let tmp%4#0: bool = (== tmp%3#0 0x7768696c655f736563726574)
+                goto tmp%4#0 ? block@8 : block@16
+            block@8: // if_body_L14
+                let tmp%5#0: uint64 = (txn NumAccounts)
+                let range_item%1#0: uint64 = 0u
+                goto block@9
+            block@9: // for_header_L15
+                let account_index#0: uint64 = φ(range_item%1#0 <- block@8, range_item%1#2 <- block@12)
+                let continue_looping%1#0: bool = (< account_index#0 tmp%5#0)
+                (assert continue_looping%1#0) // access denied, missing secret account
+                let account#0: bytes = ((txnas Accounts) account_index#0)
+                let tmp%6#0: bytes = (global ZeroAddress)
+                let tmp%7#0: bool = (== account#0 tmp%6#0)
+                goto tmp%7#0 ? block@11 : block@12
+            block@11: // if_body_L18
+                let tmp%8#0: bytes = "found secret argument at idx="
+                let tmp%9#0: uint64 = (+ arg_idx#1 48u)
+                let tmp%10#0: bytes = (itob tmp%9#0)
+                let tmp%11#0: uint64 = (len tmp%10#0)
+                let tmp%12#0: uint64 = (- tmp%11#0 1u)
+                let index_plus_1%0#0: uint64 = (+ tmp%12#0 1u)
+                let tmp%15#0: bytes = (substring3 tmp%10#0 tmp%12#0 index_plus_1%0#0)
+                let tmp%16#0: bytes = (concat tmp%8#0 tmp%15#0)
+                let tmp%18#0: bytes = (concat tmp%16#0 " and secret account at idx=")
+                let tmp%20#0: uint64 = (+ account_index#0 48u)
+                let tmp%21#0: bytes = (itob tmp%20#0)
+                let tmp%22#0: uint64 = (len tmp%21#0)
+                let tmp%23#0: uint64 = (- tmp%22#0 1u)
+                let index_plus_1%1#0: uint64 = (+ tmp%23#0 1u)
+                let tmp%26#0: bytes = (substring3 tmp%21#0 tmp%23#0 index_plus_1%1#0)
+                let tmp%27#0: bytes = (concat tmp%18#0 tmp%26#0)
+                (log tmp%27#0)
+                return 1u
+            block@12: // after_if_else_L17
+                let range_item%1#2: uint64 = (+ account_index#0 1u)
+                goto block@9
+            block@16: // after_if_else_L13
+                let arg_idx#3: uint64 = (+ arg_idx#1 1u)
+                goto block@1
+    
+    program clear-state:
+        subroutine test_cases.loop_else.loop_else.LoopElseContract.clear_state_program() -> bool:
+            block@0: // L33
+                return 1u

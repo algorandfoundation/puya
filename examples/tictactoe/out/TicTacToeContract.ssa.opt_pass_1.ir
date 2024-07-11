@@ -56,10 +56,10 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@0: // L20
                 let reinterpret_bool%0#0: bool = (txn ApplicationID)
                 goto reinterpret_bool%0#0 ? block@1 : block@4
-            block@1: // if_body_L22
+            block@1: // if_body_L23
                 let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
                 goto maybe_exists%0#0 ? block@2 : block@3
-            block@2: // if_body_L23
+            block@2: // if_body_L26
                 let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
                 (assert maybe_exists%1#0) // Game isn't over
                 goto block@3
@@ -151,15 +151,15 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (app_global_put "turns" new_state_value%0#0)
                 let tmp%5#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, move.0#0, move.1#0)
                 goto tmp%5#0 ? block@5 : block@6
-            block@5: // if_body_L67
+            block@5: // if_body_L68
                 (app_global_put "winner" player#0)
                 goto block@9
-            block@6: // else_body_L67
+            block@6: // else_body_L69
                 let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "turns")
                 (assert maybe_exists%4#0) // check self.turns exists
                 let tmp%6#0: bool = (== maybe_value%4#0 9u)
                 goto tmp%6#0 ? block@7 : block@9
-            block@7: // if_body_L69
+            block@7: // if_body_L70
                 (app_global_put "winner" 0x03)
                 goto block@9
             block@9: // after_if_else_L67
@@ -182,7 +182,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let reinterpret_biguint%3#0: biguint = (extract3 tmp%0#0 item_offset%5#0 1u) // on error: Index access is out of bounds
                 let tmp%4#0: bool = (b== awst_tmp%0#0 reinterpret_biguint%3#0)
                 goto tmp%4#0 ? block@2 : block@3
-            block@2: // if_body_L76
+            block@2: // if_body_L77
                 return 1u
             block@3: // after_if_else_L76
                 let item_offset%6#0: uint64 = 0u
@@ -199,7 +199,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let reinterpret_biguint%7#0: biguint = (extract3 tmp%8#0 column#0 1u) // on error: Index access is out of bounds
                 let tmp%9#0: bool = (b== awst_tmp%1#0 reinterpret_biguint%7#0)
                 goto tmp%9#0 ? block@5 : block@6
-            block@5: // if_body_L79
+            block@5: // if_body_L80
                 return 1u
             block@6: // after_if_else_L79
                 let item_offset%12#0: uint64 = 3u
@@ -208,7 +208,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let reinterpret_biguint%9#0: biguint = (extract3 tmp%10#0 item_offset%13#0 1u) // on error: Index access is out of bounds
                 let tmp%11#0: bool = (b== player#0 reinterpret_biguint%9#0)
                 goto tmp%11#0 ? block@7 : block@14
-            block@7: // if_body_L82
+            block@7: // if_body_L84
                 let item_offset%14#0: uint64 = 0u
                 let tmp%12#0: bytes = (extract3 g#0 item_offset%14#0 3u) // on error: Index access is out of bounds
                 let item_offset%15#0: uint64 = 0u
@@ -222,7 +222,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let reinterpret_biguint%13#0: biguint = (extract3 tmp%14#0 item_offset%17#0 1u) // on error: Index access is out of bounds
                 let tmp%15#0: bool = (b== player#0 reinterpret_biguint%13#0)
                 goto tmp%15#0 ? block@9 : block@10
-            block@9: // if_body_L84
+            block@9: // if_body_L85
                 return 1u
             block@10: // after_if_else_L84
                 let item_offset%18#0: uint64 = 0u
@@ -238,7 +238,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let reinterpret_biguint%17#0: biguint = (extract3 tmp%18#0 item_offset%21#0 1u) // on error: Index access is out of bounds
                 let tmp%19#0: bool = (b== player#0 reinterpret_biguint%17#0)
                 goto tmp%19#0 ? block@12 : block@14
-            block@12: // if_body_L86
+            block@12: // if_body_L87
                 return 1u
             block@14: // after_if_else_L82
                 return 0u
@@ -268,7 +268,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (assert maybe_exists%1#0) // check self.turns exists
                 let reinterpret_bool%0#0: bool = (% maybe_value%1#0 2u)
                 goto reinterpret_bool%0#0 ? block@1 : block@2
-            block@1: // if_body_L50
+            block@1: // if_body_L51
                 let tmp%1#0: bytes = (txn Sender)
                 let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
                 (assert maybe_exists%2#0) // check self.host exists
@@ -276,7 +276,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (assert tmp%2#0) // It is the host's turn
                 let player#0: bytes = 0x01
                 goto block@3
-            block@2: // else_body_L50
+            block@2: // else_body_L54
                 let tmp%3#0: bytes = (txn Sender)
                 let tmp%4#0: bytes = (global ZeroAddress)
                 let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")

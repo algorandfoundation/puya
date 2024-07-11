@@ -10,11 +10,10 @@ from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op, mkblocks, reassign
+from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
-    BasicBlock,
     ConditionalBranch,
     Goto,
     GotoNth,
@@ -101,8 +100,8 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
-        case awst_nodes.Expression(wtype=wtypes.bytes_wtype) as bytes_expression:
-            bytes_value = context.visitor.visit_and_materialise_single(bytes_expression)
+        case awst_nodes.Expression(wtype=wtypes.bytes_wtype):
+            bytes_value = context.visitor.visit_and_materialise_single(sequence)
             (byte_length,) = assign(
                 context,
                 temp_description="bytes_length",
@@ -136,19 +135,11 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case awst_nodes.Expression(
-            wtype=wtypes.ARC4Array(element_type=wtypes.WType(immutable=False))
-        ):
-            raise InternalError(
-                "Attempted iteration of an ARC4 array of mutable objects", sequence.source_location
-            )
-        case awst_nodes.Expression(
-            wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
-        ) as arc4_array_expression:
+        case awst_nodes.Expression(wtype=wtypes.ARC4Array() as array_wtype):
             iterator = arc4.build_for_in_array(
                 context,
                 array_wtype,
-                arc4_array_expression,
+                sequence,
                 statement.source_location,
             )
             _iterate_indexable(
@@ -163,35 +154,91 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
             )
         case _:
-            raise InternalError("Unsupported for in loop sequence", statement.source_location)
+            raise InternalError("Unsupported ForInLoop sequence", statement.source_location)
 
 
-def _check_urange_will_loop(
+def _iterate_urange_simple(
     context: IRFunctionBuildContext,
     *,
-    stop: Value,
-    start: Value,
-    after_for: BasicBlock,
+    loop_body: awst_nodes.Block,
+    item_var: awst_nodes.Lvalue,
+    index_var: awst_nodes.Lvalue | None,
     statement_loc: SourceLocation,
+    start: Value,
+    stop: Value,
+    step: Value,
+    range_loc: SourceLocation,
 ) -> None:
-    (preamble,) = mkblocks(statement_loc, "for_preamble")
-    (should_loop,) = assign_intrinsic_op(
+    body = context.block_builder.mkblock(loop_body, "for_body")
+    header, footer, next_block = context.block_builder.mkblocks(
+        "for_header", "for_footer", "after_for", source_location=statement_loc
+    )
+
+    (range_item,) = assign(
         context,
-        target="should_loop",
-        op=AVMOp.lt,
-        args=[start, stop],
-        source_location=statement_loc,
+        source=start,
+        temp_description="range_item",
+        source_location=range_loc,
     )
-    context.block_builder.terminate(
-        ConditionalBranch(
-            condition=should_loop,
-            non_zero=preamble,
-            zero=after_for,
-            source_location=statement_loc,
+    (range_index,) = assign(
+        context,
+        source=UInt64Constant(value=0, source_location=None),
+        temp_description="range_index",
+        source_location=range_loc,
+    )
+    context.block_builder.goto(header)
+    with context.block_builder.activate_open_block(header):
+        current_range_item = _refresh_mutated_variable(context, range_item)
+        (continue_looping,) = assign_intrinsic_op(
+            context,
+            target="continue_looping",
+            op=AVMOp.lt,
+            args=[current_range_item, stop],
+            source_location=range_loc,
         )
-    )
-    context.block_builder.activate_block(preamble)
-    context.ssa.seal_block(preamble)
+        context.block_builder.terminate(
+            ConditionalBranch(
+                condition=continue_looping,
+                non_zero=body,
+                zero=next_block,
+                source_location=statement_loc,
+            )
+        )
+
+        context.block_builder.activate_block(body)
+        handle_assignment(
+            context, target=item_var, value=current_range_item, assignment_location=None
+        )
+        current_range_index = None
+        if index_var:
+            current_range_index = _refresh_mutated_variable(context, range_index)
+            handle_assignment(
+                context, target=index_var, value=current_range_index, assignment_location=None
+            )
+
+        with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+            loop_body.accept(context.visitor)
+
+        context.block_builder.goto(footer)
+        if context.block_builder.try_activate_block(footer):
+            assign_intrinsic_op(
+                context,
+                target=range_item,
+                op=AVMOp.add,
+                args=[current_range_item, step],
+                source_location=range_loc,
+            )
+            if current_range_index:
+                assign_intrinsic_op(
+                    context,
+                    target=range_index,
+                    op=AVMOp.add,
+                    args=[current_range_index, 1],
+                    source_location=range_loc,
+                )
+            context.block_builder.goto(header)
+
+    context.block_builder.activate_block(next_block)
 
 
 def _iterate_urange(
@@ -208,190 +255,136 @@ def _iterate_urange(
     reverse_items: bool,
     reverse_index: bool,
 ) -> None:
-    header, body, footer, increment_block, next_block = mkblocks(
-        statement_loc,
-        "for_header",
-        "for_body",
-        "for_footer",
-        "for_increment",
-        "after_for",
-    )
-
     step = context.visitor.visit_and_materialise_single(range_step)
     stop = context.visitor.visit_and_materialise_single(range_stop)
     start = context.visitor.visit_and_materialise_single(range_start)
     assert_value(context, step, source_location=statement_loc, comment="Step cannot be zero")
 
-    iteration_count_minus_one = None
-    if reverse_items or reverse_index:
-        # The following code will result in negative uints if we don't pre-check the urange
-        # params
-        _check_urange_will_loop(
+    if not (reverse_items or reverse_index):
+        return _iterate_urange_simple(
             context,
-            stop=stop,
-            start=start,
-            after_for=next_block,
+            loop_body=loop_body,
+            item_var=item_var,
+            index_var=index_var,
             statement_loc=statement_loc,
+            start=start,
+            stop=stop,
+            step=step,
+            range_loc=range_loc,
         )
 
-        # Determine the iteration count by doing the equivalent of
-        # ceiling((stop - start) / step)
-        # which is
-        # floor((stop - start) / step) + (mod((stop - start), step) != 0)
-        (range_length,) = assign_intrinsic_op(
-            context,
-            target="range_length",
-            source_location=statement_loc,
-            op=AVMOp.sub,
-            args=[stop, start],
-        )
-
-        (range_mod_step,) = assign_intrinsic_op(
-            context,
-            target="range_mod_step",
-            source_location=statement_loc,
-            op=AVMOp.mod,
-            args=[range_length, step],
-        )
-        (range_mod_step_not_zero,) = assign_intrinsic_op(
-            context,
-            target="range_mod_step_not_zero",
-            source_location=statement_loc,
-            op=AVMOp.neq,
-            args=[range_mod_step, 0],
-        )
-
-        (range_floor_div_step,) = assign_intrinsic_op(
-            context,
-            target="range_floor_div_step",
-            source_location=statement_loc,
-            op=AVMOp.div_floor,
-            args=[range_length, step],
-        )
-        (iteration_count,) = assign_intrinsic_op(
-            context,
-            target="iteration_count",
-            source_location=statement_loc,
-            op=AVMOp.add,
-            args=[range_floor_div_step, range_mod_step_not_zero],
-        )
-        (iteration_count_minus_one,) = assign_intrinsic_op(
-            context,
-            target="iteration_count_minus_one",
-            source_location=statement_loc,
-            op=AVMOp.sub,
-            args=[iteration_count, 1],
-        )
-
-        if reverse_items:
-            (range_delta,) = assign_intrinsic_op(
-                context,
-                target="range_delta",
-                source_location=statement_loc,
-                op=AVMOp.mul,
-                args=[step, iteration_count_minus_one],
-            )
-            (stop,) = assign(
-                context,
-                temp_description="stop",
-                source_location=statement_loc,
-                source=start,
-            )
-            (start,) = assign_intrinsic_op(
-                context,
-                target="start",
-                source_location=statement_loc,
-                op=AVMOp.add,
-                args=[start, range_delta],
-            )
-
-    (range_item,) = assign(
-        context,
-        source=start,
-        temp_description="range_item",
-        source_location=item_var.source_location,
+    body = context.block_builder.mkblock(loop_body, "for_body")
+    header, footer, increment_block, next_block = context.block_builder.mkblocks(
+        "for_header", "for_footer", "for_increment", "after_for", source_location=statement_loc
     )
 
-    range_index = None
-    if index_var:
-        (range_index,) = assign(
-            context,
-            source=UInt64Constant(value=0, source_location=None),
-            temp_description="range_index",
-            source_location=index_var.source_location,
-        )
-
-    context.block_builder.goto_and_activate(header)
-    (continue_looping,) = assign(
+    # The following code will result in underflow if we don't pre-check the urange
+    # params
+    (should_loop,) = assign_intrinsic_op(
         context,
-        source=(
-            Intrinsic(
-                op=AVMOp.gte if reverse_items else AVMOp.lt,
-                args=[_refresh_mutated_variable(context, range_item), stop],
-                source_location=range_loc,
-            )
-        ),
-        temp_description="continue_looping",
-        source_location=range_loc,
+        target="should_loop",
+        op=AVMOp.lt,
+        args=[start, stop],
+        source_location=statement_loc,
     )
-
     context.block_builder.terminate(
         ConditionalBranch(
-            condition=continue_looping,
-            non_zero=body,
+            condition=should_loop,
+            non_zero=header,
             zero=next_block,
             source_location=statement_loc,
         )
     )
 
-    context.block_builder.activate_block(body)
-
-    handle_assignment(
+    context.block_builder.activate_block(header)
+    # iteration_count = ((stop - 1) - start) // step + 1
+    # => iteration_count - 1 = (stop - start - 1) // step
+    (range_length,) = assign_intrinsic_op(
         context,
-        target=item_var,
-        value=_refresh_mutated_variable(context, range_item),
-        assignment_location=item_var.source_location,
+        target="range_length",
+        op=AVMOp.sub,
+        args=[stop, start],
+        source_location=range_loc,
     )
-    if index_var:
-        assert range_index is not None
-        next_index = _refresh_mutated_variable(context, range_index)
-        if reverse_index:
-            assert iteration_count_minus_one is not None
-            (next_index,) = assign_intrinsic_op(
-                context,
-                target="next_index",
-                source_location=index_var.source_location,
-                op=AVMOp.sub,
-                args=[iteration_count_minus_one, next_index],
-            )
+    (range_length_minus_one,) = assign_intrinsic_op(
+        context,
+        target="range_length_minus_one",
+        op=AVMOp.sub,
+        args=[range_length, 1],
+        source_location=range_loc,
+    )
+    (iteration_count_minus_one,) = assign_intrinsic_op(
+        context,
+        target="iteration_count_minus_one",
+        op=AVMOp.div_floor,
+        args=[range_length_minus_one, step],
+        source_location=range_loc,
+    )
+    (range_delta,) = assign_intrinsic_op(
+        context,
+        target="range_delta",
+        op=AVMOp.mul,
+        args=[step, iteration_count_minus_one],
+        source_location=range_loc,
+    )
+    (max_range_item,) = assign_intrinsic_op(
+        context,
+        target="max_range_item",
+        op=AVMOp.add,
+        args=[start, range_delta],
+        source_location=range_loc,
+    )
+    (range_item,) = assign(
+        context,
+        temp_description="range_item",
+        source=start if not reverse_items else max_range_item,
+        source_location=range_loc,
+    )
+    (range_index,) = assign(
+        context,
+        temp_description="range_index",
+        source=(
+            UInt64Constant(value=0, source_location=None)
+            if not reverse_index
+            else iteration_count_minus_one
+        ),
+        source_location=range_loc,
+    )
+    context.block_builder.goto(body)
+
+    with context.block_builder.activate_open_block(body):
+        current_range_item = _refresh_mutated_variable(context, range_item)
         handle_assignment(
-            context,
-            target=index_var,
-            value=next_index,
-            assignment_location=index_var.source_location,
+            context, target=item_var, value=current_range_item, assignment_location=None
         )
+        current_range_index = None
+        if index_var:
+            current_range_index = _refresh_mutated_variable(context, range_index)
+            handle_assignment(
+                context, target=index_var, value=current_range_index, assignment_location=None
+            )
 
-    with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
-        loop_body.accept(context.visitor)
+        with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+            loop_body.accept(context.visitor)
 
-    if context.block_builder.try_goto_and_activate(footer):
-        context.ssa.seal_block(footer)
-
-        if not reverse_items:
-            context.block_builder.goto(increment_block)
-        else:
+        context.block_builder.goto(footer)
+        if context.block_builder.try_activate_block(footer):
+            continue_looping_op = Intrinsic(
+                op=AVMOp.lt,
+                args=(
+                    [current_range_item, max_range_item]
+                    if not reverse_items
+                    else [start, current_range_item]
+                ),
+                source_location=range_loc,
+            )
             (continue_looping,) = assign(
                 context,
-                source=(
-                    Intrinsic(
-                        op=AVMOp(">"),
-                        args=[_refresh_mutated_variable(context, range_item), stop],
-                        source_location=range_loc,
-                    )
-                ),
+                source=continue_looping_op,
                 temp_description="continue_looping",
                 source_location=range_loc,
             )
+
             context.block_builder.terminate(
                 ConditionalBranch(
                     condition=continue_looping,
@@ -400,34 +393,24 @@ def _iterate_urange(
                     source_location=statement_loc,
                 )
             )
-        context.block_builder.activate_block(increment_block)
-        context.ssa.seal_block(increment_block)
 
-        new_range_item_value = Intrinsic(
-            op=AVMOp.sub if reverse_items else AVMOp.add,
-            args=[_refresh_mutated_variable(context, range_item), step],
-            source_location=range_loc,
-        )
-        reassign(context, range_item, new_range_item_value, statement_loc)
-        if index_var:
-            assert range_index is not None
+            context.block_builder.activate_block(increment_block)
             assign_intrinsic_op(
                 context,
-                target=range_index,
-                op=AVMOp.add,
-                args=[
-                    _refresh_mutated_variable(context, range_index),
-                    UInt64Constant(value=1, source_location=None),
-                ],
-                source_location=index_var.source_location,
+                target=range_item,
+                op=AVMOp.add if not reverse_items else AVMOp.sub,
+                args=[current_range_item, step],
+                source_location=range_loc,
             )
-        if reverse_items:
+            if current_range_index:
+                assign_intrinsic_op(
+                    context,
+                    target=range_index,
+                    op=AVMOp.add if not reverse_index else AVMOp.sub,
+                    args=[current_range_index, 1],
+                    source_location=range_loc,
+                )
             context.block_builder.goto(body)
-        else:
-            context.block_builder.goto(header)
-    context.ssa.seal_block(header)
-    context.ssa.seal_block(body)
-    context.ssa.seal_block(next_block)
 
     context.block_builder.activate_block(next_block)
 
@@ -444,12 +427,9 @@ def _iterate_indexable(
     reverse_items: bool,
     reverse_index: bool,
 ) -> None:
-    header, body, footer, next_block = mkblocks(
-        statement_loc,
-        "for_header",
-        "for_body",
-        "for_footer",
-        "after_for",
+    body = context.block_builder.mkblock(loop_body, "for_body")
+    header, footer, next_block = context.block_builder.mkblocks(
+        "for_header", "for_footer", "after_for", source_location=statement_loc
     )
 
     (index_internal,) = assign(
@@ -464,77 +444,74 @@ def _iterate_indexable(
         temp_description="reverse_index_internal",
         source_location=None,
     )
+    context.block_builder.goto(header)
 
-    context.block_builder.goto_and_activate(header)
-    (continue_looping,) = assign(
-        context,
-        source=(
-            Intrinsic(
+    with context.block_builder.activate_open_block(header):
+        current_index_internal = _refresh_mutated_variable(context, index_internal)
+        if not (reverse_items or reverse_index):
+            (continue_looping,) = assign_intrinsic_op(
+                context,
+                target="continue_looping",
                 op=AVMOp.lt,
-                args=[_refresh_mutated_variable(context, index_internal), indexable_size],
+                args=[current_index_internal, indexable_size],
                 source_location=statement_loc,
             )
-        ),
-        temp_description="continue_looping",
-        source_location=statement_loc,
-    )
-
-    context.block_builder.terminate(
-        ConditionalBranch(
-            condition=continue_looping,
-            non_zero=body,
-            zero=next_block,
-            source_location=statement_loc,
+        else:
+            (continue_looping,) = assign_intrinsic_op(
+                context,
+                target="continue_looping",
+                op=AVMOp.gt,
+                args=[_refresh_mutated_variable(context, reverse_index_internal), 0],
+                source_location=statement_loc,
+            )
+        context.block_builder.terminate(
+            ConditionalBranch(
+                condition=continue_looping,
+                non_zero=body,
+                zero=next_block,
+                source_location=statement_loc,
+            )
         )
-    )
-    context.ssa.seal_block(body)
 
-    context.block_builder.activate_block(body)
-
-    current_index_internal = _refresh_mutated_variable(context, index_internal)
-    if reverse_items or reverse_index:
-        (reverse_index_internal,) = assign_intrinsic_op(
-            context,
-            target=reverse_index_internal,
-            source_location=None,
-            op=AVMOp.sub,
-            args=[_refresh_mutated_variable(context, reverse_index_internal), 1],
-        )
-    handle_assignment(
-        context,
-        target=item_var,
-        value=get_value_at_index(
-            reverse_index_internal if reverse_items else current_index_internal
-        ),
-        assignment_location=item_var.source_location,
-    )
-
-    if index_var:
+        context.block_builder.activate_block(body)
+        if reverse_items or reverse_index:
+            (reverse_index_internal,) = assign_intrinsic_op(
+                context,
+                target=reverse_index_internal,
+                op=AVMOp.sub,
+                args=[_refresh_mutated_variable(context, reverse_index_internal), 1],
+                source_location=None,
+            )
         handle_assignment(
             context,
-            target=index_var,
-            value=reverse_index_internal if reverse_index else current_index_internal,
-            assignment_location=index_var.source_location,
+            target=item_var,
+            value=get_value_at_index(
+                reverse_index_internal if reverse_items else current_index_internal
+            ),
+            assignment_location=None,
         )
+        if index_var:
+            handle_assignment(
+                context,
+                target=index_var,
+                value=reverse_index_internal if reverse_index else current_index_internal,
+                assignment_location=None,
+            )
+        with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+            loop_body.accept(context.visitor)
+        context.block_builder.goto(footer)
 
-    with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
-        loop_body.accept(context.visitor)
+        if context.block_builder.try_activate_block(footer):
+            if not (reverse_items and reverse_index):
+                assign_intrinsic_op(
+                    context,
+                    target=index_internal,
+                    op=AVMOp.add,
+                    args=[current_index_internal, 1],
+                    source_location=None,
+                )
+            context.block_builder.goto(header)
 
-    context.ssa.seal_block(next_block)
-    if context.block_builder.try_goto_and_activate(footer):
-        context.ssa.seal_block(footer)
-        new_index_internal_value = Intrinsic(
-            op=AVMOp("+"),
-            args=[
-                _refresh_mutated_variable(context, index_internal),
-                UInt64Constant(value=1, source_location=None),
-            ],
-            source_location=None,
-        )
-        reassign(context, index_internal, new_index_internal_value, source_location=None)
-
-        context.block_builder.goto(header)
-    context.ssa.seal_block(header)
     context.block_builder.activate_block(next_block)
 
 
@@ -563,7 +540,7 @@ def _iterate_tuple(
             context,
             target=item_var,
             value=tuple_items[loop_count if not reverse_items else (max_index - loop_count)],
-            assignment_location=item_var.source_location,
+            assignment_location=None,
         )
         if index_var:
             handle_assignment(
@@ -573,18 +550,16 @@ def _iterate_tuple(
                     value=loop_count if not reverse_index else (max_index - loop_count),
                     source_location=index_var.source_location,
                 ),
-                assignment_location=index_var.source_location,
+                assignment_location=None,
             )
 
     # construct basic blocks
-    body, footer, next_block = mkblocks(
-        statement_loc,
-        "for_body",
-        "for_footer",
-        "after_for",
+    body = context.block_builder.mkblock(loop_body, "for_body")
+    footer, next_block = context.block_builder.mkblocks(
+        "for_footer", "after_for", source_location=statement_loc
     )
     headers = {
-        idx: BasicBlock(comment=f"for_header_{idx}", source_location=statement_loc)
+        idx: context.block_builder.mkblock(statement_loc, f"for_header_{idx}")
         for idx in range(1, len(tuple_items))
     }
 
@@ -592,32 +567,30 @@ def _iterate_tuple(
     assign_counter_and_user_vars(0)
 
     # body
-    context.block_builder.goto_and_activate(body)
-    with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
-        loop_body.accept(context.visitor)
+    context.block_builder.goto(body)
+    with context.block_builder.activate_open_block(body):
+        with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+            loop_body.accept(context.visitor)
 
-    # footer + follow-up headers, iff the loop body doesn't break unconditionally on first item
-    if headers and context.block_builder.try_goto_and_activate(footer):
-        # footer
-        context.ssa.seal_block(footer)
-        context.block_builder.terminate(
-            GotoNth(
-                value=context.ssa.read_variable(loop_counter_name, IRType.uint64, footer),
-                blocks=list(headers.values()),
-                default=Goto(target=next_block, source_location=statement_loc),
-                source_location=statement_loc,
+        # footer + follow-up headers, iff the loop body doesn't break unconditionally on first item
+        context.block_builder.goto(footer)
+        if headers and context.block_builder.try_activate_block(footer):
+            # footer
+            context.block_builder.terminate(
+                GotoNth(
+                    value=context.ssa.read_variable(loop_counter_name, IRType.uint64, footer),
+                    blocks=list(headers.values()),
+                    default=Goto(target=next_block, source_location=statement_loc),
+                    source_location=statement_loc,
+                )
             )
-        )
 
-        # headers for remaining items
-        for idx, header in headers.items():
-            context.block_builder.activate_block(header)
-            assign_counter_and_user_vars(idx)
-            context.block_builder.goto(body)
-            context.ssa.seal_block(header)
+            # headers for remaining items
+            for idx, header in headers.items():
+                context.block_builder.activate_block(header)
+                assign_counter_and_user_vars(idx)
+                context.block_builder.goto(body)
 
-    context.ssa.seal_block(body)
-    context.ssa.seal_block(next_block)
     context.block_builder.activate_block(next_block)
 
 

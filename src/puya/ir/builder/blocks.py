@@ -1,9 +1,11 @@
 import contextlib
+import typing
 from collections.abc import Iterator, Sequence
 
 import attrs
 
 from puya import log
+from puya.awst import nodes as awst_nodes
 from puya.errors import InternalError
 from puya.ir.models import (
     Assignment,
@@ -11,12 +13,11 @@ from puya.ir.models import (
     ControlOp,
     Goto,
     Op,
-    Parameter,
     Register,
-    SubroutineReturn,
 )
 from puya.ir.ssa import BraunSSA
 from puya.parse import SourceLocation
+from puya.utils import lazy_setdefault
 
 logger = log.get_logger(__name__)
 
@@ -41,11 +42,8 @@ class BlocksBuilder:
         self.ssa = BraunSSA(blocks, parameters, self.active_block)
         self.ssa.seal_block(self.active_block)
 
-        self._labelled_blocks = dict[str, BasicBlock]()
-
-    @property
-    def blocks(self) -> Sequence[BasicBlock]:
-        return self._blocks
+        self._pending_labelled_blocks = dict[awst_nodes.Label, BasicBlock]()
+        self._created_labelled_blocks = dict[awst_nodes.Label, BasicBlock]()
 
     @property
     def active_block(self) -> BasicBlock:
@@ -53,8 +51,14 @@ class BlocksBuilder:
 
     def add(self, op: Op) -> None:
         """Add an op"""
-        curr = self._get_current_for_addition(op.source_location)
-        if curr is not None:
+        curr = self.active_block
+        if curr.terminated:
+            logger.error(
+                "unreachable code",
+                # function kinda sucks as a fallback, but it'll do for now
+                location=op.source_location or self._default_source_location,
+            )
+        else:
             curr.ops.append(op)
             if isinstance(op, Assignment):
                 for target in op.targets:
@@ -63,13 +67,11 @@ class BlocksBuilder:
                             f"ssa.write_variable not called for {target.name} in block {curr}"
                         )
 
-    def terminate(self, control_op: ControlOp) -> None:
-        """Add the control op for the block, thus terminating it"""
-        curr = self._get_current_for_addition(control_op.source_location)
-        if curr is None:
-            return
+    def maybe_terminate(self, control_op: ControlOp) -> bool:
+        """Add the control op for the block, if not already terminated."""
+        curr = self.active_block
         if curr.terminated:
-            raise InternalError(f"Block is already terminated: {curr}")
+            return False
 
         for target in control_op.targets():
             if self.ssa.is_sealed(target):
@@ -81,40 +83,44 @@ class BlocksBuilder:
 
         curr.terminator = control_op
         logger.debug(f"Terminated {curr}")
+        return True
 
-    def _get_current_for_addition(
-        self, source_location: SourceLocation | None
-    ) -> BasicBlock | None:
-        curr = self.active_block
-        if curr.terminated:
+    def terminate(self, control_op: ControlOp) -> None:
+        if not self.maybe_terminate(control_op):
             logger.error(
-                "Unreachable code",
+                "unreachable code",
                 # function kinda sucks as a fallback, but it'll do for now
-                location=source_location or self._default_source_location,
+                location=control_op.source_location or self._default_source_location,
             )
-            return None
-        return curr
 
     def goto(self, target: BasicBlock, source_location: SourceLocation | None = None) -> None:
         """Add goto to a basic block, iff current block is not already terminated"""
-        curr = self._blocks[-1]
-        if not curr.terminated:
-            self.terminate(Goto(target=target, source_location=source_location))
+        self.maybe_terminate(Goto(target=target, source_location=source_location))
 
-    def validate_block_predecessors(self) -> None:
-        """
-        Validates all blocks bar the entry block have predecessors. Used to check the block
-        builder is in a valid state after temporarily being in an invalid state due to
-        ignore_predecessor_check
-        """
-        for non_entry_block in self._blocks[1:]:
-            if not non_entry_block.predecessors:
-                raise InternalError(
-                    f"Unreachable block detected: block@{non_entry_block.id}",
-                    non_entry_block.source_location,
-                )
+    def goto_label(self, label: awst_nodes.Label, source_location: SourceLocation) -> None:
+        try:
+            target = self._created_labelled_blocks[label]
+        except KeyError:
+            target = lazy_setdefault(
+                self._pending_labelled_blocks,
+                label,
+                lambda _: BasicBlock(label=label, source_location=source_location),
+            )
+        self.goto(target, source_location)
 
     def activate_block(self, block: BasicBlock) -> None:
+        self._activate_block(block)
+        self._seal_block_if_unlabelled(block)
+
+    @contextlib.contextmanager
+    def activate_open_block(self, block: BasicBlock) -> Iterator[None]:
+        self._activate_block(block)
+        try:
+            yield
+        finally:
+            self._seal_block_if_unlabelled(block)
+
+    def _activate_block(self, block: BasicBlock) -> None:
         """Add a basic block and make it the active one (target of adds)"""
         if not self.active_block.terminated:
             raise InternalError(
@@ -122,33 +128,18 @@ class BlocksBuilder:
             )
         if not block.predecessors:
             raise InternalError("Attempted to add a (non-entry) block with no predecessors")
+        assert block.id is None
         block.id = len(self._blocks)
         self._blocks.append(block)
 
-    def goto_and_activate(self, block: BasicBlock) -> None:
-        """Add goto a block and make it the active block"""
-        self.goto(block)
-        self.activate_block(block)
-
-    def try_goto_and_activate(self, block: BasicBlock) -> bool:
-        self.goto(block)
+    def try_activate_block(self, block: BasicBlock) -> bool:
         if block.predecessors:
             self.activate_block(block)
             return True
+        if not block.is_empty:
+            # here as a sanity - there shouldn't've been any modifications of "next" block contents
+            raise InternalError("next block has no predecessors but does have op(s)")
         return False
-
-    def maybe_add_implicit_subroutine_return(self, params: Sequence[Parameter]) -> None:
-        if not self._blocks[-1].terminated:
-            self.terminate(
-                SubroutineReturn(
-                    result=[
-                        self.ssa.read_variable(p.name, p.ir_type, self._blocks[-1])
-                        for p in params
-                        if p.implicit_return
-                    ],
-                    source_location=None,
-                )
-            )
 
     @contextlib.contextmanager
     def enter_loop(self, on_continue: BasicBlock, on_break: BasicBlock) -> Iterator[None]:
@@ -174,32 +165,74 @@ class BlocksBuilder:
             raise InternalError("continue outside of loop", source_location) from ex
         self.goto(target=targets.on_continue, source_location=source_location)
 
-    def make_labelled_block(
-        self, label: str, source_location: SourceLocation, description: str | None
+    @typing.overload
+    def mkblock(
+        self, source_location: SourceLocation, /, description: str | None
+    ) -> BasicBlock: ...
+
+    @typing.overload
+    def mkblock(
+        self, block: awst_nodes.Block, /, description: str | None = None
+    ) -> BasicBlock: ...
+
+    @typing.overload
+    def mkblock(
+        self,
+        block: awst_nodes.Block | None,
+        /,
+        description: str,
+        *,
+        fallback_location: SourceLocation,
+    ) -> BasicBlock: ...
+
+    def mkblock(
+        self,
+        block_or_source_location: awst_nodes.Block | SourceLocation | None,
+        /,
+        description: str | None = None,
+        *,
+        fallback_location: SourceLocation | None = None,
     ) -> BasicBlock:
-        try:
-            new_block = self._labelled_blocks[label]
-        except KeyError:
-            new_block = self._labelled_blocks[label] = BasicBlock(
-                source_location=source_location, comment=description
-            )
+        if isinstance(block_or_source_location, awst_nodes.Block):
+            label = block_or_source_location.label
+            comment = block_or_source_location.comment or description
+            loc = block_or_source_location.source_location
         else:
-            new_block.source_location = source_location
-            new_block.comment = description
-        self.goto(new_block)
-        self.activate_block(new_block, ignore_predecessor_check=True)
-        return new_block
-
-    def seal_all_labelled_blocks(self) -> None:
-        for block in self._labelled_blocks.values():
-            self.ssa.seal_block(block)
-
-    def goto_label(self, label: str, source_location: SourceLocation) -> None:
-        try:
-            target = self._labelled_blocks[label]
-            self.goto(target, source_location)
-        except KeyError:
-            target = self._labelled_blocks[label] = BasicBlock(
-                source_location=source_location, comment="Temp"
+            label = None
+            comment = description
+            loc_ = block_or_source_location or fallback_location
+            assert loc_ is not None
+            loc = loc_
+        if label in self._created_labelled_blocks:
+            raise InternalError(
+                f"block for label {label} has already been created", fallback_location
             )
-            self.goto(target)
+        if (label is not None) and (pending := self._pending_labelled_blocks.pop(label, None)):
+            result = pending
+            result.source_location = loc
+            result.comment = comment
+        else:
+            result = BasicBlock(label=label, comment=comment, source_location=loc)
+        if label is not None:
+            self._created_labelled_blocks[label] = result
+        return result
+
+    def mkblocks(
+        self, *descriptions: str, source_location: SourceLocation
+    ) -> Iterator[BasicBlock]:
+        for description in descriptions:
+            yield self.mkblock(source_location, description)
+
+    def finalise(self) -> list[BasicBlock]:
+        for pending_label, pending in self._pending_labelled_blocks.items():
+            logger.error(
+                f"block with label {pending_label} not found", location=pending.source_location
+            )
+        for block in self._created_labelled_blocks.values():
+            self.ssa.seal_block(block)
+        self.ssa.verify_complete()
+        return self._blocks.copy()
+
+    def _seal_block_if_unlabelled(self, block: BasicBlock) -> None:
+        if block.label is None:
+            self.ssa.seal_block(block)

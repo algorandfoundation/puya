@@ -5,7 +5,7 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
                 let tmp%0#0: uint64 = (txn ApplicationID)
                 let tmp%1#0: bool = (== tmp%0#0 0u)
                 goto tmp%1#0 ? block@1 : block@2
-            block@1: // if_body_L19
+            block@1: // if_body_L20
                 return 1u
             block@2: // after_if_else_L19
                 let tmp%2#0: uint64 = (txn OnCompletion)
@@ -13,13 +13,13 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
                 let is_equal%0#0: bool = (== tmp%2#0 OptIn)
                 let tmp%3#0: bool = (|| contains%0#0 is_equal%0#0)
                 goto tmp%3#0 ? block@4 : block@3
-            block@3: // if_body_L21
+            block@3: // if_body_L22
                 return 0u
             block@4: // after_if_else_L21
                 let tmp%4#0: uint64 = (txn NumAppArgs)
                 let tmp%5#0: bool = (< tmp%4#0 1u)
                 goto tmp%5#0 ? block@5 : block@6
-            block@5: // if_body_L23
+            block@5: // if_body_L24
                 return 0u
             block@6: // after_if_else_L23
                 let tmp%6#0: bytes = (txna ApplicationArgs 0)
@@ -28,28 +28,28 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
                 let tmp%7#0: uint64 = (txn NumAppArgs)
                 let tmp%8#0: bool = (== tmp%7#0 2u)
                 goto tmp%8#0 ? block@7 : block@17
-            block@7: // if_body_L28
+            block@7: // if_body_L29
                 let tmp%9#0: bool = (== method#0 0x6765745f67756172616e746565645f64617461)
                 goto tmp%9#0 ? block@8 : block@9
-            block@8: // if_body_L29
+            block@8: // if_body_L30
                 let tmp%10#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(offset#0)
                 (log tmp%10#0)
                 goto block@16
-            block@9: // else_body_L29
+            block@9: // else_body_L31
                 let tmp%11#0: bool = (== method#0 0x6765745f646174615f6f725f617373657274)
                 goto tmp%11#0 ? block@10 : block@11
-            block@10: // if_body_L31
+            block@10: // if_body_L32
                 let tmp%12#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(offset#0)
                 (log tmp%12#0)
                 goto block@15
-            block@11: // else_body_L31
+            block@11: // else_body_L33
                 let tmp%13#0: bool = (== method#0 0x64656c6574655f64617461)
                 goto tmp%13#0 ? block@12 : block@13
-            block@12: // if_body_L33
+            block@12: // if_body_L34
                 examples.local_state.local_state_with_offsets.LocalStateContract.delete_data(offset#0)
                 (log "Deleted")
                 goto block@14
-            block@13: // else_body_L33
+            block@13: // else_body_L37
                 return 0u
             block@14: // after_if_else_L33
                 goto block@15
@@ -57,32 +57,32 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
                 goto block@16
             block@16: // after_if_else_L29
                 return 1u
-            block@17: // else_body_L28
+            block@17: // else_body_L39
                 let tmp%14#0: uint64 = (txn NumAppArgs)
                 let tmp%15#0: bool = (== tmp%14#0 3u)
                 goto tmp%15#0 ? block@18 : block@25
-            block@18: // if_body_L39
+            block@18: // if_body_L40
                 let tmp%16#0: bool = (== method#0 0x7365745f64617461)
                 goto tmp%16#0 ? block@19 : block@20
-            block@19: // if_body_L40
+            block@19: // if_body_L41
                 let tmp%17#0: bytes = (txna ApplicationArgs 2)
                 examples.local_state.local_state_with_offsets.LocalStateContract.set_data(offset#0, tmp%17#0)
                 goto block@24
-            block@20: // else_body_L40
+            block@20: // else_body_L42
                 let tmp%18#0: bool = (== method#0 0x6765745f646174615f776974685f64656661756c74)
                 goto tmp%18#0 ? block@21 : block@22
-            block@21: // if_body_L42
+            block@21: // if_body_L43
                 let tmp%19#0: bytes = (txna ApplicationArgs 2)
                 let tmp%20#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(offset#0, tmp%19#0)
                 (log tmp%20#0)
                 goto block@23
-            block@22: // else_body_L42
+            block@22: // else_body_L45
                 return 0u
             block@23: // after_if_else_L42
                 goto block@24
             block@24: // after_if_else_L40
                 return 1u
-            block@25: // else_body_L39
+            block@25: // else_body_L48
                 return 0u
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:

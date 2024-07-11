@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 from textwrap import dedent
 
 import algokit_utils
+import algosdk.constants
 import attrs
 import prettytable
 import puya.errors
@@ -1434,4 +1435,34 @@ def test_match(harness: _TestHarness) -> None:
         "Hello bytes",
         "Hello one",
         "Hello True",
+    ]
+
+
+def test_loop_else(harness: _TestHarness) -> None:
+    contract_path = TEST_CASES_DIR / "loop_else" / "loop_else.py"
+    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
+        harness.deploy(contract_path, AppCallRequest(args=[0, 1]))
+    assert exc_info.value.message == "err opcode executed"
+    assert exc_info.value.line_no is not None
+    assert (
+        "// access denied, missing secret argument" in exc_info.value.lines[exc_info.value.line_no]
+    )
+
+    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
+        harness.deploy(contract_path, AppCallRequest(args=[2, b"while_secret", 3]))
+    assert exc_info.value.message == "err opcode executed"
+    assert exc_info.value.line_no is not None
+    assert (
+        "// access denied, missing secret account" in exc_info.value.lines[exc_info.value.line_no]
+    )
+
+    with_all_secrets_result = harness.deploy(
+        contract_path,
+        AppCallRequest(
+            args=[4, b"while_secret", 5],
+            accounts=[algosdk.constants.ZERO_ADDRESS, harness.account.address],
+        ),
+    )
+    assert with_all_secrets_result.decode_logs("u") == [
+        "found secret argument at idx=1 and secret account at idx=1"
     ]

@@ -1,6 +1,6 @@
 import contextlib
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from functools import partialmethod
 
 import attrs
@@ -25,7 +25,9 @@ from puya.awst.nodes import (
     ExpressionStatement,
     ForInLoop,
     FreeSubroutineTarget,
+    Goto,
     IfElse,
+    Label,
     Lvalue,
     Not,
     ReturnStatement,
@@ -41,10 +43,7 @@ from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._literals import LiteralBuilderImpl
-from puya.awst_build.eb.arc4 import (
-    ARC4BoolTypeBuilder,
-    ARC4ClientTypeBuilder,
-)
+from puya.awst_build.eb.arc4 import ARC4BoolTypeBuilder, ARC4ClientTypeBuilder
 from puya.awst_build.eb.bool import BoolTypeBuilder
 from puya.awst_build.eb.conditional_literal import ConditionalLiteralBuilder
 from puya.awst_build.eb.contracts import (
@@ -125,6 +124,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             "FuncDef argument type list length should match arguments list length",
             func_loc,
         )
+        self._break_label_stack = list[Label | None]()
         # convert the return type
         self._return_type = self.context.type_to_pytype(
             type_info.ret_type, source_location=func_loc
@@ -496,36 +496,82 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         loc = self._location(mypy_expr)
         return builder.bool_eval(loc)
 
-    def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop:
-        if stmt.else_body is not None:
-            self._error("else clause on while loop not supported", self._location(stmt))
-        condition = self._eval_condition(stmt.expr)
-        loop_body = self.visit_block(stmt.body)
-        return WhileLoop(
-            source_location=self._location(stmt),
-            condition=condition.resolve(),
-            loop_body=loop_body,
+    @typing.overload
+    def _build_loop(
+        self,
+        stmt: mypy.nodes.WhileStmt,
+        ctor: Callable[[Block, SourceLocation], WhileLoop],
+    ) -> WhileLoop | Block: ...
+
+    @typing.overload
+    def _build_loop(
+        self,
+        stmt: mypy.nodes.ForStmt,
+        ctor: Callable[[Block, SourceLocation], ForInLoop],
+    ) -> ForInLoop | Block: ...
+
+    def _build_loop(
+        self,
+        stmt: mypy.nodes.WhileStmt | mypy.nodes.ForStmt,
+        ctor: Callable[[Block, SourceLocation], WhileLoop | ForInLoop],
+    ) -> WhileLoop | ForInLoop | Block:
+        loop_loc = self._location(stmt)
+        if stmt.else_body is None:
+            break_label = None
+        else:
+            break_label = Label(f"after_loop_L{loop_loc.line}")
+
+        self._break_label_stack.append(break_label)
+        try:
+            block = self.visit_block(stmt.body)
+        finally:
+            self._break_label_stack.pop()
+        loop = ctor(block, loop_loc)
+        if stmt.else_body is None:
+            return loop
+        else_body = self.visit_block(stmt.else_body)
+        # empty block, exists so we have a goto target that skips the else body
+        after_block = Block(label=break_label, body=[], source_location=loop_loc)
+        return Block(
+            body=[loop, else_body, after_block],
+            comment=f"loop_with_else_L{loop_loc.line}",
+            source_location=loop_loc,
         )
 
-    def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> ForInLoop:
-        stmt_loc = self._location(stmt)
-        if stmt.else_body is not None:
-            self._error("else clause on for loop not supported", stmt_loc)
+    def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop | Block:
+        condition = self._eval_condition(stmt.expr)
+        return self._build_loop(
+            stmt,
+            lambda loop_body, loop_loc: WhileLoop(
+                condition=condition.resolve(),
+                loop_body=loop_body,
+                source_location=loop_loc,
+            ),
+        )
+
+    def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> ForInLoop | Block:
         sequence_builder = require_instance_builder(stmt.expr.accept(self))
         sequence = sequence_builder.iterate()
         iter_item_type = sequence_builder.iterable_item_type()
         self._assign_type(stmt.index, iter_item_type)
         items = self.resolve_lvalue(stmt.index)
-        loop_body = self.visit_block(stmt.body)
-        return ForInLoop(
-            source_location=stmt_loc,
-            items=items,
-            sequence=sequence,
-            loop_body=loop_body,
+        return self._build_loop(
+            stmt,
+            lambda loop_body, loop_loc: ForInLoop(
+                items=items,
+                sequence=sequence,
+                loop_body=loop_body,
+                source_location=loop_loc,
+            ),
         )
 
-    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> BreakStatement:
-        return BreakStatement(self._location(stmt))
+    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> BreakStatement | Goto:
+        stmt_loc = self._location(stmt)
+        break_label = self._break_label_stack[-1]
+        if break_label is None:
+            return BreakStatement(stmt_loc)
+        else:
+            return Goto(target=break_label, source_location=stmt_loc)
 
     def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> ContinueStatement:
         return ContinueStatement(self._location(stmt))

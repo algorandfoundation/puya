@@ -42,7 +42,7 @@ from puya.utils import bits_to_bytes
 @attrs.frozen(kw_only=True)
 class ArrayIterator:
     context: IRFunctionBuildContext
-    array_wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray
+    array_wtype: wtypes.ARC4Array
     array: Value
     array_length: Value
     source_location: SourceLocation
@@ -176,7 +176,7 @@ def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray
 def arc4_array_index(
     context: IRFunctionBuildContext,
     *,
-    array_wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
+    array_wtype: wtypes.ARC4Array,
     array: Value,
     index: Value,
     source_location: SourceLocation,
@@ -249,10 +249,14 @@ def arc4_tuple_index(
 
 def build_for_in_array(
     context: IRFunctionBuildContext,
-    array_wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
+    array_wtype: wtypes.ARC4Array,
     array_expr: awst_nodes.Expression,
     source_location: SourceLocation,
 ) -> ArrayIterator:
+    if not array_wtype.element_type.immutable:
+        raise InternalError(
+            "Attempted iteration of an ARC4 array of mutable objects", source_location
+        )
     array = context.visitor.visit_and_materialise_single(array_expr)
     length_vp = _get_arc4_array_length(array_wtype, array, source_location)
     (array_length,) = assign(

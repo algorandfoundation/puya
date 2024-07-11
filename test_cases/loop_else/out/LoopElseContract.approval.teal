@@ -1,0 +1,113 @@
+#pragma version 10
+
+test_cases.loop_else.loop_else.LoopElseContract.approval_program:
+    byte ""
+    dup
+    // loop_else/loop_else.py:7
+    // arg_idx = UInt64(0)
+    int 0
+
+main_while_top@1:
+    // loop_else/loop_else.py:8
+    // while arg_idx < Txn.num_app_args:
+    txn NumAppArgs
+    dig 1
+    dup
+    uncover 2
+    <
+    assert // access denied, missing secret argument
+    // loop_else/loop_else.py:13
+    // if Txn.application_args(arg_idx) == b"while_secret":
+    txnas ApplicationArgs
+    byte 0x7768696c655f736563726574
+    ==
+    bz main_after_if_else@16
+    // loop_else/loop_else.py:15
+    // for account_index in urange(Txn.num_accounts):
+    txn NumAccounts
+    bury 2
+    int 0
+    bury 3
+
+main_for_header@9:
+    // loop_else/loop_else.py:15
+    // for account_index in urange(Txn.num_accounts):
+    dig 2
+    dup
+    dig 3
+    <
+    assert // access denied, missing secret account
+    // loop_else/loop_else.py:16
+    // account = Txn.accounts(account_index)
+    txnas Accounts
+    // loop_else/loop_else.py:17
+    // if account == Global.zero_address:
+    global ZeroAddress
+    ==
+    bz main_after_if_else@12
+    // loop_else/loop_else.py:27
+    // op.itob(secret_index + 48)[-1],
+    dup
+    int 48
+    +
+    itob
+    dup
+    len
+    int 1
+    -
+    dup
+    int 1
+    +
+    substring3
+    byte "found secret argument at idx="
+    swap
+    concat
+    // loop_else/loop_else.py:28
+    // " and secret account at idx=",
+    byte " and secret account at idx="
+    concat
+    // loop_else/loop_else.py:29
+    // op.itob(account_index + 48)[-1],
+    dig 3
+    int 48
+    +
+    itob
+    dup
+    len
+    int 1
+    -
+    dup
+    int 1
+    +
+    substring3
+    concat
+    // loop_else/loop_else.py:25-30
+    // log(
+    //     "found secret argument at idx=",
+    //     op.itob(secret_index + 48)[-1],
+    //     " and secret account at idx=",
+    //     op.itob(account_index + 48)[-1],
+    // )
+    log
+    // loop_else/loop_else.py:31
+    // return True
+    int 1
+    return
+
+main_after_if_else@12:
+    // loop_else/loop_else.py:15
+    // for account_index in urange(Txn.num_accounts):
+    dig 2
+    int 1
+    +
+    bury 3
+    b main_for_header@9
+
+main_after_if_else@16:
+    // loop_else/loop_else.py:22
+    // arg_idx += 1
+    dup
+    int 1
+    +
+    bury 1
+    b main_while_top@1

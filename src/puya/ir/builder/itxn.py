@@ -16,7 +16,6 @@ from puya.ir.builder._utils import assign, assign_intrinsic_op
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
-    BasicBlock,
     ConditionalBranch,
     InnerTransactionField,
     Intrinsic,
@@ -297,7 +296,7 @@ class InnerTransactionBuilder:
                     )
                 )
             param_var_name = self._resolve_inner_txn_params_var_name(param)
-            next_txn = BasicBlock(comment="next_txn", source_location=submit_var_loc)
+            next_txn = self.block_builder.mkblock(submit_var_loc, "next_txn")
             param_data = self._inner_txn_fields_data[param_var_name]
 
             # with the current implementation, reversing the order itxn_field is called
@@ -312,17 +311,15 @@ class InnerTransactionBuilder:
                 min_num_values, *remaining_values = field_value_counts
                 # values 0 -> min_num_values do not need to test
                 # values min_num_values -> max_num_values need to check if they are set
-                next_field = BasicBlock(comment="next_field", source_location=submit_var_loc)
+                next_field = self.block_builder.mkblock(submit_var_loc, "next_field")
                 self._set_field_values(field_data, 0, min_num_values)
 
                 if remaining_values:
                     last_num_values = min_num_values
                     for next_num_values in remaining_values:
-                        set_fields_blk = BasicBlock(
-                            comment=(
-                                f"set_{field.immediate}_{last_num_values}_to_{next_num_values - 1}"
-                            ),
-                            source_location=submit_var_loc,
+                        set_fields_blk = self.block_builder.mkblock(
+                            submit_var_loc,
+                            f"set_{field.immediate}_{last_num_values}_to_{next_num_values - 1}",
                         )
                         self.block_builder.terminate(
                             ConditionalBranch(
@@ -334,14 +331,12 @@ class InnerTransactionBuilder:
                                 source_location=submit_var_loc,
                             )
                         )
-                        self.ssa.seal_block(set_fields_blk)
-
                         self.block_builder.activate_block(set_fields_blk)
                         self._set_field_values(field_data, last_num_values, next_num_values)
                         last_num_values = next_num_values
 
-                    self.block_builder.goto_and_activate(next_field)
-                    self.ssa.seal_block(next_field)
+                    self.block_builder.goto(next_field)
+                    self.block_builder.activate_block(next_field)
 
             group_indexes.append(
                 ITxnConstant(
@@ -351,8 +346,8 @@ class InnerTransactionBuilder:
                 )
             )
 
-            self.block_builder.goto_and_activate(next_txn)
-            self.ssa.seal_block(next_txn)
+            self.block_builder.goto(next_txn)
+            self.block_builder.activate_block(next_txn)
 
         self.block_builder.add(
             Intrinsic(

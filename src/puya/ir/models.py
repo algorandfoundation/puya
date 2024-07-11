@@ -141,7 +141,6 @@ class Register(Value):
 
     name: str
     version: int
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_register(self)
@@ -218,7 +217,6 @@ class UInt64Constant(Constant):
     value: int
     ir_type: IRType = attrs.field(default=IRType.uint64)
     teal_alias: str | None = None
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
@@ -235,7 +233,6 @@ class UInt64Constant(Constant):
 class ITxnConstant(Constant):
     value: int
     ir_type: IRType = attrs.field()
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
@@ -250,7 +247,6 @@ class ITxnConstant(Constant):
 class BigUIntConstant(Constant):
     value: int
     ir_type: IRType = attrs.field(default=IRType.biguint, init=False)
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_biguint_constant(self)
@@ -273,7 +269,6 @@ class BytesConstant(Constant):
 
     encoding: AVMBytesEncoding
     value: bytes
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
@@ -315,7 +310,6 @@ class AddressConstant(Constant):
 
     ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
     value: str = attrs.field()
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
@@ -327,7 +321,6 @@ class MethodConstant(Constant):
 
     ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
     value: str
-    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_method_constant(self)
@@ -543,6 +536,7 @@ class BasicBlock(Context):
     terminator: ControlOp | None = attrs.field(default=None)
     predecessors: "list[BasicBlock]" = attrs.field(factory=list)
     id: int | None = None
+    label: str | None = None
     comment: str | None = None
 
     @phis.validator
@@ -569,6 +563,10 @@ class BasicBlock(Context):
         if self.terminator is None:
             return ()
         return self.terminator.targets()
+
+    @property
+    def is_empty(self) -> bool:
+        return not (self.phis or self.ops or self.terminator)
 
     @property
     def all_ops(self) -> Iterator[Phi | Op | ControlOp]:

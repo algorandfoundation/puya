@@ -126,7 +126,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@3)
                 let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
                 goto continue_looping%0#0 ? block@2 : block@4
-            block@2: // for_body_L223
+            block@2: // for_body_L224
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
                 let item_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
                 let item#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
@@ -207,19 +207,19 @@ contract examples.voting.voting.VotingRoundApp:
                 let reverse_index_internal%0#0: uint64 = array_length%0#0
                 goto block@1
             block@1: // for_header_L132
-                let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#6 <- block@14)
-                let note#1: bytes = φ(note#0 <- block@0, note#11 <- block@14)
-                let current_index#6: uint64 = φ(current_index#0 <- block@0, current_index#7 <- block@14)
+                let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@13)
+                let note#1: bytes = φ(note#0 <- block@0, note#10 <- block@13)
+                let current_index#5: uint64 = φ(current_index#0 <- block@0, current_index#6 <- block@13)
                 let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
-                goto continue_looping%0#0 ? block@2 : block@15
-            block@2: // for_body_L132
+                goto continue_looping%0#0 ? block@2 : block@14
+            block@2: // for_body_L133
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%6#0)
                 let item_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
                 let question_options#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
                 let question_index#0: uint64 = item_index_internal%0#1
                 let tmp%12#0: bool = (> question_index#0 0u)
                 goto tmp%12#0 ? block@3 : block@4
-            block@3: // if_body_L133
+            block@3: // if_body_L134
                 let note#2: bytes = (concat note#1 ",")
                 goto block@4
             block@4: // after_if_else_L133
@@ -227,50 +227,49 @@ contract examples.voting.voting.VotingRoundApp:
                 let reinterpret_biguint%0#0: biguint = question_options#0
                 let reinterpret_biguint%1#0: biguint = 0x00
                 let tmp%13#0: bool = (b> reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-                goto tmp%13#0 ? block@5 : block@13
-            block@5: // if_body_L135
+                goto tmp%13#0 ? block@5 : block@12
+            block@5: // if_body_L136
                 let note#4: bytes = (concat note#3 "[")
                 let tmp%14#0: uint64 = (btoi question_options#0)
                 (assert 1u) // Step cannot be zero
                 let range_item%0#0: uint64 = 0u
+                let range_index%0#0: uint64 = 0u
                 goto block@6
             block@6: // for_header_L137
-                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@5, range_item%0#4 <- block@11)
-                let note#9: bytes = φ(note#4 <- block@5, note#8 <- block@11)
-                let current_index#4: uint64 = φ(current_index#6 <- block@5, current_index#3 <- block@11)
+                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@5, range_item%0#2 <- block@10)
+                let note#5: bytes = φ(note#4 <- block@5, note#8 <- block@10)
+                let current_index#2: uint64 = φ(current_index#5 <- block@5, current_index#3 <- block@10)
                 let continue_looping%1#0: bool = (< range_item%0#1 tmp%14#0)
-                goto continue_looping%1#0 ? block@7 : block@12
-            block@7: // for_body_L137
+                goto continue_looping%1#0 ? block@7 : block@11
+            block@7: // for_body_L138
                 let option_index#0: uint64 = range_item%0#1
                 let tmp%15#0: bool = (> option_index#0 0u)
                 goto tmp%15#0 ? block@8 : block@9
-            block@8: // if_body_L138
-                let note#6: bytes = (concat note#9 ",")
+            block@8: // if_body_L139
+                let note#6: bytes = (concat note#5 ",")
                 goto block@9
             block@9: // after_if_else_L138
-                let note#7: bytes = φ(note#9 <- block@7, note#6 <- block@8)
-                let votes_for_option#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(current_index#4)
+                let note#7: bytes = φ(note#5 <- block@7, note#6 <- block@8)
+                let votes_for_option#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(current_index#2)
                 let tmp%16#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
                 let note#8: bytes = (concat note#7 tmp%16#0)
-                let current_index#3: uint64 = (+ current_index#4 1u)
+                let current_index#3: uint64 = (+ current_index#2 1u)
                 goto block@10
             block@10: // for_footer_L137
-                goto block@11
-            block@11: // for_increment_L137
-                let range_item%0#4: uint64 = (+ range_item%0#1 1u)
+                let range_item%0#2: uint64 = (+ range_item%0#1 1u)
                 goto block@6
-            block@12: // after_for_L137
-                let note#10: bytes = (concat note#9 "]")
+            block@11: // after_for_L137
+                let note#9: bytes = (concat note#5 "]")
+                goto block@12
+            block@12: // after_if_else_L135
+                let note#10: bytes = φ(note#3 <- block@4, note#9 <- block@11)
+                let current_index#6: uint64 = φ(current_index#5 <- block@4, current_index#2 <- block@11)
                 goto block@13
-            block@13: // after_if_else_L135
-                let note#11: bytes = φ(note#3 <- block@4, note#10 <- block@12)
-                let current_index#7: uint64 = φ(current_index#6 <- block@4, current_index#4 <- block@12)
-                goto block@14
-            block@14: // for_footer_L132
-                let item_index_internal%0#6: uint64 = (+ item_index_internal%0#1 1u)
+            block@13: // for_footer_L132
+                let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
                 goto block@1
-            block@15: // after_for_L132
-                let note#12: bytes = (concat note#1 "]}}")
+            block@14: // after_for_L132
+                let note#11: bytes = (concat note#1 "]}}")
                 itxn_begin
                 let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
                 let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
@@ -293,7 +292,7 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert maybe_exists%8#0) // check self.nft_image_url exists
                 let inner_txn_params%0%%param_ConfigAssetURL_idx_0#0: bytes = maybe_value%8#0
                 let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 1u
-                let inner_txn_params%0%%param_Note_idx_0#0: bytes = note#12
+                let inner_txn_params%0%%param_Note_idx_0#0: bytes = note#11
                 let inner_txn_params%0%%Note_length#0: uint64 = 1u
                 let inner_txn_params%0%%Sender_length#0: uint64 = 0u
                 let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
@@ -346,8 +345,8 @@ contract examples.voting.voting.VotingRoundApp:
                 ((itxn_field ConfigAssetTotal) inner_txn_params%0%%param_ConfigAssetTotal_idx_0#0)
                 ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
                 ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
-                goto block@16
-            block@16: // next_txn_L146
+                goto block@15
+            block@15: // next_txn_L146
                 itxn_submit
                 let new_state_value%1#0: uint64 = itxn[itxn_group_idx(0)].CreatedAssetID
                 (app_global_put "nft_asset_id" new_state_value%1#0)
@@ -361,7 +360,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%0#0: uint64 = (global OpcodeBudget)
                 let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
                 goto tmp%1#0 ? block@2 : block@7
-            block@2: // while_body_L19
+            block@2: // while_body_L20
                 itxn_begin
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field OnCompletion) DeleteApplication)
@@ -389,7 +388,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let radix#0: uint64 = (len digits#0)
                 let tmp%0#0: bool = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
-            block@1: // if_body_L253
+            block@1: // if_body_L254
                 let index_plus_1%0#0: uint64 = (+ i#0 1u)
                 let tmp%1#0: bytes = (substring3 digits#0 i#0 index_plus_1%0#0)
                 return tmp%1#0
@@ -504,13 +503,14 @@ contract examples.voting.voting.VotingRoundApp:
                 let cumulative_offset#0: uint64 = 0u
                 (assert 1u) // Step cannot be zero
                 let range_item%0#0: uint64 = 0u
+                let range_index%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L195
-                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@0, range_item%0#3 <- block@4)
-                let cumulative_offset#3: uint64 = φ(cumulative_offset#0 <- block@0, cumulative_offset#2 <- block@4)
+                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@0, range_item%0#2 <- block@3)
+                let cumulative_offset#1: uint64 = φ(cumulative_offset#0 <- block@0, cumulative_offset#2 <- block@3)
                 let continue_looping%0#0: bool = (< range_item%0#1 questions_count#0)
-                goto continue_looping%0#0 ? block@2 : block@5
-            block@2: // for_body_L195
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L196
                 let question_index#0: uint64 = range_item%0#1
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) answer_ids#0)
                 let item_offset%0#0: uint64 = (* question_index#0 1u)
@@ -524,9 +524,9 @@ contract examples.voting.voting.VotingRoundApp:
                 let options_count#0: uint64 = (btoi tmp%17#0)
                 let tmp%18#0: bool = (< answer_option_index#0 options_count#0)
                 (assert tmp%18#0) // Answer option index invalid
-                let tmp%19#0: uint64 = (+ cumulative_offset#3 answer_option_index#0)
+                let tmp%19#0: uint64 = (+ cumulative_offset#1 answer_option_index#0)
                 examples.voting.voting.VotingRoundApp.increment_vote_in_box(tmp%19#0)
-                let cumulative_offset#2: uint64 = (+ cumulative_offset#3 options_count#0)
+                let cumulative_offset#2: uint64 = (+ cumulative_offset#1 options_count#0)
                 let copy%0#0: bytes = answer_ids#0
                 let tmp%20#0: bytes = (txn Sender)
                 let tmp%21#0: bytes = (concat "" tmp%20#0)
@@ -538,11 +538,9 @@ contract examples.voting.voting.VotingRoundApp:
                 (app_global_put "voter_count" new_state_value%0#0)
                 goto block@3
             block@3: // for_footer_L195
-                goto block@4
-            block@4: // for_increment_L195
-                let range_item%0#3: uint64 = (+ range_item%0#1 1u)
+                let range_item%0#2: uint64 = (+ range_item%0#1 1u)
                 goto block@1
-            block@5: // after_for_L195
+            block@4: // after_for_L195
                 return 
         
         subroutine examples.voting.voting.VotingRoundApp.increment_vote_in_box(index: uint64) -> void:

@@ -80,7 +80,7 @@ test_forwards_for_header@1:
     frame_dig 0
     int 7
     <
-    bz test_forwards_after_for@5
+    bz test_forwards_after_for@4
     // iteration/iterate_urange.py:14
     // log(values[i])
     frame_dig 0
@@ -103,7 +103,7 @@ test_forwards_for_header@1:
     frame_bury 0
     b test_forwards_for_header@1
 
-test_forwards_after_for@5:
+test_forwards_after_for@4:
     retsub
 
 
@@ -118,7 +118,7 @@ test_reversed:
     // for i in reversed(urange(1, 7, 2)):
     int 5
 
-test_reversed_for_body@3:
+test_reversed_for_body@2:
     // iteration/iterate_urange.py:21
     // log(values[i])
     frame_dig 0
@@ -138,14 +138,14 @@ test_reversed_for_body@3:
     // for i in reversed(urange(1, 7, 2)):
     int 1
     >
-    bz test_reversed_after_for@6
+    bz test_reversed_after_for@5
     frame_dig 0
     int 2
     -
     frame_bury 0
-    b test_reversed_for_body@3
+    b test_reversed_for_body@2
 
-test_reversed_after_for@6:
+test_reversed_after_for@5:
     retsub
 
 
@@ -167,7 +167,7 @@ test_forwards_with_forwards_index_for_header@1:
     frame_dig 1
     int 7
     <
-    bz test_forwards_with_forwards_index_after_for@5
+    bz test_forwards_with_forwards_index_after_for@4
     // iteration/iterate_urange.py:28
     // self._log_with_index(idx, values[i])
     frame_dig 1
@@ -198,7 +198,7 @@ test_forwards_with_forwards_index_for_header@1:
     frame_bury 1
     b test_forwards_with_forwards_index_for_header@1
 
-test_forwards_with_forwards_index_after_for@5:
+test_forwards_with_forwards_index_after_for@4:
     retsub
 
 
@@ -236,23 +236,12 @@ test_forwards_with_reverse_index:
     // @subroutine
     // def test_forwards_with_reverse_index(self) -> None:
     proto 0 0
-    int 0
     // iteration/iterate_urange.py:34
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
+    int 2
     int 1
 
-test_forwards_with_reverse_index_for_header@2:
-    // iteration/iterate_urange.py:34
-    // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
-    frame_dig 1
-    int 7
-    <
-    bz test_forwards_with_reverse_index_after_for@6
-    int 2
-    frame_dig 0
-    dup
-    cover 2
-    -
+test_forwards_with_reverse_index_for_body@2:
     // iteration/iterate_urange.py:35
     // self._log_with_index(idx, values[i])
     frame_dig 1
@@ -267,21 +256,25 @@ test_forwards_with_reverse_index_for_header@2:
     dig 2
     uncover 2
     substring3
-    uncover 2
+    frame_dig 0
     swap
     callsub _log_with_index
     // iteration/iterate_urange.py:34
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
+    int 5
+    <
+    bz test_forwards_with_reverse_index_after_for@5
+    frame_dig 1
     int 2
     +
-    swap
+    frame_dig 0
     int 1
-    +
+    -
     frame_bury 0
     frame_bury 1
-    b test_forwards_with_reverse_index_for_header@2
+    b test_forwards_with_reverse_index_for_body@2
 
-test_forwards_with_reverse_index_after_for@6:
+test_forwards_with_reverse_index_after_for@5:
     retsub
 
 
@@ -297,7 +290,7 @@ test_reverse_with_forwards_index:
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     int 5
 
-test_reverse_with_forwards_index_for_body@3:
+test_reverse_with_forwards_index_for_body@2:
     // iteration/iterate_urange.py:42
     // self._log_with_index(idx, values[i])
     frame_dig 1
@@ -319,7 +312,7 @@ test_reverse_with_forwards_index_for_body@3:
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     int 1
     >
-    bz test_reverse_with_forwards_index_after_for@6
+    bz test_reverse_with_forwards_index_after_for@5
     frame_dig 1
     int 2
     -
@@ -328,9 +321,9 @@ test_reverse_with_forwards_index_for_body@3:
     +
     frame_bury 0
     frame_bury 1
-    b test_reverse_with_forwards_index_for_body@3
+    b test_reverse_with_forwards_index_for_body@2
 
-test_reverse_with_forwards_index_after_for@6:
+test_reverse_with_forwards_index_after_for@5:
     retsub
 
 
@@ -341,17 +334,12 @@ test_reverse_with_reverse_index:
     // @subroutine
     // def test_reverse_with_reverse_index(self) -> None:
     proto 0 0
-    int 0
-    // iteration/iterate_urange.py:48
-    // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
-    int 5
-
-test_reverse_with_reverse_index_for_body@3:
     // iteration/iterate_urange.py:48
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     int 2
-    frame_dig 0
-    -
+    int 5
+
+test_reverse_with_reverse_index_for_body@2:
     // iteration/iterate_urange.py:49
     // self._log_with_index(idx, values[i])
     frame_dig 1
@@ -366,25 +354,25 @@ test_reverse_with_reverse_index_for_body@3:
     dig 2
     uncover 2
     substring3
-    uncover 2
+    frame_dig 0
     swap
     callsub _log_with_index
     // iteration/iterate_urange.py:48
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     int 1
     >
-    bz test_reverse_with_reverse_index_after_for@6
+    bz test_reverse_with_reverse_index_after_for@5
     frame_dig 1
     int 2
     -
     frame_dig 0
     int 1
-    +
+    -
     frame_bury 0
     frame_bury 1
-    b test_reverse_with_reverse_index_for_body@3
+    b test_reverse_with_reverse_index_for_body@2
 
-test_reverse_with_reverse_index_after_for@6:
+test_reverse_with_reverse_index_after_for@5:
     retsub
 
 
@@ -406,7 +394,7 @@ test_empty_for_header@1:
     frame_dig 1
     int 0
     <
-    bz test_empty_after_for@11
+    bz test_empty_after_for@9
     // iteration/iterate_urange.py:55
     // log(i)
     frame_dig 1
@@ -420,7 +408,7 @@ test_empty_for_header@1:
     frame_bury 1
     b test_empty_for_header@1
 
-test_empty_after_for@11:
+test_empty_after_for@9:
     // iteration/iterate_urange.py:58
     // for idx, i in uenumerate(urange(0)):
     int 0
@@ -428,13 +416,13 @@ test_empty_after_for@11:
     frame_bury 0
     frame_bury 1
 
-test_empty_for_header@12:
+test_empty_for_header@10:
     // iteration/iterate_urange.py:58
     // for idx, i in uenumerate(urange(0)):
     frame_dig 1
     int 0
     <
-    bz test_empty_after_for@34
+    bz test_empty_after_for@28
     // iteration/iterate_urange.py:59
     // log(idx, i)
     frame_dig 0
@@ -455,9 +443,9 @@ test_empty_for_header@12:
     +
     frame_bury 0
     frame_bury 1
-    b test_empty_for_header@12
+    b test_empty_for_header@10
 
-test_empty_after_for@34:
+test_empty_after_for@28:
     retsub
 
 

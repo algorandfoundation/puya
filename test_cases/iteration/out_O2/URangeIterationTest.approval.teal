@@ -38,7 +38,7 @@ test_forwards_for_header@1:
     frame_dig 0
     int 7
     <
-    bz test_forwards_after_for@5
+    bz test_forwards_after_for@4
     frame_dig 0
     dup
     int 1
@@ -53,7 +53,7 @@ test_forwards_for_header@1:
     frame_bury 0
     b test_forwards_for_header@1
 
-test_forwards_after_for@5:
+test_forwards_after_for@4:
     retsub
 
 
@@ -62,7 +62,7 @@ test_reversed:
     proto 0 0
     int 5
 
-test_reversed_for_body@3:
+test_reversed_for_body@2:
     frame_dig 0
     dup
     int 1
@@ -74,14 +74,14 @@ test_reversed_for_body@3:
     log
     int 1
     >
-    bz test_reversed_after_for@6
+    bz test_reversed_after_for@5
     frame_dig 0
     int 2
     -
     frame_bury 0
-    b test_reversed_for_body@3
+    b test_reversed_for_body@2
 
-test_reversed_after_for@6:
+test_reversed_after_for@5:
     retsub
 
 
@@ -95,7 +95,7 @@ test_forwards_with_forwards_index_for_header@1:
     frame_dig 1
     int 7
     <
-    bz test_forwards_with_forwards_index_after_for@5
+    bz test_forwards_with_forwards_index_after_for@4
     frame_dig 1
     dup
     int 1
@@ -118,7 +118,7 @@ test_forwards_with_forwards_index_for_header@1:
     frame_bury 1
     b test_forwards_with_forwards_index_for_header@1
 
-test_forwards_with_forwards_index_after_for@5:
+test_forwards_with_forwards_index_after_for@4:
     retsub
 
 
@@ -143,19 +143,10 @@ _log_with_index:
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_reverse_index() -> void:
 test_forwards_with_reverse_index:
     proto 0 0
-    int 0
+    int 2
     int 1
 
-test_forwards_with_reverse_index_for_header@2:
-    frame_dig 1
-    int 7
-    <
-    bz test_forwards_with_reverse_index_after_for@6
-    int 2
-    frame_dig 0
-    dup
-    cover 2
-    -
+test_forwards_with_reverse_index_for_body@2:
     frame_dig 1
     dup
     int 1
@@ -164,19 +155,23 @@ test_forwards_with_reverse_index_for_header@2:
     dig 2
     uncover 2
     substring3
-    uncover 2
+    frame_dig 0
     swap
     callsub _log_with_index
+    int 5
+    <
+    bz test_forwards_with_reverse_index_after_for@5
+    frame_dig 1
     int 2
     +
-    swap
+    frame_dig 0
     int 1
-    +
+    -
     frame_bury 0
     frame_bury 1
-    b test_forwards_with_reverse_index_for_header@2
+    b test_forwards_with_reverse_index_for_body@2
 
-test_forwards_with_reverse_index_after_for@6:
+test_forwards_with_reverse_index_after_for@5:
     retsub
 
 
@@ -186,7 +181,7 @@ test_reverse_with_forwards_index:
     int 0
     int 5
 
-test_reverse_with_forwards_index_for_body@3:
+test_reverse_with_forwards_index_for_body@2:
     frame_dig 1
     dup
     int 1
@@ -200,7 +195,7 @@ test_reverse_with_forwards_index_for_body@3:
     callsub _log_with_index
     int 1
     >
-    bz test_reverse_with_forwards_index_after_for@6
+    bz test_reverse_with_forwards_index_after_for@5
     frame_dig 1
     int 2
     -
@@ -209,22 +204,19 @@ test_reverse_with_forwards_index_for_body@3:
     +
     frame_bury 0
     frame_bury 1
-    b test_reverse_with_forwards_index_for_body@3
+    b test_reverse_with_forwards_index_for_body@2
 
-test_reverse_with_forwards_index_after_for@6:
+test_reverse_with_forwards_index_after_for@5:
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_reverse_index() -> void:
 test_reverse_with_reverse_index:
     proto 0 0
-    int 0
+    int 2
     int 5
 
-test_reverse_with_reverse_index_for_body@3:
-    int 2
-    frame_dig 0
-    -
+test_reverse_with_reverse_index_for_body@2:
     frame_dig 1
     dup
     int 1
@@ -233,23 +225,23 @@ test_reverse_with_reverse_index_for_body@3:
     dig 2
     uncover 2
     substring3
-    uncover 2
+    frame_dig 0
     swap
     callsub _log_with_index
     int 1
     >
-    bz test_reverse_with_reverse_index_after_for@6
+    bz test_reverse_with_reverse_index_after_for@5
     frame_dig 1
     int 2
     -
     frame_dig 0
     int 1
-    +
+    -
     frame_bury 0
     frame_bury 1
-    b test_reverse_with_reverse_index_for_body@3
+    b test_reverse_with_reverse_index_for_body@2
 
-test_reverse_with_reverse_index_after_for@6:
+test_reverse_with_reverse_index_after_for@5:
     retsub
 
 
@@ -263,7 +255,7 @@ test_empty_for_header@1:
     frame_dig 1
     int 0
     <
-    bz test_empty_after_for@11
+    bz test_empty_after_for@9
     frame_dig 1
     dup
     itob
@@ -273,17 +265,17 @@ test_empty_for_header@1:
     frame_bury 1
     b test_empty_for_header@1
 
-test_empty_after_for@11:
+test_empty_after_for@9:
     int 0
     dup
     frame_bury 0
     frame_bury 1
 
-test_empty_for_header@12:
+test_empty_for_header@10:
     frame_dig 1
     int 0
     <
-    bz test_empty_after_for@34
+    bz test_empty_after_for@28
     frame_dig 0
     dup
     itob
@@ -300,9 +292,9 @@ test_empty_for_header@12:
     +
     frame_bury 0
     frame_bury 1
-    b test_empty_for_header@12
+    b test_empty_for_header@10
 
-test_empty_after_for@34:
+test_empty_after_for@28:
     retsub
 
 

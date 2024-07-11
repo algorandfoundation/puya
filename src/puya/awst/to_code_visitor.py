@@ -499,7 +499,7 @@ class ToCodeVisitor(
         return statements
 
     def visit_goto(self, statement: nodes.Goto) -> list[str]:
-        return [f"goto {statement.label}"]
+        return [f"goto {statement.target}"]
 
     def visit_if_else(self, statement: nodes.IfElse) -> list[str]:
         if_branch = statement.if_branch.accept(self)

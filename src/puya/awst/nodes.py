@@ -2,7 +2,6 @@ import decimal
 import enum
 import itertools
 import typing
-import typing as t
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
@@ -24,9 +23,9 @@ from puya.models import (
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
-T = t.TypeVar("T")
+T = typing.TypeVar("T")
 
-ConstantValue: t.TypeAlias = int | str | bytes | bool
+ConstantValue: typing.TypeAlias = int | str | bytes | bool
 
 
 @attrs.frozen
@@ -158,38 +157,39 @@ wtype_is_biguint = expression_has_wtype(wtypes.biguint_wtype)
 wtype_is_bool = expression_has_wtype(wtypes.bool_wtype)
 wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
 
+Label = typing.NewType("Label", str)
 
-@attrs.frozen
+
+@attrs.frozen(kw_only=True)
 class Block(Statement):
     """
     A (non-basic) block used to group statements. Can contain nested blocks, loops, and branching
     structures. No lexical scoping is offered or implied by this block.
 
     body: A sequence of statements which represent this block
-    description: An optional description of what this block represents. Only influences
+    comment: An optional comment of what this block represents. Only influences
                  non-functional output
     label: An optional label for this block allowing goto statements to jump to this block.
            Must be unique per subroutine.
     """
 
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
-    description: str | None = None
-    label: str | None = None
+    label: Label | None = None
+    comment: str | None = None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_block(self)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class Goto(Statement):
     """
     Branch unconditionally to the block with the specified label.
 
-    label: The label of a block within the same subroutine
+    target: The label of a block within the same subroutine
     """
 
-    label: str
-    description: str | None = None
+    target: Label
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_goto(self)
@@ -312,7 +312,7 @@ class BytesEncoding(enum.StrEnum):
 
 @attrs.frozen(repr=False)
 class _WTypeIsBackedBy:
-    backed_by: t.Literal[AVMType.uint64, AVMType.bytes]
+    backed_by: typing.Literal[AVMType.uint64, AVMType.bytes]
 
     def __call__(
         self,
@@ -479,7 +479,7 @@ class ARC4Decode(Expression):
         return visitor.visit_arc4_decode(self)
 
 
-CompileTimeConstantExpression: t.TypeAlias = (
+CompileTimeConstantExpression: typing.TypeAlias = (
     IntegerConstant
     | DecimalConstant
     | BoolConstant
@@ -562,7 +562,7 @@ class CheckedMaybe(Expression):
         check: Expression,
         source_location: SourceLocation,
         comment: str,
-    ) -> t.Self:
+    ) -> typing.Self:
         if check.wtype != wtypes.bool_wtype:
             raise InternalError(
                 "Check condition for CheckedMaybe should be a boolean", source_location
@@ -580,7 +580,7 @@ class TupleExpression(Expression):
     wtype: wtypes.WTuple = attrs.field()
 
     @classmethod
-    def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> t.Self:
+    def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> typing.Self:
         return cls(
             items=items,
             wtype=wtypes.WTuple((i.wtype for i in items), location),
