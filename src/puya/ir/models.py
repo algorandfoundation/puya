@@ -289,8 +289,11 @@ class CompiledContractReference(Value):
     artifact: ContractReference
     field: CompiledReferenceField
     template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
+    """
+    template variable keys here are fully qualified with their appropriate prefix
+    """
     source_location: SourceLocation | None = attrs.field(eq=False)
-    program_page: int = 0  # used for approval and clear_state fields
+    program_page: int | None = None  # used for approval and clear_state fields
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_compiled_contract_reference(self)

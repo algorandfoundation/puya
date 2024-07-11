@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 import itertools
 import typing
+from collections.abc import Mapping, Sequence
 
 import mypy.nodes
 import mypy.types
@@ -15,24 +14,18 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
-from puya.awst_build.eb._base import (
-    FunctionBuilder,
-    NotIterableInstanceExpressionBuilder,
-)
+from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error, dummy_value
 from puya.awst_build.eb.dict_ import DictLiteralBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.logicsig import LogicSigExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.log import get_logger
 from puya.models import CompiledReferenceField, ContractReference, LogicSigReference
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = get_logger(__name__)
 
@@ -116,22 +109,22 @@ def _get_linear_tuple_size(pytyp: pytypes.PyType) -> int:
 
 
 class CompiledContractExpressionBuilder(_LinearizedNamedTuple):
-
     def __init__(self, expr: Expression) -> None:
         super().__init__(expr, pytypes.CompiledContractType)
 
 
 class CompiledLogicSigExpressionBuilder(_LinearizedNamedTuple):
-
     def __init__(self, expr: Expression) -> None:
         super().__init__(expr, pytypes.CompiledLogicSigType)
 
 
-class CompileContractFunctionBuilder(FunctionBuilder):
-    def __init__(self, location: SourceLocation):
-        super().__init__(location)
-        self.produces = pytypes.CompiledContractType
+_TEMPLATE_VAR_KWARG_NAMES = [
+    "template_vars",
+    "template_vars_prefix",
+]
 
+
+class CompileContractFunctionBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -140,8 +133,28 @@ class CompileContractFunctionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        type_reference, kwargs = _single_positional_and_kwargs(arg_names, args, location)
-        match type_reference:
+        contract_arg_name = "contract"
+        arg_map, _ = get_arg_mapping(
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+            required_positional_names=[contract_arg_name],
+            optional_kw_only=[
+                *(f.name for f in _ALLOCATION_OVERRIDE_FIELDS),
+                *_TEMPLATE_VAR_KWARG_NAMES,
+            ],
+        )
+        prefix, template_vars = _extract_prefix_template_args(arg_map)
+        allocation_overrides = {}
+        for field in _ALLOCATION_OVERRIDE_FIELDS:
+            if arg := arg_map.get(field):
+                allocation_overrides[field] = expect.argument_of_type_else_dummy(
+                    arg, pytypes.UInt64Type, resolve_literal=True
+                ).resolve()
+
+        result_type = pytypes.CompiledContractType
+        match arg_map[contract_arg_name]:
             case NodeBuilder(
                 pytype=pytypes.TypeType(typ=typ)
             ) if pytypes.ContractBaseType in typ.mro:
@@ -150,15 +163,13 @@ class CompileContractFunctionBuilder(FunctionBuilder):
                     module_name=module_name,
                     class_name=class_name,
                 )
-            case None:
-                return dummy_value(self.produces, location)
-            case _:
-                logger.error("invalid contract reference", location=type_reference.source_location)
-                return dummy_value(self.produces, location)
-
-        prefix, template_vars = _extract_prefix_template_args(kwargs)
-        allocation_overrides = _extract_allocation_overrides(kwargs)
-        _expect_empty(kwargs.values())
+            case invalid_or_none:
+                # if None (=missing), then error message already logged by get_arg_mapping
+                if invalid_or_none is not None:
+                    logger.error(
+                        "unexpected argument type", location=invalid_or_none.source_location
+                    )
+                return dummy_value(result_type, location)
 
         return CompiledContractExpressionBuilder(
             CompiledContract(
@@ -166,17 +177,13 @@ class CompileContractFunctionBuilder(FunctionBuilder):
                 allocation_overrides=allocation_overrides,
                 prefix=prefix,
                 template_variables=template_vars,
-                wtype=self.produces.wtype,
+                wtype=result_type.wtype,
                 source_location=location,
             )
         )
 
 
 class CompileLogicSigFunctionBuilder(FunctionBuilder):
-    def __init__(self, location: SourceLocation):
-        super().__init__(location)
-        self.produces = pytypes.CompiledLogicSigType
-
     @typing.override
     def call(
         self,
@@ -185,40 +192,35 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        type_reference, kwargs = _single_positional_and_kwargs(arg_names, args, location)
-        logic_sig = LogicSigReference("", "")
-        match type_reference:
+        logicsig_arg_name = "logicsig"
+        arg_map, _ = get_arg_mapping(
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
+            required_positional_names=[logicsig_arg_name],
+            optional_kw_only=_TEMPLATE_VAR_KWARG_NAMES,
+        )
+        match arg_map.get(logicsig_arg_name):
             case LogicSigExpressionBuilder(ref=logic_sig):
                 pass
-            case None:
-                pass
-            case _:
-                logger.error("invalid logicsig reference", location=type_reference.source_location)
-
-        prefix, template_vars = _extract_prefix_template_args(kwargs)
-        _expect_empty(kwargs.values())
-
+            case missing_or_invalid:
+                logic_sig = LogicSigReference("", "")  # dummy reference
+                # if None (=missing), then error message already logged by get_arg_mapping
+                if missing_or_invalid is not None:
+                    logger.error(
+                        "unexpected argument type", location=missing_or_invalid.source_location
+                    )
+        prefix, template_vars = _extract_prefix_template_args(arg_map)
         return CompiledLogicSigExpressionBuilder(
             CompiledLogicSig(
                 logic_sig=logic_sig,
                 prefix=prefix,
                 template_variables=template_vars,
-                wtype=self.produces.wtype,
+                wtype=pytypes.CompiledLogicSigType.wtype,
                 source_location=location,
             )
         )
-
-
-def _extract_allocation_overrides(
-    name_args: dict[str, NodeBuilder]
-) -> Mapping[CompiledReferenceField, Expression]:
-    allocation_overrides = dict[CompiledReferenceField, Expression]()
-    for field in _ALLOCATION_OVERRIDE_FIELDS:
-        if arg := name_args.pop(field, None):
-            allocation_overrides[field] = expect.exactly_one_arg_of_type_else_dummy(
-                [arg], pytypes.UInt64Type, location=arg.source_location, resolve_literal=True
-            ).resolve()
-    return allocation_overrides
 
 
 def _extract_prefix_template_args(
@@ -227,36 +229,11 @@ def _extract_prefix_template_args(
     prefix: str | None = None
     template_vars: Mapping[str, Expression] = {}
 
-    if template_vars_node := name_args.pop("template_vars", None):
+    if template_vars_node := name_args.get("template_vars"):
         if isinstance(template_vars_node, DictLiteralBuilder):
             template_vars = {k: v.resolve() for k, v in template_vars_node.mapping.items()}
         else:
             logger.error("unexpected argument type", location=template_vars_node.source_location)
-    if prefix_node := name_args.pop("template_vars_prefix", None):
-        prefix = expect.simple_string_literal(
-            prefix_node, default=expect.default_fixed_value(None)
-        )
+    if prefix_node := name_args.get("template_vars_prefix"):
+        prefix = expect.simple_string_literal(prefix_node, default=expect.default_none)
     return prefix, template_vars
-
-
-def _single_positional_and_kwargs(
-    names: Sequence[str | None], args: Sequence[NodeBuilder], location: SourceLocation
-) -> tuple[NodeBuilder | None, dict[str, NodeBuilder]]:
-    positional: NodeBuilder | None = None
-    kwargs = dict[str, NodeBuilder]()
-    for name, arg in zip(names, args, strict=True):
-        if name is None:
-            if positional:
-                logger.error("unexpected argument", location=arg.source_location)
-            else:
-                positional = arg
-        else:
-            kwargs[name] = arg
-    if positional is None:
-        logger.error("expected 1 positional arg", location=location)
-    return positional, kwargs
-
-
-def _expect_empty(args: Iterable[NodeBuilder]) -> None:
-    for arg in args:
-        logger.error("unexpected argument", location=arg.source_location)

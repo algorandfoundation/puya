@@ -13,7 +13,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst_build import constants
 from puya.errors import CodeError, InternalError
-from puya.models import CompiledReferenceField, TransactionType
+from puya.models import TransactionType
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -598,7 +598,11 @@ GenericARC4TupleType: typing.Final = _GenericType(
 )
 
 
-def _named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
+def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
+    """
+    Produces a TupleType with an underlying WType that is a linear WTuple of provided items
+    """
+
     def _flatten(items: Iterable[wtypes.WType]) -> Iterable[wtypes.WType]:
         for item in items:
             if isinstance(item, wtypes.WTuple):
@@ -621,23 +625,19 @@ def _named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
 # TODO: The CompiledContract and CompiledLogicSig types are currently just protocols in the stubs,
 #       however the should become named tuples once nested tuples are supported.
 #       For now it is convenient to represent them as named tuples at the pytypes level
-CompiledContractType: typing.Final[TupleType] = _named_tuple(
+CompiledContractType: typing.Final[TupleType] = _flattened_named_tuple(
     name="algopy._compiled.CompiledContract",
     items={
-        CompiledReferenceField.approval_program: GenericTupleType.parameterise(
-            [BytesType, BytesType], None
-        ),
-        CompiledReferenceField.clear_state_program: GenericTupleType.parameterise(
-            [BytesType, BytesType], None
-        ),
-        CompiledReferenceField.extra_program_pages: UInt64Type,
-        CompiledReferenceField.global_uints: UInt64Type,
-        CompiledReferenceField.global_bytes: UInt64Type,
-        CompiledReferenceField.local_uints: UInt64Type,
-        CompiledReferenceField.local_bytes: UInt64Type,
+        "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
+        "clear_state_program": GenericTupleType.parameterise([BytesType, BytesType], None),
+        "extra_program_pages": UInt64Type,
+        "global_uints": UInt64Type,
+        "global_bytes": UInt64Type,
+        "local_uints": UInt64Type,
+        "local_bytes": UInt64Type,
     },
 )
-CompiledLogicSigType: typing.Final[TupleType] = _named_tuple(
+CompiledLogicSigType: typing.Final[TupleType] = _flattened_named_tuple(
     name="algopy._compiled.CompiledLogicSig",
     items={
         "account": AccountType,

@@ -49,15 +49,10 @@ def lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
             return models.PushBytes(value=address.public_key, source_location=loc)
         case teal.TemplateVar(name=name, op_code=op_code, source_location=var_loc):
             try:
-                maybe_value = ctx.template_variables[name]
+                value, value_loc = ctx.template_variables[name]
             except KeyError as ex:
                 raise CodeError(f"template value not defined: {name!r}", var_loc) from ex
             else:
-                if isinstance(maybe_value, tuple):
-                    value, value_loc = maybe_value
-                else:
-                    value = maybe_value
-                    value_loc = None
                 match value, op_code:
                     case int(int_value), "int":
                         if int_value < 0 or int_value.bit_length() > 64:

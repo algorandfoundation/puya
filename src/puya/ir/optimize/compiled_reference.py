@@ -1,10 +1,17 @@
+"""
+The compiled reference replacement is part of the optimizer pipeline for two reasons:
+
+1.) It relies on any template variables provided being optimized into constant values
+2.) Once compiled references are replaced there are additional optimizations that can occur
+"""
+
 from collections.abc import Mapping
 
 import attrs
 from immutabledict import immutabledict
 
 from puya import algo_constants, log
-from puya.algo_constants import MAX_APP_PAGE_SIZE, MAX_BYTES_LENGTH, PROGRAM_DATA
+from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_APP_PAGE_SIZE, MAX_BYTES_LENGTH
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.optimize.context import IROptimizeContext
@@ -14,7 +21,6 @@ from puya.models import (
     CompiledReferenceField,
     TemplateValue,
 )
-from puya.parse import SourceLocation
 from puya.utils import Address, sha512_256_hash
 
 logger = log.get_logger(__name__)
@@ -44,7 +50,7 @@ class CompiledReferenceReplacer(IRMutator):
         program_bytecode = self.context.get_program_bytecode(
             const.artifact, "logic_sig", template_constants
         )
-        address_public_key = sha512_256_hash(PROGRAM_DATA + program_bytecode)
+        address_public_key = sha512_256_hash(HASH_PREFIX_PROGRAM + program_bytecode)
         return ir.AddressConstant(
             value=Address.from_public_key(address_public_key).address,
             source_location=const.source_location,
@@ -87,6 +93,9 @@ class CompiledReferenceReplacer(IRMutator):
                 CompiledReferenceField.approval_program
                 | CompiledReferenceField.clear_state_program
             ):
+                page = const.program_page
+                if page is None:
+                    raise InternalError("expected non-none value for page", const.source_location)
                 program_bytecode = self.context.get_program_bytecode(
                     const.artifact,
                     (
@@ -96,7 +105,6 @@ class CompiledReferenceReplacer(IRMutator):
                     ),
                     template_constants,
                 )
-                page = const.program_page
                 program_page = program_bytecode[
                     page * MAX_BYTES_LENGTH : (page + 1) * MAX_BYTES_LENGTH
                 ]
@@ -130,22 +138,18 @@ def _is_constant(template_variables: Mapping[str, ir.Value]) -> bool:
 def _get_template_constants(
     global_consts: Mapping[str, int | bytes], template_variables: Mapping[str, ir.Value]
 ) -> immutabledict[str, TemplateValue]:
-    template_consts = dict[str, TemplateValue](global_consts)
+    template_consts: dict[str, TemplateValue] = {k: (v, None) for k, v in global_consts.items()}
     for var, value in template_variables.items():
         match value:
             case ir.UInt64Constant() | ir.BytesConstant() as const:
-                template_consts[var] = _template_value(const.value, const.source_location)
+                template_consts[var] = const.value, const.source_location
             case ir.BigUIntConstant(value=biguint, source_location=loc):
-                template_consts[var] = _template_value(
-                    biguint.to_bytes(algo_constants.MAX_BIGUINT_BYTES), loc
-                )
+                template_consts[var] = biguint.to_bytes(algo_constants.MAX_BIGUINT_BYTES), loc
             case ir.AddressConstant(value=addr, source_location=loc):
                 address = Address.parse(addr)
-                template_consts[var] = _template_value(address.public_key, loc)
+                template_consts[var] = address.public_key, loc
             case ir.MethodConstant(value=method, source_location=loc):
-                template_consts[var] = _template_value(
-                    sha512_256_hash(method.encode("utf8"))[:4], loc
-                )
+                template_consts[var] = sha512_256_hash(method.encode("utf8"))[:4], loc
             case ir.ITxnConstant():
                 logger.error(
                     "inner transactions cannot be used as a template variable",
@@ -159,10 +163,3 @@ def _get_template_constants(
                     location=value.source_location,
                 )
     return immutabledict(template_consts)
-
-
-def _template_value(value: int | bytes, loc: SourceLocation | None) -> TemplateValue:
-    if loc is None:
-        return value
-    else:
-        return value, loc

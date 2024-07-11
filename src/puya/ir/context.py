@@ -21,8 +21,6 @@ if typing.TYPE_CHECKING:
 
 TMP_VAR_INDICATOR = "%"
 
-_TSymbol = typing.TypeVar("_TSymbol")
-
 
 @attrs.frozen(kw_only=True)
 class IRBuildContext(CompileContext):
@@ -69,20 +67,14 @@ class IRBuildContext(CompileContext):
     def resolve_contract_reference(
         self, cref: puya.models.ContractReference
     ) -> awst_nodes.ContractFragment:
-        return self.resolve_symbol(cref.module_name, cref.class_name, awst_nodes.ContractFragment)
-
-    def resolve_symbol(
-        self, module_name: str, symbol_name: str, symbol_type: type[_TSymbol]
-    ) -> _TSymbol:
-        fullname = f"{module_name}.{symbol_name}"
         try:
-            module = self.module_awsts[module_name]
-            symbol = module.symtable[symbol_name]
+            module = self.module_awsts[cref.module_name]
+            contract = module.symtable[cref.class_name]
         except KeyError as ex:
-            raise InternalError(f"Failed to resolve symbol {fullname}") from ex
-        if not isinstance(symbol, symbol_type):
-            raise InternalError(f"Symbol reference {fullname} resolved to {symbol}")
-        return symbol
+            raise InternalError(f"Failed to resolve contract reference {cref}") from ex
+        if not isinstance(contract, awst_nodes.ContractFragment):
+            raise InternalError(f"Contract reference {cref} resolved to {contract}")
+        return contract
 
     def resolve_function_reference(
         self, target: awst_nodes.SubroutineTarget, source_location: SourceLocation

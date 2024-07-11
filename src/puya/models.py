@@ -231,15 +231,14 @@ class CompiledLogicSig(abc.ABC):
 CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSig
 
 
-class CompiledReferenceField(enum.StrEnum):
-    approval_program = enum.auto()
-    clear_state_program = enum.auto()
-    extra_program_pages = enum.auto()
-    global_uints = enum.auto()
-    global_bytes = enum.auto()
-    local_uints = enum.auto()
-    local_bytes = enum.auto()
+class CompiledReferenceField(enum.StrEnum):  # TODO remove and use TxnField
+    approval_program = "ApprovalProgramPages"
+    clear_state_program = "ClearStateProgramPages"
+    extra_program_pages = "ExtraProgramPages"
+    global_bytes = "GlobalNumByteSlice"
+    global_uints = "GlobalNumUint"
+    local_bytes = "LocalNumByteSlice"
+    local_uints = "LocalNumUint"
 
 
-TemplateConstant = int | bytes
-TemplateValue = TemplateConstant | tuple[TemplateConstant, SourceLocation]
+TemplateValue = tuple[int | bytes, SourceLocation | None]

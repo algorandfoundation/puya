@@ -15,7 +15,7 @@ MAX_CONSTANT_REFERENCE = 255
 
 
 @attrs.frozen
-class Node:
+class Node(abc.ABC):
     source_location: SourceLocation | None = attrs.field(eq=False)
 
     @abc.abstractmethod
@@ -44,7 +44,7 @@ def _valid_ref(node: Node, _attribute: object, value: int) -> None:
 
 
 @attrs.frozen
-class AVMOp(Node):
+class AVMOp(Node, abc.ABC):
     op_code: str
 
 

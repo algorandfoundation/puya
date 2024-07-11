@@ -19,7 +19,7 @@ from tests.utils import (
 
 def get_test_cases() -> Iterable[ParameterSet]:
     for example in get_all_examples():
-        marks = [pytest.mark.localnet]
+        marks = []
         if example.name == "stress_tests":
             marks.append(pytest.mark.slow)
         yield ParameterSet.param(example, marks=marks, id=example.id)
@@ -30,6 +30,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
+@pytest.mark.localnet()
 def test_assemble_matches_algod(
     algod_client: AlgodClient, case: PuyaExample, optimization_level: int
 ) -> None:
