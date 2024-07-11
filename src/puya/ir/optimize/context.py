@@ -9,7 +9,6 @@ from puya.models import ContractReference, LogicSigReference, StateTotals, Templ
 
 
 class ProgramBytecodeProtocol(typing.Protocol):
-
     def __call__(
         self,
         ref: ContractReference | LogicSigReference,

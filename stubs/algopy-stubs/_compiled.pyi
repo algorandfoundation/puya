@@ -11,31 +11,52 @@ from algopy import (
 class CompiledContract(typing.Protocol):
     @property
     def approval_program(self) -> tuple[Bytes, Bytes]:
-        """TODO"""
+        """
+        Approval program pages for a contract, after template variables have been replaced
+        and compiled to AVM bytecode
+        """
 
     @property
     def clear_state_program(self) -> tuple[Bytes, Bytes]:
-        """TODO"""
+        """
+        Clear state program pages for a contract, after template variables have been replaced
+        and compiled to AVM bytecode
+        """
 
     @property
     def extra_program_pages(self) -> UInt64:
-        """TODO"""
+        """
+        By default, provides extra program pages required based on approval and clear state program
+        size, can be overridden when calling compile_contract
+        """
 
     @property
     def global_uints(self) -> UInt64:
-        """TODO"""
+        """
+        By default, provides global num uints based on contract state totals, can be overridden
+        when calling compile_contract
+        """
 
     @property
     def global_bytes(self) -> UInt64:
-        """TODO"""
+        """
+        By default, provides global num bytes based on contract state totals, can be overridden
+        when calling compile_contract
+        """
 
     @property
     def local_uints(self) -> UInt64:
-        """TODO"""
+        """
+        By default, provides local num uints based on contract state totals, can be overridden
+        when calling compile_contract
+        """
 
     @property
     def local_bytes(self) -> UInt64:
-        """TODO"""
+        """
+        By default, provides local num bytes based on contract state totals, can be overridden
+        when calling compile_contract
+        """
 
 class CompiledLogicSig(typing.Protocol):
     @property
@@ -45,6 +66,7 @@ class CompiledLogicSig(typing.Protocol):
 def compile_contract(
     contract: type[Contract],
     /,
+    *,
     extra_program_pages: UInt64 | int = ...,
     global_uints: UInt64 | int = ...,
     global_bytes: UInt64 | int = ...,
@@ -72,6 +94,7 @@ def compile_contract(
 def compile_logicsig(
     logicsig: LogicSig,
     /,
+    *,
     template_vars: Mapping[str, object] = ...,
     template_vars_prefix: str = ...,
 ) -> CompiledLogicSig:

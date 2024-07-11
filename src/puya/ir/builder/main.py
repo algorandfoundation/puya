@@ -143,6 +143,12 @@ class FunctionIRBuilder(
             prefix + k: self.visit_and_materialise_single(v)
             for k, v in expr.template_variables.items()
         }
+        # TODO: remove implicit coupling
+        #       the coupling here is between the order of values in the ValueTuple
+        #       and the structure of the high level python type
+        #       once we support nested tuples, this coupling can be removed
+        #       and instead support names on WTuple, then each value can be accessed and lowered
+        #       via a FieldExpression
         program_pages = [
             CompiledContractReference(
                 artifact=expr.contract,

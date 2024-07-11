@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import operator
 import typing
 from collections.abc import Iterable, Mapping, Sequence, Set
@@ -35,15 +33,15 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.compile import CompiledContractExpressionBuilder
+from puya.awst_build.eb.compiled import CompiledContractExpressionBuilder
 from puya.awst_build.eb.contracts import ContractTypeExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
-from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puya.awst_build.eb.tuple import TupleLiteralBuilder
-from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder, UInt64TypeBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
     resolve_member_node,
@@ -54,18 +52,12 @@ from puya.models import (
     ARC4BareMethodConfig,
     ARC4CreateOption,
     ARC4MethodConfig,
-    CompiledReferenceField,
     ContractReference,
     OnCompletionAction,
     TransactionType,
 )
 from puya.parse import SourceLocation
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from puya.awst_build.context import ASTConversionModuleContext
-    from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
 
@@ -99,16 +91,17 @@ _ARC4_UPDATE_TRANSACTION_FIELDS = [
     TxnField.Note,
     TxnField.RekeyTo,
 ]
+# used to map TxnFields back to equivalent CompiledContract members
 _PROGRAM_FIELDS = {
-    TxnField.ApprovalProgramPages: CompiledReferenceField.approval_program,
-    TxnField.ClearStateProgramPages: CompiledReferenceField.clear_state_program,
+    TxnField.ApprovalProgramPages: "approval_program",
+    TxnField.ClearStateProgramPages: "clear_state_program",
 }
 _APP_ALLOCATION_FIELDS = {
-    TxnField.GlobalNumByteSlice: CompiledReferenceField.global_bytes,
-    TxnField.GlobalNumUint: CompiledReferenceField.global_uints,
-    TxnField.LocalNumByteSlice: CompiledReferenceField.local_bytes,
-    TxnField.LocalNumUint: CompiledReferenceField.local_uints,
-    TxnField.ExtraProgramPages: CompiledReferenceField.extra_program_pages,
+    TxnField.ExtraProgramPages: "extra_program_pages",
+    TxnField.GlobalNumByteSlice: "global_bytes",
+    TxnField.GlobalNumUint: "global_uints",
+    TxnField.LocalNumByteSlice: "local_bytes",
+    TxnField.LocalNumUint: "local_uints",
 }
 _COMPILED_KWARG = "compiled"
 
@@ -202,7 +195,9 @@ class ABICallTypeBuilder(FunctionBuilder):
 
 
 def _get_python_kwargs(fields: Sequence[TxnField]) -> Set[str]:
-    return {arg for arg, param in PYTHON_ITXN_ARGUMENTS.items() if param.field in fields}
+    return StableSet.from_iter(
+        arg for arg, param in PYTHON_ITXN_ARGUMENTS.items() if param.field in fields
+    )
 
 
 class _ARC4CompilationFunctionBuilder(FunctionBuilder):
@@ -291,7 +286,14 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
         ):
             _add_on_completion(field_nodes, on_completion, location)
 
-        _add_compiled_references(field_nodes, compiled, location)
+        compiled = compiled.single_eval()
+        for field, member_name in _PROGRAM_FIELDS.items():
+            field_nodes[field] = compiled.member_access(member_name, location)
+        # is creating
+        if not is_update:
+            # add all app allocation fields
+            for field, member_name in _APP_ALLOCATION_FIELDS.items():
+                field_nodes[field] = compiled.member_access(member_name, location)
         _validate_transaction_kwargs(
             field_nodes,
             method_call.config,
@@ -721,11 +723,9 @@ def _validate_transaction_kwargs(
 def _check_program_fields_are_present(
     error_message: str, field_nodes: Mapping[TxnField, NodeBuilder], location: SourceLocation
 ) -> None:
-    if arg_names := [
-        arg_name.name for field, arg_name in _PROGRAM_FIELDS.items() if field not in field_nodes
-    ]:
+    if missing_fields := [field for field in _PROGRAM_FIELDS if field not in field_nodes]:
         logger.error(
-            f"{error_message}: {', '.join(arg_names)}",
+            f"{error_message}: {', '.join(_get_python_kwargs(missing_fields))}",
             location=location,
         )
 
@@ -738,31 +738,6 @@ def _check_fields_not_present(
     for field in fields_to_omit:
         if node := field_nodes.get(field):
             logger.error(error_message, location=node.source_location)
-
-
-def _add_compiled_references(
-    field_nodes: dict[TxnField, NodeBuilder],
-    compiled: InstanceBuilder,
-    location: SourceLocation,
-) -> None:
-    compiled = compiled.single_eval()
-    is_creating = _is_creating(field_nodes)
-    is_updating = _get_on_completion(field_nodes) == OnCompletionAction.UpdateApplication
-
-    if is_creating or is_updating:
-        for field, ref in _PROGRAM_FIELDS.items():
-            field_nodes[field] = compiled.member_access(
-                ref,
-                location,
-            )
-    if not is_creating:
-        return
-    # add all app allocation fields
-    for field, ref in _APP_ALLOCATION_FIELDS.items():
-        field_nodes[field] = compiled.member_access(
-            ref,
-            location,
-        )
 
 
 def _get_singular_on_complete(config: ARC4MethodConfig | None) -> OnCompletionAction | None:
@@ -783,8 +758,8 @@ def _get_on_completion(field_nodes: Mapping[TxnField, NodeBuilder]) -> OnComplet
     match field_nodes.get(TxnField.OnCompletion):
         case None:
             return OnCompletionAction.NoOp
-        case InstanceBuilder() as eb:
-            value = eb.resolve_literal(UInt64TypeBuilder(eb.source_location)).resolve()
+        case InstanceBuilder(pytype=pytypes.OnCompleteActionType) as eb:
+            value = eb.resolve()
             if isinstance(value, IntegerConstant):
                 return OnCompletionAction(value.value)
     return None
@@ -797,10 +772,8 @@ def _is_creating(field_nodes: Mapping[TxnField, NodeBuilder]) -> bool | None:
     match field_nodes.get(TxnField.ApplicationID):
         case None:
             return True
-        case InstanceBuilder() as eb:
-            value = eb.resolve_literal(UInt64TypeBuilder(eb.source_location)).resolve()
-            if isinstance(value, IntegerConstant):
-                return value.value == 0
+        case LiteralBuilder(value=int(app_id)):
+            return app_id == 0
     return None
 
 
@@ -815,5 +788,6 @@ def _add_on_completion(
     field_nodes[TxnField.OnCompletion] = UInt64ExpressionBuilder(
         UInt64Constant(
             source_location=location, value=on_complete.value, teal_alias=on_complete.name
-        )
+        ),
+        enum_type=pytypes.OnCompleteActionType,
     )

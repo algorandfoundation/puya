@@ -11,7 +11,6 @@ from puya.parse import SourceLocation
 
 
 class LogicSigExpressionBuilder(TypeBuilder):
-
     def __init__(self, ref: LogicSigReference, location: SourceLocation):
         super().__init__(pytypes.LogicSigType, location)
         self.ref = ref

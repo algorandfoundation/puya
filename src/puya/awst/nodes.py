@@ -671,7 +671,7 @@ class FieldExpression(Expression):
         validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct)
     )
     name: str
-    wtype: wtypes.WType = attrs.field()
+    wtype: wtypes.WType = attrs.field(init=False)
 
     @wtype.default
     def _wtype_factory(self) -> wtypes.WType:
@@ -1512,9 +1512,20 @@ class CompiledContract(Expression):
         factory=immutabledict, converter=immutabledict
     )
     prefix: str | None = None
+    """
+    Prefix will either be the value specified here or PuyaOptions.template_vars_prefix
+    if prefix is None
+
+    The prefix is then prefixed with the template_variables keys on this node to determine the
+    final template variable name
+    """
     template_variables: Mapping[str, Expression] = attrs.field(
         factory=immutabledict, converter=immutabledict
     )
+    """
+    template variables combined with their prefix defined on this node take precedence over
+    template variables of the same key defined on PuyaOptions
+    """
 
     @allocation_overrides.validator
     def _allocation_overrides(

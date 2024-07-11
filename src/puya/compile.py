@@ -225,11 +225,14 @@ def module_irs_to_teal(
         name = artifact.ir.metadata.name
         artifact_ir_base_path = out_dir / name
 
+        num_errors_before_optimization = log_ctx.num_errors
         artifact_ir = optimize_and_destructure_ir(
             optimize_context, artifact.ir, artifact_ir_base_path
         )
-        # IR validation may reveal further errors
-        log_ctx.exit_if_errors()
+        # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
+        # further errors, add dummy artifacts and continue so other artifacts can still be lowered
+        # and report any errors they encounter
+        errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
 
         if existing := artifacts_by_output_base.get(artifact_ir_base_path):
             logger.error(f"Duplicate contract name {name}", location=artifact_ir.source_location)
@@ -237,20 +240,34 @@ def module_irs_to_teal(
         else:
             artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
 
+        compiled: _CompiledContract | _CompiledLogicSig
         match artifact_ir:
             case ContractIR() as contract:
-                compiled: _CompiledContract | _CompiledLogicSig = _contract_ir_to_teal(
-                    context,
-                    contract,
-                    artifact_ir_base_path,
-                )
+                if errors_in_optimization:
+                    compiled = _CompiledContract(
+                        approval_program=_dummy_program(),
+                        clear_program=_dummy_program(),
+                        metadata=contract.metadata,
+                    )
+                else:
+                    compiled = _contract_ir_to_teal(
+                        context,
+                        contract,
+                        artifact_ir_base_path,
+                    )
 
             case LogicSignature() as logic_sig:
-                compiled = _logic_sig_to_teal(
-                    context,
-                    logic_sig,
-                    artifact_ir_base_path,
-                )
+                if errors_in_optimization:
+                    compiled = _CompiledLogicSig(
+                        program=_dummy_program(),
+                        metadata=logic_sig.metadata,
+                    )
+                else:
+                    compiled = _logic_sig_to_teal(
+                        context,
+                        logic_sig,
+                        artifact_ir_base_path,
+                    )
             case _:
                 typing.assert_never(artifact_ir)
 
@@ -358,6 +375,16 @@ class _CompiledLogicSig(CompiledLogicSig):
     metadata: LogicSignatureMetaData
 
 
+def _dummy_program() -> _CompiledProgram:
+    return _CompiledProgram(
+        teal=teal.TealProgram(
+            target_avm_version=0, main=teal.TealSubroutine(signature="", blocks=[]), subroutines=[]
+        ),
+        teal_src="",
+        bytecode=b"",
+    )
+
+
 def _contract_ir_to_teal(
     context: CompileContext,
     contract_ir: ContractIR,
@@ -398,7 +425,11 @@ def _compile_program(context: CompileContext, program: teal.TealProgram) -> _Com
         teal=program,
         teal_src=emit_teal(context, program),
         bytecode=(
-            assemble_program(context, program, context.options.template_variables).bytecode
+            assemble_program(
+                context,
+                program,
+                {k: (v, None) for k, v in context.options.template_variables.items()},
+            ).bytecode
             if context.options.output_bytecode
             else None
         ),

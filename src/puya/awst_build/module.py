@@ -127,7 +127,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
             def deferred(ctx: ASTConversionModuleContext) -> ModuleStatement:
                 program = FunctionASTConverter.convert(ctx, func_def, source_location)
-                ctx.register_pytype(pytypes.LogicSigType, alias=program.full_name)
+                ctx.register_pytype(pytypes.LogicSigType, alias=func_def.fullname)
                 return LogicSignature(
                     module_name=ctx.module_name,
                     program=program,
