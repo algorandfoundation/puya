@@ -257,3 +257,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
 
     @abstractmethod
     def visit_box_value_expression(self, expr: puya.awst.nodes.BoxValueExpression) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_router(self, expr: puya.awst.nodes.ARC4Router) -> T: ...

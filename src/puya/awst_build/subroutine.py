@@ -72,9 +72,7 @@ from puya.awst_build.utils import (
     determine_base_type,
     extract_bytes_literal_from_mypy,
     get_unaliased_fullname,
-    iterate_user_bases,
     maybe_resolve_literal,
-    qualified_class_name,
     require_callable_type,
     resolve_member_node,
     symbol_node_is_function,
@@ -1168,12 +1166,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 "only the zero-arguments version of super() is supported",
                 self._location(super_expr.call),
             )
-        for base in iterate_user_bases(self.contract_method_info.type_info):
-            base_member_node = resolve_member_node(base, super_expr.name, super_loc)
+        # resolve type information as if this is the currently compilation unit
+        for base in self.contract_method_info.type_info.mro[1:]:
+            base_member_node = resolve_member_node(
+                base, super_expr.name, super_loc, include_inherited=False
+            )
             if base_member_node is not None:
                 if symbol_node_is_function(base_member_node):
                     base_func_node = base_member_node
-                    base_class = qualified_class_name(base)
                     break
                 raise CodeError("super() is only supported for calling functions", super_loc)
         else:
@@ -1194,7 +1194,10 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if not is_static:
             func_type = attrs.evolve(func_type, args=func_type.args[1:])
 
-        super_target = BaseClassSubroutineTarget(base_class, name=super_expr.name)
+        super_target = BaseClassSubroutineTarget(
+            base_class=None,  # resolve at lowering time
+            name=super_expr.name,
+        )
         return SubroutineInvokerExpressionBuilder(
             target=super_target, func_type=func_type, location=super_loc
         )

@@ -471,9 +471,9 @@ def fold_state_and_special_methods(
 class SubroutineCollector(FunctionTraverser):
     def __init__(self, context: IRBuildContext, callees: CalleesLookup) -> None:
         self.context = context
-        self.result = StableSet[awst_nodes.Function]()
+        self.result = StableSet[awst_nodes.Subroutine]()
         self.callees = callees
-        self._func_stack = list[awst_nodes.Function]()
+        self._func_stack = list[awst_nodes.Subroutine]()
 
     @classmethod
     def collect(
@@ -481,7 +481,7 @@ class SubroutineCollector(FunctionTraverser):
         context: IRBuildContext,
         start: awst_nodes.Function,
         callees: CalleesLookup,
-    ) -> StableSet[awst_nodes.Function]:
+    ) -> StableSet[awst_nodes.Subroutine]:
         collector = cls(context, callees)
         with collector._enter_func(start):  # noqa: SLF001
             start.body.accept(collector)
@@ -489,16 +489,17 @@ class SubroutineCollector(FunctionTraverser):
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
-        func = self.context.resolve_function_reference(expr.target, expr.source_location)
-        callee = self._func_stack[-1]
-        self.callees[func].add(callee)
-        if func not in self.result:
-            self.result.add(func)
-            with self._enter_func(func):
-                func.body.accept(self)
+        if isinstance(expr.target, awst_nodes.FreeSubroutineTarget):
+            func = self.context.resolve_subroutine_reference(expr.target, expr.source_location)
+            callee = self._func_stack[-1]
+            self.callees[func].add(callee)
+            if func not in self.result:
+                self.result.add(func)
+                with self._enter_func(func):
+                    func.body.accept(self)
 
     @contextlib.contextmanager
-    def _enter_func(self, func: awst_nodes.Function) -> Iterator[None]:
+    def _enter_func(self, func: awst_nodes.Subroutine) -> Iterator[None]:
         self._func_stack.append(func)
         try:
             yield

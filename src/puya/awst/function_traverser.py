@@ -281,3 +281,6 @@ class FunctionTraverser(
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
         expr.key.accept(self)
+
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> None:
+        pass

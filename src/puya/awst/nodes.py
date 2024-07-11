@@ -1002,7 +1002,7 @@ class InstanceSubroutineTarget:
 
 @attrs.frozen
 class BaseClassSubroutineTarget:
-    base_class: ContractReference
+    base_class: ContractReference | None
     name: str
 
 
@@ -1505,6 +1505,20 @@ class StateTotals:
     local_uints: int | None = None
     global_bytes: int | None = None
     local_bytes: int | None = None
+
+
+@attrs.frozen
+class ARC4Router(Expression):
+    """Generate and invoke and ARC-4 router for the currently compiling contract.
+
+    Returns True if the"""
+
+    wtype: WType = attrs.field(init=False, default=wtypes.bool_wtype)
+    ensure_create: bool = True
+    """if True, will generate a bare create method if no other method handles creation"""
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_arc4_router(self)
 
 
 @attrs.frozen

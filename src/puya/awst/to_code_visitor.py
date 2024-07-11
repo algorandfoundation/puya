@@ -570,6 +570,9 @@ class ToCodeVisitor(
     def visit_template_var(self, expr: nodes.TemplateVar) -> str:
         return f"TemplateVar[{expr.wtype}]({expr.name})"
 
+    def visit_arc4_router(self, expr: nodes.ARC4Router) -> str:
+        return f"arc4_router(ensure_create={expr.ensure_create})"
+
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

@@ -960,6 +960,9 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
+        raise NotImplementedError("TODO")
+
     def visit_and_materialise_single(self, expr: awst_nodes.Expression) -> Value:
         """Translate an AWST Expression into a single Value"""
         values = self.visit_and_materialise(expr)

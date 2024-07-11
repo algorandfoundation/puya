@@ -273,9 +273,16 @@ def snake_case(s: str) -> str:
 
 
 def resolve_member_node(
-    type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
+    type_info: mypy.nodes.TypeInfo,
+    name: str,
+    location: SourceLocation,
+    *,
+    include_inherited: bool = True,
 ) -> mypy.nodes.SymbolNode | None:
-    member = type_info.get(name)
+    if include_inherited:
+        member = type_info.get(name)
+    else:
+        member = type_info.names.get(name)
     if member is None:
         return None
     if member.node is None:

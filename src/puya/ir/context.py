@@ -78,34 +78,49 @@ class IRBuildContext(CompileContext):
     def resolve_function_reference(
         self, target: awst_nodes.SubroutineTarget, source_location: SourceLocation
     ) -> awst_nodes.Function:
-        try:
-            match target:
-                case awst_nodes.BaseClassSubroutineTarget(base_class=base_cref, name=func_name):
-                    func: awst_nodes.Node = self._resolve_contract_attribute(
-                        func_name, source_location, start=base_cref
-                    )
-                case awst_nodes.InstanceSubroutineTarget(name=func_name):
-                    func = self._resolve_contract_attribute(func_name, source_location)
-                case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
-                    # remap the internal _algopy_ lib to algopy so that functions
-                    # defined in _algopy_ can reference other functions defined in the same module
-                    module_name = "algopy" if module_name == "_algopy_" else module_name
-                    func = self.module_awsts[module_name].symtable[func_name]
-                case _:
-                    raise InternalError(
-                        f"Unhandled subroutine invocation target: {target}",
-                        source_location,
-                    )
-        except KeyError as ex:
-            raise CodeError(
-                f"Unable to resolve function reference {target}",
-                source_location,
-            ) from ex
-        if not isinstance(func, awst_nodes.Function):
-            raise CodeError(
-                f"Function reference {target} resolved to {func}",
+        if isinstance(target, awst_nodes.FreeSubroutineTarget):
+            return self.resolve_subroutine_reference(target, source_location)
+        elif isinstance(
+            target, awst_nodes.InstanceSubroutineTarget | awst_nodes.BaseClassSubroutineTarget
+        ):
+            return self.resolve_contract_method_reference(target, source_location)
+        else:
+            raise InternalError(
+                f"unhandled subroutine invocation target type: {type(target).__name__}",
                 source_location,
             )
+
+    def resolve_contract_method_reference(
+        self,
+        target: awst_nodes.InstanceSubroutineTarget | awst_nodes.BaseClassSubroutineTarget,
+        source_location: SourceLocation,
+    ) -> awst_nodes.ContractMethod:
+        start = None
+        if isinstance(target, awst_nodes.BaseClassSubroutineTarget):
+            start = target.base_class
+        func = self._resolve_contract_attribute(target.name, source_location, start=start)
+        if not isinstance(func, awst_nodes.ContractMethod):
+            raise CodeError(
+                f"contract method reference {target} resolved to {func}", source_location
+            )
+        return func
+
+    def resolve_subroutine_reference(
+        self, target: awst_nodes.FreeSubroutineTarget, source_location: SourceLocation
+    ) -> awst_nodes.Subroutine:
+        module_name = target.module_name
+        func_name = target.name
+        try:
+            # remap the internal _algopy_ lib to algopy so that functions
+            # defined in _algopy_ can reference other functions defined in the same module
+            module_name = "algopy" if module_name == "_algopy_" else module_name
+            func = self.module_awsts[module_name].symtable[func_name]
+        except KeyError as ex:
+            raise CodeError(
+                f"unable to resolve subroutine reference {target}", source_location
+            ) from ex
+        if not isinstance(func, awst_nodes.Subroutine):
+            raise CodeError(f"subroutine reference {target} resolved to {func}", source_location)
         return func
 
     def _resolve_contract_attribute(
@@ -118,14 +133,14 @@ class IRBuildContext(CompileContext):
         current = self.contract
         if current is None:
             raise InternalError(
-                f"Cannot resolve contract member {name} as there is no current contract",
+                f"cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
         if start is None:
             start_contract = current
         else:
             if start not in current.bases:
-                raise CodeError("Call to base method outside current hierarchy", source_location)
+                raise CodeError("call to base method outside current hierarchy", source_location)
             start_contract = self.resolve_contract_reference(start)
         for contract in (
             start_contract,
@@ -134,8 +149,7 @@ class IRBuildContext(CompileContext):
             with contextlib.suppress(KeyError):
                 return contract.methods[name]
         raise CodeError(
-            f"Unresolvable attribute '{name}' of {start_contract.full_name}",
-            source_location,
+            f"unresolvable attribute '{name}' of {start_contract.full_name}", source_location
         )
 
 
