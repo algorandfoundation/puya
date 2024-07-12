@@ -41,26 +41,6 @@ def compile_arc32(
     )
 
 
-@pytest.fixture()
-def user_account() -> algokit_utils.Account:
-    private_key, address = algosdk.account.generate_account()
-    return algokit_utils.Account(private_key=private_key, address=address)
-
-
-@pytest.fixture()
-def funded_user_account(algod_client: AlgodClient) -> algokit_utils.Account:
-    private_key, address = algosdk.account.generate_account()
-    user = algokit_utils.Account(private_key=private_key, address=address)
-    algokit_utils.ensure_funded(
-        algod_client,
-        algokit_utils.EnsureBalanceParameters(
-            account_to_fund=user,
-            min_spending_balance_micro_algos=1_000_000,
-        ),
-    )
-    return user
-
-
 def token_balances(
     app_client: algokit_utils.ApplicationClient,
     account: algokit_utils.Account,
