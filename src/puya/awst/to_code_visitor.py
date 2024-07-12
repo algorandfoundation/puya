@@ -389,7 +389,9 @@ class ToCodeVisitor(
         overrides = ", ".join(
             f"{k.name}={v.accept(self)}" for k, v in expr.allocation_overrides.items()
         )
-        return f"compiled_contract({expr.contract.full_name!r}{overrides}{template_vars_fragment})"
+        return (
+            f"compiled_contract({expr.contract.full_name!r},{overrides},{template_vars_fragment})"
+        )
 
     def visit_compiled_logicsig(self, expr: nodes.CompiledLogicSig) -> str:
         template_vars_fragment = self._template_vars_fragment(expr.prefix, expr.template_variables)

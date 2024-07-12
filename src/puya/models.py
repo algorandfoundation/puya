@@ -231,14 +231,4 @@ class CompiledLogicSig(abc.ABC):
 CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSig
 
 
-class CompiledReferenceField(enum.StrEnum):  # TODO remove and use TxnField
-    approval_program = "ApprovalProgramPages"
-    clear_state_program = "ClearStateProgramPages"
-    extra_program_pages = "ExtraProgramPages"
-    global_bytes = "GlobalNumByteSlice"
-    global_uints = "GlobalNumUint"
-    local_bytes = "LocalNumByteSlice"
-    local_uints = "LocalNumUint"
-
-
 TemplateValue = tuple[int | bytes, SourceLocation | None]

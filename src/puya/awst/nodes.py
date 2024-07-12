@@ -18,7 +18,6 @@ from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4MethodConfig,
-    CompiledReferenceField,
     ContractReference,
     LogicSigReference,
 )
@@ -1508,7 +1507,7 @@ class LogicSignature(ModuleStatement):
 @attrs.frozen
 class CompiledContract(Expression):
     contract: ContractReference
-    allocation_overrides: Mapping[CompiledReferenceField, Expression] = attrs.field(
+    allocation_overrides: Mapping[TxnField, Expression] = attrs.field(
         factory=immutabledict, converter=immutabledict
     )
     prefix: str | None = None
@@ -1529,12 +1528,17 @@ class CompiledContract(Expression):
 
     @allocation_overrides.validator
     def _allocation_overrides(
-        self, _attribute: object, value: Mapping[CompiledReferenceField, Expression]
+        self, _attribute: object, value: Mapping[TxnField, Expression]
     ) -> None:
-        if {
-            CompiledReferenceField.approval_program,
-            CompiledReferenceField.clear_state_program,
-        }.intersection(value):
+        if set(value).difference(
+            (
+                TxnField.ExtraProgramPages,
+                TxnField.GlobalNumUint,
+                TxnField.GlobalNumByteSlice,
+                TxnField.LocalNumUint,
+                TxnField.LocalNumByteSlice,
+            )
+        ):
             raise InternalError("only allocation fields can be overridden", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

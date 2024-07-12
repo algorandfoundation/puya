@@ -12,13 +12,13 @@ from immutabledict import immutabledict
 
 from puya import algo_constants, log
 from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_APP_PAGE_SIZE, MAX_BYTES_LENGTH
+from puya.awst.txn_fields import TxnField
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor_mutator import IRMutator
 from puya.models import (
-    CompiledReferenceField,
     TemplateValue,
 )
 from puya.utils import Address, sha512_256_hash
@@ -62,10 +62,10 @@ class CompiledReferenceReplacer(IRMutator):
     ) -> ir.CompiledContractReference | ir.Constant:
         field = const.field
         if field in (
-            CompiledReferenceField.global_uints,
-            CompiledReferenceField.global_bytes,
-            CompiledReferenceField.local_uints,
-            CompiledReferenceField.local_bytes,
+            TxnField.GlobalNumUint,
+            TxnField.GlobalNumByteSlice,
+            TxnField.LocalNumUint,
+            TxnField.LocalNumByteSlice,
         ):
             try:
                 state_total = self.context.state_totals[const.artifact]
@@ -73,11 +73,19 @@ class CompiledReferenceReplacer(IRMutator):
                 raise InternalError(
                     f"Invalid contract reference: {const.artifact}", const.source_location
                 ) from None
-            total = attrs.asdict(state_total).get(const.field.name)
-            if not isinstance(total, int):
-                raise InternalError(
-                    f"Invalid state total field: {field.name}", const.source_location
-                )
+            match field:
+                case TxnField.GlobalNumUint:
+                    total = state_total.global_uints
+                case TxnField.GlobalNumByteSlice:
+                    total = state_total.global_bytes
+                case TxnField.LocalNumUint:
+                    total = state_total.local_uints
+                case TxnField.LocalNumByteSlice:
+                    total = state_total.local_bytes
+                case _:
+                    raise InternalError(
+                        f"Invalid state total field: {field.name}", const.source_location
+                    )
             return ir.UInt64Constant(
                 value=total,
                 source_location=const.source_location,
@@ -89,20 +97,13 @@ class CompiledReferenceReplacer(IRMutator):
             self.context.options.template_variables, const.template_variables
         )
         match field:
-            case (
-                CompiledReferenceField.approval_program
-                | CompiledReferenceField.clear_state_program
-            ):
+            case TxnField.ApprovalProgramPages | TxnField.ClearStateProgramPages:
                 page = const.program_page
                 if page is None:
                     raise InternalError("expected non-none value for page", const.source_location)
                 program_bytecode = self.context.get_program_bytecode(
                     const.artifact,
-                    (
-                        "approval"
-                        if field == CompiledReferenceField.approval_program
-                        else "clear_state"
-                    ),
+                    ("approval" if field == TxnField.ApprovalProgramPages else "clear_state"),
                     template_constants,
                 )
                 program_page = program_bytecode[
@@ -113,7 +114,7 @@ class CompiledReferenceReplacer(IRMutator):
                     encoding=AVMBytesEncoding.base64,
                     source_location=const.source_location,
                 )
-            case CompiledReferenceField.extra_program_pages:
+            case TxnField.ExtraProgramPages:
                 approval_bytecode = self.context.get_program_bytecode(
                     const.artifact, "approval", template_constants
                 )
