@@ -554,9 +554,9 @@ def _iterate_indexable(
     with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
         loop_body.accept(context.visitor)
 
+    context.ssa.seal_block(next_block)
     if context.block_builder.try_goto_and_activate(footer):
         context.ssa.seal_block(footer)
-        context.ssa.seal_block(next_block)
         new_index_internal_value = Intrinsic(
             op=AVMOp("+"),
             args=[
@@ -568,11 +568,7 @@ def _iterate_indexable(
         reassign(context, index_internal, new_index_internal_value, source_location=None)
 
         context.block_builder.goto(header)
-        context.ssa.seal_block(header)
-    else:
-        context.ssa.seal_block(next_block)
-        context.ssa.seal_block(header)
-
+    context.ssa.seal_block(header)
     context.block_builder.activate_block(next_block)
 
 
