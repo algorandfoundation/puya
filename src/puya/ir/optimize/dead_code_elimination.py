@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Iterator, Sequence, Set
+from collections.abc import Iterable, Sequence, Set
 
 import attrs
 
@@ -6,6 +6,7 @@ from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
+from puya.ir._utils import bfs_block_order
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import StableSet
 
@@ -262,19 +263,8 @@ class UnusedRegisterCollector(visitor.IRTraverser):
         self.used.add(reg)
 
 
-def _walk_blocks(start: models.Subroutine) -> Iterator[models.BasicBlock]:
-    seen = set[models.BasicBlock]()
-    stack = [start.body[0]]
-    while stack:
-        visit = stack.pop()
-        if visit not in seen:
-            seen.add(visit)
-            yield visit
-            stack.extend(visit.successors)
-
-
 def remove_unreachable_blocks(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    reachable_set = frozenset(_walk_blocks(subroutine))
+    reachable_set = frozenset(bfs_block_order(subroutine.entry))
     unreachable_blocks = [b for b in subroutine.body if b not in reachable_set]
     if not unreachable_blocks:
         return False
