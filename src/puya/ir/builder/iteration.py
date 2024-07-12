@@ -222,7 +222,7 @@ def _iterate_urange(
     start = context.visitor.visit_and_materialise_single(range_start)
     assert_value(context, step, source_location=statement_loc, comment="Step cannot be zero")
 
-    iteration_count_minus_one: Register | None
+    iteration_count_minus_one = None
     if reverse_items or reverse_index:
         # The following code will result in negative uints if we don't pre-check the urange
         # params
@@ -282,30 +282,28 @@ def _iterate_urange(
             op=AVMOp.sub,
             args=[iteration_count, 1],
         )
-    else:
-        iteration_count_minus_one = None
 
-    if reverse_items and iteration_count_minus_one:
-        (range_delta,) = assign_intrinsic_op(
-            context,
-            target="range_delta",
-            source_location=statement_loc,
-            op=AVMOp.mul,
-            args=[step, iteration_count_minus_one],
-        )
-        (stop,) = assign(
-            context,
-            temp_description="stop",
-            source_location=statement_loc,
-            source=start,
-        )
-        (start,) = assign_intrinsic_op(
-            context,
-            target="start",
-            source_location=statement_loc,
-            op=AVMOp.add,
-            args=[start, range_delta],
-        )
+        if reverse_items:
+            (range_delta,) = assign_intrinsic_op(
+                context,
+                target="range_delta",
+                source_location=statement_loc,
+                op=AVMOp.mul,
+                args=[step, iteration_count_minus_one],
+            )
+            (stop,) = assign(
+                context,
+                temp_description="stop",
+                source_location=statement_loc,
+                source=start,
+            )
+            (start,) = assign_intrinsic_op(
+                context,
+                target="start",
+                source_location=statement_loc,
+                op=AVMOp.add,
+                args=[start, range_delta],
+            )
 
     (range_item,) = assign(
         context,
@@ -314,43 +312,28 @@ def _iterate_urange(
         source_location=item_var.source_location,
     )
 
-    index_var_src_loc = index_var.source_location if index_var else None
-    range_index: Register | None = None
+    range_index = None
     if index_var:
         (range_index,) = assign(
             context,
             source=UInt64Constant(value=0, source_location=None),
             temp_description="range_index",
-            source_location=index_var_src_loc,
+            source_location=index_var.source_location,
         )
 
     context.block_builder.goto_and_activate(header)
-    if reverse_items:
-        (continue_looping,) = assign(
-            context,
-            source=(
-                Intrinsic(
-                    op=AVMOp(">="),
-                    args=[_refresh_mutated_variable(context, range_item), stop],
-                    source_location=range_loc,
-                )
-            ),
-            temp_description="continue_looping",
-            source_location=range_loc,
-        )
-    else:
-        (continue_looping,) = assign(
-            context,
-            source=(
-                Intrinsic(
-                    op=AVMOp("<"),
-                    args=[_refresh_mutated_variable(context, range_item), stop],
-                    source_location=range_loc,
-                )
-            ),
-            temp_description="continue_looping",
-            source_location=range_loc,
-        )
+    (continue_looping,) = assign(
+        context,
+        source=(
+            Intrinsic(
+                op=AVMOp.gte if reverse_items else AVMOp.lt,
+                args=[_refresh_mutated_variable(context, range_item), stop],
+                source_location=range_loc,
+            )
+        ),
+        temp_description="continue_looping",
+        source_location=range_loc,
+    )
 
     context.block_builder.terminate(
         ConditionalBranch(
@@ -369,28 +352,24 @@ def _iterate_urange(
         value=_refresh_mutated_variable(context, range_item),
         assignment_location=item_var.source_location,
     )
-    if index_var and range_index:
-        if reverse_index and iteration_count_minus_one:
+    if index_var:
+        assert range_index is not None
+        next_index = _refresh_mutated_variable(context, range_index)
+        if reverse_index:
+            assert iteration_count_minus_one is not None
             (next_index,) = assign_intrinsic_op(
                 context,
                 target="next_index",
                 source_location=index_var.source_location,
                 op=AVMOp.sub,
-                args=[iteration_count_minus_one, _refresh_mutated_variable(context, range_index)],
+                args=[iteration_count_minus_one, next_index],
             )
-            handle_assignment(
-                context,
-                target=index_var,
-                value=next_index,
-                assignment_location=index_var.source_location,
-            )
-        else:
-            handle_assignment(
-                context,
-                target=index_var,
-                value=_refresh_mutated_variable(context, range_index),
-                assignment_location=index_var.source_location,
-            )
+        handle_assignment(
+            context,
+            target=index_var,
+            value=next_index,
+            assignment_location=index_var.source_location,
+        )
 
     with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
         loop_body.accept(context.visitor)
@@ -398,7 +377,9 @@ def _iterate_urange(
     if context.block_builder.try_goto_and_activate(footer):
         context.ssa.seal_block(footer)
 
-        if reverse_items:
+        if not reverse_items:
+            context.block_builder.goto(increment_block)
+        else:
             (continue_looping,) = assign(
                 context,
                 source=(
@@ -419,9 +400,7 @@ def _iterate_urange(
                     source_location=statement_loc,
                 )
             )
-            context.block_builder.activate_block(increment_block)
-        else:
-            context.block_builder.goto_and_activate(increment_block)
+        context.block_builder.activate_block(increment_block)
         context.ssa.seal_block(increment_block)
 
         new_range_item_value = Intrinsic(
@@ -430,11 +409,12 @@ def _iterate_urange(
             source_location=range_loc,
         )
         reassign(context, range_item, new_range_item_value, statement_loc)
-        if range_index and index_var:
+        if index_var:
+            assert range_index is not None
             assign_intrinsic_op(
                 context,
                 target=range_index,
-                op=AVMOp("+"),
+                op=AVMOp.add,
                 args=[
                     _refresh_mutated_variable(context, range_index),
                     UInt64Constant(value=1, source_location=None),
