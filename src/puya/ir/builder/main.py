@@ -238,6 +238,52 @@ class FunctionIRBuilder(
         else:
             return ValueTuple(expr.source_location, list(result))
 
+    def visit_biguint_postfix_unary_operation(
+        self, expr: awst_nodes.BigUIntPostfixUnaryOperation
+    ) -> TExpression:
+        target_value = self.visit_and_materialise_single(expr.target)
+        rhs = BigUIntConstant(value=1, source_location=expr.source_location)
+        match expr.op:
+            case awst_nodes.BigUIntPostfixUnaryOperator.increment:
+                binary_op = awst_nodes.BigUIntBinaryOperator.add
+            case awst_nodes.BigUIntPostfixUnaryOperator.decrement:
+                binary_op = awst_nodes.BigUIntBinaryOperator.sub
+            case never:
+                typing.assert_never(never)
+
+        new_value = create_biguint_binary_op(binary_op, target_value, rhs, expr.source_location)
+
+        handle_assignment(
+            self.context,
+            target=expr.target,
+            value=new_value,
+            assignment_location=expr.source_location,
+        )
+        return target_value
+
+    def visit_uint64_postfix_unary_operation(
+        self, expr: awst_nodes.UInt64PostfixUnaryOperation
+    ) -> TExpression:
+        target_value = self.visit_and_materialise_single(expr.target)
+        rhs = UInt64Constant(value=1, source_location=expr.source_location)
+        match expr.op:
+            case awst_nodes.UInt64PostfixUnaryOperator.increment:
+                binary_op = awst_nodes.UInt64BinaryOperator.add
+            case awst_nodes.UInt64PostfixUnaryOperator.decrement:
+                binary_op = awst_nodes.UInt64BinaryOperator.sub
+            case never:
+                typing.assert_never(never)
+
+        new_value = create_uint64_binary_op(binary_op, target_value, rhs, expr.source_location)
+
+        handle_assignment(
+            self.context,
+            target=expr.target,
+            value=new_value,
+            assignment_location=expr.source_location,
+        )
+        return target_value
+
     def visit_uint64_binary_operation(self, expr: awst_nodes.UInt64BinaryOperation) -> TExpression:
         left = self.visit_and_materialise_single(expr.left)
         right = self.visit_and_materialise_single(expr.right)

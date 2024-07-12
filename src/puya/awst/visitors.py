@@ -263,3 +263,13 @@ class ExpressionVisitor(t.Generic[T], ABC):
 
     @abstractmethod
     def visit_box_value_expression(self, expr: puya.awst.nodes.BoxValueExpression) -> T: ...
+
+    @abstractmethod
+    def visit_uint64_postfix_unary_operation(
+        self, expr: puya.awst.nodes.UInt64PostfixUnaryOperation
+    ) -> T: ...
+
+    @abstractmethod
+    def visit_biguint_postfix_unary_operation(
+        self, expr: puya.awst.nodes.BigUIntPostfixUnaryOperation
+    ) -> T: ...

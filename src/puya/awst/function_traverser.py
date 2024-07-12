@@ -289,3 +289,13 @@ class FunctionTraverser(
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
         expr.key.accept(self)
+
+    def visit_biguint_postfix_unary_operation(
+        self, expr: awst_nodes.BigUIntPostfixUnaryOperation
+    ) -> None:
+        expr.target.accept(self)
+
+    def visit_uint64_postfix_unary_operation(
+        self, expr: awst_nodes.UInt64PostfixUnaryOperation
+    ) -> None:
+        expr.target.accept(self)
