@@ -156,11 +156,8 @@ def _get_template_constants(
                     "inner transactions cannot be used as a template variable",
                     location=value.source_location,
                 )
-            case ir.TemplateVar():  # allowed assuming it is defined
-                pass
             case _:
-                logger.error(
-                    "template variable must be a compile time constant",
-                    location=value.source_location,
+                raise InternalError(
+                    "expected compile time constant", location=value.source_location
                 )
     return immutabledict(template_consts)

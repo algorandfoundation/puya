@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterable
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -155,7 +156,7 @@ def checked_compile(
         f"--out-dir={out_dir}",
         "--output-bytecode",
         "--log-level=debug",
-        *([f"--template-vars-path={template_vars_path}"] if template_vars_path.exists() else []),
+        *_load_template_vars(template_vars_path),
         rel_path,
     ]
     result = subprocess.run(
@@ -185,6 +186,16 @@ def checked_compile(
         bin_files=[root / p for p in bin_files_written],
         stdout=result.stdout if not ok else "",  # don't thunk stdout if no errors
     )
+
+
+def _load_template_vars(path: Path) -> Iterable[str]:
+    if path.exists():
+        for line in path.read_text().splitlines():
+            if line.startswith("prefix="):
+                prefix = line.strip("prefix=")
+                yield f"--template-vars-prefix={prefix}"
+            else:
+                yield f"-T={line}"
 
 
 SUFFIX_O0 = "_unoptimized"

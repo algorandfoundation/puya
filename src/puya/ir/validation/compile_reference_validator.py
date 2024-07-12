@@ -2,7 +2,13 @@ import typing
 from collections.abc import Iterable
 
 from puya import log
-from puya.ir.models import CompiledContractReference, CompiledLogicSigReference, Constant, Value
+from puya.ir.models import (
+    CompiledContractReference,
+    CompiledLogicSigReference,
+    Constant,
+    TemplateVar,
+    Value,
+)
 from puya.ir.validation._base import DestructuredIRValidator
 
 logger = log.get_logger(__name__)
@@ -22,7 +28,13 @@ def _log_non_constant_values(values: Iterable[Value]) -> None:
     for value in values:
         if isinstance(value, Constant):
             continue
-        logger.error(
-            "non-constant template value",
-            location=value.source_location,
-        )
+        if isinstance(value, TemplateVar):
+            logger.error(
+                "nested template variables are not supported",
+                location=value.source_location,
+            )
+        else:
+            logger.error(
+                "non-constant template value",
+                location=value.source_location,
+            )

@@ -1,4 +1,15 @@
-from algopy import ARC4Contract, Bytes, String, TemplateVar, UInt64, arc4, logicsig, subroutine
+from algopy import (
+    Account,
+    ARC4Contract,
+    BigUInt,
+    Bytes,
+    String,
+    TemplateVar,
+    UInt64,
+    arc4,
+    logicsig,
+    subroutine,
+)
 
 
 @logicsig
@@ -65,3 +76,27 @@ class HelloPrfx(HelloBase):
     @arc4.abimethod(create="require")
     def create(self) -> None:
         pass
+
+
+class HelloOtherConstants(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.greeting = TemplateVar[String]("GREETING")
+        self.num = TemplateVar[BigUInt]("NUM")
+        self.address = TemplateVar[Account]("ACCOUNT")
+        self.method = TemplateVar[Bytes]("METHOD")
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        pass
+
+    @arc4.abimethod(allow_actions=["DeleteApplication"])
+    def delete(self) -> None:
+        pass
+
+    @arc4.abimethod()
+    def greet(self, name: String) -> Bytes:
+        num_alpha = (self.num + 48).bytes[-1]
+        return (
+            self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
+        )

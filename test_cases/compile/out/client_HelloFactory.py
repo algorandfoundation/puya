@@ -56,3 +56,8 @@ class HelloFactory(algopy.arc4.ARC4Client, typing.Protocol):
     def test_arc4_update(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_other_constants(
+        self,
+    ) -> None: ...

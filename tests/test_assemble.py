@@ -14,6 +14,7 @@ from tests.utils import (
     PuyaExample,
     compile_src_from_options,
     get_all_examples,
+    load_template_vars,
 )
 
 
@@ -34,17 +35,19 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 def test_assemble_matches_algod(
     algod_client: AlgodClient, case: PuyaExample, optimization_level: int
 ) -> None:
+    prefix, template_vars = load_template_vars(case.template_vars_path)
     compile_result = compile_src_from_options(
         PuyaOptions(
             paths=(case.path,),
             optimization_level=optimization_level,
-            template_vars_path=case.template_vars_path,
             debug_level=0,
             output_teal=False,
             output_arc32=False,
             output_bytecode=True,
             match_algod_bytecode=True,
             out_dir=Path("out"),
+            template_vars_prefix=prefix,
+            cli_template_definitions=template_vars,
         )
     )
     for artifacts in compile_result.teal.values():
@@ -74,16 +77,18 @@ def test_assemble_matches_algod(
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
 def test_assemble(case: PuyaExample, optimization_level: int) -> None:
+    prefix, template_vars = load_template_vars(case.template_vars_path)
     compile_src_from_options(
         PuyaOptions(
             paths=(case.path,),
             optimization_level=optimization_level,
-            template_vars_path=case.template_vars_path,
             debug_level=0,
             output_teal=False,
             output_arc32=False,
             output_bytecode=True,
             out_dir=Path("out"),
+            template_vars_prefix=prefix,
+            cli_template_definitions=template_vars,
         )
     )
 

@@ -1,28 +1,8 @@
 import contextlib
-from collections.abc import Iterable, Mapping
-from pathlib import Path
+from collections.abc import Iterable
 
 from puya.errors import PuyaError
 from puya.utils import valid_bytes, valid_int64
-
-
-def load_template_vars(path: Path | None, prefix: str) -> Mapping[str, int | bytes]:
-    """Load template vars from specified path, using provided prefix by default"""
-    if path is None:
-        return {}
-    # extract config from file, but leave values unparsed
-    template_vars = dict(
-        map(
-            _split_template_line,
-            (line for line in path.read_text().splitlines() if not line.strip().startswith("#")),
-        )
-    )
-    # use prefix override if present in file
-    if (prefix_override := _pop_prefix_from_vars(template_vars, path)) is not None:
-        prefix = prefix_override
-    return {
-        prefix + name: _parse_template_value(name, value) for name, value in template_vars.items()
-    }
 
 
 def parse_template_vars(template_vars: Iterable[str], prefix: str) -> dict[str, int | bytes]:
@@ -30,20 +10,6 @@ def parse_template_vars(template_vars: Iterable[str], prefix: str) -> dict[str, 
         prefix + name: _parse_template_value(name, value)
         for name, value in map(_split_template_line, template_vars)
     }
-
-
-def _pop_prefix_from_vars(template_vars: dict[str, str], path: Path) -> str | None:
-    try:
-        template_prefix = template_vars.pop("prefix")
-    except KeyError:
-        return None
-    parsed_prefix = _parse_str(template_prefix)
-    if parsed_prefix is None:
-        raise PuyaError(
-            f"Invalid template configuration ({path}),"
-            f' prefix must be a string e.g. prefix="TMPL_"'
-        )
-    return parsed_prefix
 
 
 def _split_template_line(line: str) -> tuple[str, str]:

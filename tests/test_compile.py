@@ -19,6 +19,7 @@ from tests.utils import (
     compile_src_from_options,
     get_all_examples,
     get_relative_path,
+    load_template_vars,
 )
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
@@ -54,11 +55,13 @@ def compile_test_case(
     else:
         dst_out_dir = path.parent / f"{path.stem}_out{suffix}"
 
+    prefix, template_vars = load_template_vars(test_case.template_vars_path)
     puya_options = PuyaOptions(
         paths=(test_case.path,),
         out_dir=dst_out_dir,
         log_level=log.LogLevel.debug,
-        template_vars_path=test_case.template_vars_path,
+        template_vars_prefix=prefix,
+        cli_template_definitions=template_vars,
         **options,
     )
     compile_result = compile_src_from_options(puya_options)
