@@ -600,6 +600,14 @@ class ToCodeVisitor(
     def visit_template_var(self, expr: nodes.TemplateVar) -> str:
         return f"TemplateVar[{expr.wtype}]({expr.name})"
 
+    def visit_biguint_postfix_unary_operation(
+        self, expr: nodes.BigUIntPostfixUnaryOperation
+    ) -> str:
+        return f"{expr.target.accept(self)}{expr.op}"
+
+    def visit_uint64_postfix_unary_operation(self, expr: nodes.UInt64PostfixUnaryOperation) -> str:
+        return f"{expr.target.accept(self)}{expr.op}"
+
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

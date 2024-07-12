@@ -1089,6 +1089,12 @@ class UInt64UnaryOperator(enum.StrEnum):
     bit_invert = "~"
 
 
+@enum.unique
+class UInt64PostfixUnaryOperator(enum.StrEnum):
+    increment = "++"
+    decrement = "--"
+
+
 @attrs.frozen
 class UInt64UnaryOperation(Expression):
     op: UInt64UnaryOperator
@@ -1097,6 +1103,32 @@ class UInt64UnaryOperation(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_uint64_unary_operation(self)
+
+
+@attrs.frozen
+class UInt64PostfixUnaryOperation(Expression):
+    op: UInt64PostfixUnaryOperator
+    target: Lvalue = attrs.field(validator=[wtype_is_uint64])
+    wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_uint64_postfix_unary_operation(self)
+
+
+@enum.unique
+class BigUIntPostfixUnaryOperator(enum.StrEnum):
+    increment = "++"
+    decrement = "--"
+
+
+@attrs.frozen
+class BigUIntPostfixUnaryOperation(Expression):
+    op: BigUIntPostfixUnaryOperator
+    target: Expression = attrs.field(validator=[wtype_is_biguint])
+    wtype: WType = attrs.field(default=wtypes.biguint_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_biguint_postfix_unary_operation(self)
 
 
 @attrs.frozen
