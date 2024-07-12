@@ -128,6 +128,13 @@ class BlocksBuilder:
         self.goto(block)
         self.activate_block(block)
 
+    def try_goto_and_activate(self, block: BasicBlock) -> bool:
+        self.goto(block)
+        if block.predecessors:
+            self.activate_block(block)
+            return True
+        return False
+
     def maybe_add_implicit_subroutine_return(self, params: Sequence[Parameter]) -> None:
         if not self._blocks[-1].terminated:
             self.terminate(

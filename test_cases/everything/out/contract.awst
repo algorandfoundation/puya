@@ -40,6 +40,7 @@ contract Everything extends (test_cases.everything.my_base::MyMiddleBase, test_c
     this::_check_ban_list()
     this::remember_creator()
     GlobalState['counter']: uint64 = 0u
+    test_cases.everything.contract::silly_fors()
   }
   
   abimethod register(name: arc4.dynamic_array<arc4.uint8>): void
@@ -89,4 +90,35 @@ contract Everything extends (test_cases.everything.my_base::MyMiddleBase, test_c
 subroutine positive_one(): uint64
 {
   return 1u
+}
+
+subroutine silly_fors(): void
+{
+  test_cases.everything.contract::silly_for_1()
+  test_cases.everything.contract::silly_for_2()
+  test_cases.everything.contract::silly_for_3()
+}
+
+subroutine silly_for_1(): void
+{
+  for b in hex<"616263"> {
+    log(b)
+    break
+  }
+}
+
+subroutine silly_for_2(): void
+{
+  for x in (0u, 1u) {
+    log(itob(x))
+    break
+  }
+}
+
+subroutine silly_for_3(): void
+{
+  for i in range(0u, 10u, 1u) {
+    log(itob(i))
+    break
+  }
 }
