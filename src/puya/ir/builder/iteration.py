@@ -616,8 +616,6 @@ def _iterate_tuple(
     tuple_index = context.next_tmp_name("tuple_index")
 
     # first item
-    context.block_builder.goto_and_activate(headers[0])
-    context.ssa.seal_block(headers[0])
     assign(
         context,
         source=UInt64Constant(value=0, source_location=None),

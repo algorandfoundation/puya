@@ -2,7 +2,6 @@
 
 test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     byte ""
-    dup
     // arc4_types/structs.py:27
     // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
     byte 0x
@@ -36,31 +35,31 @@ test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     extract3 // on error: Index access is out of bounds
     cover 1
     int 0
-    bury 5
+    cover 1
 
-main_for_body@2:
+main_for_body@1:
     // arc4_types/structs.py:31
     // log(val.bytes)
     log
-    dig 3
+    dup
     dup
     int 1
     +
-    bury 4
-    // arc4_types/structs.py:30
-    // for val in (coord_3.x, coord_3.y):
-    switch main_for_header_1@4
-    b main_after_for@5
-
-main_for_header_1@4:
-    // arc4_types/structs.py:30
-    // for val in (coord_3.x, coord_3.y):
-    dup
-    dig 3
     bury 5
-    b main_for_body@2
+    // arc4_types/structs.py:30
+    // for val in (coord_3.x, coord_3.y):
+    switch main_for_header_1@3
+    b main_after_for@4
 
-main_after_for@5:
+main_for_header_1@3:
+    // arc4_types/structs.py:30
+    // for val in (coord_3.x, coord_3.y):
+    dig 1
+    dig 4
+    bury 2
+    b main_for_body@1
+
+main_after_for@4:
     // arc4_types/structs.py:33
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
     byte 0x00
@@ -116,7 +115,7 @@ main_after_for@5:
     log
     // arc4_types/structs.py:36
     // assert Vector.from_bytes(coord_1.bytes).bytes == coord_1.bytes
-    dig 2
+    dig 3
     dup
     dig 1
     ==
