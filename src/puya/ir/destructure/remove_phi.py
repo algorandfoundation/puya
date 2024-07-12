@@ -28,9 +28,7 @@ def convert_to_cssa(sub: models.Subroutine) -> None:
         prime_phis = list[models.Phi]()
         prime_copies = list[tuple[models.Register, models.Register]]()
         for phi in phi_block.phis:
-            if not phi.args or all(
-                phi_arg.value in undefined for phi_arg in phi.args
-            ):  # omit undefined
+            if all(phi_arg.value in undefined for phi_arg in phi.args):  # omit undefined
                 undefined.add(phi.register)
                 continue
             prime_args = list[models.PhiArgument]()
