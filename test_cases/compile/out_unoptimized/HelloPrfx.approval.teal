@@ -6,7 +6,7 @@ test_cases.compile.apps.HelloPrfx.approval_program:
     callsub __init__
 
 main_entrypoint@2:
-    // compile/apps.py:60
+    // compile/apps.py:71
     // class HelloPrfx(HelloBase):
     txn NumAppArgs
     bz main_bare_routing@9
@@ -19,7 +19,7 @@ main_entrypoint@2:
     b main_switch_case_default@7
 
 main_create_route@4:
-    // compile/apps.py:65
+    // compile/apps.py:76
     // @arc4.abimethod(create="require")
     txn OnCompletion
     int NoOp
@@ -33,7 +33,7 @@ main_create_route@4:
     return
 
 main_delete_route@5:
-    // compile/apps.py:14
+    // compile/apps.py:25
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
     int DeleteApplication
@@ -46,7 +46,7 @@ main_delete_route@5:
     return
 
 main_greet_route@6:
-    // compile/apps.py:22
+    // compile/apps.py:33
     // @arc4.abimethod()
     txn OnCompletion
     int NoOp
@@ -54,11 +54,11 @@ main_greet_route@6:
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // compile/apps.py:60
+    // compile/apps.py:71
     // class HelloPrfx(HelloBase):
     txna ApplicationArgs 1
     extract 2 0
-    // compile/apps.py:22
+    // compile/apps.py:33
     // @arc4.abimethod()
     callsub greet
     dup
@@ -75,12 +75,12 @@ main_greet_route@6:
     return
 
 main_switch_case_default@7:
-    // compile/apps.py:60
+    // compile/apps.py:71
     // class HelloPrfx(HelloBase):
     err // reject transaction
 
 main_bare_routing@9:
-    // compile/apps.py:60
+    // compile/apps.py:71
     // class HelloPrfx(HelloBase):
     txn OnCompletion
     int 4
@@ -89,11 +89,11 @@ main_bare_routing@9:
     b main_reject_bare_on_completion@11
 
 main_update@10:
-    // compile/apps.py:18
+    // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
     assert // is not creating
-    // compile/apps.py:18-19
+    // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     callsub update
@@ -101,14 +101,14 @@ main_update@10:
     return
 
 main_reject_bare_on_completion@11:
-    // compile/apps.py:60
+    // compile/apps.py:71
     // class HelloPrfx(HelloBase):
     err // reject transaction
 
 
 // test_cases.compile.apps.HelloPrfx.create() -> void:
 create:
-    // compile/apps.py:65-66
+    // compile/apps.py:76-77
     // @arc4.abimethod(create="require")
     // def create(self) -> None:
     proto 0 0
@@ -117,7 +117,7 @@ create:
 
 // test_cases.compile.apps.HelloBase.delete() -> void:
 delete:
-    // compile/apps.py:14-15
+    // compile/apps.py:25-26
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     // def delete(self) -> None:
     proto 0 0
@@ -126,17 +126,17 @@ delete:
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
 greet:
-    // compile/apps.py:22-23
+    // compile/apps.py:33-34
     // @arc4.abimethod()
     // def greet(self, name: String) -> String:
     proto 1 1
-    // compile/apps.py:24
+    // compile/apps.py:35
     // return self.greeting + " " + name
     int 0
-    // compile/apps.py:12
+    // compile/apps.py:23
     // self.greeting = String()
     byte "greeting"
-    // compile/apps.py:24
+    // compile/apps.py:35
     // return self.greeting + " " + name
     app_global_get_ex
     assert // check self.greeting exists
@@ -149,7 +149,7 @@ greet:
 
 // test_cases.compile.apps.HelloBase.update() -> void:
 update:
-    // compile/apps.py:18-19
+    // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     proto 0 0
@@ -158,13 +158,13 @@ update:
 
 // test_cases.compile.apps.HelloPrfx.__init__() -> void:
 __init__:
-    // compile/apps.py:62
+    // compile/apps.py:73
     // def __init__(self) -> None:
     proto 0 0
-    // compile/apps.py:12
+    // compile/apps.py:23
     // self.greeting = String()
     byte "greeting"
-    // compile/apps.py:63
+    // compile/apps.py:74
     // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
     byte PRFX_GREETING
     app_global_put

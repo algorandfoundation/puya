@@ -251,3 +251,28 @@ class Factory(ARC4Contract):
             MyContract.update,
             app_id=1234
         ) # ok
+
+## case: nested_template_var
+## template: SOME_STRING="foo"
+
+from algopy import *
+
+class Contract2(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def create(self) -> UInt64:
+        return arc4.arc4_create(
+            Contract1,
+            compiled=compile_contract(
+                Contract1,
+                template_vars={
+                    "SOME_STRING": TemplateVar[String]("SOME_OTHER_STRING"), ## E: nested template variables are not supported
+                }
+            )
+        ).created_app.id
+
+class Contract1(arc4.ARC4Contract):
+
+    @arc4.abimethod()
+    def get_some_string(self) -> String:
+        return TemplateVar[String]("SOME_STRING")

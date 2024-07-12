@@ -108,15 +108,9 @@ def main() -> None:
         action="append",
         help="Define template vars for use when assembling via --output-bytecode"
         " should be specified without the prefix (see --template-vars-prefix), e.g."
-        " -T SOME_INT=1234"
-        " -T SOME_BYTES=0x1A2B"
-        ' -T SOME_STR=\\"hello\\"',
-    )
-    parser.add_argument(
-        "--template-vars-path",
-        help="Define path containing template vars for use when assembling via --output-bytecode",
-        type=Path,
-        default=None,
+        " -T=SOME_INT=1234"
+        " -T=SOME_BYTES=0x1A2B"
+        ' -T=SOME_STR=\\"hello\\"',
     )
     parser.add_argument(
         "--template-vars-prefix",

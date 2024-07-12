@@ -1467,3 +1467,4 @@ def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> N
     app_client.call("test_arc4_create_prfx", transaction_parameters=txn_params)
     app_client.call("test_arc4_create_large", transaction_parameters=txn_params)
     app_client.call("test_arc4_update", transaction_parameters=txn_params)
+    app_client.call("test_other_constants", transaction_parameters=txn_params)

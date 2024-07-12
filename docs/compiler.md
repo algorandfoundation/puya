@@ -120,14 +120,12 @@ puyapy [-h] [--version] [-O {0,1,2}]
 | `--log-level {notset,debug,info,warning,error,critical}` | Minimum level to log to console                                                                                                                                       | `info`                  |
 | `-g {0,1,2}`, `--debug-level {0,1,2}`                    | Output debug information level<br /> `0` = No debug annotations <br /> `1` = Output debug annotations <br /> `2` = Reserved for future use, currently the same as `1` | `1`                     |
 | `--template-var`         | Allows specifying template values. Can be used multiple times, see below for examples | N/A     |
-| `--template-vars-path`   | Path to a file containing template values                                             | N/A     |
 | `--template-vars-prefix` | Prefix to use for template variables                                                  | "TMPL_" |
 
 ### Defining template values
 
 [Template Variables](#algopy.TemplateVar), can be replaced with literal values during compilation to bytecode using the `--template-var` option.
-Additionally, Algorand Python functions that provide AVM bytecode, such as [get_approval_program](#algopy.get_approval_program), 
-[get_clear_state_program](#algopy.get_clear_state_program), [get_logicsig_account](#algopy.get_logicsig_account) or [abi_call](#algopy.arc4.abi_call), will also utilize the specified values.
+Additionally, Algorand Python functions that provide AVM bytecode, such as [compile_contract](#algopy.compile_contract) and [compile_logicsig](#algopy.compile_logicsig), can also utilize the specified values.
 
 #### Examples of Variable Definitions
 
@@ -139,30 +137,8 @@ The table below illustrates how different variables and values can be defined:
 | [Bytes](#algopy.Bytes)   | `algopy.TemplateVar[Bytes]("SOME_BYTES")` | `SOME_BYTES=0x1A2B`      |
 | [String](#algopy.String) | `algopy.TemplateVar[String]("SOME_STR")`  | `SOME_STR="hello"`       |
 
-
-
-
-These values can also be defined a file and referenced using the `--template-var-path` option.
-All template values specified via the command line or a template file are prefixed with "TMPL_". 
-This prefix can be modified using the `--template-vars-prefix` option or by defining the prefix within the template file 
-itself with `prefix=`.
-
-#### Example of a Template File
-
-Below is a complete example of a template file that can be used with the --template-vars-prefix option. Comments can be added using the `#` symbol.
-```
-# Template file example
-
-# Override default prefix
-prefix="TMPL_"
-
-# Define template variables, do not need to include the prefix
-SOME_INT=1234
-SOME_BYTES=0x1A2B
-
-# This is a comment explaining the next variable
-SOME_STR="hello"
-```
+All template values specified via the command line are prefixed with "TMPL_" by default. 
+This prefix can be modified using the `--template-vars-prefix` option.
 
 ### Advanced options
 

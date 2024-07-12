@@ -25,7 +25,7 @@ def compile_logic_sig(
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
-    template_variables: dict[str, int | bytes] | None = None,
+    template_variables: list[str] | None = None,
 ) -> bytes:
     result = compile_src_from_options(
         PuyaOptions(
@@ -36,7 +36,7 @@ def compile_logic_sig(
             output_teal=False,
             output_bytecode=True,
             out_dir=Path("out"),
-            template_vars_override=template_variables or {},
+            cli_template_definitions=template_variables or [],
         )
     )
     (logic_sig,) = (a for file in result.teal.values() for a in file)
@@ -124,11 +124,11 @@ def test_pre_approved_sale(
     )
     logic_sig_prog = compile_logic_sig(
         TEST_CASES_DIR / "logic_signature" / "signature.py",
-        template_variables={
-            "TMPL_SELLER": algosdk.encoding.decode_address(account.address),
-            "TMPL_PRICE": 10_000_000,
-            "TMPL_ASSET_ID": asset_a,
-        },
+        template_variables=[
+            f"SELLER=0x{algosdk.encoding.decode_address(account.address).hex()}",
+            "PRICE=10_000_000",
+            f"ASSET_ID={asset_a}",
+        ],
     )
     logic_sig = LogicSigAccount(program=logic_sig_prog)
     logic_sig.sign(account.private_key)

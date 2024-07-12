@@ -199,3 +199,16 @@ def get_all_examples() -> list[PuyaExample]:
         for item in root.iterdir()
         if item.is_dir() and any(item.glob("*.py"))
     ]
+
+
+def load_template_vars(path: Path | None) -> tuple[str, list[str]]:
+    result = []
+    prefix = "TMPL_"
+    if path is not None:
+        for line in path.read_text().splitlines():
+            var, value_str = line.split("=", maxsplit=1)
+            if var == "prefix":
+                prefix = value_str
+            else:
+                result.append(line)
+    return prefix, result

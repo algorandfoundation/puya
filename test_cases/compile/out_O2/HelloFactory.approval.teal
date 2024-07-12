@@ -2,7 +2,7 @@
 
 test_cases.compile.factory.HelloFactory.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@14
+    bz main_bare_routing@15
     method "test_logicsig()address"
     method "test_compile_contract()void"
     method "test_compile_contract_tmpl()void"
@@ -13,8 +13,9 @@ test_cases.compile.factory.HelloFactory.approval_program:
     method "test_arc4_create_prfx()void"
     method "test_arc4_create_large()void"
     method "test_arc4_update()void"
+    method "test_other_constants()void"
     txna ApplicationArgs 0
-    match main_test_logicsig_route@2 main_test_compile_contract_route@3 main_test_compile_contract_tmpl_route@4 main_test_compile_contract_prfx_route@5 main_test_compile_contract_large_route@6 main_test_arc4_create_route@7 main_test_arc4_create_tmpl_route@8 main_test_arc4_create_prfx_route@9 main_test_arc4_create_large_route@10 main_test_arc4_update_route@11
+    match main_test_logicsig_route@2 main_test_compile_contract_route@3 main_test_compile_contract_tmpl_route@4 main_test_compile_contract_prfx_route@5 main_test_compile_contract_large_route@6 main_test_arc4_create_route@7 main_test_arc4_create_tmpl_route@8 main_test_arc4_create_prfx_route@9 main_test_arc4_create_large_route@10 main_test_arc4_update_route@11 main_test_other_constants_route@12
     err // reject transaction
 
 main_test_logicsig_route@2:
@@ -121,7 +122,17 @@ main_test_arc4_update_route@11:
     int 1
     return
 
-main_bare_routing@14:
+main_test_other_constants_route@12:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_other_constants
+    int 1
+    return
+
+main_bare_routing@15:
     txn OnCompletion
     !
     assert // reject transaction
@@ -205,7 +216,7 @@ test_compile_contract_tmpl:
     itxn_field GlobalNumByteSlice
     byte base64 CoEBQw==
     itxn_field ClearStateProgramPages
-    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogANoZXlniQ==
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAR0bXBsZ4k=
     itxn_field ApprovalProgramPages
     method "create()void"
     itxn_field ApplicationArgs
@@ -430,7 +441,7 @@ test_arc4_create_tmpl:
     itxn_field GlobalNumByteSlice
     byte base64 CoEBQw==
     itxn_field ClearStateProgramPages
-    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAV0bXBsMmeJ
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAR0bXBsZ4k=
     itxn_field ApprovalProgramPages
     method "create()void"
     itxn_field ApplicationArgs
@@ -606,7 +617,7 @@ test_arc4_update:
     itxn_field ExtraProgramPages
     byte base64 CoEBQw==
     itxn_field ClearStateProgramPages
-    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAJoaWeJ
+    byte base64 CiABASYBCGdyZWV0aW5nMRhAAAOIAI0xG0EAW4IDBExcYboEJDeNPATQooIANhoAjgMAAQAOABwAMRkURDEYFESIAEQiQzEZgQUSRDEYRIgAOiJDMRkURDEYRDYaAVcCAIgALEkVFlcGAkxQgAQVH3x1TFCwIkOBBDEZjgEAAQAxGESIABoiQ4oAAImKAACJigEBgQAoZUSAASBQi/9QiYoAAImKAAAogAR0bXBsZ4k=
     itxn_field ApprovalProgramPages
     method "create()void"
     itxn_field ApplicationArgs
@@ -676,6 +687,64 @@ test_arc4_update:
     assert // ARC4 prefix is valid
     extract 2 0
     byte "hi there"
+    ==
+    assert
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_other_constants() -> void:
+test_other_constants:
+    proto 0 0
+    itxn_begin
+    int 4
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiACAQAmBQNudW0BMAhncmVldGluZwdhZGRyZXNzBm1ldGhvZDEYQAADiACWggMETFxhugQkN408BFsMI3U2GgCOAwABAA4AHAAxGRREMRgURIgAMyJDMRmBBRJEMRhEiAApIkMxGRREMRhENhoBVwIAiAAbSRUWVwYCTFCABBUffHVMULAiQ4oAAImKAACJigEBIyhlRCmgFSIJIyhlRCmgSwEiCExOAlIjKmVEgAEgUIv/UExQIytlRFAjJwRlRFCJigAAKoAEdG1wbGcogAFCZyuAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZycEgAQAAAAAZ4k=
+    itxn_field ApprovalProgramPages
+    method "create()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)byte[]"
+    itxn_field ApplicationArgs
+    byte 0x00064a6f686e6e79
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    byte base32 NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    method "something()void"
+    concat
     ==
     assert
     itxn_begin

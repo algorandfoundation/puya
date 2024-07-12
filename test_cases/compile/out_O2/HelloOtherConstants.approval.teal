@@ -1,0 +1,135 @@
+#pragma version 10
+
+test_cases.compile.apps.HelloOtherConstants.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    method "create()void"
+    method "delete()void"
+    method "greet(string)byte[]"
+    txna ApplicationArgs 0
+    match main_create_route@3 main_delete_route@4 main_greet_route@5
+    err // reject transaction
+
+main_create_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    callsub create
+    int 1
+    return
+
+main_delete_route@4:
+    txn OnCompletion
+    int DeleteApplication
+    ==
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID
+    assert // is not creating
+    callsub delete
+    int 1
+    return
+
+main_greet_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    callsub greet
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+
+// test_cases.compile.apps.HelloOtherConstants.create() -> void:
+create:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloOtherConstants.delete() -> void:
+delete:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:
+greet:
+    proto 1 1
+    int 0
+    byte "num"
+    app_global_get_ex
+    assert // check self.num exists
+    byte 0x30
+    b+
+    len
+    int 1
+    -
+    int 0
+    byte "num"
+    app_global_get_ex
+    assert // check self.num exists
+    byte 0x30
+    b+
+    dig 1
+    int 1
+    +
+    swap
+    cover 2
+    substring3
+    int 0
+    byte "greeting"
+    app_global_get_ex
+    assert // check self.greeting exists
+    byte 0x20
+    concat
+    frame_dig -1
+    concat
+    swap
+    concat
+    int 0
+    byte "address"
+    app_global_get_ex
+    assert // check self.address exists
+    concat
+    int 0
+    byte "method"
+    app_global_get_ex
+    assert // check self.method exists
+    concat
+    retsub
+
+
+// test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "greeting"
+    byte TMPL_GREETING
+    app_global_put
+    byte "num"
+    byte TMPL_NUM
+    app_global_put
+    byte "address"
+    byte TMPL_ACCOUNT
+    app_global_put
+    byte "method"
+    byte TMPL_METHOD
+    app_global_put
+    retsub

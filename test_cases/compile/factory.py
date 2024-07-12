@@ -1,5 +1,8 @@
 from algopy import (
+    Account,
     ARC4Contract,
+    BigUInt,
+    Global,
     OnCompleteAction,
     String,
     arc4,
@@ -8,7 +11,14 @@ from algopy import (
     itxn,
 )
 
-from test_cases.compile.apps import Hello, HelloPrfx, HelloTmpl, LargeProgram, always_approve_sig
+from test_cases.compile.apps import (
+    Hello,
+    HelloOtherConstants,
+    HelloPrfx,
+    HelloTmpl,
+    LargeProgram,
+    always_approve_sig,
+)
 
 
 class HelloFactory(ARC4Contract):
@@ -256,3 +266,29 @@ class HelloFactory(ARC4Contract):
             app_id=app,
             # on_complete is inferred from Hello.delete ARC4 definition
         )
+
+    @arc4.abimethod()
+    def test_other_constants(self) -> None:
+        app = arc4.arc4_create(
+            HelloOtherConstants,
+            compiled=compile_contract(
+                HelloOtherConstants,
+                template_vars={
+                    "NUM": BigUInt(5),
+                    "GREETING": String("hello"),
+                    "ACCOUNT": Account(
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"
+                    ),
+                    "METHOD": arc4.arc4_signature("something()void"),
+                },
+            ),
+        ).created_app
+
+        result, _txn = arc4.abi_call(HelloOtherConstants.greet, "Johnny", app_id=app)
+
+        assert result == (
+            b"hello Johnny5" + Global.zero_address.bytes + arc4.arc4_signature("something()void")
+        )
+
+        # delete the app
+        arc4.abi_call(HelloOtherConstants.delete, app_id=app)
