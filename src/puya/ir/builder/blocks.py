@@ -112,13 +112,13 @@ class BlocksBuilder:
                     non_entry_block.source_location,
                 )
 
-    def activate_block(self, block: BasicBlock, *, ignore_predecessor_check: bool = False) -> None:
+    def activate_block(self, block: BasicBlock) -> None:
         """Add a basic block and make it the active one (target of adds)"""
         if not self.active_block.terminated:
             raise InternalError(
                 "Attempted to activate a new block when current block has not been terminated"
             )
-        if not block.predecessors and not ignore_predecessor_check:
+        if not block.predecessors:
             raise InternalError("Attempted to add a (non-entry) block with no predecessors")
         block.id = len(self._blocks)
         self._blocks.append(block)

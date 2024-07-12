@@ -95,34 +95,16 @@ test_boolean_shortcircuit_binary_ops:
     // for lhs in (True, False):
     int 1
     frame_bury 2
-    b test_boolean_shortcircuit_binary_ops_for_body@3
 
-test_boolean_shortcircuit_binary_ops_for_header_1@2:
-    // boolean_binary_ops/contract.py:36
-    // for lhs in (True, False):
-    int 0
-    frame_bury 2
-    frame_dig 5
-    frame_bury 4
-
-test_boolean_shortcircuit_binary_ops_for_body@3:
+test_boolean_shortcircuit_binary_ops_for_body@2:
     int 0
     frame_bury 6
     // boolean_binary_ops/contract.py:37
     // for rhs in (True, False):
     int 1
     frame_bury 3
-    b test_boolean_shortcircuit_binary_ops_for_body@6
 
-test_boolean_shortcircuit_binary_ops_for_header_1@5:
-    // boolean_binary_ops/contract.py:37
-    // for rhs in (True, False):
-    int 0
-    frame_bury 3
-    frame_dig 7
-    frame_bury 6
-
-test_boolean_shortcircuit_binary_ops_for_body@6:
+test_boolean_shortcircuit_binary_ops_for_body@4:
     // boolean_binary_ops/contract.py:38
     // and_msg = b"_" + bool_to_bytes(lhs) + b"_and_" + bool_to_bytes(rhs)
     frame_dig 2
@@ -148,7 +130,7 @@ test_boolean_shortcircuit_binary_ops_for_body@6:
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     //     rhs, b"rhs" + and_msg
     // )
-    bz test_boolean_shortcircuit_binary_ops_bool_false@9
+    bz test_boolean_shortcircuit_binary_ops_bool_false@7
     // boolean_binary_ops/contract.py:40
     // rhs, b"rhs" + and_msg
     byte 0x726873
@@ -161,14 +143,14 @@ test_boolean_shortcircuit_binary_ops_for_body@6:
     frame_dig 3
     uncover 1
     callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@9
+    bz test_boolean_shortcircuit_binary_ops_bool_false@7
     int 1
-    b test_boolean_shortcircuit_binary_ops_bool_merge@10
+    b test_boolean_shortcircuit_binary_ops_bool_merge@8
 
-test_boolean_shortcircuit_binary_ops_bool_false@9:
+test_boolean_shortcircuit_binary_ops_bool_false@7:
     int 0
 
-test_boolean_shortcircuit_binary_ops_bool_merge@10:
+test_boolean_shortcircuit_binary_ops_bool_merge@8:
     // boolean_binary_ops/contract.py:42
     // assert and_result == (lhs and rhs)
     frame_dig 2
@@ -204,7 +186,7 @@ test_boolean_shortcircuit_binary_ops_bool_merge@10:
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     //     rhs, b"rhs" + or_msg
     // )
-    bnz test_boolean_shortcircuit_binary_ops_bool_true@12
+    bnz test_boolean_shortcircuit_binary_ops_bool_true@10
     // boolean_binary_ops/contract.py:45
     // rhs, b"rhs" + or_msg
     byte 0x726873
@@ -217,16 +199,16 @@ test_boolean_shortcircuit_binary_ops_bool_merge@10:
     frame_dig 3
     uncover 1
     callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@13
+    bz test_boolean_shortcircuit_binary_ops_bool_false@11
 
-test_boolean_shortcircuit_binary_ops_bool_true@12:
+test_boolean_shortcircuit_binary_ops_bool_true@10:
     int 1
-    b test_boolean_shortcircuit_binary_ops_bool_merge@14
+    b test_boolean_shortcircuit_binary_ops_bool_merge@12
 
-test_boolean_shortcircuit_binary_ops_bool_false@13:
+test_boolean_shortcircuit_binary_ops_bool_false@11:
     int 0
 
-test_boolean_shortcircuit_binary_ops_bool_merge@14:
+test_boolean_shortcircuit_binary_ops_bool_merge@12:
     // boolean_binary_ops/contract.py:47
     // assert or_result == (lhs or rhs)
     frame_dig 2
@@ -241,7 +223,19 @@ test_boolean_shortcircuit_binary_ops_bool_merge@14:
     frame_bury 7
     // boolean_binary_ops/contract.py:37
     // for rhs in (True, False):
-    switch test_boolean_shortcircuit_binary_ops_for_header_1@5
+    switch test_boolean_shortcircuit_binary_ops_for_header_1@14
+    b test_boolean_shortcircuit_binary_ops_after_for@15
+
+test_boolean_shortcircuit_binary_ops_for_header_1@14:
+    // boolean_binary_ops/contract.py:37
+    // for rhs in (True, False):
+    int 0
+    frame_bury 3
+    frame_dig 7
+    frame_bury 6
+    b test_boolean_shortcircuit_binary_ops_for_body@4
+
+test_boolean_shortcircuit_binary_ops_after_for@15:
     frame_dig 4
     dup
     int 1
@@ -249,7 +243,19 @@ test_boolean_shortcircuit_binary_ops_bool_merge@14:
     frame_bury 5
     // boolean_binary_ops/contract.py:36
     // for lhs in (True, False):
-    switch test_boolean_shortcircuit_binary_ops_for_header_1@2
+    switch test_boolean_shortcircuit_binary_ops_for_header_1@17
+    b test_boolean_shortcircuit_binary_ops_after_for@18
+
+test_boolean_shortcircuit_binary_ops_for_header_1@17:
+    // boolean_binary_ops/contract.py:36
+    // for lhs in (True, False):
+    int 0
+    frame_bury 2
+    frame_dig 5
+    frame_bury 4
+    b test_boolean_shortcircuit_binary_ops_for_body@2
+
+test_boolean_shortcircuit_binary_ops_after_for@18:
     retsub
 
 

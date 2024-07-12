@@ -24,18 +24,18 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
             block@1: // for_header_0_L30
                 let tuple_index%0#0: uint64 = 0u
                 let val#0: bytes = tmp%0#0
+                goto block@2
+            block@2: // for_body_L30
+                let val#1: bytes = φ(val#0 <- block@1, val#2 <- block@4)
+                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@1, tuple_index%0#2 <- block@4)
+                (log val#1)
                 goto block@3
-            block@2: // for_header_1_L30
-                let val#1: bytes = tmp%1#0
-                goto block@3
-            block@3: // for_body_L30
-                let val#2: bytes = φ(val#0 <- block@1, val#1 <- block@2)
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@1, tuple_index%0#3 <- block@2)
-                (log val#2)
-                goto block@4
-            block@4: // for_footer_L30
-                let tuple_index%0#3: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@2][tuple_index%0#1] else goto block@5
+            block@3: // for_footer_L30
+                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
+                goto_nth [block@4][tuple_index%0#1] else goto block@5
+            block@4: // for_header_1_L30
+                let val#2: bytes = tmp%1#0
+                goto block@2
             block@5: // after_for_L30
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%1#0: bytes = (setbit 0x00 0u 0u)

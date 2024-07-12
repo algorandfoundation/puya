@@ -13,25 +13,25 @@ contract test_cases.unary.contract.UnaryContract:
                 (assert tmp%0#0) // not uint
                 let tuple_index%0#0: uint64 = 0u
                 let i#0: uint64 = 1u
-                goto block@5
-            block@2: // for_header_1_L30
-                let i#1: uint64 = 2u
-                goto block@5
-            block@3: // for_header_2_L30
-                let i#2: uint64 = 150u
-                goto block@5
-            block@4: // for_header_3_L30
-                let i#3: uint64 = 18446744073709551615u
-                goto block@5
-            block@5: // for_body_L30
-                let i#4: uint64 = φ(i#0 <- block@0, i#1 <- block@2, i#2 <- block@3, i#3 <- block@4)
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#5 <- block@2, tuple_index%0#5 <- block@3, tuple_index%0#5 <- block@4)
-                let tmp%1#0: uint64 = (- 18446744073709551615u i#4)
+                goto block@2
+            block@2: // for_body_L30
+                let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@4, i#3 <- block@5, i#4 <- block@6)
+                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@4, tuple_index%0#2 <- block@5, tuple_index%0#2 <- block@6)
+                let tmp%1#0: uint64 = (- 18446744073709551615u i#1)
                 let tmp%2#0: uint64 = (~ tmp%1#0)
-                let tmp%3#0: bool = (== tmp%2#0 i#4)
+                let tmp%3#0: bool = (== tmp%2#0 i#1)
                 (assert tmp%3#0) // ~ uint
-                let tuple_index%0#5: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@2, block@3, block@4][tuple_index%0#1] else return 
+                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
+                goto_nth [block@4, block@5, block@6][tuple_index%0#1] else return 
+            block@4: // for_header_1_L30
+                let i#2: uint64 = 2u
+                goto block@2
+            block@5: // for_header_2_L30
+                let i#3: uint64 = 150u
+                goto block@2
+            block@6: // for_header_3_L30
+                let i#4: uint64 = 18446744073709551615u
+                goto block@2
         
         subroutine test_cases.unary.contract.biguint_unary() -> void:
             block@0: // L35

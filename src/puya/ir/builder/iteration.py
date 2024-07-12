@@ -604,8 +604,7 @@ def _iterate_tuple(
     ]
     if reverse_items:
         headers.reverse()
-        tuple_items = [*tuple_items]
-        tuple_items.reverse()
+        tuple_items = list(reversed(tuple_items))
 
     body, footer, next_block = mkblocks(
         statement_loc,
@@ -616,28 +615,23 @@ def _iterate_tuple(
 
     tuple_index = context.next_tmp_name("tuple_index")
 
-    for index, (item, header) in enumerate(zip(tuple_items, headers, strict=True)):
-        if index == 0:
-            context.block_builder.goto_and_activate(header)
-            context.ssa.seal_block(header)
-            assign(
-                context,
-                source=UInt64Constant(value=0, source_location=None),
-                names=[(tuple_index, None)],
-                source_location=None,
-            )
-        else:
-            context.block_builder.activate_block(header, ignore_predecessor_check=True)
-        handle_assignment(
-            context,
-            target=item_var,
-            value=item,
-            assignment_location=item_var.source_location,
-        )
-        context.block_builder.goto(body)
-
-    context.ssa.seal_block(body)
-    context.block_builder.activate_block(body)
+    # first item
+    context.block_builder.goto_and_activate(headers[0])
+    context.ssa.seal_block(headers[0])
+    assign(
+        context,
+        source=UInt64Constant(value=0, source_location=None),
+        names=[(tuple_index, None)],
+        source_location=None,
+    )
+    handle_assignment(
+        context,
+        target=item_var,
+        value=tuple_items[0],
+        assignment_location=item_var.source_location,
+    )
+    # body - preamble
+    context.block_builder.goto_and_activate(body)
     if index_var:
         if reverse_index:
             (reversed_index,) = assign_intrinsic_op(
@@ -663,10 +657,11 @@ def _iterate_tuple(
                 value=context.ssa.read_variable(tuple_index, IRType.uint64, body),
                 assignment_location=index_var.source_location,
             )
-
+    # body
     with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
         loop_body.accept(context.visitor)
 
+    # footer
     context.block_builder.goto_and_activate(footer)
     context.ssa.seal_block(footer)
     curr_index_internal = context.ssa.read_variable(tuple_index, IRType.uint64, footer)
@@ -689,10 +684,21 @@ def _iterate_tuple(
             default=goto_default,
         )
     )
-    for header in headers[1:]:
+    context.ssa.seal_block(next_block)
+
+    # headers for remaining items
+    for item, header in zip(tuple_items[1:], headers[1:], strict=True):
+        context.block_builder.activate_block(header)
+        handle_assignment(
+            context,
+            target=item_var,
+            value=item,
+            assignment_location=item_var.source_location,
+        )
+        context.block_builder.goto(body)
         context.ssa.seal_block(header)
 
-    context.ssa.seal_block(next_block)
+    context.ssa.seal_block(body)
     context.block_builder.activate_block(next_block)
 
 
