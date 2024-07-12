@@ -6,9 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import (
-    Expression,
-)
+from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
@@ -44,8 +42,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             case awst_nodes.Enumeration():
                 if has_enumerate:
                     raise CodeError(
-                        "Nested enumeration is not currently supported",
-                        sequence.source_location,
+                        "Nested enumeration is not currently supported", sequence.source_location
                     )
                 sequence = sequence.expr
                 has_enumerate = True
@@ -143,8 +140,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             wtype=wtypes.ARC4Array(element_type=wtypes.WType(immutable=False))
         ):
             raise InternalError(
-                "Attempted iteration of an ARC4 array of mutable objects",
-                sequence.source_location,
+                "Attempted iteration of an ARC4 array of mutable objects", sequence.source_location
             )
         case awst_nodes.Expression(
             wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
@@ -247,10 +243,7 @@ def _iterate_urange(
             target="range_length",
             source_location=statement_loc,
             op=AVMOp.sub,
-            args=[
-                stop,
-                start,
-            ],
+            args=[stop, start],
         )
 
         (range_mod_step,) = assign_intrinsic_op(
@@ -273,30 +266,21 @@ def _iterate_urange(
             target="range_floor_div_step",
             source_location=statement_loc,
             op=AVMOp.div_floor,
-            args=[
-                range_length,
-                step,
-            ],
+            args=[range_length, step],
         )
         (iteration_count,) = assign_intrinsic_op(
             context,
             target="iteration_count",
             source_location=statement_loc,
             op=AVMOp.add,
-            args=[
-                range_floor_div_step,
-                range_mod_step_not_zero,
-            ],
+            args=[range_floor_div_step, range_mod_step_not_zero],
         )
         (iteration_count_minus_one,) = assign_intrinsic_op(
             context,
             target="iteration_count_minus_one",
             source_location=statement_loc,
             op=AVMOp.sub,
-            args=[
-                iteration_count,
-                1,
-            ],
+            args=[iteration_count, 1],
         )
     else:
         iteration_count_minus_one = None
