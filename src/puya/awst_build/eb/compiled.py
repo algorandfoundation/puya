@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     TupleExpression,
     TupleItemExpression,
 )
+from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
@@ -24,18 +25,23 @@ from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.log import get_logger
-from puya.models import CompiledReferenceField, ContractReference, LogicSigReference
+from puya.models import ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 
 logger = get_logger(__name__)
 
-_ALLOCATION_OVERRIDE_FIELDS = (
-    CompiledReferenceField.extra_program_pages,
-    CompiledReferenceField.global_uints,
-    CompiledReferenceField.global_bytes,
-    CompiledReferenceField.local_uints,
-    CompiledReferenceField.local_bytes,
-)
+# these names should match pytypes CompiledContract definition
+PROGRAM_FIELDS = {
+    "approval_program": TxnField.ApprovalProgramPages,
+    "clear_state_program": TxnField.ClearStateProgramPages,
+}
+APP_ALLOCATION_FIELDS = {
+    "extra_program_pages": TxnField.ExtraProgramPages,
+    "global_bytes": TxnField.GlobalNumByteSlice,
+    "global_uints": TxnField.GlobalNumUint,
+    "local_bytes": TxnField.LocalNumByteSlice,
+    "local_uints": TxnField.LocalNumUint,
+}
 
 
 class _LinearizedNamedTuple(NotIterableInstanceExpressionBuilder):
@@ -141,14 +147,14 @@ class CompileContractFunctionBuilder(FunctionBuilder):
             raise_on_missing=False,
             required_positional_names=[contract_arg_name],
             optional_kw_only=[
-                *(f.name for f in _ALLOCATION_OVERRIDE_FIELDS),
+                *APP_ALLOCATION_FIELDS,
                 *_TEMPLATE_VAR_KWARG_NAMES,
             ],
         )
         prefix, template_vars = _extract_prefix_template_args(arg_map)
         allocation_overrides = {}
-        for field in _ALLOCATION_OVERRIDE_FIELDS:
-            if arg := arg_map.get(field):
+        for python_name, field in APP_ALLOCATION_FIELDS.items():
+            if arg := arg_map.get(python_name):
                 allocation_overrides[field] = expect.argument_of_type_else_dummy(
                     arg, pytypes.UInt64Type, resolve_literal=True
                 ).resolve()

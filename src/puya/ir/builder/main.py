@@ -10,6 +10,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
+from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
@@ -60,7 +61,6 @@ from puya.ir.types_ import (
     wtype_to_ir_types,
 )
 from puya.ir.utils import format_tuple_index
-from puya.models import CompiledReferenceField
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ValueProvider | None
@@ -159,27 +159,31 @@ class FunctionIRBuilder(
                 template_variables=template_variables,
             )
             for field in (
-                CompiledReferenceField.approval_program,
-                CompiledReferenceField.clear_state_program,
+                TxnField.ApprovalProgramPages,
+                TxnField.ClearStateProgramPages,
             )
             for page in (0, 1)
         ]
         return ValueTuple(
             values=program_pages
             + [
-                CompiledContractReference(
-                    artifact=expr.contract,
-                    field=field,
-                    ir_type=IRType.uint64,
-                    source_location=expr.source_location,
-                    template_variables=template_variables,
+                (
+                    self.visit_and_materialise_single(expr.allocation_overrides[field])
+                    if field in expr.allocation_overrides
+                    else CompiledContractReference(
+                        artifact=expr.contract,
+                        field=field,
+                        ir_type=IRType.uint64,
+                        source_location=expr.source_location,
+                        template_variables=template_variables,
+                    )
                 )
                 for field in (
-                    CompiledReferenceField.extra_program_pages,
-                    CompiledReferenceField.global_uints,
-                    CompiledReferenceField.global_bytes,
-                    CompiledReferenceField.local_uints,
-                    CompiledReferenceField.local_bytes,
+                    TxnField.ExtraProgramPages,
+                    TxnField.GlobalNumUint,
+                    TxnField.GlobalNumByteSlice,
+                    TxnField.LocalNumUint,
+                    TxnField.LocalNumByteSlice,
                 )
             ],
             source_location=expr.source_location,

@@ -8,13 +8,13 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.avm_type import AVMType
+from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, StackType, Variant
 from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
 from puya.ir.visitor import IRVisitor
 from puya.models import (
-    CompiledReferenceField,
     ContractMetaData,
     ContractReference,
     LogicSignatureMetaData,
@@ -287,7 +287,7 @@ class BytesConstant(Constant):
 @attrs.define
 class CompiledContractReference(Value):
     artifact: ContractReference
-    field: CompiledReferenceField
+    field: TxnField
     template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
     """
     template variable keys here are fully qualified with their appropriate prefix

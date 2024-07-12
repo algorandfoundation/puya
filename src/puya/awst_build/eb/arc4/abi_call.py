@@ -33,7 +33,11 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puya.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
-from puya.awst_build.eb.compiled import CompiledContractExpressionBuilder
+from puya.awst_build.eb.compiled import (
+    APP_ALLOCATION_FIELDS,
+    PROGRAM_FIELDS,
+    CompiledContractExpressionBuilder,
+)
 from puya.awst_build.eb.contracts import ContractTypeExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
@@ -91,18 +95,6 @@ _ARC4_UPDATE_TRANSACTION_FIELDS = [
     TxnField.Note,
     TxnField.RekeyTo,
 ]
-# used to map TxnFields back to equivalent CompiledContract members
-_PROGRAM_FIELDS = {
-    TxnField.ApprovalProgramPages: "approval_program",
-    TxnField.ClearStateProgramPages: "clear_state_program",
-}
-_APP_ALLOCATION_FIELDS = {
-    TxnField.ExtraProgramPages: "extra_program_pages",
-    TxnField.GlobalNumByteSlice: "global_bytes",
-    TxnField.GlobalNumUint: "global_uints",
-    TxnField.LocalNumByteSlice: "local_bytes",
-    TxnField.LocalNumUint: "local_uints",
-}
 _COMPILED_KWARG = "compiled"
 
 
@@ -287,12 +279,15 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             _add_on_completion(field_nodes, on_completion, location)
 
         compiled = compiled.single_eval()
-        for field, member_name in _PROGRAM_FIELDS.items():
+        for (
+            member_name,
+            field,
+        ) in PROGRAM_FIELDS.items():
             field_nodes[field] = compiled.member_access(member_name, location)
         # is creating
         if not is_update:
             # add all app allocation fields
-            for field, member_name in _APP_ALLOCATION_FIELDS.items():
+            for member_name, field in APP_ALLOCATION_FIELDS.items():
                 field_nodes[field] = compiled.member_access(member_name, location)
         _validate_transaction_kwargs(
             field_nodes,
@@ -709,13 +704,13 @@ def _validate_transaction_kwargs(
     if is_create is False and is_update is False:
         _check_fields_not_present(
             "provided argument is only valid when creating or updating an application",
-            _PROGRAM_FIELDS,
+            PROGRAM_FIELDS.values(),
             field_nodes,
         )
     if is_create is False:
         _check_fields_not_present(
             "provided argument is only valid when creating an application",
-            _APP_ALLOCATION_FIELDS,
+            APP_ALLOCATION_FIELDS.values(),
             field_nodes,
         )
 
@@ -723,7 +718,7 @@ def _validate_transaction_kwargs(
 def _check_program_fields_are_present(
     error_message: str, field_nodes: Mapping[TxnField, NodeBuilder], location: SourceLocation
 ) -> None:
-    if missing_fields := [field for field in _PROGRAM_FIELDS if field not in field_nodes]:
+    if missing_fields := [field for field in PROGRAM_FIELDS.values() if field not in field_nodes]:
         logger.error(
             f"{error_message}: {', '.join(_get_python_kwargs(missing_fields))}",
             location=location,
