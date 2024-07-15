@@ -563,85 +563,70 @@ def _iterate_tuple(
     reverse_index: bool,
     reverse_items: bool,
 ) -> None:
-    remaining_tuple_indexes_, remaining_tuple_items_ = zip(*enumerate(tuple_items), strict=True)
-    remaining_tuple_indexes = list[int](remaining_tuple_indexes_)
-    remaining_tuple_items = list[Value](remaining_tuple_items_)
-    if reverse_items:
-        remaining_tuple_items.reverse()
-    if reverse_index:
-        remaining_tuple_indexes.reverse()
+    max_index = len(tuple_items) - 1
+    loop_counter_name = context.next_tmp_name("loop_counter")
 
-    body, footer, next_block = mkblocks(
-        statement_loc,
-        "for_body",
-        "for_footer",
-        "after_for",
-    )
-
-    def assign_user_vars(item: Value, index: int) -> None:
+    def assign_counter_and_user_vars(loop_count: int) -> None:
+        assign(
+            context,
+            source=UInt64Constant(value=loop_count, source_location=None),
+            names=[(loop_counter_name, None)],
+            source_location=None,
+        )
         handle_assignment(
             context,
             target=item_var,
-            value=item,
+            value=tuple_items[loop_count if not reverse_items else (max_index - loop_count)],
             assignment_location=item_var.source_location,
         )
         if index_var:
             handle_assignment(
                 context,
                 target=index_var,
-                value=(
-                    UInt64Constant(
-                        value=index,
-                        source_location=index_var.source_location,
-                    )
+                value=UInt64Constant(
+                    value=loop_count if not reverse_index else (max_index - loop_count),
+                    source_location=index_var.source_location,
                 ),
                 assignment_location=index_var.source_location,
             )
 
-    # first item
-    (loop_counter_r,) = assign(
-        context,
-        source=UInt64Constant(value=0, source_location=None),
-        temp_description="loop_counter",
-        source_location=None,
+    # construct basic blocks
+    body, footer, next_block = mkblocks(
+        statement_loc,
+        "for_body",
+        "for_footer",
+        "after_for",
     )
-    assign_user_vars(remaining_tuple_items.pop(0), remaining_tuple_indexes.pop(0))
+    headers = {
+        idx: BasicBlock(comment=f"for_header_{idx}", source_location=statement_loc)
+        for idx in range(1, len(tuple_items))
+    }
+
+    # first item - assigned in current block
+    assign_counter_and_user_vars(0)
+
     # body
     context.block_builder.goto_and_activate(body)
     with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
         loop_body.accept(context.visitor)
 
     # footer + follow-up headers, iff the loop body doesn't break unconditionally on first item
-    if remaining_tuple_items and context.block_builder.try_goto_and_activate(footer):
-        headers = [
-            BasicBlock(comment=f"for_header_{idx}", source_location=statement_loc)
-            for idx in range(1, len(tuple_items))
-        ]
+    if headers and context.block_builder.try_goto_and_activate(footer):
         # footer
         context.ssa.seal_block(footer)
-        loop_counter_r = _refresh_mutated_variable(context, loop_counter_r)
         context.block_builder.terminate(
             GotoNth(
-                value=loop_counter_r,
-                blocks=headers,
+                value=context.ssa.read_variable(loop_counter_name, IRType.uint64, footer),
+                blocks=list(headers.values()),
                 default=Goto(target=next_block, source_location=statement_loc),
                 source_location=statement_loc,
             )
         )
 
         # headers for remaining items
-        for idx, (item, index, header) in enumerate(
-            zip(remaining_tuple_items, remaining_tuple_indexes, headers, strict=True),
-            start=1,
-        ):
+        for idx, header in headers.items():
             context.block_builder.activate_block(header)
-            reassign(
-                context,
-                loop_counter_r,
-                UInt64Constant(value=idx, source_location=None),
-                source_location=None,
-            )
-            assign_user_vars(item, index)
+            assign_counter_and_user_vars(idx)
             context.block_builder.goto(body)
             context.ssa.seal_block(header)
 
