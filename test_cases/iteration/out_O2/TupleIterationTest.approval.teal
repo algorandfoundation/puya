@@ -1,0 +1,247 @@
+#pragma version 10
+
+test_cases.iteration.base.IterationTestBase.approval_program:
+    byte "test_forwards"
+    log
+    callsub test_forwards
+    byte "test_reversed"
+    log
+    callsub test_reversed
+    byte "test_forwards_with_forwards_index"
+    log
+    callsub test_forwards_with_forwards_index
+    byte "test_forwards_with_reverse_index"
+    log
+    callsub test_forwards_with_reverse_index
+    byte "test_reverse_with_forwards_index"
+    log
+    callsub test_reverse_with_forwards_index
+    byte "test_reverse_with_reverse_index"
+    log
+    callsub test_reverse_with_reverse_index
+    byte "test_empty"
+    log
+    callsub test_empty
+    byte "test_break"
+    log
+    callsub test_break
+    int 1
+    return
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards() -> void:
+test_forwards:
+    proto 0 0
+    byte ""
+    byte 0x61
+    int 0
+
+test_forwards_for_body@1:
+    frame_dig 1
+    log
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch test_forwards_for_header_1@3 test_forwards_for_header_2@4
+    retsub
+
+test_forwards_for_header_1@3:
+    byte 0x62
+    frame_bury 1
+    frame_dig 0
+    b test_forwards_for_body@1
+
+test_forwards_for_header_2@4:
+    byte 0x63
+    frame_bury 1
+    frame_dig 0
+    b test_forwards_for_body@1
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_reversed() -> void:
+test_reversed:
+    proto 0 0
+    byte ""
+    byte 0x63
+    int 0
+
+test_reversed_for_body@1:
+    frame_dig 1
+    log
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch test_reversed_for_header_1@3 test_reversed_for_header_0@4
+    retsub
+
+test_reversed_for_header_1@3:
+    byte 0x62
+    frame_bury 1
+    frame_dig 0
+    b test_reversed_for_body@1
+
+test_reversed_for_header_0@4:
+    byte 0x61
+    frame_bury 1
+    frame_dig 0
+    b test_reversed_for_body@1
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards_with_forwards_index() -> void:
+test_forwards_with_forwards_index:
+    proto 0 0
+    byte ""
+    int 0
+    byte 0x61
+
+test_forwards_with_forwards_index_for_body@1:
+    swap
+    dup
+    uncover 2
+    callsub _log_with_index
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch test_forwards_with_forwards_index_for_header_1@3 test_forwards_with_forwards_index_for_header_2@4
+    retsub
+
+test_forwards_with_forwards_index_for_header_1@3:
+    frame_dig 0
+    byte 0x62
+    b test_forwards_with_forwards_index_for_body@1
+
+test_forwards_with_forwards_index_for_header_2@4:
+    frame_dig 0
+    byte 0x63
+    b test_forwards_with_forwards_index_for_body@1
+
+
+// test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:
+_log_with_index:
+    proto 2 0
+    frame_dig -2
+    int 1
+    +
+    byte 0x30313233343536373839
+    frame_dig -2
+    uncover 2
+    substring3
+    byte "="
+    concat
+    frame_dig -1
+    concat
+    log
+    retsub
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards_with_reverse_index() -> void:
+test_forwards_with_reverse_index:
+    proto 0 0
+    byte ""
+    byte 0x61
+    int 0
+
+test_forwards_with_reverse_index_for_body@1:
+    int 2
+    dig 1
+    -
+    frame_dig 1
+    callsub _log_with_index
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch test_forwards_with_reverse_index_for_header_1@3 test_forwards_with_reverse_index_for_header_2@4
+    retsub
+
+test_forwards_with_reverse_index_for_header_1@3:
+    byte 0x62
+    frame_bury 1
+    frame_dig 0
+    b test_forwards_with_reverse_index_for_body@1
+
+test_forwards_with_reverse_index_for_header_2@4:
+    byte 0x63
+    frame_bury 1
+    frame_dig 0
+    b test_forwards_with_reverse_index_for_body@1
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_reverse_with_forwards_index() -> void:
+test_reverse_with_forwards_index:
+    proto 0 0
+    byte ""
+    int 0
+    byte 0x63
+
+test_reverse_with_forwards_index_for_body@1:
+    swap
+    dup
+    uncover 2
+    callsub _log_with_index
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch test_reverse_with_forwards_index_for_header_1@3 test_reverse_with_forwards_index_for_header_0@4
+    retsub
+
+test_reverse_with_forwards_index_for_header_1@3:
+    frame_dig 0
+    byte 0x62
+    b test_reverse_with_forwards_index_for_body@1
+
+test_reverse_with_forwards_index_for_header_0@4:
+    frame_dig 0
+    byte 0x61
+    b test_reverse_with_forwards_index_for_body@1
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_reverse_with_reverse_index() -> void:
+test_reverse_with_reverse_index:
+    proto 0 0
+    byte ""
+    byte 0x63
+    int 0
+
+test_reverse_with_reverse_index_for_body@1:
+    int 2
+    dig 1
+    -
+    frame_dig 1
+    callsub _log_with_index
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch test_reverse_with_reverse_index_for_header_1@3 test_reverse_with_reverse_index_for_header_0@4
+    retsub
+
+test_reverse_with_reverse_index_for_header_1@3:
+    byte 0x62
+    frame_bury 1
+    frame_dig 0
+    b test_reverse_with_reverse_index_for_body@1
+
+test_reverse_with_reverse_index_for_header_0@4:
+    byte 0x61
+    frame_bury 1
+    frame_dig 0
+    b test_reverse_with_reverse_index_for_body@1
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_empty() -> void:
+test_empty:
+    proto 0 0
+    retsub
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_break() -> void:
+test_break:
+    proto 0 0
+    byte 0x61
+    log
+    retsub

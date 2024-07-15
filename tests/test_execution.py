@@ -1165,14 +1165,55 @@ def test_conditional_execution(harness: _TestHarness) -> None:
     )
 
 
-def test_reversed_iteration(harness: _TestHarness) -> None:
-    harness.deploy(
-        TEST_CASES_DIR / "reversed_iteration",
-        request=AppCallRequest(
-            trace_output=TEST_CASES_DIR / "reversed_iteration" / "out" / "trace.log",
-            increase_budget=3,
-        ),
+def iteration_idfn(value: object) -> str:
+    if isinstance(value, str):
+        return value
+    else:
+        return ""
+
+
+_test_iteration_params = [("tuple", 0), ("indexable", 0), ("urange", 1)]
+
+
+@pytest.mark.parametrize(
+    ("name", "increase_budget"), _test_iteration_params, ids=[p[0] for p in _test_iteration_params]
+)
+def test_iteration(harness: _TestHarness, name: str, increase_budget: int) -> None:
+    result = harness.deploy(
+        TEST_CASES_DIR / "iteration" / f"iterate_{name}.py",
+        AppCallRequest(increase_budget=increase_budget),
     )
+    assert len(result.logs) == 27
+    logs_decoded = result.decode_logs(27 * "u")
+    assert logs_decoded == [
+        "test_forwards",
+        "a",
+        "b",
+        "c",
+        "test_reversed",
+        "c",
+        "b",
+        "a",
+        "test_forwards_with_forwards_index",
+        "0=a",
+        "1=b",
+        "2=c",
+        "test_forwards_with_reverse_index",
+        "2=a",
+        "1=b",
+        "0=c",
+        "test_reverse_with_forwards_index",
+        "0=c",
+        "1=b",
+        "2=a",
+        "test_reverse_with_reverse_index",
+        "2=c",
+        "1=b",
+        "0=a",
+        "test_empty",
+        "test_break",
+        "a",
+    ]
 
 
 def test_ignored_value(harness: _TestHarness) -> None:
