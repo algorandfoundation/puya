@@ -70,7 +70,6 @@ test_forwards:
     // @subroutine
     // def test_forwards(self) -> None:
     proto 0 0
-    byte ""
     // iteration/iterate_tuple.py:12
     // for i in (Bytes(b"a"), Bytes(b"b"), Bytes(b"c")):
     byte 0x61
@@ -79,12 +78,8 @@ test_forwards:
 test_forwards_for_body@1:
     // iteration/iterate_tuple.py:13
     // log(i)
-    frame_dig 1
+    swap
     log
-    dup
-    int 1
-    +
-    frame_bury 0
     // iteration/iterate_tuple.py:12
     // for i in (Bytes(b"a"), Bytes(b"b"), Bytes(b"c")):
     switch test_forwards_for_header_1@3 test_forwards_for_header_2@4
@@ -94,16 +89,14 @@ test_forwards_for_header_1@3:
     // iteration/iterate_tuple.py:12
     // for i in (Bytes(b"a"), Bytes(b"b"), Bytes(b"c")):
     byte 0x62
-    frame_bury 1
-    frame_dig 0
+    int 1
     b test_forwards_for_body@1
 
 test_forwards_for_header_2@4:
     // iteration/iterate_tuple.py:12
     // for i in (Bytes(b"a"), Bytes(b"b"), Bytes(b"c")):
     byte 0x63
-    frame_bury 1
-    frame_dig 0
+    int 2
     b test_forwards_for_body@1
 
 
@@ -114,7 +107,6 @@ test_reversed:
     // @subroutine
     // def test_reversed(self) -> None:
     proto 0 0
-    byte ""
     // iteration/iterate_tuple.py:18
     // for i in reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
     byte 0x63
@@ -123,31 +115,25 @@ test_reversed:
 test_reversed_for_body@1:
     // iteration/iterate_tuple.py:19
     // log(i)
-    frame_dig 1
+    swap
     log
-    dup
-    int 1
-    +
-    frame_bury 0
     // iteration/iterate_tuple.py:18
     // for i in reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
-    switch test_reversed_for_header_1@3 test_reversed_for_header_0@4
+    switch test_reversed_for_header_1@3 test_reversed_for_header_2@4
     retsub
 
 test_reversed_for_header_1@3:
     // iteration/iterate_tuple.py:18
     // for i in reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
     byte 0x62
-    frame_bury 1
-    frame_dig 0
+    int 1
     b test_reversed_for_body@1
 
-test_reversed_for_header_0@4:
+test_reversed_for_header_2@4:
     // iteration/iterate_tuple.py:18
     // for i in reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
     byte 0x61
-    frame_bury 1
-    frame_dig 0
+    int 2
     b test_reversed_for_body@1
 
 
@@ -158,40 +144,36 @@ test_forwards_with_forwards_index:
     // @subroutine
     // def test_forwards_with_forwards_index(self) -> None:
     proto 0 0
-    byte ""
-    int 0
     // iteration/iterate_tuple.py:24
     // for idx, i in uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
+    int 0
     byte 0x61
+    int 0
 
 test_forwards_with_forwards_index_for_body@1:
     // iteration/iterate_tuple.py:25
     // self._log_with_index(idx, i)
-    swap
-    dup
-    uncover 2
+    cover 2
     callsub _log_with_index
-    dup
-    int 1
-    +
-    frame_bury 0
     // iteration/iterate_tuple.py:24
     // for idx, i in uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
     switch test_forwards_with_forwards_index_for_header_1@3 test_forwards_with_forwards_index_for_header_2@4
     retsub
 
 test_forwards_with_forwards_index_for_header_1@3:
-    frame_dig 0
     // iteration/iterate_tuple.py:24
     // for idx, i in uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
+    int 1
     byte 0x62
+    int 1
     b test_forwards_with_forwards_index_for_body@1
 
 test_forwards_with_forwards_index_for_header_2@4:
-    frame_dig 0
     // iteration/iterate_tuple.py:24
     // for idx, i in uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))):
+    int 2
     byte 0x63
+    int 2
     b test_forwards_with_forwards_index_for_body@1
 
 
@@ -229,24 +211,17 @@ test_forwards_with_reverse_index:
     // @subroutine
     // def test_forwards_with_reverse_index(self) -> None:
     proto 0 0
-    byte ""
     // iteration/iterate_tuple.py:30
     // for idx, i in reversed(uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))))):
+    int 2
     byte 0x61
     int 0
 
 test_forwards_with_reverse_index_for_body@1:
-    int 2
-    dig 1
-    -
     // iteration/iterate_tuple.py:31
     // self._log_with_index(idx, i)
-    frame_dig 1
+    cover 2
     callsub _log_with_index
-    dup
-    int 1
-    +
-    frame_bury 0
     // iteration/iterate_tuple.py:30
     // for idx, i in reversed(uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))))):
     switch test_forwards_with_reverse_index_for_header_1@3 test_forwards_with_reverse_index_for_header_2@4
@@ -255,17 +230,17 @@ test_forwards_with_reverse_index_for_body@1:
 test_forwards_with_reverse_index_for_header_1@3:
     // iteration/iterate_tuple.py:30
     // for idx, i in reversed(uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))))):
+    int 1
     byte 0x62
-    frame_bury 1
-    frame_dig 0
+    int 1
     b test_forwards_with_reverse_index_for_body@1
 
 test_forwards_with_reverse_index_for_header_2@4:
     // iteration/iterate_tuple.py:30
     // for idx, i in reversed(uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c"))))):
+    int 0
     byte 0x63
-    frame_bury 1
-    frame_dig 0
+    int 2
     b test_forwards_with_reverse_index_for_body@1
 
 
@@ -276,40 +251,36 @@ test_reverse_with_forwards_index:
     // @subroutine
     // def test_reverse_with_forwards_index(self) -> None:
     proto 0 0
-    byte ""
-    int 0
     // iteration/iterate_tuple.py:36
     // for idx, i in uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
+    int 0
     byte 0x63
+    int 0
 
 test_reverse_with_forwards_index_for_body@1:
     // iteration/iterate_tuple.py:37
     // self._log_with_index(idx, i)
-    swap
-    dup
-    uncover 2
+    cover 2
     callsub _log_with_index
-    dup
-    int 1
-    +
-    frame_bury 0
     // iteration/iterate_tuple.py:36
     // for idx, i in uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
-    switch test_reverse_with_forwards_index_for_header_1@3 test_reverse_with_forwards_index_for_header_0@4
+    switch test_reverse_with_forwards_index_for_header_1@3 test_reverse_with_forwards_index_for_header_2@4
     retsub
 
 test_reverse_with_forwards_index_for_header_1@3:
-    frame_dig 0
     // iteration/iterate_tuple.py:36
     // for idx, i in uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
+    int 1
     byte 0x62
+    int 1
     b test_reverse_with_forwards_index_for_body@1
 
-test_reverse_with_forwards_index_for_header_0@4:
-    frame_dig 0
+test_reverse_with_forwards_index_for_header_2@4:
     // iteration/iterate_tuple.py:36
     // for idx, i in uenumerate(reversed((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
+    int 2
     byte 0x61
+    int 2
     b test_reverse_with_forwards_index_for_body@1
 
 
@@ -320,43 +291,36 @@ test_reverse_with_reverse_index:
     // @subroutine
     // def test_reverse_with_reverse_index(self) -> None:
     proto 0 0
-    byte ""
     // iteration/iterate_tuple.py:42
     // for idx, i in reversed(uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
+    int 2
     byte 0x63
     int 0
 
 test_reverse_with_reverse_index_for_body@1:
-    int 2
-    dig 1
-    -
     // iteration/iterate_tuple.py:43
     // self._log_with_index(idx, i)
-    frame_dig 1
+    cover 2
     callsub _log_with_index
-    dup
-    int 1
-    +
-    frame_bury 0
     // iteration/iterate_tuple.py:42
     // for idx, i in reversed(uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
-    switch test_reverse_with_reverse_index_for_header_1@3 test_reverse_with_reverse_index_for_header_0@4
+    switch test_reverse_with_reverse_index_for_header_1@3 test_reverse_with_reverse_index_for_header_2@4
     retsub
 
 test_reverse_with_reverse_index_for_header_1@3:
     // iteration/iterate_tuple.py:42
     // for idx, i in reversed(uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
+    int 1
     byte 0x62
-    frame_bury 1
-    frame_dig 0
+    int 1
     b test_reverse_with_reverse_index_for_body@1
 
-test_reverse_with_reverse_index_for_header_0@4:
+test_reverse_with_reverse_index_for_header_2@4:
     // iteration/iterate_tuple.py:42
     // for idx, i in reversed(uenumerate((Bytes(b"a"), Bytes(b"b"), Bytes(b"c")))):
+    int 0
     byte 0x61
-    frame_bury 1
-    frame_dig 0
+    int 2
     b test_reverse_with_reverse_index_for_body@1
 
 

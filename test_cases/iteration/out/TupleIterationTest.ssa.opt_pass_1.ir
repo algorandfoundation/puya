@@ -22,56 +22,63 @@ contract test_cases.iteration.iterate_tuple.TupleIterationTest:
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards() -> void:
             block@0: // L9
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x61
                 goto block@1
             block@1: // for_body_L12
                 let i#1: bytes = φ(i#0 <- block@0, i#2 <- block@3, i#3 <- block@4)
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 (log i#1)
-                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@3, block@4][tuple_index%0#1] else return 
+                goto_nth [block@3, block@4][loop_counter%0#1] else return 
             block@3: // for_header_1_L12
+                let loop_counter%0#2: uint64 = 1u
                 let i#2: bytes = 0x62
                 goto block@1
             block@4: // for_header_2_L12
+                let loop_counter%0#3: uint64 = 2u
                 let i#3: bytes = 0x63
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_reversed() -> void:
             block@0: // L15
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x63
                 goto block@1
             block@1: // for_body_L18
                 let i#1: bytes = φ(i#0 <- block@0, i#2 <- block@3, i#3 <- block@4)
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 (log i#1)
-                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@3, block@4][tuple_index%0#1] else return 
+                goto_nth [block@3, block@4][loop_counter%0#1] else return 
             block@3: // for_header_1_L18
+                let loop_counter%0#2: uint64 = 1u
                 let i#2: bytes = 0x62
                 goto block@1
-            block@4: // for_header_0_L18
+            block@4: // for_header_2_L18
+                let loop_counter%0#3: uint64 = 2u
                 let i#3: bytes = 0x61
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards_with_forwards_index() -> void:
             block@0: // L21
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x61
+                let idx#0: uint64 = 0u
                 goto block@1
             block@1: // for_body_L24
-                let idx#0: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@3, idx#3 <- block@4)
                 let i#1: bytes = φ(i#0 <- block@0, i#2 <- block@3, i#3 <- block@4)
-                test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#1)
-                let tuple_index%0#2: uint64 = (+ idx#0 1u)
-                goto_nth [block@3, block@4][idx#0] else return 
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
+                test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, i#1)
+                goto_nth [block@3, block@4][loop_counter%0#1] else return 
             block@3: // for_header_1_L24
+                let loop_counter%0#2: uint64 = 1u
                 let i#2: bytes = 0x62
+                let idx#2: uint64 = 1u
                 goto block@1
             block@4: // for_header_2_L24
+                let loop_counter%0#3: uint64 = 2u
                 let i#3: bytes = 0x63
+                let idx#3: uint64 = 2u
                 goto block@1
         
         subroutine test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:
@@ -85,58 +92,71 @@ contract test_cases.iteration.iterate_tuple.TupleIterationTest:
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards_with_reverse_index() -> void:
             block@0: // L27
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x61
+                let idx#0: uint64 = 2u
                 goto block@1
             block@1: // for_body_L30
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@3, idx#3 <- block@4)
                 let i#1: bytes = φ(i#0 <- block@0, i#2 <- block@3, i#3 <- block@4)
-                let idx#0: uint64 = (- 2u tuple_index%0#1)
-                test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#1)
-                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@3, block@4][tuple_index%0#1] else return 
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
+                test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, i#1)
+                goto_nth [block@3, block@4][loop_counter%0#1] else return 
             block@3: // for_header_1_L30
+                let loop_counter%0#2: uint64 = 1u
                 let i#2: bytes = 0x62
+                let idx#2: uint64 = 1u
                 goto block@1
             block@4: // for_header_2_L30
+                let loop_counter%0#3: uint64 = 2u
                 let i#3: bytes = 0x63
+                let idx#3: uint64 = 0u
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_reverse_with_forwards_index() -> void:
             block@0: // L33
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x63
+                let idx#0: uint64 = 0u
                 goto block@1
             block@1: // for_body_L36
-                let idx#0: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@3, idx#3 <- block@4)
                 let i#1: bytes = φ(i#0 <- block@0, i#2 <- block@3, i#3 <- block@4)
-                test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#1)
-                let tuple_index%0#2: uint64 = (+ idx#0 1u)
-                goto_nth [block@3, block@4][idx#0] else return 
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
+                test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, i#1)
+                goto_nth [block@3, block@4][loop_counter%0#1] else return 
             block@3: // for_header_1_L36
+                let loop_counter%0#2: uint64 = 1u
                 let i#2: bytes = 0x62
+                let idx#2: uint64 = 1u
                 goto block@1
-            block@4: // for_header_0_L36
+            block@4: // for_header_2_L36
+                let loop_counter%0#3: uint64 = 2u
                 let i#3: bytes = 0x61
+                let idx#3: uint64 = 2u
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_reverse_with_reverse_index() -> void:
             block@0: // L39
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x63
+                let idx#0: uint64 = 2u
                 goto block@1
             block@1: // for_body_L42
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@3, idx#3 <- block@4)
                 let i#1: bytes = φ(i#0 <- block@0, i#2 <- block@3, i#3 <- block@4)
-                let idx#0: uint64 = (- 2u tuple_index%0#1)
-                test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#1)
-                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@3, block@4][tuple_index%0#1] else return 
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
+                test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, i#1)
+                goto_nth [block@3, block@4][loop_counter%0#1] else return 
             block@3: // for_header_1_L42
+                let loop_counter%0#2: uint64 = 1u
                 let i#2: bytes = 0x62
+                let idx#2: uint64 = 1u
                 goto block@1
-            block@4: // for_header_0_L42
+            block@4: // for_header_2_L42
+                let loop_counter%0#3: uint64 = 2u
                 let i#3: bytes = 0x61
+                let idx#3: uint64 = 0u
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_empty() -> void:

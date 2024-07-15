@@ -40,18 +40,19 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
         subroutine test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
             block@0: // L133
                 let total#0: uint64 = 0u
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_body_L136
                 let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@3, total#2 <- block@4)
                 let value#1: uint64 = φ(values.0#0 <- block@0, values.1#0 <- block@3, values.2#0 <- block@4)
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#2 <- block@3, tuple_index%0#2 <- block@4)
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 let total#2: uint64 = (+ total#1 value#1)
-                let tuple_index%0#2: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@3, block@4][tuple_index%0#1] else return total#2
+                goto_nth [block@3, block@4][loop_counter%0#1] else return total#2
             block@3: // for_header_1_L136
+                let loop_counter%0#2: uint64 = 1u
                 goto block@1
             block@4: // for_header_2_L136
+                let loop_counter%0#3: uint64 = 2u
                 goto block@1
         
         subroutine test_cases.tuple_support.tuple_support.bytes_combine(arg.0: bytes, arg.1: bytes) -> bytes:

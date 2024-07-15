@@ -354,49 +354,51 @@ contract test_cases.transaction.contract.TransactionContract:
         
         subroutine test_cases.transaction.contract.TransactionContract.multiple_txns(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
             block@0: // L111
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
+                let index#0: uint64 = 0u
                 let app#1: uint64 = txn1#0
-                let index#0: uint64 = tuple_index%0#0
                 goto block@1
             block@1: // for_body_L118
                 let tmp%0#0: uint64 = ((gtxns GroupIndex) app#1)
                 let tmp%1#0: bool = (== tmp%0#0 index#0)
                 (assert tmp%1#0)
-                let tuple_index%0#0: uint64 = (+ index#0 1u)
-                goto_nth [block@3, block@4][index#0] else return 
+                goto_nth [block@3, block@4][loop_counter%0#0] else return 
             block@3: // for_header_1_L118
+                let loop_counter%0#0: uint64 = 1u
+                let index#0: uint64 = 1u
                 let app#1: uint64 = txn2#0
-                let index#0: uint64 = tuple_index%0#0
                 goto block@1
             block@4: // for_header_2_L118
+                let loop_counter%0#0: uint64 = 2u
+                let index#0: uint64 = 2u
                 let app#1: uint64 = txn3#0
-                let index#0: uint64 = tuple_index%0#0
                 goto block@1
         
         subroutine test_cases.transaction.contract.TransactionContract.any_txn(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
             block@0: // L121
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
+                let index#0: uint64 = 0u
                 let txn#1: uint64 = txn1#0
-                let index#0: uint64 = tuple_index%0#0
                 goto block@1
             block@1: // for_body_L128
                 let tmp%0#0: uint64 = ((gtxns GroupIndex) txn#1)
                 let tmp%1#0: bool = (== tmp%0#0 index#0)
                 (assert tmp%1#0)
-                let tuple_index%0#0: uint64 = (+ index#0 1u)
-                goto_nth [block@3, block@4][index#0] else return 
+                goto_nth [block@3, block@4][loop_counter%0#0] else return 
             block@3: // for_header_1_L128
+                let loop_counter%0#0: uint64 = 1u
+                let index#0: uint64 = 1u
                 let txn#1: uint64 = txn2#0
-                let index#0: uint64 = tuple_index%0#0
                 goto block@1
             block@4: // for_header_2_L128
+                let loop_counter%0#0: uint64 = 2u
+                let index#0: uint64 = 2u
                 let txn#1: uint64 = txn3#0
-                let index#0: uint64 = tuple_index%0#0
                 goto block@1
         
         subroutine test_cases.transaction.contract.TransactionContract.group_init(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
             block@0: // L131
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let txn#1: uint64 = txn1#0
                 goto block@1
             block@1: // for_body_L138
@@ -405,14 +407,13 @@ contract test_cases.transaction.contract.TransactionContract:
                 let tmp%1#0: bytes = ((gtxns TxID) txn_from_index#0)
                 let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0)
-                let tuple_index%0#2: uint64 = (+ tuple_index%0#0 1u)
-                goto_nth [block@3, block@4][tuple_index%0#0] else goto block@5
+                goto_nth [block@3, block@4][loop_counter%0#0] else goto block@5
             block@3: // for_header_1_L138
-                let tuple_index%0#0: uint64 = tuple_index%0#2
+                let loop_counter%0#0: uint64 = 1u
                 let txn#1: uint64 = txn2#0
                 goto block@1
             block@4: // for_header_2_L138
-                let tuple_index%0#0: uint64 = tuple_index%0#2
+                let loop_counter%0#0: uint64 = 2u
                 let txn#1: uint64 = txn3#0
                 goto block@1
             block@5: // after_for_L138
