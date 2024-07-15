@@ -1,14 +1,11 @@
 from algopy import (
     Account,
     ARC4Contract,
-    Bytes,
     LocalState,
     OnCompleteAction,
     UInt64,
-    log,
     op,
     subroutine,
-    urange,
 )
 from algopy.arc4 import (
     String,
@@ -46,7 +43,6 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         self._check_ban_list()
         self.remember_creator()
         self.counter = UInt64(ZERO)
-        silly_fors()
 
     @abimethod(allow_actions=["NoOp", "OptIn"])
     def register(self, name: String) -> None:
@@ -90,31 +86,3 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
 @subroutine
 def positive_one() -> UInt64:
     return UInt64(1)
-
-
-@subroutine
-def silly_fors() -> None:
-    silly_for_1()
-    silly_for_2()
-    silly_for_3()
-
-
-@subroutine
-def silly_for_1() -> None:
-    for b in Bytes(b"abc"):
-        log(b)
-        break
-
-
-@subroutine
-def silly_for_2() -> None:
-    for x in (UInt64(0), UInt64(1)):
-        log(x)
-        break
-
-
-@subroutine
-def silly_for_3() -> None:
-    for i in urange(10):
-        log(i)
-        break
