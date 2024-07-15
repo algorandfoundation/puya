@@ -500,36 +500,22 @@ def _iterate_indexable(
             op=AVMOp.sub,
             args=[_refresh_mutated_variable(context, reverse_index_internal), 1],
         )
-        handle_assignment(
-            context,
-            target=item_var,
-            value=get_value_at_index(
-                reverse_index_internal if reverse_items else current_index_internal
-            ),
-            assignment_location=item_var.source_location,
-        )
+    handle_assignment(
+        context,
+        target=item_var,
+        value=get_value_at_index(
+            reverse_index_internal if reverse_items else current_index_internal
+        ),
+        assignment_location=item_var.source_location,
+    )
 
-        if index_var:
-            handle_assignment(
-                context,
-                target=index_var,
-                value=reverse_index_internal if reverse_index else current_index_internal,
-                assignment_location=index_var.source_location,
-            )
-    else:
+    if index_var:
         handle_assignment(
             context,
-            target=item_var,
-            value=get_value_at_index(current_index_internal),
-            assignment_location=item_var.source_location,
+            target=index_var,
+            value=reverse_index_internal if reverse_index else current_index_internal,
+            assignment_location=index_var.source_location,
         )
-        if index_var:
-            handle_assignment(
-                context,
-                target=index_var,
-                value=current_index_internal,
-                assignment_location=index_var.source_location,
-            )
 
     with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
         loop_body.accept(context.visitor)
