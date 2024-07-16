@@ -61,7 +61,10 @@ class CompiledContract(typing.Protocol):
 class CompiledLogicSig(typing.Protocol):
     @property
     def account(self) -> Account:
-        """TODO"""
+        """
+        Address of a logic sig program, after template variables have been replaced and compiled
+        to AVM bytecode
+        """
 
 def compile_contract(
     contract: type[Contract],

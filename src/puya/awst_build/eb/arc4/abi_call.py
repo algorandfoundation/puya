@@ -212,31 +212,19 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
         method_or_type, abi_args, kwargs = _get_method_abi_args_and_kwargs(
             args, arg_names, self.allowed_kwargs
         )
-        compiled: InstanceBuilder | None = None
+        compiled = None
         if compiled_node := kwargs.pop(_COMPILED_KWARG, None):
-            compiled = expect.exactly_one_arg_of_type_else_dummy(
-                [compiled_node], pytypes.CompiledContractType, compiled_node.source_location
+            compiled = expect.argument_of_type_else_dummy(
+                compiled_node, pytypes.CompiledContractType
             )
 
         match method_or_type:
             case None:
                 raise CodeError("missing required positional argument 'method'", location)
             case BaseClassSubroutineInvokerExpressionBuilder(
-                target=BaseClassSubroutineTarget(base_class=base)
+                target=BaseClassSubroutineTarget(base_class=contract_ref)
             ) as eb:
                 method_call = _get_arc4_method_call(eb.context, eb.node, abi_args, location)
-                if compiled is None:
-                    compiled = CompiledContractExpressionBuilder(
-                        CompiledContract(
-                            contract=base,
-                            wtype=pytypes.CompiledContractType.wtype,
-                            source_location=location,
-                        )
-                    )
-                else:
-                    _warn_if_different_contract(
-                        compiled, base, related_location=eb.source_location
-                    )
             case ContractTypeExpressionBuilder(
                 pytype=pytypes.TypeType(typ=typ),
                 type_info=type_info,
@@ -253,21 +241,20 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
                     module_name=module_name,
                     class_name=class_name,
                 )
-                if compiled is None:
-                    compiled = CompiledContractExpressionBuilder(
-                        CompiledContract(
-                            contract=contract_ref,
-                            wtype=pytypes.CompiledContractType.wtype,
-                            source_location=location,
-                        )
-                    )
-                else:
-                    _warn_if_different_contract(
-                        compiled, contract_ref, related_location=eb.source_location
-                    )
             case _:
-                raise CodeError("unexpected argument", method_or_type.source_location)
-
+                raise CodeError("unexpected argument type", method_or_type.source_location)
+        if compiled is None:
+            compiled = CompiledContractExpressionBuilder(
+                CompiledContract(
+                    contract=contract_ref,
+                    wtype=pytypes.CompiledContractType.wtype,
+                    source_location=location,
+                )
+            )
+        else:
+            _warn_if_different_contract(
+                compiled, contract_ref, related_location=eb.source_location
+            )
         field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
         if is_update:
             _add_on_completion(field_nodes, OnCompletionAction.UpdateApplication, location)
@@ -279,10 +266,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             _add_on_completion(field_nodes, on_completion, location)
 
         compiled = compiled.single_eval()
-        for (
-            member_name,
-            field,
-        ) in PROGRAM_FIELDS.items():
+        for member_name, field in PROGRAM_FIELDS.items():
             field_nodes[field] = compiled.member_access(member_name, location)
         # is creating
         if not is_update:
@@ -419,7 +403,7 @@ def _get_method_abi_args_and_kwargs(
         elif arg_name in allowed_kwargs:
             kwargs[arg_name] = arg
         else:
-            logger.error("unexpected argument", location=arg.source_location)
+            logger.error("unrecognised keyword argument", location=arg.source_location)
     return method, abi_args, kwargs
 
 

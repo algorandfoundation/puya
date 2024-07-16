@@ -12,9 +12,7 @@ import mypy.types
 from mypy.types import get_proper_type, is_named_instance
 
 from puya import log
-from puya.awst.nodes import (
-    ConstantValue,
-)
+from puya.awst.nodes import ConstantValue
 from puya.awst_build import constants, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.factories import builder_for_type

@@ -190,9 +190,9 @@ def checked_compile(
 
 def _load_template_vars(path: Path) -> Iterable[str]:
     if path.exists():
-        for line in path.read_text().splitlines():
+        for line in path.read_text("utf8").splitlines():
             if line.startswith("prefix="):
-                prefix = line.strip("prefix=")
+                prefix = line.removeprefix("prefix=")
                 yield f"--template-vars-prefix={prefix}"
             else:
                 yield f"-T={line}"

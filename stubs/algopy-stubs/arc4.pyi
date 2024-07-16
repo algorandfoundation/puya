@@ -489,9 +489,7 @@ class Struct(metaclass=_StructMeta):
 
 class ARC4Client(typing.Protocol): ...
 
-_TABIResult_co = typing.TypeVar(
-    "_TABIResult_co", bound=(algopy.BytesBacked | algopy.UInt64 | algopy.Bytes), covariant=True
-)
+_TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
 _TABIArg: typing.TypeAlias = (
     algopy.BytesBacked
     | algopy.UInt64
@@ -604,11 +602,14 @@ result, txn = abi_call[arc4.String]("hello", "There", app=...)
 assert result == "Hello, There"
 ```
 """
-_TABIArgs = typing.ParamSpec("_TABIArgs")
+
+# using this instead of type[ARC4Contract] to prevent overload overlap, additionally this alias
+# provides a clearer intention
+_ARC4ContractType = Callable[[], ARC4Contract]
 
 @typing.overload
 def arc4_create(
-    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], None] | type[ARC4Contract],
+    method: _ARC4ContractType | Callable[typing.Concatenate[_TARC4Contract, _P], None],
     /,
     *args: _TABIArg,
     compiled: algopy.CompiledContract = ...,
@@ -620,7 +621,7 @@ def arc4_create(
 ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
 @typing.overload
 def arc4_create(
-    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], _TABIResult_co],
+    method: Callable[typing.Concatenate[_TARC4Contract, _P], _TABIResult_co],
     /,
     *args: _TABIArg,
     compiled: algopy.CompiledContract = ...,
@@ -633,7 +634,8 @@ def arc4_create(
     """
     Provides a typesafe and convenient way of creating an ARC4Contract via an inner transaction
 
-    :param method: Either an ARC4 abimethod, baremethod or an ARC4Contract with a single create method
+    :param method: An ARC4 create method (ABI or bare), or an ARC4Contract with a single create method
+    :param args: ABI args for chosen method
     :param compiled: If supplied will be used to specify transaction parameters required for creation,
                      can be omitted if template variables are not used
     :param on_completion: OnCompleteAction value for the transaction
@@ -646,7 +648,7 @@ def arc4_create(
 
 @typing.overload
 def arc4_update(
-    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], None] | type[ARC4Contract],
+    method: _ARC4ContractType | Callable[typing.Concatenate[_TARC4Contract, _P], None],
     /,
     *args: _TABIArg,
     app_id: algopy.Application | algopy.UInt64 | int,
@@ -658,7 +660,7 @@ def arc4_update(
 ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
 @typing.overload
 def arc4_update(
-    method: Callable[typing.Concatenate[_TARC4Contract, _TABIArgs], _TABIResult_co],
+    method: Callable[typing.Concatenate[_TARC4Contract, _P], _TABIResult_co],
     /,
     *args: _TABIArg,
     app_id: algopy.Application | algopy.UInt64 | int,
@@ -671,7 +673,8 @@ def arc4_update(
     """
     Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction
 
-    :param method: Either an ARC4 abimethod, baremethod or an ARC4Contract with a single update method
+    :param method: An ARC4 update method (ABI or bare), or an ARC4Contract with a single update method
+    :param args: ABI args for chosen method
     :param app_id: Application to update
     :param compiled: If supplied will be used to specify transaction parameters required for updating,
                      can be omitted if template variables are not used

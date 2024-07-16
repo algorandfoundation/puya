@@ -5,15 +5,16 @@ The compiled reference replacement is part of the optimizer pipeline for two rea
 2.) Once compiled references are replaced there are additional optimizations that can occur
 """
 
+import typing
 from collections.abc import Mapping
 
 import attrs
 from immutabledict import immutabledict
 
-from puya import algo_constants, log
+from puya import log
 from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_APP_PAGE_SIZE, MAX_BYTES_LENGTH
 from puya.awst.txn_fields import TxnField
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.types_ import AVMBytesEncoding
@@ -21,7 +22,7 @@ from puya.ir.visitor_mutator import IRMutator
 from puya.models import (
     TemplateValue,
 )
-from puya.utils import Address, sha512_256_hash
+from puya.utils import Address, biguint_bytes_eval, sha512_256_hash
 
 logger = log.get_logger(__name__)
 
@@ -67,12 +68,7 @@ class CompiledReferenceReplacer(IRMutator):
             TxnField.LocalNumUint,
             TxnField.LocalNumByteSlice,
         ):
-            try:
-                state_total = self.context.state_totals[const.artifact]
-            except KeyError:
-                raise InternalError(
-                    f"Invalid contract reference: {const.artifact}", const.source_location
-                ) from None
+            state_total = self.context.state_totals[const.artifact]
             match field:
                 case TxnField.GlobalNumUint:
                     total = state_total.global_uints
@@ -132,12 +128,14 @@ class CompiledReferenceReplacer(IRMutator):
         )
 
 
-def _is_constant(template_variables: Mapping[str, ir.Value]) -> bool:
+def _is_constant(
+    template_variables: Mapping[str, ir.Value]
+) -> typing.TypeGuard[Mapping[str, ir.Constant]]:
     return all(isinstance(var, ir.Constant) for var in template_variables.values())
 
 
 def _get_template_constants(
-    global_consts: Mapping[str, int | bytes], template_variables: Mapping[str, ir.Value]
+    global_consts: Mapping[str, int | bytes], template_variables: Mapping[str, ir.Constant]
 ) -> immutabledict[str, TemplateValue]:
     template_consts: dict[str, TemplateValue] = {k: (v, None) for k, v in global_consts.items()}
     for var, value in template_variables.items():
@@ -145,19 +143,20 @@ def _get_template_constants(
             case ir.UInt64Constant() | ir.BytesConstant() as const:
                 template_consts[var] = const.value, const.source_location
             case ir.BigUIntConstant(value=biguint, source_location=loc):
-                template_consts[var] = biguint.to_bytes(algo_constants.MAX_BIGUINT_BYTES), loc
+                template_consts[var] = biguint_bytes_eval(biguint), loc
             case ir.AddressConstant(value=addr, source_location=loc):
                 address = Address.parse(addr)
                 template_consts[var] = address.public_key, loc
             case ir.MethodConstant(value=method, source_location=loc):
                 template_consts[var] = sha512_256_hash(method.encode("utf8"))[:4], loc
             case ir.ITxnConstant():
-                logger.error(
+                raise CodeError(
                     "inner transactions cannot be used as a template variable",
-                    location=value.source_location,
+                    value.source_location,
                 )
             case _:
                 raise InternalError(
-                    "expected compile time constant", location=value.source_location
+                    f"unhandled constant type: {type(value).__name__}",
+                    location=value.source_location,
                 )
     return immutabledict(template_consts)
