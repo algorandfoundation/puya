@@ -283,51 +283,47 @@ add_three_values:
     // @subroutine
     // def add_three_values(values: tuple[UInt64, UInt64, UInt64]) -> UInt64:
     proto 3 1
-    byte ""
-    dup
     // tuple_support/tuple_support.py:135
     // total = UInt64(0)
     int 0
     int 0
-    frame_bury 0
     // tuple_support/tuple_support.py:136
     // for value in values:
     frame_dig -3
-    b add_three_values_for_body@4
 
-add_three_values_for_header_1@2:
-    // tuple_support/tuple_support.py:136
-    // for value in values:
-    frame_dig -2
-    frame_dig 1
-    frame_bury 0
-    b add_three_values_for_body@4
-
-add_three_values_for_header_2@3:
-    // tuple_support/tuple_support.py:136
-    // for value in values:
-    frame_dig -1
-    frame_dig 1
-    frame_bury 0
-
-add_three_values_for_body@4:
+add_three_values_for_body@1:
     // tuple_support/tuple_support.py:137
     // total += value
-    frame_dig 2
+    frame_dig 0
     uncover 1
     +
-    frame_bury 2
-    frame_dig 0
-    dup
+    frame_bury 0
+    // tuple_support/tuple_support.py:136
+    // for value in values:
+    frame_dig 1
+    switch add_three_values_for_header_1@3 add_three_values_for_header_2@4
+    b add_three_values_after_for@5
+
+add_three_values_for_header_1@3:
     int 1
-    +
     frame_bury 1
     // tuple_support/tuple_support.py:136
     // for value in values:
-    switch add_three_values_for_header_1@2 add_three_values_for_header_2@3
+    frame_dig -2
+    b add_three_values_for_body@1
+
+add_three_values_for_header_2@4:
+    int 2
+    frame_bury 1
+    // tuple_support/tuple_support.py:136
+    // for value in values:
+    frame_dig -1
+    b add_three_values_for_body@1
+
+add_three_values_after_for@5:
     // tuple_support/tuple_support.py:139
     // return total
-    frame_dig 2
+    frame_dig 0
     frame_bury 0
     retsub
 

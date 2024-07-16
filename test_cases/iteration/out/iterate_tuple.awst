@@ -1,0 +1,56 @@
+contract TupleIterationTest extends (test_cases.iteration.base::IterationTestBase)
+{
+  subroutine test_forwards(): void
+  {
+    for i in (hex<"61">, hex<"62">, hex<"63">) {
+      log(i)
+    }
+  }
+  
+  subroutine test_reversed(): void
+  {
+    for i in reversed((hex<"61">, hex<"62">, hex<"63">)) {
+      log(i)
+    }
+  }
+  
+  subroutine test_forwards_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate((hex<"61">, hex<"62">, hex<"63">)) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_forwards_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate(reversed((hex<"61">, hex<"62">, hex<"63">)))) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_reverse_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate(reversed((hex<"61">, hex<"62">, hex<"63">))) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_reverse_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate((hex<"61">, hex<"62">, hex<"63">))) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_empty(): void
+  {
+  }
+  
+  subroutine test_break(): void
+  {
+    for x in (hex<"61">, hex<"62">, hex<"63">) {
+      log(x)
+      break
+    }
+  }
+}

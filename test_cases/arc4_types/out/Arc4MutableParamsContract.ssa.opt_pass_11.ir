@@ -66,17 +66,18 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
         
         subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_3(arrays.0: bytes, arrays.1: bytes, arrays.2: bytes) -> <bytes, bytes, bytes>:
             block@0: // L101
-                let tuple_index%0#0: uint64 = 0u
-                goto block@4
-            block@2: // for_header_1_L103
-                goto block@4
-            block@3: // for_header_2_L103
-                goto block@4
-            block@4: // for_body_L103
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#4 <- block@2, tuple_index%0#4 <- block@3)
-                let tuple_index%0#4: uint64 = (+ tuple_index%0#1 1u)
-                goto_nth [block@2, block@3][tuple_index%0#1] else goto block@6
-            block@6: // after_for_L103
+                let loop_counter%0#0: uint64 = 0u
+                goto block@1
+            block@1: // for_body_L103
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
+                goto_nth [block@3, block@4][loop_counter%0#1] else goto block@5
+            block@3: // for_header_1_L103
+                let loop_counter%0#2: uint64 = 1u
+                goto block@1
+            block@4: // for_header_2_L103
+                let loop_counter%0#3: uint64 = 2u
+                goto block@1
+            block@5: // after_for_L103
                 let arrays.0#2: bytes = ((replace2 0) arrays.0#0 0x63)
                 let arrays.1#2: bytes = ((replace2 0) arrays.1#0 0x63)
                 let arrays.2#2: bytes = ((replace2 0) arrays.2#0 0x63)

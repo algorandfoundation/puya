@@ -58,32 +58,18 @@ test_boolean_shortcircuit_binary_ops:
     int 0
     dup
     byte ""
-    dupn 3
+    dup
     int 0
     int 1
-    b test_boolean_shortcircuit_binary_ops_for_body@3
 
-test_boolean_shortcircuit_binary_ops_for_header_1@2:
+test_boolean_shortcircuit_binary_ops_for_body@1:
     int 0
-    frame_bury 7
-    frame_dig 3
-    frame_bury 6
-
-test_boolean_shortcircuit_binary_ops_for_body@3:
-    int 0
-    frame_bury 4
+    frame_bury 2
     int 1
-    frame_bury 2
-    b test_boolean_shortcircuit_binary_ops_for_body@6
+    frame_bury 3
 
-test_boolean_shortcircuit_binary_ops_for_header_1@5:
-    int 0
-    frame_bury 2
+test_boolean_shortcircuit_binary_ops_for_body@2:
     frame_dig 5
-    frame_bury 4
-
-test_boolean_shortcircuit_binary_ops_for_body@6:
-    frame_dig 7
     dup
     callsub bool_to_bytes
     byte 0x5f
@@ -91,7 +77,7 @@ test_boolean_shortcircuit_binary_ops_for_body@6:
     concat
     byte 0x5f616e645f
     concat
-    frame_dig 2
+    frame_dig 3
     callsub bool_to_bytes
     concat
     dup
@@ -100,24 +86,24 @@ test_boolean_shortcircuit_binary_ops_for_body@6:
     swap
     concat
     callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@9
+    bz test_boolean_shortcircuit_binary_ops_bool_false@5
     byte 0x726873
     frame_dig 0
     concat
-    frame_dig 2
+    frame_dig 3
     swap
     callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@9
+    bz test_boolean_shortcircuit_binary_ops_bool_false@5
     int 1
-    b test_boolean_shortcircuit_binary_ops_bool_merge@10
+    b test_boolean_shortcircuit_binary_ops_bool_merge@6
 
-test_boolean_shortcircuit_binary_ops_bool_false@9:
+test_boolean_shortcircuit_binary_ops_bool_false@5:
     int 0
 
-test_boolean_shortcircuit_binary_ops_bool_merge@10:
-    frame_dig 7
+test_boolean_shortcircuit_binary_ops_bool_merge@6:
+    frame_dig 5
     dup
-    frame_dig 2
+    frame_dig 3
     dup
     cover 3
     &&
@@ -140,40 +126,46 @@ test_boolean_shortcircuit_binary_ops_bool_merge@10:
     swap
     concat
     callsub log_and_return
-    bnz test_boolean_shortcircuit_binary_ops_bool_true@12
+    bnz test_boolean_shortcircuit_binary_ops_bool_true@8
     byte 0x726873
     frame_dig 1
     concat
-    frame_dig 2
+    frame_dig 3
     swap
     callsub log_and_return
-    bz test_boolean_shortcircuit_binary_ops_bool_false@13
+    bz test_boolean_shortcircuit_binary_ops_bool_false@9
 
-test_boolean_shortcircuit_binary_ops_bool_true@12:
+test_boolean_shortcircuit_binary_ops_bool_true@8:
     int 1
-    b test_boolean_shortcircuit_binary_ops_bool_merge@14
+    b test_boolean_shortcircuit_binary_ops_bool_merge@10
 
-test_boolean_shortcircuit_binary_ops_bool_false@13:
+test_boolean_shortcircuit_binary_ops_bool_false@9:
     int 0
 
-test_boolean_shortcircuit_binary_ops_bool_merge@14:
-    frame_dig 7
-    frame_dig 2
+test_boolean_shortcircuit_binary_ops_bool_merge@10:
+    frame_dig 5
+    frame_dig 3
     ||
     ==
     assert
-    frame_dig 4
-    dup
+    frame_dig 2
+    bnz test_boolean_shortcircuit_binary_ops_after_for@13
     int 1
-    +
-    frame_bury 5
-    bz test_boolean_shortcircuit_binary_ops_for_header_1@5
-    frame_dig 6
-    dup
-    int 1
-    +
+    frame_bury 2
+    int 0
     frame_bury 3
-    bz test_boolean_shortcircuit_binary_ops_for_header_1@2
+    b test_boolean_shortcircuit_binary_ops_for_body@2
+
+test_boolean_shortcircuit_binary_ops_after_for@13:
+    frame_dig 4
+    bnz test_boolean_shortcircuit_binary_ops_after_for@16
+    int 1
+    frame_bury 4
+    int 0
+    frame_bury 5
+    b test_boolean_shortcircuit_binary_ops_for_body@1
+
+test_boolean_shortcircuit_binary_ops_after_for@16:
     retsub
 
 

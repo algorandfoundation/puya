@@ -1,0 +1,74 @@
+contract IndexableIterationTest extends (test_cases.iteration.base::IterationTestBase)
+{
+  subroutine test_forwards(): void
+  {
+    for i in hex<"616263"> {
+      log(i)
+    }
+  }
+  
+  subroutine test_reversed(): void
+  {
+    for i in reversed(hex<"616263">) {
+      log(i)
+    }
+  }
+  
+  subroutine test_forwards_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate(hex<"616263">) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_forwards_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate(reversed(hex<"616263">))) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_reverse_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate(reversed(hex<"616263">)) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_reverse_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate(hex<"616263">)) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_empty(): void
+  {
+    for i in hex<""> {
+      log(i)
+    }
+    for i in reversed(hex<"">) {
+      log(i)
+    }
+    for (idx, i) in enumerate(hex<"">) {
+      this::_log_with_index(idx, i)
+    }
+    for (idx, i) in reversed(enumerate(reversed(hex<"">))) {
+      this::_log_with_index(idx, i)
+    }
+    for (idx, i) in enumerate(reversed(hex<"">)) {
+      this::_log_with_index(idx, i)
+    }
+    for (idx, i) in reversed(enumerate(hex<"">)) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_break(): void
+  {
+    for b in hex<"616263"> {
+      log(b)
+      break
+    }
+  }
+}

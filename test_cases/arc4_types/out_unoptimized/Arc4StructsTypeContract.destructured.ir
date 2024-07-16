@@ -14,22 +14,19 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let coord_3#0: bytes = add%0#0
                 let tmp%0#0: bytes = (extract3 coord_3#0 0u 8u) // on error: Index access is out of bounds
                 let tmp%1#0: bytes = (extract3 coord_3#0 8u 8u) // on error: Index access is out of bounds
-                goto block@1
-            block@1: // for_header_0_L30
-                let tuple_index%0#0: uint64 = 0u
+                let loop_counter%0#0: uint64 = 0u
                 let val#0: bytes = tmp%0#0
-                goto block@3
-            block@2: // for_header_1_L30
-                let val#0: bytes = tmp%1#0
-                let tuple_index%0#0: uint64 = tuple_index%0#3
-                goto block@3
-            block@3: // for_body_L30
+                goto block@1
+            block@1: // for_body_L30
                 (log val#0)
-                goto block@4
-            block@4: // for_footer_L30
-                let tuple_index%0#3: uint64 = (+ tuple_index%0#0 1u)
-                goto_nth [block@2][tuple_index%0#0] else goto block@5
-            block@5: // after_for_L30
+                goto block@2
+            block@2: // for_footer_L30
+                goto_nth [block@3][loop_counter%0#0] else goto block@4
+            block@3: // for_header_1_L30
+                let loop_counter%0#0: uint64 = 1u
+                let val#0: bytes = tmp%1#0
+                goto block@1
+            block@4: // after_for_L30
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%1#0: bytes = (setbit 0x00 0u 0u)
                 let encoded_bool%2#0: bytes = (setbit 0x00 0u 1u)

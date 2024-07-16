@@ -6,18 +6,18 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let coord_2#0: bytes = 0x000000083cfbf217000000230384b842
                 let (coord_3#0: bytes, add%1#0: bytes, add%2#0: bytes) = test_cases.arc4_types.structs.add(coord_1#0, coord_2#0)
                 let val#0: bytes = ((extract 0 8) coord_3#0) // on error: Index access is out of bounds
-                let val#1: bytes = ((extract 8 8) coord_3#0) // on error: Index access is out of bounds
-                let tuple_index%0#0: uint64 = 0u
-                goto block@3
-            block@2: // for_header_1_L30
-                goto block@3
-            block@3: // for_body_L30
-                let val#2: bytes = φ(val#0 <- block@0, val#1 <- block@2)
-                let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@0, tuple_index%0#3 <- block@2)
-                (log val#2)
-                let tuple_index%0#3: uint64 = (+ tuple_index%0#1 1u)
-                goto tuple_index%0#1 ? block@5 : block@2
-            block@5: // after_for_L30
+                let val#2: bytes = ((extract 8 8) coord_3#0) // on error: Index access is out of bounds
+                let loop_counter%0#0: uint64 = 0u
+                goto block@1
+            block@1: // for_body_L30
+                let val#1: bytes = φ(val#0 <- block@0, val#2 <- block@3)
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3)
+                (log val#1)
+                goto loop_counter%0#1 ? block@4 : block@3
+            block@3: // for_header_1_L30
+                let loop_counter%0#2: uint64 = 1u
+                goto block@1
+            block@4: // after_for_L30
                 let is_true%0#0: uint64 = 0u
                 let encoded_tuple_buffer%8#0: bytes = (setbit 0x80 1u is_true%0#0)
                 let is_true%1#0: uint64 = 1u

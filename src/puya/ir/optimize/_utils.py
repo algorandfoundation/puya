@@ -1,6 +1,3 @@
-from collections import deque
-from collections.abc import Iterator
-
 from puya.errors import InternalError
 from puya.ir import models
 
@@ -20,16 +17,3 @@ def get_definition(
     if should_exist:
         raise InternalError(f"Register is not defined: {register}", subroutine.source_location)
     return None
-
-
-def bfs_block_order(sub: models.Subroutine) -> Iterator[models.BasicBlock]:
-    q = deque[models.BasicBlock]()
-    q.append(sub.body[0])
-    visited = {sub.body[0]}
-    while q:
-        block = q.popleft()
-        yield block
-        for succ in block.successors:
-            if succ not in visited:
-                q.append(succ)
-                visited.add(succ)
