@@ -175,6 +175,87 @@ def example(receivers: tuple[Account, Account, Account]) -> None:
         ).submit()
 ```
 
+### ARC4 Application calls
+
+#### `algopy.arc4.abi_call`
+
+[`algopy.arc4.abi_call`](#algopy.arc4.abi_call) can be used to call other ARC4 contracts, it
+takes a reference to an ARC4 method and associated arguments. Arguments will be type checked and converted where appropriate. 
+
+Any other related transaction parameters such as `app_id`, `fee` etc. can also be provided.
+
+If the ARC4 method returns an ARC4 result then the result will be the ARC4 result and the inner transaction
+
+If the ARC4 method does not return a result, or if the result type is not fully qualified then just the inner transaction is returned
+
+```python
+from algopy import Application, ARC4Contract, String, arc4, subroutine
+
+class HelloWorld(ARC4Contract):
+    
+    @arc4.abimethod()
+    def greet(self, name: String) -> String:
+        return "Hello " + name
+
+@subroutine
+def call_existing_application(app: Application) -> None:
+    greeting, greet_txn = arc4.abi_call(HelloWorld.greet, "there", app_id=app)
+    
+    assert greeting == "Hello there"
+    assert greet_txn.app_id == 1234
+```
+
+#### `algopy.arc4.arc4_create`
+
+[`algopy.arc4.arc4_create`](#algopy.arc4.arc4_create) is used to create other ARC4 Contracts, and
+will automatically populate required fields for app creation (such as approval and clear state programs and global/local state allocation).
+
+Like [`algopy.arc4.abi_call`](#algopy.arc4.abi_call) it also handles ARC4 arguments and provides ARC4 return values.
+
+```python
+from algopy import ARC4Contract, String, arc4, subroutine
+
+class HelloWorld(ARC4Contract):
+    
+    @arc4.abimethod()
+    def greet(self, name: String) -> String:
+        return "Hello " + name
+
+@subroutine
+def create_new_application() -> None:
+    hello_world_app = arc4.arc4_create(HelloWorld).created_app
+    
+    greeting, _txn = arc4.abi_call(HelloWorld.greet, "there", app_id=hello_world_app)
+    
+    assert greeting == "Hello there"
+```
+
+#### `algopy.arc4.arc4_update`
+
+[`algopy.arc4.arc4_update`](#algopy.arc4.arc4_update) is used to update an existing ARC4 contract and 
+will automatically populate the required approval and clear state program fields.
+
+Like [`algopy.arc4.abi_call`](#algopy.arc4.abi_call) it also handles ARC4 arguments and provides ARC4 return values.
+
+```python
+from algopy import Application, ARC4Contract, String, arc4, subroutine
+
+class NewApp(ARC4Contract):
+    
+    @arc4.abimethod()
+    def greet(self, name: String) -> String:
+        return "Hello " + name
+
+@subroutine
+def update_existing_application(existing_app: Application) -> None:
+    hello_world_app = arc4.arc4_update(NewApp, app_id=existing_app)
+    
+    greeting, _txn = arc4.abi_call(NewApp.greet, "there", app_id=hello_world_app)
+    
+    assert greeting == "Hello there"
+```
+
+
 ### Limitations
 
 Inner transactions are powerful, but currently do have some restrictions in how they are used.

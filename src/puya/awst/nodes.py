@@ -680,7 +680,7 @@ class FieldExpression(Expression):
         try:
             return struct_wtype.fields[self.name]
         except KeyError:
-            raise InternalError(f"invalid field for {struct_wtype}") from None
+            raise CodeError(f"invalid field for {struct_wtype}", self.source_location) from None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_field_expression(self)
@@ -1530,15 +1530,13 @@ class CompiledContract(Expression):
     def _allocation_overrides(
         self, _attribute: object, value: Mapping[TxnField, Expression]
     ) -> None:
-        if set(value).difference(
-            (
-                TxnField.ExtraProgramPages,
-                TxnField.GlobalNumUint,
-                TxnField.GlobalNumByteSlice,
-                TxnField.LocalNumUint,
-                TxnField.LocalNumByteSlice,
-            )
-        ):
+        if value.keys() - {
+            TxnField.ExtraProgramPages,
+            TxnField.GlobalNumUint,
+            TxnField.GlobalNumByteSlice,
+            TxnField.LocalNumUint,
+            TxnField.LocalNumByteSlice,
+        }:
             raise InternalError("only allocation fields can be overridden", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

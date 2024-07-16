@@ -125,7 +125,7 @@ puyapy [-h] [--version] [-O {0,1,2}]
 ### Defining template values
 
 [Template Variables](#algopy.TemplateVar), can be replaced with literal values during compilation to bytecode using the `--template-var` option.
-Additionally, Algorand Python functions that provide AVM bytecode, such as [compile_contract](#algopy.compile_contract) and [compile_logicsig](#algopy.compile_logicsig), can also utilize the specified values.
+Additionally, Algorand Python functions that create AVM bytecode, such as [compile_contract](#algopy.compile_contract) and [compile_logicsig](#algopy.compile_logicsig), can also provide the specified values.
 
 #### Examples of Variable Definitions
 
@@ -138,7 +138,7 @@ The table below illustrates how different variables and values can be defined:
 | [String](#algopy.String) | `algopy.TemplateVar[String]("SOME_STR")`  | `SOME_STR="hello"`       |
 
 All template values specified via the command line are prefixed with "TMPL_" by default. 
-This prefix can be modified using the `--template-vars-prefix` option.
+The default prefix can be modified using the `--template-vars-prefix` option.
 
 ### Advanced options
 
