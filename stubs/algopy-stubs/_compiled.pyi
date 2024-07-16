@@ -81,7 +81,7 @@ def compile_contract(
     """
     Returns the compiled data for the specified contract
 
-    :param contract: Contract
+    :param contract: Algorand Python Contract to compile
     :param extra_program_pages: Number of extra program pages, defaults to minimum required for contract
     :param global_uints: Number of global uint64s, defaults to value defined for contract
     :param global_bytes: Number of global bytes, defaults to value defined for contract
@@ -104,7 +104,7 @@ def compile_logicsig(
     """
     Returns the Account for the specified logic signature
 
-    :param logicsig: Logic Signature
+    :param logicsig: Algorand Python Logic Signature to compile
     :param template_vars: Template variables to substitute into the logic signature,
                           key should be without the prefix, must evaluate to a compile time constant
                           and match the type of the template var declaration
