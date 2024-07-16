@@ -99,15 +99,19 @@ class IntrinsicSimplifier(IRMutator):
                     | "LocalNumByteSlice"
                 ],
                 args=[arg],
-            ) as op if (
-                state := _get_itxn_field_txn_sequence(self.current_block, op)
-            ) != _ITxnFieldPosition.unknown:
-                if state == _ITxnFieldPosition.not_last_in_txn or (
+            ) as op if (state := _get_itxn_field_txn_sequence(self.current_block, op)) and (
+                # if one of these fields is set multiple times in a transaction,
+                # then only the last value set needs to be kept
+                state == _ITxnFieldPosition.not_last_in_txn
+                # if it is the last time the field is set in a txn (and all prior sets have been
+                # removed) then it can also be removed if it is being set to the default value
+                or (
                     state == _ITxnFieldPosition.last_in_txn
                     and isinstance(arg, UInt64Constant)
                     and arg.value == 0
-                ):
-                    return None
+                )
+            ):
+                return None
             case _:
                 simplified = _try_convert_stack_args_to_immediates(intrinsic)
                 if simplified is not None:
