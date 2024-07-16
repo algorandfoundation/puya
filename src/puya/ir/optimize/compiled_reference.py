@@ -12,7 +12,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_APP_PAGE_SIZE, MAX_BYTES_LENGTH
+from puya.algo_constants import HASH_PREFIX_PROGRAM, MAX_BYTES_LENGTH
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
@@ -22,7 +22,13 @@ from puya.ir.visitor_mutator import IRMutator
 from puya.models import (
     TemplateValue,
 )
-from puya.utils import Address, biguint_bytes_eval, sha512_256_hash
+from puya.utils import (
+    Address,
+    biguint_bytes_eval,
+    calculate_extra_program_pages,
+    method_selector_hash,
+    sha512_256_hash,
+)
 
 logger = log.get_logger(__name__)
 
@@ -117,10 +123,10 @@ class CompiledReferenceReplacer(IRMutator):
                 clear_bytecode = self.context.get_program_bytecode(
                     const.artifact, "clear_state", template_constants
                 )
-                total_bytes = len(approval_bytecode) + len(clear_bytecode)
-                extra_pages = (total_bytes - 1) // MAX_APP_PAGE_SIZE
                 return ir.UInt64Constant(
-                    value=extra_pages,
+                    value=calculate_extra_program_pages(
+                        len(approval_bytecode), len(clear_bytecode)
+                    ),
                     source_location=const.source_location,
                 )
         raise InternalError(
@@ -148,7 +154,7 @@ def _get_template_constants(
                 address = Address.parse(addr)
                 template_consts[var] = address.public_key, loc
             case ir.MethodConstant(value=method, source_location=loc):
-                template_consts[var] = sha512_256_hash(method.encode("utf8"))[:4], loc
+                template_consts[var] = method_selector_hash(method), loc
             case ir.ITxnConstant():
                 raise CodeError(
                     "inner transactions cannot be used as a template variable",

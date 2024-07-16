@@ -6,7 +6,7 @@ from puya.models import OnCompletionAction, TransactionType
 from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
-from puya.utils import Address, sha512_256_hash
+from puya.utils import Address, method_selector_hash
 
 logger = log.get_logger(__name__)
 
@@ -40,8 +40,7 @@ def lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
         case teal.Byte(value=bytes_value, source_location=loc):
             return models.PushBytes(value=bytes_value, source_location=loc)
         case teal.Method(value=method_value, source_location=loc):
-            bytes_value = sha512_256_hash(method_value.encode("utf8"))[:4]
-            return models.PushBytes(value=bytes_value, source_location=loc)
+            return models.PushBytes(value=method_selector_hash(method_value), source_location=loc)
         case teal.Address(value=address_value, source_location=loc):
             address = Address.parse(address_value)
             if not address.is_valid:

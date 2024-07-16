@@ -12,6 +12,7 @@ import attrs
 from puya.algo_constants import (
     ADDRESS_CHECKSUM_LENGTH,
     ENCODED_ADDRESS_LENGTH,
+    MAX_APP_PAGE_SIZE,
     MAX_BYTES_LENGTH,
     MAX_UINT64,
     PUBLIC_KEY_HASH_LENGTH,
@@ -117,6 +118,10 @@ def sha512_256_hash(value: bytes) -> bytes:
     sha = SHA512.new(truncate="256")
     sha.update(value)
     return sha.digest()
+
+
+def method_selector_hash(method_signature: str) -> bytes:
+    return sha512_256_hash(method_signature.encode("utf8"))[:4]
 
 
 def attrs_extend(
@@ -321,6 +326,11 @@ def biguint_bytes_eval(value: int) -> bytes:
     assert byte_length <= 64, "Biguints must be 64 bytes or less"
     big_uint_bytes = value.to_bytes(byteorder="big", length=byte_length)
     return big_uint_bytes
+
+
+def calculate_extra_program_pages(approval_program_length: int, clear_program_length: int) -> int:
+    total_bytes = approval_program_length + clear_program_length
+    return (total_bytes - 1) // MAX_APP_PAGE_SIZE
 
 
 @typing.overload
