@@ -570,23 +570,54 @@ class _ABICallProtocolType(typing.Protocol):
     ) -> _ABICallWithReturnProtocol[_TABIResult_co]: ...
 
 abi_call: _ABICallProtocolType = ...
-"""Provides a typesafe way of calling ARC4 methods via an inner transaction
+"""
+Provides a typesafe way of calling ARC4 methods via an inner transaction
 
-:param method: The name, method selector or Algorand Python method to call
-:param app_id: Application to call, if 0 or not specified will create a new application
-:param on_completion: OnCompleteAction value for the transaction
-                      If not specified will be inferred from Algorand Python method where possible
-:param approval_program: When creating or updating an application, the approval program.
-:param clear_state_program: When creating or updating an application, the clear state program.
-:param global_num_uint: When creating an application the number of global uints
-:param global_num_bytes: When creating an application the number of global bytes
-:param local_num_uint: When creating an application the number of local uints
-:param local_num_bytes: When creating an application the number of local bytes
-:param extra_program_pages: When creating an application the The number of extra program pages
-:param fee: The fee to pay for the transaction, defaults to 0
-:param sender: The sender address for the transaction
-:param note: Note to include with the transaction
-:param rekey_to: Account to rekey to
+```python
+def abi_call(
+    self,
+    method: Callable[..., _TABIResult_co] | str,
+    /,
+    *args: _TABIArg,
+    app_id: algopy.Application | algopy.UInt64 | int = ...,
+    on_completion: algopy.OnCompleteAction = ...,
+    approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+    clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+    global_num_uint: UInt64 | int = ...,
+    global_num_bytes: UInt64 | int = ...,
+    local_num_uint: UInt64 | int = ...,
+    local_num_bytes: UInt64 | int = ...,
+    extra_program_pages: UInt64 | int = ...,
+    fee: algopy.UInt64 | int = 0,
+    sender: algopy.Account | str = ...,
+    note: algopy.Bytes | algopy.String | bytes | str = ...,
+    rekey_to: algopy.Account | str = ...,
+) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
+```
+PARAMETERS:  
+
+**method:** The name, method selector or Algorand Python method to call  
+**app_id:** Application to call, if 0 or not specified will create a new application  
+**on_completion:** OnCompleteAction value for the transaction. If not specified will be inferred from Algorand Python method where possible  
+**approval_program:** When creating or updating an application, the approval program  
+**clear_state_program:** When creating or updating an application, the clear state program  
+**global_num_uint:** When creating an application the number of global uints  
+**global_num_bytes:** When creating an application the number of global bytes  
+**local_num_uint:** When creating an application the number of local uints  
+**local_num_bytes:** When creating an application the number of local bytes  
+**extra_program_pages:** When creating an application the The number of extra program pages  
+**fee:** The fee to pay for the transaction, defaults to 0  
+**sender:** The sender address for the transaction  
+**note:** Note to include with the transaction  
+**rekey_to:** Account to rekey to  
+
+RETURNS:  
+If `method` references an Algorand Contract / Client or the function is indexed with a return type, 
+then the result is a tuple containing the ABI result and the inner transaction of the call.  
+
+If no return type is specified, or the method does not have a return value then the result
+is the inner transaction of the call.  
+
 Examples:
 ```
 # can reference another algopy contract method
@@ -600,6 +631,9 @@ assert result == "Hello, Algo"
 # can reference a method name, the method selector is inferred from arguments and return type
 result, txn = abi_call[arc4.String]("hello", "There", app=...)
 assert result == "Hello, There"
+
+# calling a method without a return value
+txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 ```
 """
 

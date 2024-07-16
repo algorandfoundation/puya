@@ -9,6 +9,11 @@ from algopy import (
 )
 
 class CompiledContract(typing.Protocol):
+    """
+    Provides compiled programs and state allocation values for a Contract.
+    Create by calling [`compile_contract`](#algopy.compile_contract).
+    """
+
     @property
     def approval_program(self) -> tuple[Bytes, Bytes]:
         """
@@ -59,6 +64,11 @@ class CompiledContract(typing.Protocol):
         """
 
 class CompiledLogicSig(typing.Protocol):
+    """
+    Provides account for a Logic Signature.
+    Create by calling [`compile_logicsig`](#algopy.compile_logicsig).
+    """
+
     @property
     def account(self) -> Account:
         """
