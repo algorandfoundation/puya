@@ -262,19 +262,38 @@ def _build_logic_sig_ir(
     return result
 
 
+def _expand_tuple_params(
+    name: str, wtype: wtypes.WTuple, *, allow_implicits: bool, source_location: SourceLocation
+) -> Iterator[Parameter]:
+    for tup_idx, tup_type in enumerate(wtype.types):
+        if isinstance(tup_type, wtypes.WTuple):
+            yield from _expand_tuple_params(
+                format_tuple_index(name, tup_idx),
+                tup_type,
+                allow_implicits=allow_implicits,
+                source_location=source_location,
+            )
+        else:
+            yield Parameter(
+                source_location=source_location,
+                version=0,
+                name=format_tuple_index(name, tup_idx),
+                ir_type=wtype_to_ir_type(tup_type),
+                implicit_return=allow_implicits and not tup_type.immutable,
+            )
+
+
 def _build_parameter_list(
     args: Sequence[awst_nodes.SubroutineArgument], *, allow_implicits: bool
 ) -> Iterator[Parameter]:
     for arg in args:
         if isinstance(arg.wtype, wtypes.WTuple):
-            for tup_idx, tup_type in enumerate(arg.wtype.types):
-                yield Parameter(
-                    source_location=arg.source_location,
-                    version=0,
-                    name=format_tuple_index(arg.name, tup_idx),
-                    ir_type=wtype_to_ir_type(tup_type),
-                    implicit_return=allow_implicits and not tup_type.immutable,
-                )
+            yield from _expand_tuple_params(
+                arg.name,
+                arg.wtype,
+                allow_implicits=allow_implicits,
+                source_location=arg.source_location,
+            )
         else:
             yield (
                 Parameter(

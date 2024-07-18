@@ -19,7 +19,6 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.types_ import AVMBytesEncoding, IRType
-from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 
@@ -69,17 +68,9 @@ def assign(
         assert (
             names is not None
         ), "One and only one of names and temp_description should be supplied"
-        # non-temporary assignment, so in the case of a multi-valued returning source/provider,
-        # names should either be a single value (ie a tuple var name),
-        # or it should match the length (ie unpack the tuple)
+        # Names must be provided for all values yielded by the source
         if len(names) != len(atypes):
-            try:
-                ((name, var_loc),) = names
-            except ValueError as ex:
-                raise InternalError(
-                    "Incompatible multi-assignment lengths", source_location
-                ) from ex
-            names = [(format_tuple_index(name, idx), var_loc) for idx, _ in enumerate(atypes)]
+            raise InternalError("Incompatible multi-assignment lengths", source_location)
         targets = [
             context.ssa.new_register(name, ir_type, var_loc)
             for (name, var_loc), ir_type in zip(names, atypes, strict=True)

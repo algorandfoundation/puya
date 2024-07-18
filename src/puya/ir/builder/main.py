@@ -57,6 +57,7 @@ from puya.ir.types_ import (
     AVMBytesEncoding,
     IRType,
     bytes_enc_to_avm_bytes_enc,
+    get_wtype_arity,
     wtype_to_ir_type,
     wtype_to_ir_types,
 )
@@ -401,25 +402,34 @@ class FunctionIRBuilder(
         )
         return value
 
-    def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
-        # TODO: remove this once wtypes are available at IR layer and assign can deal with
-        #       single item tuples correctly
-        if isinstance(expr.wtype, wtypes.WTuple) and len(expr.wtype.types) == 1:
-            ir_type = wtype_to_ir_type(expr.wtype.types[0])
-            return self.context.ssa.read_variable(
-                expr.name, ir_type, self.context.block_builder.active_block
-            )
-        if isinstance(expr.wtype, wtypes.WTuple):
-            return ValueTuple(
-                source_location=expr.source_location,
-                values=[
-                    self.context.ssa.read_variable(
-                        variable=format_tuple_index(expr.name, idx),
-                        ir_type=wtype_to_ir_type(wt, expr.source_location),
-                        block=self.context.block_builder.active_block,
+    def _expand_tuple_var(
+        self, name: str, wtype: wtypes.WTuple, *, source_location: SourceLocation
+    ) -> ValueTuple:
+        return ValueTuple(
+            source_location=source_location,
+            values=[
+                register
+                for idx, wt in enumerate(wtype.types)
+                for register in (
+                    self._expand_tuple_var(
+                        format_tuple_index(name, idx), wt, source_location=source_location
+                    ).values
+                    if isinstance(wt, wtypes.WTuple)
+                    else (
+                        self.context.ssa.read_variable(
+                            variable=format_tuple_index(name, idx),
+                            ir_type=wtype_to_ir_type(wt, source_location),
+                            block=self.context.block_builder.active_block,
+                        ),
                     )
-                    for idx, wt in enumerate(expr.wtype.types)
-                ],
+                )
+            ],
+        )
+
+    def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
+        if isinstance(expr.wtype, wtypes.WTuple):
+            return self._expand_tuple_var(
+                expr.name, expr.wtype, source_location=expr.source_location
             )
         ir_type = wtype_to_ir_type(expr)
         variable = self.context.ssa.read_variable(
@@ -504,11 +514,17 @@ class FunctionIRBuilder(
         return MethodConstant(value=expr.value, source_location=expr.source_location)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
-        items = []
+        items = list[Value]()
         for item in expr.items:
-            # TODO: don't rely on a pure function's side effects (raising) for validation
-            wtype_to_ir_type(item)
-            items.append(self.visit_and_materialise_single(item))
+            if isinstance(item.wtype, wtypes.WTuple):
+                nested = item.accept(self)
+                assert isinstance(nested, ValueTuple)
+                items.extend(nested.values)
+            else:
+                # TODO: don't rely on a pure function's side effects (raising) for validation
+                wtype_to_ir_type(item)
+                items.append(self.visit_and_materialise_single(item))
+
         return ValueTuple(
             source_location=expr.source_location,
             values=items,
@@ -517,7 +533,18 @@ class FunctionIRBuilder(
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.WTuple):
             tup = self.visit_and_materialise(expr.base)
-            return tup[expr.index]
+            skip_values = sum(get_wtype_arity(t) for t in expr.base.wtype.types[0 : expr.index])
+
+            arity = get_wtype_arity(expr.base.wtype.types[expr.index])
+
+            return (
+                ValueTuple(
+                    values=tup[skip_values : skip_values + arity],
+                    source_location=tup[skip_values].source_location,
+                )
+                if arity > 1
+                else tup[skip_values]
+            )
         elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
             base = self.visit_and_materialise_single(expr.base)
             return arc4.arc4_tuple_index(

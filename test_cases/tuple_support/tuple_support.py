@@ -16,10 +16,7 @@ class TupleSupport(Contract):
         result = op.addw(a, b)
         assert not result[0], "overflow!"
         c = d = UInt64(3)
-        (a2, b2) = ab
-        cd = (c, d)
-        ab2 = ab
-        # ((a2, b2), cd, ab2) = (ab, (c, d), ab) # TODO: support this instead of 3 lines above
+        ((a2, b2), cd, ab2) = (ab, (c, d), ab)
         if a == b:
             tup = ab2
         else:

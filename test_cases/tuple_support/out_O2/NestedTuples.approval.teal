@@ -1,0 +1,61 @@
+#pragma version 10
+
+test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
+    byte "Hi"
+    byte "There"
+    callsub test_swap
+    swap
+    byte "There"
+    ==
+    swap
+    byte "Hi"
+    ==
+    &&
+    assert
+    int 0
+    int 2
+    int 1
+    byte "Hi"
+    byte "There"
+    callsub test_rearrange
+    cover 4
+    cover 3
+    cover 2
+    swap
+    byte "Hi"
+    ==
+    swap
+    !
+    &&
+    assert
+    int 2
+    ==
+    swap
+    int 1
+    ==
+    &&
+    assert
+    byte "There"
+    ==
+    assert
+    int 1
+    return
+
+
+// test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> bytes, bytes:
+test_swap:
+    proto 2 2
+    frame_dig -1
+    frame_dig -2
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> bytes, uint64, uint64, uint64, bytes:
+test_rearrange:
+    proto 5 5
+    frame_dig -2
+    frame_dig -5
+    frame_dig -4
+    frame_dig -3
+    frame_dig -1
+    retsub

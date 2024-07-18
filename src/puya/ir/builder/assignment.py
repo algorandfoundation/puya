@@ -16,8 +16,10 @@ from puya.ir.models import (
     Intrinsic,
     Value,
     ValueProvider,
+    ValueTuple,
 )
-from puya.ir.utils import lvalue_items
+from puya.ir.types_ import get_wtype_arity
+from puya.ir.utils import format_tuple_index, lvalue_items
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -50,6 +52,21 @@ def handle_assignment(
     return _handle_assignment(context, target, value, assignment_location, is_mutation=is_mutation)
 
 
+def _build_tuple_names(
+    base_name: str, wtype: wtypes.WType, source_location: SourceLocation | None
+) -> Sequence[tuple[str, SourceLocation | None]]:
+    if isinstance(wtype, wtypes.WTuple):
+        return [
+            (name, source_location)
+            for (idx, item_type) in enumerate(wtype.types)
+            for (name, _) in _build_tuple_names(
+                format_tuple_index(base_name, idx), item_type, source_location
+            )
+        ]
+    else:
+        return [(base_name, source_location)]
+
+
 def _handle_assignment(
     context: IRFunctionBuildContext,
     target: awst_nodes.Lvalue,
@@ -59,7 +76,7 @@ def _handle_assignment(
     is_mutation: bool,
 ) -> Sequence[Value]:
     match target:
-        case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
+        case awst_nodes.VarExpression(name=var_name, source_location=var_loc, wtype=var_type):
             is_implicit_return = var_name in (
                 p.name for p in context.subroutine.parameters if p.implicit_return
             )
@@ -69,10 +86,14 @@ def _handle_assignment(
                     " which is being passed by reference",
                     assignment_location,
                 )
+            if isinstance(var_type, wtypes.WTuple):
+                var_names = _build_tuple_names(var_name, var_type, var_loc)
+            else:
+                var_names = [(var_name, var_loc)]
             return assign(
                 context,
                 source=value,
-                names=[(var_name, var_loc)],
+                names=var_names,
                 source_location=assignment_location,
             )
         case awst_nodes.TupleExpression() as tup_expr:
@@ -80,15 +101,28 @@ def _handle_assignment(
                 value, description="tuple_assignment"
             )
             items = lvalue_items(tup_expr)
-            if len(source) != len(items):
+            if len(source) != sum(get_wtype_arity(i.wtype) for i in items):
                 raise CodeError("unpacking vs result length mismatch", assignment_location)
-            return [
-                val
-                for dst, src in zip(items, source, strict=True)
-                for val in handle_assignment(
-                    context, target=dst, value=src, assignment_location=assignment_location
+
+            results = list[Value]()
+            offset = 0
+            for item in items:
+                arity = get_wtype_arity(item.wtype)
+                value = (
+                    source[offset]
+                    if arity == 1
+                    else ValueTuple(
+                        values=source[offset : offset + arity],
+                        source_location=source[offset].source_location,
+                    )
                 )
-            ]
+                results.extend(
+                    handle_assignment(
+                        context, target=item, value=value, assignment_location=assignment_location
+                    )
+                )
+                offset += arity
+            return results
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
