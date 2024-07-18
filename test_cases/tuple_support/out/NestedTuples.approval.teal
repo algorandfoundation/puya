@@ -1,0 +1,93 @@
+#pragma version 10
+
+test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
+    // tuple_support/nested_tuples.py:6
+    // x = (String("Hi"), String("There"))
+    byte "Hi"
+    byte "There"
+    // tuple_support/nested_tuples.py:7
+    // assert test_swap(x) == (String("There"), String("Hi"))
+    callsub test_swap
+    swap
+    byte "There"
+    ==
+    swap
+    byte "Hi"
+    ==
+    &&
+    assert
+    // tuple_support/nested_tuples.py:9
+    // z = (UInt64(0), UInt64(2), y)
+    int 0
+    int 2
+    // tuple_support/nested_tuples.py:8
+    // y = (UInt64(1), x)
+    int 1
+    // tuple_support/nested_tuples.py:6
+    // x = (String("Hi"), String("There"))
+    byte "Hi"
+    byte "There"
+    // tuple_support/nested_tuples.py:11
+    // (a, b, (c, d, (e,))) = test_rearrange(z)
+    callsub test_rearrange
+    cover 4
+    cover 3
+    cover 2
+    swap
+    // tuple_support/nested_tuples.py:12
+    // assert (a, b) == (String("Hi"), UInt64(0))
+    byte "Hi"
+    ==
+    swap
+    !
+    &&
+    assert
+    // tuple_support/nested_tuples.py:13
+    // assert (c, d) == (UInt64(2), UInt64(1))
+    int 2
+    ==
+    swap
+    int 1
+    ==
+    &&
+    assert
+    // tuple_support/nested_tuples.py:14
+    // assert e == String("There")
+    byte "There"
+    ==
+    assert
+    // tuple_support/nested_tuples.py:18
+    // return True
+    int 1
+    return
+
+
+// test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> bytes, bytes:
+test_swap:
+    // tuple_support/nested_tuples.py:33-34
+    // @subroutine
+    // def test_swap(args: tuple[String, String]) -> tuple[String, String]:
+    proto 2 2
+    // tuple_support/nested_tuples.py:36
+    // return b, a
+    frame_dig -1
+    frame_dig -2
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> bytes, uint64, uint64, uint64, bytes:
+test_rearrange:
+    // tuple_support/nested_tuples.py:24-27
+    // @subroutine
+    // def test_rearrange(
+    //     args: tuple[UInt64, UInt64, tuple[UInt64, tuple[String, String]]]
+    // ) -> tuple[String, UInt64, tuple[UInt64, UInt64, tuple[String]]]:
+    proto 5 5
+    // tuple_support/nested_tuples.py:30
+    // return d, a, (b, c, (e,))
+    frame_dig -2
+    frame_dig -5
+    frame_dig -4
+    frame_dig -3
+    frame_dig -1
+    retsub

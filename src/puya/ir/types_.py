@@ -95,6 +95,14 @@ def wtype_to_ir_type(
             typing.assert_never(wtype.scalar_type)
 
 
+def get_wtype_arity(wtype: wtypes.WType) -> int:
+    """Returns the number of values this wtype represents on the stack"""
+    if isinstance(wtype, wtypes.WTuple):
+        return sum(get_wtype_arity(i) for i in wtype.types)
+    else:
+        return 1
+
+
 def wtype_to_ir_types(
     expr_or_wtype: wtypes.WType | awst_nodes.Expression,
     source_location: SourceLocation | None = None,
@@ -106,7 +114,9 @@ def wtype_to_ir_types(
     if wtype == wtypes.void_wtype:
         return []
     elif isinstance(wtype, wtypes.WTuple):
-        return [wtype_to_ir_type(t, source_location) for t in wtype.types]
+        return [
+            irtype for wtype in wtype.types for irtype in wtype_to_ir_types(wtype, source_location)
+        ]
     else:
         return [wtype_to_ir_type(wtype, source_location)]
 

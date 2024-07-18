@@ -1,0 +1,33 @@
+contract NestedTuples
+{
+  approval_program(): bool
+  {
+    x: tuple<string,string> = ('Hi', 'There')
+    assert(&&(SINGLE_EVAL(id=0, source=test_cases.tuple_support.nested_tuples::test_swap(x))[0] == 'There', SINGLE_EVAL(id=0)[1] == 'Hi'))
+    y: tuple<uint64,tuple<string,string>> = (1u, x)
+    z: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>> = (0u, 2u, y)
+    (a, b, (c, d, (e))): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>> = test_cases.tuple_support.nested_tuples::test_rearrange(z)
+    assert(&&(a == 'Hi', b == 0u))
+    assert(&&(c == 2u, d == 1u))
+    assert(e == 'There')
+    assert(&&(SINGLE_EVAL(id=1, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1)[1])[0] == SINGLE_EVAL(id=3, source=y[1])[0], SINGLE_EVAL(id=2)[1] == SINGLE_EVAL(id=3)[1])))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine test_rearrange(args: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>>): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>>
+{
+  (a, b, (c, (d, e))): tuple<uint64,uint64,tuple<uint64,tuple<string,string>>> = args
+  return (d, a, (b, c, (e)))
+}
+
+subroutine test_swap(args: tuple<string,string>): tuple<string,string>
+{
+  (a, b): tuple<string,string> = args
+  return (b, a)
+}

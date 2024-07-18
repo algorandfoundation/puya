@@ -1,0 +1,34 @@
+contract test_cases.tuple_support.nested_tuples.NestedTuples:
+    program approval:
+        subroutine test_cases.tuple_support.nested_tuples.NestedTuples.approval_program() -> bool:
+            block@0: // L5
+                let (awst_tmp%0#0: bytes, awst_tmp%1#0: bytes) = test_cases.tuple_support.nested_tuples.test_swap("Hi", "There")
+                let tmp%0#0: bool = (== awst_tmp%0#0 "There")
+                let tmp%1#0: bool = (== awst_tmp%1#0 "Hi")
+                let tmp%2#0: bool = (&& tmp%0#0 tmp%1#0)
+                (assert tmp%2#0)
+                let (a#0: bytes, b#0: uint64, c#0: uint64, d#0: uint64, e#0: bytes) = test_cases.tuple_support.nested_tuples.test_rearrange(0u, 2u, 1u, "Hi", "There")
+                let tmp%3#0: bool = (== a#0 "Hi")
+                let tmp%4#0: bool = (! b#0)
+                let tmp%5#0: bool = (&& tmp%3#0 tmp%4#0)
+                (assert tmp%5#0)
+                let tmp%6#0: bool = (== c#0 2u)
+                let tmp%7#0: bool = (== d#0 1u)
+                let tmp%8#0: bool = (&& tmp%6#0 tmp%7#0)
+                (assert tmp%8#0)
+                let tmp%9#0: bool = (== e#0 "There")
+                (assert tmp%9#0)
+                return 1u
+        
+        subroutine test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
+            block@0: // L33
+                return args.1#0 args.0#0
+        
+        subroutine test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> <bytes, uint64, uint64, uint64, bytes>:
+            block@0: // L24
+                return args.2.1.0#0 args.0#0 args.1#0 args.2.0#0 args.2.1.1#0
+    
+    program clear-state:
+        subroutine test_cases.tuple_support.nested_tuples.NestedTuples.clear_state_program() -> bool:
+            block@0: // L20
+                return 1u
