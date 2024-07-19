@@ -132,6 +132,10 @@ class ReversedFunctionExpressionBuilder(TypeBuilder):
 class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
     @typing.override
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
+        return self.try_resolve_literal(converter)
+
+    @typing.override
+    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
         return self
 
     @typing.override

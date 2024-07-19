@@ -63,6 +63,10 @@ class LiteralBuilderImpl(LiteralBuilder):
         return converter.convert_literal(literal=self, location=converter.source_location)
 
     @typing.override
+    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+        return converter.try_convert_literal(literal=self, location=converter.source_location)
+
+    @typing.override
     def resolve_lvalue(self) -> Lvalue:
         raise CodeError("cannot assign to literal", self.source_location)
 
