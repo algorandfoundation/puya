@@ -172,6 +172,7 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
     pytypes.NoneType: none.NoneExpressionBuilder,
+    pytypes.NeverType: none.NoneExpressionBuilder,  # we treat Never as None/void synonym for now
     pytypes.BoxRefType: storage.BoxRefProxyExpressionBuilder,
     # bound
     **{
