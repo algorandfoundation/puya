@@ -1428,7 +1428,7 @@ def test_brute_force_rotation_search(harness: _TestHarness) -> None:
 
 
 def test_match(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "match", AppCallRequest(args=[b""]))
+    result = harness.deploy(TEST_CASES_DIR / "match" / "contract.py", AppCallRequest(args=[b""]))
     assert result.decode_logs(4 * "u") == [
         "Hello There biguint",
         "Hello bytes",

@@ -1,0 +1,34 @@
+contract Counter
+{
+  globals {
+    ['counter']: uint64
+  }
+  
+  constructor()
+  {
+    GlobalState['counter']: uint64 = 0u
+  }
+  
+  approval_program(): bool
+  {
+    switch (txn<OnCompletion>()) {
+      case NoOp: {
+        this::increment_counter()
+        return true
+      }
+      case _: {
+        return false
+      }
+    }
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine increment_counter(): void
+  {
+    GlobalState['counter'] += 1u
+  }
+}
