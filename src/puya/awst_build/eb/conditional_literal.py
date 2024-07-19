@@ -58,6 +58,23 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         false_b = converter.convert_literal(
             literal=self._false_literal, location=converter.source_location
         )
+        return self._resolve_literals(true_b, false_b)
+
+    @typing.override
+    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+        true_b = converter.try_convert_literal(
+            literal=self._true_literal, location=converter.source_location
+        )
+        false_b = converter.try_convert_literal(
+            literal=self._false_literal, location=converter.source_location
+        )
+        if true_b is None or false_b is None:
+            return None
+        return self._resolve_literals(true_b, false_b)
+
+    def _resolve_literals(
+        self, true_b: InstanceBuilder, false_b: InstanceBuilder
+    ) -> InstanceBuilder:
         assert true_b.pytype == false_b.pytype  # TODO: fixme
         result_pytype = true_b.pytype
         true_expr = true_b.resolve()

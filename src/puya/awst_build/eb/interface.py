@@ -118,6 +118,15 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         with literals)"""
 
     @abc.abstractmethod
+    def try_resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder | None:
+        """Similar to resolve_literal, but in the case where a conversion is possible but the
+        literal values are the wrong type, don't produce any errors and return None instead.
+
+        If no conversion is necessary (ie no literals or it's not meaningful to convert literals
+        this way, such as a tuple with literals), just return the current instance.
+        """
+
+    @abc.abstractmethod
     def resolve_lvalue(self) -> Lvalue:
         """Produce an expression for the target of an assignment"""
 
