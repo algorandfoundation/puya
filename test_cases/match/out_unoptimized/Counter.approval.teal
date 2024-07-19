@@ -1,0 +1,85 @@
+#pragma version 10
+
+test_cases.match.counter.Counter.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    // match/counter.py:9
+    // match algopy.Txn.on_completion:
+    txn OnCompletion
+    // match/counter.py:10
+    // case algopy.OnCompleteAction.NoOp:
+    int NoOp
+    // match/counter.py:9-15
+    // match algopy.Txn.on_completion:
+    //     case algopy.OnCompleteAction.NoOp:
+    //         self.increment_counter()
+    //         return True
+    //     case _:
+    //         # reject all OnCompletionAction's other than NoOp
+    //         return False
+    uncover 1
+    match main_switch_case_0@3
+    // match/counter.py:14-15
+    // # reject all OnCompletionAction's other than NoOp
+    // return False
+    b main_switch_case_default@4
+
+main_switch_case_0@3:
+    // match/counter.py:11
+    // self.increment_counter()
+    callsub increment_counter
+    // match/counter.py:12
+    // return True
+    int 1
+    return
+
+main_switch_case_default@4:
+    // match/counter.py:14-15
+    // # reject all OnCompletionAction's other than NoOp
+    // return False
+    int 0
+    return
+
+
+// test_cases.match.counter.Counter.increment_counter() -> void:
+increment_counter:
+    // match/counter.py:20-21
+    // @algopy.subroutine
+    // def increment_counter(self) -> None:
+    proto 0 0
+    // match/counter.py:22
+    // self.counter += 1
+    int 0
+    // match/counter.py:6
+    // self.counter = algopy.UInt64(0)
+    byte "counter"
+    // match/counter.py:22
+    // self.counter += 1
+    app_global_get_ex
+    assert // check self.counter exists
+    int 1
+    +
+    // match/counter.py:6
+    // self.counter = algopy.UInt64(0)
+    byte "counter"
+    // match/counter.py:22
+    // self.counter += 1
+    uncover 1
+    app_global_put
+    retsub
+
+
+// test_cases.match.counter.Counter.__init__() -> void:
+__init__:
+    // match/counter.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // match/counter.py:6
+    // self.counter = algopy.UInt64(0)
+    byte "counter"
+    int 0
+    app_global_put
+    retsub
