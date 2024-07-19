@@ -1,6 +1,15 @@
 import typing
 
-from algopy import Account, Application, Asset, BigUInt, Bytes, UInt64
+from algopy import (
+    Account,
+    Application,
+    Asset,
+    BigUInt,
+    Bytes,
+    OnCompleteAction,
+    TransactionType,
+    UInt64,
+)
 
 class EC(str):
     """Available values for the `EC` enum"""
@@ -1170,10 +1179,10 @@ class GITxn:
         """
 
     @staticmethod
-    def type_enum(t: int, /) -> UInt64:
+    def type_enum(t: int, /) -> TransactionType:
         """
         :param int t: transaction group index
-        :returns UInt64: Transaction type as integer
+        :returns TransactionType: Transaction type as integer
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1251,10 +1260,10 @@ class GITxn:
         """
 
     @staticmethod
-    def on_completion(t: int, /) -> UInt64:
+    def on_completion(t: int, /) -> OnCompleteAction:
         """
         :param int t: transaction group index
-        :returns UInt64: ApplicationCall transaction on completion action
+        :returns OnCompleteAction: ApplicationCall transaction on completion action
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1772,7 +1781,7 @@ class GTxn:
         """
 
     @staticmethod
-    def type_enum(a: UInt64 | int, /) -> UInt64:
+    def type_enum(a: UInt64 | int, /) -> TransactionType:
         """
         Transaction type as integer
 
@@ -1844,7 +1853,7 @@ class GTxn:
         """
 
     @staticmethod
-    def on_completion(a: UInt64 | int, /) -> UInt64:
+    def on_completion(a: UInt64 | int, /) -> OnCompleteAction:
         """
         ApplicationCall transaction on completion action
 
@@ -2420,7 +2429,7 @@ class ITxn:
         """
 
     @staticmethod
-    def type_enum() -> UInt64:
+    def type_enum() -> TransactionType:
         """
         Transaction type as integer
 
@@ -2492,7 +2501,7 @@ class ITxn:
         """
 
     @staticmethod
-    def on_completion() -> UInt64:
+    def on_completion() -> OnCompleteAction:
         """
         ApplicationCall transaction on completion action
 
@@ -3419,7 +3428,7 @@ class Txn:
     Transaction type as bytes
     """
 
-    type_enum: typing.Final[UInt64] = ...
+    type_enum: typing.Final[TransactionType] = ...
     """
     Transaction type as integer
     """
@@ -3464,7 +3473,7 @@ class Txn:
     ApplicationID from ApplicationCall transaction
     """
 
-    on_completion: typing.Final[UInt64] = ...
+    on_completion: typing.Final[OnCompleteAction] = ...
     """
     ApplicationCall transaction on completion action
     """
