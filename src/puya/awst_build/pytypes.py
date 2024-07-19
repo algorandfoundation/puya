@@ -361,6 +361,7 @@ class LiteralOnlyType(PyType):
 
 
 NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
+NeverType: typing.Final[PyType] = _SimpleType(name="typing.Never", wtype=wtypes.void_wtype)
 BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
 IntLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.int"))
 StrLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.str"))

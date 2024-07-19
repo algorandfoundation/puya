@@ -257,7 +257,7 @@ def type_to_pytype(
         case mypy.types.NoneType() | mypy.types.PartialType(type=None):
             return pytypes.NoneType
         case mypy.types.UninhabitedType():
-            return pytypes.NoneType  # TODO: make this it's own type
+            return pytypes.NeverType
         case mypy.types.AnyType(type_of_any=type_of_any):
             msg = _type_of_any_to_error_message(type_of_any, loc)
             raise CodeError(msg, loc)
