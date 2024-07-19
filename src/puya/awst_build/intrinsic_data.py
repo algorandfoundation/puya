@@ -239,6 +239,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         ],
     ),
     err=OpMappingWithOverloads(
+        result=pytypes.NeverType,
         arity=0,
         overloads=[
             FunctionOpMapping(
@@ -247,6 +248,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         ],
     ),
     exit=OpMappingWithOverloads(
+        result=pytypes.NeverType,
         arity=1,
         overloads=[
             FunctionOpMapping(
