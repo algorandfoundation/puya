@@ -335,18 +335,8 @@ class FunctionDef:
     doc: list[str]
     is_property: bool
     args: list[TypedName] = attrs.field(factory=list)
-    returns: list[TypedName] = attrs.field(factory=list)
+    return_docs: list[str] = attrs.field(factory=list)
     op_mapping: OpMappingWithOverloads
-
-    @property
-    def has_any_arg(self) -> bool:
-        return any(r.type == StackType.any for r in self.args)
-
-    @returns.validator
-    def _no_any_return(self, _attribute: object, returns: list[TypedName]) -> None:
-        if any(r.type == StackType.any for r in returns):
-            # functions with any returns should have already been transformed
-            raise ValueError(f"Unexpected function {self.name} with any return")
 
 
 @attrs.define
@@ -475,17 +465,8 @@ def build_method_stub(function: FunctionDef, prefix: str = "") -> Iterable[str]:
         args.append("/")  # TODO: remove once we support kwargs
     signature.append(", ".join(args))
 
-    return_types = [
-        get_python_type(ret.type, covariant=False, any_as=None) for ret in function.returns
-    ]
-    return_docs = [r.doc for r in function.returns if r.doc is not None]
-    match return_types:
-        case []:
-            returns = "None"
-        case [returns]:
-            pass
-        case _:
-            returns = f"tuple[{', '.join(return_types)}]"
+    return_docs = function.return_docs
+    returns = pytype_stub_repr(function.op_mapping.result)
     if return_docs:
         if doc:
             doc.append(f":returns {returns}: {return_docs[0]}")
@@ -532,18 +513,9 @@ def build_stub_class(klass: ClassDef) -> Iterable[str]:
 
 
 def build_class_var_stub(function: FunctionDef, indent: str) -> Iterable[str]:
-    return_types = [
-        get_python_type(ret.type, covariant=False, any_as=None) for ret in function.returns
-    ]
-    return_docs = [r.doc for r in function.returns if r.doc is not None]
+    returns = pytype_stub_repr(function.op_mapping.result)
+    return_docs = function.return_docs
     doc = return_docs if return_docs else function.doc[:]
-    match return_types:
-        case []:
-            returns = "None"
-        case [returns]:
-            pass
-        case _:
-            returns = f"tuple[{', '.join(return_types)}]"
     yield f"{indent}{function.name}: typing.Final[{returns}] = ..."
     yield f'{indent}"""'
     for doc_line in doc:
@@ -673,12 +645,9 @@ def build_operation_method(
         function_args.append(stack_arg)
 
     if op.halts:
-        function_returns = [TypedName(name="", type="typing.Never", doc="Halts program")]
+        return_docs = ["Halts program"]
     else:
-        function_returns = [
-            TypedName(name=so.name.lower(), type=so.stack_type, doc=so.doc)
-            for so in op.stack_outputs
-        ]
+        return_docs = [so.doc for so in op.stack_outputs if so.doc]
 
     try:
         property_op = PROPERTY_OPS[op.name]
@@ -687,14 +656,17 @@ def build_operation_method(
     else:
         is_property = op_function_name not in property_op["exclude"]
 
-    # replace immediate reference to arg enum with a constant enum value
-    result_ptypes = [sub_types(o.stack_type, covariant=False)[0] for o in op.stack_outputs]
-    if not result_ptypes:
-        result_typ = pytypes.NoneType
-    elif len(op.stack_outputs) == 1:
-        (result_typ,) = result_ptypes
+    if op.halts:
+        result_typ = pytypes.NeverType
     else:
-        result_typ = pytypes.GenericTupleType.parameterise(result_ptypes, source_location=None)
+        # replace immediate reference to arg enum with a constant enum value
+        result_ptypes = [sub_types(o.stack_type, covariant=False)[0] for o in op.stack_outputs]
+        if not result_ptypes:
+            result_typ = pytypes.NoneType
+        elif len(op.stack_outputs) == 1:
+            (result_typ,) = result_ptypes
+        else:
+            result_typ = pytypes.GenericTupleType.parameterise(result_ptypes, source_location=None)
     op_mappings = []
     ops_with_aliases = [(op, list[str]()), *aliases]
     for map_op, alias_args in ops_with_aliases:
@@ -732,7 +704,7 @@ def build_operation_method(
         doc=doc,
         is_property=is_property,
         args=function_args,
-        returns=function_returns,
+        return_docs=return_docs,
         op_mapping=OpMappingWithOverloads(
             arity=len(function_args),
             result=result_typ,
@@ -870,6 +842,8 @@ def pytype_repr(typ: pytypes.PyType) -> str:
             return "pytypes.BytesType"
         case pytypes.BigUIntType:
             return "pytypes.BigUIntType"
+        case pytypes.NeverType:
+            return "pytypes.NeverType"
         case pytypes.TupleType(generic=pytypes.GenericTupleType, items=tuple_items) if len(
             tuple_items
         ) > 1:
@@ -1003,6 +977,10 @@ def output_stub(
     stub_out_path = VCS_ROOT / "stubs" / "algopy-stubs" / f"{STUB_NAMESPACE}.pyi"
     stub_out_path.write_text("\n".join(stub), encoding="utf-8")
     subprocess.run(["black", str(stub_out_path)], check=True, cwd=VCS_ROOT)
+
+
+def pytype_stub_repr(pytype: pytypes.PyType) -> str:
+    return str(pytype).replace("algopy.", "")
 
 
 def output_awst_data(
