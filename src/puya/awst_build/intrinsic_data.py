@@ -1582,7 +1582,7 @@ NAMESPACE_CLASSES: typing.Final[
             ],
         ),
         type_enum=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
+            result=pytypes.TransactionTypeType,
             arity=1,
             overloads=[
                 FunctionOpMapping(
@@ -1681,7 +1681,7 @@ NAMESPACE_CLASSES: typing.Final[
             ],
         ),
         on_completion=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
+            result=pytypes.OnCompleteActionType,
             arity=1,
             overloads=[
                 FunctionOpMapping(
@@ -2447,7 +2447,7 @@ NAMESPACE_CLASSES: typing.Final[
             ],
         ),
         type_enum=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
+            result=pytypes.TransactionTypeType,
             arity=1,
             overloads=[
                 FunctionOpMapping(
@@ -2591,7 +2591,7 @@ NAMESPACE_CLASSES: typing.Final[
             ],
         ),
         on_completion=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
+            result=pytypes.OnCompleteActionType,
             arity=1,
             overloads=[
                 FunctionOpMapping(
@@ -3608,7 +3608,7 @@ NAMESPACE_CLASSES: typing.Final[
             ],
         ),
         type_enum=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
+            result=pytypes.TransactionTypeType,
             arity=0,
             overloads=[
                 FunctionOpMapping(
@@ -3698,7 +3698,7 @@ NAMESPACE_CLASSES: typing.Final[
             ],
         ),
         on_completion=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
+            result=pytypes.OnCompleteActionType,
             arity=0,
             overloads=[
                 FunctionOpMapping(
@@ -4856,7 +4856,7 @@ NAMESPACE_CLASSES: typing.Final[
         type_enum=PropertyOpMapping(
             "txn",
             "TypeEnum",
-            pytypes.UInt64Type,
+            pytypes.TransactionTypeType,
         ),
         xfer_asset=PropertyOpMapping(
             "txn",
@@ -4901,7 +4901,7 @@ NAMESPACE_CLASSES: typing.Final[
         on_completion=PropertyOpMapping(
             "txn",
             "OnCompletion",
-            pytypes.UInt64Type,
+            pytypes.OnCompleteActionType,
         ),
         application_args=OpMappingWithOverloads(
             result=pytypes.BytesType,

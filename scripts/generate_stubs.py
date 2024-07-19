@@ -38,6 +38,13 @@ PYTYPE_TO_LITERAL: dict[pytypes.PyType, pytypes.LiteralOnlyType | None] = {
     pytypes.BoolType: None,  # already a Python type
     pytypes.ApplicationType: pytypes.IntLiteralType,
     pytypes.AssetType: pytypes.IntLiteralType,
+    pytypes.TransactionTypeType: None,
+    pytypes.OnCompleteActionType: None,
+}
+PYTYPE_REPR = {
+    value: f"pytypes.{key}"
+    for key, value in pytypes.__dict__.items()
+    if isinstance(value, pytypes.PyType)
 }
 STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
     StackType.address_or_index: [pytypes.AccountType, pytypes.UInt64Type],
@@ -667,6 +674,11 @@ def build_operation_method(
             (result_typ,) = result_ptypes
         else:
             result_typ = pytypes.GenericTupleType.parameterise(result_ptypes, source_location=None)
+        if result_typ == pytypes.UInt64Type:
+            if op_function_name == "on_completion":
+                result_typ = pytypes.OnCompleteActionType
+            elif op_function_name == "type_enum":
+                result_typ = pytypes.TransactionTypeType
     op_mappings = []
     ops_with_aliases = [(op, list[str]()), *aliases]
     for map_op, alias_args in ops_with_aliases:
@@ -827,23 +839,11 @@ def build_grouped_ops(
 
 
 def pytype_repr(typ: pytypes.PyType) -> str:
+    try:
+        return PYTYPE_REPR[typ]
+    except KeyError:
+        pass
     match typ:
-        case pytypes.BoolType:
-            return "pytypes.BoolType"
-        case pytypes.UInt64Type:
-            return "pytypes.UInt64Type"
-        case pytypes.AccountType:
-            return "pytypes.AccountType"
-        case pytypes.ApplicationType:
-            return "pytypes.ApplicationType"
-        case pytypes.AssetType:
-            return "pytypes.AssetType"
-        case pytypes.BytesType:
-            return "pytypes.BytesType"
-        case pytypes.BigUIntType:
-            return "pytypes.BigUIntType"
-        case pytypes.NeverType:
-            return "pytypes.NeverType"
         case pytypes.TupleType(generic=pytypes.GenericTupleType, items=tuple_items) if len(
             tuple_items
         ) > 1:
