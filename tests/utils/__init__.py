@@ -1,6 +1,6 @@
 import functools
 import typing
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import attrs
@@ -16,7 +16,7 @@ from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
 from puya.models import CompilationArtifact
 from puya.options import PuyaOptions
-from puya.parse import ParseResult, SourceLocation, get_parse_sources
+from puya.parse import ParseResult, ParseSource, SourceLocation
 from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
@@ -47,6 +47,7 @@ def _get_root_dir(path: Path) -> Path:
 
 class _CompileCache(typing.NamedTuple):
     context: CompileContext
+    parse_result: ParseResult
     module_awst: dict[str, Module]
     logs: list[Log]
 
@@ -57,9 +58,9 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # optimisation and debug levels, which is currently true.
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
-        context = parse_with_mypy(PuyaOptions(paths=[root_dir]))
-        awst = transform_ast(context)
-    return _CompileCache(context, awst, log_ctx.logs)
+        context, parse_result = parse_with_mypy(PuyaOptions(paths=[root_dir]))
+        awst = transform_ast(context, parse_result)
+    return _CompileCache(context, parse_result, awst, log_ctx.logs)
 
 
 @attrs.frozen(kw_only=True)
@@ -74,11 +75,12 @@ class CompilationResult:
     """examples or test_cases path"""
 
 
-def narrow_sources(parse_result: ParseResult, src_path: Path) -> ParseResult:
-    sources = get_parse_sources(
-        [src_path], parse_result.manager.fscache, parse_result.manager.options
-    )
-    return attrs.evolve(parse_result, sources=sources)
+def narrow_sources(sources: Sequence[ParseSource], src_path: Path) -> Sequence[ParseSource]:
+    return [
+        src
+        for src in sources
+        if src_path.resolve() in (src.path.resolve(), *src.path.resolve().parents)
+    ]
 
 
 def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
@@ -134,7 +136,7 @@ def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> Com
 def compile_src_from_options(options: PuyaOptions) -> CompilationResult:
     (src_path,) = options.paths
     root_dir = _get_root_dir(src_path)
-    context, awst, awst_logs = get_awst_cache(root_dir)
+    context, parse_result, awst, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
 
     awst_errors = _get_log_errors(awst_logs)
@@ -145,13 +147,13 @@ def compile_src_from_options(options: PuyaOptions) -> CompilationResult:
         context = attrs.evolve(
             context,
             options=options,
-            parse_result=narrow_sources(context.parse_result, src_path),
+            sources=narrow_sources(context.sources, src_path),
         )
 
         with pushd(root_dir):
             # write AWST
             if options.output_awst:
-                sources = tuple(str(s.path) for s in context.parse_result.sources)
+                sources = tuple(str(s.path) for s in context.sources)
                 for module in awst.values():
                     if module.source_file_path.startswith(sources):
                         output_awst(module, context.options)

@@ -99,7 +99,7 @@ def build_module_irs(
 
     result = {}
     module_names = ArtifactReferenceCollector.extend(
-        [source.module_name for source in context.parse_result.sources], module_asts
+        [source.module_name for source in context.sources], module_asts
     )
     for module_name in module_names:
         artifacts = result[module_name] = list[ModuleArtifact]()

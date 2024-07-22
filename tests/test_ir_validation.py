@@ -11,7 +11,7 @@ from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
-from puya.parse import ParseResult, SourceLocation
+from puya.parse import SourceLocation
 
 _location = SourceLocation(
     file="test_ir.ts",
@@ -86,12 +86,8 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     )
     ctx = IRBuildContext(
         options=PuyaOptions(),
-        # TODO: only parse_result.sources need to be on an IRBuildContext
-        parse_result=ParseResult(
-            sources=[],
-            manager=None,  # type: ignore[arg-type]
-            ordered_modules=[],
-        ),
+        sources=[],
+        module_paths={},
         module_awsts={},
         subroutines={},
         embedded_funcs=[],

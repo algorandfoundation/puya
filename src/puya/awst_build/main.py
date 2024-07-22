@@ -7,15 +7,17 @@ from puya.awst_build.context import ASTConversionContext
 from puya.awst_build.module import ModuleASTConverter
 from puya.context import CompileContext
 from puya.options import PuyaOptions
-from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH
+from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH, ParseResult
 from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
 
 logger = log.get_logger(__name__)
 
 
-def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
+def transform_ast(compile_context: CompileContext, parse_result: ParseResult) -> dict[str, Module]:
     result = dict[str, Module]()
-    ctx: ASTConversionContext = attrs_extend(ASTConversionContext, compile_context)
+    ctx: ASTConversionContext = attrs_extend(
+        ASTConversionContext, compile_context, parse_result=parse_result
+    )
     user_modules = {}
     for module in ctx.parse_result.ordered_modules:
         module_name = module.fullname
@@ -35,7 +37,7 @@ def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
             user_modules[module_name] = ModuleASTConverter(ctx, module)
-    sources = tuple(str(s.path) for s in compile_context.parse_result.sources)
+    sources = tuple(str(s.path) for s in ctx.parse_result.sources)
     for module_name, converter in user_modules.items():
         logger.debug(f"Building AWST for module {module_name}")
         module_awst = converter.convert()

@@ -15,7 +15,7 @@ from puya.awst_build.exceptions import TypeUnionError
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.models import ContractReference
-from puya.parse import SourceLocation
+from puya.parse import ParseResult, SourceLocation
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
@@ -23,6 +23,7 @@ logger = log.get_logger(__name__)
 
 @attrs.frozen(kw_only=True)
 class ASTConversionContext(CompileContext):
+    parse_result: ParseResult
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     _state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
