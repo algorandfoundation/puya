@@ -1,11 +1,10 @@
 from collections.abc import Mapping, Sequence
-from functools import cached_property
 
 import attrs
 
 from puya import log
 from puya.options import PuyaOptions
-from puya.parse import ParseResult, SourceLocation, read_source
+from puya.parse import ParseSource, SourceLocation, read_source
 
 logger = log.get_logger(__name__)
 
@@ -22,11 +21,8 @@ _EmptyMeta = SourceMeta(None, None)
 @attrs.define(kw_only=True)
 class CompileContext:
     options: PuyaOptions
-    parse_result: ParseResult
-
-    @cached_property
-    def module_paths(self) -> Mapping[str, str]:
-        return {m.fullname: m.path for m in self.parse_result.ordered_modules}
+    sources: Sequence[ParseSource]
+    module_paths: Mapping[str, str]
 
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta:
         if location is None:

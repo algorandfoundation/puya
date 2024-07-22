@@ -51,6 +51,7 @@ from puya.models import (
 from puya.options import PuyaOptions
 from puya.parse import (
     TYPESHED_PATH,
+    ParseResult,
     parse_and_typecheck,
 )
 from puya.teal import models as teal
@@ -71,9 +72,9 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puya_options)
-        context = parse_with_mypy(puya_options)
+        context, parse_result = parse_with_mypy(puya_options)
         log_ctx.exit_if_errors()
-        awst = transform_ast(context)
+        awst = transform_ast(context, parse_result)
         log_ctx.exit_if_errors()
         compiled_contracts_by_source_path = awst_to_teal(log_ctx, context, awst)
         log_ctx.exit_if_errors()
@@ -94,7 +95,7 @@ def awst_to_teal(
     return compiled_contracts
 
 
-def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
+def parse_with_mypy(puya_options: PuyaOptions) -> tuple[CompileContext, ParseResult]:
     mypy_options = get_mypy_options()
 
     # this generates the ASTs from the build sources, and all imported modules (recursively)
@@ -105,10 +106,11 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
 
     context = CompileContext(
         options=puya_options,
-        parse_result=parse_result,
+        sources=parse_result.sources,
+        module_paths={m.fullname: m.path for m in parse_result.ordered_modules},
     )
 
-    return context
+    return context, parse_result
 
 
 def get_mypy_options() -> mypy.options.Options:
@@ -163,7 +165,7 @@ def module_irs_to_teal(
     artifacts_by_output_base = dict[Path, ModuleArtifact]()
 
     artifact_refs = dict[Path, list[ContractReference | LogicSigReference]]()
-    for src in context.parse_result.sources:
+    for src in context.sources:
         module_ir = module_irs.get(src.module_name)
         if module_ir is None:
             raise InternalError(f"Could not find IR for {src.path}")

@@ -38,7 +38,7 @@ def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
 
     for type_name in type_names:
         module_id, symbol_name = type_name.rsplit(".", maxsplit=1)
-        module = awst_cache.context.parse_result.manager.modules[module_id]
+        module = awst_cache.parse_result.manager.modules[module_id]
 
         symbol = module.names[symbol_name]
         node = symbol.node
