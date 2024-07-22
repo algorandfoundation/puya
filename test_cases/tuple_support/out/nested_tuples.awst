@@ -6,11 +6,16 @@ contract NestedTuples
     assert(&&(SINGLE_EVAL(id=0, source=test_cases.tuple_support.nested_tuples::test_swap(x))[0] == 'There', SINGLE_EVAL(id=0)[1] == 'Hi'))
     y: tuple<uint64,tuple<string,string>> = (1u, x)
     z: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>> = (0u, 2u, y)
+    z2: tuple<uint64,tuple<string,string>> = z[2]
+    z2_1: tuple<string,string> = z2[1]
+    (_x, z2_1_1): tuple<string,string> = z2_1
+    assert(z2_1_1 == 'There')
     (a, b, (c, d, (e))): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>> = test_cases.tuple_support.nested_tuples::test_rearrange(z)
     assert(&&(a == 'Hi', b == 0u))
     assert(&&(c == 2u, d == 1u))
     assert(e == 'There')
     test_cases.tuple_support.nested_tuples::test_intrinsics(1u, 2u)
+    test_cases.tuple_support.nested_tuples::test_nested_slicing()
     assert(&&(SINGLE_EVAL(id=1, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1)[1])[0] == SINGLE_EVAL(id=3, source=y[1])[0], SINGLE_EVAL(id=2)[1] == SINGLE_EVAL(id=3)[1])))
     return true
   }
@@ -44,4 +49,13 @@ subroutine test_intrinsics(num1: uint64, num2: uint64): void
   ((x, y)): tuple<tuple<uint64,uint64>> = nt[1u:2u]
   assert(x == 0u)
   assert(y == num1 + num2)
+}
+
+subroutine test_nested_slicing(): void
+{
+  nt: tuple<uint64,uint64,tuple<uint64,tuple<string,string>,uint64>,uint64,uint64> = (1u, 2u, (3u, ('a', 'b'), 4u), 5u, 6u)
+  (a, b, c): tuple<uint64,tuple<uint64,tuple<string,string>,uint64>,uint64> = nt[1u:4u]
+  assert(b[-1] == 4u)
+  assert(&&(a == 2u, c == 5u))
+  assert(&&(SINGLE_EVAL(id=7, source=b[1][:])[0] == 'a', SINGLE_EVAL(id=7)[1] == 'b'))
 }
