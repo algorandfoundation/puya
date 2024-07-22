@@ -516,14 +516,8 @@ class FunctionIRBuilder(
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
         items = list[Value]()
         for item in expr.items:
-            if isinstance(item.wtype, wtypes.WTuple):
-                nested_values = self.visit_and_materialise(item)
-                items.extend(nested_values)
-            else:
-                # TODO: don't rely on a pure function's side effects (raising) for validation
-                wtype_to_ir_type(item)
-                items.append(self.visit_and_materialise_single(item))
-
+            nested_values = self.visit_and_materialise(item)
+            items.extend(nested_values)
         return ValueTuple(
             source_location=expr.source_location,
             values=items,
@@ -583,11 +577,16 @@ class FunctionIRBuilder(
     def visit_intersection_slice_expression(
         self, expr: awst_nodes.IntersectionSliceExpression
     ) -> TExpression:
-        if isinstance(expr.wtype, wtypes.WTuple):
-            values = list(self.visit_and_materialise(expr.base))
-            start_i = extract_const_int(expr.begin_index)
+        if isinstance(expr.base.wtype, wtypes.WTuple):
+            tup = list(self.visit_and_materialise(expr.base))
+            start_i = extract_const_int(expr.begin_index) or 0
             end_i = extract_const_int(expr.end_index)
-            return ValueTuple(source_location=expr.source_location, values=values[start_i:end_i])
+            skip_values = sum(get_wtype_arity(t) for t in expr.base.wtype.types[:start_i])
+            arity = sum(get_wtype_arity(t) for t in expr.base.wtype.types[start_i:end_i])
+            assert isinstance(expr.wtype, wtypes.WTuple)
+            assert arity == sum(get_wtype_arity(t) for t in expr.wtype.types)
+            result = tup[skip_values : skip_values + arity]
+            return ValueTuple(values=result, source_location=expr.source_location)
         elif expr.base.wtype == wtypes.bytes_wtype:
             return visit_bytes_intersection_slice_expression(self.context, expr)
         else:
@@ -598,11 +597,16 @@ class FunctionIRBuilder(
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
         """Slices an enumerable type."""
-        if isinstance(expr.wtype, wtypes.WTuple):
-            values = list(self.visit_and_materialise(expr.base))
-            start_i = extract_const_int(expr.begin_index)
+        if isinstance(expr.base.wtype, wtypes.WTuple):
+            tup = list(self.visit_and_materialise(expr.base))
+            start_i = extract_const_int(expr.begin_index) or 0
             end_i = extract_const_int(expr.end_index)
-            return ValueTuple(source_location=expr.source_location, values=values[start_i:end_i])
+            skip_values = sum(get_wtype_arity(t) for t in expr.base.wtype.types[:start_i])
+            arity = sum(get_wtype_arity(t) for t in expr.base.wtype.types[start_i:end_i])
+            assert isinstance(expr.wtype, wtypes.WTuple)
+            assert arity == sum(get_wtype_arity(t) for t in expr.wtype.types)
+            result = tup[skip_values : skip_values + arity]
+            return ValueTuple(values=result, source_location=expr.source_location)
         elif expr.base.wtype == wtypes.bytes_wtype:
             return visit_bytes_slice_expression(self.context, expr)
         else:

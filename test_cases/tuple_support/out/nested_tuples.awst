@@ -35,5 +35,13 @@ subroutine test_swap(args: tuple<string,string>): tuple<string,string>
 
 subroutine test_intrinsics(num1: uint64, num2: uint64): void
 {
-  nt: tuple<uint64,tuple<uint64,uint64>> = (1u, addw(num1, num2))
+  nt: tuple<uint64,tuple<uint64,uint64>,uint64> = (1u, addw(num1, num2), 42u)
+  assert(nt[0] == 1u)
+  assert(nt[-1] == 42u)
+  assert(&&(SINGLE_EVAL(id=4, source=nt[1])[0] == 0u, SINGLE_EVAL(id=4)[1] == num1 + num2))
+  assert(SINGLE_EVAL(id=5, source=nt[1][:1u])[0] == 0u)
+  assert(SINGLE_EVAL(id=6, source=nt[1][1u:])[0] == num1 + num2)
+  ((x, y)): tuple<tuple<uint64,uint64>> = nt[1u:2u]
+  assert(x == 0u)
+  assert(y == num1 + num2)
 }

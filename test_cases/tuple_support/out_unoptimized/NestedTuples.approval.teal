@@ -1,11 +1,11 @@
 #pragma version 10
 
 test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
-    // tuple_support/nested_tuples.py:6
+    // tuple_support/nested_tuples.py:8
     // x = (String("Hi"), String("There"))
     byte "Hi"
     byte "There"
-    // tuple_support/nested_tuples.py:7
+    // tuple_support/nested_tuples.py:9
     // assert test_swap(x) == (String("There"), String("Hi"))
     callsub test_swap
     cover 1
@@ -16,18 +16,18 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     ==
     &&
     assert
-    // tuple_support/nested_tuples.py:9
+    // tuple_support/nested_tuples.py:11
     // z = (UInt64(0), UInt64(2), y)
     int 0
     int 2
-    // tuple_support/nested_tuples.py:8
+    // tuple_support/nested_tuples.py:10
     // y = (UInt64(1), x)
     int 1
-    // tuple_support/nested_tuples.py:6
+    // tuple_support/nested_tuples.py:8
     // x = (String("Hi"), String("There"))
     byte "Hi"
     byte "There"
-    // tuple_support/nested_tuples.py:11
+    // tuple_support/nested_tuples.py:13
     // (a, b, (c, d, (e,))) = test_rearrange(z)
     callsub test_rearrange
     cover 4
@@ -41,7 +41,7 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     cover 4
     uncover 2
     cover 4
-    // tuple_support/nested_tuples.py:12
+    // tuple_support/nested_tuples.py:14
     // assert (a, b) == (String("Hi"), UInt64(0))
     byte "Hi"
     ==
@@ -50,7 +50,7 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     ==
     &&
     assert
-    // tuple_support/nested_tuples.py:13
+    // tuple_support/nested_tuples.py:15
     // assert (c, d) == (UInt64(2), UInt64(1))
     int 2
     ==
@@ -59,41 +59,41 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     ==
     &&
     assert
-    // tuple_support/nested_tuples.py:14
+    // tuple_support/nested_tuples.py:16
     // assert e == String("There")
     byte "There"
     ==
     assert
-    // tuple_support/nested_tuples.py:16
+    // tuple_support/nested_tuples.py:18
     // test_intrinsics(UInt64(1), UInt64(2))
     int 1
     int 2
     callsub test_intrinsics
-    // tuple_support/nested_tuples.py:8
+    // tuple_support/nested_tuples.py:10
     // y = (UInt64(1), x)
     int 1
     int 1
-    // tuple_support/nested_tuples.py:18
+    // tuple_support/nested_tuples.py:20
     // assert z[2] == y
     ==
-    // tuple_support/nested_tuples.py:6
+    // tuple_support/nested_tuples.py:8
     // x = (String("Hi"), String("There"))
     byte "Hi"
     byte "Hi"
-    // tuple_support/nested_tuples.py:18
+    // tuple_support/nested_tuples.py:20
     // assert z[2] == y
     ==
-    // tuple_support/nested_tuples.py:6
+    // tuple_support/nested_tuples.py:8
     // x = (String("Hi"), String("There"))
     byte "There"
     byte "There"
-    // tuple_support/nested_tuples.py:18
+    // tuple_support/nested_tuples.py:20
     // assert z[2] == y
     ==
     &&
     &&
     assert
-    // tuple_support/nested_tuples.py:20
+    // tuple_support/nested_tuples.py:22
     // return True
     int 1
     return
@@ -101,15 +101,15 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
 
 // test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> bytes, bytes:
 test_swap:
-    // tuple_support/nested_tuples.py:35-36
+    // tuple_support/nested_tuples.py:37-38
     // @subroutine
     // def test_swap(args: tuple[String, String]) -> tuple[String, String]:
     proto 2 2
-    // tuple_support/nested_tuples.py:37
+    // tuple_support/nested_tuples.py:39
     // (a, b) = args
     frame_dig -2
     frame_dig -1
-    // tuple_support/nested_tuples.py:38
+    // tuple_support/nested_tuples.py:40
     // return b, a
     uncover 1
     retsub
@@ -117,13 +117,13 @@ test_swap:
 
 // test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> bytes, uint64, uint64, uint64, bytes:
 test_rearrange:
-    // tuple_support/nested_tuples.py:26-29
+    // tuple_support/nested_tuples.py:28-31
     // @subroutine
     // def test_rearrange(
     //     args: tuple[UInt64, UInt64, tuple[UInt64, tuple[String, String]]]
     // ) -> tuple[String, UInt64, tuple[UInt64, UInt64, tuple[String]]]:
     proto 5 5
-    // tuple_support/nested_tuples.py:30
+    // tuple_support/nested_tuples.py:32
     // (a, b, (c, (d, e))) = args
     frame_dig -5
     frame_dig -4
@@ -131,7 +131,7 @@ test_rearrange:
     frame_dig -2
     frame_dig -1
     cover 1
-    // tuple_support/nested_tuples.py:32
+    // tuple_support/nested_tuples.py:34
     // return d, a, (b, c, (e,))
     uncover 4
     uncover 4
@@ -142,8 +142,68 @@ test_rearrange:
 
 // test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, num2: uint64) -> void:
 test_intrinsics:
-    // tuple_support/nested_tuples.py:41-42
+    // tuple_support/nested_tuples.py:43-44
     // @subroutine
     // def test_intrinsics(num1: UInt64, num2: UInt64) -> None:
     proto 2 0
+    // tuple_support/nested_tuples.py:45
+    // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
+    frame_dig -2
+    frame_dig -1
+    addw
+    cover 1
+    int 1
+    // tuple_support/nested_tuples.py:46
+    // assert nt[0] == 1
+    int 1
+    ==
+    assert
+    // tuple_support/nested_tuples.py:45
+    // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
+    int 42
+    // tuple_support/nested_tuples.py:47
+    // assert nt[-1] == 42
+    int 42
+    ==
+    assert
+    // tuple_support/nested_tuples.py:48
+    // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
+    dup
+    dig 2
+    cover 1
+    int 0
+    ==
+    cover 1
+    frame_dig -2
+    frame_dig -1
+    +
+    ==
+    &&
+    assert
+    // tuple_support/nested_tuples.py:49
+    // assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
+    dup
+    int 0
+    ==
+    assert
+    // tuple_support/nested_tuples.py:50
+    // assert nt[1][1:] == (num1 + num2,)
+    dig 1
+    frame_dig -2
+    frame_dig -1
+    +
+    ==
+    assert
+    // tuple_support/nested_tuples.py:52
+    // assert x == 0
+    int 0
+    ==
+    assert
+    // tuple_support/nested_tuples.py:53
+    // assert y == num1 + num2
+    frame_dig -2
+    frame_dig -1
+    +
+    ==
+    assert
     retsub
