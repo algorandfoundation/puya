@@ -12,11 +12,13 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     ==
     &&
     assert
+    byte "Hi"
     int 0
     int 2
     int 1
     byte "Hi"
     byte "There"
+    dup
     callsub test_rearrange
     cover 4
     cover 3
@@ -43,6 +45,12 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     callsub test_intrinsics
     callsub test_nested_slicing
     int 1
+    dup
+    callsub test_nested_singles
+    int 1
+    int 0
+    callsub test_nested_singles
+    int 1
     return
 
 
@@ -54,14 +62,14 @@ test_swap:
     retsub
 
 
-// test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> bytes, uint64, uint64, uint64, bytes:
+// test_cases.tuple_support.nested_tuples.test_rearrange(_a: bytes, args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes, _b: bytes) -> bytes, uint64, uint64, uint64, bytes:
 test_rearrange:
-    proto 5 5
-    frame_dig -2
+    proto 7 5
+    frame_dig -3
+    frame_dig -6
     frame_dig -5
     frame_dig -4
-    frame_dig -3
-    frame_dig -1
+    frame_dig -2
     retsub
 
 
@@ -90,4 +98,61 @@ test_intrinsics:
 // test_cases.tuple_support.nested_tuples.test_nested_slicing() -> void:
 test_nested_slicing:
     proto 0 0
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: uint64) -> void:
+test_nested_singles:
+    proto 2 0
+    int 0
+    int 2
+    frame_dig -2
+    int 1
+    ==
+    assert
+    frame_dig -2
+    frame_dig -1
+    bz test_nested_singles_after_if_else@2
+    int 3
+    frame_bury 0
+    int 4
+    frame_bury 2
+    int 5
+    frame_bury 1
+
+test_nested_singles_after_if_else@2:
+    frame_dig -1
+    bz test_nested_singles_ternary_false@4
+    int 3
+    b test_nested_singles_ternary_merge@5
+
+test_nested_singles_ternary_false@4:
+    int 0
+
+test_nested_singles_ternary_merge@5:
+    frame_dig 0
+    ==
+    assert
+    frame_dig -1
+    bz test_nested_singles_ternary_false@7
+    int 5
+    b test_nested_singles_ternary_merge@8
+
+test_nested_singles_ternary_false@7:
+    int 2
+
+test_nested_singles_ternary_merge@8:
+    frame_dig 1
+    ==
+    assert
+    frame_dig 2
+    dup
+    frame_dig -2
+    +
+    int 2
+    ==
+    assert
+    int 1
+    ==
+    assert
     retsub
