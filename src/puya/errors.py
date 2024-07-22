@@ -50,7 +50,7 @@ def _crash_report() -> None:
     tb2 = traceback.extract_tb(tb_type)[1:]
     output = ["Traceback (most recent call last):"]
     output.extend(s.rstrip("\n") for s in traceback.format_list(tb + tb2))
-    logger.critical("\n".join(output))
+    logger.debug("\n".join(output))
 
 
 @contextlib.contextmanager
