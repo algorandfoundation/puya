@@ -1,3 +1,5 @@
+import typing
+
 from algopy import Contract, String, UInt64, op, subroutine
 
 
@@ -40,4 +42,12 @@ def test_swap(args: tuple[String, String]) -> tuple[String, String]:
 
 @subroutine
 def test_intrinsics(num1: UInt64, num2: UInt64) -> None:
-    nt = (UInt64(1), op.addw(num1, num2))
+    nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
+    assert nt[0] == 1
+    assert nt[-1] == 42
+    assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
+    assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
+    assert nt[1][1:] == (num1 + num2,)
+    ((x, y),) = nt[1:2]
+    assert x == 0
+    assert y == num1 + num2
