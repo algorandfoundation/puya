@@ -1,5 +1,3 @@
-import typing
-
 from algopy import Contract, String, UInt64, op, subroutine
 
 
@@ -9,6 +7,10 @@ class NestedTuples(Contract):
         assert test_swap(x) == (String("There"), String("Hi"))
         y = (UInt64(1), x)
         z = (UInt64(0), UInt64(2), y)
+        z2 = z[2]
+        z2_1 = z2[1]
+        _x, z2_1_1 = z2_1
+        assert z2_1_1 == "There"
 
         (a, b, (c, d, (e,))) = test_rearrange(z)
         assert (a, b) == (String("Hi"), UInt64(0))
@@ -16,6 +18,7 @@ class NestedTuples(Contract):
         assert e == String("There")
 
         test_intrinsics(UInt64(1), UInt64(2))
+        test_nested_slicing()
 
         assert z[2] == y
 
@@ -51,3 +54,25 @@ def test_intrinsics(num1: UInt64, num2: UInt64) -> None:
     ((x, y),) = nt[1:2]
     assert x == 0
     assert y == num1 + num2
+
+
+@subroutine
+def test_nested_slicing() -> None:
+    nt = (
+        UInt64(1),
+        UInt64(2),
+        (
+            UInt64(3),
+            (
+                String("a"),
+                String("b"),
+            ),
+            UInt64(4),
+        ),
+        UInt64(5),
+        UInt64(6),
+    )
+    (a, b, c) = nt[1:4]
+    assert b[-1] == 4
+    assert ((a, c),) == ((2, 5),)  # type: ignore[comparison-overlap]
+    assert b[1][:] == ("a", "b")  # type: ignore[comparison-overlap]
