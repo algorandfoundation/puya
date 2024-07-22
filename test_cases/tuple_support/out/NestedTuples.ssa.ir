@@ -16,7 +16,7 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 let z2_1_1#0: bytes = z2_1.1#0
                 let tmp%3#0: bool = (== z2_1_1#0 "There")
                 (assert tmp%3#0)
-                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: uint64, tuple_assignment%2#0: uint64, tuple_assignment%3#0: uint64, tuple_assignment%4#0: bytes) = test_cases.tuple_support.nested_tuples.test_rearrange(z.0#0, z.1#0, z.2.0#0, z.2.1.0#0, z.2.1.1#0)
+                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: uint64, tuple_assignment%2#0: uint64, tuple_assignment%3#0: uint64, tuple_assignment%4#0: bytes) = test_cases.tuple_support.nested_tuples.test_rearrange(x.0#0, z.0#0, z.1#0, z.2.0#0, z.2.1.0#0, z.2.1.1#0, x.1#0)
                 let a#0: bytes = tuple_assignment%0#0
                 let b#0: uint64 = tuple_assignment%1#0
                 let c#0: uint64 = tuple_assignment%2#0
@@ -34,6 +34,8 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 (assert tmp%10#0)
                 test_cases.tuple_support.nested_tuples.test_intrinsics(1u, 2u)
                 test_cases.tuple_support.nested_tuples.test_nested_slicing()
+                test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 1u)
+                test_cases.tuple_support.nested_tuples.test_nested_singles(1u, 0u)
                 let (awst_tmp%2#0: uint64, awst_tmp%3#0: bytes, awst_tmp%4#0: bytes) = (z.2.0#0, z.2.1.0#0, z.2.1.1#0)
                 let tmp%11#0: bool = (== awst_tmp%2#0 y.0#0)
                 let (awst_tmp%5#0: bytes, awst_tmp%6#0: bytes) = (awst_tmp%3#0, awst_tmp%4#0)
@@ -46,13 +48,13 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 return 1u
         
         subroutine test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
-            block@0: // L40
+            block@0: // L42
                 let a#0: bytes = args.0#0
                 let b#0: bytes = args.1#0
                 return b#0 a#0
         
-        subroutine test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> <bytes, uint64, uint64, uint64, bytes>:
-            block@0: // L31
+        subroutine test_cases.tuple_support.nested_tuples.test_rearrange(_a: bytes, args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes, _b: bytes) -> <bytes, uint64, uint64, uint64, bytes>:
+            block@0: // L33
                 let a#0: uint64 = args.0#0
                 let b#0: uint64 = args.1#0
                 let c#0: uint64 = args.2.0#0
@@ -61,7 +63,7 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 return d#0 a#0 b#0 c#0 e#0
         
         subroutine test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, num2: uint64) -> void:
-            block@0: // L46
+            block@0: // L48
                 let (tmp%0#0: uint64, tmp%1#0: uint64) = (addw num1#0 num2#0)
                 let (nt.0#0: uint64, nt.1.0#0: uint64, nt.1.1#0: uint64, nt.2#0: uint64) = (1u, tmp%0#0, tmp%1#0, 42u)
                 let tmp%2#0: bool = (== nt.0#0 1u)
@@ -91,7 +93,7 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 return 
         
         subroutine test_cases.tuple_support.nested_tuples.test_nested_slicing() -> void:
-            block@0: // L59
+            block@0: // L61
                 let (nt.0#0: uint64, nt.1#0: uint64, nt.2.0#0: uint64, nt.2.1.0#0: bytes, nt.2.1.1#0: bytes, nt.2.2#0: uint64, nt.3#0: uint64, nt.4#0: uint64) = (1u, 2u, 3u, "a", "b", 4u, 5u, 6u)
                 let a#0: uint64 = nt.1#0
                 let (b.0#0: uint64, b.1.0#0: bytes, b.1.1#0: bytes, b.2#0: uint64) = (nt.2.0#0, nt.2.1.0#0, nt.2.1.1#0, nt.2.2#0)
@@ -108,8 +110,70 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 let tmp%6#0: bool = (&& tmp%4#0 tmp%5#0)
                 (assert tmp%6#0)
                 return 
+        
+        subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: bool) -> void:
+            block@0: // L83
+                let (s.0.0#0: uint64, s.1.0#0: uint64, s.2.0#0: uint64) = (0u, one#0, 2u)
+                let tmp%0#0: bool = (== s.0.0#0 0u)
+                (assert tmp%0#0)
+                let awst_tmp%0#0: uint64 = s.0.0#0
+                let tmp%1#0: bool = (== awst_tmp%0#0 0u)
+                (assert tmp%1#0)
+                let tmp%2#0: bool = (== s.1.0#0 1u)
+                (assert tmp%2#0)
+                let awst_tmp%1#0: uint64 = s.1.0#0
+                let tmp%3#0: bool = (== awst_tmp%1#0 one#0)
+                (assert tmp%3#0)
+                let tmp%4#0: bool = (== s.2.0#0 2u)
+                (assert tmp%4#0)
+                let awst_tmp%2#0: uint64 = s.2.0#0
+                let tmp%5#0: bool = (== awst_tmp%2#0 2u)
+                (assert tmp%5#0)
+                let t.0#0: uint64 = s.1.0#0
+                goto reassign#0 ? block@1 : block@2
+            block@1: // if_body_L97
+                let (s.0.0#1: uint64, s.1.0#1: uint64, s.2.0#1: uint64) = (3u, 4u, 5u)
+                goto block@2
+            block@2: // after_if_else_L97
+                let s.0.0#2: uint64 = φ(s.0.0#0 <- block@0, s.0.0#1 <- block@1)
+                let s.1.0#2: uint64 = φ(s.1.0#0 <- block@0, s.1.0#1 <- block@1)
+                let s.2.0#2: uint64 = φ(s.2.0#0 <- block@0, s.2.0#1 <- block@1)
+                goto reassign#0 ? block@3 : block@4
+            block@3: // ternary_true_L103
+                let ternary_result%0#0: uint64 = 3u
+                goto block@5
+            block@4: // ternary_false_L103
+                let ternary_result%0#1: uint64 = 0u
+                goto block@5
+            block@5: // ternary_merge_L103
+                let ternary_result%0#2: uint64 = φ(ternary_result%0#0 <- block@3, ternary_result%0#1 <- block@4)
+                let tmp%6#0: bool = (== s.0.0#2 ternary_result%0#2)
+                (assert tmp%6#0)
+                let tmp#0: uint64 = s.2.0#2
+                goto reassign#0 ? block@6 : block@7
+            block@6: // ternary_true_L105
+                let ternary_result%1#0: uint64 = 5u
+                goto block@8
+            block@7: // ternary_false_L105
+                let ternary_result%1#1: uint64 = 2u
+                goto block@8
+            block@8: // ternary_merge_L105
+                let ternary_result%1#2: uint64 = φ(ternary_result%1#0 <- block@6, ternary_result%1#1 <- block@7)
+                let tmp%7#0: bool = (== tmp#0 ternary_result%1#2)
+                (assert tmp%7#0)
+                let tmp%8#0: bool = (== t.0#0 one#0)
+                (assert tmp%8#0)
+                let s0.0#0: uint64 = s.0.0#2
+                let s1#0: uint64 = s.1.0#2
+                let s2.0#0: uint64 = s.2.0#2
+                let s1#1: uint64 = (+ s1#0 one#0)
+                let tmp%9#0: bool = (== s1#1 2u)
+                (assert tmp%9#0)
+                let tmp%10#0: bool = (== s.1.0#2 1u)
+                (assert tmp%10#0)
+                return 
     
     program clear-state:
         subroutine test_cases.tuple_support.nested_tuples.NestedTuples.clear_state_program() -> bool:
-            block@0: // L27
+            block@0: // L29
                 return 1u

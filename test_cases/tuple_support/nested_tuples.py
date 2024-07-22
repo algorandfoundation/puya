@@ -12,13 +12,15 @@ class NestedTuples(Contract):
         _x, z2_1_1 = z2_1
         assert z2_1_1 == "There"
 
-        (a, b, (c, d, (e,))) = test_rearrange(z)
+        (a, b, (c, d, (e,))) = test_rearrange(x[0], z, x[1])
         assert (a, b) == (String("Hi"), UInt64(0))
         assert (c, d) == (UInt64(2), UInt64(1))
         assert e == String("There")
 
         test_intrinsics(UInt64(1), UInt64(2))
         test_nested_slicing()
+        test_nested_singles(UInt64(1), reassign=True)
+        test_nested_singles(UInt64(1), reassign=False)
 
         assert z[2] == y
 
@@ -30,7 +32,7 @@ class NestedTuples(Contract):
 
 @subroutine
 def test_rearrange(
-    args: tuple[UInt64, UInt64, tuple[UInt64, tuple[String, String]]]
+    _a: String, args: tuple[UInt64, UInt64, tuple[UInt64, tuple[String, String]]], _b: String
 ) -> tuple[String, UInt64, tuple[UInt64, UInt64, tuple[String]]]:
     (a, b, (c, (d, e))) = args
 
@@ -76,3 +78,34 @@ def test_nested_slicing() -> None:
     assert b[-1] == 4
     assert ((a, c),) == ((2, 5),)  # type: ignore[comparison-overlap]
     assert b[1][:] == ("a", "b")  # type: ignore[comparison-overlap]
+
+
+@subroutine
+def test_nested_singles(one: UInt64, *, reassign: bool) -> None:
+    s = (
+        (UInt64(0),),
+        (one,),
+        (UInt64(2),),
+    )
+    assert s[0][0] == 0
+    assert s[0] == (0,)  # type: ignore[comparison-overlap]
+    assert s[1][0] == 1
+    assert s[1] == (one,)
+    assert s[2][0] == 2
+    assert s[2] == (2,)  # type: ignore[comparison-overlap]
+    t = s[1]
+    if reassign:
+        s = (
+            (UInt64(3),),
+            (UInt64(4),),
+            (UInt64(5),),
+        )
+    assert s[0][0] == (3 if reassign else 0)
+    (tmp,) = s[2]
+    assert tmp == (5 if reassign else 2)
+    assert t == (one,)
+
+    s0, (s1,), s2 = s
+    s1 += one
+    assert s1 == (5 if reassign else 2)
+    assert s[1][0] == (4 if reassign else 1)
