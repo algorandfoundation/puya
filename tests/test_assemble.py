@@ -9,6 +9,8 @@ from algosdk.v2client.algod import AlgodClient
 from puya.context import CompileContext
 from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.options import PuyaOptions
+from puya.teal import models as teal
+from puya.ussemble.main import assemble_program
 
 from tests.utils import (
     PuyaExample,
@@ -27,7 +29,10 @@ def get_test_cases() -> Iterable[ParameterSet]:
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    metafunc.parametrize("case", get_test_cases())
+    if metafunc.definition.name == "test_assemble_last_op_jump":
+        pass
+    else:
+        metafunc.parametrize("case", get_test_cases())
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
@@ -146,3 +151,49 @@ def _replace_template_variables(line: str, template_values: Mapping[str, str]) -
     for var, value in template_values.items():
         line = line.replace(var, value, 1)
     return line
+
+
+def test_assemble_last_op_jump() -> None:
+    """Verifies edge case where final op of a program is a branch op"""
+
+    # construct a block that is terminated with a branch, by jumping to the block's label
+    looping_block = teal.TealBlock(
+        label="start",
+        ops=[
+            teal.Intrinsic(
+                op_code="b",
+                immediates=["start"],
+                consumes=0,
+                produces=0,
+                source_location=None,
+            )
+        ],
+        entry_stack_height=0,
+        exit_stack_height=0,
+    )
+
+    # verify program assembles correctly
+    bytecode = assemble_program(
+        CompileContext(
+            options=PuyaOptions(),
+            sources=[],
+            module_paths={},
+        ),
+        program=teal.TealProgram(
+            target_avm_version=10,
+            main=teal.TealSubroutine(
+                signature="",
+                blocks=[looping_block],
+            ),
+            subroutines=[],
+        ),
+        template_variables={},
+    ).bytecode
+
+    assert bytecode == b"".join(
+        (
+            b"\x0A",  # version 10
+            b"B",  # branch
+            (-3).to_bytes(length=2, signed=True),  # offset
+        )
+    )

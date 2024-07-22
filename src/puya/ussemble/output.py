@@ -15,6 +15,7 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
     def __init__(self, ctx: AssembleContext, ops: list[models.Node]) -> None:
         self._ctx = ctx
         self._ops = ops
+        self._is_first_pass = True
         self._label_indexes = get_label_indexes(ops)
         self._op_pc = dict[int, int]()
         self._op_index = 0
@@ -35,7 +36,9 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
             self._op_pc[op_index] = pc
             op_bytecode = op.accept(self)
             pc = pc + len(op_bytecode)
+        self._op_pc[len(self._ops)] = pc
 
+        self._is_first_pass = False
         # second pass to get bytecode
         bytecode = [version_bytes]
         for op_index, op in enumerate(self._ops):
@@ -86,10 +89,9 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
 
     def _get_offset_from_end(self, label: models.Label) -> int:
         label_index = self._ops.index(label)
-        try:
-            return self._op_pc[label_index] - self._op_pc[self._op_index + 1]
-        except KeyError:  # during first pass offsets will not be present
+        if self._is_first_pass:
             return 0
+        return self._op_pc[label_index] - self._op_pc[self._op_index + 1]
 
     def visit_bytes_block(self, block: models.BytesBlock) -> bytes:
         return _encode_opcode("bytecblock") + _encode_bytes_array(block.constants.keys())
