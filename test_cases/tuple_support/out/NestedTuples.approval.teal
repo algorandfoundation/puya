@@ -78,7 +78,10 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     int 1
     int 0
     callsub test_nested_singles
-    // tuple_support/nested_tuples.py:27
+    // tuple_support/nested_tuples.py:24
+    // test_nested_mutation()
+    callsub test_nested_mutation
+    // tuple_support/nested_tuples.py:28
     // return True
     int 1
     return
@@ -86,11 +89,11 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
 
 // test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> bytes, bytes:
 test_swap:
-    // tuple_support/nested_tuples.py:42-43
+    // tuple_support/nested_tuples.py:43-44
     // @subroutine
     // def test_swap(args: tuple[String, String]) -> tuple[String, String]:
     proto 2 2
-    // tuple_support/nested_tuples.py:45
+    // tuple_support/nested_tuples.py:46
     // return b, a
     frame_dig -1
     frame_dig -2
@@ -99,13 +102,13 @@ test_swap:
 
 // test_cases.tuple_support.nested_tuples.test_rearrange(_a: bytes, args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes, _b: bytes) -> bytes, uint64, uint64, uint64, bytes:
 test_rearrange:
-    // tuple_support/nested_tuples.py:33-36
+    // tuple_support/nested_tuples.py:34-37
     // @subroutine
     // def test_rearrange(
     //     _a: String, args: tuple[UInt64, UInt64, tuple[UInt64, tuple[String, String]]], _b: String
     // ) -> tuple[String, UInt64, tuple[UInt64, UInt64, tuple[String]]]:
     proto 7 5
-    // tuple_support/nested_tuples.py:39
+    // tuple_support/nested_tuples.py:40
     // return d, a, (b, c, (e,))
     frame_dig -3
     frame_dig -6
@@ -117,17 +120,17 @@ test_rearrange:
 
 // test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, num2: uint64) -> void:
 test_intrinsics:
-    // tuple_support/nested_tuples.py:48-49
+    // tuple_support/nested_tuples.py:49-50
     // @subroutine
     // def test_intrinsics(num1: UInt64, num2: UInt64) -> None:
     proto 2 0
-    // tuple_support/nested_tuples.py:50
+    // tuple_support/nested_tuples.py:51
     // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
     frame_dig -2
     frame_dig -1
     addw
     swap
-    // tuple_support/nested_tuples.py:53
+    // tuple_support/nested_tuples.py:54
     // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
     !
     swap
@@ -138,11 +141,11 @@ test_intrinsics:
     dup2
     &&
     assert
-    // tuple_support/nested_tuples.py:54
+    // tuple_support/nested_tuples.py:55
     // assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
     swap
     assert
-    // tuple_support/nested_tuples.py:55
+    // tuple_support/nested_tuples.py:56
     // assert nt[1][1:] == (num1 + num2,)
     assert
     retsub
@@ -150,7 +153,7 @@ test_intrinsics:
 
 // test_cases.tuple_support.nested_tuples.test_nested_slicing() -> void:
 test_nested_slicing:
-    // tuple_support/nested_tuples.py:61-62
+    // tuple_support/nested_tuples.py:62-63
     // @subroutine
     // def test_nested_slicing() -> None:
     proto 0 0
@@ -159,60 +162,61 @@ test_nested_slicing:
 
 // test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: uint64) -> void:
 test_nested_singles:
-    // tuple_support/nested_tuples.py:83-84
+    // tuple_support/nested_tuples.py:84-85
     // @subroutine
     // def test_nested_singles(one: UInt64, *, reassign: bool) -> None:
     proto 2 0
-    // tuple_support/nested_tuples.py:86
+    byte ""
+    // tuple_support/nested_tuples.py:87
     // (UInt64(0),),
     int 0
-    // tuple_support/nested_tuples.py:88
+    // tuple_support/nested_tuples.py:89
     // (UInt64(2),),
     int 2
-    // tuple_support/nested_tuples.py:92
+    // tuple_support/nested_tuples.py:93
     // assert s[1][0] == 1
     frame_dig -2
     int 1
     ==
     assert
     frame_dig -2
-    // tuple_support/nested_tuples.py:97
+    // tuple_support/nested_tuples.py:98
     // if reassign:
     frame_dig -1
     bz test_nested_singles_after_if_else@2
-    // tuple_support/nested_tuples.py:99
+    // tuple_support/nested_tuples.py:100
     // (UInt64(3),),
     int 3
-    // tuple_support/nested_tuples.py:98-102
-    // s = (
-    //     (UInt64(3),),
-    //     (UInt64(4),),
-    //     (UInt64(5),),
-    // )
-    frame_bury 0
-    // tuple_support/nested_tuples.py:100
-    // (UInt64(4),),
-    int 4
-    // tuple_support/nested_tuples.py:98-102
-    // s = (
-    //     (UInt64(3),),
-    //     (UInt64(4),),
-    //     (UInt64(5),),
-    // )
-    frame_bury 2
-    // tuple_support/nested_tuples.py:101
-    // (UInt64(5),),
-    int 5
-    // tuple_support/nested_tuples.py:98-102
+    // tuple_support/nested_tuples.py:99-103
     // s = (
     //     (UInt64(3),),
     //     (UInt64(4),),
     //     (UInt64(5),),
     // )
     frame_bury 1
+    // tuple_support/nested_tuples.py:101
+    // (UInt64(4),),
+    int 4
+    // tuple_support/nested_tuples.py:99-103
+    // s = (
+    //     (UInt64(3),),
+    //     (UInt64(4),),
+    //     (UInt64(5),),
+    // )
+    frame_bury 3
+    // tuple_support/nested_tuples.py:102
+    // (UInt64(5),),
+    int 5
+    // tuple_support/nested_tuples.py:99-103
+    // s = (
+    //     (UInt64(3),),
+    //     (UInt64(4),),
+    //     (UInt64(5),),
+    // )
+    frame_bury 2
 
 test_nested_singles_after_if_else@2:
-    // tuple_support/nested_tuples.py:103
+    // tuple_support/nested_tuples.py:104
     // assert s[0][0] == (3 if reassign else 0)
     frame_dig -1
     bz test_nested_singles_ternary_false@4
@@ -220,17 +224,17 @@ test_nested_singles_after_if_else@2:
     b test_nested_singles_ternary_merge@5
 
 test_nested_singles_ternary_false@4:
-    // tuple_support/nested_tuples.py:103
+    // tuple_support/nested_tuples.py:104
     // assert s[0][0] == (3 if reassign else 0)
     int 0
 
 test_nested_singles_ternary_merge@5:
-    // tuple_support/nested_tuples.py:103
+    // tuple_support/nested_tuples.py:104
     // assert s[0][0] == (3 if reassign else 0)
-    frame_dig 0
+    frame_dig 1
     ==
     assert
-    // tuple_support/nested_tuples.py:105
+    // tuple_support/nested_tuples.py:106
     // assert tmp == (5 if reassign else 2)
     frame_dig -1
     bz test_nested_singles_ternary_false@7
@@ -238,30 +242,65 @@ test_nested_singles_ternary_merge@5:
     b test_nested_singles_ternary_merge@8
 
 test_nested_singles_ternary_false@7:
-    // tuple_support/nested_tuples.py:105
+    // tuple_support/nested_tuples.py:106
     // assert tmp == (5 if reassign else 2)
     int 2
 
 test_nested_singles_ternary_merge@8:
-    // tuple_support/nested_tuples.py:105
+    // tuple_support/nested_tuples.py:106
     // assert tmp == (5 if reassign else 2)
-    frame_dig 1
+    frame_dig 2
     ==
     assert
-    // tuple_support/nested_tuples.py:109
+    // tuple_support/nested_tuples.py:110
     // s1 += one
-    frame_dig 2
-    dup
+    frame_dig 3
     frame_dig -2
     +
-    // tuple_support/nested_tuples.py:110
-    // assert s1 == 2
-    int 2
-    ==
-    assert
+    frame_bury 0
     // tuple_support/nested_tuples.py:111
-    // assert s[1][0] == 1
-    int 1
+    // assert s1 == (5 if reassign else 2)
+    frame_dig -1
+    bz test_nested_singles_ternary_false@10
+    int 5
+    b test_nested_singles_ternary_merge@11
+
+test_nested_singles_ternary_false@10:
+    // tuple_support/nested_tuples.py:111
+    // assert s1 == (5 if reassign else 2)
+    int 2
+
+test_nested_singles_ternary_merge@11:
+    // tuple_support/nested_tuples.py:111
+    // assert s1 == (5 if reassign else 2)
+    frame_dig 0
     ==
     assert
+    // tuple_support/nested_tuples.py:112
+    // assert s[1][0] == (4 if reassign else 1)
+    frame_dig -1
+    bz test_nested_singles_ternary_false@13
+    int 4
+    b test_nested_singles_ternary_merge@14
+
+test_nested_singles_ternary_false@13:
+    // tuple_support/nested_tuples.py:112
+    // assert s[1][0] == (4 if reassign else 1)
+    int 1
+
+test_nested_singles_ternary_merge@14:
+    // tuple_support/nested_tuples.py:112
+    // assert s[1][0] == (4 if reassign else 1)
+    frame_dig 3
+    ==
+    assert
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void:
+test_nested_mutation:
+    // tuple_support/nested_tuples.py:115-116
+    // @subroutine
+    // def test_nested_mutation() -> None:
+    proto 0 0
     retsub

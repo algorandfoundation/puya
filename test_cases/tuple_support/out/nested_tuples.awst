@@ -18,6 +18,7 @@ contract NestedTuples
     test_cases.tuple_support.nested_tuples::test_nested_slicing()
     test_cases.tuple_support.nested_tuples::test_nested_singles(1u, reassign=true)
     test_cases.tuple_support.nested_tuples::test_nested_singles(1u, reassign=false)
+    test_cases.tuple_support.nested_tuples::test_nested_mutation()
     assert(&&(SINGLE_EVAL(id=1, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1)[1])[0] == SINGLE_EVAL(id=3, source=y[1])[0], SINGLE_EVAL(id=2)[1] == SINGLE_EVAL(id=3)[1])))
     return true
   }
@@ -81,6 +82,13 @@ subroutine test_nested_singles(one: uint64, reassign: bool): void
   assert(t[0] == one)
   (s0, (s1), s2): tuple<tuple<uint64>,tuple<uint64>,tuple<uint64>> = s
   s1 += one
-  assert(s1 == 2u)
-  assert(s[1][0] == 1u)
+  assert(s1 == (reassign) ? (5u) : (2u))
+  assert(s[1][0] == (reassign) ? (4u) : (1u))
+}
+
+subroutine test_nested_mutation(): void
+{
+  x: tuple<tuple<arc4.dynamic_array<arc4.uint64>>> = ((new arc4.dynamic_array<arc4.uint64>(0arc4u64)))
+  x[0][0].extend((1arc4u64))
+  assert(extract_uint16(x[0][0], 0u) == 2u)
 }
