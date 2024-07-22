@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 
 import attrs
@@ -262,48 +262,26 @@ def _build_logic_sig_ir(
     return result
 
 
-def _expand_tuple_params(
-    name: str, wtype: wtypes.WTuple, *, allow_implicits: bool, source_location: SourceLocation
+def _expand_tuple_parameters(
+    name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation
 ) -> Iterator[Parameter]:
-    for tup_idx, tup_type in enumerate(wtype.types):
-        if isinstance(tup_type, wtypes.WTuple):
-            yield from _expand_tuple_params(
-                format_tuple_index(name, tup_idx),
-                tup_type,
+    if isinstance(typ, wtypes.WTuple):
+        for item_idx, item_type in enumerate(typ.types):
+            item_name = format_tuple_index(name, item_idx)
+            yield from _expand_tuple_parameters(
+                item_name,
+                item_type,
                 allow_implicits=allow_implicits,
                 source_location=source_location,
             )
-        else:
-            yield Parameter(
-                source_location=source_location,
-                version=0,
-                name=format_tuple_index(name, tup_idx),
-                ir_type=wtype_to_ir_type(tup_type),
-                implicit_return=allow_implicits and not tup_type.immutable,
-            )
-
-
-def _build_parameter_list(
-    args: Sequence[awst_nodes.SubroutineArgument], *, allow_implicits: bool
-) -> Iterator[Parameter]:
-    for arg in args:
-        if isinstance(arg.wtype, wtypes.WTuple):
-            yield from _expand_tuple_params(
-                arg.name,
-                arg.wtype,
-                allow_implicits=allow_implicits,
-                source_location=arg.source_location,
-            )
-        else:
-            yield (
-                Parameter(
-                    source_location=arg.source_location,
-                    version=0,
-                    name=arg.name,
-                    ir_type=wtype_to_ir_type(arg.wtype),
-                    implicit_return=allow_implicits and not arg.wtype.immutable,
-                )
-            )
+    else:
+        yield Parameter(
+            name=name,
+            ir_type=wtype_to_ir_type(typ),
+            version=0,
+            implicit_return=allow_implicits and not typ.immutable,
+            source_location=source_location,
+        )
 
 
 def _should_include_implicit_returns(
@@ -328,11 +306,17 @@ def _should_include_implicit_returns(
 
 def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subroutine:
     """Pre-construct subroutine with an empty body"""
-
-    parameters = list(_build_parameter_list(func.args, allow_implicits=allow_implicits))
-
+    parameters = [
+        param
+        for arg in func.args
+        for param in _expand_tuple_parameters(
+            arg.name,
+            arg.wtype,
+            allow_implicits=allow_implicits,
+            source_location=arg.source_location,
+        )
+    ]
     returns = wtype_to_ir_types(func.return_type)
-
     return Subroutine(
         source_location=func.source_location,
         module_name=func.module_name,

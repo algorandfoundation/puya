@@ -1,5 +1,6 @@
 import enum
 import typing
+from collections.abc import Sequence
 
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -98,9 +99,13 @@ def wtype_to_ir_type(
 def get_wtype_arity(wtype: wtypes.WType) -> int:
     """Returns the number of values this wtype represents on the stack"""
     if isinstance(wtype, wtypes.WTuple):
-        return sum(get_wtype_arity(i) for i in wtype.types)
+        return sum_wtypes_arity(wtype.types)
     else:
         return 1
+
+
+def sum_wtypes_arity(types: Sequence[wtypes.WType]) -> int:
+    return sum(map(get_wtype_arity, types))
 
 
 def wtype_to_ir_types(
@@ -115,7 +120,9 @@ def wtype_to_ir_types(
         return []
     elif isinstance(wtype, wtypes.WTuple):
         return [
-            irtype for wtype in wtype.types for irtype in wtype_to_ir_types(wtype, source_location)
+            ir_type
+            for wtype in wtype.types
+            for ir_type in wtype_to_ir_types(wtype, source_location)
         ]
     else:
         return [wtype_to_ir_type(wtype, source_location)]

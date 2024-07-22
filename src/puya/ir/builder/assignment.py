@@ -55,16 +55,15 @@ def handle_assignment(
 def _build_tuple_names(
     base_name: str, wtype: wtypes.WType, source_location: SourceLocation | None
 ) -> Sequence[tuple[str, SourceLocation | None]]:
-    if isinstance(wtype, wtypes.WTuple):
-        return [
-            (name, source_location)
-            for (idx, item_type) in enumerate(wtype.types)
-            for (name, _) in _build_tuple_names(
-                format_tuple_index(base_name, idx), item_type, source_location
-            )
-        ]
-    else:
+    if not isinstance(wtype, wtypes.WTuple):
         return [(base_name, source_location)]
+    return [
+        (name, source_location)
+        for idx, item_type in enumerate(wtype.types)
+        for name, _ in _build_tuple_names(
+            format_tuple_index(base_name, idx), item_type, source_location
+        )
+    ]
 
 
 def _handle_assignment(
@@ -86,10 +85,7 @@ def _handle_assignment(
                     " which is being passed by reference",
                     assignment_location,
                 )
-            if isinstance(var_type, wtypes.WTuple):
-                var_names = _build_tuple_names(var_name, var_type, var_loc)
-            else:
-                var_names = [(var_name, var_loc)]
+            var_names = _build_tuple_names(var_name, var_type, var_loc)
             return assign(
                 context,
                 source=value,
@@ -101,7 +97,7 @@ def _handle_assignment(
                 value, description="tuple_assignment"
             )
             items = lvalue_items(tup_expr)
-            if len(source) != sum(get_wtype_arity(i.wtype) for i in items):
+            if len(source) != get_wtype_arity(tup_expr.wtype):
                 raise CodeError("unpacking vs result length mismatch", assignment_location)
 
             results = list[Value]()
