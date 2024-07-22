@@ -26,6 +26,7 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 (assert tmp%8#0)
                 let tmp%9#0: bool = (== e#0 "There")
                 (assert tmp%9#0)
+                test_cases.tuple_support.nested_tuples.test_intrinsics(1u, 2u)
                 let (awst_tmp%2#0: uint64, awst_tmp%3#0: bytes, awst_tmp%4#0: bytes) = (z.2.0#0, z.2.1.0#0, z.2.1.1#0)
                 let tmp%10#0: bool = (== awst_tmp%2#0 y.0#0)
                 let (awst_tmp%5#0: bytes, awst_tmp%6#0: bytes) = (awst_tmp%3#0, awst_tmp%4#0)
@@ -38,21 +39,27 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 return 1u
         
         subroutine test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
-            block@0: // L33
+            block@0: // L35
                 let a#0: bytes = args.0#0
                 let b#0: bytes = args.1#0
                 return b#0 a#0
         
         subroutine test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> <bytes, uint64, uint64, uint64, bytes>:
-            block@0: // L24
+            block@0: // L26
                 let a#0: uint64 = args.0#0
                 let b#0: uint64 = args.1#0
                 let c#0: uint64 = args.2.0#0
                 let d#0: bytes = args.2.1.0#0
                 let e#0: bytes = args.2.1.1#0
                 return d#0 a#0 b#0 c#0 e#0
+        
+        subroutine test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, num2: uint64) -> void:
+            block@0: // L41
+                let (tmp%0#0: uint64, tmp%1#0: uint64) = (addw num1#0 num2#0)
+                let (nt.0#0: uint64, nt.1.0#0: uint64, nt.1.1#0: uint64) = (1u, tmp%0#0, tmp%1#0)
+                return 
     
     program clear-state:
         subroutine test_cases.tuple_support.nested_tuples.NestedTuples.clear_state_program() -> bool:
-            block@0: // L20
+            block@0: // L22
                 return 1u

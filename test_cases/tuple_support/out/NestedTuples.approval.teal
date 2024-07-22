@@ -56,7 +56,12 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     byte "There"
     ==
     assert
-    // tuple_support/nested_tuples.py:18
+    // tuple_support/nested_tuples.py:16
+    // test_intrinsics(UInt64(1), UInt64(2))
+    int 1
+    int 2
+    callsub test_intrinsics
+    // tuple_support/nested_tuples.py:20
     // return True
     int 1
     return
@@ -64,11 +69,11 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
 
 // test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> bytes, bytes:
 test_swap:
-    // tuple_support/nested_tuples.py:33-34
+    // tuple_support/nested_tuples.py:35-36
     // @subroutine
     // def test_swap(args: tuple[String, String]) -> tuple[String, String]:
     proto 2 2
-    // tuple_support/nested_tuples.py:36
+    // tuple_support/nested_tuples.py:38
     // return b, a
     frame_dig -1
     frame_dig -2
@@ -77,17 +82,26 @@ test_swap:
 
 // test_cases.tuple_support.nested_tuples.test_rearrange(args.0: uint64, args.1: uint64, args.2.0: uint64, args.2.1.0: bytes, args.2.1.1: bytes) -> bytes, uint64, uint64, uint64, bytes:
 test_rearrange:
-    // tuple_support/nested_tuples.py:24-27
+    // tuple_support/nested_tuples.py:26-29
     // @subroutine
     // def test_rearrange(
     //     args: tuple[UInt64, UInt64, tuple[UInt64, tuple[String, String]]]
     // ) -> tuple[String, UInt64, tuple[UInt64, UInt64, tuple[String]]]:
     proto 5 5
-    // tuple_support/nested_tuples.py:30
+    // tuple_support/nested_tuples.py:32
     // return d, a, (b, c, (e,))
     frame_dig -2
     frame_dig -5
     frame_dig -4
     frame_dig -3
     frame_dig -1
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_intrinsics(num1: uint64, num2: uint64) -> void:
+test_intrinsics:
+    // tuple_support/nested_tuples.py:41-42
+    // @subroutine
+    // def test_intrinsics(num1: UInt64, num2: UInt64) -> None:
+    proto 2 0
     retsub

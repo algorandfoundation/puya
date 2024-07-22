@@ -570,9 +570,8 @@ class FunctionIRBuilder(
         items = list[Value]()
         for item in expr.items:
             if isinstance(item.wtype, wtypes.WTuple):
-                nested = item.accept(self)
-                assert isinstance(nested, ValueTuple)
-                items.extend(nested.values)
+                nested_values = self.visit_and_materialise(item)
+                items.extend(nested_values)
             else:
                 # TODO: don't rely on a pure function's side effects (raising) for validation
                 wtype_to_ir_type(item)

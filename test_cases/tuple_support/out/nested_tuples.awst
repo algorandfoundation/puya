@@ -10,6 +10,7 @@ contract NestedTuples
     assert(&&(a == 'Hi', b == 0u))
     assert(&&(c == 2u, d == 1u))
     assert(e == 'There')
+    test_cases.tuple_support.nested_tuples::test_intrinsics(1u, 2u)
     assert(&&(SINGLE_EVAL(id=1, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1)[1])[0] == SINGLE_EVAL(id=3, source=y[1])[0], SINGLE_EVAL(id=2)[1] == SINGLE_EVAL(id=3)[1])))
     return true
   }
@@ -30,4 +31,9 @@ subroutine test_swap(args: tuple<string,string>): tuple<string,string>
 {
   (a, b): tuple<string,string> = args
   return (b, a)
+}
+
+subroutine test_intrinsics(num1: uint64, num2: uint64): void
+{
+  nt: tuple<uint64,tuple<uint64,uint64>> = (1u, addw(num1, num2))
 }
