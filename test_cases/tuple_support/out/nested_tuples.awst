@@ -10,12 +10,14 @@ contract NestedTuples
     z2_1: tuple<string,string> = z2[1]
     (_x, z2_1_1): tuple<string,string> = z2_1
     assert(z2_1_1 == 'There')
-    (a, b, (c, d, (e))): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>> = test_cases.tuple_support.nested_tuples::test_rearrange(z)
+    (a, b, (c, d, (e))): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>> = test_cases.tuple_support.nested_tuples::test_rearrange(x[0], z, x[1])
     assert(&&(a == 'Hi', b == 0u))
     assert(&&(c == 2u, d == 1u))
     assert(e == 'There')
     test_cases.tuple_support.nested_tuples::test_intrinsics(1u, 2u)
     test_cases.tuple_support.nested_tuples::test_nested_slicing()
+    test_cases.tuple_support.nested_tuples::test_nested_singles(1u, reassign=true)
+    test_cases.tuple_support.nested_tuples::test_nested_singles(1u, reassign=false)
     assert(&&(SINGLE_EVAL(id=1, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1)[1])[0] == SINGLE_EVAL(id=3, source=y[1])[0], SINGLE_EVAL(id=2)[1] == SINGLE_EVAL(id=3)[1])))
     return true
   }
@@ -26,7 +28,7 @@ contract NestedTuples
   }
 }
 
-subroutine test_rearrange(args: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>>): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>>
+subroutine test_rearrange(_a: string, args: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>>, _b: string): tuple<string,uint64,tuple<uint64,uint64,tuple<string>>>
 {
   (a, b, (c, (d, e))): tuple<uint64,uint64,tuple<uint64,tuple<string,string>>> = args
   return (d, a, (b, c, (e)))
@@ -58,4 +60,27 @@ subroutine test_nested_slicing(): void
   assert(b[-1] == 4u)
   assert(&&(a == 2u, c == 5u))
   assert(&&(SINGLE_EVAL(id=7, source=b[1][:])[0] == 'a', SINGLE_EVAL(id=7)[1] == 'b'))
+}
+
+subroutine test_nested_singles(one: uint64, reassign: bool): void
+{
+  s: tuple<tuple<uint64>,tuple<uint64>,tuple<uint64>> = ((0u), (one), (2u))
+  assert(s[0][0] == 0u)
+  assert(SINGLE_EVAL(id=8, source=s[0])[0] == 0u)
+  assert(s[1][0] == 1u)
+  assert(SINGLE_EVAL(id=9, source=s[1])[0] == one)
+  assert(s[2][0] == 2u)
+  assert(SINGLE_EVAL(id=10, source=s[2])[0] == 2u)
+  t: tuple<uint64> = s[1]
+  if (reassign) {
+    s: tuple<tuple<uint64>,tuple<uint64>,tuple<uint64>> = ((3u), (4u), (5u))
+  }
+  assert(s[0][0] == (reassign) ? (3u) : (0u))
+  (tmp): tuple<uint64> = s[2]
+  assert(tmp == (reassign) ? (5u) : (2u))
+  assert(t[0] == one)
+  (s0, (s1), s2): tuple<tuple<uint64>,tuple<uint64>,tuple<uint64>> = s
+  s1 += one
+  assert(s1 == 2u)
+  assert(s[1][0] == 1u)
 }
