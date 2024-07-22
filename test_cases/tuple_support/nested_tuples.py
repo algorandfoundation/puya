@@ -1,4 +1,4 @@
-from algopy import Contract, String, UInt64, op, subroutine
+from algopy import Contract, String, UInt64, arc4, op, subroutine
 
 
 class NestedTuples(Contract):
@@ -21,6 +21,7 @@ class NestedTuples(Contract):
         test_nested_slicing()
         test_nested_singles(UInt64(1), reassign=True)
         test_nested_singles(UInt64(1), reassign=False)
+        test_nested_mutation()
 
         assert z[2] == y
 
@@ -109,3 +110,16 @@ def test_nested_singles(one: UInt64, *, reassign: bool) -> None:
     s1 += one
     assert s1 == (5 if reassign else 2)
     assert s[1][0] == (4 if reassign else 1)
+
+
+@subroutine
+def test_nested_mutation() -> None:
+    x = (
+        (
+            arc4.DynamicArray(
+                arc4.UInt64(0),
+            ),
+        ),
+    )
+    x[0][0].append(arc4.UInt64(1))
+    assert x[0][0].length == 2
