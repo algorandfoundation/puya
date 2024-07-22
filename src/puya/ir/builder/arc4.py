@@ -344,12 +344,11 @@ def handle_arc4_assign(
         # is how a non l-value expression can be possible
         # TODO: refactor this so that this special case is handled where it originates
         case awst_nodes.TupleItemExpression(
-            base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
-            index=index_value,
-        ) if not items_types[index_value].immutable:
+            wtype=item_wtype,
+        ) as ti_expr if not item_wtype.immutable:
             (result,) = assign(
                 context=context,
-                names=[(format_tuple_index(base_expr.name, index_value), source_location)],
+                names=[(_get_tuple_var_name(ti_expr), source_location)],
                 source=value,
                 source_location=source_location,
             )
@@ -363,6 +362,14 @@ def handle_arc4_assign(
                 is_mutation=is_mutation,
             )
             return result
+
+
+def _get_tuple_var_name(expr: awst_nodes.TupleItemExpression) -> str:
+    if isinstance(expr.base, awst_nodes.TupleItemExpression):
+        return format_tuple_index(_get_tuple_var_name(expr.base), expr.index)
+    if isinstance(expr.base, awst_nodes.VarExpression):
+        return format_tuple_index(expr.base.name, expr.index)
+    raise CodeError("Invalid assignment target", expr.base.source_location)
 
 
 def concat_values(
