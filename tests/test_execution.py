@@ -205,7 +205,7 @@ class ATCRunner:
             "foreign_assets": request.assets,
             "app_args": request.args,
             "extra_pages": request.extra_pages,
-            "note": random.randbytes(8) if request.add_random_note else None,  # noqa: S311
+            "note": random.randbytes(8) if request.add_random_note else None,
         }
 
     def add_transactions(

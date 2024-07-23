@@ -320,9 +320,9 @@ def _get_prefix() -> str | None:
     if venv:
         return venv
     for python in ("python3", "python"):
-        prefix_result = subprocess.run(
+        prefix_result = subprocess.run(  # noqa: S602
             f"{python} -c 'import sys; print(sys.prefix or sys.base_prefix)'",
-            shell=True,  # noqa: S602
+            shell=True,
             text=True,
             capture_output=True,
             check=False,

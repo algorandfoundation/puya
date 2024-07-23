@@ -53,7 +53,7 @@ def _create_asset(algod_client: AlgodClient, account: Account, asset_unit: str) 
                 default_frozen=False,
                 asset_name=f"asset {asset_unit}",
                 unit_name=asset_unit,
-                note=randbytes(8),  # noqa: S311
+                note=randbytes(8),
             ),
             signer=account.signer,
         )
