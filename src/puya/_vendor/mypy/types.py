@@ -271,6 +271,9 @@ class Type(mypy.nodes.Context):
     def can_be_false_default(self) -> bool:
         return True
 
+    def resolve_string_annotation(self) -> Type:
+        return self
+
     def accept(self, visitor: TypeVisitor[T]) -> T:
         raise RuntimeError("Not implemented", type(self))
 
@@ -498,7 +501,7 @@ class TypeVarId:
     # function type variables.
 
     # Metavariables are allocated unique ids starting from 1.
-    raw_id: int = 0
+    raw_id: int
 
     # Level of the variable in type inference. Currently either 0 for
     # declared types, or 1 for type inference metavariables.
@@ -507,9 +510,8 @@ class TypeVarId:
     # Class variable used for allocating fresh ids for metavariables.
     next_raw_id: ClassVar[int] = 1
 
-    # Fullname of class (or potentially function in the future) which
-    # declares this type variable (not the fullname of the TypeVar
-    # definition!), or ''
+    # Fullname of class or function/method which declares this type
+    # variable (not the fullname of the TypeVar definition!), or ''
     namespace: str
 
     def __init__(self, raw_id: int, meta_level: int = 0, *, namespace: str = "") -> None:
@@ -543,6 +545,10 @@ class TypeVarId:
     def is_meta_var(self) -> bool:
         return self.meta_level > 0
 
+    def is_self(self) -> bool:
+        # This is a special value indicating typing.Self variable.
+        return self.raw_id == 0
+
 
 class TypeVarLikeType(ProperType):
     __slots__ = ("name", "fullname", "id", "upper_bound", "default")
@@ -557,7 +563,7 @@ class TypeVarLikeType(ProperType):
         self,
         name: str,
         fullname: str,
-        id: TypeVarId | int,
+        id: TypeVarId,
         upper_bound: Type,
         default: Type,
         line: int = -1,
@@ -566,8 +572,6 @@ class TypeVarLikeType(ProperType):
         super().__init__(line, column)
         self.name = name
         self.fullname = fullname
-        if isinstance(id, int):
-            id = TypeVarId(id)
         self.id = id
         self.upper_bound = upper_bound
         self.default = default
@@ -604,7 +608,7 @@ class TypeVarType(TypeVarLikeType):
         self,
         name: str,
         fullname: str,
-        id: TypeVarId | int,
+        id: TypeVarId,
         values: list[Type],
         upper_bound: Type,
         default: Type,
@@ -623,7 +627,7 @@ class TypeVarType(TypeVarLikeType):
         values: Bogus[list[Type]] = _dummy,
         upper_bound: Bogus[Type] = _dummy,
         default: Bogus[Type] = _dummy,
-        id: Bogus[TypeVarId | int] = _dummy,
+        id: Bogus[TypeVarId] = _dummy,
         line: int = _dummy_int,
         column: int = _dummy_int,
         **kwargs: Any,
@@ -719,7 +723,7 @@ class ParamSpecType(TypeVarLikeType):
         self,
         name: str,
         fullname: str,
-        id: TypeVarId | int,
+        id: TypeVarId,
         flavor: int,
         upper_bound: Type,
         default: Type,
@@ -746,7 +750,7 @@ class ParamSpecType(TypeVarLikeType):
     def copy_modified(
         self,
         *,
-        id: Bogus[TypeVarId | int] = _dummy,
+        id: Bogus[TypeVarId] = _dummy,
         flavor: int = _dummy_int,
         prefix: Bogus[Parameters] = _dummy,
         default: Bogus[Type] = _dummy,
@@ -791,6 +795,7 @@ class ParamSpecType(TypeVarLikeType):
             "name": self.name,
             "fullname": self.fullname,
             "id": self.id.raw_id,
+            "namespace": self.id.namespace,
             "flavor": self.flavor,
             "upper_bound": self.upper_bound.serialize(),
             "default": self.default.serialize(),
@@ -803,7 +808,7 @@ class ParamSpecType(TypeVarLikeType):
         return ParamSpecType(
             data["name"],
             data["fullname"],
-            data["id"],
+            TypeVarId(data["id"], namespace=data["namespace"]),
             data["flavor"],
             deserialize_type(data["upper_bound"]),
             deserialize_type(data["default"]),
@@ -823,7 +828,7 @@ class TypeVarTupleType(TypeVarLikeType):
         self,
         name: str,
         fullname: str,
-        id: TypeVarId | int,
+        id: TypeVarId,
         upper_bound: Type,
         tuple_fallback: Instance,
         default: Type,
@@ -845,6 +850,7 @@ class TypeVarTupleType(TypeVarLikeType):
             "name": self.name,
             "fullname": self.fullname,
             "id": self.id.raw_id,
+            "namespace": self.id.namespace,
             "upper_bound": self.upper_bound.serialize(),
             "tuple_fallback": self.tuple_fallback.serialize(),
             "default": self.default.serialize(),
@@ -857,7 +863,7 @@ class TypeVarTupleType(TypeVarLikeType):
         return TypeVarTupleType(
             data["name"],
             data["fullname"],
-            data["id"],
+            TypeVarId(data["id"], namespace=data["namespace"]),
             deserialize_type(data["upper_bound"]),
             Instance.deserialize(data["tuple_fallback"]),
             deserialize_type(data["default"]),
@@ -878,7 +884,7 @@ class TypeVarTupleType(TypeVarLikeType):
     def copy_modified(
         self,
         *,
-        id: Bogus[TypeVarId | int] = _dummy,
+        id: Bogus[TypeVarId] = _dummy,
         upper_bound: Bogus[Type] = _dummy,
         default: Bogus[Type] = _dummy,
         min_len: Bogus[int] = _dummy,
@@ -900,14 +906,7 @@ class TypeVarTupleType(TypeVarLikeType):
 class UnboundType(ProperType):
     """Instance type that has not been bound during semantic analysis."""
 
-    __slots__ = (
-        "name",
-        "args",
-        "optional",
-        "empty_tuple_index",
-        "original_str_expr",
-        "original_str_fallback",
-    )
+    __slots__ = ("name", "args", "optional", "empty_tuple_index")
 
     def __init__(
         self,
@@ -917,8 +916,6 @@ class UnboundType(ProperType):
         column: int = -1,
         optional: bool = False,
         empty_tuple_index: bool = False,
-        original_str_expr: str | None = None,
-        original_str_fallback: str | None = None,
     ) -> None:
         super().__init__(line, column)
         if not args:
@@ -930,21 +927,6 @@ class UnboundType(ProperType):
         self.optional = optional
         # Special case for X[()]
         self.empty_tuple_index = empty_tuple_index
-        # If this UnboundType was originally defined as a str or bytes, keep track of
-        # the original contents of that string-like thing. This way, if this UnboundExpr
-        # ever shows up inside of a LiteralType, we can determine whether that
-        # Literal[...] is valid or not. E.g. Literal[foo] is most likely invalid
-        # (unless 'foo' is an alias for another literal or something) and
-        # Literal["foo"] most likely is.
-        #
-        # We keep track of the entire string instead of just using a boolean flag
-        # so we can distinguish between things like Literal["foo"] vs
-        # Literal["    foo   "].
-        #
-        # We also keep track of what the original base fallback type was supposed to be
-        # so we don't have to try and recompute it later
-        self.original_str_expr = original_str_expr
-        self.original_str_fallback = original_str_fallback
 
     def copy_modified(self, args: Bogus[Sequence[Type] | None] = _dummy) -> UnboundType:
         if args is _dummy:
@@ -956,25 +938,19 @@ class UnboundType(ProperType):
             column=self.column,
             optional=self.optional,
             empty_tuple_index=self.empty_tuple_index,
-            original_str_expr=self.original_str_expr,
-            original_str_fallback=self.original_str_fallback,
         )
 
     def accept(self, visitor: TypeVisitor[T]) -> T:
         return visitor.visit_unbound_type(self)
 
     def __hash__(self) -> int:
-        return hash((self.name, self.optional, tuple(self.args), self.original_str_expr))
+        return hash((self.name, self.optional, tuple(self.args)))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, UnboundType):
             return NotImplemented
         return (
-            self.name == other.name
-            and self.optional == other.optional
-            and self.args == other.args
-            and self.original_str_expr == other.original_str_expr
-            and self.original_str_fallback == other.original_str_fallback
+            self.name == other.name and self.optional == other.optional and self.args == other.args
         )
 
     def serialize(self) -> JsonDict:
@@ -982,19 +958,12 @@ class UnboundType(ProperType):
             ".class": "UnboundType",
             "name": self.name,
             "args": [a.serialize() for a in self.args],
-            "expr": self.original_str_expr,
-            "expr_fallback": self.original_str_fallback,
         }
 
     @classmethod
     def deserialize(cls, data: JsonDict) -> UnboundType:
         assert data[".class"] == "UnboundType"
-        return UnboundType(
-            data["name"],
-            [deserialize_type(a) for a in data["args"]],
-            original_str_expr=data["expr"],
-            original_str_fallback=data["expr_fallback"],
-        )
+        return UnboundType(data["name"], [deserialize_type(a) for a in data["args"]])
 
 
 class CallableArgument(ProperType):
@@ -1151,15 +1120,18 @@ class AnyType(ProperType):
         # Mark with Bogus because _dummy is just an object (with type Any)
         type_of_any: int = _dummy_int,
         original_any: Bogus[AnyType | None] = _dummy,
+        missing_import_name: Bogus[str | None] = _dummy,
     ) -> AnyType:
         if type_of_any == _dummy_int:
             type_of_any = self.type_of_any
         if original_any is _dummy:
             original_any = self.source_any
+        if missing_import_name is _dummy:
+            missing_import_name = self.missing_import_name
         return AnyType(
             type_of_any=type_of_any,
             source_any=original_any,
-            missing_import_name=self.missing_import_name,
+            missing_import_name=missing_import_name,
             line=self.line,
             column=self.column,
         )
@@ -1203,17 +1175,12 @@ class UninhabitedType(ProperType):
         is_subtype(UninhabitedType, T) = True
     """
 
-    __slots__ = ("ambiguous", "is_noreturn")
+    __slots__ = ("ambiguous",)
 
-    is_noreturn: bool  # Does this come from a NoReturn?  Purely for error messages.
-    # It is important to track whether this is an actual NoReturn type, or just a result
-    # of ambiguous type inference, in the latter case we don't want to mark a branch as
-    # unreachable in binder.
     ambiguous: bool  # Is this a result of inference for a variable without constraints?
 
-    def __init__(self, is_noreturn: bool = False, line: int = -1, column: int = -1) -> None:
+    def __init__(self, line: int = -1, column: int = -1) -> None:
         super().__init__(line, column)
-        self.is_noreturn = is_noreturn
         self.ambiguous = False
 
     def can_be_true_default(self) -> bool:
@@ -1232,12 +1199,12 @@ class UninhabitedType(ProperType):
         return isinstance(other, UninhabitedType)
 
     def serialize(self) -> JsonDict:
-        return {".class": "UninhabitedType", "is_noreturn": self.is_noreturn}
+        return {".class": "UninhabitedType"}
 
     @classmethod
     def deserialize(cls, data: JsonDict) -> UninhabitedType:
         assert data[".class"] == "UninhabitedType"
-        return UninhabitedType(is_noreturn=data["is_noreturn"])
+        return UninhabitedType()
 
 
 class NoneType(ProperType):
@@ -1356,6 +1323,23 @@ class ExtraAttrs:
     def __repr__(self) -> str:
         return f"ExtraAttrs({self.attrs!r}, {self.immutable!r}, {self.mod_name!r})"
 
+    def serialize(self) -> JsonDict:
+        return {
+            ".class": "ExtraAttrs",
+            "attrs": {k: v.serialize() for k, v in self.attrs.items()},
+            "immutable": list(self.immutable),
+            "mod_name": self.mod_name,
+        }
+
+    @classmethod
+    def deserialize(cls, data: JsonDict) -> ExtraAttrs:
+        assert data[".class"] == "ExtraAttrs"
+        return ExtraAttrs(
+            {k: deserialize_type(v) for k, v in data["attrs"].items()},
+            set(data["immutable"]),
+            data["mod_name"],
+        )
+
 
 class Instance(ProperType):
     """An instance type of form C[T1, ..., Tn].
@@ -1436,8 +1420,7 @@ class Instance(ProperType):
         self._hash = -1
 
         # Additional attributes defined per instance of this type. For example modules
-        # have different attributes per instance of types.ModuleType. This is intended
-        # to be "short-lived", we don't serialize it, and even don't store as variable type.
+        # have different attributes per instance of types.ModuleType.
         self.extra_attrs = extra_attrs
 
     def accept(self, visitor: TypeVisitor[T]) -> T:
@@ -1468,6 +1451,7 @@ class Instance(ProperType):
         data["args"] = [arg.serialize() for arg in self.args]
         if self.last_known_value is not None:
             data["last_known_value"] = self.last_known_value.serialize()
+        data["extra_attrs"] = self.extra_attrs.serialize() if self.extra_attrs else None
         return data
 
     @classmethod
@@ -1486,6 +1470,8 @@ class Instance(ProperType):
         inst.type_ref = data["type_ref"]  # Will be fixed up by fixup.py later.
         if "last_known_value" in data:
             inst.last_known_value = LiteralType.deserialize(data["last_known_value"])
+        if data.get("extra_attrs") is not None:
+            inst.extra_attrs = ExtraAttrs.deserialize(data["extra_attrs"])
         return inst
 
     def copy_modified(
@@ -1495,13 +1481,14 @@ class Instance(ProperType):
         last_known_value: Bogus[LiteralType | None] = _dummy,
     ) -> Instance:
         new = Instance(
-            self.type,
-            args if args is not _dummy else self.args,
-            self.line,
-            self.column,
+            typ=self.type,
+            args=args if args is not _dummy else self.args,
+            line=self.line,
+            column=self.column,
             last_known_value=(
                 last_known_value if last_known_value is not _dummy else self.last_known_value
             ),
+            extra_attrs=self.extra_attrs,
         )
         # We intentionally don't copy the extra_attrs here, so they will be erased.
         new.can_be_true = self.can_be_true
@@ -2099,6 +2086,17 @@ class CallableType(FunctionLike):
         prefix = Parameters(self.arg_types[:-2], self.arg_kinds[:-2], self.arg_names[:-2])
         return arg_type.copy_modified(flavor=ParamSpecFlavor.BARE, prefix=prefix)
 
+    def normalize_trivial_unpack(self) -> None:
+        # Normalize trivial unpack in var args as *args: *tuple[X, ...] -> *args: X in place.
+        if self.is_var_arg:
+            star_index = self.arg_kinds.index(ARG_STAR)
+            star_type = self.arg_types[star_index]
+            if isinstance(star_type, UnpackType):
+                p_type = get_proper_type(star_type.type)
+                if isinstance(p_type, Instance):
+                    assert p_type.type.fullname == "builtins.tuple"
+                    self.arg_types[star_index] = p_type.args[0]
+
     def with_unpacked_kwargs(self) -> NormalizedCallableType:
         if not self.unpack_kwargs:
             return cast(NormalizedCallableType, self)
@@ -2128,7 +2126,7 @@ class CallableType(FunctionLike):
         if not isinstance(unpacked, TupleType):
             # Note that we don't normalize *args: *tuple[X, ...] -> *args: X,
             # this should be done once in semanal_typeargs.py for user-defined types,
-            # and we ourselves should never construct such type.
+            # and we ourselves rarely construct such type.
             return self
         unpack_index = find_unpack_in_list(unpacked.items)
         if unpack_index == 0 and len(unpacked.items) > 1:
@@ -2646,7 +2644,7 @@ class RawExpressionType(ProperType):
 
     This synthetic type is only used at the beginning stages of semantic analysis
     and should be completely removing during the process for mapping UnboundTypes to
-    actual types: we either turn it into a LiteralType or an AnyType.
+    actual types: we turn it into its "node" argument, a LiteralType, or an AnyType.
 
     For example, suppose `Foo[1]` is initially represented as the following:
 
@@ -2684,7 +2682,7 @@ class RawExpressionType(ProperType):
         )
     """
 
-    __slots__ = ("literal_value", "base_type_name", "note")
+    __slots__ = ("literal_value", "base_type_name", "note", "node")
 
     def __init__(
         self,
@@ -2693,11 +2691,13 @@ class RawExpressionType(ProperType):
         line: int = -1,
         column: int = -1,
         note: str | None = None,
+        node: Type | None = None,
     ) -> None:
         super().__init__(line, column)
         self.literal_value = literal_value
         self.base_type_name = base_type_name
         self.note = note
+        self.node = node
 
     def simple_name(self) -> str:
         return self.base_type_name.replace("builtins.", "")
@@ -2706,6 +2706,21 @@ class RawExpressionType(ProperType):
         assert isinstance(visitor, SyntheticTypeVisitor)
         ret: T = visitor.visit_raw_expression_type(self)
         return ret
+
+    def copy_modified(self, node: Type | None) -> RawExpressionType:
+        return RawExpressionType(
+            literal_value=self.literal_value,
+            base_type_name=self.base_type_name,
+            line=self.line,
+            column=self.column,
+            note=self.note,
+            node=node,
+        )
+
+    def resolve_string_annotation(self) -> Type:
+        if self.node is not None:
+            return self.node.resolve_string_annotation()
+        return self
 
     def serialize(self) -> JsonDict:
         assert False, "Synthetic types don't serialize"
@@ -2718,6 +2733,7 @@ class RawExpressionType(ProperType):
             return (
                 self.base_type_name == other.base_type_name
                 and self.literal_value == other.literal_value
+                and self.node == other.node
             )
         else:
             return NotImplemented
@@ -2822,6 +2838,7 @@ class UnionType(ProperType):
         items: Sequence[Type],
         line: int = -1,
         column: int = -1,
+        *,
         is_evaluated: bool = True,
         uses_pep604_syntax: bool = False,
     ) -> None:
@@ -3095,8 +3112,7 @@ def get_proper_type(typ: Type | None) -> ProperType | None:
 
 
 @overload
-def get_proper_types(types: list[Type] | tuple[Type, ...]) -> list[ProperType]:  # type: ignore[overload-overlap]
-    ...
+def get_proper_types(types: list[Type] | tuple[Type, ...]) -> list[ProperType]: ...
 
 
 @overload
@@ -3386,6 +3402,8 @@ class TypeStrVisitor(SyntheticTypeVisitor[str]):
         return f"TypedDict({prefix}{s})"
 
     def visit_raw_expression_type(self, t: RawExpressionType) -> str:
+        if t.node is not None:
+            return t.node.accept(self)
         return repr(t.literal_value)
 
     def visit_literal_type(self, t: LiteralType) -> str:
@@ -3449,6 +3467,9 @@ class TrivialSyntheticTypeTranslator(TypeTranslator, SyntheticTypeVisitor[Type])
         return t
 
     def visit_raw_expression_type(self, t: RawExpressionType) -> Type:
+        if t.node is not None:
+            node = t.node.accept(self)
+            return t.copy_modified(node=node)
         return t
 
     def visit_type_list(self, t: TypeList) -> Type:
@@ -3493,6 +3514,11 @@ class LocationSetter(TypeTraverserVisitor):
         typ.line = self.line
         typ.column = self.column
         super().visit_instance(typ)
+
+    def visit_type_alias_type(self, typ: TypeAliasType) -> None:
+        typ.line = self.line
+        typ.column = self.column
+        super().visit_type_alias_type(typ)
 
 
 class HasTypeVars(BoolTypeQuery):

@@ -12,9 +12,10 @@ from typing import Callable
 from mypy import errorcodes as codes, message_registry
 from mypy.errorcodes import ErrorCode
 from mypy.errors import Errors
+from mypy.message_registry import INVALID_PARAM_SPEC_LOCATION, INVALID_PARAM_SPEC_LOCATION_NOTE
 from mypy.messages import format_type
 from mypy.mixedtraverser import MixedTraverserVisitor
-from mypy.nodes import ARG_STAR, Block, ClassDef, Context, FakeInfo, FuncItem, MypyFile
+from mypy.nodes import Block, ClassDef, Context, FakeInfo, FuncItem, MypyFile
 from mypy.options import Options
 from mypy.scope import Scope
 from mypy.subtypes import is_same_type, is_subtype
@@ -103,15 +104,7 @@ class TypeArgumentAnalyzer(MixedTraverserVisitor):
 
     def visit_callable_type(self, t: CallableType) -> None:
         super().visit_callable_type(t)
-        # Normalize trivial unpack in var args as *args: *tuple[X, ...] -> *args: X
-        if t.is_var_arg:
-            star_index = t.arg_kinds.index(ARG_STAR)
-            star_type = t.arg_types[star_index]
-            if isinstance(star_type, UnpackType):
-                p_type = get_proper_type(star_type.type)
-                if isinstance(p_type, Instance):
-                    assert p_type.type.fullname == "builtins.tuple"
-                    t.arg_types[star_index] = p_type.args[0]
+        t.normalize_trivial_unpack()
 
     def visit_instance(self, t: Instance) -> None:
         super().visit_instance(t)
@@ -146,13 +139,25 @@ class TypeArgumentAnalyzer(MixedTraverserVisitor):
         for (i, arg), tvar in zip(enumerate(args), type_vars):
             if isinstance(tvar, TypeVarType):
                 if isinstance(arg, ParamSpecType):
-                    # TODO: Better message
                     is_error = True
-                    self.fail(f'Invalid location for ParamSpec "{arg.name}"', ctx)
-                    self.note(
-                        "You can use ParamSpec as the first argument to Callable, e.g., "
-                        "'Callable[{}, int]'".format(arg.name),
+                    self.fail(
+                        INVALID_PARAM_SPEC_LOCATION.format(format_type(arg, self.options)),
                         ctx,
+                        code=codes.VALID_TYPE,
+                    )
+                    self.note(
+                        INVALID_PARAM_SPEC_LOCATION_NOTE.format(arg.name),
+                        ctx,
+                        code=codes.VALID_TYPE,
+                    )
+                    continue
+                if isinstance(arg, Parameters):
+                    is_error = True
+                    self.fail(
+                        f"Cannot use {format_type(arg, self.options)} for regular type variable,"
+                        " only for ParamSpec",
+                        ctx,
+                        code=codes.VALID_TYPE,
                     )
                     continue
                 if tvar.values:
@@ -204,6 +209,7 @@ class TypeArgumentAnalyzer(MixedTraverserVisitor):
                         "Can only replace ParamSpec with a parameter types list or"
                         f" another ParamSpec, got {format_type(arg, self.options)}",
                         ctx,
+                        code=codes.VALID_TYPE,
                     )
         return is_error
 
