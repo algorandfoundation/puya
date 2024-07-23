@@ -10,6 +10,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
+from puya.ir.builder._tuple_util import build_tuple_names
 from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -58,20 +59,6 @@ def handle_assignment(
     )
 
 
-def _build_tuple_names(
-    base_name: str, wtype: wtypes.WType, source_location: SourceLocation | None
-) -> Sequence[tuple[str, SourceLocation | None]]:
-    if not isinstance(wtype, wtypes.WTuple):
-        return [(base_name, source_location)]
-    return [
-        (name, source_location)
-        for idx, item_type in enumerate(wtype.types)
-        for name, _ in _build_tuple_names(
-            format_tuple_index(base_name, idx), item_type, source_location
-        )
-    ]
-
-
 def _handle_assignment(
     context: IRFunctionBuildContext,
     target: awst_nodes.Lvalue,
@@ -91,7 +78,7 @@ def _handle_assignment(
                     " which is being passed by reference",
                     assignment_location,
                 )
-            var_names = _build_tuple_names(var_name, var_type, var_loc)
+            var_names = build_tuple_names(var_name, var_type, var_loc)
             return assign(
                 context,
                 source=value,
