@@ -171,9 +171,9 @@ def check_for_diff(path: Path) -> str | None:
         paths = list(path.parent.glob(f"{path.stem}_out*"))
         paths.append(path.with_suffix(".puya.log"))
     stdout = ""
-    for path in paths:
+    for path_ in paths:
         result = subprocess.run(
-            [git, "diff", str(path)],  # noqa: S603
+            [git, "diff", str(path_)],
             check=True,
             capture_output=True,
             cwd=VCS_ROOT,

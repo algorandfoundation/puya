@@ -373,7 +373,7 @@ def test_voting_app(
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=creator_account)
 
-    quorum = math.ceil(random.randint(1, 9) * 1000)  # noqa: S311
+    quorum = math.ceil(random.randint(1, 9) * 1000)
     question_counts = [1] * 10
 
     health = algod_client.status()
