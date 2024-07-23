@@ -15,6 +15,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, storage
+from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     assert_value,
     assign,
@@ -56,8 +57,6 @@ from puya.ir.types_ import (
     AVMBytesEncoding,
     IRType,
     bytes_enc_to_avm_bytes_enc,
-    get_wtype_arity,
-    sum_wtypes_arity,
     wtype_to_ir_type,
     wtype_to_ir_types,
 )
@@ -567,13 +566,12 @@ class FunctionIRBuilder(
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.WTuple):
             tup = self.visit_and_materialise(expr.base)
-            skip_values = sum_wtypes_arity(expr.base.wtype.types[: expr.index])
-            arity = get_wtype_arity(expr.wtype)
-            if arity == 1:
-                return tup[skip_values]
-            return ValueTuple(
-                values=tup[skip_values : skip_values + arity],
-                source_location=tup[skip_values].source_location,
+            return get_tuple_item_values(
+                tuple_values=tup,
+                tuple_wtype=expr.base.wtype,
+                index=expr.index,
+                target_wtype=expr.wtype,
+                source_location=expr.source_location,
             )
         elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
             base = self.visit_and_materialise_single(expr.base)
@@ -644,14 +642,13 @@ class FunctionIRBuilder(
         tup = self.visit_and_materialise(expr.base)
         start_i = extract_const_int(expr.begin_index) or 0
         end_i = extract_const_int(expr.end_index)
-        skip_values = sum_wtypes_arity(base_wtype.types[:start_i])
-        arity = sum_wtypes_arity(base_wtype.types[start_i:end_i])
-        if arity != get_wtype_arity(expr.wtype):
-            raise InternalError(
-                "arity difference between result type and expected type", expr.source_location
-            )
-        result = tup[skip_values : skip_values + arity]
-        return ValueTuple(values=result, source_location=expr.source_location)
+        return get_tuple_item_values(
+            tuple_values=tup,
+            tuple_wtype=base_wtype,
+            index=(start_i, end_i),
+            target_wtype=expr.wtype,
+            source_location=expr.source_location,
+        )
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         index = self.visit_and_materialise_single(expr.index)

@@ -1,5 +1,4 @@
 import typing
-from collections.abc import Sequence
 
 from puya import log
 from puya.awst import (
@@ -10,7 +9,9 @@ from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op, assign_targets
+from puya.ir.builder._tuple_util import get_tuple_item_values, build_tuple_names
+from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
+from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     ConditionalBranch,
@@ -21,20 +22,20 @@ from puya.ir.models import (
     UInt64Constant,
     Value,
     ValueProvider,
+    ValueTuple,
 )
-from puya.ir.types_ import IRType
-from puya.ir.utils import format_tuple_index
+from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
 class LoopVariables(typing.NamedTuple):
-    item: Register
+    item_registers: typing.Sequence[Register]
     index_: Register | None
 
     def refresh_assignment(self, context: IRFunctionBuildContext) -> "LoopVariables":
-        item = _refresh_mutated_variable(context, self.item)
+        item = [_refresh_mutated_variable(context, i) for i in self.item_registers]
         if self.index_ is None:
             index = None
         else:
@@ -53,70 +54,49 @@ class LoopAssigner:
     def assign_user_loop_vars(
         self, item_provider: ValueProvider, index_provider: ValueProvider
     ) -> LoopVariables:
-        if not self.has_enumerate:
-            (item_type,) = item_provider.types
-            item_reg, _ = self._register_targets(item_type, None)
-            assign_targets(
+
+        var_names = self._build_names_from_lvalue(self._items)
+
+        if self.has_enumerate:
+            (*item_names, index_name) = var_names
+            item_registers = assign(
                 self._context,
-                targets=[item_reg],
-                source=item_provider,
-                assignment_location=self._items.source_location,
+                item_provider,
+                names=item_names,
+                source_location=self._items.source_location,
             )
-            return LoopVariables(item_reg, None)
+            (index_register,) = assign(
+                self._context,
+                index_provider,
+                names=[index_name],
+                source_location=self._items.source_location,
+            )
+
+            return LoopVariables(item_registers, index_register)
         else:
-            (item_type,) = item_provider.types
-            (index_type,) = index_provider.types
-            item_reg, index_reg = self._register_targets(item_type, index_type)
-            assign_targets(
+            item_registers = assign(
                 self._context,
-                targets=[item_reg],
-                source=item_provider,
-                assignment_location=self._items.source_location,
+                item_provider,
+                names=var_names,
+                source_location=self._items.source_location,
             )
-            assign_targets(
-                self._context,
-                targets=[index_reg],
-                source=index_provider,
-                assignment_location=self._items.source_location,
-            )
-            return LoopVariables(item_reg, index_reg)
+            return LoopVariables(item_registers, None)
 
-    @typing.overload
-    def _register_targets(
-        self, item_type: IRType, index_type: IRType
-    ) -> tuple[Register, Register]: ...
-
-    @typing.overload
-    def _register_targets(self, item_type: IRType, index_type: None) -> tuple[Register, None]: ...
-
-    def _register_targets(
-        self, item_type: IRType, index_type: IRType | None
-    ) -> tuple[Register, Register | None]:
-        match self._items:
-            case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
-                if index_type is None:
-                    item_register = self._context.ssa.new_register(var_name, item_type, var_loc)
-                    index_register = None
-                else:
-                    index_name = format_tuple_index(var_name, 0)
-                    item_name = format_tuple_index(var_name, 1)
-                    item_register = self._context.ssa.new_register(item_name, item_type, var_loc)
-                    index_register = self._context.ssa.new_register(
-                        index_name, index_type, var_loc
-                    )
-            case awst_nodes.TupleExpression(
-                items=[
-                    awst_nodes.VarExpression(name=index_name, source_location=index_loc),
-                    awst_nodes.VarExpression(name=item_name, source_location=item_loc),
+    def _build_names_from_lvalue(
+        self, target: awst_nodes.Lvalue
+    ) -> typing.Sequence[tuple[str, SourceLocation | None]]:
+        match target:
+            case awst_nodes.VarExpression(name=var_name, source_location=var_loc, wtype=var_type):
+                return build_tuple_names(var_name, var_type, var_loc)
+            case awst_nodes.TupleExpression() as tup_expr:
+                tuple_items = lvalue_items(tup_expr)
+                return [
+                    name for item in tuple_items for name in self._build_names_from_lvalue(item)
                 ]
-            ) if index_type is not None:
-                item_register = self._context.ssa.new_register(item_name, item_type, item_loc)
-                index_register = self._context.ssa.new_register(index_name, index_type, index_loc)
             case _:
                 raise CodeError(
                     "unsupported assignment target in loop", self._items.source_location
                 )
-        return item_register, index_register
 
 
 def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.ForInLoop) -> None:
@@ -164,16 +144,15 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
-        case awst_nodes.Expression(wtype=wtypes.WTuple()) as tuple_expression:
-            tuple_items = context.visitor.visit_and_materialise(tuple_expression)
-            if not tuple_items:
+        case awst_nodes.Expression(wtype=wtypes.WTuple(types=item_types)) as tuple_expression:
+            if not item_types:
                 logger.debug("Skipping ForInStatement which iterates an empty sequence.")
             else:
                 _iterate_tuple(
                     context,
                     loop_body=statement.loop_body,
                     assigner=assign_user_loop_vars,
-                    tuple_items=tuple_items,
+                    tuple_expr=tuple_expression,
                     statement_loc=statement.source_location,
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
@@ -298,7 +277,7 @@ def _iterate_urange_simple(
     )
     context.block_builder.goto(header)
     with context.block_builder.activate_open_block(header):
-        current_range_item, current_range_index = loop_vars.refresh_assignment(context)
+        (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
         (continue_looping,) = assign_intrinsic_op(
             context,
             target="continue_looping",
@@ -427,7 +406,7 @@ def _iterate_urange_with_reversal(
     context.block_builder.goto(body)
 
     with context.block_builder.activate_open_block(body):
-        current_range_item, current_range_index = loop_vars.refresh_assignment(context)
+        (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
 
         with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(context.visitor)
@@ -575,12 +554,15 @@ def _iterate_tuple(
     *,
     loop_body: awst_nodes.Block,
     assigner: LoopAssigner,
-    tuple_items: Sequence[Value],
+    tuple_expr: awst_nodes.Expression,
     statement_loc: SourceLocation,
     reverse_index: bool,
     reverse_items: bool,
 ) -> None:
-    max_index = len(tuple_items) - 1
+    tuple_values = context.visitor.visit_and_materialise(tuple_expr)
+    assert isinstance(tuple_expr.wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
+    tuple_wtype = tuple_expr.wtype
+    max_index = len(tuple_wtype.types) - 1
     loop_counter_name = context.next_tmp_name("loop_counter")
 
     def assign_counter_and_user_vars(loop_count: int) -> Register:
@@ -590,8 +572,15 @@ def _iterate_tuple(
             names=[(loop_counter_name, None)],
             source_location=None,
         )
+        item_index = loop_count if not reverse_items else (max_index - loop_count)
         item_reg, index_reg = assigner.assign_user_loop_vars(
-            tuple_items[loop_count if not reverse_items else (max_index - loop_count)],
+            get_tuple_item_values(
+                tuple_values=tuple_values,
+                tuple_wtype=tuple_wtype,
+                index=item_index,
+                target_wtype=tuple_wtype.types[item_index],
+                source_location=statement_loc,
+            ),
             UInt64Constant(
                 value=loop_count if not reverse_index else (max_index - loop_count),
                 source_location=None,
@@ -609,7 +598,7 @@ def _iterate_tuple(
     )
     headers = {
         idx: context.block_builder.mkblock(statement_loc, f"for_header_{idx}")
-        for idx in range(1, len(tuple_items))
+        for idx in range(1, len(tuple_wtype.types))
     }
 
     # first item - assigned in current block
