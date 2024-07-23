@@ -1,6 +1,132 @@
 #pragma version 10
 
 test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "run_tests()bool"
+    method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
+    txna ApplicationArgs 0
+    match main_run_tests_route@2 main_nested_tuple_params_route@3
+    err // reject transaction
+
+main_run_tests_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub run_tests
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_nested_tuple_params_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    int 2
+    extract_uint16
+    dig 1
+    uncover 3
+    dig 2
+    substring3
+    cover 2
+    dig 1
+    len
+    substring3
+    swap
+    extract 2 0
+    swap
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    swap
+    extract 2 8 // on error: Index access is out of bounds
+    swap
+    extract 2 0
+    swap
+    extract 0 8 // on error: Index access is out of bounds
+    btoi
+    callsub nested_tuple_params
+    cover 2
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    uncover 2
+    itob
+    byte 0x000a
+    swap
+    concat
+    swap
+    concat
+    dig 1
+    len
+    int 4
+    +
+    itob
+    extract 6 2
+    byte 0x0004
+    swap
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:
+run_tests:
+    proto 0 1
     byte "Hi"
     byte "There"
     callsub test_swap
@@ -50,8 +176,10 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     int 1
     int 0
     callsub test_nested_singles
+    callsub test_nested_mutation
+    callsub test_nested_iteration
     int 1
-    return
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.test_swap(args.0: bytes, args.1: bytes) -> bytes, bytes:
@@ -104,6 +232,7 @@ test_nested_slicing:
 // test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: uint64) -> void:
 test_nested_singles:
     proto 2 0
+    byte ""
     int 0
     int 2
     frame_dig -2
@@ -114,11 +243,11 @@ test_nested_singles:
     frame_dig -1
     bz test_nested_singles_after_if_else@2
     int 3
-    frame_bury 0
-    int 4
-    frame_bury 2
-    int 5
     frame_bury 1
+    int 4
+    frame_bury 3
+    int 5
+    frame_bury 2
 
 test_nested_singles_after_if_else@2:
     frame_dig -1
@@ -130,7 +259,7 @@ test_nested_singles_ternary_false@4:
     int 0
 
 test_nested_singles_ternary_merge@5:
-    frame_dig 0
+    frame_dig 1
     ==
     assert
     frame_dig -1
@@ -142,17 +271,102 @@ test_nested_singles_ternary_false@7:
     int 2
 
 test_nested_singles_ternary_merge@8:
-    frame_dig 1
+    frame_dig 2
     ==
     assert
-    frame_dig 2
-    dup
+    frame_dig 3
     frame_dig -2
     +
+    frame_bury 0
+    frame_dig -1
+    bz test_nested_singles_ternary_false@10
+    int 5
+    b test_nested_singles_ternary_merge@11
+
+test_nested_singles_ternary_false@10:
     int 2
+
+test_nested_singles_ternary_merge@11:
+    frame_dig 0
     ==
     assert
+    frame_dig -1
+    bz test_nested_singles_ternary_false@13
+    int 4
+    b test_nested_singles_ternary_merge@14
+
+test_nested_singles_ternary_false@13:
     int 1
+
+test_nested_singles_ternary_merge@14:
+    frame_dig 3
     ==
     assert
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void:
+test_nested_mutation:
+    proto 0 0
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.test_nested_iteration() -> void:
+test_nested_iteration:
+    proto 0 0
+    int 0
+    int 1
+    int 2
+    int 0
+
+test_nested_iteration_for_body@1:
+    frame_dig 1
+    uncover 2
+    +
+    frame_dig 0
+    +
+    frame_bury 0
+    switch test_nested_iteration_for_header_1@3 test_nested_iteration_for_header_2@4 test_nested_iteration_for_header_3@5
+    b test_nested_iteration_after_for@6
+
+test_nested_iteration_for_header_1@3:
+    int 1
+    int 2
+    frame_bury 1
+    int 1
+    swap
+    b test_nested_iteration_for_body@1
+
+test_nested_iteration_for_header_2@4:
+    int 2
+    int 1
+    frame_bury 1
+    int 1
+    swap
+    b test_nested_iteration_for_body@1
+
+test_nested_iteration_for_header_3@5:
+    int 3
+    int 2
+    frame_bury 1
+    int 2
+    swap
+    b test_nested_iteration_for_body@1
+
+test_nested_iteration_after_for@6:
+    frame_dig 0
+    int 4
+    /
+    int 3
+    ==
+    assert
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(args.0: bytes, args.1.0: bytes, args.1.1.0: uint64) -> bytes, bytes, uint64:
+nested_tuple_params:
+    proto 3 3
+    frame_dig -2
+    frame_dig -3
+    frame_dig -1
     retsub
