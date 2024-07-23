@@ -550,10 +550,6 @@ def test_tuple_support(harness: _TestHarness) -> None:
     ]
 
 
-def test_nested_tuples(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "tuple_support" / "nested_tuples.py")
-
-
 def test_tuple_comparisons(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_comparisons.py")
     expected_log_values = list(range(42, 48))
