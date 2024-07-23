@@ -117,6 +117,7 @@ implicit_module_attrs: Final = {
     "__file__": "__builtins__.str",
     "__package__": "__builtins__.str",
     "__annotations__": None,  # dict[str, Any] bounded in add_implicit_module_attrs()
+    "__spec__": None,  # importlib.machinery.ModuleSpec bounded in add_implicit_module_attrs()
 }
 
 
@@ -173,6 +174,8 @@ RUNTIME_PROTOCOL_DECOS: Final = (
     "typing_extensions.runtime",
     "typing_extensions.runtime_checkable",
 )
+
+LAMBDA_NAME: Final = "<lambda>"
 
 
 class Node(Context):
@@ -615,6 +618,9 @@ class OverloadedFuncDef(FuncBase, SymbolNode, Statement):
         # NOTE: res.info will be set in the fixup phase.
         return res
 
+    def is_dynamic(self) -> bool:
+        return all(item.is_dynamic() for item in self.items)
+
 
 class Argument(Node):
     """A single argument in a FuncItem."""
@@ -653,6 +659,28 @@ class Argument(Node):
         self.variable.set_line(self.line, self.column, self.end_line, self.end_column)
 
 
+# These specify the kind of a TypeParam
+TYPE_VAR_KIND: Final = 0
+PARAM_SPEC_KIND: Final = 1
+TYPE_VAR_TUPLE_KIND: Final = 2
+
+
+class TypeParam:
+    __slots__ = ("name", "kind", "upper_bound", "values")
+
+    def __init__(
+        self,
+        name: str,
+        kind: int,
+        upper_bound: mypy.types.Type | None,
+        values: list[mypy.types.Type],
+    ) -> None:
+        self.name = name
+        self.kind = kind
+        self.upper_bound = upper_bound
+        self.values = values
+
+
 FUNCITEM_FLAGS: Final = FUNCBASE_FLAGS + [
     "is_overload",
     "is_generator",
@@ -672,6 +700,7 @@ class FuncItem(FuncBase):
         "min_args",  # Minimum number of arguments
         "max_pos",  # Maximum number of positional arguments, -1 if no explicit
         # limit (*args not included)
+        "type_args",  # New-style type parameters (PEP 695)
         "body",  # Body of the function
         "is_overload",  # Is this an overload variant of function with more than
         # one overload variant?
@@ -689,12 +718,14 @@ class FuncItem(FuncBase):
         arguments: list[Argument] | None = None,
         body: Block | None = None,
         typ: mypy.types.FunctionLike | None = None,
+        type_args: list[TypeParam] | None = None,
     ) -> None:
         super().__init__()
         self.arguments = arguments or []
         self.arg_names = [None if arg.pos_only else arg.variable.name for arg in self.arguments]
         self.arg_kinds: list[ArgKind] = [arg.kind for arg in self.arguments]
         self.max_pos: int = self.arg_kinds.count(ARG_POS) + self.arg_kinds.count(ARG_OPT)
+        self.type_args: list[TypeParam] | None = type_args
         self.body: Block = body or Block([])
         self.type = typ
         self.unanalyzed_type = typ
@@ -761,8 +792,9 @@ class FuncDef(FuncItem, SymbolNode, Statement):
         arguments: list[Argument] | None = None,
         body: Block | None = None,
         typ: mypy.types.FunctionLike | None = None,
+        type_args: list[TypeParam] | None = None,
     ) -> None:
-        super().__init__(arguments, body, typ)
+        super().__init__(arguments, body, typ, type_args)
         self._name = name
         self.is_decorated = False
         self.is_conditional = False  # Defined conditionally (within block)?
@@ -910,6 +942,9 @@ class Decorator(SymbolNode, Statement):
         dec = Decorator(FuncDef.deserialize(data["func"]), [], Var.deserialize(data["var"]))
         dec.is_overload = data["is_overload"]
         return dec
+
+    def is_dynamic(self) -> bool:
+        return self.func.is_dynamic()
 
 
 VAR_FLAGS: Final = [
@@ -1070,6 +1105,7 @@ class ClassDef(Statement):
         "name",
         "_fullname",
         "defs",
+        "type_args",
         "type_vars",
         "base_type_exprs",
         "removed_base_type_exprs",
@@ -1089,6 +1125,9 @@ class ClassDef(Statement):
     name: str  # Name of the class without module prefix
     _fullname: str  # Fully qualified name of the class
     defs: Block
+    # New-style type parameters (PEP 695), unanalyzed
+    type_args: list[TypeParam] | None
+    # Semantically analyzed type parameters (all syntax variants)
     type_vars: list[mypy.types.TypeVarLikeType]
     # Base class expressions (not semantically analyzed -- can be arbitrary expressions)
     base_type_exprs: list[Expression]
@@ -1111,12 +1150,14 @@ class ClassDef(Statement):
         base_type_exprs: list[Expression] | None = None,
         metaclass: Expression | None = None,
         keywords: list[tuple[str, Expression]] | None = None,
+        type_args: list[TypeParam] | None = None,
     ) -> None:
         super().__init__()
         self.name = name
         self._fullname = ""
         self.defs = defs
         self.type_vars = type_vars or []
+        self.type_args = type_args
         self.base_type_exprs = base_type_exprs or []
         self.removed_base_type_exprs = []
         self.info = CLASSDEF_NO_INFO
@@ -1605,6 +1646,27 @@ class MatchStmt(Statement):
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_match_stmt(self)
+
+
+class TypeAliasStmt(Statement):
+    __slots__ = ("name", "type_args", "value", "invalid_recursive_alias")
+
+    __match_args__ = ("name", "type_args", "value")
+
+    name: NameExpr
+    type_args: list[TypeParam]
+    value: LambdaExpr  # Return value will get translated into a type
+    invalid_recursive_alias: bool
+
+    def __init__(self, name: NameExpr, type_args: list[TypeParam], value: LambdaExpr) -> None:
+        super().__init__()
+        self.name = name
+        self.type_args = type_args
+        self.value = value
+        self.invalid_recursive_alias = False
+
+    def accept(self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_type_alias_stmt(self)
 
 
 # Expressions
@@ -2202,7 +2264,7 @@ class LambdaExpr(FuncItem, Expression):
 
     @property
     def name(self) -> str:
-        return "<lambda>"
+        return LAMBDA_NAME
 
     def expr(self) -> Expression:
         """Return the expression (the body) of the lambda."""
@@ -2442,6 +2504,7 @@ class TypeApplication(Expression):
 INVARIANT: Final = 0
 COVARIANT: Final = 1
 CONTRAVARIANT: Final = 2
+VARIANCE_NOT_READY: Final = 3  # Variance hasn't been inferred (using Python 3.12 syntax)
 
 
 class TypeVarLikeExpr(SymbolNode, Expression):
@@ -2450,7 +2513,7 @@ class TypeVarLikeExpr(SymbolNode, Expression):
     Note that they are constructed by the semantic analyzer.
     """
 
-    __slots__ = ("_name", "_fullname", "upper_bound", "default", "variance")
+    __slots__ = ("_name", "_fullname", "upper_bound", "default", "variance", "is_new_style")
 
     _name: str
     _fullname: str
@@ -2473,13 +2536,16 @@ class TypeVarLikeExpr(SymbolNode, Expression):
         upper_bound: mypy.types.Type,
         default: mypy.types.Type,
         variance: int = INVARIANT,
+        is_new_style: bool = False,
+        line: int = -1,
     ) -> None:
-        super().__init__()
+        super().__init__(line=line)
         self._name = name
         self._fullname = fullname
         self.upper_bound = upper_bound
         self.default = default
         self.variance = variance
+        self.is_new_style = is_new_style
 
     @property
     def name(self) -> str:
@@ -2518,8 +2584,10 @@ class TypeVarExpr(TypeVarLikeExpr):
         upper_bound: mypy.types.Type,
         default: mypy.types.Type,
         variance: int = INVARIANT,
+        is_new_style: bool = False,
+        line: int = -1,
     ) -> None:
-        super().__init__(name, fullname, upper_bound, default, variance)
+        super().__init__(name, fullname, upper_bound, default, variance, is_new_style, line=line)
         self.values = values
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -2596,8 +2664,10 @@ class TypeVarTupleExpr(TypeVarLikeExpr):
         tuple_fallback: mypy.types.Instance,
         default: mypy.types.Type,
         variance: int = INVARIANT,
+        is_new_style: bool = False,
+        line: int = -1,
     ) -> None:
-        super().__init__(name, fullname, upper_bound, default, variance)
+        super().__init__(name, fullname, upper_bound, default, variance, is_new_style, line=line)
         self.tuple_fallback = tuple_fallback
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -3513,6 +3583,7 @@ class TypeAlias(SymbolNode):
         "_is_recursive",
         "eager",
         "tvar_tuple_index",
+        "python_3_12_type_alias",
     )
 
     __match_args__ = ("name", "target", "alias_tvars", "no_args")
@@ -3528,6 +3599,7 @@ class TypeAlias(SymbolNode):
         no_args: bool = False,
         normalized: bool = False,
         eager: bool = False,
+        python_3_12_type_alias: bool = False,
     ) -> None:
         self._fullname = fullname
         self.target = target
@@ -3540,6 +3612,7 @@ class TypeAlias(SymbolNode):
         # it is the cached value.
         self._is_recursive: bool | None = None
         self.eager = eager
+        self.python_3_12_type_alias = python_3_12_type_alias
         self.tvar_tuple_index = None
         for i, t in enumerate(alias_tvars):
             if isinstance(t, mypy.types.TypeVarTupleType):
@@ -3610,6 +3683,7 @@ class TypeAlias(SymbolNode):
             "normalized": self.normalized,
             "line": self.line,
             "column": self.column,
+            "python_3_12_type_alias": self.python_3_12_type_alias,
         }
         return data
 
@@ -3627,6 +3701,7 @@ class TypeAlias(SymbolNode):
         normalized = data["normalized"]
         line = data["line"]
         column = data["column"]
+        python_3_12_type_alias = data["python_3_12_type_alias"]
         return cls(
             target,
             fullname,
@@ -3635,6 +3710,7 @@ class TypeAlias(SymbolNode):
             alias_tvars=cast(List[mypy.types.TypeVarLikeType], alias_tvars),
             no_args=no_args,
             normalized=normalized,
+            python_3_12_type_alias=python_3_12_type_alias,
         )
 
 

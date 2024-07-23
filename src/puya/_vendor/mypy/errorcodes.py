@@ -262,7 +262,6 @@ MUTABLE_OVERRIDE: Final[ErrorCode] = ErrorCode(
     default_enabled=False,
 )
 
-
 # Syntax errors are often blocking.
 SYNTAX: Final[ErrorCode] = ErrorCode("syntax", "Report syntax errors", "General")
 
@@ -272,11 +271,18 @@ FILE: Final = ErrorCode("file", "Internal marker for a whole file being ignored"
 del error_codes[FILE.code]
 
 # This is a catch-all for remaining uncategorized errors.
-MISC: Final = ErrorCode("misc", "Miscellaneous other checks", "General")
+MISC: Final[ErrorCode] = ErrorCode("misc", "Miscellaneous other checks", "General")
 
 OVERLOAD_OVERLAP: Final[ErrorCode] = ErrorCode(
     "overload-overlap",
     "Warn if multiple @overload variants overlap in unsafe ways",
+    "General",
+    sub_code_of=MISC,
+)
+
+PROPERTY_DECORATOR = ErrorCode(
+    "prop-decorator",
+    "Decorators on top of @property are not supported",
     "General",
     sub_code_of=MISC,
 )
