@@ -160,7 +160,7 @@ def _encode_abi_method(method: ARC4ABIMethod) -> JSONDict:
             }
             for arg in method.args
         ],
-        # "readonly": method.config.readonly,  # ARC-22
+        "readonly": method.config.readonly,  # ARC-22
         "returns": {
             "type": method.returns.type_,
             "desc": method.returns.desc,
