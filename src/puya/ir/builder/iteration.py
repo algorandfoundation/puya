@@ -10,6 +10,7 @@ from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
+from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op, mkblocks, reassign
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
@@ -86,17 +87,19 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
-        case awst_nodes.Expression(wtype=wtypes.WTuple()) as tuple_expression:
-            tuple_items = context.visitor.visit_and_materialise(tuple_expression)
-            if not tuple_items:
+        case awst_nodes.Expression(
+            wtype=wtypes.WTuple(types=item_types) as tuple_wtype
+        ) as tuple_expression:
+            if len(item_types) == 0:
                 logger.debug("Skipping ForInStatement which iterates an empty sequence.")
             else:
+
                 _iterate_tuple(
                     context,
                     loop_body=statement.loop_body,
                     item_var=item_var,
                     index_var=index_var,
-                    tuple_items=tuple_items,
+                    tuple_expr=tuple_expression,
                     statement_loc=statement.source_location,
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
@@ -544,12 +547,16 @@ def _iterate_tuple(
     loop_body: awst_nodes.Block,
     item_var: awst_nodes.Lvalue,
     index_var: awst_nodes.Lvalue | None,
-    tuple_items: Sequence[Value],
+    tuple_expr: awst_nodes.Expression,
     statement_loc: SourceLocation,
     reverse_index: bool,
     reverse_items: bool,
 ) -> None:
-    max_index = len(tuple_items) - 1
+    tuple_values = context.visitor.visit_and_materialise(tuple_expr)
+    assert isinstance(tuple_expr.wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
+    tuple_wtype = tuple_expr.wtype
+
+    max_index = len(tuple_wtype.types) - 1
     loop_counter_name = context.next_tmp_name("loop_counter")
 
     def assign_counter_and_user_vars(loop_count: int) -> None:
@@ -559,10 +566,18 @@ def _iterate_tuple(
             names=[(loop_counter_name, None)],
             source_location=None,
         )
+        item_index = loop_count if not reverse_items else (max_index - loop_count)
         handle_assignment(
             context,
             target=item_var,
-            value=tuple_items[loop_count if not reverse_items else (max_index - loop_count)],
+            # value=tuple_expr[loop_count if not reverse_items else (max_index - loop_count)],
+            value=get_tuple_item_values(
+                tuple_values=tuple_values,
+                tuple_wtype=tuple_wtype,
+                index=item_index,
+                target_wtype=item_var.wtype,
+                source_location=item_var.source_location,
+            ),
             assignment_location=item_var.source_location,
         )
         if index_var:
@@ -585,7 +600,7 @@ def _iterate_tuple(
     )
     headers = {
         idx: BasicBlock(comment=f"for_header_{idx}", source_location=statement_loc)
-        for idx in range(1, len(tuple_items))
+        for idx in range(1, len(tuple_wtype.types))
     }
 
     # first item - assigned in current block

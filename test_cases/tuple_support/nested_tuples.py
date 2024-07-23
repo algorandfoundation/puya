@@ -1,8 +1,9 @@
-from algopy import Contract, String, UInt64, arc4, op, subroutine
+from algopy import Contract, String, UInt64, arc4, op, subroutine, ARC4Contract, Bytes
 
 
-class NestedTuples(Contract):
-    def approval_program(self) -> bool:
+class NestedTuples(ARC4Contract):
+    @arc4.abimethod()
+    def run_tests(self) -> bool:
         x = (String("Hi"), String("There"))
         assert test_swap(x) == (String("There"), String("Hi"))
         y = (UInt64(1), x)
@@ -25,9 +26,8 @@ class NestedTuples(Contract):
 
         assert z[2] == y
 
-        return True
+        test_nested_iteration()
 
-    def clear_state_program(self) -> bool:
         return True
 
 
@@ -123,3 +123,14 @@ def test_nested_mutation() -> None:
     )
     x[0][0].append(arc4.UInt64(1))
     assert x[0][0].length == 2
+
+
+@subroutine
+def test_nested_iteration() -> None:
+    x = UInt64(1)
+    y = UInt64(2)
+    sum = UInt64(0)
+    for a, b in ((x, y), (y, x), (x, x), (y, y)):
+        sum += a + b
+
+    assert sum // 4 == 3
