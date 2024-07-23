@@ -62,13 +62,9 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.NoneType: none.NoneTypeExpressionBuilder,
     pytypes.BoolType: bool_.BoolTypeBuilder,
     pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
-    pytypes.reversedGenericType: functools.partial(
-        unsigned_builtins.ReversedFunctionExpressionBuilder, None
-    ),
+    pytypes.reversedGenericType: unsigned_builtins.ReversedFunctionExpressionBuilder,
     pytypes.urangeType: unsigned_builtins.UnsignedRangeBuilder,
-    pytypes.uenumerateGenericType: functools.partial(
-        unsigned_builtins.UnsignedEnumerateBuilder, None
-    ),
+    pytypes.uenumerateGenericType: unsigned_builtins.UnsignedEnumerateBuilder,
     pytypes.OpUpFeeSourceType: uint64_enums.OpUpFeeSourceTypeBuilder,
     pytypes.GenericBoxType: storage.BoxGenericTypeExpressionBuilder,
     pytypes.BoxRefType: storage.BoxRefTypeBuilder,
@@ -131,8 +127,14 @@ CallableBuilderFromPyTypeAndSourceFactory = Callable[
 PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.PyType | None, CallableBuilderFromPyTypeAndSourceFactory
 ] = {
-    pytypes.uenumerateGenericType: unsigned_builtins.UnsignedEnumerateBuilder,
-    pytypes.reversedGenericType: unsigned_builtins.ReversedFunctionExpressionBuilder,
+    pytypes.uenumerateGenericType: (
+        # TODO: fixme, should accept type
+        lambda _, loc: unsigned_builtins.UnsignedEnumerateBuilder(loc)
+    ),
+    pytypes.reversedGenericType: (
+        # TODO: fixme, should accept type
+        lambda _, loc: unsigned_builtins.ReversedFunctionExpressionBuilder(loc)
+    ),
     pytypes.GenericTemplateVarType: template_variables.TemplateVariableExpressionBuilder,
     pytypes.GenericABICallWithReturnType: arc4.ABICallTypeBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateTypeBuilder,

@@ -75,9 +75,7 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
 
 class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert typ == pytypes.GroupTransactionBaseType or isinstance(
-            typ, pytypes.TransactionRelatedType
-        )
+        assert isinstance(typ, pytypes.TransactionRelatedType)
         super().__init__(typ, expr)
 
     @typing.override

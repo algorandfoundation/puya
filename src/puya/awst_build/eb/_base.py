@@ -210,7 +210,7 @@ def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:
             "None indicates an empty return and cannot be assigned",
             resolved.source_location,
         )
-    if not isinstance(resolved, Lvalue):  # type: ignore[arg-type,misc]
+    if not isinstance(resolved, Lvalue):
         raise CodeError(
             "expression is not valid as an assignment target", resolved.source_location
         )
@@ -224,4 +224,4 @@ def _validate_lvalue(typ: pytypes.PyType, resolved: Expression) -> Lvalue:
         assert isinstance(typ, pytypes.TupleType)
         for item_typ, item in zip(typ.items, resolved.items, strict=True):
             _validate_lvalue(item_typ, item)
-    return typing.cast(Lvalue, resolved)
+    return resolved

@@ -45,15 +45,9 @@ def handle_assignment(
 ) -> Sequence[Value]:
     # separating out the target LValue check allows the _handle_assignment to statically assert
     # all LValue types are covered
-    if not isinstance(target, awst_nodes.Lvalue):  # type: ignore[arg-type]
+    if not isinstance(target, awst_nodes.Lvalue):
         raise CodeError("expression is not valid as an assignment target", target.source_location)
-    return _handle_assignment(
-        context,
-        typing.cast(awst_nodes.Lvalue, target),
-        value,
-        assignment_location,
-        is_mutation=is_mutation,
-    )
+    return _handle_assignment(context, target, value, assignment_location, is_mutation=is_mutation)
 
 
 def _handle_assignment(
