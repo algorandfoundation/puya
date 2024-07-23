@@ -1,9 +1,9 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from puya.awst import wtypes
 from puya.errors import InternalError
-from puya.ir.models import Value, ValueTuple, ValueProvider
-from puya.ir.types_ import sum_wtypes_arity, get_wtype_arity
+from puya.ir.models import Value, ValueProvider, ValueTuple
+from puya.ir.types_ import get_wtype_arity, sum_wtypes_arity
 from puya.parse import SourceLocation
 
 

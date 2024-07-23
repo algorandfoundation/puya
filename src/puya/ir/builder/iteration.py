@@ -1,5 +1,4 @@
 import typing
-from collections.abc import Sequence
 
 from puya import log
 from puya.awst import (
@@ -87,13 +86,10 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
-        case awst_nodes.Expression(
-            wtype=wtypes.WTuple(types=item_types) as tuple_wtype
-        ) as tuple_expression:
+        case awst_nodes.Expression(wtype=wtypes.WTuple(types=item_types)) as tuple_expression:
             if len(item_types) == 0:
                 logger.debug("Skipping ForInStatement which iterates an empty sequence.")
             else:
-
                 _iterate_tuple(
                     context,
                     loop_body=statement.loop_body,

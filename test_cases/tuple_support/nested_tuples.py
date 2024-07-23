@@ -1,4 +1,4 @@
-from algopy import Contract, String, UInt64, arc4, op, subroutine, ARC4Contract, Bytes
+from algopy import ARC4Contract, Bytes, String, UInt64, arc4, op, subroutine
 
 
 class NestedTuples(ARC4Contract):
@@ -136,8 +136,8 @@ def test_nested_mutation() -> None:
 def test_nested_iteration() -> None:
     x = UInt64(1)
     y = UInt64(2)
-    sum = UInt64(0)
+    total = UInt64(0)
     for a, b in ((x, y), (y, x), (x, x), (y, y)):
-        sum += a + b
+        total += a + b
 
-    assert sum // 4 == 3
+    assert total // 4 == 3

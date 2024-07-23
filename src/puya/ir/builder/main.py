@@ -58,8 +58,6 @@ from puya.ir.types_ import (
     AVMBytesEncoding,
     IRType,
     bytes_enc_to_avm_bytes_enc,
-    get_wtype_arity,
-    sum_wtypes_arity,
     wtype_to_ir_type,
     wtype_to_ir_types,
 )
