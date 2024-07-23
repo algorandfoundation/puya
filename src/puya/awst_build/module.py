@@ -555,6 +555,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> StatementResult:
         return self._unsupported(stmt)
 
+    def visit_type_alias_stmt(self, stmt: mypy.nodes.TypeAliasStmt) -> StatementResult:
+        return self._unsupported(stmt)
+
     # the remaining statements (below) are invalid at the module lexical scope,
     # mypy should have caught these errors already
     def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> StatementResult:

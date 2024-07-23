@@ -637,13 +637,9 @@ txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 ```
 """
 
-# using this instead of type[ARC4Contract] to prevent overload overlap, additionally this alias
-# provides a clearer intention
-_ARC4ContractType = Callable[[], ARC4Contract]
-
 @typing.overload
-def arc4_create(
-    method: _ARC4ContractType | Callable[typing.Concatenate[_TARC4Contract, _P], None],
+def arc4_create(  # type: ignore[overload-overlap]
+    method: type[ARC4Contract] | Callable[_P, None],
     /,
     *args: _TABIArg,
     compiled: algopy.CompiledContract = ...,
@@ -655,7 +651,7 @@ def arc4_create(
 ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
 @typing.overload
 def arc4_create(
-    method: Callable[typing.Concatenate[_TARC4Contract, _P], _TABIResult_co],
+    method: Callable[_P, _TABIResult_co],
     /,
     *args: _TABIArg,
     compiled: algopy.CompiledContract = ...,
@@ -681,8 +677,8 @@ def arc4_create(
     """
 
 @typing.overload
-def arc4_update(
-    method: _ARC4ContractType | Callable[typing.Concatenate[_TARC4Contract, _P], None],
+def arc4_update(  # type: ignore[overload-overlap]
+    method: type[ARC4Contract] | Callable[_P, None],
     /,
     *args: _TABIArg,
     app_id: algopy.Application | algopy.UInt64 | int,
@@ -694,7 +690,7 @@ def arc4_update(
 ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
 @typing.overload
 def arc4_update(
-    method: Callable[typing.Concatenate[_TARC4Contract, _P], _TABIResult_co],
+    method: Callable[_P, _TABIResult_co],
     /,
     *args: _TABIArg,
     app_id: algopy.Application | algopy.UInt64 | int,

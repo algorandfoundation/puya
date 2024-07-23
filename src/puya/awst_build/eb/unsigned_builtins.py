@@ -18,6 +18,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import GenericTypeBuilder
 from puya.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -89,10 +90,7 @@ class UnsignedRangeBuilder(TypeBuilder):
         )
 
 
-class UnsignedEnumerateBuilder(TypeBuilder):
-    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        super().__init__(typ, location)
-
+class UnsignedEnumerateBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -113,10 +111,7 @@ class UnsignedEnumerateBuilder(TypeBuilder):
         return _EnumerateIterBuilder(sequence, location)
 
 
-class ReversedFunctionExpressionBuilder(TypeBuilder):
-    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        super().__init__(typ, location)
-
+class ReversedFunctionExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,

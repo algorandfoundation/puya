@@ -840,12 +840,6 @@ GenericBoxMapType: typing.Final = _GenericType(
 )
 
 
-GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
-    name="algopy.gtxn.TransactionBase",
-    wtype=wtypes.WGroupTransaction(name="group_transaction_base", transaction_type=None),
-)
-
-
 @attrs.frozen
 class TransactionRelatedType(PyType):
     wtype: wtypes.WType
@@ -854,6 +848,13 @@ class TransactionRelatedType(PyType):
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
+
+
+GroupTransactionBaseType: typing.Final = TransactionRelatedType(
+    name="algopy.gtxn.TransactionBase",
+    wtype=wtypes.WGroupTransaction(name="group_transaction_base", transaction_type=None),
+    transaction_type=None,
+)
 
 
 def _make_gtxn_type(kind: TransactionType | None) -> TransactionRelatedType:

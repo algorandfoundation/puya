@@ -1097,9 +1097,7 @@ def _get_tic_tac_toe_game_status(
         b"\01": "Host",
         b"\02": "Challenger",
         b"\03": "Draw",
-    }[
-        winner_index  # type: ignore[index]
-    ]
+    }[winner_index]
     return board, winner
 
 

@@ -107,11 +107,9 @@ def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> C
             result = func(expr)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
-    # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
-    # so we have to suppress the error and do a typing.cast instead
-    if not isinstance(result, ConstantValue):  # type: ignore[arg-type,misc]
+    if not isinstance(result, ConstantValue):
         raise CodeError(f"unsupported result type of {type(result).__name__}", location)
-    return typing.cast(ConstantValue, result)
+    return result
 
 
 BINARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any, typing.Any], typing.Any]]] = {
@@ -156,11 +154,9 @@ def fold_binary_expr(
             result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
-    # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
-    # so we have to suppress the error and do a typing.cast instead
-    if not isinstance(result, ConstantValue):  # type: ignore[arg-type,misc]
+    if not isinstance(result, ConstantValue):
         raise CodeError(f"unsupported result type of {type(result).__name__}", location)
-    return typing.cast(ConstantValue, result)
+    return result
 
 
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:

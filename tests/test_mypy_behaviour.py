@@ -328,7 +328,7 @@ def test_abc() -> None:
     # TODO: FINISH THIS
     def test():
         from abc import ABC, abstractmethod
-        import pytest
+        import typing
 
         class Base(ABC):
             def concrete(self) -> int:
@@ -366,14 +366,17 @@ def test_abc() -> None:
             def explicit_abstract_ellipsis(self) -> int:
                 return 42
 
-        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
-            base = Base()
-        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
-            derived_pass = DerivedPass()
-        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
-            derived_abc_pass = DerivedABCPass()
-        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
-            derived_partial = DerivedPartial()
+        if not typing.TYPE_CHECKING:
+            import pytest
+
+            with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+                base = Base()
+            with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+                derived_pass = DerivedPass()
+            with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+                derived_abc_pass = DerivedABCPass()
+            with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+                derived_partial = DerivedPartial()
 
     test()
     result = mypy_parse_and_type_check(test)
