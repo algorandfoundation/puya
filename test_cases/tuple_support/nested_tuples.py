@@ -30,6 +30,13 @@ class NestedTuples(ARC4Contract):
 
         return True
 
+    @arc4.abimethod()
+    def nested_tuple_params(
+        self, args: tuple[String, tuple[Bytes, tuple[UInt64]]]
+    ) -> tuple[Bytes, tuple[String, UInt64]]:
+        (s, (b, (u,))) = args
+        return b, (s, u)
+
 
 @subroutine
 def test_rearrange(

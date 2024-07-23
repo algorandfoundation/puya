@@ -1446,3 +1446,23 @@ def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> N
     app_client.call("test_arc4_create_large", transaction_parameters=txn_params)
     app_client.call("test_arc4_update", transaction_parameters=txn_params)
     app_client.call("test_other_constants", transaction_parameters=txn_params)
+
+
+def test_nested_tuples(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "tuple_support" / "nested_tuples.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create
+    app_client.create()
+
+    app_client.call("run_tests")
+
+    response = app_client.call("nested_tuple_params", args=("Hello", (b"World", (123,))))
+
+    assert bytes(response.return_value[0]) == b"World"
+    assert response.return_value[1][0] == "Hello"
+    assert response.return_value[1][1] == 123
