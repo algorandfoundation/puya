@@ -3,6 +3,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
@@ -93,5 +95,13 @@ def test_run_directory() -> None:
     run_puyapy([TEST_CASES_DIR / "simple"])
 
 
-def test_puyapy_clientgen() -> None:
-    run_puyapy_clientgen(TEST_CASES_DIR / Path("abi_routing") / "out" / "Reference.arc32.json")
+@pytest.mark.parametrize(
+    "case",
+    [
+        pytest.param(path, id=str(path.relative_to(VCS_ROOT)))
+        for test_dir in (EXAMPLES_DIR, TEST_CASES_DIR)
+        for path in test_dir.rglob("out/*.arc32.json")
+    ],
+)
+def test_puyapy_clientgen(case: Path) -> None:
+    run_puyapy_clientgen(case)

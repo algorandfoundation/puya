@@ -94,7 +94,7 @@ def parse_app_spec_methods(app_spec_json: str) -> tuple[str, Sequence[ARC4Method
                     source_location=None,
                     name=arc4_method.signature.name,
                     create=create_option,
-                    readonly=bool(method_hints.get("read_only")),
+                    readonly=bool(method_hints.get("read_only") or arc4_method.readonly),
                     allowed_completion_types=allowed_oca,
                     default_args=immutabledict(
                         _default_args(method_hints.get("default_arguments", {}), arc4_methods)
@@ -121,6 +121,7 @@ class _Method:
     signature: _MethodSignature
     python_name: str
     desc: str | None
+    readonly: bool | None
 
 
 def _parse_methods(methods: list[dict[str, typing.Any]]) -> Iterable[_Method]:
@@ -131,6 +132,7 @@ def _parse_methods(methods: list[dict[str, typing.Any]]) -> Iterable[_Method]:
         yield _Method(
             signature=signature,
             desc=method.get("desc"),
+            readonly=method.get("readonly"),
             # de-duplicate potential collisions
             python_name=signature.name if name_seen == 1 else f"{signature.name}{name_seen}",
         )
