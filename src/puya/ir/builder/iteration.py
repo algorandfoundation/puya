@@ -157,6 +157,53 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             raise InternalError("Unsupported ForInLoop sequence", statement.source_location)
 
 
+def _iterate_urange(
+    context: IRFunctionBuildContext,
+    *,
+    loop_body: awst_nodes.Block,
+    item_var: awst_nodes.Lvalue,
+    index_var: awst_nodes.Lvalue | None,
+    statement_loc: SourceLocation,
+    range_start: Expression,
+    range_stop: Expression,
+    range_step: Expression,
+    range_loc: SourceLocation,
+    reverse_items: bool,
+    reverse_index: bool,
+) -> None:
+    step = context.visitor.visit_and_materialise_single(range_step)
+    stop = context.visitor.visit_and_materialise_single(range_stop)
+    start = context.visitor.visit_and_materialise_single(range_start)
+    assert_value(context, step, source_location=statement_loc, comment="Step cannot be zero")
+
+    if reverse_items or reverse_index:
+        return _iterate_urange_with_reversal(
+            context,
+            loop_body=loop_body,
+            item_var=item_var,
+            index_var=index_var,
+            statement_loc=statement_loc,
+            start=start,
+            stop=stop,
+            step=step,
+            range_loc=range_loc,
+            reverse_items=reverse_items,
+            reverse_index=reverse_index,
+        )
+    else:
+        return _iterate_urange_simple(
+            context,
+            loop_body=loop_body,
+            item_var=item_var,
+            index_var=index_var,
+            statement_loc=statement_loc,
+            start=start,
+            stop=stop,
+            step=step,
+            range_loc=range_loc,
+        )
+
+
 def _iterate_urange_simple(
     context: IRFunctionBuildContext,
     *,
@@ -241,38 +288,21 @@ def _iterate_urange_simple(
     context.block_builder.activate_block(next_block)
 
 
-def _iterate_urange(
+def _iterate_urange_with_reversal(
     context: IRFunctionBuildContext,
     *,
     loop_body: awst_nodes.Block,
     item_var: awst_nodes.Lvalue,
     index_var: awst_nodes.Lvalue | None,
     statement_loc: SourceLocation,
-    range_start: Expression,
-    range_stop: Expression,
-    range_step: Expression,
+    start: Value,
+    stop: Value,
+    step: Value,
     range_loc: SourceLocation,
     reverse_items: bool,
     reverse_index: bool,
 ) -> None:
-    step = context.visitor.visit_and_materialise_single(range_step)
-    stop = context.visitor.visit_and_materialise_single(range_stop)
-    start = context.visitor.visit_and_materialise_single(range_start)
-    assert_value(context, step, source_location=statement_loc, comment="Step cannot be zero")
-
-    if not (reverse_items or reverse_index):
-        return _iterate_urange_simple(
-            context,
-            loop_body=loop_body,
-            item_var=item_var,
-            index_var=index_var,
-            statement_loc=statement_loc,
-            start=start,
-            stop=stop,
-            step=step,
-            range_loc=range_loc,
-        )
-
+    assert reverse_items or reverse_index
     body = context.block_builder.mkblock(loop_body, "for_body")
     header, footer, increment_block, next_block = context.block_builder.mkblocks(
         "for_header", "for_footer", "for_increment", "after_for", source_location=statement_loc
