@@ -16,7 +16,7 @@ To disable these optimizations and produce bytecode identical to `algod` use the
 
 ## Obtaining bytecode within other contracts
 
-The [`compile_contract`](#algopy.compile_contract) takes an Algorand Python smart contract and returns a [`CompiledContract`](#algopy.CompiledContract),
+The [`compile_contract`](#algopy.compile_contract) function takes an Algorand Python smart contract class and returns a [`CompiledContract`](#algopy.CompiledContract),
 The global state, local state and program pages allocation parameters are derived from the contract, but can also be overridden if desired.
 This compiled contract can then be used to create an [`algopy.itxn.ApplicationCall`](#algopy.itxn.ApplicationCall) transaction or used with the [ARC4](#arc4-contracts) functions.  
 
