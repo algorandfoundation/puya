@@ -225,15 +225,19 @@ class WhileLoop(Statement):
 
 
 @attrs.frozen
-class BreakStatement(Statement):
+class LoopExit(Statement):
+    """break out of the current innermost loop"""
+
     def accept(self, visitor: StatementVisitor[T]) -> T:
-        return visitor.visit_break_statement(self)
+        return visitor.visit_loop_exit(self)
 
 
 @attrs.frozen
-class ContinueStatement(Statement):
+class LoopContinue(Statement):
+    """continue with the next iteration of the current innermost loop"""
+
     def accept(self, visitor: StatementVisitor[T]) -> T:
-        return visitor.visit_continue_statement(self)
+        return visitor.visit_loop_continue(self)
 
 
 @attrs.frozen

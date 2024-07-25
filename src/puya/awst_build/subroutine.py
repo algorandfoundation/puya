@@ -17,9 +17,7 @@ from puya.awst.nodes import (
     BinaryBooleanOperator,
     Block,
     BooleanBinaryOperation,
-    BreakStatement,
     ConditionalExpression,
-    ContinueStatement,
     ContractMethod,
     Expression,
     ExpressionStatement,
@@ -28,6 +26,8 @@ from puya.awst.nodes import (
     Goto,
     IfElse,
     Label,
+    LoopContinue,
+    LoopExit,
     Lvalue,
     Not,
     ReturnStatement,
@@ -565,16 +565,16 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             ),
         )
 
-    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> BreakStatement | Goto:
+    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> LoopExit | Goto:
         stmt_loc = self._location(stmt)
         break_label = self._break_label_stack[-1]
         if break_label is None:
-            return BreakStatement(stmt_loc)
+            return LoopExit(stmt_loc)
         else:
             return Goto(target=break_label, source_location=stmt_loc)
 
-    def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> ContinueStatement:
-        return ContinueStatement(self._location(stmt))
+    def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> LoopContinue:
+        return LoopContinue(self._location(stmt))
 
     def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> ExpressionStatement:
         comment: str | None = None

@@ -550,7 +550,7 @@ class ToCodeVisitor(
             "}",
         ]
 
-    def visit_break_statement(self, _statement: nodes.BreakStatement) -> list[str]:
+    def visit_loop_exit(self, _statement: nodes.LoopExit) -> list[str]:
         return ["break"]
 
     def visit_constant_declaration(self, statement: nodes.ConstantDeclaration) -> list[str]:
@@ -561,7 +561,7 @@ class ToCodeVisitor(
             return ["return"]
         return [f"return {statement.value.accept(self)}"]
 
-    def visit_continue_statement(self, _statement: nodes.ContinueStatement) -> list[str]:
+    def visit_loop_continue(self, _statement: nodes.LoopContinue) -> list[str]:
         return ["continue"]
 
     def visit_expression_statement(self, statement: nodes.ExpressionStatement) -> list[str]:
