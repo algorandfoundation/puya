@@ -935,7 +935,7 @@ class FunctionIRBuilder(
     def visit_while_loop(self, statement: awst_nodes.WhileLoop) -> TStatement:
         flow_control.handle_while_loop(self.context, statement)
 
-    def visit_break_statement(self, statement: awst_nodes.BreakStatement) -> TStatement:
+    def visit_loop_exit(self, statement: awst_nodes.LoopExit) -> TStatement:
         self.context.block_builder.loop_break(statement.source_location)
 
     def visit_return_statement(self, statement: awst_nodes.ReturnStatement) -> TStatement:
@@ -974,7 +974,7 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_continue_statement(self, statement: awst_nodes.ContinueStatement) -> TStatement:
+    def visit_loop_continue(self, statement: awst_nodes.LoopContinue) -> TStatement:
         self.context.block_builder.loop_continue(statement.source_location)
 
     def visit_expression_statement(self, statement: awst_nodes.ExpressionStatement) -> TStatement:
