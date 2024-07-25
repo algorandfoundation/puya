@@ -18,6 +18,8 @@ contract test_cases.iteration.iterate_tuple.TupleIterationTest:
                 test_cases.iteration.iterate_tuple.TupleIterationTest.test_empty()
                 (log "test_break")
                 test_cases.iteration.iterate_tuple.TupleIterationTest.test_break()
+                (log "test_tuple_target")
+                test_cases.iteration.iterate_tuple.TupleIterationTest.test_tuple_target()
                 return 1u
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards() -> void:
@@ -56,26 +58,23 @@ contract test_cases.iteration.iterate_tuple.TupleIterationTest:
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards_with_forwards_index() -> void:
             block@0: // L21
-                let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x61
                 let idx#0: uint64 = 0u
                 goto block@1
             block@1: // for_body_L25
                 test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
-                goto_nth [block@3, block@4][loop_counter%0#0] else return 
+                goto_nth [block@3, block@4][idx#0] else return 
             block@3: // for_header_1_L24
-                let loop_counter%0#0: uint64 = 1u
                 let i#0: bytes = 0x62
                 let idx#0: uint64 = 1u
                 goto block@1
             block@4: // for_header_2_L24
-                let loop_counter%0#0: uint64 = 2u
                 let i#0: bytes = 0x63
                 let idx#0: uint64 = 2u
                 goto block@1
         
         subroutine test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:
-            block@0: // L29
+            block@0: // L31
                 let index_plus_1%0#0: uint64 = (+ idx#0 1u)
                 let tmp%0#0: bytes = (substring3 0x30313233343536373839 idx#0 index_plus_1%0#0)
                 let tmp%1#0: bytes = (concat tmp%0#0 "=")
@@ -84,75 +83,77 @@ contract test_cases.iteration.iterate_tuple.TupleIterationTest:
                 return 
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_forwards_with_reverse_index() -> void:
-            block@0: // L27
+            block@0: // L28
                 let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x61
                 let idx#0: uint64 = 2u
                 goto block@1
-            block@1: // for_body_L31
+            block@1: // for_body_L32
                 test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
                 goto_nth [block@3, block@4][loop_counter%0#0] else return 
-            block@3: // for_header_1_L30
+            block@3: // for_header_1_L31
                 let loop_counter%0#0: uint64 = 1u
                 let i#0: bytes = 0x62
                 let idx#0: uint64 = 1u
                 goto block@1
-            block@4: // for_header_2_L30
+            block@4: // for_header_2_L31
                 let loop_counter%0#0: uint64 = 2u
                 let i#0: bytes = 0x63
                 let idx#0: uint64 = 0u
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_reverse_with_forwards_index() -> void:
-            block@0: // L33
-                let loop_counter%0#0: uint64 = 0u
+            block@0: // L35
                 let i#0: bytes = 0x63
                 let idx#0: uint64 = 0u
                 goto block@1
-            block@1: // for_body_L37
+            block@1: // for_body_L39
                 test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
-                goto_nth [block@3, block@4][loop_counter%0#0] else return 
-            block@3: // for_header_1_L36
-                let loop_counter%0#0: uint64 = 1u
+                goto_nth [block@3, block@4][idx#0] else return 
+            block@3: // for_header_1_L38
                 let i#0: bytes = 0x62
                 let idx#0: uint64 = 1u
                 goto block@1
-            block@4: // for_header_2_L36
-                let loop_counter%0#0: uint64 = 2u
+            block@4: // for_header_2_L38
                 let i#0: bytes = 0x61
                 let idx#0: uint64 = 2u
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_reverse_with_reverse_index() -> void:
-            block@0: // L39
+            block@0: // L42
                 let loop_counter%0#0: uint64 = 0u
                 let i#0: bytes = 0x63
                 let idx#0: uint64 = 2u
                 goto block@1
-            block@1: // for_body_L43
+            block@1: // for_body_L46
                 test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, i#0)
                 goto_nth [block@3, block@4][loop_counter%0#0] else return 
-            block@3: // for_header_1_L42
+            block@3: // for_header_1_L45
                 let loop_counter%0#0: uint64 = 1u
                 let i#0: bytes = 0x62
                 let idx#0: uint64 = 1u
                 goto block@1
-            block@4: // for_header_2_L42
+            block@4: // for_header_2_L45
                 let loop_counter%0#0: uint64 = 2u
                 let i#0: bytes = 0x61
                 let idx#0: uint64 = 0u
                 goto block@1
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_empty() -> void:
-            block@0: // L45
+            block@0: // L49
                 return 
         
         subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_break() -> void:
-            block@0: // L67
+            block@0: // L71
                 (log 0x61)
+                return 
+        
+        subroutine test_cases.iteration.iterate_tuple.TupleIterationTest.test_tuple_target() -> void:
+            block@0: // L78
+                test_cases.iteration.base.IterationTestBase._log_with_index(0u, 0x74)
                 return 
     
     program clear-state:
         subroutine test_cases.iteration.base.IterationTestBase.clear_state_program() -> bool:
-            block@0: // L26
+            block@0: // L28
                 return 1u

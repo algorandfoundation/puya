@@ -18,22 +18,20 @@ contract test_cases.ssa.contract.MyContract:
                 goto block@1
             block@3: // after_while_L14
                 (assert 1u) // Step cannot be zero
-                let range_item%0#0: uint64 = 0u
-                let range_index%0#0: uint64 = 0u
+                let i#0: uint64 = 0u
                 goto block@4
             block@4: // for_header_L18
-                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@3, range_item%0#2 <- block@6)
+                let i#1: uint64 = φ(i#0 <- block@3, i#2 <- block@6)
                 let b#4: uint64 = φ(b#2 <- block@3, b#5 <- block@6)
                 let a#4: uint64 = φ(a#2 <- block@3, a#5 <- block@6)
-                let continue_looping%0#0: bool = (< range_item%0#1 5u)
+                let continue_looping%0#0: bool = (< i#1 5u)
                 goto continue_looping%0#0 ? block@5 : block@7
             block@5: // for_body_L19
-                let i#0: uint64 = range_item%0#1
                 let b#5: uint64 = (+ b#4 a#4)
-                let a#5: uint64 = (+ a#4 i#0)
+                let a#5: uint64 = (+ a#4 i#1)
                 goto block@6
             block@6: // for_footer_L18
-                let range_item%0#2: uint64 = (+ range_item%0#1 1u)
+                let i#2: uint64 = (+ i#1 1u)
                 goto block@4
             block@7: // after_for_L18
                 let tmp%1#0: bool = (< a#4 b#4)

@@ -25,6 +25,9 @@ test_cases.iteration.base.IterationTestBase.approval_program:
     byte "test_break"
     log
     callsub test_break
+    byte "test_tuple_target"
+    log
+    callsub test_tuple_target
     int 1
     return
 
@@ -363,4 +366,32 @@ test_break:
     proto 0 0
     byte 0x61
     log
+    retsub
+
+
+// test_cases.iteration.iterate_indexable.IndexableIterationTest.test_tuple_target() -> void:
+test_tuple_target:
+    proto 0 0
+    int 0
+
+test_tuple_target_for_header@1:
+    frame_dig 0
+    int 1
+    <
+    bz test_tuple_target_after_for@4
+    byte 0x74
+    frame_dig 0
+    dup
+    cover 2
+    int 1
+    extract3
+    dig 1
+    swap
+    callsub _log_with_index
+    int 1
+    +
+    frame_bury 0
+    b test_tuple_target_for_header@1
+
+test_tuple_target_after_for@4:
     retsub

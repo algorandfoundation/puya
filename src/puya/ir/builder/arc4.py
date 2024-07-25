@@ -47,7 +47,7 @@ class ArrayIterator:
     array_length: Value
     source_location: SourceLocation
 
-    def get_value_at_index(self, index: Register) -> ValueProvider:
+    def get_value_at_index(self, index: Value) -> ValueProvider:
         return arc4_array_index(
             self.context,
             array_wtype=self.array_wtype,

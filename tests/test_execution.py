@@ -1161,9 +1161,7 @@ def test_iteration(harness: _TestHarness, name: str, increase_budget: int) -> No
         TEST_CASES_DIR / "iteration" / f"iterate_{name}.py",
         AppCallRequest(increase_budget=increase_budget),
     )
-    assert len(result.logs) == 27
-    logs_decoded = result.decode_logs(27 * "u")
-    assert logs_decoded == [
+    expected_logs = [
         "test_forwards",
         "a",
         "b",
@@ -1191,7 +1189,12 @@ def test_iteration(harness: _TestHarness, name: str, increase_budget: int) -> No
         "test_empty",
         "test_break",
         "a",
+        "test_tuple_target",
+        "0=t",
     ]
+    assert len(result.logs) == len(expected_logs)
+    logs_decoded = result.decode_logs(len(expected_logs) * "u")
+    assert logs_decoded == expected_logs
 
 
 def test_ignored_value(harness: _TestHarness) -> None:
