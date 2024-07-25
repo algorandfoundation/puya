@@ -1,6 +1,6 @@
 # Compiling to AVM bytecode
 
-The Puyapy compiler can compile Algorand Python smart contracts into directly to AVM bytecode. 
+The Puyapy compiler can compile Algorand Python smart contracts directly into AVM bytecode. 
 Once compiled, this bytecode can be utilized to construct AVM Application Call transactions both on and off chain.
 
 ## Outputting AVM bytecode from CLI
