@@ -567,6 +567,10 @@ def test_callsub(harness: _TestHarness) -> None:
     assert result.decode_logs("iii") == [42, 1, 2]
 
 
+def test_static_arrays_no_args(harness: _TestHarness) -> None:
+    result = harness.deploy(TEST_CASES_DIR / "static_arrays_no_args")
+
+
 def test_calculator(harness: _TestHarness) -> None:
     src_path = EXAMPLES_DIR / "calculator"
     add, sub, mul, div = 1, 2, 3, 4
