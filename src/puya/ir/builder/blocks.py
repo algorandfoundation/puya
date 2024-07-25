@@ -34,7 +34,6 @@ class BlocksBuilder:
         parameters: Sequence[Register],
         default_source_location: SourceLocation,
     ) -> None:
-        self._default_source_location = default_source_location
         self._loop_targets_stack: list[_LoopTargets] = []
         blocks = [BasicBlock(id=0, source_location=default_source_location)]
         self._blocks = blocks
@@ -53,11 +52,7 @@ class BlocksBuilder:
         """Add an op"""
         curr = self.active_block
         if curr.terminated:
-            logger.error(
-                "unreachable code",
-                # function kinda sucks as a fallback, but it'll do for now
-                location=op.source_location or self._default_source_location,
-            )
+            self._unreachable_error(op)
         else:
             curr.ops.append(op)
             if isinstance(op, Assignment):
@@ -87,11 +82,19 @@ class BlocksBuilder:
 
     def terminate(self, control_op: ControlOp) -> None:
         if not self.maybe_terminate(control_op):
-            logger.error(
-                "unreachable code",
-                # function kinda sucks as a fallback, but it'll do for now
-                location=control_op.source_location or self._default_source_location,
+            self._unreachable_error(control_op)
+
+    def _unreachable_error(self, op: Op | ControlOp) -> None:
+        if op.source_location:
+            location = op.source_location
+            message = "unreachable code"
+        else:
+            terminator_location = (
+                self.active_block.terminator and self.active_block.terminator.source_location
             )
+            location = terminator_location or self.active_block.source_location
+            message = "unreachable code follows"
+        logger.error(message, location=location)
 
     def goto(self, target: BasicBlock, source_location: SourceLocation | None = None) -> None:
         """Add goto to a basic block, iff current block is not already terminated"""
