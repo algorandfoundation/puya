@@ -18,7 +18,6 @@ class LabelsValidator(FunctionTraverser):
                     cls(method)
 
     def __init__(self, function: awst_nodes.Function) -> None:
-        self._function = function
         self._labelled_blocks = dict[awst_nodes.Label, awst_nodes.Block]()
         self._seen_targets = defaultdict[awst_nodes.Label, list[awst_nodes.Goto]](list)
         function.body.accept(self)
