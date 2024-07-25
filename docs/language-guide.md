@@ -80,5 +80,6 @@ lg-ops
 lg-opcode-budget
 lg-arc4
 lg-arc28
+lg-compile
 lg-unsupported-python-features
 ```

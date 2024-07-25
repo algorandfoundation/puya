@@ -206,59 +206,6 @@ def call_existing_application(app: Application) -> None:
     assert greet_txn.app_id == 1234
 ```
 
-#### `algopy.arc4.arc4_create`
-
-[`algopy.arc4.arc4_create`](#algopy.arc4.arc4_create) is used to create other ARC4 Contracts, and will automatically populate required fields for app creation (such as approval and clear state programs and global/local state allocation).
-
-Like [`algopy.arc4.abi_call`](#algopy.arc4.abi_call) it also handles ARC4 arguments and provides ARC4 return values.
-
-If the compiled programs and state allocation fields need to be customized (for example due to [`algopy.TemplateVar`](#algopy.TemplateVar) usage), this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
-
-```python
-from algopy import ARC4Contract, String, arc4, compile_contract, subroutine
-
-class HelloWorld(ARC4Contract):
-    
-    @arc4.abimethod()
-    def greet(self, name: String) -> String:
-        return "Hello " + name
-
-@subroutine
-def create_new_application() -> None:
-    hello_world_app = arc4.arc4_create(HelloWorld).created_app
-
-    greeting, _txn = arc4.abi_call(HelloWorld.greet, "there", app_id=hello_world_app)
-    
-    assert greeting == "Hello there"
-```
-
-#### `algopy.arc4.arc4_update`
-
-[`algopy.arc4.arc4_update`](#algopy.arc4.arc4_update) is used to update an existing ARC4 contract and will automatically populate the required approval and clear state program fields.
-
-Like [`algopy.arc4.abi_call`](#algopy.arc4.abi_call) it also handles ARC4 arguments and provides ARC4 return values.
-
-If the compiled programs need to be customized (for example due to [`algopy.TemplateVar`](#algopy.TemplateVar) usage), this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
-
-```python
-from algopy import Application, ARC4Contract, String, arc4, subroutine
-
-class NewApp(ARC4Contract):
-    
-    @arc4.abimethod()
-    def greet(self, name: String) -> String:
-        return "Hello " + name
-
-@subroutine
-def update_existing_application(existing_app: Application) -> None:
-    hello_world_app = arc4.arc4_update(NewApp, app_id=existing_app)
-    
-    greeting, _txn = arc4.abi_call(NewApp.greet, "there", app_id=hello_world_app)
-    
-    assert greeting == "Hello there"
-```
-
-
 ### Limitations
 
 Inner transactions are powerful, but currently do have some restrictions in how they are used.
