@@ -83,9 +83,9 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let loop_counter%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_body_L137
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@3, total#2 <- block@4)
                 let value#1: uint64 = φ(values.0#0 <- block@0, values.1#0 <- block@3, values.2#0 <- block@4)
-                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 let total#2: uint64 = (+ total#1 value#1)
                 goto_nth [block@3, block@4][loop_counter%0#1] else return total#2
             block@3: // for_header_1_L136
@@ -113,16 +113,16 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
         subroutine test_cases.tuple_support.tuple_support.bytes_multiply(arg.0: bytes, arg.1: uint64) -> bytes:
             block@0: // L124
                 let result#0: bytes = 0x
-                let range_item%0#0: uint64 = 0u
+                let _i#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L128
-                let _i#0: uint64 = φ(range_item%0#0 <- block@0, range_item%0#2 <- block@2)
+                let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@2)
                 let result#1: bytes = φ(result#0 <- block@0, result#2 <- block@2)
-                let continue_looping%0#0: bool = (< _i#0 arg.1#0)
+                let continue_looping%0#0: bool = (< _i#1 arg.1#0)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L129
                 let result#2: bytes = (concat result#1 arg.0#0)
-                let range_item%0#2: uint64 = (+ _i#0 1u)
+                let _i#2: uint64 = (+ _i#1 1u)
                 goto block@1
             block@4: // after_for_L128
                 return result#1

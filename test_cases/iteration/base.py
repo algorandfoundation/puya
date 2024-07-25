@@ -21,6 +21,8 @@ class IterationTestBase(Contract, abc.ABC):
         self.test_empty()
         log("test_break")
         self.test_break()
+        log("test_tuple_target")
+        self.test_tuple_target()
         return True
 
     def clear_state_program(self) -> bool:
@@ -62,3 +64,7 @@ class IterationTestBase(Contract, abc.ABC):
     @subroutine
     @abc.abstractmethod
     def test_break(self) -> None: ...
+
+    @subroutine
+    @abc.abstractmethod
+    def test_tuple_target(self) -> None: ...

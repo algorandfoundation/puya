@@ -23,24 +23,28 @@ class IndexableIterationTest(IterationTestBase):
     def test_forwards_with_forwards_index(self) -> None:
         for idx, i in uenumerate(Bytes(b"abc")):
             self._log_with_index(idx, i)
+            idx += 1
 
     @typing.override
     @subroutine
     def test_forwards_with_reverse_index(self) -> None:
         for idx, i in reversed(uenumerate(reversed(Bytes(b"abc")))):
             self._log_with_index(idx, i)
+            idx += 1
 
     @typing.override
     @subroutine
     def test_reverse_with_forwards_index(self) -> None:
         for idx, i in uenumerate(reversed(Bytes(b"abc"))):
             self._log_with_index(idx, i)
+            idx += 1
 
     @typing.override
     @subroutine
     def test_reverse_with_reverse_index(self) -> None:
         for idx, i in reversed(uenumerate(Bytes(b"abc"))):
             self._log_with_index(idx, i)
+            idx += 1
 
     @typing.override
     @subroutine
@@ -64,3 +68,9 @@ class IndexableIterationTest(IterationTestBase):
         for b in Bytes(b"abc"):
             log(b)
             break
+
+    @typing.override
+    @subroutine
+    def test_tuple_target(self) -> None:
+        for tup in uenumerate(Bytes(b"t")):
+            self._log_with_index(tup[0], tup[1])

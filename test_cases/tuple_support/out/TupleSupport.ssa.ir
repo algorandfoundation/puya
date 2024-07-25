@@ -105,9 +105,9 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let value#0: uint64 = values.0#0
                 goto block@1
             block@1: // for_body_L137
+                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@3, total#2 <- block@4)
                 let value#1: uint64 = φ(value#0 <- block@0, value#2 <- block@3, value#3 <- block@4)
-                let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@3, loop_counter%0#3 <- block@4)
                 let total#2: uint64 = (+ total#1 value#1)
                 goto block@2
             block@2: // for_footer_L136
@@ -159,20 +159,18 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let count#0: uint64 = arg.1#0
                 let result#0: bytes = 0x
                 (assert 1u) // Step cannot be zero
-                let range_item%0#0: uint64 = 0u
-                let range_index%0#0: uint64 = 0u
+                let _i#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L128
-                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@0, range_item%0#2 <- block@3)
+                let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
                 let result#1: bytes = φ(result#0 <- block@0, result#2 <- block@3)
-                let continue_looping%0#0: bool = (< range_item%0#1 count#0)
+                let continue_looping%0#0: bool = (< _i#1 count#0)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L129
-                let _i#0: uint64 = range_item%0#1
                 let result#2: bytes = (concat result#1 b#0)
                 goto block@3
             block@3: // for_footer_L128
-                let range_item%0#2: uint64 = (+ range_item%0#1 1u)
+                let _i#2: uint64 = (+ _i#1 1u)
                 goto block@1
             block@4: // after_for_L128
                 return result#1

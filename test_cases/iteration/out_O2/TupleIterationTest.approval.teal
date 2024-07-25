@@ -25,6 +25,9 @@ test_cases.iteration.base.IterationTestBase.approval_program:
     byte "test_break"
     log
     callsub test_break
+    byte "test_tuple_target"
+    log
+    callsub test_tuple_target
     int 1
     return
 
@@ -80,10 +83,11 @@ test_forwards_with_forwards_index:
     proto 0 0
     int 0
     byte 0x61
-    int 0
 
 test_forwards_with_forwards_index_for_body@1:
-    cover 2
+    swap
+    dup
+    uncover 2
     callsub _log_with_index
     switch test_forwards_with_forwards_index_for_header_1@3 test_forwards_with_forwards_index_for_header_2@4
     retsub
@@ -91,13 +95,11 @@ test_forwards_with_forwards_index_for_body@1:
 test_forwards_with_forwards_index_for_header_1@3:
     int 1
     byte 0x62
-    int 1
     b test_forwards_with_forwards_index_for_body@1
 
 test_forwards_with_forwards_index_for_header_2@4:
     int 2
     byte 0x63
-    int 2
     b test_forwards_with_forwards_index_for_body@1
 
 
@@ -150,10 +152,11 @@ test_reverse_with_forwards_index:
     proto 0 0
     int 0
     byte 0x63
-    int 0
 
 test_reverse_with_forwards_index_for_body@1:
-    cover 2
+    swap
+    dup
+    uncover 2
     callsub _log_with_index
     switch test_reverse_with_forwards_index_for_header_1@3 test_reverse_with_forwards_index_for_header_2@4
     retsub
@@ -161,13 +164,11 @@ test_reverse_with_forwards_index_for_body@1:
 test_reverse_with_forwards_index_for_header_1@3:
     int 1
     byte 0x62
-    int 1
     b test_reverse_with_forwards_index_for_body@1
 
 test_reverse_with_forwards_index_for_header_2@4:
     int 2
     byte 0x61
-    int 2
     b test_reverse_with_forwards_index_for_body@1
 
 
@@ -208,4 +209,13 @@ test_break:
     proto 0 0
     byte 0x61
     log
+    retsub
+
+
+// test_cases.iteration.iterate_tuple.TupleIterationTest.test_tuple_target() -> void:
+test_tuple_target:
+    proto 0 0
+    int 0
+    byte 0x74
+    callsub _log_with_index
     retsub

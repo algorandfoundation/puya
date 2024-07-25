@@ -210,16 +210,16 @@ contract examples.voting.voting.VotingRoundApp:
             block@5: // if_body_L136
                 let note#4: bytes = (concat note#3 "[")
                 let tmp%14#0: uint64 = (btoi question_options#0)
-                let range_item%0#0: uint64 = 0u
+                let option_index#0: uint64 = 0u
                 goto block@6
             block@6: // for_header_L137
-                let option_index#0: uint64 = φ(range_item%0#0 <- block@5, range_item%0#2 <- block@9)
+                let option_index#1: uint64 = φ(option_index#0 <- block@5, option_index#2 <- block@9)
                 let note#5: bytes = φ(note#4 <- block@5, note#8 <- block@9)
                 let current_index#2: uint64 = φ(current_index#5 <- block@5, current_index#3 <- block@9)
-                let continue_looping%1#0: bool = (< option_index#0 tmp%14#0)
+                let continue_looping%1#0: bool = (< option_index#1 tmp%14#0)
                 goto continue_looping%1#0 ? block@7 : block@11
             block@7: // for_body_L138
-                goto option_index#0 ? block@8 : block@9
+                goto option_index#1 ? block@8 : block@9
             block@8: // if_body_L139
                 let note#6: bytes = (concat note#5 ",")
                 goto block@9
@@ -229,7 +229,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%16#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
                 let note#8: bytes = (concat note#7 tmp%16#0)
                 let current_index#3: uint64 = (+ current_index#2 1u)
-                let range_item%0#2: uint64 = (+ option_index#0 1u)
+                let option_index#2: uint64 = (+ option_index#1 1u)
                 goto block@6
             block@11: // after_for_L137
                 let note#9: bytes = (concat note#5 "]")
@@ -401,21 +401,21 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%15#0: bool = (== tmp%14#0 min_bal_req#0)
                 (assert tmp%15#0) // Payment must be the exact min balance
                 let cumulative_offset#0: uint64 = 0u
-                let range_item%0#0: uint64 = 0u
+                let question_index#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L195
-                let question_index#0: uint64 = φ(range_item%0#0 <- block@0, range_item%0#2 <- block@2)
+                let question_index#1: uint64 = φ(question_index#0 <- block@0, question_index#2 <- block@2)
                 let cumulative_offset#1: uint64 = φ(cumulative_offset#0 <- block@0, cumulative_offset#2 <- block@2)
-                let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
+                let continue_looping%0#0: bool = (< question_index#1 questions_count#0)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L196
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) answer_ids#0)
-                let tmp%16#0: bytes = (extract3 array_head_and_tail%0#0 question_index#0 1u) // on error: Index access is out of bounds
+                let tmp%16#0: bytes = (extract3 array_head_and_tail%0#0 question_index#1 1u) // on error: Index access is out of bounds
                 let answer_option_index#0: uint64 = (btoi tmp%16#0)
                 let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
                 (assert maybe_exists%1#0) // check self.option_counts exists
                 let array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
-                let tmp%17#0: bytes = (extract3 array_head_and_tail%1#0 question_index#0 1u) // on error: Index access is out of bounds
+                let tmp%17#0: bytes = (extract3 array_head_and_tail%1#0 question_index#1 1u) // on error: Index access is out of bounds
                 let options_count#0: uint64 = (btoi tmp%17#0)
                 let tmp%18#0: bool = (< answer_option_index#0 options_count#0)
                 (assert tmp%18#0) // Answer option index invalid
@@ -429,7 +429,7 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert maybe_exists%2#0) // check self.voter_count exists
                 let new_state_value%0#0: uint64 = (+ maybe_value%2#0 1u)
                 (app_global_put "voter_count" new_state_value%0#0)
-                let range_item%0#2: uint64 = (+ question_index#0 1u)
+                let question_index#2: uint64 = (+ question_index#1 1u)
                 goto block@1
             block@4: // after_for_L195
                 return 

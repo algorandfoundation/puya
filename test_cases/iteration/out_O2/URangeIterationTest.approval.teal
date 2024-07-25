@@ -25,6 +25,9 @@ test_cases.iteration.base.IterationTestBase.approval_program:
     byte "test_break"
     log
     callsub test_break
+    byte "test_tuple_target"
+    log
+    callsub test_tuple_target
     int 1
     return
 
@@ -88,15 +91,15 @@ test_reversed_after_for@5:
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_forwards_index() -> void:
 test_forwards_with_forwards_index:
     proto 0 0
-    int 0
     int 1
+    int 0
 
 test_forwards_with_forwards_index_for_header@1:
-    frame_dig 1
+    frame_dig 0
     int 7
     <
     bz test_forwards_with_forwards_index_after_for@4
-    frame_dig 1
+    frame_dig 0
     dup
     int 1
     +
@@ -104,17 +107,16 @@ test_forwards_with_forwards_index_for_header@1:
     dig 2
     uncover 2
     substring3
-    frame_dig 0
+    frame_dig 1
     dup
     cover 3
     swap
     callsub _log_with_index
     int 2
     +
-    swap
+    frame_bury 0
     int 1
     +
-    frame_bury 0
     frame_bury 1
     b test_forwards_with_forwards_index_for_header@1
 
@@ -164,11 +166,11 @@ test_forwards_with_reverse_index_for_body@2:
     frame_dig 1
     int 2
     +
+    frame_bury 1
     frame_dig 0
     int 1
     -
     frame_bury 0
-    frame_bury 1
     b test_forwards_with_reverse_index_for_body@2
 
 test_forwards_with_reverse_index_after_for@5:
@@ -178,11 +180,11 @@ test_forwards_with_reverse_index_after_for@5:
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_forwards_index() -> void:
 test_reverse_with_forwards_index:
     proto 0 0
-    int 0
     int 5
+    int 0
 
 test_reverse_with_forwards_index_for_body@2:
-    frame_dig 1
+    frame_dig 0
     dup
     int 1
     +
@@ -190,19 +192,19 @@ test_reverse_with_forwards_index_for_body@2:
     dig 2
     uncover 2
     substring3
-    frame_dig 0
+    frame_dig 1
     swap
     callsub _log_with_index
     int 1
     >
     bz test_reverse_with_forwards_index_after_for@5
-    frame_dig 1
+    frame_dig 0
     int 2
     -
-    frame_dig 0
+    frame_bury 0
+    frame_dig 1
     int 1
     +
-    frame_bury 0
     frame_bury 1
     b test_reverse_with_forwards_index_for_body@2
 
@@ -234,11 +236,11 @@ test_reverse_with_reverse_index_for_body@2:
     frame_dig 1
     int 2
     -
+    frame_bury 1
     frame_dig 0
     int 1
     -
     frame_bury 0
-    frame_bury 1
     b test_reverse_with_reverse_index_for_body@2
 
 test_reverse_with_reverse_index_after_for@5:
@@ -267,9 +269,9 @@ test_empty_for_header@1:
 
 test_empty_after_for@9:
     int 0
-    dup
-    frame_bury 0
     frame_bury 1
+    int 0
+    frame_bury 0
 
 test_empty_for_header@10:
     frame_dig 1
@@ -287,11 +289,10 @@ test_empty_for_header@10:
     log
     int 1
     +
-    swap
+    frame_bury 1
     int 1
     +
     frame_bury 0
-    frame_bury 1
     b test_empty_for_header@10
 
 test_empty_after_for@28:
@@ -303,4 +304,37 @@ test_break:
     proto 0 0
     byte 0x61
     log
+    retsub
+
+
+// test_cases.iteration.iterate_urange.URangeIterationTest.test_tuple_target() -> void:
+test_tuple_target:
+    proto 0 0
+    int 0
+    dup
+
+test_tuple_target_for_header@1:
+    frame_dig 0
+    int 1
+    <
+    bz test_tuple_target_after_for@4
+    frame_dig 0
+    dup
+    int 1
+    +
+    byte 0x74
+    uncover 2
+    dig 2
+    substring3
+    frame_dig 1
+    dup
+    uncover 2
+    callsub _log_with_index
+    int 1
+    +
+    frame_bury 1
+    frame_bury 0
+    b test_tuple_target_for_header@1
+
+test_tuple_target_after_for@4:
     retsub

@@ -56,22 +56,20 @@ contract test_cases.less_simple.contract.MyContract:
             block@0: // L27
                 let sum_of_squares#0: uint64 = 0u
                 (assert 1u) // Step cannot be zero
-                let range_item%0#0: uint64 = 1u
-                let range_index%0#0: uint64 = 0u
+                let i#0: uint64 = 1u
                 goto block@1
             block@1: // for_header_L29
-                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@0, range_item%0#2 <- block@7)
+                let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@7)
                 let sum_of_squares#1: uint64 = φ(sum_of_squares#0 <- block@0, sum_of_squares#3 <- block@7)
-                let continue_looping%0#0: bool = (< range_item%0#1 100u)
+                let continue_looping%0#0: bool = (< i#1 100u)
                 goto continue_looping%0#0 ? block@2 : block@8
             block@2: // for_body_L30
-                let i#0: uint64 = range_item%0#1
-                let square_root#0: uint64 = (sqrt i#0)
+                let square_root#0: uint64 = (sqrt i#1)
                 let tmp%0#0: uint64 = (* square_root#0 square_root#0)
-                let tmp%1#0: bool = (== tmp%0#0 i#0)
+                let tmp%1#0: bool = (== tmp%0#0 i#1)
                 goto tmp%1#0 ? block@3 : block@4
             block@3: // if_body_L32
-                let sum_of_squares#2: uint64 = (+ sum_of_squares#1 i#0)
+                let sum_of_squares#2: uint64 = (+ sum_of_squares#1 i#1)
                 goto block@4
             block@4: // after_if_else_L31
                 let sum_of_squares#3: uint64 = φ(sum_of_squares#1 <- block@2, sum_of_squares#2 <- block@3)
@@ -82,7 +80,7 @@ contract test_cases.less_simple.contract.MyContract:
             block@6: // after_if_else_L33
                 goto block@7
             block@7: // for_footer_L29
-                let range_item%0#2: uint64 = (+ range_item%0#1 1u)
+                let i#2: uint64 = (+ i#1 1u)
                 goto block@1
             block@8: // after_for_L29
                 let sum_of_squares#4: uint64 = φ(sum_of_squares#1 <- block@1, sum_of_squares#3 <- block@5)
