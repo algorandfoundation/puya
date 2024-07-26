@@ -16,7 +16,7 @@ from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Assignment, BasicBlock, Intrinsic, UInt64Constant
 from puya.ir.optimize._utils import get_definition
-from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.utils import biguint_bytes_eval
 
@@ -292,6 +292,26 @@ def _try_fold_intrinsic(
             return attrs.evolve(intrinsic, args=[false, true, maybe_simplified_select_cond])
         if false == true:
             return true
+        match _get_byte_constant(subroutine, false), _get_byte_constant(subroutine, true):
+            case (None, _) | (_, None):
+                pass
+            case (
+                models.BytesConstant(value=false_value),
+                models.BytesConstant(value=true_value) as true_bytes_const,
+            ) if false_value == true_value:
+                return true_bytes_const
+        match _get_int_constant(false), _get_int_constant(true):
+            case (None, _) | (_, None):
+                pass
+            case 1, 0:
+                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[selector])
+            case 0, int(true_int_value) if selector.ir_type == IRType.bool:
+                if true_int_value == 1:
+                    return selector
+                return attrs.evolve(intrinsic, op=AVMOp.mul, args=[selector, true])
+            case 0, 1:
+                zero_const = UInt64Constant(value=0, source_location=intrinsic.source_location)
+                return attrs.evolve(intrinsic, op=AVMOp.neq, args=[selector, zero_const])
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
