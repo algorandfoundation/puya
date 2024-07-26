@@ -6,7 +6,7 @@ import typing
 import algopy
 
 
-class Contract(algopy.arc4.ARC4Client, typing.Protocol):
+class Issue118(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def verify(
         self,
