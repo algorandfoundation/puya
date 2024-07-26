@@ -2,7 +2,8 @@ from algopy import ARC4Contract, Txn
 from algopy.arc4 import Bool, DynamicArray, String, Tuple, UInt256, abimethod
 
 
-class Contract(ARC4Contract):
+class Issue118(ARC4Contract):
+    # ref: https://github.com/algorandfoundation/puya/issues/118
     @abimethod
     def verify(self, values: DynamicArray[UInt256]) -> Tuple[Bool, String]:
         val1 = Bool(

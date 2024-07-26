@@ -1469,3 +1469,7 @@ def test_loop_else(harness: _TestHarness) -> None:
     assert with_all_secrets_result.decode_logs("u") == [
         "found secret argument at idx=1 and secret account at idx=1"
     ]
+
+
+def test_regression_194(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "regression_tests" / "issue_194.py")
