@@ -324,6 +324,10 @@ def _try_fold_intrinsic(
                     encoding=byte_const.encoding,
                     value=adjusted_const_value,
                 )
+            case [a, b, c]:
+                bool_arg_maybe_simplified = _try_simplify_bool_condition(subroutine, c)
+                if bool_arg_maybe_simplified is not None:
+                    return attrs.evolve(intrinsic, args=[a, b, bool_arg_maybe_simplified])
     elif intrinsic.op.code.startswith("extract_uint"):
         match intrinsic.args:
             case [
