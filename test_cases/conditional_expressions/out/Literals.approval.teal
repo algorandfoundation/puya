@@ -21,15 +21,9 @@ with_variable_condition:
     // @subroutine
     // def with_variable_condition(self, *, condition: bool) -> None:
     proto 1 0
-    // conditional_expressions/literals.py:16
-    // x = UInt64(1 if condition else 0)
-    int 0
-    int 1
-    frame_dig -1
-    select
     // conditional_expressions/literals.py:17
     // assert bool(x) == condition
-    dup
+    frame_dig -1
     int 0
     !=
     frame_dig -1
@@ -37,16 +31,16 @@ with_variable_condition:
     assert
     // conditional_expressions/literals.py:19
     // y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
-    int 1
-    int 0
     frame_dig -1
-    select
-    dup2
+    !
+    frame_dig -1
+    dig 1
     +
-    cover 2
+    swap
     // conditional_expressions/literals.py:20
     // y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
-    dig 1
+    dup
+    frame_dig -1
     +
     swap
     // conditional_expressions/literals.py:21
@@ -63,11 +57,11 @@ with_variable_condition:
     assert
     // conditional_expressions/literals.py:23
     // maybe = (1 if condition else 0) < y  # test comparison with non-literal
+    swap
+    frame_dig -1
     >
     // conditional_expressions/literals.py:24
     // assert maybe == (not condition)
-    frame_dig -1
-    !
     ==
     assert
     retsub
