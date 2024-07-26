@@ -4,6 +4,8 @@ from algopy import *
 
 class LoopElseContract(Contract):
     def approval_program(self) -> bool:
+        test_empty_loop(UInt64(0))
+
         arg_idx = UInt64(0)
         while arg_idx < Txn.num_app_args:
             for i in urange(10):
@@ -32,3 +34,15 @@ class LoopElseContract(Contract):
 
     def clear_state_program(self) -> bool:
         return True
+
+
+@subroutine
+def test_empty_loop(count: UInt64) -> None:
+    assert count == 0
+    result = UInt64(0)
+    for i in reversed(urange(count)):
+        if i == 0:
+            break
+    else:
+        result += 1
+    assert result == 1

@@ -4,6 +4,8 @@ test_cases.loop_else.loop_else.LoopElseContract.approval_program:
     byte ""
     dup
     int 0
+    callsub test_empty_loop
+    int 0
 
 main_while_top@1:
     txn NumAppArgs
@@ -78,3 +80,43 @@ main_after_if_else@16:
     +
     bury 1
     b main_while_top@1
+
+
+// test_cases.loop_else.loop_else.test_empty_loop(count: uint64) -> void:
+test_empty_loop:
+    proto 1 0
+    byte ""
+    frame_dig -1
+    !
+    assert
+    int 0
+    frame_dig -1
+    bz test_empty_loop_after_for@7
+    frame_dig -1
+    int 1
+    -
+    int 1
+    /
+    frame_bury 0
+
+test_empty_loop_for_body@2:
+    frame_dig 0
+    bz test_empty_loop_block@8
+    frame_dig 0
+    bz test_empty_loop_after_for@7
+    frame_dig 0
+    int 1
+    -
+    frame_bury 0
+    b test_empty_loop_for_body@2
+
+test_empty_loop_after_for@7:
+    int 1
+    frame_bury 1
+
+test_empty_loop_block@8:
+    frame_dig 1
+    int 1
+    ==
+    assert
+    retsub

@@ -4,11 +4,15 @@ test_cases.loop_else.loop_else.LoopElseContract.approval_program:
     byte ""
     dup
     // loop_else/loop_else.py:7
+    // test_empty_loop(UInt64(0))
+    int 0
+    callsub test_empty_loop
+    // loop_else/loop_else.py:9
     // arg_idx = UInt64(0)
     int 0
 
 main_while_top@1:
-    // loop_else/loop_else.py:8
+    // loop_else/loop_else.py:10
     // while arg_idx < Txn.num_app_args:
     txn NumAppArgs
     dig 1
@@ -16,13 +20,13 @@ main_while_top@1:
     uncover 2
     <
     assert // access denied, missing secret argument
-    // loop_else/loop_else.py:13
+    // loop_else/loop_else.py:15
     // if Txn.application_args(arg_idx) == b"while_secret":
     txnas ApplicationArgs
     byte 0x7768696c655f736563726574
     ==
     bz main_after_if_else@16
-    // loop_else/loop_else.py:15
+    // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     txn NumAccounts
     bury 2
@@ -30,22 +34,22 @@ main_while_top@1:
     bury 3
 
 main_for_header@9:
-    // loop_else/loop_else.py:15
+    // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 2
     dup
     dig 3
     <
     assert // access denied, missing secret account
-    // loop_else/loop_else.py:16
+    // loop_else/loop_else.py:18
     // account = Txn.accounts(account_index)
     txnas Accounts
-    // loop_else/loop_else.py:17
+    // loop_else/loop_else.py:19
     // if account == Global.zero_address:
     global ZeroAddress
     ==
     bz main_after_if_else@12
-    // loop_else/loop_else.py:27
+    // loop_else/loop_else.py:29
     // op.itob(secret_index + 48)[-1],
     dup
     int 48
@@ -62,11 +66,11 @@ main_for_header@9:
     byte "found secret argument at idx="
     swap
     concat
-    // loop_else/loop_else.py:28
+    // loop_else/loop_else.py:30
     // " and secret account at idx=",
     byte " and secret account at idx="
     concat
-    // loop_else/loop_else.py:29
+    // loop_else/loop_else.py:31
     // op.itob(account_index + 48)[-1],
     dig 3
     int 48
@@ -81,7 +85,7 @@ main_for_header@9:
     +
     substring3
     concat
-    // loop_else/loop_else.py:25-30
+    // loop_else/loop_else.py:27-32
     // log(
     //     "found secret argument at idx=",
     //     op.itob(secret_index + 48)[-1],
@@ -89,13 +93,13 @@ main_for_header@9:
     //     op.itob(account_index + 48)[-1],
     // )
     log
-    // loop_else/loop_else.py:31
+    // loop_else/loop_else.py:33
     // return True
     int 1
     return
 
 main_after_if_else@12:
-    // loop_else/loop_else.py:15
+    // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 2
     int 1
@@ -104,10 +108,67 @@ main_after_if_else@12:
     b main_for_header@9
 
 main_after_if_else@16:
-    // loop_else/loop_else.py:22
+    // loop_else/loop_else.py:24
     // arg_idx += 1
     dup
     int 1
     +
     bury 1
     b main_while_top@1
+
+
+// test_cases.loop_else.loop_else.test_empty_loop(count: uint64) -> void:
+test_empty_loop:
+    // loop_else/loop_else.py:39-40
+    // @subroutine
+    // def test_empty_loop(count: UInt64) -> None:
+    proto 1 0
+    byte ""
+    // loop_else/loop_else.py:41
+    // assert count == 0
+    frame_dig -1
+    !
+    assert
+    // loop_else/loop_else.py:42
+    // result = UInt64(0)
+    int 0
+    // loop_else/loop_else.py:43
+    // for i in reversed(urange(count)):
+    frame_dig -1
+    bz test_empty_loop_after_for@7
+    frame_dig -1
+    int 1
+    -
+    int 1
+    /
+    frame_bury 0
+
+test_empty_loop_for_body@2:
+    // loop_else/loop_else.py:44
+    // if i == 0:
+    frame_dig 0
+    bz test_empty_loop_block@8
+    // loop_else/loop_else.py:43
+    // for i in reversed(urange(count)):
+    frame_dig 0
+    bz test_empty_loop_after_for@7
+    frame_dig 0
+    int 1
+    -
+    frame_bury 0
+    b test_empty_loop_for_body@2
+
+test_empty_loop_after_for@7:
+    // loop_else/loop_else.py:47
+    // result += 1
+    int 1
+    frame_bury 1
+
+test_empty_loop_block@8:
+    // loop_else/loop_else.py:48
+    // assert result == 1
+    frame_dig 1
+    int 1
+    ==
+    assert
+    retsub
