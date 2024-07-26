@@ -602,9 +602,9 @@ def _iterate_tuple(
         with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(context.visitor)
 
-        # footer + follow-up headers, iff the loop body doesn't break unconditionally on first item
+        # footer + follow-up headers, iff the loop body doesn't exit unconditionally on first item
         context.block_builder.goto(footer)
-        if headers and context.block_builder.try_activate_block(footer):
+        if context.block_builder.try_activate_block(footer):
             # footer
             context.block_builder.terminate(
                 GotoNth(
