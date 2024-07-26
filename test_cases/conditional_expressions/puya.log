@@ -788,58 +788,50 @@ debug: Found equivalence set: ternary_result%0#2, c#0
 debug: Replacing {ternary_result%0#2} with c#0 made 1 modifications
 debug: Found equivalence set: ternary_result%1#2, d#0
 debug: Replacing {ternary_result%1#2} with d#0 made 1 modifications
-debug: Found equivalence set: awst_tmp%0#0, reinterpret_bool%2#0, ternary_result%2#0
-debug: Replacing {reinterpret_bool%2#0, ternary_result%2#0} with awst_tmp%0#0 made 2 modifications
+debug: Found equivalence set: awst_tmp%0#0, ternary_result%2#0
+debug: Replacing {ternary_result%2#0} with awst_tmp%0#0 made 1 modifications
 debug: Found equivalence set: ternary_result%2#2, e#0
 debug: Replacing {ternary_result%2#2} with e#0 made 1 modifications
-debug: Found equivalence set: awst_tmp%1#0, reinterpret_bool%3#0, ternary_result%3#0
-debug: Replacing {reinterpret_bool%3#0, ternary_result%3#0} with awst_tmp%1#0 made 2 modifications
+debug: Found equivalence set: awst_tmp%1#0, ternary_result%3#0
+debug: Replacing {ternary_result%3#0} with awst_tmp%1#0 made 1 modifications
 debug: Found equivalence set: ternary_result%3#2, f#0
 debug: Replacing {ternary_result%3#2} with f#0 made 1 modifications
-debug: Found equivalence set: awst_tmp%2#0, reinterpret_bool%4#0, ternary_result%4#0
-debug: Replacing {reinterpret_bool%4#0, ternary_result%4#0} with awst_tmp%2#0 made 2 modifications
+debug: Found equivalence set: awst_tmp%2#0, ternary_result%4#0
+debug: Replacing {ternary_result%4#0} with awst_tmp%2#0 made 1 modifications
 debug: Found equivalence set: ternary_result%4#2, g#0
 debug: Replacing {ternary_result%4#2} with g#0 made 1 modifications
-debug: Found equivalence set: awst_tmp%3#0, reinterpret_bool%5#0, ternary_result%5#0
-debug: Replacing {reinterpret_bool%5#0, ternary_result%5#0} with awst_tmp%3#0 made 2 modifications
+debug: Found equivalence set: awst_tmp%3#0, ternary_result%5#0
+debug: Replacing {ternary_result%5#0} with awst_tmp%3#0 made 1 modifications
 debug: Found equivalence set: ternary_result%5#2, h#0
 debug: Replacing {ternary_result%5#2} with h#0 made 1 modifications
 debug: Found equivalence set: ternary_result%6#2, i#0
 debug: Replacing {ternary_result%6#2} with i#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (!= 1u 0u) to 1u
+debug: Simplified (== 2u 0u) to (! 2u)
+debug: Simplified (== awst_tmp%2#0 0u) to (! awst_tmp%2#0)
+debug: Simplified (== awst_tmp%3#0 0u) to (! awst_tmp%3#0)
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (! 2u) to 0u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable a#0
 debug: Removing unused variable b#0
-debug: Removing unused variable reinterpret_bool%0#0
-debug: Removing unused variable reinterpret_bool%1#0
+debug: Removing unused variable tmp%2#0
+debug: Removing unused variable tmp%3#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@0: // L7 from goto 1u ? block@1 : block@2 to goto block@1
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@3: // ternary_merge_L11 from goto 2u ? block@5 : block@4 to goto block@5
+debug: simplified branch on !tmp%4#0 by swapping zero and non-zero targets
+debug: simplified terminator of block@12: // ternary_merge_L15 from goto tmp%4#0 ? block@13 : block@14 to goto awst_tmp%2#0 ? block@14 : block@13
+debug: simplified branch on !tmp%5#0 by swapping zero and non-zero targets
+debug: simplified terminator of block@15: // ternary_merge_L17 from goto tmp%5#0 ? block@16 : block@17 to goto awst_tmp%3#0 ? block@17 : block@16
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@1: // ternary_true_L11 with block@0: // L7 in block@3: // ternary_merge_L11
-debug: Merged linear block@1: // ternary_true_L11 into block@0: // L7
-debug: Replaced predecessor block@5: // ternary_false_L12 with block@3: // ternary_merge_L11 in block@6: // ternary_merge_L12
-debug: Merged linear block@5: // ternary_false_L12 into block@3: // ternary_merge_L11
 debug: Optimizer: Remove Empty Blocks
 debug: Not removing empty block block@7: // ternary_true_L14 because it's used by phi nodes
 debug: Not removing empty block block@10: // ternary_true_L15 because it's used by phi nodes
 debug: Not removing empty block block@13: // ternary_true_L17 because it's used by phi nodes
 debug: Not removing empty block block@16: // ternary_true_L18 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@2: // ternary_false_L11, block@4: // ternary_true_L12
-debug: Removed unreachable predecessors from block@3: // ternary_merge_L11
-debug: Removed unreachable predecessors from block@6: // ternary_merge_L12
-debug: Removing unreachable phi arguments: ternary_result%0#1 <- block@2
-debug: Replacing trivial Phi node: let c#0: uint64 = φ(ternary_result%0#0 <- block@0) (c#0) with ternary_result%0#0
-debug: Deleting Phi assignment: let c#0: uint64 = φ(ternary_result%0#0 <- block@0)
-debug: Removing unreachable phi arguments: ternary_result%1#0 <- block@4
-debug: Replacing trivial Phi node: let d#0: uint64 = φ(ternary_result%1#1 <- block@3) (d#0) with ternary_result%1#1
-debug: Deleting Phi assignment: let d#0: uint64 = φ(ternary_result%1#1 <- block@3)
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
 debug: Splitting parallel copies prior to optimization
@@ -886,13 +878,88 @@ debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContr
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%0#0
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tmp%4#0
+debug: Removing unused variable tmp%5#0
+debug: Removing unused variable tmp%7#0
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@0: // L7 from goto 1u ? block@1 : block@2 to goto block@1
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@3: // ternary_merge_L11 from goto 0u ? block@4 : block@5 to goto block@5
+debug: Optimizer: Remove Linear Jump
+debug: Replaced predecessor block@1: // ternary_true_L11 with block@0: // L7 in block@3: // ternary_merge_L11
+debug: Merged linear block@1: // ternary_true_L11 into block@0: // L7
+debug: Replaced predecessor block@5: // ternary_false_L12 with block@3: // ternary_merge_L11 in block@6: // ternary_merge_L12
+debug: Merged linear block@5: // ternary_false_L12 into block@3: // ternary_merge_L11
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@7: // ternary_true_L14 because it's used by phi nodes
+debug: Not removing empty block block@10: // ternary_true_L15 because it's used by phi nodes
+debug: Not removing empty block block@13: // ternary_true_L17 because it's used by phi nodes
+debug: Not removing empty block block@16: // ternary_true_L18 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Removing unreachable blocks: block@2: // ternary_false_L11, block@4: // ternary_true_L12
+debug: Removed unreachable predecessors from block@3: // ternary_merge_L11
+debug: Removed unreachable predecessors from block@6: // ternary_merge_L12
+debug: Removing unreachable phi arguments: ternary_result%0#1 <- block@2
+debug: Replacing trivial Phi node: let c#0: uint64 = φ(ternary_result%0#0 <- block@0) (c#0) with ternary_result%0#0
+debug: Deleting Phi assignment: let c#0: uint64 = φ(ternary_result%0#0 <- block@0)
+debug: Removing unreachable phi arguments: ternary_result%1#0 <- block@4
+debug: Replacing trivial Phi node: let d#0: uint64 = φ(ternary_result%1#1 <- block@3) (d#0) with ternary_result%1#1
+debug: Deleting Phi assignment: let d#0: uint64 = φ(ternary_result%1#1 <- block@3)
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_2.ir
+debug: Begin optimization pass 3/100
+debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (< 2u 1u) to 0u
 debug: Simplified (* 2u 1u) to 2u
-debug: Simplified (* tmp%2#0 1u) to tmp%2#0
+debug: Simplified (* tmp%8#0 1u) to tmp%8#0
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable ternary_result%0#0
 debug: Removing unused variable ternary_result%1#1
-debug: Removing unused variable tmp%1#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -945,16 +1012,16 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_2.ir
-debug: Begin optimization pass 3/100
+debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_3.ir
+debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%0#0
-debug: Removing unused variable tmp%2#0
-debug: Removing unused variable tmp%3#0
+debug: Removing unused variable tmp%6#0
+debug: Removing unused variable tmp%8#0
+debug: Removing unused variable tmp%9#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1011,8 +1078,8 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_3.ir
-debug: Begin optimization pass 4/100
+debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_4.ir
+debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -1066,8 +1133,8 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_4.ir
-debug: Begin optimization pass 5/100
+debug: Output IR to conditional_expressions/out/MyContract.ssa.opt_pass_5.ir
+debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -1120,7 +1187,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 5, ending loop
+debug: No optimizations performed in pass 6, ending loop
 debug: Removing Phis from test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Removing Phis from test_cases.conditional_expressions.contract.MyContract.expensive_op
 debug: Removing Phis from test_cases.conditional_expressions.contract.MyContract.side_effecting_op
@@ -1159,18 +1226,18 @@ debug: Inserted main_ternary_merge@15.ops[2]: 'store awst_tmp%3#0 to l-stack (co
 debug: Replaced main_ternary_merge@15.ops[4]: 'load awst_tmp%3#0' with 'load awst_tmp%3#0 from l-stack (no copy)'
 debug: Inserted main_ternary_false@17.ops[2]: 'store ternary_result%5#1 to l-stack (copy)'
 debug: Replaced main_ternary_false@17.ops[4]: 'load ternary_result%5#1' with 'load ternary_result%5#1 from l-stack (no copy)'
-debug: Inserted main_ternary_merge@18.ops[7]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced main_ternary_merge@18.ops[9]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted main_ternary_merge@18.ops[12]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced main_ternary_merge@18.ops[14]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted main_ternary_merge@18.ops[17]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced main_ternary_merge@18.ops[19]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted main_ternary_merge@18.ops[22]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced main_ternary_merge@18.ops[24]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@18.ops[7]: 'store tmp%10#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@18.ops[9]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@18.ops[12]: 'store tmp%11#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@18.ops[14]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@18.ops[17]: 'store tmp%12#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@18.ops[19]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@18.ops[22]: 'store tmp%13#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@18.ops[24]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
 debug: Inserted main_ternary_merge@18.ops[27]: 'store result#0 to l-stack (copy)'
 debug: Replaced main_ternary_merge@18.ops[29]: 'load result#0' with 'load result#0 from l-stack (no copy)'
-debug: Inserted main_ternary_merge@18.ops[31]: 'store tmp%8#0 to l-stack (copy)'
-debug: Replaced main_ternary_merge@18.ops[33]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@18.ops[31]: 'store tmp%14#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@18.ops[33]: 'load tmp%14#0' with 'load tmp%14#0 from l-stack (no copy)'
 debug: Inserted main_ternary_merge@18.ops[30]: 'store result#0 to l-stack (copy)'
 debug: Replaced main_ternary_merge@18.ops[36]: 'load result#0' with 'load result#0 from l-stack (no copy)'
 debug: Inserted main_ternary_merge@18.ops[2]: 'store e#0 to l-stack (copy)'
@@ -1207,8 +1274,8 @@ debug: Optimizing subroutine test_cases.conditional_expressions.literals.Literal
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: ternary_result%0#2, x#0, reinterpret_bool%0#0
-debug: Replacing {ternary_result%0#2, reinterpret_bool%0#0} with x#0 made 2 modifications
+debug: Found equivalence set: ternary_result%0#2, x#0
+debug: Replacing {ternary_result%0#2} with x#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable ternary_result%5#2
@@ -1379,18 +1446,20 @@ debug: Inserted with_variable_condition_ternary_false@2.ops[1]: 'store ternary_r
 debug: Replaced with_variable_condition_ternary_false@2.ops[3]: 'load ternary_result%0#0' with 'load ternary_result%0#0 from l-stack (no copy)'
 debug: Inserted with_variable_condition_ternary_merge@3.ops[3]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced with_variable_condition_ternary_merge@3.ops[5]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
-debug: Inserted with_variable_condition_ternary_merge@6.ops[3]: 'store tmp%1#0 to l-stack (copy)'
-debug: Replaced with_variable_condition_ternary_merge@6.ops[5]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
-debug: Inserted with_variable_condition_ternary_merge@12.ops[7]: 'store tmp%2#0 to l-stack (copy)'
-debug: Replaced with_variable_condition_ternary_merge@12.ops[9]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
-debug: Inserted with_variable_condition_ternary_merge@12.ops[14]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced with_variable_condition_ternary_merge@12.ops[16]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted with_variable_condition_ternary_merge@3.ops[8]: 'store tmp%1#0 to l-stack (copy)'
+debug: Replaced with_variable_condition_ternary_merge@3.ops[10]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
+debug: Inserted with_variable_condition_ternary_merge@6.ops[3]: 'store tmp%2#0 to l-stack (copy)'
+debug: Replaced with_variable_condition_ternary_merge@6.ops[5]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
+debug: Inserted with_variable_condition_ternary_merge@12.ops[7]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced with_variable_condition_ternary_merge@12.ops[9]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted with_variable_condition_ternary_merge@12.ops[14]: 'store tmp%4#0 to l-stack (copy)'
+debug: Replaced with_variable_condition_ternary_merge@12.ops[16]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
 debug: Inserted with_variable_condition_ternary_merge@12.ops[3]: 'store y2#0 to l-stack (copy)'
 debug: Replaced with_variable_condition_ternary_merge@12.ops[12]: 'load y2#0' with 'load y2#0 from l-stack (no copy)'
-debug: Inserted with_variable_condition_ternary_merge@15.ops[10]: 'store tmp%5#0 to l-stack (copy)'
-debug: Replaced with_variable_condition_ternary_merge@15.ops[12]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
-debug: Inserted with_variable_condition_ternary_merge@15.ops[6]: 'store tmp%4#0 to l-stack (copy)'
-debug: Replaced with_variable_condition_ternary_merge@15.ops[9]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
+debug: Inserted with_variable_condition_ternary_merge@15.ops[10]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced with_variable_condition_ternary_merge@15.ops[12]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
+debug: Inserted with_variable_condition_ternary_merge@15.ops[6]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced with_variable_condition_ternary_merge@15.ops[9]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
 debug: Inserted with_variable_condition_ternary_merge@15.ops[3]: 'store maybe#0 to l-stack (copy)'
 debug: Replaced with_variable_condition_ternary_merge@15.ops[9]: 'load maybe#0' with 'load maybe#0 from l-stack (no copy)'
 debug: Found 10 edge set/s for test_cases.conditional_expressions.literals.Literals.with_variable_condition

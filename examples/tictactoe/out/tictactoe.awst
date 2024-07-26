@@ -43,13 +43,13 @@ contract TicTacToeContract
   
   abimethod whose_turn(): arc4.uint8
   {
-    return (reinterpret_cast<bool>(GlobalState['turns'] % 2u)) ? (1arc4u8) : (2arc4u8)
+    return (GlobalState['turns'] % 2u != 0u) ? (1arc4u8) : (2arc4u8)
   }
   
   abimethod play(move: tuple<uint64,uint64>): void
   {
     assert(!(STATE_EXISTS(GlobalState['winner'])), comment="Game is already finished")
-    if (reinterpret_cast<bool>(GlobalState['turns'] % 2u)) {
+    if (GlobalState['turns'] % 2u != 0u) {
       assert(txn<Sender>() == GlobalState['host'], comment="It is the host's turn")
       player: arc4.uint8 = 1arc4u8
     } else {

@@ -15,11 +15,11 @@ contract TupleSupport
     log(itob(total))
     (a, b): tuple<uint64,uint64> = (1u, 2u)
     (did_overflow, GlobalState['state']): tuple<uint64,uint64> = addw(a, b)
-    assert(!(reinterpret_cast<bool>(did_overflow)), comment="overflow!")
+    assert(did_overflow == 0u, comment="overflow!")
     ab: tuple<uint64,uint64> = (a, b)
     assert(ab[-1] == ab[1])
     result: tuple<uint64,uint64> = addw(a, b)
-    assert(!(reinterpret_cast<bool>(result[0])), comment="overflow!")
+    assert(result[0] == 0u, comment="overflow!")
     d: uint64 = 3u
     c: uint64 = 3u
     ((a2, b2), cd, ab2): tuple<tuple<uint64,uint64>,tuple<uint64,uint64>,tuple<uint64,uint64>> = (ab, (c, d), ab)
@@ -145,7 +145,7 @@ subroutine addw2(a: tuple<uint64,uint64>, b: tuple<uint64,uint64>): tuple<uint64
   (hi_carry1, c_mid): tuple<uint64,uint64> = addw(a_hi, b_hi)
   (hi_carry2, c_mid): tuple<uint64,uint64> = addw(c_mid, lo_carry)
   (did_overflow, c_hi): tuple<uint64,uint64> = addw(hi_carry1, hi_carry2)
-  assert(!(reinterpret_cast<bool>(did_overflow)), comment="is such a thing even possible? 👽")
+  assert(did_overflow == 0u, comment="is such a thing even possible? 👽")
   return (c_hi, c_mid, c_lo)
 }
 

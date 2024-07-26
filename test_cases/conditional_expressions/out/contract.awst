@@ -4,12 +4,12 @@ contract MyContract
   {
     a: uint64 = 1u
     b: uint64 = 2u
-    c: uint64 = (reinterpret_cast<bool>(a)) ? (a) : (b)
-    d: uint64 = (!(reinterpret_cast<bool>(b))) ? (b) : (a)
-    e: uint64 = (reinterpret_cast<bool>(SINGLE_EVAL(id=0, source=this::expensive_op(0u)))) ? (SINGLE_EVAL(id=0)) : (this::side_effecting_op(1u))
-    f: uint64 = (reinterpret_cast<bool>(SINGLE_EVAL(id=1, source=this::expensive_op(3u)))) ? (SINGLE_EVAL(id=1)) : (this::side_effecting_op(42u))
-    g: uint64 = (!(reinterpret_cast<bool>(SINGLE_EVAL(id=2, source=this::side_effecting_op(0u))))) ? (SINGLE_EVAL(id=2)) : (this::expensive_op(42u))
-    h: uint64 = (!(reinterpret_cast<bool>(SINGLE_EVAL(id=3, source=this::side_effecting_op(2u))))) ? (SINGLE_EVAL(id=3)) : (this::expensive_op(3u))
+    c: uint64 = (a != 0u) ? (a) : (b)
+    d: uint64 = (b == 0u) ? (b) : (a)
+    e: uint64 = (SINGLE_EVAL(id=0, source=this::expensive_op(0u)) != 0u) ? (SINGLE_EVAL(id=0)) : (this::side_effecting_op(1u))
+    f: uint64 = (SINGLE_EVAL(id=1, source=this::expensive_op(3u)) != 0u) ? (SINGLE_EVAL(id=1)) : (this::side_effecting_op(42u))
+    g: uint64 = (SINGLE_EVAL(id=2, source=this::side_effecting_op(0u)) == 0u) ? (SINGLE_EVAL(id=2)) : (this::expensive_op(42u))
+    h: uint64 = (SINGLE_EVAL(id=3, source=this::side_effecting_op(2u)) == 0u) ? (SINGLE_EVAL(id=3)) : (this::expensive_op(3u))
     i: uint64 = (b < c) ? (a) : (d + e)
     result: uint64 = a * b * c * d * f * h - e - g + i
     log(itob(result))

@@ -6,8 +6,9 @@ contract test_cases.stubs.biguint.BigUIntContract:
                 test_cases.stubs.biguint.compare_biguints(one#0, 2b)
                 test_cases.stubs.biguint.compare_biguint_vs_uint64(one#0, 2u)
                 test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2b)
-                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
-                goto reinterpret_bool%0#0 ? block@1 : block@2
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bool = (!= tmp%0#0 0u)
+                goto tmp%1#0 ? block@1 : block@2
             block@1: // ternary_true_L10
                 let ternary_result%0#0: biguint = 1b
                 goto block@3
@@ -16,14 +17,14 @@ contract test_cases.stubs.biguint.BigUIntContract:
                 goto block@3
             block@3: // ternary_merge_L10
                 let ternary_result%0#2: biguint = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                let tmp%0#0: bool = (b== ternary_result%0#2 5b)
-                (assert tmp%0#0) // constructor expressions supported
-                let tmp%1#0: biguint = (bsqrt 9b)
-                let tmp%2#0: biguint = (bsqrt 10b)
-                let tmp%3#0: bool = (b== tmp%1#0 tmp%2#0)
-                (assert tmp%3#0)
-                let tmp%4#0: bool = (b== one#0 one#0)
-                (assert tmp%4#0)
+                let tmp%2#0: bool = (b== ternary_result%0#2 5b)
+                (assert tmp%2#0) // constructor expressions supported
+                let tmp%3#0: biguint = (bsqrt 9b)
+                let tmp%4#0: biguint = (bsqrt 10b)
+                let tmp%5#0: bool = (b== tmp%3#0 tmp%4#0)
+                (assert tmp%5#0)
+                let tmp%6#0: bool = (b== one#0 one#0)
+                (assert tmp%6#0)
                 return 1u
         
         subroutine test_cases.stubs.biguint.compare_biguints(one: biguint, two: biguint) -> void:

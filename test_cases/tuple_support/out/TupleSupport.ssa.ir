@@ -16,15 +16,13 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let (tuple_assignment%0#0: uint64, tuple_assignment%1#0: uint64) = (addw a#0 b#0)
                 let did_overflow#0: uint64 = tuple_assignment%0#0
                 (app_global_put "state" tuple_assignment%1#0)
-                let reinterpret_bool%0#0: bool = did_overflow#0
-                let tmp%1#0: bool = (! reinterpret_bool%0#0)
+                let tmp%1#0: bool = (== did_overflow#0 0u)
                 (assert tmp%1#0) // overflow!
                 let (ab.0#0: uint64, ab.1#0: uint64) = (a#0, b#0)
                 let tmp%2#0: bool = (== ab.1#0 ab.1#0)
                 (assert tmp%2#0)
                 let (result.0#0: uint64, result.1#0: uint64) = (addw a#0 b#0)
-                let reinterpret_bool%1#0: bool = result.0#0
-                let tmp%3#0: bool = (! reinterpret_bool%1#0)
+                let tmp%3#0: bool = (== result.0#0 0u)
                 (assert tmp%3#0) // overflow!
                 let d#0: uint64 = 3u
                 let c#0: uint64 = 3u
@@ -170,8 +168,7 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let (tuple_assignment%6#0: uint64, tuple_assignment%7#0: uint64) = (addw hi_carry1#0 hi_carry2#0)
                 let did_overflow#0: uint64 = tuple_assignment%6#0
                 let c_hi#0: uint64 = tuple_assignment%7#0
-                let reinterpret_bool%0#0: bool = did_overflow#0
-                let tmp%0#0: bool = (! reinterpret_bool%0#0)
+                let tmp%0#0: bool = (== did_overflow#0 0u)
                 (assert tmp%0#0) // is such a thing even possible? 👽
                 return c_hi#0 c_mid#1 c_lo#0
         
