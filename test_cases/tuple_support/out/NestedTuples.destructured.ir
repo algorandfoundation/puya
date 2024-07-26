@@ -140,47 +140,18 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 let s.2.0#0: uint64 = 5u
                 goto block@2
             block@2: // after_if_else_L121
-                goto reassign#0 ? block@3 : block@4
-            block@3: // ternary_true_L127
-                let ternary_result%0#0: uint64 = 3u
-                goto block@5
-            block@4: // ternary_false_L127
-                let ternary_result%0#0: uint64 = 0u
-                goto block@5
-            block@5: // ternary_merge_L127
-                let tmp%6#0: bool = (== s.0.0#0 ternary_result%0#0)
-                (assert tmp%6#0)
-                goto reassign#0 ? block@6 : block@7
-            block@6: // ternary_true_L129
-                let ternary_result%1#0: uint64 = 5u
-                goto block@8
-            block@7: // ternary_false_L129
-                let ternary_result%1#0: uint64 = 2u
-                goto block@8
-            block@8: // ternary_merge_L129
-                let tmp%7#0: bool = (== s.2.0#0 ternary_result%1#0)
+                let tmp%6#0: uint64 = (select 0u 3u reassign#0)
+                let tmp%7#0: bool = (== s.0.0#0 tmp%6#0)
                 (assert tmp%7#0)
-                let s1#1: uint64 = (+ s.1.0#1 one#0)
-                goto reassign#0 ? block@9 : block@10
-            block@9: // ternary_true_L134
-                let ternary_result%2#0: uint64 = 5u
-                goto block@11
-            block@10: // ternary_false_L134
-                let ternary_result%2#0: uint64 = 2u
-                goto block@11
-            block@11: // ternary_merge_L134
-                let tmp%9#0: bool = (== s1#1 ternary_result%2#0)
+                let tmp%8#0: uint64 = (select 2u 5u reassign#0)
+                let tmp%9#0: bool = (== s.2.0#0 tmp%8#0)
                 (assert tmp%9#0)
-                goto reassign#0 ? block@12 : block@13
-            block@12: // ternary_true_L135
-                let ternary_result%3#0: uint64 = 4u
-                goto block@14
-            block@13: // ternary_false_L135
-                let ternary_result%3#0: uint64 = 1u
-                goto block@14
-            block@14: // ternary_merge_L135
-                let tmp%10#0: bool = (== s.1.0#1 ternary_result%3#0)
-                (assert tmp%10#0)
+                let s1#1: uint64 = (+ s.1.0#1 one#0)
+                let tmp%12#0: bool = (== s1#1 tmp%8#0)
+                (assert tmp%12#0)
+                let tmp%13#0: uint64 = (select 1u 4u reassign#0)
+                let tmp%14#0: bool = (== s.1.0#1 tmp%13#0)
+                (assert tmp%14#0)
                 return 
         
         subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void:

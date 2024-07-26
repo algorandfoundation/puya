@@ -4,22 +4,14 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
             block@0: // L12
                 test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(0x80, 0x00)
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@2
-            block@1: // ternary_true_L15
-                let ternary_result%0#0: bool = 0u
-                goto block@3
-            block@2: // ternary_false_L15
-                let ternary_result%0#1: bool = 1u
-                goto block@3
-            block@3: // ternary_merge_L15
-                let ternary_result%0#2: bool = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                let encoded_bool%2#0: bytes = (setbit 0x00 0u ternary_result%0#2)
-                let tmp%2#0: bool = (getbit encoded_bool%2#0 0u)
-                (assert tmp%2#0) // conditional expr
-                let tmp%4#0: bool = 1u
-                (assert tmp%4#0) // Single boolean can be unpacked
-                let tmp%6#0: bool = 1u
-                (assert tmp%6#0) // Single boolean can be unpacked
+                let tmp%2#0: bool = (select 1u 0u tmp%0#0)
+                let encoded_bool%2#0: bytes = (setbit 0x00 0u tmp%2#0)
+                let tmp%3#0: bool = (getbit encoded_bool%2#0 0u)
+                (assert tmp%3#0) // conditional expr
+                let tmp%5#0: bool = 1u
+                (assert tmp%5#0) // Single boolean can be unpacked
+                let tmp%7#0: bool = 1u
+                (assert tmp%7#0) // Single boolean can be unpacked
                 return 1u
         
         subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> bool:

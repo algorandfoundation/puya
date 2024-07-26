@@ -1,39 +1,24 @@
 #pragma version 10
 
 test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
-    txn NumAppArgs
-    bz main_ternary_false@2
+    byte 0x02
     byte 0x01
-    b main_ternary_merge@3
-
-main_ternary_false@2:
-    byte 0x02
-
-main_ternary_merge@3:
+    txn NumAppArgs
+    select
     byte 0x02
     b==
     assert
-    txn NumAppArgs
-    bz main_ternary_false@5
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
-    b main_ternary_merge@6
-
-main_ternary_false@5:
-    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
-
-main_ternary_merge@6:
+    txn NumAppArgs
+    select
     byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     b==
     assert
-    txn NumAppArgs
-    bz main_ternary_false@8
-    byte 0xffffffffffffffff
-    b main_ternary_merge@9
-
-main_ternary_false@8:
     byte 0x0000000000000000
-
-main_ternary_merge@9:
+    byte 0xffffffffffffffff
+    txn NumAppArgs
+    select
     byte 0x0000000000000000
     ==
     assert

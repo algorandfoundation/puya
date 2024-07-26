@@ -4,6 +4,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
+from puya.ir import intrinsic_factory
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
@@ -16,6 +17,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.types_ import get_wtype_arity, wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -173,9 +175,27 @@ def handle_while_loop(context: IRFunctionBuildContext, statement: awst_nodes.Whi
 def handle_conditional_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.ConditionalExpression
 ) -> ValueProvider:
-    # TODO: if expr.true_value and exr.false_value are var expressions,
-    #       we can optimize with the `select` op
-
+    # if lhs and rhs are both guaranteed to not produce side effects, we can use a simple select op
+    # TODO: expand detection of side-effect free to include "pure" ops
+    if (
+        get_wtype_arity(expr.wtype) == 1
+        and isinstance(
+            expr.true_expr, awst_nodes.VarExpression | awst_nodes.CompileTimeConstantExpression
+        )
+        and isinstance(
+            expr.false_expr, awst_nodes.VarExpression | awst_nodes.CompileTimeConstantExpression
+        )
+    ):
+        false_reg = context.visitor.visit_and_materialise_single(expr.false_expr)
+        true_reg = context.visitor.visit_and_materialise_single(expr.true_expr)
+        condition_value = context.visitor.visit_and_materialise_single(expr.condition)
+        return intrinsic_factory.select(
+            condition=condition_value,
+            true=true_reg,
+            false=false_reg,
+            type_=wtype_to_ir_type(expr),
+            source_location=expr.source_location,
+        )
     true_block, false_block, merge_block = context.block_builder.mkblocks(
         "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location
     )

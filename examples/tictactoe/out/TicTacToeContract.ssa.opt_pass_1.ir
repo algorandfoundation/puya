@@ -248,16 +248,8 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
                 (assert maybe_exists%0#0) // check self.turns exists
                 let tmp%0#0: uint64 = (% maybe_value%0#0 2u)
-                goto tmp%0#0 ? block@1 : block@2
-            block@1: // ternary_true_L45
-                let ternary_result%0#0: bytes = 0x01
-                goto block@3
-            block@2: // ternary_false_L45
-                let ternary_result%0#1: bytes = 0x02
-                goto block@3
-            block@3: // ternary_merge_L45
-                let ternary_result%0#2: bytes = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                return ternary_result%0#2
+                let tmp%2#0: bytes = (select 0x02 0x01 tmp%0#0)
+                return tmp%2#0
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
             block@0: // L47

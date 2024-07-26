@@ -105,15 +105,8 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
         
         subroutine test_cases.boolean_binary_ops.contract.bool_to_bytes(x: bool) -> bytes:
             block@0: // L29
-                goto x#0 ? block@1 : block@2
-            block@1: // ternary_true_L31
-                let ternary_result%0#0: bytes = 0x74727565
-                goto block@3
-            block@2: // ternary_false_L31
-                let ternary_result%0#0: bytes = 0x66616c7365
-                goto block@3
-            block@3: // ternary_merge_L31
-                return ternary_result%0#0
+                let tmp%0#0: bytes = (select 0x66616c7365 0x74727565 x#0)
+                return tmp%0#0
         
         subroutine test_cases.boolean_binary_ops.contract.log_and_return(x: bool, msg: bytes) -> bool:
             block@0: // L50

@@ -38,16 +38,7 @@ contract test_cases.state_proxies.contract.StateProxyContract:
                 (app_global_put 0x6732 0u)
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 let tmp%1#0: bool = (!= tmp%0#0 0u)
-                goto tmp%1#0 ? block@1 : block@2
-            block@1: // ternary_true_L19
-                let ternary_result%0#0: bytes = "funky"
-                goto block@3
-            block@2: // ternary_false_L19
-                let ternary_result%0#1: bytes = "town"
-                goto block@3
-            block@3: // ternary_merge_L19
-                let ternary_result%0#2: bytes = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                let funky_town#0: bytes = ternary_result%0#2
+                let funky_town#0: bytes = (select "town" "funky" tmp%1#0)
                 (app_global_put funky_town#0 123u)
                 return 
     

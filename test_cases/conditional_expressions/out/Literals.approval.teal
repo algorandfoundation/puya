@@ -21,116 +21,60 @@ with_variable_condition:
     // @subroutine
     // def with_variable_condition(self, *, condition: bool) -> None:
     proto 1 0
-    byte ""
-    dup
-    // conditional_expressions/literals.py:16
-    // x = UInt64(1 if condition else 0)
-    frame_dig -1
-    bz with_variable_condition_ternary_false@2
-    int 1
-    frame_bury 0
-    b with_variable_condition_ternary_merge@3
-
-with_variable_condition_ternary_false@2:
     // conditional_expressions/literals.py:16
     // x = UInt64(1 if condition else 0)
     int 0
-    frame_bury 0
-
-with_variable_condition_ternary_merge@3:
+    int 1
+    frame_dig -1
+    select
     // conditional_expressions/literals.py:17
     // assert bool(x) == condition
-    frame_dig 0
+    dup
     int 0
     !=
     frame_dig -1
     ==
     assert
-    // conditional_expressions/literals.py:18
-    // assert x == -(-1 if condition else 0)  # test unary op propagation
-    frame_dig -1
-    bz with_variable_condition_ternary_false@5
-    int 1
-    b with_variable_condition_ternary_merge@6
-
-with_variable_condition_ternary_false@5:
-    // conditional_expressions/literals.py:18
-    // assert x == -(-1 if condition else 0)  # test unary op propagation
-    int 0
-
-with_variable_condition_ternary_merge@6:
-    // conditional_expressions/literals.py:18
-    // assert x == -(-1 if condition else 0)  # test unary op propagation
-    frame_dig 0
-    ==
-    assert
-    // conditional_expressions/literals.py:19
-    // y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
-    frame_dig -1
-    bz with_variable_condition_ternary_false@8
-    int 0
-    b with_variable_condition_ternary_merge@9
-
-with_variable_condition_ternary_false@8:
     // conditional_expressions/literals.py:19
     // y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
     int 1
-
-with_variable_condition_ternary_merge@9:
-    // conditional_expressions/literals.py:19
-    // y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
-    frame_dig 0
+    int 0
+    frame_dig -1
+    select
+    dup2
     +
-    frame_bury 1
+    cover 2
     // conditional_expressions/literals.py:20
     // y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
-    frame_dig -1
-    bz with_variable_condition_ternary_false@11
-    int 0
-    b with_variable_condition_ternary_merge@12
-
-with_variable_condition_ternary_false@11:
-    // conditional_expressions/literals.py:20
-    // y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
-    int 1
-
-with_variable_condition_ternary_merge@12:
-    // conditional_expressions/literals.py:20
-    // y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
-    frame_dig 0
+    dig 1
     +
+    swap
     // conditional_expressions/literals.py:21
     // assert y == 1
-    frame_dig 1
+    dig 2
     int 1
     ==
     assert
     // conditional_expressions/literals.py:22
     // assert y2 == 1
+    swap
     int 1
     ==
     assert
     // conditional_expressions/literals.py:23
     // maybe = (1 if condition else 0) < y  # test comparison with non-literal
-    frame_dig -1
-    bz with_variable_condition_ternary_false@14
-    int 1
-    b with_variable_condition_ternary_merge@15
-
-with_variable_condition_ternary_false@14:
-    // conditional_expressions/literals.py:23
-    // maybe = (1 if condition else 0) < y  # test comparison with non-literal
-    int 0
-
-with_variable_condition_ternary_merge@15:
-    // conditional_expressions/literals.py:23
-    // maybe = (1 if condition else 0) < y  # test comparison with non-literal
-    frame_dig 1
-    <
+    >
     // conditional_expressions/literals.py:24
     // assert maybe == (not condition)
     frame_dig -1
     !
     ==
+    assert
+    // conditional_expressions/literals.py:25
+    // assert (1 if condition else 0) != 2  # test comparison with literal
+    int 1
+    dup
+    frame_dig -1
+    select
     assert
     retsub
