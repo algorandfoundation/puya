@@ -63,7 +63,7 @@ class Account(BytesBacked):
         """
 
     @property
-    def total_num_byte_slice(self) -> Bytes:
+    def total_num_byte_slice(self) -> UInt64:
         """The total number of byte array values allocated by this account in Global and Local States.
 
         ```{note}
