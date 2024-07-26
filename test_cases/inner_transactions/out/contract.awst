@@ -14,7 +14,7 @@ contract MyContract
   
   approval_program(): bool
   {
-    if (reinterpret_cast<bool>(txn<NumAppArgs>())) {
+    if (txn<NumAppArgs>() != 0u) {
       switch (txna<ApplicationArgs, 0>()) {
         case hex<"7465737431">: {
           this::test1()
@@ -62,7 +62,7 @@ contract MyContract
   
   subroutine test2(): void
   {
-    if (reinterpret_cast<bool>(txn<NumAppArgs>())) {
+    if (txn<NumAppArgs>() != 0u) {
       args: tuple<bytes,bytes> = (hex<"31">, hex<"32">)
       create_app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"098101">), ClearStateProgramPages=(hex<"098101">), ApplicationArgs=(args[0], args[1]), OnCompletion=NoOp, Note=hex<"77697468206172677320706172616D20736574">)
     } else {

@@ -9,8 +9,8 @@ contract BytesContract
     base_16: bytes = hex<"4261736520313620656E636F646564">
     assert(base_16 == hex<"4261736520313620656E636F646564">)
     empty: bytes = hex<"">
-    assert(reinterpret_cast<bool>(len(base_64)), comment="Non empty bytes should be Truthy")
-    assert(!(reinterpret_cast<bool>(len(empty))), comment="Empty bytes should be Falsy")
+    assert(len(base_64) != 0u, comment="Non empty bytes should be Truthy")
+    assert(len(empty) == 0u, comment="Empty bytes should be Falsy")
     assert(hex<"61"> + hex<"62"> == hex<"6162">)
     c: bytes = hex<"63">
     c += hex<"64">
@@ -27,16 +27,16 @@ contract BytesContract
     assert(abc[-10:10] == hex<"616263">)
     true: bytes = hex<"31">
     false: bytes = hex<"">
-    x: bool = (!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true
+    x: bool = (len(true) == 0u) ? (true) : (true) == true
     assert(x)
-    assert((!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true)
-    assert((!(reinterpret_cast<bool>(len(true)))) ? (true) : (false) == false)
-    assert((!(reinterpret_cast<bool>(len(false)))) ? (false) : (true) == false)
-    assert((!(reinterpret_cast<bool>(len(false)))) ? (false) : (false) == false)
-    assert((reinterpret_cast<bool>(len(true))) ? (true) : (true) == true)
-    assert((reinterpret_cast<bool>(len(true))) ? (true) : (false) == true)
-    assert((reinterpret_cast<bool>(len(false))) ? (false) : (true) == true)
-    assert((reinterpret_cast<bool>(len(false))) ? (false) : (false) == false)
+    assert((len(true) == 0u) ? (true) : (true) == true)
+    assert((len(true) == 0u) ? (true) : (false) == false)
+    assert((len(false) == 0u) ? (false) : (true) == false)
+    assert((len(false) == 0u) ? (false) : (false) == false)
+    assert((len(true) != 0u) ? (true) : (true) == true)
+    assert((len(true) != 0u) ? (true) : (false) == true)
+    assert((len(false) != 0u) ? (false) : (true) == true)
+    assert((len(false) != 0u) ? (false) : (false) == false)
     (a, b, c, d): tuple<bytes,bytes,bytes,bytes> = (hex<"00">, hex<"0F">, hex<"F0">, hex<"FF">)
     assert(a & b == a)
     assert(b | c == d)
@@ -50,7 +50,7 @@ contract BytesContract
     assert(y == b)
     test_cases.stubs.bytes::check_slicing_with_uint64(abc)
     test_cases.stubs.bytes::check_end_before_start_slicing(abc)
-    assert((reinterpret_cast<bool>(txn<NumAppArgs>())) ? (hex<"61726773">) : (hex<"6E6F2061726773">) == hex<"6E6F2061726773">, comment="constructor expressions supported")
+    assert((txn<NumAppArgs>() != 0u) ? (hex<"61726773">) : (hex<"6E6F2061726773">) == hex<"6E6F2061726773">, comment="constructor expressions supported")
     return 1u
   }
   

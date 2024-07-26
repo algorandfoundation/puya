@@ -661,12 +661,14 @@ debug: Replaced main_bare_routing@5.ops[12]: 'load tmp%9#0' with 'load tmp%9#0 f
 debug: Inserted main_bare_routing@5.ops[14]: 'store tmp%10#0 to l-stack (copy)'
 debug: Replaced main_bare_routing@5.ops[16]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
 debug: Found 2 edge set/s for test_cases.regression_tests.issue_118.Issue118.approval_program
-debug: Inserted verify_block@0.ops[10]: 'store tmp%0#0 to l-stack (copy)'
-debug: Replaced verify_block@0.ops[12]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
-debug: Inserted verify_block@0.ops[15]: 'store tmp%1#0 to l-stack (copy)'
-debug: Replaced verify_block@0.ops[17]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
-debug: Inserted verify_block@0.ops[1]: 'store reinterpret_bool%0#0 to l-stack (copy)'
-debug: Replaced verify_block@0.ops[5]: 'load reinterpret_bool%0#0' with 'load reinterpret_bool%0#0 from l-stack (no copy)'
+debug: Inserted verify_block@0.ops[1]: 'store tmp%0#0 to l-stack (copy)'
+debug: Replaced verify_block@0.ops[3]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
+debug: Inserted verify_block@0.ops[15]: 'store tmp%2#0 to l-stack (copy)'
+debug: Replaced verify_block@0.ops[17]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
+debug: Inserted verify_block@0.ops[20]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced verify_block@0.ops[22]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted verify_block@0.ops[6]: 'store tmp%1#0 to l-stack (copy)'
+debug: Replaced verify_block@0.ops[10]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
 debug: Inserted verify_if_body@1.ops[3]: 'store encoded_tuple_buffer%2#0 to l-stack (copy)'
 debug: Replaced verify_if_body@1.ops[5]: 'load encoded_tuple_buffer%2#0' with 'load encoded_tuple_buffer%2#0 from l-stack (no copy)'
 debug: Inserted verify_if_body@1.ops[8]: 'store encoded_tuple_buffer%3#0 to l-stack (copy)'
@@ -687,24 +689,21 @@ debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (== 1u 2u) to 0u
+debug: Simplified (!= 1u 0u) to 1u
+debug: Simplified (!= 2u 0u) to 1u
+debug: Simplified (!= 2u 0u) to 1u
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable reinterpret_bool%0#0
-debug: Removing unused variable reinterpret_bool%1#0
 debug: Removing unused variable two#0
-debug: Removing unused variable reinterpret_bool%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: simplifying a switch with constants into goto nth
-debug: simplified terminator of block@0: // L5 from switch 2u {1u => block@1, * => block@2} to goto_nth [block@2, block@1][2u] else goto block@2
-debug: simplifying a goto nth with a constant into a goto
-debug: simplified terminator of block@0: // L5 from goto_nth [block@2, block@1][2u] else goto block@2 to goto block@2
+debug: simplified terminator of block@0: // L5 from switch tmp%3#0 {1u => block@1, * => block@2} to goto_nth [block@2, block@1][tmp%3#0] else goto block@2
+debug: inlining the default target of a switch/goto nth
+debug: simplified terminator of block@0: // L5 from goto_nth [block@2, block@1][tmp%3#0] else goto block@2 to goto_nth [block@2, block@1][tmp%3#0] else return 0u
 debug: Optimizer: Remove Linear Jump
-debug: Merged linear block@2: // switch_case_default_L13 into block@0: // L5
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@1: // switch_case_0_L11
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.regression_tests.issue_194.Issue194.clear_state_program
 debug: Splitting parallel copies prior to optimization
@@ -725,8 +724,11 @@ debug: Optimizing subroutine test_cases.regression_tests.issue_194.Issue194.appr
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (== 1u 1u) to 1u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tmp%3#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -753,6 +755,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -772,7 +775,33 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: Output IR to regression_tests/out/Issue194.ssa.opt_pass_3.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine test_cases.regression_tests.issue_194.Issue194.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.regression_tests.issue_194.Issue194.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: No optimizations performed in pass 4, ending loop
 debug: Removing Phis from test_cases.regression_tests.issue_194.Issue194.approval_program
 debug: Removing Phis from test_cases.regression_tests.issue_194.Issue194.clear_state_program
 debug: Coalescing local variables in test_cases.regression_tests.issue_194.Issue194.approval_program using strategy RootOperandGrouping
@@ -783,6 +812,7 @@ debug: Sequentializing parallel copies in test_cases.regression_tests.issue_194.
 debug: Sequentializing parallel copies in test_cases.regression_tests.issue_194.Issue194.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to regression_tests/out/Issue194.destructured.ir
+debug: Found 1 edge set/s for test_cases.regression_tests.issue_194.Issue194.approval_program
 info: Writing regression_tests/out/Issue118.arc32.json
 info: Writing regression_tests/out/client_Issue118.py
 info: Writing regression_tests/out/Issue118.approval.teal

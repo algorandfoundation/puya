@@ -8,8 +8,8 @@ contract Uint64Contract
     five: uint64 = 5u
     three: uint64 = 3u
     sixty: uint64 = 60u
-    assert(reinterpret_cast<bool>(one), comment="Any non-zero number should be Truthy")
-    assert(!(reinterpret_cast<bool>(zero)), comment="Zero should beFalsy")
+    assert(one != 0u, comment="Any non-zero number should be Truthy")
+    assert(zero == 0u, comment="Zero should beFalsy")
     assert(one < five)
     assert(five > one)
     assert(one <= one)
@@ -37,14 +37,14 @@ contract Uint64Contract
     assert(~(one) == 18446744073709551614u)
     true: uint64 = 1u
     false: uint64 = 0u
-    assert((!(reinterpret_cast<bool>(true))) ? (true) : (true) == true)
-    assert((!(reinterpret_cast<bool>(true))) ? (true) : (false) == false)
-    assert((!(reinterpret_cast<bool>(false))) ? (false) : (true) == false)
-    assert((!(reinterpret_cast<bool>(false))) ? (false) : (false) == false)
-    assert((reinterpret_cast<bool>(true)) ? (true) : (true) == true)
-    assert((reinterpret_cast<bool>(true)) ? (true) : (false) == true)
-    assert((reinterpret_cast<bool>(false)) ? (false) : (true) == true)
-    assert((reinterpret_cast<bool>(false)) ? (false) : (false) == false)
+    assert((true == 0u) ? (true) : (true) == true)
+    assert((true == 0u) ? (true) : (false) == false)
+    assert((false == 0u) ? (false) : (true) == false)
+    assert((false == 0u) ? (false) : (false) == false)
+    assert((true != 0u) ? (true) : (true) == true)
+    assert((true != 0u) ? (true) : (false) == true)
+    assert((false != 0u) ? (false) : (true) == true)
+    assert((false != 0u) ? (false) : (false) == false)
     assert(one & five == one)
     assert(sixty | five == 61u)
     assert(sixty ^ five == 57u)
@@ -57,7 +57,7 @@ contract Uint64Contract
     assert(y == 193u)
     assert(sqrt(17u) == sqrt(16u))
     assert(one == one)
-    assert((reinterpret_cast<bool>(txn<NumAppArgs>())) ? (1u) : (5u) == 5u, comment="constructor expressions supported")
+    assert((txn<NumAppArgs>() != 0u) ? (1u) : (5u) == 5u, comment="constructor expressions supported")
     return 1u
   }
   

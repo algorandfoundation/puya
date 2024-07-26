@@ -109,11 +109,12 @@ contract examples.voting.voting.VotingRoundApp:
         
         subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
             block@0: // L217
-                let reinterpret_bool%0#0: bool = (extract_uint16 option_counts#0 0u)
-                (assert reinterpret_bool%0#0) // option_counts should be non-empty
                 let tmp%0#0: uint64 = (extract_uint16 option_counts#0 0u)
-                let tmp%1#0: bool = (<= tmp%0#0 112u)
-                (assert tmp%1#0) // Can't have more than 112 questions
+                let tmp%1#0: bool = (!= tmp%0#0 0u)
+                (assert tmp%1#0) // option_counts should be non-empty
+                let tmp%2#0: uint64 = (extract_uint16 option_counts#0 0u)
+                let tmp%3#0: bool = (<= tmp%2#0 112u)
+                (assert tmp%3#0) // Can't have more than 112 questions
                 let total_options#0: uint64 = 0u
                 let array_length%0#0: uint64 = (extract_uint16 option_counts#0 0u)
                 let item_index_internal%0#0: uint64 = 0u
@@ -128,15 +129,15 @@ contract examples.voting.voting.VotingRoundApp:
                 let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
                 let item_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
                 let item#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
-                let tmp%2#0: uint64 = (btoi item#0)
-                let total_options#2: uint64 = (+ total_options#1 tmp%2#0)
+                let tmp%4#0: uint64 = (btoi item#0)
+                let total_options#2: uint64 = (+ total_options#1 tmp%4#0)
                 goto block@3
             block@3: // for_footer_L223
                 let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
                 goto block@1
             block@4: // after_for_L223
-                let tmp%3#0: bool = (<= total_options#1 128u)
-                (assert tmp%3#0) // Can't have more than 128 vote options
+                let tmp%5#0: bool = (<= total_options#1 128u)
+                (assert tmp%5#0) // Can't have more than 128 vote options
                 let copy%0#0: bytes = option_counts#0
                 (app_global_put "option_counts" copy%0#0)
                 (app_global_put "total_options" total_options#1)

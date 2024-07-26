@@ -1,11 +1,19 @@
-// Op      // Stack (out)    Source code                               Source line
+// Op                                                      // Stack (out)    Source code                                                      Source line
 
 #pragma version 10
 
 // test_cases.regression_tests.issue_194.Issue194.approval_program() -> uint64:
 main_block@0:
-    int 0  // 0              UInt64(1)) == bool(UInt64(2))             regression_tests/issue_194.py:7
-    assert //                assert bool(UInt64(1)) == bool(UInt64(2)) regression_tests/issue_194.py:7
-    int 0  // 0              False                                     regression_tests/issue_194.py:13
-    return //                return False                              regression_tests/issue_194.py:13
+    int 1                                                  // 1              bool(two)                                                        regression_tests/issue_194.py:9
+    switch main_switch_case_default@2 main_switch_case_0@1 //                match bool(two):\ncase True:\nreturn True\ncase _:\nreturn False regression_tests/issue_194.py:9-13
+    int 0                                                  // 0              False                                                            regression_tests/issue_194.py:13
+    return                                                 //                return False                                                     regression_tests/issue_194.py:13
+
+main_switch_case_0@1:
+    int 1                                                  // 1              True                                                             regression_tests/issue_194.py:11
+    return                                                 //                return True                                                      regression_tests/issue_194.py:11
+
+main_switch_case_default@2:
+    int 0                                                  // 0              False                                                            regression_tests/issue_194.py:13
+    return                                                 //                return False                                                     regression_tests/issue_194.py:13
 

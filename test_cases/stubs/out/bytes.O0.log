@@ -15,552 +15,575 @@ PC  Teal                                   Stack
 122 assert                                                                      
 123 byte base64 QmFzZSA2NCBlbmNvZGVk       "Base 64 encoded"                    
 125 len                                    15                                   
-126 assert                                                                      
-127 byte 0x                                0x                                   
-128 len                                    0                                    
-129 !                                      1                                    
-130 assert                                                                      
-131 byte 0x61                              "a"                                  
-133 byte 0x62                              "a", "b"                             
-135 concat                                 "ab"                                 
-136 byte 0x6162                            "ab", "ab"                           
-138 ==                                     1                                    
-139 assert                                                                      
-140 byte 0x63                              "c"                                  
-143 byte 0x64                              "c", "d"                             
-146 concat                                 "cd"                                 
-147 byte 0x6364                            "cd", "cd"                           
-151 ==                                     1                                    
-152 assert                                                                      
-153 byte 0x616263                          "abc"                                
-154 extract 0 1                            "a"                                  
-157 byte 0x61                              "a", "a"                             
-159 ==                                     1                                    
-160 assert                                                                      
-161 byte 0x616263                          "abc"                                
-162 len                                    3                                    
-163 int 1                                  3, 1                                 
-164 dig 1                                  3, 1, 3                              
-166 >=                                     3, 0                                 
-167 int 1                                  3, 0, 1                              
-168 dig 2                                  3, 0, 1, 3                           
-170 uncover 2                              3, 1, 3, 0                           
-172 select                                 3, 1                                 
-173 byte 0x616263                          3, 1, "abc"                          
-174 uncover 1                              3, "abc", 1                          
-176 uncover 2                              "abc", 1, 3                          
-178 substring3                             "bc"                                 
-179 byte 0x6263                            "bc", "bc"                           
-181 ==                                     1                                    
-182 assert                                                                      
-183 byte 0x616263                          "abc"                                
-184 len                                    3                                    
-185 int 1                                  3, 1                                 
-186 dig 1                                  3, 1, 3                              
-188 >=                                     3, 0                                 
-189 int 1                                  3, 0, 1                              
-190 dig 2                                  3, 0, 1, 3                           
-192 uncover 2                              3, 1, 3, 0                           
-194 select                                 3, 1                                 
-195 cover 1                                1, 3                                 
-197 int 1                                  1, 3, 1                              
-198 dig 1                                  1, 3, 1, 3                           
-200 >=                                     1, 3, 0                              
-201 int 1                                  1, 3, 0, 1                           
-202 uncover 2                              1, 0, 1, 3                           
-204 uncover 2                              1, 1, 3, 0                           
-206 select                                 1, 1                                 
-207 byte 0x616263                          1, 1, "abc"                          
-208 uncover 2                              1, "abc", 1                          
-210 uncover 2                              "abc", 1, 1                          
-212 substring3                             0x                                   
-213 byte 0x                                0x, 0x                               
-214 ==                                     1                                    
-215 assert                                                                      
-216 byte 0x616263                          "abc"                                
-217 len                                    3                                    
-218 int 1                                  3, 1                                 
-219 dig 1                                  3, 1, 3                              
-221 >=                                     3, 0                                 
-222 int 1                                  3, 0, 1                              
-223 uncover 2                              0, 1, 3                              
-225 uncover 2                              1, 3, 0                              
-227 select                                 1                                    
-228 byte 0x616263                          1, "abc"                             
-229 int 0                                  1, "abc", 0                          
-230 uncover 2                              "abc", 0, 1                          
-232 substring3                             "a"                                  
-233 byte 0x61                              "a", "a"                             
-235 ==                                     1                                    
-236 assert                                                                      
-237 byte 0x616263                          "abc"                                
-238 len                                    3                                    
-239 int 1                                  3, 1                                 
-240 dig 1                                  3, 1, 3                              
-242 >=                                     3, 0                                 
-243 int 1                                  3, 0, 1                              
-244 dig 2                                  3, 0, 1, 3                           
-246 uncover 2                              3, 1, 3, 0                           
-248 select                                 3, 1                                 
-249 -                                      2                                    
-250 byte 0x616263                          2, "abc"                             
-251 int 0                                  2, "abc", 0                          
-252 uncover 2                              "abc", 0, 2                          
-254 substring3                             "ab"                                 
-255 byte 0x6162                            "ab", "ab"                           
-257 ==                                     1                                    
-258 assert                                                                      
-259 byte 0x616263                          "abc"                                
-260 len                                    3                                    
-261 int 2                                  3, 2                                 
-262 dig 1                                  3, 2, 3                              
-264 >=                                     3, 0                                 
-265 int 2                                  3, 0, 2                              
-266 dig 2                                  3, 0, 2, 3                           
-268 uncover 2                              3, 2, 3, 0                           
-270 select                                 3, 2                                 
-271 dig 1                                  3, 2, 3                              
-273 uncover 1                              3, 3, 2                              
-275 -                                      3, 1                                 
-276 byte 0x616263                          3, 1, "abc"                          
-277 uncover 1                              3, "abc", 1                          
-279 uncover 2                              "abc", 1, 3                          
-281 substring3                             "bc"                                 
-282 byte 0x6263                            "bc", "bc"                           
-284 ==                                     1                                    
-285 assert                                                                      
-286 byte 0x616263                          "abc"                                
-287 len                                    3                                    
-288 int 2                                  3, 2                                 
-289 dig 1                                  3, 2, 3                              
-291 >=                                     3, 0                                 
-292 int 2                                  3, 0, 2                              
-293 dig 2                                  3, 0, 2, 3                           
-295 uncover 2                              3, 2, 3, 0                           
-297 select                                 3, 2                                 
-298 dig 1                                  3, 2, 3                              
-300 uncover 1                              3, 3, 2                              
-302 -                                      3, 1                                 
-303 cover 1                                1, 3                                 
-305 int 1                                  1, 3, 1                              
-306 dig 1                                  1, 3, 1, 3                           
-308 >=                                     1, 3, 0                              
-309 int 1                                  1, 3, 0, 1                           
-310 dig 2                                  1, 3, 0, 1, 3                        
-312 uncover 2                              1, 3, 1, 3, 0                        
-314 select                                 1, 3, 1                              
-315 -                                      1, 2                                 
-316 byte 0x616263                          1, 2, "abc"                          
-317 uncover 2                              2, "abc", 1                          
-319 uncover 2                              "abc", 1, 2                          
-321 substring3                             "b"                                  
-322 byte 0x62                              "b", "b"                             
-324 ==                                     1                                    
-325 assert                                                                      
-326 byte 0x31323334353637                  "1234567"                            
-328 len                                    7                                    
-329 int 1                                  7, 1                                 
-330 dig 1                                  7, 1, 7                              
-332 >=                                     7, 0                                 
-333 int 1                                  7, 0, 1                              
-334 dig 2                                  7, 0, 1, 7                           
-336 uncover 2                              7, 1, 7, 0                           
-338 select                                 7, 1                                 
-339 cover 1                                1, 7                                 
-341 int 1                                  1, 7, 1                              
-342 dig 1                                  1, 7, 1, 7                           
-344 >=                                     1, 7, 0                              
-345 int 1                                  1, 7, 0, 1                           
-346 dig 2                                  1, 7, 0, 1, 7                        
-348 uncover 2                              1, 7, 1, 7, 0                        
-350 select                                 1, 7, 1                              
-351 -                                      1, 6                                 
-352 dup                                    1, 6, 6                              
-353 dig 2                                  1, 6, 6, 1                           
-355 <                                      1, 6, 0                              
-356 uncover 1                              1, 0, 6                              
-358 dig 2                                  1, 0, 6, 1                           
-360 uncover 2                              1, 6, 1, 0                           
-362 select                                 1, 6                                 
-363 byte 0x31323334353637                  1, 6, "1234567"                      
-365 uncover 2                              6, "1234567", 1                      
-367 uncover 2                              "1234567", 1, 6                      
-369 substring3                             "23456"                              
-370 byte 0x3233343536                      "23456", "23456"                     
-372 ==                                     1                                    
-373 assert                                                                      
-374 byte 0x616263                          "abc"                                
-375 len                                    3                                    
-376 int 10                                 3, 10                                
-377 dig 1                                  3, 10, 3                             
-379 >=                                     3, 1                                 
-380 int 10                                 3, 1, 10                             
-381 dig 2                                  3, 1, 10, 3                          
-383 uncover 2                              3, 10, 3, 1                          
-385 select                                 3, 3                                 
-386 dig 1                                  3, 3, 3                              
-388 uncover 1                              3, 3, 3                              
-390 -                                      3, 0                                 
-391 cover 1                                0, 3                                 
-393 int 10                                 0, 3, 10                             
-394 dig 1                                  0, 3, 10, 3                          
-396 >=                                     0, 3, 1                              
-397 int 10                                 0, 3, 1, 10                          
-398 uncover 2                              0, 1, 10, 3                          
-400 uncover 2                              0, 10, 3, 1                          
-402 select                                 0, 3                                 
-403 dup                                    0, 3, 3                              
-404 dig 2                                  0, 3, 3, 0                           
-406 <                                      0, 3, 0                              
-407 uncover 1                              0, 0, 3                              
-409 dig 2                                  0, 0, 3, 0                           
-411 uncover 2                              0, 3, 0, 0                           
-413 select                                 0, 3                                 
-414 byte 0x616263                          0, 3, "abc"                          
-415 uncover 2                              3, "abc", 0                          
-417 uncover 2                              "abc", 0, 3                          
-419 substring3                             "abc"                                
-420 byte 0x616263                          "abc", "abc"                         
-421 ==                                     1                                    
-422 assert                                                                      
-423 byte 0x31                              "1"                                  
-424 len                                    1                                    
-425 bnz main_ternary_false@2                                                    
-431 byte 0x31                              "1"                                  
-432 byte 0x31                              "1", "1"                             
-433 ==                                     1                                    
-434 assert                                                                      
-435 byte 0x31                              "1"                                  
-436 len                                    1                                    
-437 bnz main_ternary_false@5                                                    
-443 byte 0x31                              "1"                                  
-444 byte 0x31                              "1", "1"                             
-445 ==                                     1                                    
-446 assert                                                                      
-447 byte 0x31                              "1"                                  
-448 len                                    1                                    
-449 bnz main_ternary_false@8                                                    
-456 byte 0x                                0x                                   
-457 byte 0x                                0x, 0x                               
-458 ==                                     1                                    
-459 assert                                                                      
-460 byte 0x                                0x                                   
-461 len                                    0                                    
-462 bnz main_ternary_false@11                                                   
+126 int 0                                  15, 0                                
+127 !=                                     1                                    
+128 assert                                                                      
+129 byte 0x                                0x                                   
+130 len                                    0                                    
+131 int 0                                  0, 0                                 
+132 ==                                     1                                    
+133 assert                                                                      
+134 byte 0x61                              "a"                                  
+136 byte 0x62                              "a", "b"                             
+138 concat                                 "ab"                                 
+139 byte 0x6162                            "ab", "ab"                           
+141 ==                                     1                                    
+142 assert                                                                      
+143 byte 0x63                              "c"                                  
+146 byte 0x64                              "c", "d"                             
+149 concat                                 "cd"                                 
+150 byte 0x6364                            "cd", "cd"                           
+154 ==                                     1                                    
+155 assert                                                                      
+156 byte 0x616263                          "abc"                                
+157 extract 0 1                            "a"                                  
+160 byte 0x61                              "a", "a"                             
+162 ==                                     1                                    
+163 assert                                                                      
+164 byte 0x616263                          "abc"                                
+165 len                                    3                                    
+166 int 1                                  3, 1                                 
+167 dig 1                                  3, 1, 3                              
+169 >=                                     3, 0                                 
+170 int 1                                  3, 0, 1                              
+171 dig 2                                  3, 0, 1, 3                           
+173 uncover 2                              3, 1, 3, 0                           
+175 select                                 3, 1                                 
+176 byte 0x616263                          3, 1, "abc"                          
+177 uncover 1                              3, "abc", 1                          
+179 uncover 2                              "abc", 1, 3                          
+181 substring3                             "bc"                                 
+182 byte 0x6263                            "bc", "bc"                           
+184 ==                                     1                                    
+185 assert                                                                      
+186 byte 0x616263                          "abc"                                
+187 len                                    3                                    
+188 int 1                                  3, 1                                 
+189 dig 1                                  3, 1, 3                              
+191 >=                                     3, 0                                 
+192 int 1                                  3, 0, 1                              
+193 dig 2                                  3, 0, 1, 3                           
+195 uncover 2                              3, 1, 3, 0                           
+197 select                                 3, 1                                 
+198 cover 1                                1, 3                                 
+200 int 1                                  1, 3, 1                              
+201 dig 1                                  1, 3, 1, 3                           
+203 >=                                     1, 3, 0                              
+204 int 1                                  1, 3, 0, 1                           
+205 uncover 2                              1, 0, 1, 3                           
+207 uncover 2                              1, 1, 3, 0                           
+209 select                                 1, 1                                 
+210 byte 0x616263                          1, 1, "abc"                          
+211 uncover 2                              1, "abc", 1                          
+213 uncover 2                              "abc", 1, 1                          
+215 substring3                             0x                                   
+216 byte 0x                                0x, 0x                               
+217 ==                                     1                                    
+218 assert                                                                      
+219 byte 0x616263                          "abc"                                
+220 len                                    3                                    
+221 int 1                                  3, 1                                 
+222 dig 1                                  3, 1, 3                              
+224 >=                                     3, 0                                 
+225 int 1                                  3, 0, 1                              
+226 uncover 2                              0, 1, 3                              
+228 uncover 2                              1, 3, 0                              
+230 select                                 1                                    
+231 byte 0x616263                          1, "abc"                             
+232 int 0                                  1, "abc", 0                          
+233 uncover 2                              "abc", 0, 1                          
+235 substring3                             "a"                                  
+236 byte 0x61                              "a", "a"                             
+238 ==                                     1                                    
+239 assert                                                                      
+240 byte 0x616263                          "abc"                                
+241 len                                    3                                    
+242 int 1                                  3, 1                                 
+243 dig 1                                  3, 1, 3                              
+245 >=                                     3, 0                                 
+246 int 1                                  3, 0, 1                              
+247 dig 2                                  3, 0, 1, 3                           
+249 uncover 2                              3, 1, 3, 0                           
+251 select                                 3, 1                                 
+252 -                                      2                                    
+253 byte 0x616263                          2, "abc"                             
+254 int 0                                  2, "abc", 0                          
+255 uncover 2                              "abc", 0, 2                          
+257 substring3                             "ab"                                 
+258 byte 0x6162                            "ab", "ab"                           
+260 ==                                     1                                    
+261 assert                                                                      
+262 byte 0x616263                          "abc"                                
+263 len                                    3                                    
+264 int 2                                  3, 2                                 
+265 dig 1                                  3, 2, 3                              
+267 >=                                     3, 0                                 
+268 int 2                                  3, 0, 2                              
+269 dig 2                                  3, 0, 2, 3                           
+271 uncover 2                              3, 2, 3, 0                           
+273 select                                 3, 2                                 
+274 dig 1                                  3, 2, 3                              
+276 uncover 1                              3, 3, 2                              
+278 -                                      3, 1                                 
+279 byte 0x616263                          3, 1, "abc"                          
+280 uncover 1                              3, "abc", 1                          
+282 uncover 2                              "abc", 1, 3                          
+284 substring3                             "bc"                                 
+285 byte 0x6263                            "bc", "bc"                           
+287 ==                                     1                                    
+288 assert                                                                      
+289 byte 0x616263                          "abc"                                
+290 len                                    3                                    
+291 int 2                                  3, 2                                 
+292 dig 1                                  3, 2, 3                              
+294 >=                                     3, 0                                 
+295 int 2                                  3, 0, 2                              
+296 dig 2                                  3, 0, 2, 3                           
+298 uncover 2                              3, 2, 3, 0                           
+300 select                                 3, 2                                 
+301 dig 1                                  3, 2, 3                              
+303 uncover 1                              3, 3, 2                              
+305 -                                      3, 1                                 
+306 cover 1                                1, 3                                 
+308 int 1                                  1, 3, 1                              
+309 dig 1                                  1, 3, 1, 3                           
+311 >=                                     1, 3, 0                              
+312 int 1                                  1, 3, 0, 1                           
+313 dig 2                                  1, 3, 0, 1, 3                        
+315 uncover 2                              1, 3, 1, 3, 0                        
+317 select                                 1, 3, 1                              
+318 -                                      1, 2                                 
+319 byte 0x616263                          1, 2, "abc"                          
+320 uncover 2                              2, "abc", 1                          
+322 uncover 2                              "abc", 1, 2                          
+324 substring3                             "b"                                  
+325 byte 0x62                              "b", "b"                             
+327 ==                                     1                                    
+328 assert                                                                      
+329 byte 0x31323334353637                  "1234567"                            
+331 len                                    7                                    
+332 int 1                                  7, 1                                 
+333 dig 1                                  7, 1, 7                              
+335 >=                                     7, 0                                 
+336 int 1                                  7, 0, 1                              
+337 dig 2                                  7, 0, 1, 7                           
+339 uncover 2                              7, 1, 7, 0                           
+341 select                                 7, 1                                 
+342 cover 1                                1, 7                                 
+344 int 1                                  1, 7, 1                              
+345 dig 1                                  1, 7, 1, 7                           
+347 >=                                     1, 7, 0                              
+348 int 1                                  1, 7, 0, 1                           
+349 dig 2                                  1, 7, 0, 1, 7                        
+351 uncover 2                              1, 7, 1, 7, 0                        
+353 select                                 1, 7, 1                              
+354 -                                      1, 6                                 
+355 dup                                    1, 6, 6                              
+356 dig 2                                  1, 6, 6, 1                           
+358 <                                      1, 6, 0                              
+359 uncover 1                              1, 0, 6                              
+361 dig 2                                  1, 0, 6, 1                           
+363 uncover 2                              1, 6, 1, 0                           
+365 select                                 1, 6                                 
+366 byte 0x31323334353637                  1, 6, "1234567"                      
+368 uncover 2                              6, "1234567", 1                      
+370 uncover 2                              "1234567", 1, 6                      
+372 substring3                             "23456"                              
+373 byte 0x3233343536                      "23456", "23456"                     
+375 ==                                     1                                    
+376 assert                                                                      
+377 byte 0x616263                          "abc"                                
+378 len                                    3                                    
+379 int 10                                 3, 10                                
+380 dig 1                                  3, 10, 3                             
+382 >=                                     3, 1                                 
+383 int 10                                 3, 1, 10                             
+384 dig 2                                  3, 1, 10, 3                          
+386 uncover 2                              3, 10, 3, 1                          
+388 select                                 3, 3                                 
+389 dig 1                                  3, 3, 3                              
+391 uncover 1                              3, 3, 3                              
+393 -                                      3, 0                                 
+394 cover 1                                0, 3                                 
+396 int 10                                 0, 3, 10                             
+397 dig 1                                  0, 3, 10, 3                          
+399 >=                                     0, 3, 1                              
+400 int 10                                 0, 3, 1, 10                          
+401 uncover 2                              0, 1, 10, 3                          
+403 uncover 2                              0, 10, 3, 1                          
+405 select                                 0, 3                                 
+406 dup                                    0, 3, 3                              
+407 dig 2                                  0, 3, 3, 0                           
+409 <                                      0, 3, 0                              
+410 uncover 1                              0, 0, 3                              
+412 dig 2                                  0, 0, 3, 0                           
+414 uncover 2                              0, 3, 0, 0                           
+416 select                                 0, 3                                 
+417 byte 0x616263                          0, 3, "abc"                          
+418 uncover 2                              3, "abc", 0                          
+420 uncover 2                              "abc", 0, 3                          
+422 substring3                             "abc"                                
+423 byte 0x616263                          "abc", "abc"                         
+424 ==                                     1                                    
+425 assert                                                                      
+426 byte 0x31                              "1"                                  
+427 len                                    1                                    
+428 int 0                                  1, 0                                 
+429 ==                                     0                                    
+430 bz main_ternary_false@2                                                     
+436 byte 0x31                              "1"                                  
+437 byte 0x31                              "1", "1"                             
+438 ==                                     1                                    
+439 assert                                                                      
+440 byte 0x31                              "1"                                  
+441 len                                    1                                    
+442 int 0                                  1, 0                                 
+443 ==                                     0                                    
+444 bz main_ternary_false@5                                                     
+450 byte 0x31                              "1"                                  
+451 byte 0x31                              "1", "1"                             
+452 ==                                     1                                    
+453 assert                                                                      
+454 byte 0x31                              "1"                                  
+455 len                                    1                                    
+456 int 0                                  1, 0                                 
+457 ==                                     0                                    
+458 bz main_ternary_false@8                                                     
 465 byte 0x                                0x                                   
-466 b main_ternary_merge@12                0x                                   
-470 byte 0x                                0x, 0x                               
-471 ==                                     1                                    
-472 assert                                                                      
-473 byte 0x                                0x                                   
-474 len                                    0                                    
-475 bnz main_ternary_false@14                                                   
-478 b main_ternary_merge@15                                                     
-481 byte 0x                                0x                                   
-482 byte 0x                                0x, 0x                               
-483 ==                                     1                                    
-484 assert                                                                      
-485 byte 0x31                              "1"                                  
-486 len                                    1                                    
-487 bz main_ternary_false@17                                                    
-490 b main_ternary_merge@18                                                     
-493 byte 0x31                              "1"                                  
-494 byte 0x31                              "1", "1"                             
-495 ==                                     1                                    
-496 assert                                                                      
-497 byte 0x31                              "1"                                  
-498 len                                    1                                    
-499 bz main_ternary_false@20                                                    
-502 byte 0x31                              "1"                                  
-503 b main_ternary_merge@21                "1"                                  
-507 byte 0x31                              "1", "1"                             
-508 ==                                     1                                    
-509 assert                                                                      
-510 byte 0x                                0x                                   
-511 len                                    0                                    
-512 bz main_ternary_false@23                                                    
+466 byte 0x                                0x, 0x                               
+467 ==                                     1                                    
+468 assert                                                                      
+469 byte 0x                                0x                                   
+470 len                                    0                                    
+471 int 0                                  0, 0                                 
+472 ==                                     1                                    
+473 bz main_ternary_false@11                                                    
+476 byte 0x                                0x                                   
+477 b main_ternary_merge@12                0x                                   
+481 byte 0x                                0x, 0x                               
+482 ==                                     1                                    
+483 assert                                                                      
+484 byte 0x                                0x                                   
+485 len                                    0                                    
+486 int 0                                  0, 0                                 
+487 ==                                     1                                    
+488 bz main_ternary_false@14                                                    
+491 b main_ternary_merge@15                                                     
+494 byte 0x                                0x                                   
+495 byte 0x                                0x, 0x                               
+496 ==                                     1                                    
+497 assert                                                                      
+498 byte 0x31                              "1"                                  
+499 len                                    1                                    
+500 int 0                                  1, 0                                 
+501 !=                                     1                                    
+502 bz main_ternary_false@17                                                    
+505 b main_ternary_merge@18                                                     
+508 byte 0x31                              "1"                                  
+509 byte 0x31                              "1", "1"                             
+510 ==                                     1                                    
+511 assert                                                                      
+512 byte 0x31                              "1"                                  
+513 len                                    1                                    
+514 int 0                                  1, 0                                 
+515 !=                                     1                                    
+516 bz main_ternary_false@20                                                    
 519 byte 0x31                              "1"                                  
-520 byte 0x31                              "1", "1"                             
-521 ==                                     1                                    
-522 assert                                                                      
-523 byte 0x                                0x                                   
-524 len                                    0                                    
-525 bz main_ternary_false@26                                                    
-531 byte 0x                                0x                                   
-532 byte 0x                                0x, 0x                               
-533 ==                                     1                                    
-534 assert                                                                      
-535 byte 0x00                              0x00                                 
-537 byte 0x0f                              0x00, 0x0F                           
-539 b&                                     0x00                                 
-540 byte 0x00                              0x00, 0x00                           
-542 ==                                     1                                    
-543 assert                                                                      
-544 byte 0x0f                              0x0F                                 
-546 byte 0xf0                              0x0F, 0xF0                           
-548 b|                                     0xFF                                 
-549 byte 0xff                              0xFF, 0xFF                           
-550 ==                                     1                                    
-551 assert                                                                      
-552 byte 0x0f                              0x0F                                 
-554 byte 0xff                              0x0F, 0xFF                           
-555 b^                                     0xF0                                 
-556 byte 0xf0                              0xF0, 0xF0                           
-558 ==                                     1                                    
-559 assert                                                                      
-560 byte 0x00                              0x00                                 
-562 byte 0xff                              0x00, 0xFF                           
-563 b&                                     0x00                                 
-564 dup                                    0x00, 0x00                           
-565 byte 0x00                              0x00, 0x00, 0x00                     
-567 ==                                     0x00, 1                              
-568 assert                                 0x00                                 
-569 byte 0xff                              0x00, 0xFF                           
-570 b|                                     0xFF                                 
-571 dup                                    0xFF, 0xFF                           
-572 byte 0xff                              0xFF, 0xFF, 0xFF                     
-573 ==                                     0xFF, 1                              
-574 assert                                 0xFF                                 
-575 byte 0xf0                              0xFF, 0xF0                           
-577 b^                                     0x0F                                 
-578 byte 0x0f                              0x0F, 0x0F                           
-580 ==                                     1                                    
-581 assert                                                                      
-582 byte 0x616263                          "abc"                                
-583 callsub check_slicing_with_uint64      "abc"                                
-612 proto 1 0                              "abc"                                
-615 frame_dig -1                           "abc", "abc"                         
-617 len                                    "abc", 3                             
-618 int 1                                  "abc", 3, 1                          
-619 dig 1                                  "abc", 3, 1, 3                       
-621 >=                                     "abc", 3, 0                          
-622 int 1                                  "abc", 3, 0, 1                       
-623 dig 2                                  "abc", 3, 0, 1, 3                    
-625 uncover 2                              "abc", 3, 1, 3, 0                    
-627 select                                 "abc", 3, 1                          
-628 frame_dig -1                           "abc", 3, 1, "abc"                   
-630 uncover 1                              "abc", 3, "abc", 1                   
-632 uncover 2                              "abc", "abc", 1, 3                   
-634 substring3                             "abc", "bc"                          
-635 byte 0x6263                            "abc", "bc", "bc"                    
-637 ==                                     "abc", 1                             
-638 assert                                 "abc"                                
-639 frame_dig -1                           "abc", "abc"                         
-641 len                                    "abc", 3                             
-642 int 1                                  "abc", 3, 1                          
-643 dig 1                                  "abc", 3, 1, 3                       
-645 >=                                     "abc", 3, 0                          
-646 int 1                                  "abc", 3, 0, 1                       
-647 dig 2                                  "abc", 3, 0, 1, 3                    
-649 uncover 2                              "abc", 3, 1, 3, 0                    
-651 select                                 "abc", 3, 1                          
-652 cover 1                                "abc", 1, 3                          
-654 int 1                                  "abc", 1, 3, 1                       
-655 dig 1                                  "abc", 1, 3, 1, 3                    
-657 >=                                     "abc", 1, 3, 0                       
-658 int 1                                  "abc", 1, 3, 0, 1                    
-659 uncover 2                              "abc", 1, 0, 1, 3                    
-661 uncover 2                              "abc", 1, 1, 3, 0                    
-663 select                                 "abc", 1, 1                          
-664 dup                                    "abc", 1, 1, 1                       
-665 dig 2                                  "abc", 1, 1, 1, 1                    
-667 <                                      "abc", 1, 1, 0                       
-668 uncover 1                              "abc", 1, 0, 1                       
-670 dig 2                                  "abc", 1, 0, 1, 1                    
-672 uncover 2                              "abc", 1, 1, 1, 0                    
-674 select                                 "abc", 1, 1                          
-675 frame_dig -1                           "abc", 1, 1, "abc"                   
-677 uncover 2                              "abc", 1, "abc", 1                   
-679 uncover 2                              "abc", "abc", 1, 1                   
-681 substring3                             "abc", 0x                            
-682 byte 0x                                "abc", 0x, 0x                        
-683 ==                                     "abc", 1                             
-684 assert                                 "abc"                                
-685 frame_dig -1                           "abc", "abc"                         
-687 len                                    "abc", 3                             
-688 int 1                                  "abc", 3, 1                          
-689 dig 1                                  "abc", 3, 1, 3                       
-691 >=                                     "abc", 3, 0                          
-692 int 1                                  "abc", 3, 0, 1                       
-693 uncover 2                              "abc", 0, 1, 3                       
-695 uncover 2                              "abc", 1, 3, 0                       
-697 select                                 "abc", 1                             
-698 frame_dig -1                           "abc", 1, "abc"                      
-700 int 0                                  "abc", 1, "abc", 0                   
-701 uncover 2                              "abc", "abc", 0, 1                   
-703 substring3                             "abc", "a"                           
-704 byte 0x61                              "abc", "a", "a"                      
+520 b main_ternary_merge@21                "1"                                  
+524 byte 0x31                              "1", "1"                             
+525 ==                                     1                                    
+526 assert                                                                      
+527 byte 0x                                0x                                   
+528 len                                    0                                    
+529 int 0                                  0, 0                                 
+530 !=                                     0                                    
+531 bz main_ternary_false@23                                                    
+538 byte 0x31                              "1"                                  
+539 byte 0x31                              "1", "1"                             
+540 ==                                     1                                    
+541 assert                                                                      
+542 byte 0x                                0x                                   
+543 len                                    0                                    
+544 int 0                                  0, 0                                 
+545 !=                                     0                                    
+546 bz main_ternary_false@26                                                    
+552 byte 0x                                0x                                   
+553 byte 0x                                0x, 0x                               
+554 ==                                     1                                    
+555 assert                                                                      
+556 byte 0x00                              0x00                                 
+558 byte 0x0f                              0x00, 0x0F                           
+560 b&                                     0x00                                 
+561 byte 0x00                              0x00, 0x00                           
+563 ==                                     1                                    
+564 assert                                                                      
+565 byte 0x0f                              0x0F                                 
+567 byte 0xf0                              0x0F, 0xF0                           
+569 b|                                     0xFF                                 
+570 byte 0xff                              0xFF, 0xFF                           
+571 ==                                     1                                    
+572 assert                                                                      
+573 byte 0x0f                              0x0F                                 
+575 byte 0xff                              0x0F, 0xFF                           
+576 b^                                     0xF0                                 
+577 byte 0xf0                              0xF0, 0xF0                           
+579 ==                                     1                                    
+580 assert                                                                      
+581 byte 0x00                              0x00                                 
+583 byte 0xff                              0x00, 0xFF                           
+584 b&                                     0x00                                 
+585 dup                                    0x00, 0x00                           
+586 byte 0x00                              0x00, 0x00, 0x00                     
+588 ==                                     0x00, 1                              
+589 assert                                 0x00                                 
+590 byte 0xff                              0x00, 0xFF                           
+591 b|                                     0xFF                                 
+592 dup                                    0xFF, 0xFF                           
+593 byte 0xff                              0xFF, 0xFF, 0xFF                     
+594 ==                                     0xFF, 1                              
+595 assert                                 0xFF                                 
+596 byte 0xf0                              0xFF, 0xF0                           
+598 b^                                     0x0F                                 
+599 byte 0x0f                              0x0F, 0x0F                           
+601 ==                                     1                                    
+602 assert                                                                      
+603 byte 0x616263                          "abc"                                
+604 callsub check_slicing_with_uint64      "abc"                                
+635 proto 1 0                              "abc"                                
+638 frame_dig -1                           "abc", "abc"                         
+640 len                                    "abc", 3                             
+641 int 1                                  "abc", 3, 1                          
+642 dig 1                                  "abc", 3, 1, 3                       
+644 >=                                     "abc", 3, 0                          
+645 int 1                                  "abc", 3, 0, 1                       
+646 dig 2                                  "abc", 3, 0, 1, 3                    
+648 uncover 2                              "abc", 3, 1, 3, 0                    
+650 select                                 "abc", 3, 1                          
+651 frame_dig -1                           "abc", 3, 1, "abc"                   
+653 uncover 1                              "abc", 3, "abc", 1                   
+655 uncover 2                              "abc", "abc", 1, 3                   
+657 substring3                             "abc", "bc"                          
+658 byte 0x6263                            "abc", "bc", "bc"                    
+660 ==                                     "abc", 1                             
+661 assert                                 "abc"                                
+662 frame_dig -1                           "abc", "abc"                         
+664 len                                    "abc", 3                             
+665 int 1                                  "abc", 3, 1                          
+666 dig 1                                  "abc", 3, 1, 3                       
+668 >=                                     "abc", 3, 0                          
+669 int 1                                  "abc", 3, 0, 1                       
+670 dig 2                                  "abc", 3, 0, 1, 3                    
+672 uncover 2                              "abc", 3, 1, 3, 0                    
+674 select                                 "abc", 3, 1                          
+675 cover 1                                "abc", 1, 3                          
+677 int 1                                  "abc", 1, 3, 1                       
+678 dig 1                                  "abc", 1, 3, 1, 3                    
+680 >=                                     "abc", 1, 3, 0                       
+681 int 1                                  "abc", 1, 3, 0, 1                    
+682 uncover 2                              "abc", 1, 0, 1, 3                    
+684 uncover 2                              "abc", 1, 1, 3, 0                    
+686 select                                 "abc", 1, 1                          
+687 dup                                    "abc", 1, 1, 1                       
+688 dig 2                                  "abc", 1, 1, 1, 1                    
+690 <                                      "abc", 1, 1, 0                       
+691 uncover 1                              "abc", 1, 0, 1                       
+693 dig 2                                  "abc", 1, 0, 1, 1                    
+695 uncover 2                              "abc", 1, 1, 1, 0                    
+697 select                                 "abc", 1, 1                          
+698 frame_dig -1                           "abc", 1, 1, "abc"                   
+700 uncover 2                              "abc", 1, "abc", 1                   
+702 uncover 2                              "abc", "abc", 1, 1                   
+704 substring3                             "abc", 0x                            
+705 byte 0x                                "abc", 0x, 0x                        
 706 ==                                     "abc", 1                             
 707 assert                                 "abc"                                
-708 callsub one_to_seven                   "abc"                                
-794 proto 0 1                              "abc"                                
-797 byte "one_to_seven called"             "abc", "one_to_seven called"         
-818 log                                    "abc"                                
-819 byte 0x31323334353637                  "abc", "1234567"                     
-821 retsub                                 "abc", "1234567"                     
-711 dup                                    "abc", "1234567", "1234567"          
-712 len                                    "abc", "1234567", 7                  
-713 int 1                                  "abc", "1234567", 7, 1               
-714 dig 1                                  "abc", "1234567", 7, 1, 7            
-716 >=                                     "abc", "1234567", 7, 0               
-717 int 1                                  "abc", "1234567", 7, 0, 1            
-718 dig 2                                  "abc", "1234567", 7, 0, 1, 7         
-720 uncover 2                              "abc", "1234567", 7, 1, 7, 0         
-722 select                                 "abc", "1234567", 7, 1               
-723 cover 1                                "abc", "1234567", 1, 7               
-725 int 1                                  "abc", "1234567", 1, 7, 1            
-726 dig 1                                  "abc", "1234567", 1, 7, 1, 7         
-728 >=                                     "abc", "1234567", 1, 7, 0            
-729 int 1                                  "abc", "1234567", 1, 7, 0, 1         
-730 dig 2                                  "abc", "1234567", 1, 7, 0, 1, 7      
-732 uncover 2                              "abc", "1234567", 1, 7, 1, 7, 0      
-734 select                                 "abc", "1234567", 1, 7, 1            
-735 -                                      "abc", "1234567", 1, 6               
-736 dup                                    "abc", "1234567", 1, 6, 6            
-737 dig 2                                  "abc", "1234567", 1, 6, 6, 1         
-739 <                                      "abc", "1234567", 1, 6, 0            
-740 uncover 1                              "abc", "1234567", 1, 0, 6            
-742 dig 2                                  "abc", "1234567", 1, 0, 6, 1         
-744 uncover 2                              "abc", "1234567", 1, 6, 1, 0         
-746 select                                 "abc", "1234567", 1, 6               
-747 uncover 2                              "abc", 1, 6, "1234567"               
-749 uncover 2                              "abc", 6, "1234567", 1               
-751 uncover 2                              "abc", "1234567", 1, 6               
-753 substring3                             "abc", "23456"                       
-754 byte 0x3233343536                      "abc", "23456", "23456"              
-756 ==                                     "abc", 1                             
-757 assert                                 "abc"                                
-758 frame_dig -1                           "abc", "abc"                         
-760 len                                    "abc", 3                             
-761 int 0                                  "abc", 3, 0                          
-762 dig 1                                  "abc", 3, 0, 3                       
-764 >=                                     "abc", 3, 0                          
-765 int 0                                  "abc", 3, 0, 0                       
-766 dig 2                                  "abc", 3, 0, 0, 3                    
-768 uncover 2                              "abc", 3, 0, 3, 0                    
-770 select                                 "abc", 3, 0                          
-771 cover 1                                "abc", 0, 3                          
-773 int 10                                 "abc", 0, 3, 10                      
-774 dig 1                                  "abc", 0, 3, 10, 3                   
-776 >=                                     "abc", 0, 3, 1                       
-777 int 10                                 "abc", 0, 3, 1, 10                   
-778 uncover 2                              "abc", 0, 1, 10, 3                   
-780 uncover 2                              "abc", 0, 10, 3, 1                   
-782 select                                 "abc", 0, 3                          
-783 frame_dig -1                           "abc", 0, 3, "abc"                   
-785 uncover 2                              "abc", 3, "abc", 0                   
-787 uncover 2                              "abc", "abc", 0, 3                   
-789 substring3                             "abc", "abc"                         
-790 byte 0x616263                          "abc", "abc", "abc"                  
-791 ==                                     "abc", 1                             
-792 assert                                 "abc"                                
-793 retsub                                                                      
-586 byte 0x616263                          "abc"                                
-587 callsub check_end_before_start_slicing "abc"                                
-822 proto 1 0                              "abc"                                
-825 frame_dig -1                           "abc", "abc"                         
-827 len                                    "abc", 3                             
-828 int 10                                 "abc", 3, 10                         
-829 dig 1                                  "abc", 3, 10, 3                      
-831 >=                                     "abc", 3, 1                          
-832 int 10                                 "abc", 3, 1, 10                      
-833 dig 2                                  "abc", 3, 1, 10, 3                   
-835 uncover 2                              "abc", 3, 10, 3, 1                   
-837 select                                 "abc", 3, 3                          
-838 cover 1                                "abc", 3, 3                          
-840 int 1                                  "abc", 3, 3, 1                       
-841 dig 1                                  "abc", 3, 3, 1, 3                    
-843 >=                                     "abc", 3, 3, 0                       
-844 int 1                                  "abc", 3, 3, 0, 1                    
-845 uncover 2                              "abc", 3, 0, 1, 3                    
-847 uncover 2                              "abc", 3, 1, 3, 0                    
-849 select                                 "abc", 3, 1                          
-850 dup                                    "abc", 3, 1, 1                       
-851 dig 2                                  "abc", 3, 1, 1, 3                    
-853 <                                      "abc", 3, 1, 1                       
-854 uncover 1                              "abc", 3, 1, 1                       
-856 dig 2                                  "abc", 3, 1, 1, 3                    
-858 uncover 2                              "abc", 3, 1, 3, 1                    
+708 frame_dig -1                           "abc", "abc"                         
+710 len                                    "abc", 3                             
+711 int 1                                  "abc", 3, 1                          
+712 dig 1                                  "abc", 3, 1, 3                       
+714 >=                                     "abc", 3, 0                          
+715 int 1                                  "abc", 3, 0, 1                       
+716 uncover 2                              "abc", 0, 1, 3                       
+718 uncover 2                              "abc", 1, 3, 0                       
+720 select                                 "abc", 1                             
+721 frame_dig -1                           "abc", 1, "abc"                      
+723 int 0                                  "abc", 1, "abc", 0                   
+724 uncover 2                              "abc", "abc", 0, 1                   
+726 substring3                             "abc", "a"                           
+727 byte 0x61                              "abc", "a", "a"                      
+729 ==                                     "abc", 1                             
+730 assert                                 "abc"                                
+731 callsub one_to_seven                   "abc"                                
+817 proto 0 1                              "abc"                                
+820 byte "one_to_seven called"             "abc", "one_to_seven called"         
+841 log                                    "abc"                                
+842 byte 0x31323334353637                  "abc", "1234567"                     
+844 retsub                                 "abc", "1234567"                     
+734 dup                                    "abc", "1234567", "1234567"          
+735 len                                    "abc", "1234567", 7                  
+736 int 1                                  "abc", "1234567", 7, 1               
+737 dig 1                                  "abc", "1234567", 7, 1, 7            
+739 >=                                     "abc", "1234567", 7, 0               
+740 int 1                                  "abc", "1234567", 7, 0, 1            
+741 dig 2                                  "abc", "1234567", 7, 0, 1, 7         
+743 uncover 2                              "abc", "1234567", 7, 1, 7, 0         
+745 select                                 "abc", "1234567", 7, 1               
+746 cover 1                                "abc", "1234567", 1, 7               
+748 int 1                                  "abc", "1234567", 1, 7, 1            
+749 dig 1                                  "abc", "1234567", 1, 7, 1, 7         
+751 >=                                     "abc", "1234567", 1, 7, 0            
+752 int 1                                  "abc", "1234567", 1, 7, 0, 1         
+753 dig 2                                  "abc", "1234567", 1, 7, 0, 1, 7      
+755 uncover 2                              "abc", "1234567", 1, 7, 1, 7, 0      
+757 select                                 "abc", "1234567", 1, 7, 1            
+758 -                                      "abc", "1234567", 1, 6               
+759 dup                                    "abc", "1234567", 1, 6, 6            
+760 dig 2                                  "abc", "1234567", 1, 6, 6, 1         
+762 <                                      "abc", "1234567", 1, 6, 0            
+763 uncover 1                              "abc", "1234567", 1, 0, 6            
+765 dig 2                                  "abc", "1234567", 1, 0, 6, 1         
+767 uncover 2                              "abc", "1234567", 1, 6, 1, 0         
+769 select                                 "abc", "1234567", 1, 6               
+770 uncover 2                              "abc", 1, 6, "1234567"               
+772 uncover 2                              "abc", 6, "1234567", 1               
+774 uncover 2                              "abc", "1234567", 1, 6               
+776 substring3                             "abc", "23456"                       
+777 byte 0x3233343536                      "abc", "23456", "23456"              
+779 ==                                     "abc", 1                             
+780 assert                                 "abc"                                
+781 frame_dig -1                           "abc", "abc"                         
+783 len                                    "abc", 3                             
+784 int 0                                  "abc", 3, 0                          
+785 dig 1                                  "abc", 3, 0, 3                       
+787 >=                                     "abc", 3, 0                          
+788 int 0                                  "abc", 3, 0, 0                       
+789 dig 2                                  "abc", 3, 0, 0, 3                    
+791 uncover 2                              "abc", 3, 0, 3, 0                    
+793 select                                 "abc", 3, 0                          
+794 cover 1                                "abc", 0, 3                          
+796 int 10                                 "abc", 0, 3, 10                      
+797 dig 1                                  "abc", 0, 3, 10, 3                   
+799 >=                                     "abc", 0, 3, 1                       
+800 int 10                                 "abc", 0, 3, 1, 10                   
+801 uncover 2                              "abc", 0, 1, 10, 3                   
+803 uncover 2                              "abc", 0, 10, 3, 1                   
+805 select                                 "abc", 0, 3                          
+806 frame_dig -1                           "abc", 0, 3, "abc"                   
+808 uncover 2                              "abc", 3, "abc", 0                   
+810 uncover 2                              "abc", "abc", 0, 3                   
+812 substring3                             "abc", "abc"                         
+813 byte 0x616263                          "abc", "abc", "abc"                  
+814 ==                                     "abc", 1                             
+815 assert                                 "abc"                                
+816 retsub                                                                      
+607 byte 0x616263                          "abc"                                
+608 callsub check_end_before_start_slicing "abc"                                
+845 proto 1 0                              "abc"                                
+848 frame_dig -1                           "abc", "abc"                         
+850 len                                    "abc", 3                             
+851 int 10                                 "abc", 3, 10                         
+852 dig 1                                  "abc", 3, 10, 3                      
+854 >=                                     "abc", 3, 1                          
+855 int 10                                 "abc", 3, 1, 10                      
+856 dig 2                                  "abc", 3, 1, 10, 3                   
+858 uncover 2                              "abc", 3, 10, 3, 1                   
 860 select                                 "abc", 3, 3                          
-861 frame_dig -1                           "abc", 3, 3, "abc"                   
-863 uncover 2                              "abc", 3, "abc", 3                   
-865 uncover 2                              "abc", "abc", 3, 3                   
-867 substring3                             "abc", 0x                            
-868 byte 0x                                "abc", 0x, 0x                        
-869 ==                                     "abc", 1                             
-870 assert                                 "abc"                                
-871 frame_dig -1                           "abc", "abc"                         
-873 len                                    "abc", 3                             
-874 int 10                                 "abc", 3, 10                         
-875 dig 1                                  "abc", 3, 10, 3                      
-877 >=                                     "abc", 3, 1                          
-878 int 10                                 "abc", 3, 1, 10                      
-879 dig 2                                  "abc", 3, 1, 10, 3                   
-881 uncover 2                              "abc", 3, 10, 3, 1                   
+861 cover 1                                "abc", 3, 3                          
+863 int 1                                  "abc", 3, 3, 1                       
+864 dig 1                                  "abc", 3, 3, 1, 3                    
+866 >=                                     "abc", 3, 3, 0                       
+867 int 1                                  "abc", 3, 3, 0, 1                    
+868 uncover 2                              "abc", 3, 0, 1, 3                    
+870 uncover 2                              "abc", 3, 1, 3, 0                    
+872 select                                 "abc", 3, 1                          
+873 dup                                    "abc", 3, 1, 1                       
+874 dig 2                                  "abc", 3, 1, 1, 3                    
+876 <                                      "abc", 3, 1, 1                       
+877 uncover 1                              "abc", 3, 1, 1                       
+879 dig 2                                  "abc", 3, 1, 1, 3                    
+881 uncover 2                              "abc", 3, 1, 3, 1                    
 883 select                                 "abc", 3, 3                          
-884 dig 1                                  "abc", 3, 3, 3                       
-886 uncover 1                              "abc", 3, 3, 3                       
-888 -                                      "abc", 3, 0                          
-889 cover 1                                "abc", 0, 3                          
-891 int 12                                 "abc", 0, 3, 12                      
-893 dig 1                                  "abc", 0, 3, 12, 3                   
-895 >=                                     "abc", 0, 3, 1                       
-896 int 12                                 "abc", 0, 3, 1, 12                   
-898 dig 2                                  "abc", 0, 3, 1, 12, 3                
-900 uncover 2                              "abc", 0, 3, 12, 3, 1                
-902 select                                 "abc", 0, 3, 3                       
-903 -                                      "abc", 0, 0                          
-904 dup                                    "abc", 0, 0, 0                       
-905 dig 2                                  "abc", 0, 0, 0, 0                    
-907 <                                      "abc", 0, 0, 0                       
-908 uncover 1                              "abc", 0, 0, 0                       
-910 dig 2                                  "abc", 0, 0, 0, 0                    
-912 uncover 2                              "abc", 0, 0, 0, 0                    
-914 select                                 "abc", 0, 0                          
-915 frame_dig -1                           "abc", 0, 0, "abc"                   
-917 uncover 2                              "abc", 0, "abc", 0                   
-919 uncover 2                              "abc", "abc", 0, 0                   
-921 substring3                             "abc", 0x                            
-922 byte 0x                                "abc", 0x, 0x                        
-923 ==                                     "abc", 1                             
-924 assert                                 "abc"                                
-925 frame_dig -1                           "abc", "abc"                         
-927 len                                    "abc", 3                             
-928 int 10                                 "abc", 3, 10                         
-929 dig 1                                  "abc", 3, 10, 3                      
-931 >=                                     "abc", 3, 1                          
-932 int 10                                 "abc", 3, 1, 10                      
-933 dig 2                                  "abc", 3, 1, 10, 3                   
-935 uncover 2                              "abc", 3, 10, 3, 1                   
-937 select                                 "abc", 3, 3                          
-938 cover 1                                "abc", 3, 3                          
-940 int 1                                  "abc", 3, 3, 1                       
-941 dig 1                                  "abc", 3, 3, 1, 3                    
-943 >=                                     "abc", 3, 3, 0                       
-944 int 1                                  "abc", 3, 3, 0, 1                    
-945 uncover 2                              "abc", 3, 0, 1, 3                    
-947 uncover 2                              "abc", 3, 1, 3, 0                    
-949 select                                 "abc", 3, 1                          
-950 dup                                    "abc", 3, 1, 1                       
-951 dig 2                                  "abc", 3, 1, 1, 3                    
-953 <                                      "abc", 3, 1, 1                       
-954 uncover 1                              "abc", 3, 1, 1                       
-956 dig 2                                  "abc", 3, 1, 1, 3                    
-958 uncover 2                              "abc", 3, 1, 3, 1                    
+884 frame_dig -1                           "abc", 3, 3, "abc"                   
+886 uncover 2                              "abc", 3, "abc", 3                   
+888 uncover 2                              "abc", "abc", 3, 3                   
+890 substring3                             "abc", 0x                            
+891 byte 0x                                "abc", 0x, 0x                        
+892 ==                                     "abc", 1                             
+893 assert                                 "abc"                                
+894 frame_dig -1                           "abc", "abc"                         
+896 len                                    "abc", 3                             
+897 int 10                                 "abc", 3, 10                         
+898 dig 1                                  "abc", 3, 10, 3                      
+900 >=                                     "abc", 3, 1                          
+901 int 10                                 "abc", 3, 1, 10                      
+902 dig 2                                  "abc", 3, 1, 10, 3                   
+904 uncover 2                              "abc", 3, 10, 3, 1                   
+906 select                                 "abc", 3, 3                          
+907 dig 1                                  "abc", 3, 3, 3                       
+909 uncover 1                              "abc", 3, 3, 3                       
+911 -                                      "abc", 3, 0                          
+912 cover 1                                "abc", 0, 3                          
+914 int 12                                 "abc", 0, 3, 12                      
+916 dig 1                                  "abc", 0, 3, 12, 3                   
+918 >=                                     "abc", 0, 3, 1                       
+919 int 12                                 "abc", 0, 3, 1, 12                   
+921 dig 2                                  "abc", 0, 3, 1, 12, 3                
+923 uncover 2                              "abc", 0, 3, 12, 3, 1                
+925 select                                 "abc", 0, 3, 3                       
+926 -                                      "abc", 0, 0                          
+927 dup                                    "abc", 0, 0, 0                       
+928 dig 2                                  "abc", 0, 0, 0, 0                    
+930 <                                      "abc", 0, 0, 0                       
+931 uncover 1                              "abc", 0, 0, 0                       
+933 dig 2                                  "abc", 0, 0, 0, 0                    
+935 uncover 2                              "abc", 0, 0, 0, 0                    
+937 select                                 "abc", 0, 0                          
+938 frame_dig -1                           "abc", 0, 0, "abc"                   
+940 uncover 2                              "abc", 0, "abc", 0                   
+942 uncover 2                              "abc", "abc", 0, 0                   
+944 substring3                             "abc", 0x                            
+945 byte 0x                                "abc", 0x, 0x                        
+946 ==                                     "abc", 1                             
+947 assert                                 "abc"                                
+948 frame_dig -1                           "abc", "abc"                         
+950 len                                    "abc", 3                             
+951 int 10                                 "abc", 3, 10                         
+952 dig 1                                  "abc", 3, 10, 3                      
+954 >=                                     "abc", 3, 1                          
+955 int 10                                 "abc", 3, 1, 10                      
+956 dig 2                                  "abc", 3, 1, 10, 3                   
+958 uncover 2                              "abc", 3, 10, 3, 1                   
 960 select                                 "abc", 3, 3                          
-961 frame_dig -1                           "abc", 3, 3, "abc"                   
-963 uncover 2                              "abc", 3, "abc", 3                   
-965 uncover 2                              "abc", "abc", 3, 3                   
-967 substring3                             "abc", 0x                            
-968 byte 0x                                "abc", 0x, 0x                        
-969 ==                                     "abc", 1                             
-970 assert                                 "abc"                                
-971 retsub                                                                      
-590 txn NumAppArgs                         0                                    
-592 bz main_ternary_false@29                                                    
-604 byte 0x6e6f2061726773                  "no args"                            
-606 byte 0x6e6f2061726773                  "no args", "no args"                 
-608 ==                                     1                                    
-609 assert                                                                      
-610 int 1                                  1                                    
-611 return                                 1                                    
+961 cover 1                                "abc", 3, 3                          
+963 int 1                                  "abc", 3, 3, 1                       
+964 dig 1                                  "abc", 3, 3, 1, 3                    
+966 >=                                     "abc", 3, 3, 0                       
+967 int 1                                  "abc", 3, 3, 0, 1                    
+968 uncover 2                              "abc", 3, 0, 1, 3                    
+970 uncover 2                              "abc", 3, 1, 3, 0                    
+972 select                                 "abc", 3, 1                          
+973 dup                                    "abc", 3, 1, 1                       
+974 dig 2                                  "abc", 3, 1, 1, 3                    
+976 <                                      "abc", 3, 1, 1                       
+977 uncover 1                              "abc", 3, 1, 1                       
+979 dig 2                                  "abc", 3, 1, 1, 3                    
+981 uncover 2                              "abc", 3, 1, 3, 1                    
+983 select                                 "abc", 3, 3                          
+984 frame_dig -1                           "abc", 3, 3, "abc"                   
+986 uncover 2                              "abc", 3, "abc", 3                   
+988 uncover 2                              "abc", "abc", 3, 3                   
+990 substring3                             "abc", 0x                            
+991 byte 0x                                "abc", 0x, 0x                        
+992 ==                                     "abc", 1                             
+993 assert                                 "abc"                                
+994 retsub                                                                      
+611 txn NumAppArgs                         0                                    
+613 int 0                                  0, 0                                 
+614 !=                                     0                                    
+615 bz main_ternary_false@29                                                    
+627 byte 0x6e6f2061726773                  "no args"                            
+629 byte 0x6e6f2061726773                  "no args", "no args"                 
+631 ==                                     1                                    
+632 assert                                                                      
+633 int 1                                  1                                    
+634 return                                 1                                    

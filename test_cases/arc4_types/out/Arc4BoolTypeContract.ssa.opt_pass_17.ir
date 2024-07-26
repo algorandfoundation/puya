@@ -3,8 +3,8 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
         subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> bool:
             block@0: // L12
                 test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(0x80, 0x00)
-                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
-                goto reinterpret_bool%0#0 ? block@1 : block@2
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@2
             block@1: // ternary_true_L15
                 let ternary_result%0#0: bool = 0u
                 goto block@3
@@ -14,8 +14,8 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
             block@3: // ternary_merge_L15
                 let ternary_result%0#2: bool = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
                 let encoded_bool%2#0: bytes = (setbit 0x00 0u ternary_result%0#2)
-                let tmp%0#0: bool = (getbit encoded_bool%2#0 0u)
-                (assert tmp%0#0) // conditional expr
+                let tmp%2#0: bool = (getbit encoded_bool%2#0 0u)
+                (assert tmp%2#0) // conditional expr
                 return 1u
         
         subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> bool:

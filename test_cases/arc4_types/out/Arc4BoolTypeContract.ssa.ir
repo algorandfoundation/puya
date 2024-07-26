@@ -5,8 +5,9 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
                 let encoded_bool%0#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%1#0: bytes = (setbit 0x00 0u 0u)
                 test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(encoded_bool%0#0, encoded_bool%1#0)
-                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
-                goto reinterpret_bool%0#0 ? block@1 : block@2
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bool = (!= tmp%0#0 0u)
+                goto tmp%1#0 ? block@1 : block@2
             block@1: // ternary_true_L15
                 let ternary_result%0#0: bool = 0u
                 goto block@3
@@ -16,8 +17,8 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
             block@3: // ternary_merge_L15
                 let ternary_result%0#2: bool = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
                 let encoded_bool%2#0: bytes = (setbit 0x00 0u ternary_result%0#2)
-                let tmp%0#0: bool = (getbit encoded_bool%2#0 0u)
-                (assert tmp%0#0) // conditional expr
+                let tmp%2#0: bool = (getbit encoded_bool%2#0 0u)
+                (assert tmp%2#0) // conditional expr
                 let encoded_bool%3#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%4#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%5#0: bytes = (setbit 0x00 0u 1u)
@@ -54,24 +55,24 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
                 let array_head_and_tail%11#0: bytes = (setbit array_head_and_tail%10#0 11u is_true%9#0)
                 let array_data%0#0: bytes = (concat 0x array_head_and_tail%11#0)
                 let static_boolean_array#0: bytes = array_data%0#0
-                let tmp%1#0: bool = (== static_boolean_array#0 0xfff0)
-                (assert tmp%1#0)
+                let tmp%3#0: bool = (== static_boolean_array#0 0xfff0)
+                (assert tmp%3#0)
                 let array_head_and_tail%12#0: bytes = static_boolean_array#0
                 let is_true%10#0: uint64 = (getbit array_head_and_tail%12#0 0u)
                 let encoded_bool%15#0: bytes = (setbit 0x00 0u is_true%10#0)
                 let encoded_bool%16#0: bytes = (setbit 0x00 0u 1u)
-                let tmp%2#0: bool = (== encoded_bool%15#0 encoded_bool%16#0)
-                (assert tmp%2#0) // Single boolean can be unpacked
-                let tmp%3#0: uint64 = (- 12u 1u)
+                let tmp%4#0: bool = (== encoded_bool%15#0 encoded_bool%16#0)
+                (assert tmp%4#0) // Single boolean can be unpacked
+                let tmp%5#0: uint64 = (- 12u 1u)
                 let array_head_and_tail%13#0: bytes = static_boolean_array#0
                 let array_length%0#0: uint64 = 12u
-                let index_is_in_bounds%0#0: bool = (< tmp%3#0 array_length%0#0)
+                let index_is_in_bounds%0#0: bool = (< tmp%5#0 array_length%0#0)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
-                let is_true%11#0: uint64 = (getbit array_head_and_tail%13#0 tmp%3#0)
+                let is_true%11#0: uint64 = (getbit array_head_and_tail%13#0 tmp%5#0)
                 let encoded_bool%17#0: bytes = (setbit 0x00 0u is_true%11#0)
                 let encoded_bool%18#0: bytes = (setbit 0x00 0u 1u)
-                let tmp%4#0: bool = (== encoded_bool%17#0 encoded_bool%18#0)
-                (assert tmp%4#0) // Single boolean can be unpacked
+                let tmp%6#0: bool = (== encoded_bool%17#0 encoded_bool%18#0)
+                (assert tmp%6#0) // Single boolean can be unpacked
                 let encoded_bool%19#0: bytes = (setbit 0x00 0u 1u)
                 let encoded_bool%20#0: bytes = (setbit 0x00 0u 0u)
                 let encoded_bool%21#0: bytes = (setbit 0x00 0u 1u)
@@ -82,24 +83,24 @@ contract test_cases.arc4_types.bool.Arc4BoolTypeContract:
                 let array_head_and_tail%16#0: bytes = (setbit array_head_and_tail%15#0 2u is_true%13#0)
                 let array_data%1#0: bytes = (concat 0x0003 array_head_and_tail%16#0)
                 let dynamic_boolean_array#0: bytes = array_data%1#0
-                let tmp%5#0: bool = (== dynamic_boolean_array#0 0x0003a0)
-                (assert tmp%5#0)
-                let encoded_bool%22#0: bytes = (setbit 0x00 0u 1u)
-                let tmp%6#0: bool = (getbit encoded_bool%22#0 0u)
-                let tmp%7#0: bool = (== tmp%6#0 1u)
+                let tmp%7#0: bool = (== dynamic_boolean_array#0 0x0003a0)
                 (assert tmp%7#0)
-                let encoded_bool%23#0: bytes = (setbit 0x00 0u 0u)
-                let tmp%8#0: bool = (getbit encoded_bool%23#0 0u)
-                let tmp%9#0: bool = (!= tmp%8#0 1u)
+                let encoded_bool%22#0: bytes = (setbit 0x00 0u 1u)
+                let tmp%8#0: bool = (getbit encoded_bool%22#0 0u)
+                let tmp%9#0: bool = (== tmp%8#0 1u)
                 (assert tmp%9#0)
-                let encoded_bool%24#0: bytes = (setbit 0x00 0u 0u)
-                let tmp%10#0: bool = (getbit encoded_bool%24#0 0u)
-                let tmp%11#0: bool = (== tmp%10#0 0u)
+                let encoded_bool%23#0: bytes = (setbit 0x00 0u 0u)
+                let tmp%10#0: bool = (getbit encoded_bool%23#0 0u)
+                let tmp%11#0: bool = (!= tmp%10#0 1u)
                 (assert tmp%11#0)
-                let encoded_bool%25#0: bytes = (setbit 0x00 0u 1u)
-                let tmp%12#0: bool = (getbit encoded_bool%25#0 0u)
-                let tmp%13#0: bool = (!= tmp%12#0 0u)
+                let encoded_bool%24#0: bytes = (setbit 0x00 0u 0u)
+                let tmp%12#0: bool = (getbit encoded_bool%24#0 0u)
+                let tmp%13#0: bool = (== tmp%12#0 0u)
                 (assert tmp%13#0)
+                let encoded_bool%25#0: bytes = (setbit 0x00 0u 1u)
+                let tmp%14#0: bool = (getbit encoded_bool%25#0 0u)
+                let tmp%15#0: bool = (!= tmp%14#0 0u)
+                (assert tmp%15#0)
                 return 1u
         
         subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> bool:

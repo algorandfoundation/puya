@@ -312,8 +312,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@0: // L43
                 let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
                 (assert maybe_exists%0#0) // check self.turns exists
-                let reinterpret_bool%0#0: bool = (% maybe_value%0#0 2u)
-                goto reinterpret_bool%0#0 ? block@1 : block@2
+                let tmp%0#0: uint64 = (% maybe_value%0#0 2u)
+                let tmp%1#0: bool = (!= tmp%0#0 0u)
+                goto tmp%1#0 ? block@1 : block@2
             block@1: // ternary_true_L45
                 let ternary_result%0#0: bytes = 0x01
                 goto block@3
@@ -330,23 +331,24 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (assert tmp%0#0) // Game is already finished
                 let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "turns")
                 (assert maybe_exists%1#0) // check self.turns exists
-                let reinterpret_bool%0#0: bool = (% maybe_value%1#0 2u)
-                goto reinterpret_bool%0#0 ? block@1 : block@2
+                let tmp%1#0: uint64 = (% maybe_value%1#0 2u)
+                let tmp%2#0: bool = (!= tmp%1#0 0u)
+                goto tmp%2#0 ? block@1 : block@2
             block@1: // if_body_L51
-                let tmp%1#0: bytes = (txn Sender)
+                let tmp%3#0: bytes = (txn Sender)
                 let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
                 (assert maybe_exists%2#0) // check self.host exists
-                let tmp%2#0: bool = (== tmp%1#0 maybe_value%2#0)
-                (assert tmp%2#0) // It is the host's turn
+                let tmp%4#0: bool = (== tmp%3#0 maybe_value%2#0)
+                (assert tmp%4#0) // It is the host's turn
                 let player#0: bytes = 0x01
                 goto block@3
             block@2: // else_body_L54
-                let tmp%3#0: bytes = (txn Sender)
-                let tmp%4#0: bytes = (global ZeroAddress)
+                let tmp%5#0: bytes = (txn Sender)
+                let tmp%6#0: bytes = (global ZeroAddress)
                 let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
-                let tmp%5#0: bytes = (select tmp%4#0 maybe_value%3#0 maybe_exists%3#0)
-                let tmp%6#0: bool = (== tmp%3#0 tmp%5#0)
-                (assert tmp%6#0) // It is the challenger's turn
+                let tmp%7#0: bytes = (select tmp%6#0 maybe_value%3#0 maybe_exists%3#0)
+                let tmp%8#0: bool = (== tmp%5#0 tmp%7#0)
+                (assert tmp%8#0) // It is the challenger's turn
                 let player#0: bytes = 0x02
                 goto block@3
             block@3: // after_if_else_L50

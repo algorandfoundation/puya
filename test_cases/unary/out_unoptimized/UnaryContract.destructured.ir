@@ -9,7 +9,7 @@ contract test_cases.unary.contract.UnaryContract:
         
         subroutine test_cases.unary.contract.uint_unary() -> void:
             block@0: // L25
-                let tmp%0#0: bool = (! 0u)
+                let tmp%0#0: bool = (== 0u 0u)
                 (assert tmp%0#0) // not uint
                 let loop_counter%0#0: uint64 = 0u
                 let i#0: uint64 = 1u
@@ -45,15 +45,15 @@ contract test_cases.unary.contract.UnaryContract:
         
         subroutine test_cases.unary.contract.bytes_unary() -> void:
             block@0: // L41
-                let reinterpret_bool%0#0: bool = (len 0x)
-                let tmp%0#0: bool = (! reinterpret_bool%0#0)
-                (assert tmp%0#0) // not bytes
-                let tmp%1#0: bytes = (b~ 0xff)
-                let tmp%2#0: bool = (== tmp%1#0 0x00)
-                (assert tmp%2#0) // ~ bytes
-                let tmp%3#0: bytes = (b~ 0x0000)
-                let tmp%4#0: bool = (== tmp%3#0 0xffff)
-                (assert tmp%4#0) // ~ bytes
+                let tmp%0#0: uint64 = (len 0x)
+                let tmp%1#0: bool = (== tmp%0#0 0u)
+                (assert tmp%1#0) // not bytes
+                let tmp%2#0: bytes = (b~ 0xff)
+                let tmp%3#0: bool = (== tmp%2#0 0x00)
+                (assert tmp%3#0) // ~ bytes
+                let tmp%4#0: bytes = (b~ 0x0000)
+                let tmp%5#0: bool = (== tmp%4#0 0xffff)
+                (assert tmp%5#0) // ~ bytes
                 return 
     
     program clear-state:

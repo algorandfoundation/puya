@@ -9,7 +9,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     Expression,
-    Not,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -92,16 +91,13 @@ class UInt64ExpressionBuilder(NotIterableInstanceExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        as_bool = ReinterpretCast(
-            expr=self.resolve(),
-            wtype=wtypes.bool_wtype,
-            source_location=self.resolve().source_location,
+        cmp_expr = NumericComparisonExpression(
+            lhs=self.resolve(),
+            operator=NumericComparison.eq if negate else NumericComparison.ne,
+            rhs=UInt64Constant(value=0, source_location=location),
+            source_location=location,
         )
-        if negate:
-            expr: Expression = Not(location, as_bool)
-        else:
-            expr = as_bool
-        return BoolExpressionBuilder(expr)
+        return BoolExpressionBuilder(cmp_expr)
 
     @typing.override
     def unary_op(self, op: BuilderUnaryOp, location: SourceLocation) -> InstanceBuilder:
