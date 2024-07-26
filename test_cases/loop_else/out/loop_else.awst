@@ -2,6 +2,7 @@ contract LoopElseContract
 {
   approval_program(): bool
   {
+    test_cases.loop_else.loop_else::test_empty_loop(0u)
     arg_idx: uint64 = 0u
     while (arg_idx < txn<NumAppArgs>()) {
       for i in range(0u, 10u, 1u) {
@@ -15,17 +16,17 @@ contract LoopElseContract
         for account_index in range(0u, txn<NumAccounts>(), 1u) {
           account: account = txnas<Accounts>(account_index)
           if (account == global<ZeroAddress>()) {
-            goto after_loop_L15
+            goto after_loop_L17
           }
         }
         assert(false, comment="access denied, missing secret account")
-        after_loop_L15:
-        goto after_loop_L8
+        after_loop_L17:
+        goto after_loop_L10
       }
       arg_idx += 1u
     }
     assert(false, comment="access denied, missing secret argument")
-    after_loop_L8:
+    after_loop_L10:
     log(concat(concat(concat(concat(concat(concat('found secret argument at idx=', ''), itob(secret_index + 48u)[len(itob(secret_index + 48u)) - 1u]), ''), ' and secret account at idx='), ''), itob(account_index + 48u)[len(itob(account_index + 48u)) - 1u]))
     return true
   }
@@ -34,4 +35,18 @@ contract LoopElseContract
   {
     return true
   }
+}
+
+subroutine test_empty_loop(count: uint64): void
+{
+  assert(count == 0u)
+  result: uint64 = 0u
+  for i in reversed(range(0u, count, 1u)) {
+    if (i == 0u) {
+      goto after_loop_L43
+    }
+  }
+  result += 1u
+  after_loop_L43:
+  assert(result == 1u)
 }
