@@ -108,44 +108,37 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 (assert tmp%17#0)
                 let tmp%18#0: uint64 = (txn NumAppArgs)
                 let tmp%19#0: bool = (!= tmp%18#0 0u)
-                goto tmp%19#0 ? block@13 : block@14
-            block@13: // ternary_true_L41
-                let ternary_result%0#0: bytes = 0x02
-                goto block@15
-            block@14: // ternary_false_L41
-                let ternary_result%0#0: bytes = 0x03
-                goto block@15
-            block@15: // ternary_merge_L41
-                let result%3#0: bytes = (concat 0x ternary_result%0#0)
+                let tmp%20#0: bytes = (select 0x03 0x02 tmp%19#0)
+                let result%3#0: bytes = (concat 0x tmp%20#0)
                 let result%4#0: bytes = (concat result%3#0 0x03)
                 let result%5#0: bytes = (concat result%4#0 0x01)
                 let array_data%1#0: bytes = (concat 0x0003 result%5#0)
                 let dynamic_bytes#0: bytes = array_data%1#0
-                let tmp%20#0: bytes = ((extract 2 0) dynamic_bytes#0)
-                let tmp%21#0: bool = (== tmp%20#0 0x030301)
-                (assert tmp%21#0)
-                let tmp%22#0: uint64 = (txn NumAppArgs)
-                let tmp%23#0: bool = (!= tmp%22#0 0u)
-                goto tmp%23#0 ? block@16 : block@17
-            block@16: // ternary_true_L44
+                let tmp%21#0: bytes = ((extract 2 0) dynamic_bytes#0)
+                let tmp%22#0: bool = (== tmp%21#0 0x030301)
+                (assert tmp%22#0)
+                let tmp%23#0: uint64 = (txn NumAppArgs)
+                let tmp%24#0: bool = (!= tmp%23#0 0u)
+                goto tmp%24#0 ? block@13 : block@14
+            block@13: // ternary_true_L44
                 let length%3#0: uint64 = (len 0x32)
                 let as_bytes%4#0: bytes = (itob length%3#0)
                 let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%4#0)
                 let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x32)
-                let ternary_result%1#0: bytes = encoded_value%3#0
-                goto block@18
-            block@17: // ternary_false_L44
+                let ternary_result%0#0: bytes = encoded_value%3#0
+                goto block@15
+            block@14: // ternary_false_L44
                 let length%4#0: uint64 = (len 0x33)
                 let as_bytes%5#0: bytes = (itob length%4#0)
                 let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%5#0)
                 let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x33)
-                let ternary_result%1#0: bytes = encoded_value%4#0
-                goto block@18
-            block@18: // ternary_merge_L44
-                let dynamic_bytes#0: bytes = ternary_result%1#0
-                let tmp%24#0: bytes = ((extract 2 0) dynamic_bytes#0)
-                let tmp%25#0: bool = (== tmp%24#0 0x33)
-                (assert tmp%25#0)
+                let ternary_result%0#0: bytes = encoded_value%4#0
+                goto block@15
+            block@15: // ternary_merge_L44
+                let dynamic_bytes#0: bytes = ternary_result%0#0
+                let tmp%25#0: bytes = ((extract 2 0) dynamic_bytes#0)
+                let tmp%26#0: bool = (== tmp%25#0 0x33)
+                (assert tmp%26#0)
                 return 1u
     
     program clear-state:

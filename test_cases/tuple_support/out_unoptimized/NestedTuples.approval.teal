@@ -487,8 +487,6 @@ test_nested_singles:
     // @subroutine
     // def test_nested_singles(one: UInt64, *, reassign: bool) -> None:
     proto 2 0
-    byte ""
-    dup
     // tuple_support/nested_tuples.py:110
     // (UInt64(0),),
     int 0
@@ -568,7 +566,7 @@ test_nested_singles:
     //     (UInt64(4),),
     //     (UInt64(5),),
     // )
-    frame_bury 2
+    frame_bury 0
     // tuple_support/nested_tuples.py:124
     // (UInt64(4),),
     int 4
@@ -578,7 +576,7 @@ test_nested_singles:
     //     (UInt64(4),),
     //     (UInt64(5),),
     // )
-    frame_bury 3
+    frame_bury 1
     // tuple_support/nested_tuples.py:125
     // (UInt64(5),),
     int 5
@@ -588,101 +586,58 @@ test_nested_singles:
     //     (UInt64(4),),
     //     (UInt64(5),),
     // )
-    frame_bury 4
+    frame_bury 2
 
 test_nested_singles_after_if_else@2:
     // tuple_support/nested_tuples.py:127
     // assert s[0][0] == (3 if reassign else 0)
-    frame_dig -1
-    bz test_nested_singles_ternary_false@4
-    int 3
-    b test_nested_singles_ternary_merge@5
-
-test_nested_singles_ternary_false@4:
-    // tuple_support/nested_tuples.py:127
-    // assert s[0][0] == (3 if reassign else 0)
     int 0
-
-test_nested_singles_ternary_merge@5:
-    // tuple_support/nested_tuples.py:127
-    // assert s[0][0] == (3 if reassign else 0)
-    frame_dig 2
+    int 3
+    frame_dig -1
+    select
+    frame_dig 0
     uncover 1
     ==
     assert
     // tuple_support/nested_tuples.py:128
     // (tmp,) = s[2]
-    frame_dig 4
-    frame_bury 1
-    // tuple_support/nested_tuples.py:129
-    // assert tmp == (5 if reassign else 2)
-    frame_dig -1
-    bz test_nested_singles_ternary_false@7
-    int 5
-    b test_nested_singles_ternary_merge@8
-
-test_nested_singles_ternary_false@7:
+    frame_dig 2
     // tuple_support/nested_tuples.py:129
     // assert tmp == (5 if reassign else 2)
     int 2
-
-test_nested_singles_ternary_merge@8:
-    // tuple_support/nested_tuples.py:129
-    // assert tmp == (5 if reassign else 2)
-    frame_dig 1
-    uncover 1
+    int 5
+    frame_dig -1
+    select
     ==
     assert
     // tuple_support/nested_tuples.py:130
     // assert t == (one,)
-    frame_dig 5
+    frame_dig 3
     frame_dig -2
     ==
     assert
     // tuple_support/nested_tuples.py:132
     // s0, (s1,), s2 = s
-    frame_dig 3
+    frame_dig 1
+    dup
     // tuple_support/nested_tuples.py:133
     // s1 += one
     frame_dig -2
     +
-    frame_bury 0
-    // tuple_support/nested_tuples.py:134
-    // assert s1 == (5 if reassign else 2)
-    frame_dig -1
-    bz test_nested_singles_ternary_false@10
-    int 5
-    b test_nested_singles_ternary_merge@11
-
-test_nested_singles_ternary_false@10:
     // tuple_support/nested_tuples.py:134
     // assert s1 == (5 if reassign else 2)
     int 2
-
-test_nested_singles_ternary_merge@11:
-    // tuple_support/nested_tuples.py:134
-    // assert s1 == (5 if reassign else 2)
-    frame_dig 0
-    uncover 1
+    int 5
+    frame_dig -1
+    select
     ==
     assert
     // tuple_support/nested_tuples.py:135
     // assert s[1][0] == (4 if reassign else 1)
-    frame_dig -1
-    bz test_nested_singles_ternary_false@13
-    int 4
-    b test_nested_singles_ternary_merge@14
-
-test_nested_singles_ternary_false@13:
-    // tuple_support/nested_tuples.py:135
-    // assert s[1][0] == (4 if reassign else 1)
     int 1
-
-test_nested_singles_ternary_merge@14:
-    // tuple_support/nested_tuples.py:135
-    // assert s[1][0] == (4 if reassign else 1)
-    frame_dig 3
-    uncover 1
+    int 4
+    frame_dig -1
+    select
     ==
     assert
     retsub

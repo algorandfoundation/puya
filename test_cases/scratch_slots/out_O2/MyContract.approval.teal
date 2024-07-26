@@ -1,36 +1,31 @@
 #pragma version 10
 
 test_cases.scratch_slots.contract.MyContract.approval_program:
-    byte ""
     txn ApplicationID
-    bnz main_ternary_false@2
-    int 5
-    b main_ternary_merge@3
-
-main_ternary_false@2:
+    !
     int 0
-
-main_ternary_merge@3:
+    int 5
+    uncover 2
+    select
     store 1
     byte 0x48656c6c6f20576f726c64
     store 2
     int 3
-    bury 1
 
-main_for_header@4:
+main_for_header@1:
     dup
     int 20
     <
-    bz main_after_for@7
+    bz main_after_for@4
     dupn 2
     dig 1
     stores
     int 1
     +
     bury 1
-    b main_for_header@4
+    b main_for_header@1
 
-main_after_for@7:
+main_after_for@4:
     load 1
     int 5
     ==

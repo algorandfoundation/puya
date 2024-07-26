@@ -115,19 +115,10 @@ main_after_for@12:
     assert // Total should now include sum of dynamic_bytes3 items
     // arc4_types/dynamic_bytes.py:41
     // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
-    txn NumAppArgs
-    bz main_ternary_false@14
-    byte 0x02
-    b main_ternary_merge@15
-
-main_ternary_false@14:
-    // arc4_types/dynamic_bytes.py:41
-    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
     byte 0x03
-
-main_ternary_merge@15:
-    // arc4_types/dynamic_bytes.py:41
-    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+    byte 0x02
+    txn NumAppArgs
+    select
     byte 0x03
     concat
     byte 0x01
@@ -144,16 +135,16 @@ main_ternary_merge@15:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
     txn NumAppArgs
-    bz main_ternary_false@17
+    bz main_ternary_false@14
     byte 0x000132
-    b main_ternary_merge@18
+    b main_ternary_merge@15
 
-main_ternary_false@17:
+main_ternary_false@14:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
     byte 0x000133
 
-main_ternary_merge@18:
+main_ternary_merge@15:
     // arc4_types/dynamic_bytes.py:45
     // assert dynamic_bytes.native == b"3"
     extract 2 0

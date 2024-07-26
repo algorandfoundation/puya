@@ -107,16 +107,8 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
         
         subroutine test_cases.boolean_binary_ops.contract.bool_to_bytes(x: bool) -> bytes:
             block@0: // L29
-                goto x#0 ? block@1 : block@2
-            block@1: // ternary_true_L31
-                let ternary_result%0#0: bytes = 0x74727565
-                goto block@3
-            block@2: // ternary_false_L31
-                let ternary_result%0#1: bytes = 0x66616c7365
-                goto block@3
-            block@3: // ternary_merge_L31
-                let ternary_result%0#2: bytes = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                return ternary_result%0#2
+                let tmp%0#0: bytes = (select 0x66616c7365 0x74727565 x#0)
+                return tmp%0#0
         
         subroutine test_cases.boolean_binary_ops.contract.log_and_return(x: bool, msg: bytes) -> bool:
             block@0: // L50
@@ -125,14 +117,12 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
         
         subroutine test_cases.boolean_binary_ops.contract.type_coercion() -> void:
             block@0: // L56
-                let ternary_result%0#1: uint64 = OptIn
+                let b#0: uint64 = OptIn
+                (assert b#0)
+                let ternary_result%0#0: uint64 = appl
                 goto block@3
-            block@3: // ternary_merge_L58
-                (assert ternary_result%0#1)
-                let ternary_result%1#0: uint64 = appl
-                goto block@9
-            block@9: // ternary_merge_L60
-                let tmp%4#0: bool = (== ternary_result%1#0 appl)
+            block@3: // ternary_merge_L60
+                let tmp%4#0: bool = (== ternary_result%0#0 appl)
                 (assert tmp%4#0)
                 return 
     

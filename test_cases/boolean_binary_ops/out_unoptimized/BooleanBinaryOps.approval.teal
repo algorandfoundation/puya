@@ -257,19 +257,10 @@ bool_to_bytes:
     proto 1 1
     // boolean_binary_ops/contract.py:31
     // return Bytes(b"true" if x else b"false")
-    frame_dig -1
-    bz bool_to_bytes_ternary_false@2
-    byte 0x74727565
-    b bool_to_bytes_ternary_merge@3
-
-bool_to_bytes_ternary_false@2:
-    // boolean_binary_ops/contract.py:31
-    // return Bytes(b"true" if x else b"false")
     byte 0x66616c7365
-
-bool_to_bytes_ternary_merge@3:
-    // boolean_binary_ops/contract.py:31
-    // return Bytes(b"true" if x else b"false")
+    byte 0x74727565
+    frame_dig -1
+    select
     retsub
 
 
@@ -300,16 +291,10 @@ type_coercion:
     int 0
     int 0
     !=
-    bz type_coercion_ternary_false@2
-    int 0
-    b type_coercion_ternary_merge@3
-
-type_coercion_ternary_false@2:
-    // boolean_binary_ops/contract.py:58
-    // b = UInt64(0) or OnCompleteAction.OptIn
     int OptIn
-
-type_coercion_ternary_merge@3:
+    int 0
+    uncover 2
+    select
     // boolean_binary_ops/contract.py:59
     // assert b > 0
     int 0
@@ -320,28 +305,22 @@ type_coercion_ternary_merge@3:
     int appl
     int 0
     !=
-    bz type_coercion_ternary_false@5
+    bz type_coercion_ternary_false@2
     int appl
-    b type_coercion_ternary_merge@9
+    b type_coercion_ternary_merge@3
 
-type_coercion_ternary_false@5:
+type_coercion_ternary_false@2:
     // boolean_binary_ops/contract.py:60
     // c = TransactionType.ApplicationCall or UInt64(0) or OnCompleteAction.OptIn
     int 0
     int 0
     !=
-    bz type_coercion_ternary_false@7
-    int 0
-    b type_coercion_ternary_merge@8
-
-type_coercion_ternary_false@7:
-    // boolean_binary_ops/contract.py:60
-    // c = TransactionType.ApplicationCall or UInt64(0) or OnCompleteAction.OptIn
     int OptIn
+    int 0
+    uncover 2
+    select
 
-type_coercion_ternary_merge@8:
-
-type_coercion_ternary_merge@9:
+type_coercion_ternary_merge@3:
     // boolean_binary_ops/contract.py:61
     // assert c == TransactionType.ApplicationCall
     int appl

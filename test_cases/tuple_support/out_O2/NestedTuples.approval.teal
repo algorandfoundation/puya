@@ -238,7 +238,6 @@ test_nested_slicing:
 // test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint64, reassign: uint64) -> void:
 test_nested_singles:
     proto 2 0
-    byte ""
     int 0
     int 2
     frame_dig -2
@@ -249,63 +248,39 @@ test_nested_singles:
     frame_dig -1
     bz test_nested_singles_after_if_else@2
     int 3
-    frame_bury 1
+    frame_bury 0
     int 4
-    frame_bury 3
-    int 5
     frame_bury 2
+    int 5
+    frame_bury 1
 
 test_nested_singles_after_if_else@2:
-    frame_dig -1
-    bz test_nested_singles_ternary_false@4
-    int 3
-    b test_nested_singles_ternary_merge@5
-
-test_nested_singles_ternary_false@4:
     int 0
-
-test_nested_singles_ternary_merge@5:
-    frame_dig 1
-    ==
-    assert
+    int 3
     frame_dig -1
-    bz test_nested_singles_ternary_false@7
-    int 5
-    b test_nested_singles_ternary_merge@8
-
-test_nested_singles_ternary_false@7:
-    int 2
-
-test_nested_singles_ternary_merge@8:
-    frame_dig 2
-    ==
-    assert
-    frame_dig 3
-    frame_dig -2
-    +
-    frame_bury 0
-    frame_dig -1
-    bz test_nested_singles_ternary_false@10
-    int 5
-    b test_nested_singles_ternary_merge@11
-
-test_nested_singles_ternary_false@10:
-    int 2
-
-test_nested_singles_ternary_merge@11:
+    select
     frame_dig 0
     ==
     assert
+    int 2
+    int 5
     frame_dig -1
-    bz test_nested_singles_ternary_false@13
-    int 4
-    b test_nested_singles_ternary_merge@14
-
-test_nested_singles_ternary_false@13:
+    select
+    frame_dig 1
+    dig 1
+    ==
+    assert
+    frame_dig 2
+    dup
+    cover 2
+    frame_dig -2
+    +
+    ==
+    assert
     int 1
-
-test_nested_singles_ternary_merge@14:
-    frame_dig 3
+    int 4
+    frame_dig -1
+    select
     ==
     assert
     retsub

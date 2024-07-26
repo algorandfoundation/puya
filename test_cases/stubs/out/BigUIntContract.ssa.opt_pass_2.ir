@@ -6,19 +6,11 @@ contract test_cases.stubs.biguint.BigUIntContract:
                 test_cases.stubs.biguint.compare_biguint_vs_uint64(1b, 2u)
                 test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2b)
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@2
-            block@1: // ternary_true_L10
-                let ternary_result%0#0: biguint = 1b
-                goto block@3
-            block@2: // ternary_false_L10
-                let ternary_result%0#1: biguint = 5b
-                goto block@3
-            block@3: // ternary_merge_L10
-                let ternary_result%0#2: biguint = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                let tmp%2#0: bool = (b== ternary_result%0#2 5b)
-                (assert tmp%2#0) // constructor expressions supported
-                let tmp%5#0: bool = 1u
-                (assert tmp%5#0)
+                let tmp%2#0: biguint = (select 5b 1b tmp%0#0)
+                let tmp%3#0: bool = (b== tmp%2#0 5b)
+                (assert tmp%3#0) // constructor expressions supported
+                let tmp%6#0: bool = 1u
+                (assert tmp%6#0)
                 return 1u
         
         subroutine test_cases.stubs.biguint.compare_biguints(one: biguint, two: biguint) -> void:

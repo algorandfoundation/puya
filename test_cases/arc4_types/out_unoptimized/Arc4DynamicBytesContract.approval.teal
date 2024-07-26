@@ -236,18 +236,10 @@ main_after_for@12:
     txn NumAppArgs
     int 0
     !=
-    bz main_ternary_false@14
-    byte 0x02
-    b main_ternary_merge@15
-
-main_ternary_false@14:
-    // arc4_types/dynamic_bytes.py:41
-    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
     byte 0x03
-
-main_ternary_merge@15:
-    // arc4_types/dynamic_bytes.py:41
-    // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
+    byte 0x02
+    uncover 2
+    select
     byte 0x
     uncover 1
     concat
@@ -269,16 +261,16 @@ main_ternary_merge@15:
     txn NumAppArgs
     int 0
     !=
-    bz main_ternary_false@17
+    bz main_ternary_false@14
     byte 0x32
     len
     itob
     extract 6 2
     byte 0x32
     concat
-    b main_ternary_merge@18
+    b main_ternary_merge@15
 
-main_ternary_false@17:
+main_ternary_false@14:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
     byte 0x33
@@ -288,7 +280,7 @@ main_ternary_false@17:
     byte 0x33
     concat
 
-main_ternary_merge@18:
+main_ternary_merge@15:
     // arc4_types/dynamic_bytes.py:45
     // assert dynamic_bytes.native == b"3"
     extract 2 0

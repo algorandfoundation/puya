@@ -2,6 +2,10 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
     program approval:
         subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program() -> bool:
             block@0: // L14
+                let tmp%11#0: bool = 1u
+                (assert tmp%11#0) // b,d,e,f,g,i,j are true
+                let tmp%14#0: bool = 1u
+                (assert tmp%14#0) // c and h are false
                 let encoded_tuple_buffer%24#0: bytes = 0x04a0
                 let encoded_tuple_buffer%25#0: bytes = (setbit encoded_tuple_buffer%24#0 11u 1u)
                 let encoded_tuple_buffer%26#0: bytes = (setbit encoded_tuple_buffer%25#0 12u 1u)
@@ -10,14 +14,14 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let encoded_tuple_buffer%29#0: bytes = (setbit encoded_tuple_buffer%28#0 15u 1u)
                 let encoded_tuple_buffer%30#0: bytes = (concat encoded_tuple_buffer%29#0 0x80)
                 let encoded_tuple_buffer%31#0: bytes = (concat encoded_tuple_buffer%30#0 0x10)
-                let tmp%16#0: bool = (== 0x04bd8010 encoded_tuple_buffer%31#0)
-                (assert tmp%16#0)
+                let tmp%17#0: bool = (== 0x04bd8010 encoded_tuple_buffer%31#0)
+                (assert tmp%17#0)
                 let (total#0: uint64, concat#0: bytes) = test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(0x01020007000eff000568656c6c6f0005776f726c64)
-                let tmp%17#0: bytes = ((extract 2 0) concat#0)
-                let tmp%18#0: bool = (== tmp%17#0 "hello world")
-                (assert tmp%18#0)
-                let tmp%19#0: bool = (== total#0 258u)
+                let tmp%18#0: bytes = ((extract 2 0) concat#0)
+                let tmp%19#0: bool = (== tmp%18#0 "hello world")
                 (assert tmp%19#0)
+                let tmp%20#0: bool = (== total#0 258u)
+                (assert tmp%20#0)
                 return 1u
         
         subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> <uint64, bytes>:

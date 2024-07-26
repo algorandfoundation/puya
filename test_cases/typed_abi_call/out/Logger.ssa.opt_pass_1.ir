@@ -263,16 +263,8 @@ contract test_cases.typed_abi_call.logger.Logger:
         subroutine test_cases.typed_abi_call.logger.Logger.log_bool(value: bytes) -> void:
             block@0: // L37
                 let tmp%0#0: bool = (getbit value#0 0u)
-                goto tmp%0#0 ? block@1 : block@2
-            block@1: // ternary_true_L39
-                let ternary_result%0#0: bytes = 0x54727565
-                goto block@3
-            block@2: // ternary_false_L39
-                let ternary_result%0#1: bytes = 0x46616c7365
-                goto block@3
-            block@3: // ternary_merge_L39
-                let ternary_result%0#2: bytes = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
-                (log ternary_result%0#2)
+                let tmp%1#0: bytes = (select 0x46616c7365 0x54727565 tmp%0#0)
+                (log tmp%1#0)
                 return 
         
         subroutine test_cases.typed_abi_call.logger.Logger.log_bytes(value: bytes) -> void:

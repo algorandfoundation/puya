@@ -85,22 +85,24 @@ __init__:
     txn NumAppArgs
     int 0
     !=
+    // state_proxies/contract.py:21
+    // else GlobalState(UInt64, key="town")
+    byte "town"
+    // state_proxies/contract.py:19
+    // GlobalState(UInt64, key="funky")
+    byte "funky"
+    // state_proxies/contract.py:18-22
+    // funky_town = (
+    //     GlobalState(UInt64, key="funky")
+    //     if Txn.num_app_args
+    //     else GlobalState(UInt64, key="town")
+    // )
+    uncover 2
     // state_proxies/contract.py:19-21
     // GlobalState(UInt64, key="funky")
     // if Txn.num_app_args
     // else GlobalState(UInt64, key="town")
-    bz __init___ternary_false@2
-    // state_proxies/contract.py:19
-    // GlobalState(UInt64, key="funky")
-    byte "funky"
-    b __init___ternary_merge@3
-
-__init___ternary_false@2:
-    // state_proxies/contract.py:21
-    // else GlobalState(UInt64, key="town")
-    byte "town"
-
-__init___ternary_merge@3:
+    select
     // state_proxies/contract.py:23
     // funky_town.value = UInt64(123)
     int 123
