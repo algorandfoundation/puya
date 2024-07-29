@@ -74,13 +74,13 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
                 return arg.resolve_literal(UIntNTypeBuilder(typ, location))
             case None:
                 expr: Expression = IntegerConstant(value=0, wtype=wtype, source_location=location)
-            case InstanceBuilder(
-                pytype=(pytypes.BoolType | pytypes.UInt64Type | pytypes.BigUIntType)
-            ):
-                expr = ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location)
             case _:
-                # use a type we've already matched
-                return expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
+                encodeable = expect.argument_of_type_else_dummy(
+                    arg, pytypes.UInt64Type, pytypes.BigUIntType, pytypes.BoolType
+                )
+                expr = ARC4Encode(
+                    value=encodeable.resolve(), wtype=wtype, source_location=location
+                )
         return UIntNExpressionBuilder(expr, typ)
 
 

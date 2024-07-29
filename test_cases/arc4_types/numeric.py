@@ -1,11 +1,12 @@
 import typing
 import typing as t
 
-from algopy import BigUInt, Bytes, Contract, Txn, UInt64, op
+from algopy import BigUInt, Bytes, Contract, OnCompleteAction, Txn, UInt64, op
 from algopy.arc4 import (
     BigUFixedNxM,
     BigUIntN,
     Byte,
+    Tuple,
     UFixedNxM,
     UInt8,
     UInt16,
@@ -98,6 +99,10 @@ class Arc4NumericTypesContract(Contract):
         assert arc4_biguint_dynamic.bytes.length == (128 // 8)
 
         assert really_big_decimal.bytes.length == 64
+
+        # check UInt64 sub-types are converted properly
+        tup = Tuple((ARC4UInt64(OnCompleteAction.ClearState),))
+        assert tup[0].native == OnCompleteAction.ClearState
 
         return True
 
