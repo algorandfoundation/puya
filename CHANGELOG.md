@@ -1,4 +1,30 @@
 # CHANGELOG
+## v2.2.0 (2024-07-30)
+
+### Feature
+
+* remove requirement that the target variable of a for-loop with enumeration be a tuple unpacking ([`5b994e3`](https://github.com/algorandfoundation/puya/commit/5b994e35d322c664a85079cdc4a0ffe876a50dca))
+
+* support for-else and while-else ([`0959e2d`](https://github.com/algorandfoundation/puya/commit/0959e2d3652b729f5c7cca2bd15fe99a02be5219))
+
+* include ARC-22 readonly flag in ARC-32 output ([`6d325b9`](https://github.com/algorandfoundation/puya/commit/6d325b989a3f9814eaf3325a3685ee95bb1722e8))
+
+* add support for compiling programs to AVM bytecode, and referencing those programs within other contracts. ([`7d7a4fd`](https://github.com/algorandfoundation/puya/commit/7d7a4fd7e6465ff26c10909147034720eb1c5145))
+
+### Fix
+
+* ensure conversion of UInt64 enum types to arc4 UIntN is handled correctly. ([`70b49dc`](https://github.com/algorandfoundation/puya/commit/70b49dc848fd7dc67569f81ddf443e8eb3d865f6))
+
+* change total_num_byte_slice return type to UInt64 ([`96b5165`](https://github.com/algorandfoundation/puya/commit/96b5165f916d64b9edee121d2c40b340eb488c5c))
+
+* fix bug with iteration of single item tuples ([`983f171`](https://github.com/algorandfoundation/puya/commit/983f171f6a4566332740a000b8209e7fe3217bb1))
+
+* fix a regression where `algopy.op` functions that accepted multiple literal types would fail to compile with all except one type ([`2cbf5df`](https://github.com/algorandfoundation/puya/commit/2cbf5df647842969fce27199153ae0bac2ad1523))
+
+* use UInt64 enum types as return types where appropriate in low-level ops stubs ([`008c96a`](https://github.com/algorandfoundation/puya/commit/008c96a3222e37e2cd702ec844e7ebc38aff9d8f))
+
+* prevent internal errors when for-loop bodies always exit (#269) ([`1b24cd7`](https://github.com/algorandfoundation/puya/commit/1b24cd72af71f2826b3385c8a274d1a656895f57))
+
 ## v2.1.2 (2024-07-10)
 
 ### Fix
