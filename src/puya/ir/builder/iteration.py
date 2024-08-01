@@ -9,9 +9,8 @@ from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder._tuple_util import get_tuple_item_values, build_tuple_names
+from puya.ir.builder._tuple_util import build_tuple_names, get_tuple_item_values
 from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
-from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     ConditionalBranch,
@@ -22,7 +21,6 @@ from puya.ir.models import (
     UInt64Constant,
     Value,
     ValueProvider,
-    ValueTuple,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -58,7 +56,7 @@ class LoopAssigner:
         var_names = self._build_names_from_lvalue(self._items)
 
         if self.has_enumerate:
-            (*item_names, index_name) = var_names
+            (index_name, *item_names) = var_names
             item_registers = assign(
                 self._context,
                 item_provider,

@@ -20,7 +20,7 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.types_ import get_wtype_arity
-from puya.ir.utils import format_tuple_index, lvalue_items
+from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, String, UInt64, arc4, op, subroutine
+from algopy import ARC4Contract, Bytes, String, UInt64, arc4, op, subroutine
 
 
 class NestedTuples(ARC4Contract):
