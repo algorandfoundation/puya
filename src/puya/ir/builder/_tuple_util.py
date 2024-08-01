@@ -1,14 +1,13 @@
 from collections.abc import Sequence
 
+from puya.awst import (
+    wtypes,
+)
 from puya.errors import InternalError
 from puya.ir.models import Value, ValueProvider, ValueTuple
 from puya.ir.types_ import get_wtype_arity, sum_wtypes_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
-from puya.awst import (
-    nodes as awst_nodes,
-    wtypes,
-)
 
 
 def get_tuple_item_values(

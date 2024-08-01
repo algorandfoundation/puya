@@ -127,7 +127,7 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
                 (assert tmp%2#0)
                 let s.1.0#1: uint64 = one#0
                 goto reassign#0 ? block@1 : block@2
-            block@1: // if_body_L105
+            block@1: // if_body_L106
                 let s.0.0#0: uint64 = 3u
                 let s.1.0#1: uint64 = 4u
                 let s.2.0#0: uint64 = 5u
@@ -184,32 +184,56 @@ contract test_cases.tuple_support.nested_tuples.NestedTuples:
             block@0: // L135
                 let total#0: uint64 = 0u
                 let loop_counter%0#0: uint64 = 0u
-                let a#0: uint64 = 1u
-                let b#0: uint64 = 2u
+                let t.0#0: uint64 = 1u
+                let t.1#0: uint64 = 2u
                 goto block@1
-            block@1: // for_body_L140
-                let tmp%0#0: uint64 = (+ a#0 b#0)
+            block@1: // for_body_L142
+                let tmp%0#0: uint64 = (+ t.0#0 t.1#0)
                 let total#0: uint64 = (+ total#0 tmp%0#0)
                 goto_nth [block@3, block@4, block@5][loop_counter%0#0] else goto block@6
-            block@3: // for_header_1_L140
+            block@3: // for_header_1_L141
                 let loop_counter%0#0: uint64 = 1u
-                let a#0: uint64 = 2u
-                let b#0: uint64 = 1u
+                let t.0#0: uint64 = 2u
+                let t.1#0: uint64 = 1u
                 goto block@1
-            block@4: // for_header_2_L140
+            block@4: // for_header_2_L141
                 let loop_counter%0#0: uint64 = 2u
-                let a#0: uint64 = 1u
-                let b#0: uint64 = 1u
+                let t.0#0: uint64 = 1u
+                let t.1#0: uint64 = 1u
                 goto block@1
-            block@5: // for_header_3_L140
+            block@5: // for_header_3_L141
                 let loop_counter%0#0: uint64 = 3u
-                let a#0: uint64 = 2u
-                let b#0: uint64 = 2u
+                let t.0#0: uint64 = 2u
+                let t.1#0: uint64 = 2u
                 goto block@1
-            block@6: // after_for_L140
-                let tmp%1#0: uint64 = (/ total#0 4u)
-                let tmp%2#0: bool = (== tmp%1#0 3u)
-                (assert tmp%2#0)
+            block@6: // after_for_L141
+                let loop_counter%1#0: uint64 = 0u
+                let a#1: uint64 = 1u
+                let b#1: uint64 = 2u
+                goto block@7
+            block@7: // for_body_L146
+                let tmp%1#0: uint64 = (+ a#1 b#1)
+                let total#0: uint64 = (+ total#0 tmp%1#0)
+                goto_nth [block@9, block@10, block@11][loop_counter%1#0] else goto block@12
+            block@9: // for_header_1_L145
+                let loop_counter%1#0: uint64 = 1u
+                let a#1: uint64 = 2u
+                let b#1: uint64 = 1u
+                goto block@7
+            block@10: // for_header_2_L145
+                let loop_counter%1#0: uint64 = 2u
+                let a#1: uint64 = 1u
+                let b#1: uint64 = 1u
+                goto block@7
+            block@11: // for_header_3_L145
+                let loop_counter%1#0: uint64 = 3u
+                let a#1: uint64 = 2u
+                let b#1: uint64 = 2u
+                goto block@7
+            block@12: // after_for_L145
+                let tmp%2#0: uint64 = (/ total#0 8u)
+                let tmp%3#0: bool = (== tmp%2#0 3u)
+                (assert tmp%3#0)
                 return 
         
         subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(args.0: bytes, args.1.0: bytes, args.1.1.0: uint64) -> <bytes, bytes, uint64>:
