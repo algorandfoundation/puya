@@ -1,20 +1,22 @@
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from puya.errors import InternalError
+from puya.ir.builder._tuple_util import build_tuple_names
 from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
     ConditionalBranch,
     Goto,
-    Register,
     Switch,
     Value,
+    ValueProvider,
+    ValueTuple,
 )
-from puya.ir.types_ import wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -171,7 +173,7 @@ def handle_while_loop(context: IRFunctionBuildContext, statement: awst_nodes.Whi
 
 def handle_conditional_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.ConditionalExpression
-) -> Register:
+) -> ValueProvider:
     # TODO: if expr.true_value and exr.false_value are var expressions,
     #       we can optimize with the `select` op
 
@@ -190,10 +192,12 @@ def handle_conditional_expression(
 
     context.block_builder.activate_block(true_block)
     true_vp = context.visitor.visit_expr(expr.true_expr)
-    assign(
+    registers = assign(
         context,
         source=true_vp,
-        names=[(tmp_var_name, expr.true_expr.source_location)],
+        names=build_tuple_names(
+            tmp_var_name, expr.true_expr.wtype, expr.true_expr.source_location
+        ),
         source_location=expr.source_location,
     )
     context.block_builder.goto(merge_block)
@@ -203,12 +207,17 @@ def handle_conditional_expression(
     assign(
         context,
         source=false_vp,
-        names=[(tmp_var_name, expr.false_expr.source_location)],
+        names=build_tuple_names(
+            tmp_var_name, expr.false_expr.wtype, expr.false_expr.source_location
+        ),
         source_location=expr.source_location,
     )
     context.block_builder.goto(merge_block)
     context.block_builder.activate_block(merge_block)
-    result = context.ssa.read_variable(
-        variable=tmp_var_name, ir_type=wtype_to_ir_type(expr), block=merge_block
-    )
-    return result
+    result = [
+        context.ssa.read_variable(variable=r.name, ir_type=r.ir_type, block=merge_block)
+        for r in registers
+    ]
+    if len(result) == 1:
+        return result[0]
+    return ValueTuple(values=result, source_location=expr.source_location)

@@ -2,6 +2,9 @@ from algopy import ARC4Contract, Bytes, String, UInt64, arc4, op, subroutine
 
 
 class NestedTuples(ARC4Contract):
+    def __init__(self) -> None:
+        self.build_nested_call_count = UInt64(0)
+
     @arc4.abimethod()
     def run_tests(self) -> bool:
         x = (String("Hi"), String("There"))
@@ -28,6 +31,7 @@ class NestedTuples(ARC4Contract):
 
         test_nested_iteration()
 
+        self.test_single_evaluation_nested()
         return True
 
     @arc4.abimethod()
@@ -36,6 +40,18 @@ class NestedTuples(ARC4Contract):
     ) -> tuple[Bytes, tuple[String, UInt64]]:
         (s, (b, (u,))) = args
         return b, (s, u)
+
+    @subroutine
+    def build_nested(self) -> tuple[tuple[String, UInt64], Bytes]:
+        self.build_nested_call_count += 1
+        return (String("hi"), UInt64(1)), Bytes(b"hmmm")
+
+    @subroutine
+    def test_single_evaluation_nested(self) -> None:
+        self.build_nested_call_count = UInt64(0)
+        result = self.build_nested() or self.build_nested()
+        assert result[0][0] == "hi"
+        assert self.build_nested_call_count == 1
 
 
 @subroutine
