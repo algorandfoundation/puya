@@ -26,6 +26,9 @@ class TupleSupport(Contract):
         assert cd[0] == tup[0]
         assert cd[1] == tup[1]
 
+        (m, n) = get_tuple(a, b) or get_tuple(b, a)
+        assert (m, n) == (a, b)
+
         # assert ab2 == ab # TODO: support ths
         # foobar = ((a, b), (c, d)) # TODO: negative test for this
         log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
@@ -63,6 +66,11 @@ class TupleSupport(Contract):
 
     def clear_state_program(self) -> UInt64:
         return UInt64(0)
+
+
+@subroutine
+def get_tuple(a: UInt64, b: UInt64) -> tuple[UInt64, UInt64]:
+    return a, b
 
 
 @subroutine
