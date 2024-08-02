@@ -56,9 +56,9 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
         return _init(args, location)
 
 
-class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
+class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleLikeType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.TupleType)
+        assert isinstance(typ, pytypes.TupleLikeType)
         assert typ.generic == pytypes.GenericTupleType
         super().__init__(typ, location)
 
@@ -98,7 +98,7 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
             raise CodeError("unhandled argument type", arg.source_location)
 
 
-class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
+class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleLikeType], StaticSizedCollectionBuilder):
     def __init__(self, items: Sequence[InstanceBuilder], location: SourceLocation):
         super().__init__(location)
         self._items = tuple(items)
@@ -106,7 +106,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
 
     @typing.override
     @property
-    def pytype(self) -> pytypes.TupleType:
+    def pytype(self) -> pytypes.TupleLikeType:
         return self._pytype
 
     @typing.override
@@ -233,10 +233,10 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
 
 
 class TupleExpressionBuilder(
-    InstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+    InstanceExpressionBuilder[pytypes.TupleLikeType], StaticSizedCollectionBuilder
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.TupleType)
+        assert isinstance(typ, pytypes.TupleLikeType)
         super().__init__(typ, expr)
 
     @typing.override
@@ -389,12 +389,12 @@ class TupleExpressionBuilder(
 
 
 def _compare(
-    lhs: InstanceBuilder[pytypes.TupleType],
+    lhs: InstanceBuilder[pytypes.TupleLikeType],
     rhs: InstanceBuilder,
     op: BuilderComparisonOp,
     location: SourceLocation,
 ) -> InstanceBuilder:
-    if not isinstance(rhs.pytype, pytypes.TupleType):
+    if not isinstance(rhs.pytype, pytypes.TupleLikeType):
         return NotImplemented
 
     match op:
@@ -458,15 +458,15 @@ def _compare(
 
 
 def _concat(
-    this: InstanceBuilder[pytypes.TupleType],
+    this: InstanceBuilder[pytypes.TupleLikeType],
     other: InstanceBuilder,
     location: SourceLocation,
     *,
     reverse: bool,
 ) -> InstanceBuilder:
-    if not isinstance(other.pytype, pytypes.TupleType):
+    if not isinstance(other.pytype, pytypes.TupleLikeType):
         raise CodeError("can only concatenate tuple with other tuples", location)
-    other = typing.cast(InstanceBuilder[pytypes.TupleType], other)
+    other = typing.cast(InstanceBuilder[pytypes.TupleLikeType], other)
     if not reverse:
         lhs, rhs = this, other
     else:
@@ -482,7 +482,7 @@ def _concat(
 
 
 def _iterable_item_type(
-    pytype: pytypes.TupleType, source_location: SourceLocation
+    pytype: pytypes.TupleLikeType, source_location: SourceLocation
 ) -> pytypes.PyType:
     try:
         return determine_base_type(*pytype.items, location=source_location)

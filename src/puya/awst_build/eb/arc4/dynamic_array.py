@@ -243,7 +243,7 @@ def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -
     match arg.pytype:
         case pytypes.ArrayType(items=array_items):
             return expected_item_type <= array_items
-        case pytypes.TupleType(items=tuple_items):
+        case pytypes.TupleLikeType(items=tuple_items):
             return all(expected_item_type <= ti for ti in tuple_items)
     return False
 

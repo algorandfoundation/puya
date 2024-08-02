@@ -39,7 +39,7 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
         arg = expect.exactly_one_arg(args, location, default=expect.default_raise)
         match arg:
             case InstanceBuilder(
-                pytype=pytypes.TupleType(items=items, generic=pytypes.GenericTupleType)
+                pytype=pytypes.TupleLikeType(items=items, generic=pytypes.GenericTupleType)
             ):
                 typ = pytypes.GenericARC4TupleType.parameterise(items, location)
                 wtype = typ.wtype
@@ -52,9 +52,9 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
                 raise CodeError("unexpected argument type", arg.source_location)
 
 
-class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
+class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleLikeType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.TupleType)
+        assert isinstance(typ, pytypes.TupleLikeType)
         assert typ.generic == pytypes.GenericARC4TupleType
         super().__init__(typ, location)
 
@@ -77,10 +77,10 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
 
 
 class ARC4TupleExpressionBuilder(
-    BytesBackedInstanceExpressionBuilder[pytypes.TupleType], StaticSizedCollectionBuilder
+    BytesBackedInstanceExpressionBuilder[pytypes.TupleLikeType], StaticSizedCollectionBuilder
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.TupleType)
+        assert isinstance(typ, pytypes.TupleLikeType)
         assert typ.generic == pytypes.GenericARC4TupleType
         super().__init__(typ, expr)
 
