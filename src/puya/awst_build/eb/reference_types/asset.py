@@ -23,7 +23,7 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class AssetTypeBuilder(TypeBuilder):
+class AssetTypeBuilder(TypeBuilder[pytypes.RuntimeType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AssetType, location)
 

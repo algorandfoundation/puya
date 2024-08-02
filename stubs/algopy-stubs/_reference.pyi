@@ -1,5 +1,8 @@
+import typing
+
 from algopy import Bytes, BytesBacked, UInt64
 
+@typing.final
 class Account(BytesBacked):
     """An Account on the Algorand network.
 
@@ -142,6 +145,7 @@ class Account(BytesBacked):
         ```
         """
 
+@typing.final
 class Asset:
     """An Asset on the Algorand network."""
 
@@ -287,6 +291,7 @@ class Asset:
         ```
         """
 
+@typing.final
 class Application:
     """An Application on the Algorand network."""
 

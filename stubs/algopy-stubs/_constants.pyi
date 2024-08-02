@@ -1,5 +1,8 @@
+import typing
+
 from algopy import UInt64
 
+@typing.final
 class OnCompleteAction(UInt64):
     """On Completion actions available in an application call transaction"""
 
@@ -28,6 +31,7 @@ class OnCompleteAction(UInt64):
     delete the AppParams for the application from the creator's balance
     record"""
 
+@typing.final
 class TransactionType(UInt64):
     """The different transaction types available in a transaction"""
 

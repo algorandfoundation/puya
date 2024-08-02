@@ -26,7 +26,7 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
+class GroupTransactionTypeBuilder(TypeBuilder[pytypes.GroupTransactionType]):
     @typing.override
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
@@ -45,10 +45,8 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
                         location=literal.source_location,
                     )
                 typ = self.produces()
-                wtype = typ.wtype
-                assert isinstance(wtype, wtypes.WGroupTransaction)
                 group_index = UInt64Constant(value=int_value, source_location=location)
-                txn = check_transaction_type(group_index, wtype, location)
+                txn = check_transaction_type(group_index, typ.wtype, location)
                 return GroupTransactionExpressionBuilder(txn, typ)
         return None
 
@@ -64,23 +62,21 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
             args, location, default=expect.default_dummy_value(pytypes.UInt64Type)
         )
         typ = self.produces()
-        if arg.pytype == pytypes.IntLiteralType:
+        if arg.pytype == pytypes.IntLiteralType:  # exact type, exclude bool
             return arg.resolve_literal(GroupTransactionTypeBuilder(typ, location))
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.WGroupTransaction)
         group_index = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type).resolve()
-        txn = check_transaction_type(group_index, wtype, location)
+        txn = check_transaction_type(group_index, typ.wtype, location)
         return GroupTransactionExpressionBuilder(txn, typ)
 
 
 class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.TransactionRelatedType)
+        assert isinstance(typ, pytypes.GroupTransactionType)
         super().__init__(typ, expr)
 
     @typing.override
     def get_field_value(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+        self, field: TxnField, typ: pytypes.RuntimeType, location: SourceLocation
     ) -> InstanceBuilder:
         assert not field.is_array
         assert typ.wtype.scalar_type == field.avm_type
@@ -97,12 +93,12 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
     def get_array_field_value(
         self,
         field: TxnField,
-        typ: pytypes.PyType,
+        typ: pytypes.RuntimeType,
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> InstanceBuilder:
         assert field.is_array
-        assert index.pytype == pytypes.UInt64Type
+        assert pytypes.UInt64Type <= index.pytype
         assert typ.wtype.scalar_type == field.avm_type
         expr = IntrinsicCall(
             op_code="gtxnsas",

@@ -102,9 +102,9 @@ class BigUIntExpressionBuilder(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
         other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
+        if pytypes.BigUIntType <= other.pytype:
             other_expr = other.resolve()
-        elif other.pytype == pytypes.UInt64Type:
+        elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
         else:
             return NotImplemented
@@ -128,9 +128,9 @@ class BigUIntExpressionBuilder(
         if biguint_op is None:
             return NotImplemented
         other = other.resolve_literal(converter=BigUIntTypeBuilder(other.source_location))
-        if other.pytype == self.pytype:
+        if pytypes.BigUIntType <= other.pytype:
             other_expr = other.resolve()
-        elif other.pytype == pytypes.UInt64Type:
+        elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
         else:
             return NotImplemented
@@ -150,7 +150,7 @@ class BigUIntExpressionBuilder(
         if biguint_op is None:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
-        if rhs.pytype == pytypes.UInt64Type:
+        if pytypes.UInt64Type <= rhs.pytype:
             value = _uint64_to_biguint(rhs, location)
         else:
             value = expect.argument_of_type_else_dummy(

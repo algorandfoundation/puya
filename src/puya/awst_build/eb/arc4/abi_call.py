@@ -228,7 +228,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             case ContractTypeExpressionBuilder(
                 pytype=pytypes.TypeType(typ=typ),
                 type_info=type_info,
-            ) as eb if pytypes.ARC4ContractBaseType in typ.mro:
+            ) as eb if pytypes.ARC4ContractBaseType < typ:
                 method_call = _get_lifecycle_method_call(
                     eb.context,
                     type_info,
@@ -247,7 +247,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             compiled = CompiledContractExpressionBuilder(
                 CompiledContract(
                     contract=contract_ref,
-                    wtype=pytypes.CompiledContractType.wtype,
+                    wtype=pytypes.CompiledContractType.checked_wtype(location),
                     source_location=location,
                 )
             )
@@ -596,7 +596,7 @@ def _create_abi_call_expr(
     itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
     create_itxn = CreateInnerTransaction(
         fields=fields,
-        wtype=wtypes.WInnerTransactionFields.from_type(txn_type_appl),
+        wtype=pytypes.InnerTransactionFieldsetTypes[txn_type_appl].wtype,
         source_location=location,
     )
     itxn_builder = InnerTransactionExpressionBuilder(
@@ -613,7 +613,9 @@ def _create_abi_call_expr(
     # due to automatic conversion of ARC4 -> native types
     if declared_result_type != arc4_return_type:
         abi_result = ARC4Decode(
-            value=abi_result, wtype=declared_result_type.wtype, source_location=location
+            value=abi_result,
+            wtype=declared_result_type.checked_wtype(location),
+            source_location=location,
         )
 
     abi_result_builder = builder_for_instance(declared_result_type, abi_result)

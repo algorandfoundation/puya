@@ -6,7 +6,7 @@ from puya import log
 from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import is_type_or_subtype, maybe_resolve_literal
+from puya.awst_build.utils import maybe_resolve_literal
 from puya.parse import SourceLocation
 
 _T = typing.TypeVar("_T")
@@ -34,7 +34,7 @@ def at_most_one_arg_of_type(
     first, *rest = args
     if rest:
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
-    if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of_any=valid_types):
+    if isinstance(first, InstanceBuilder) and first.pytype.is_type_or_subtype(*valid_types):
         return first
     logger.error("unexpected argument type", location=first.source_location)
     return None
@@ -101,7 +101,7 @@ def exactly_one_arg(
 
 def exactly_one_arg_of_type(
     args: Sequence[NodeBuilder],
-    pytype: pytypes.PyType,
+    expected: pytypes.PyType,
     location: SourceLocation,
     *,
     default: Callable[[str, SourceLocation], _T],
@@ -116,8 +116,8 @@ def exactly_one_arg_of_type(
     if rest:
         logger.error(f"expected 1 argument, got {len(args)}", location=location)
     if resolve_literal:
-        first = maybe_resolve_literal(first, pytype)
-    if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of=pytype):
+        first = maybe_resolve_literal(first, expected)
+    if isinstance(first, InstanceBuilder) and expected <= first.pytype:
         return first
     msg = "unexpected argument type"
     result = default(msg, first.source_location)
@@ -180,8 +180,8 @@ def argument_of_type(
     if resolve_literal:
         builder = maybe_resolve_literal(builder, target_type)
 
-    if isinstance(builder, InstanceBuilder) and is_type_or_subtype(
-        builder.pytype, of_any=(target_type, *additional_types)
+    if isinstance(builder, InstanceBuilder) and builder.pytype.is_type_or_subtype(
+        target_type, *additional_types
     ):
         return builder
     msg = "unexpected argument type"
