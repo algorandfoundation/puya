@@ -254,27 +254,29 @@ class TypingLiteralType(PyType):
         return ErrorMessage(f"{self} is not usable as a value")
 
 
-_TupleWTypeFactory = Callable[
-    [Iterable[wtypes.WType], SourceLocation | None],
-    wtypes.WTuple | wtypes.ARC4Tuple,
-]
-
-
-@typing.final
 @attrs.frozen(kw_only=True, order=False)
-class TupleType(PyType):
-    names: tuple[str, ...] | None = attrs.field()
+class TupleLikeType(PyType, abc.ABC):
     items: tuple[PyType, ...]
-    _wtype_factory: _TupleWTypeFactory
     source_location: SourceLocation | None
 
-    @names.validator
-    def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
-        if names is not None and len(names) != len(self.items):
-            raise InternalError("names length must match items length", self.source_location)
+
+GenericTupleType: typing.Final = _GenericType(
+    name="builtins.tuple",
+    parameterise=lambda _, args, loc: TupleType(items=tuple(args), source_location=loc),
+)
+
+
+@attrs.frozen(kw_only=True, order=False)
+class TupleType(TupleLikeType):
+    generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name(self) -> str:
+        return f"{self.generic.name}[{', '.join(pyt.name for pyt in self.items)}]"
 
     @property
-    def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple | ErrorMessage:
+    def wtype(self) -> wtypes.WTuple | ErrorMessage:
         item_wtypes = []
         for i in self.items:
             match i.wtype:
@@ -284,7 +286,18 @@ class TupleType(PyType):
                     return err
                 case other:
                     typing.assert_never(other)
-        return self._wtype_factory(tuple(item_wtypes), self.source_location)
+        return wtypes.WTuple(tuple(item_wtypes), self.source_location)
+
+
+@attrs.frozen(kw_only=True, order=False)
+class NamedTupleType(TupleLikeType):
+    names: tuple[str, ...] = attrs.field()
+    wtype: wtypes.WTuple
+
+    @names.validator
+    def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
+        if names is not None and len(names) != len(self.items):
+            raise InternalError("names length must match items length", self.source_location)
 
 
 @typing.final
@@ -641,54 +654,51 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 )
 
 
-def _make_tuple_parameterise(
-    wtype_factory: _TupleWTypeFactory,
-) -> _Parameterise[TupleType]:
-    def parameterise(
-        self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
-    ) -> TupleType:
-        name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
-        return TupleType(
-            generic=self,
-            name=name,
-            names=None,
-            items=tuple(args),
-            wtype_factory=wtype_factory,
-            source_location=source_location,
-        )
+def _parameterise_arc4_tuple(
+    self: _GenericType[ARC4TupleType],  # noqa: ARG001
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
+) -> ARC4TupleType:
+    item_wtypes = [arg.checked_wtype(source_location) for arg in args]
+    wtype = wtypes.ARC4Tuple(item_wtypes, source_location)
+    return ARC4TupleType(items=tuple(args), wtype=wtype, source_location=source_location)
 
-    return parameterise
-
-
-GenericTupleType: typing.Final = _GenericType(
-    name="builtins.tuple",
-    parameterise=_make_tuple_parameterise(wtypes.WTuple),
-)
 
 GenericARC4TupleType: typing.Final = _GenericType(
     name="algopy.arc4.Tuple",
-    parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
+    parameterise=_parameterise_arc4_tuple,
 )
 
 
-def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
+@attrs.frozen(kw_only=True, order=False)
+class ARC4TupleType(TupleLikeType, RuntimeType):
+    generic: _GenericType = attrs.field(default=GenericARC4TupleType, init=False)
+    name: str = attrs.field(init=False)
+    wtype: wtypes.ARC4Tuple
+
+    @name.default
+    def _name(self) -> str:
+        return f"{self.generic.name}[{', '.join(pyt.name for pyt in self.items)}]"
+
+
+def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> NamedTupleType:
     """
-    Produces a TupleType with an underlying WType that is a linear WTuple of provided items
+    Produces a TupleLikeType with an underlying WType that is a linear WTuple of provided items
     """
 
-    def _flatten(items: Iterable[wtypes.WType]) -> Iterable[wtypes.WType]:
-        for item in items:
-            if isinstance(item, wtypes.WTuple):
-                yield from _flatten(item.types)
+    def _flatten(items_: Iterable[PyType]) -> Iterable[wtypes.WType]:
+        for item in items_:
+            if isinstance(item, TupleLikeType):
+                yield from _flatten(item.items)
             else:
-                yield item
+                yield item.checked_wtype(None)
 
-    pytype = TupleType(
+    pytype = NamedTupleType(
         name=name,
         generic=None,
         names=tuple(items.keys()),
         items=tuple(items.values()),
-        wtype_factory=lambda items, loc: wtypes.WTuple(_flatten(items), loc),
+        wtype=wtypes.WTuple(_flatten(items.values()), None),
         source_location=None,
     )
     _register_builtin(pytype)
@@ -698,7 +708,7 @@ def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
 # TODO: The CompiledContract and CompiledLogicSig types are currently just protocols in the stubs,
 #       however the should become named tuples once nested tuples are supported.
 #       For now it is convenient to represent them as named tuples at the pytypes level
-CompiledContractType: typing.Final[TupleType] = _flattened_named_tuple(
+CompiledContractType: typing.Final = _flattened_named_tuple(
     name="algopy._compiled.CompiledContract",
     items={
         "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
@@ -710,7 +720,7 @@ CompiledContractType: typing.Final[TupleType] = _flattened_named_tuple(
         "local_bytes": UInt64Type,
     },
 )
-CompiledLogicSigType: typing.Final[TupleType] = _flattened_named_tuple(
+CompiledLogicSigType: typing.Final = _flattened_named_tuple(
     name="algopy._compiled.CompiledLogicSig",
     items={
         "account": AccountType,

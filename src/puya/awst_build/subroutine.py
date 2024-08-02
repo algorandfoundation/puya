@@ -278,7 +278,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 # special case to ignore ignoring the result of typing.reveal_type
                 pass
             elif isinstance(expr_builder.pytype, pytypes.InnerTransactionResultType) or (
-                isinstance(expr_builder.pytype, pytypes.TupleType)
+                isinstance(expr_builder.pytype, pytypes.TupleLikeType)
                 and any(
                     isinstance(i, pytypes.InnerTransactionResultType)
                     for i in expr_builder.pytype.items
@@ -391,7 +391,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         items=homogenous_type
                     ):
                         tuple_item_types = (homogenous_type,) * len(lval_items)
-                    case pytypes.TupleType(items=tuple_item_types):
+                    case pytypes.TupleLikeType(items=tuple_item_types):
                         if len(tuple_item_types) != len(lval_items):
                             raise CodeError(
                                 f"length mismatch source size of {len(tuple_item_types)}"

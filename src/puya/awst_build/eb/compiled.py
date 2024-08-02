@@ -45,7 +45,7 @@ APP_ALLOCATION_FIELDS = {
 
 
 class _LinearizedNamedTuple(NotIterableInstanceExpressionBuilder):
-    def __init__(self, expr: Expression, pytype: pytypes.TupleType):
+    def __init__(self, expr: Expression, pytype: pytypes.NamedTupleType):
         names = pytype.names
         assert names is not None
         self._item_map = {name: (idx, pytype.items[idx]) for idx, name in enumerate(names)}
@@ -67,13 +67,13 @@ class _LinearizedNamedTuple(NotIterableInstanceExpressionBuilder):
             item_index, item_type = self._item_map[name]
         except KeyError:
             return super().member_access(name, location)
-        if isinstance(item_type, pytypes.TupleType):
+        if isinstance(item_type, pytypes.TupleLikeType):
             return self._read_tuple_slice(item_index, item_type, location)
         else:
             return self._read_tuple_index(item_index, item_type, location)
 
     def _read_tuple_slice(
-        self, item_index: int, item_type: pytypes.TupleType, location: SourceLocation
+        self, item_index: int, item_type: pytypes.TupleLikeType, location: SourceLocation
     ) -> InstanceBuilder:
         start_index = self._get_linear_index(item_index)
         end_index = start_index + _get_linear_tuple_size(item_type)
@@ -109,7 +109,7 @@ class _LinearizedNamedTuple(NotIterableInstanceExpressionBuilder):
 
 
 def _get_linear_tuple_size(pytyp: pytypes.PyType) -> int:
-    if isinstance(pytyp, pytypes.TupleType):
+    if isinstance(pytyp, pytypes.TupleLikeType):
         return sum(map(_get_linear_tuple_size, pytyp.items))
     return 1
 

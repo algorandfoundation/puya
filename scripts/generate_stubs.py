@@ -844,9 +844,7 @@ def pytype_repr(typ: pytypes.PyType) -> str:
     except KeyError:
         pass
     match typ:
-        case pytypes.TupleType(generic=pytypes.GenericTupleType, items=tuple_items) if len(
-            tuple_items
-        ) > 1:
+        case pytypes.TupleType(items=tuple_items) if len(tuple_items) > 1:
             item_strs = [pytype_repr(item) for item in tuple_items]
             return (
                 f"pytypes.GenericTupleType.parameterise("
