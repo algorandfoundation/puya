@@ -1,4 +1,3 @@
-
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,

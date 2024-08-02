@@ -1,15 +1,20 @@
 #pragma version 10
 
 test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@8
     method "run_tests()bool"
     method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
     txna ApplicationArgs 0
-    match main_run_tests_route@2 main_nested_tuple_params_route@3
+    match main_run_tests_route@4 main_nested_tuple_params_route@5
     err // reject transaction
 
-main_run_tests_route@2:
+main_run_tests_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -27,7 +32,7 @@ main_run_tests_route@2:
     int 1
     return
 
-main_nested_tuple_params_route@3:
+main_nested_tuple_params_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -113,7 +118,7 @@ main_nested_tuple_params_route@3:
     int 1
     return
 
-main_bare_routing@6:
+main_bare_routing@8:
     txn OnCompletion
     !
     assert // reject transaction
@@ -178,6 +183,7 @@ run_tests:
     callsub test_nested_singles
     callsub test_nested_mutation
     callsub test_nested_iteration
+    callsub test_single_evaluation_nested
     int 1
     retsub
 
@@ -405,10 +411,58 @@ test_nested_iteration_after_for@12:
     retsub
 
 
+// test_cases.tuple_support.nested_tuples.NestedTuples.test_single_evaluation_nested() -> void:
+test_single_evaluation_nested:
+    proto 0 0
+    byte "build_nested_call_count"
+    int 0
+    app_global_put
+    callsub build_nested
+    popn 2
+    byte "hi"
+    ==
+    assert
+    int 0
+    byte "build_nested_call_count"
+    app_global_get_ex
+    assert // check self.build_nested_call_count exists
+    int 1
+    ==
+    assert
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.build_nested() -> bytes, uint64, bytes:
+build_nested:
+    proto 0 3
+    int 0
+    byte "build_nested_call_count"
+    app_global_get_ex
+    assert // check self.build_nested_call_count exists
+    int 1
+    +
+    byte "build_nested_call_count"
+    swap
+    app_global_put
+    byte "hi"
+    int 1
+    byte 0x686d6d6d
+    retsub
+
+
 // test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params(args.0: bytes, args.1.0: bytes, args.1.1.0: uint64) -> bytes, bytes, uint64:
 nested_tuple_params:
     proto 3 3
     frame_dig -2
     frame_dig -3
     frame_dig -1
+    retsub
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "build_nested_call_count"
+    int 0
+    app_global_put
     retsub
