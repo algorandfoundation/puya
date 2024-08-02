@@ -49,6 +49,11 @@ from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
 logger = log.get_logger(__name__)
 
 
+_TUPLE_MEMBERS: typing.Final = frozenset(("count", "index"))
+_NAMED_TUPLE_MEMBERS: typing.Final = frozenset(("_asdict", "_replace"))
+_NAMED_TUPLE_CLASS_MEMBERS: typing.Final = frozenset(("_make", "_fields", "_field_defaults"))
+
+
 class GenericTupleTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
@@ -138,6 +143,11 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         )
         return TupleExpressionBuilder(expr, pytype)
 
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        if name in _NAMED_TUPLE_CLASS_MEMBERS:
+            raise CodeError("unsupported member access", location)
+        return super().member_access(name, location)
+
 
 class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
     def __init__(self, items: Sequence[InstanceBuilder], location: SourceLocation):
@@ -156,8 +166,8 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> typing.Never:
-        if name in dir(tuple()):  # noqa: C408
-            raise CodeError("method is not currently supported", location)
+        if name in _TUPLE_MEMBERS:
+            raise CodeError("unsupported member access", location)
         raise CodeError("unrecognised member access", location)
 
     @typing.override
@@ -303,8 +313,13 @@ class TupleExpressionBuilder(
                 return builder_for_instance(item_typ, item_expr)
             elif name == "_replace":
                 return _Replace(self, self.pytype, location)
-        if name in dir(tuple()):  # noqa: C408
-            raise CodeError("method is not currently supported", location)
+            elif name in _NAMED_TUPLE_MEMBERS:
+                raise CodeError("unsupported member access", location)
+            elif name in _NAMED_TUPLE_CLASS_MEMBERS:
+                type_builder = NamedTupleTypeBuilder(self.pytype, self.source_location)
+                return type_builder.member_access(name, location)
+        if name in _TUPLE_MEMBERS:
+            raise CodeError("unsupported member access", location)
         raise CodeError("unrecognised member access", location)
 
     @typing.override
