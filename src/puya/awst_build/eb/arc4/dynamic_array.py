@@ -209,7 +209,7 @@ class _Pop(_ArrayFunc):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
         result_expr = ArrayPop(
-            base=self.expr, wtype=self.typ.items.wtype, source_location=location
+            base=self.expr, wtype=self.typ.items_wtype, source_location=location
         )
         return builder_for_instance(self.typ.items, result_expr)
 
@@ -239,13 +239,12 @@ class _Extend(_ArrayFunc):
 
 
 def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> bool:
-    match arg:
-        case InstanceBuilder(pytype=pytypes.ArrayType(items=arr_type.items)):
-            return True
-        case InstanceBuilder(pytype=pytypes.TupleType(items=tup_items)) if all(
-            ti == arr_type.items for ti in tup_items
-        ):
-            return True
+    expected_item_type = arr_type.items
+    match arg.pytype:
+        case pytypes.ArrayType(items=array_items):
+            return expected_item_type <= array_items
+        case pytypes.TupleType(items=tuple_items):
+            return all(expected_item_type <= ti for ti in tuple_items)
     return False
 
 

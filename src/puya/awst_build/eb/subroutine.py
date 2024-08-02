@@ -5,6 +5,7 @@ import mypy.nodes
 import mypy.types
 
 from puya import log
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BaseClassSubroutineTarget,
     CallArg,
@@ -19,7 +20,7 @@ from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puya.awst_build.utils import get_arg_mapping, is_type_or_subtype
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -46,7 +47,8 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         result_pytyp = self.func_type.ret_type
-        if isinstance(result_pytyp, pytypes.LiteralOnlyType):
+        result_wtype = result_pytyp.wtype
+        if not isinstance(result_wtype, wtypes.WType):
             raise CodeError(
                 f"unsupported return type for user function: {result_pytyp}", location=location
             )
@@ -114,8 +116,8 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
                 return dummy_value(result_pytyp, location)
 
             arg = arg_map[arg_map_name]
-            if pytypes.ContractBaseType in arg_typ.mro:
-                if not is_type_or_subtype(arg.pytype, of=arg_typ):
+            if pytypes.ContractBaseType < arg_typ:
+                if not (arg_typ <= arg.pytype):
                     logger.error("unexpected argument type", location=arg.source_location)
             else:
                 arg = expect.argument_of_type_else_dummy(arg, arg_typ)
@@ -125,7 +127,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
         call_expr = SubroutineCallExpression(
             target=self.target,
             args=call_args,
-            wtype=result_pytyp.wtype,
+            wtype=result_wtype,
             source_location=location,
         )
         return builder_for_instance(result_pytyp, call_expr)

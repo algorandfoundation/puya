@@ -8,6 +8,7 @@ from functools import cached_property
 
 import attrs
 
+from puya.awst import wtypes
 from puya.awst_build import pytypes
 from puya.errors import InternalError
 
@@ -19,6 +20,11 @@ class PropertyOpMapping:
     typ: pytypes.PyType = attrs.field(
         validator=attrs.validators.not_(attrs.validators.in_([pytypes.NoneType]))
     )
+    wtype: wtypes.WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        return self.typ.checked_wtype(location=None)
 
 
 @attrs.frozen
@@ -60,7 +66,9 @@ class FunctionOpMapping:
                     raise InternalError(
                         f"intrinsic {self.op_code!r} argument {idx}: no stack input types provided"
                     )
-                if pytypes.BigUIntType in arg and pytypes.UInt64Type in arg:
+                if (pytypes.BigUIntType.is_type_or_supertype(*arg)) and (
+                    pytypes.UInt64Type.is_type_or_supertype(*arg)
+                ):
                     raise InternalError(
                         f"intrinsic {self.op_code!r} argument {idx}: overlap in integer types"
                     )
@@ -70,10 +78,15 @@ class FunctionOpMapping:
 class OpMappingWithOverloads:
     arity: int = attrs.field(validator=attrs.validators.ge(0))
     result: pytypes.PyType = pytypes.NoneType
+    result_wtype: wtypes.WType = attrs.field(init=False)
     """Types output by TEAL op"""
     overloads: Sequence[FunctionOpMapping] = attrs.field(
         validator=attrs.validators.min_len(1), converter=tuple[FunctionOpMapping, ...]
     )
+
+    @result_wtype.default
+    def _result_wtype(self) -> wtypes.WType:
+        return self.result.checked_wtype(location=None)
 
     @arity.validator
     def _arity_matches(self, _attribute: object, arity: int) -> None:

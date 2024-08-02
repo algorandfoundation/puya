@@ -104,14 +104,13 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedColle
     @typing.override
     def iterate_static(self) -> Sequence[InstanceBuilder]:
         base = self.single_eval().resolve()
-        item_type = self.pytype.items
         return [
             builder_for_instance(
-                item_type,
+                self.pytype.items,
                 IndexExpression(
                     base=base,
                     index=UInt64Constant(value=idx, source_location=self.source_location),
-                    wtype=item_type.wtype,
+                    wtype=self.pytype.items_wtype,
                     source_location=self.source_location,
                 ),
             )

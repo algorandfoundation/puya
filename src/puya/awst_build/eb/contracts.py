@@ -160,7 +160,7 @@ def _builder_for_storage_access(
                 content_type,
                 AppStateExpression(
                     key=storage_decl.key,
-                    wtype=content_type.wtype,
+                    wtype=content_type.checked_wtype(location),
                     exists_assertion_message=f"check self.{storage_decl.member_name} exists",
                     source_location=location,
                 ),

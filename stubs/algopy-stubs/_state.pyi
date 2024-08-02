@@ -4,6 +4,7 @@ from algopy import Account, Bytes, String, UInt64
 
 _TState = typing.TypeVar("_TState")
 
+@typing.final
 class LocalState(typing.Generic[_TState]):
     """Local state associated with the application and an account"""
 
@@ -78,6 +79,7 @@ class LocalState(typing.Generic[_TState]):
         ```
         """
 
+@typing.final
 class GlobalState(typing.Generic[_TState]):
     """Global state associated with the application, the key will be the name of the member, this
     is assigned to

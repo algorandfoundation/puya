@@ -129,6 +129,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         self._return_type = self.context.type_to_pytype(
             type_info.ret_type, source_location=func_loc
         )
+        return_wtype = self._return_type.checked_wtype(func_loc)
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
@@ -162,8 +163,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     "default function argument values are not supported yet", arg.initializer
                 )
             pytyp = self.context.type_to_pytype(arg_type, source_location=arg_loc)
+            wtype = pytyp.checked_wtype(arg_loc)
             arg_name = arg.variable.name
-            args.append(SubroutineArgument(arg_loc, arg_name, pytyp.wtype))
+            args.append(SubroutineArgument(arg_loc, arg_name, wtype))
             self._symtable[arg_name] = pytyp
         # translate body
         translated_body = self.visit_block(func_def.body)
@@ -175,7 +177,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 name=func_def.name,
                 source_location=source_location,
                 args=args,
-                return_type=self._return_type.wtype,
+                return_type=return_wtype,
                 body=translated_body,
                 docstring=func_def.docstring,
             )
@@ -186,7 +188,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 name=func_def.name,
                 source_location=source_location,
                 args=args,
-                return_type=self._return_type.wtype,
+                return_type=return_wtype,
                 body=translated_body,
                 docstring=func_def.docstring,
                 arc4_method_config=self.contract_method_info.arc4_method_config,
@@ -275,10 +277,10 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             ):
                 # special case to ignore ignoring the result of typing.reveal_type
                 pass
-            elif expr_builder.pytype in pytypes.InnerTransactionResultTypes.values() or (
+            elif isinstance(expr_builder.pytype, pytypes.InnerTransactionResultType) or (
                 isinstance(expr_builder.pytype, pytypes.TupleType)
                 and any(
-                    (i in pytypes.InnerTransactionResultTypes.values())
+                    isinstance(i, pytypes.InnerTransactionResultType)
                     for i in expr_builder.pytype.items
                 )
             ):
@@ -362,17 +364,16 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     raise CodeError(
                         "_ is not currently supported as a variable name", self._location(lvalue)
                     )
-                current_type = self._symtable.get(var_name)
-                if not (current_type is None or current_type == typ or current_type in typ.mro):
+                lvalue_loc = self._location(lvalue)
+                symbol_type = self._symtable.setdefault(var_name, typ)
+                if not (symbol_type <= typ):
                     logger.error(
-                        f"{var_name!r} already has type {current_type}"
+                        f"{var_name!r} already has type {symbol_type}"
                         f" which is not compatible with {typ}",
-                        location=self._location(lvalue),
+                        location=lvalue_loc,
                     )
                     return False
-                else:
-                    self._symtable[var_name] = typ
-                    return True
+                return True
             case mypy.nodes.TupleExpr(items=lval_items) | mypy.nodes.ListExpr(items=lval_items):
                 if star_expr := next(
                     (
@@ -610,7 +611,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             return ReturnStatement(source_location=loc, value=None)
 
         returning_builder = require_instance_builder(return_expr.accept(self))
-        if returning_builder.pytype != self._return_type:
+        if not (self._return_type <= returning_builder.pytype):
             self._error(
                 f"invalid return type of {returning_builder.pytype}, expected {self._return_type}",
                 loc,
@@ -710,10 +711,10 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # such as overloads.
         if py_typ := self.context.lookup_pytype(expr.fullname):  # noqa: SIM102
             # side step these ones for now
-            if (
-                pytypes.ContractBaseType not in py_typ.mro
-                and pytypes.ARC4ClientBaseType not in py_typ.bases
-                and py_typ != pytypes.LogicSigType
+            if not (
+                pytypes.ContractBaseType < py_typ
+                or pytypes.ARC4ClientBaseType < py_typ
+                or py_typ == pytypes.LogicSigType
             ):
                 return builder_for_type(py_typ, expr_loc)
 
@@ -731,11 +732,11 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             return func_builder
         match expr:
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if py_typ:
-                if pytypes.ContractBaseType in py_typ.mro:
+                if pytypes.ContractBaseType < py_typ:
                     return ContractTypeExpressionBuilder(
                         self.context, py_typ, typ.defn.info, expr_loc
                     )
-                if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
+                if pytypes.ARC4ClientBaseType < py_typ:  # provides type info only
                     return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
             case mypy.nodes.RefExpr(fullname=fullname) if py_typ == pytypes.LogicSigType:
                 module_name, func_name = fullname.rsplit(".", maxsplit=1)
@@ -820,7 +821,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         expr_loc,
                     )
                 var_expr = VarExpression(
-                    name=var_name, wtype=local_type.wtype, source_location=expr_loc
+                    name=var_name,
+                    wtype=local_type.checked_wtype(expr_loc),
+                    source_location=expr_loc,
                 )
                 return builder_for_instance(local_type, var_expr)
         scope = {
@@ -1029,7 +1032,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 condition=condition,
                 true_expr=lhs.resolve(),
                 false_expr=rhs.resolve(),
-                wtype=target_pytyp.wtype,
+                wtype=target_pytyp.checked_wtype(location),
                 source_location=location,
             )
         return builder_for_instance(target_pytyp, expr_result)
@@ -1089,9 +1092,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         condition = self._eval_condition(expr.cond)
         true_b = require_instance_builder(expr.if_expr.accept(self))
         false_b = require_instance_builder(expr.else_expr.accept(self))
-        if true_b.pytype != false_b.pytype:
-            self._error("incompatible result types for 'true' and 'false' expressions", expr_loc)
-        expr_pytype = true_b.pytype
+        if true_b.pytype <= false_b.pytype:
+            expr_pytype = true_b.pytype
+        elif false_b.pytype < true_b.pytype:
+            expr_pytype = false_b.pytype
+        else:
+            raise CodeError(
+                "incompatible result types for 'true' and 'false' expressions", expr_loc
+            )
 
         if (
             isinstance(expr_pytype, pytypes.LiteralOnlyType)

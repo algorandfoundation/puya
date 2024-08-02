@@ -220,21 +220,23 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             for ti in info.mro[1:]
             if ti.fullname not in _BUILTIN_INHERITABLE
         ]
+        # create a static type, but don't register it yet,
+        # it might end up being a struct instead
+        static_type = pytypes.StaticType(
+            name=cdef.fullname, bases=direct_base_types, mro=mro_types
+        )
         for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
             # note that since these struct bases aren't protocols, any subclasses
             # cannot be protocols
-            if direct_base_types == [struct_base]:
+            if struct_base < static_type:
+                if direct_base_types != [struct_base]:
+                    self._error(
+                        f"{struct_base} classes must only inherit directly from {struct_base}",
+                        cdef_loc,
+                    )
                 return _process_struct(self.context, struct_base, cdef)
-            if struct_base in mro_types:
-                self._error(
-                    f"{struct_base} classes must only inherit directly from {struct_base}",
-                    cdef_loc,
-                )
-                return []
 
-        self.context.register_pytype(
-            pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
-        )
+        self.context.register_pytype(static_type)
         if info.is_protocol:
             if pytypes.ARC4ClientBaseType not in direct_base_types:
                 logger.debug(
@@ -243,7 +245,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 )
             return []
 
-        if pytypes.ContractBaseType not in mro_types:
+        if not (pytypes.ContractBaseType < static_type):
             self._error(
                 f"Unsupported class declaration."
                 f" Contract classes must inherit either directly"
@@ -688,7 +690,7 @@ def _process_struct(
                     StructureField(
                         source_location=stmt_loc,
                         name=field_name,
-                        wtype=pytype.wtype,
+                        wtype=pytype.checked_wtype(stmt_loc),
                     )
                 )
             case mypy.nodes.SymbolNode(name=symbol_name) if (

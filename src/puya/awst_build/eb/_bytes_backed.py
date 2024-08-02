@@ -48,7 +48,9 @@ class _FromBytes(FunctionBuilder):
             args, pytypes.BytesType, location, resolve_literal=True
         )
         result_expr = ReinterpretCast(
-            expr=arg.resolve(), wtype=self.result_type.wtype, source_location=location
+            expr=arg.resolve(),
+            wtype=self.result_type.checked_wtype(location),
+            source_location=location,
         )
         return builder_for_instance(self.result_type, result_expr)
 

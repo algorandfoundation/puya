@@ -161,9 +161,7 @@ class CompileContractFunctionBuilder(FunctionBuilder):
 
         result_type = pytypes.CompiledContractType
         match arg_map[contract_arg_name]:
-            case NodeBuilder(
-                pytype=pytypes.TypeType(typ=typ)
-            ) if pytypes.ContractBaseType in typ.mro:
+            case NodeBuilder(pytype=pytypes.TypeType(typ=typ)) if pytypes.ContractBaseType < typ:
                 module_name, class_name = typ.name.rsplit(".", maxsplit=1)
                 contract = ContractReference(
                     module_name=module_name,
@@ -183,7 +181,7 @@ class CompileContractFunctionBuilder(FunctionBuilder):
                 allocation_overrides=allocation_overrides,
                 prefix=prefix,
                 template_variables=template_vars,
-                wtype=result_type.wtype,
+                wtype=result_type.checked_wtype(location),
                 source_location=location,
             )
         )
@@ -223,7 +221,7 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
                 logic_sig=logic_sig,
                 prefix=prefix,
                 template_variables=template_vars,
-                wtype=pytypes.CompiledLogicSigType.wtype,
+                wtype=pytypes.CompiledLogicSigType.checked_wtype(location),
                 source_location=location,
             )
         )

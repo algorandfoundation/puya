@@ -62,7 +62,9 @@ class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
                 bytes_expr: Expression = BytesConstant(
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
                 )
-            case [InstanceBuilder(pytype=pytypes.BytesType) as eb]:
+            case [
+                InstanceBuilder(pytype=single_arg_pytype) as eb
+            ] if pytypes.BytesType <= single_arg_pytype:
                 bytes_expr = eb.resolve()
             case _:
                 non_literal_args = tuple(_coerce_to_byte(a).resolve() for a in args)

@@ -115,9 +115,10 @@ class ARC4TupleExpressionBuilder(
         match name:
             case "native":
                 native_pytype = pytypes.GenericTupleType.parameterise(self.pytype.items, location)
+                native_wtype = native_pytype.checked_wtype(location)
                 result_expr: Expression = ARC4Decode(
                     value=self.resolve(),
-                    wtype=native_pytype.wtype,
+                    wtype=native_wtype,
                     source_location=location,
                 )
                 return TupleExpressionBuilder(result_expr, native_pytype)
@@ -128,7 +129,7 @@ class ARC4TupleExpressionBuilder(
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        return compare_bytes(lhs=self, op=op, rhs=other, source_location=location)
+        return compare_bytes(self=self, op=op, other=other, source_location=location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:

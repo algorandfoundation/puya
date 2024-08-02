@@ -50,38 +50,42 @@ class AppStorageDeclaration:
 
     @cached_property
     def definition(self) -> AppStorageDefinition:
-        kind, content, key_wtype = self._inferred
+        kind, content, key = self._inferred
         return AppStorageDefinition(
             key=self.key,
             description=self.description,
-            storage_wtype=content.wtype,
-            key_wtype=key_wtype,
+            storage_wtype=content,
+            key_wtype=key,
             source_location=self.source_location,
             kind=kind,
             member_name=self.member_name,
         )
 
     @cached_property
-    def _inferred(self) -> tuple[AppStorageKind, pytypes.PyType, wtypes.WType | None]:
-        key_wtype = None
+    def _inferred(self) -> tuple[AppStorageKind, wtypes.WType, wtypes.WType | None]:
+        key: wtypes.WType | None = None
         match self.typ:
-            case pytypes.StorageProxyType(generic=pytypes.GenericLocalStateType, content=content):
+            case pytypes.StorageProxyType(
+                generic=pytypes.GenericLocalStateType, content_wtype=content
+            ):
                 kind = AppStorageKind.account_local
-            case pytypes.StorageProxyType(generic=pytypes.GenericGlobalStateType, content=content):
+            case pytypes.StorageProxyType(
+                generic=pytypes.GenericGlobalStateType, content_wtype=content
+            ):
                 kind = AppStorageKind.app_global
             case pytypes.BoxRefType:
                 kind = AppStorageKind.box
-                content = pytypes.BytesType
-            case pytypes.StorageProxyType(generic=pytypes.GenericBoxType, content=content):
+                content = pytypes.BytesType.wtype
+            case pytypes.StorageProxyType(generic=pytypes.GenericBoxType, content_wtype=content):
                 kind = AppStorageKind.box
             case pytypes.StorageMapProxyType(
-                generic=pytypes.GenericBoxMapType, content=content, key=key_typ
+                generic=pytypes.GenericBoxMapType, content_wtype=content, key_wtype=key
             ):
                 kind = AppStorageKind.box
-                key_wtype = key_typ.wtype
-            case _ as content:
+            case other:
+                content = other.checked_wtype(self.source_location)
                 kind = AppStorageKind.app_global
-        return kind, content, key_wtype
+        return kind, content, key
 
 
 @attrs.define

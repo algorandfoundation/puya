@@ -103,7 +103,7 @@ def _implicit_arc4_conversion(
 
     instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
     instance = maybe_resolve_literal(instance, target_type)
-    if instance.pytype == target_type:
+    if target_type <= instance.pytype:
         return instance
     target_wtype = target_type.wtype
     if not isinstance(target_wtype, ARC4Type):

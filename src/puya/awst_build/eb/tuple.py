@@ -314,7 +314,7 @@ class TupleExpressionBuilder(
             raise CodeError("empty slices are not supported", location)
 
         updated_type = pytypes.GenericTupleType.parameterise(slice_types, location)
-        updated_wtype = updated_type.wtype
+        updated_wtype = updated_type.checked_wtype(location)
         return TupleExpressionBuilder(
             SliceExpression(
                 source_location=location,

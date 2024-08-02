@@ -24,14 +24,14 @@ class BaseTransactionExpressionBuilder(NotIterableInstanceExpressionBuilder, abc
 
     @abc.abstractmethod
     def get_field_value(
-        self, field: TxnField, typ: pytypes.PyType, location: SourceLocation
+        self, field: TxnField, typ: pytypes.RuntimeType, location: SourceLocation
     ) -> InstanceBuilder: ...
 
     @abc.abstractmethod
     def get_array_field_value(
         self,
         field: TxnField,
-        typ: pytypes.PyType,
+        typ: pytypes.RuntimeType,
         index: InstanceBuilder,
         location: SourceLocation,
     ) -> InstanceBuilder: ...
