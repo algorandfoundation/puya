@@ -1,6 +1,7 @@
 import functools
 import operator
 import typing
+from collections.abc import Sequence
 
 import attrs
 
@@ -40,7 +41,7 @@ def repeated_expression_elimination(
         modified = False
         block_asserted = dict[models.BasicBlock, set[models.Value]]()
         block_const_intrinsics = dict[
-            models.BasicBlock, dict[IntrinsicData, list[models.Register]]
+            models.BasicBlock, dict[IntrinsicData, Sequence[models.Register]]
         ]()
         for block in subroutine.body:
             visitor = RCEVisitor(block)
@@ -96,7 +97,7 @@ def compute_dominators(
 @attrs.define
 class RCEVisitor(NoOpIRVisitor[bool]):
     block: models.BasicBlock
-    const_intrinsics: dict[IntrinsicData, list[models.Register]] = attrs.field(factory=dict)
+    const_intrinsics: dict[IntrinsicData, Sequence[models.Register]] = attrs.field(factory=dict)
     asserted: set[models.Value] = attrs.field(factory=set)
 
     _assignment: models.Assignment | None = None

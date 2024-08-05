@@ -21,83 +21,47 @@ from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.parse import SourceLocation
 
 
-@typing.overload
 def assign(
     context: IRFunctionBuildContext,
     source: ValueProvider,
     *,
-    names: Sequence[tuple[str, SourceLocation | None]],
-    source_location: SourceLocation | None,
-) -> Sequence[Register]: ...
-
-
-@typing.overload
-def assign(
-    context: IRFunctionBuildContext,
-    source: ValueProvider,
-    *,
-    temp_description: str | Sequence[str],
-    source_location: SourceLocation | None,
-) -> Sequence[Register]: ...
-
-
-def assign(
-    context: IRFunctionBuildContext,
-    source: ValueProvider,
-    *,
-    names: Sequence[tuple[str, SourceLocation | None]] | None = None,
-    temp_description: str | Sequence[str] | None = None,
-    source_location: SourceLocation | None,
-) -> Sequence[Register]:
-    atypes = source.types
-    if not atypes:
-        raise InternalError(
-            "Attempted to assign from expression that has no result", source_location
-        )
-
-    if temp_description is not None:
-        assert names is None, "One and only one of names and temp_description should be supplied"
-        if isinstance(temp_description, str):
-            temp_description = [temp_description] * len(atypes)
-        targets = [
-            mktemp(context, ir_type, source_location, description=descr)
-            for ir_type, descr in zip(atypes, temp_description, strict=True)
-        ]
-    else:
-        assert (
-            names is not None
-        ), "One and only one of names and temp_description should be supplied"
-        # Names must be provided for all values yielded by the source
-        if len(names) != len(atypes):
-            raise InternalError("Incompatible multi-assignment lengths", source_location)
-        targets = [
-            context.ssa.new_register(name, ir_type, var_loc)
-            for (name, var_loc), ir_type in zip(names, atypes, strict=True)
-        ]
-
+    name: str,
+    assignment_location: SourceLocation | None,
+    register_location: SourceLocation | None = None,
+) -> Register:
+    (ir_type,) = source.types
+    target = context.ssa.new_register(name, ir_type, register_location or assignment_location)
     assign_targets(
         context=context,
         source=source,
-        targets=targets,
-        assignment_location=source_location,
+        targets=[target],
+        assignment_location=assignment_location,
+    )
+    return target
+
+
+def new_register_version(context: IRFunctionBuildContext, reg: Register) -> Register:
+    return context.ssa.new_register(
+        name=reg.name, ir_type=reg.ir_type, location=reg.source_location
     )
 
-    return targets
 
-
-def reassign(
+def assign_temp(
     context: IRFunctionBuildContext,
-    reg: Register,
     source: ValueProvider,
+    *,
+    temp_description: str,
     source_location: SourceLocation | None,
 ) -> Register:
-    (updated,) = assign(
+    (ir_type,) = source.types
+    target = mktemp(context, ir_type, source_location, description=temp_description)
+    assign_targets(
         context,
         source=source,
-        names=[(reg.name, reg.source_location)],
-        source_location=source_location,
+        targets=[target],
+        assignment_location=source_location,
     )
-    return updated
+    return target
 
 
 def assign_targets(
@@ -121,12 +85,8 @@ def mktemp(
     *,
     description: str,
 ) -> Register:
-    register = context.ssa.new_register(
-        name=context.next_tmp_name(description),
-        ir_type=ir_type,
-        location=source_location,
-    )
-    return register
+    name = context.next_tmp_name(description)
+    return context.ssa.new_register(name, ir_type, source_location)
 
 
 def assign_intrinsic_op(
@@ -137,46 +97,42 @@ def assign_intrinsic_op(
     args: Sequence[int | bytes | Value],
     source_location: SourceLocation | None,
     immediates: list[int | str] | None = None,
-    return_type: Sequence[IRType] | None = None,
-) -> Sequence[Register]:
-    def map_arg(arg: int | bytes | Value) -> Value:
-        match arg:
-            case int(val):
-                return UInt64Constant(value=val, source_location=source_location)
-            case bytes(b_val):
-                return BytesConstant(
-                    value=b_val,
-                    encoding=AVMBytesEncoding.base16,
-                    source_location=source_location,
-                )
-            case _:
-                return arg
-
+    return_type: IRType | None = None,
+) -> Register:
     intrinsic = Intrinsic(
         op=op,
         immediates=immediates or [],
-        args=[map_arg(a) for a in args],
+        args=[_convert_constants(a, source_location) for a in args],
         types=(
-            return_type
+            [return_type]
             if return_type is not None
             else typing.cast(Sequence[IRType], attrs.NOTHING)
         ),
         source_location=source_location,
     )
     if isinstance(target, str):
-        return assign(
-            context,
-            temp_description=target,
-            source=intrinsic,
-            source_location=source_location,
-        )
+        target_reg = mktemp(context, intrinsic.types[0], source_location, description=target)
     else:
-        return assign(
-            context,
-            names=[(target.name, source_location)],
-            source=intrinsic,
-            source_location=source_location,
-        )
+        target_reg = new_register_version(context, target)
+    assign_targets(
+        context,
+        targets=[target_reg],
+        source=intrinsic,
+        assignment_location=source_location,
+    )
+    return target_reg
+
+
+def _convert_constants(arg: int | bytes | Value, source_location: SourceLocation | None) -> Value:
+    match arg:
+        case int(val):
+            return UInt64Constant(value=val, source_location=source_location)
+        case bytes(b_val):
+            return BytesConstant(
+                value=b_val, encoding=AVMBytesEncoding.unknown, source_location=source_location
+            )
+        case _:
+            return arg
 
 
 def invoke_puya_lib_subroutine(
@@ -184,7 +140,7 @@ def invoke_puya_lib_subroutine(
     *,
     method_name: str,
     module_name: str,
-    args: list[Value],
+    args: Sequence[Value | int | bytes],
     source_location: SourceLocation,
 ) -> InvokeSubroutine:
     target = awst_nodes.FreeSubroutineTarget(module_name=module_name, name=method_name)
@@ -196,7 +152,7 @@ def invoke_puya_lib_subroutine(
     return InvokeSubroutine(
         source_location=source_location,
         target=sub,
-        args=args,
+        args=[_convert_constants(arg, source_location) for arg in args],
     )
 
 

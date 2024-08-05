@@ -6,7 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.ir.builder._utils import reassign
+from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import InvokeSubroutine, Register, Value, ValueProvider, ValueTuple
 from puya.ir.utils import format_tuple_index
@@ -34,18 +34,17 @@ def visit_subroutine_call_expression(
     if not implicit_args:
         return invoke_expr
 
-    return_values = list(
-        context.visitor.materialise_value_provider(invoke_expr, target.method_name)
-    )
+    return_values = context.visitor.materialise_value_provider(invoke_expr, target.method_name)
     while implicit_args:
         in_arg = implicit_args.pop()
-        out_register = return_values.pop()
+        out_value = return_values.pop()
         if isinstance(in_arg, Register):
-            reassign(
+            out_arg = new_register_version(context, in_arg)
+            assign_targets(
                 context,
-                source=out_register,
-                reg=in_arg,
-                source_location=expr.source_location,
+                source=out_value,
+                targets=[out_arg],
+                assignment_location=expr.source_location,
             )
 
     return (

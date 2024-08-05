@@ -1,19 +1,9 @@
-from puya.awst import (
-    nodes as awst_nodes,
-    wtypes,
-)
+from puya.awst import nodes as awst_nodes
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assign, assign_intrinsic_op
+from puya.ir.builder._utils import assign_intrinsic_op, assign_temp
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import (
-    Intrinsic,
-    UInt64Constant,
-    Value,
-    ValueProvider,
-)
-from puya.ir.types_ import (
-    wtype_to_ir_type,
-)
+from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider
+from puya.ir.types_ import IRType
 from puya.parse import SourceLocation
 
 
@@ -46,7 +36,7 @@ def visit_bytes_slice_expression(
             source_location=expr.source_location,
         )
     else:
-        (base_length,) = assign(
+        base_length = assign_temp(
             context,
             source_location=expr.source_location,
             source=Intrinsic(op=AVMOp.len_, args=[base], source_location=expr.source_location),
@@ -63,7 +53,7 @@ def visit_bytes_intersection_slice_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.IntersectionSliceExpression
 ) -> ValueProvider:
     base = context.visitor.visit_and_materialise_single(expr.base)
-    (length,) = assign_intrinsic_op(
+    length = assign_intrinsic_op(
         context,
         target="length",
         op=AVMOp.len_,
@@ -91,20 +81,20 @@ def visit_bytes_intersection_slice_expression(
         )
     )
     if _is_end_check_required(start_index=expr.begin_index, end_index=expr.end_index):
-        (end_before_start,) = assign_intrinsic_op(
+        end_before_start = assign_intrinsic_op(
             context,
             target="end_before_start",
             op=AVMOp.lt,
             args=[end, start],
             source_location=expr.source_location,
         )
-        (end,) = assign_intrinsic_op(
+        end = assign_intrinsic_op(
             context,
             target="end",
             op=AVMOp.select,
             args=[end, start, end_before_start],
             source_location=expr.source_location,
-            return_type=[wtype_to_ir_type(wtypes.uint64_wtype)],
+            return_type=IRType.uint64,
         )
     return Intrinsic(
         op=AVMOp.substring3,
@@ -162,7 +152,7 @@ def get_bounded_value(
 ) -> Value:
     if isinstance(value, int) and value < 0:
         # abs(value) >= length
-        (is_out_of_bounds,) = assign_intrinsic_op(
+        is_out_of_bounds = assign_intrinsic_op(
             context,
             target="is_out_of_bounds",
             op=AVMOp.gte,
@@ -170,16 +160,16 @@ def get_bounded_value(
             source_location=source_location,
         )
         # length if is_out_of_bounds else abs(value)
-        (bounded_offset,) = assign_intrinsic_op(
+        bounded_offset = assign_intrinsic_op(
             context,
             op=AVMOp.select,
             args=[abs(value), length, is_out_of_bounds],
             source_location=source_location,
             target="bounded_offset",
-            return_type=[wtype_to_ir_type(wtypes.uint64_wtype)],
+            return_type=IRType.uint64,
         )
         # length - bounded_offset
-        (bounded_index,) = assign_intrinsic_op(
+        bounded_index = assign_intrinsic_op(
             context,
             op=AVMOp.sub,
             args=[length, bounded_offset],
@@ -193,7 +183,7 @@ def get_bounded_value(
         unbounded = context.visitor.visit_and_materialise_single(value)
 
     # unbounded > length
-    (is_out_of_bounds,) = assign_intrinsic_op(
+    is_out_of_bounds = assign_intrinsic_op(
         context,
         target="is_out_of_bounds",
         op=AVMOp.gte,
@@ -201,12 +191,12 @@ def get_bounded_value(
         source_location=source_location,
     )
     # length if is_out_of_bounds else unbounded
-    (bounded_index,) = assign_intrinsic_op(
+    bounded_index = assign_intrinsic_op(
         context,
         op=AVMOp.select,
         args=[unbounded, length, is_out_of_bounds],
         source_location=source_location,
         target="bounded_index",
-        return_type=[wtype_to_ir_type(wtypes.uint64_wtype)],
+        return_type=IRType.uint64,
     )
     return bounded_index

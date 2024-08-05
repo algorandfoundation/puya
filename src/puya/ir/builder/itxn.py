@@ -132,8 +132,9 @@ class InnerTransactionBuilder:
                             assign(
                                 self.context,
                                 value_provider,
-                                names=[(item_name, item_loc)],
-                                source_location=source_location,
+                                name=item_name,
+                                register_location=item_loc,
+                                assignment_location=source_location,
                             )
                 return True
             case awst_nodes.Expression(wtype=wtypes.WInnerTransactionFields()):
@@ -196,11 +197,12 @@ class InnerTransactionBuilder:
                         )
                     else:
                         value_provider = self.context.visitor.visit_expr(item_value)
-                        (item,) = assign(
+                        item = assign(
                             self.context,
                             value_provider,
-                            names=[(item_name, item_loc)],
-                            source_location=source_location,
+                            name=item_name,
+                            register_location=item_loc,
+                            assignment_location=source_location,
                         )
                     result.append(item)
                 return result
@@ -367,21 +369,23 @@ class InnerTransactionBuilder:
         group_registers = []
         last_index = group_indexes[-1]
         for (var_name, var_loc), group_index in zip(submit_var_names, group_indexes, strict=True):
-            (group_index_reg,) = assign(
+            group_index_reg = assign(
                 self.context,
                 source=group_index,
-                names=[(var_name, var_loc)],
-                source_location=src_loc,
+                name=var_name,
+                register_location=var_loc,
+                assignment_location=src_loc,
             )
-            (is_last_in_group,) = assign(
+            is_last_in_group = assign(
                 self.context,
                 source=UInt64Constant(
                     value=int(group_index == last_index),
                     ir_type=IRType.bool,
                     source_location=var_loc,
                 ),
-                names=[(_get_txn_is_last(var_name), var_loc)],
-                source_location=src_loc,
+                name=_get_txn_is_last(var_name),
+                register_location=var_loc,
+                assignment_location=src_loc,
             )
             for field in _INNER_TRANSACTION_NON_ARRAY_FIELDS:
                 field_reg = _get_txn_field_var_name(group_index_reg.name, field.immediate)
@@ -395,8 +399,9 @@ class InnerTransactionBuilder:
                         array_index=None,
                         source_location=group_index.source_location,
                     ),
-                    names=[(field_reg, group_index.source_location)],
-                    source_location=group_index.source_location,
+                    name=field_reg,
+                    register_location=group_index.source_location,
+                    assignment_location=group_index.source_location,
                 )
             group_registers.append(group_index_reg)
 
@@ -435,7 +440,7 @@ class InnerTransactionBuilder:
             self.block_builder.active_block,
         )
 
-        (is_field_count_gte,) = assign_intrinsic_op(
+        is_field_count_gte = assign_intrinsic_op(
             self.context,
             target=f"is_{field.immediate}_count_gte_{count}",
             op=AVMOp.gte,
@@ -464,8 +469,8 @@ class InnerTransactionBuilder:
                 source_location=var_loc,
                 ir_type=IRType.itxn_field_set,
             ),
-            names=[(var_name, var_loc)],
-            source_location=var_loc,
+            name=var_name,
+            assignment_location=var_loc,
         )
         fields = StableSet.from_iter(inner_txn_fields)
         if not update:
@@ -490,8 +495,9 @@ class InnerTransactionBuilder:
                 assign(
                     context=self.context,
                     source=value,
-                    names=[(field_data.get_value_register_name(idx), var_loc)],
-                    source_location=value.source_location,
+                    name=field_data.get_value_register_name(idx),
+                    register_location=var_loc,
+                    assignment_location=value.source_location,
                 )
             assign(
                 context=self.context,
@@ -499,8 +505,9 @@ class InnerTransactionBuilder:
                     value=len(values),
                     source_location=count_loc,
                 ),
-                names=[(field_data.field_count_register_name, var_loc)],
-                source_location=count_loc,
+                name=field_data.field_count_register_name,
+                register_location=var_loc,
+                assignment_location=count_loc,
             )
 
     def _copy_inner_transaction_fields(
@@ -526,8 +533,8 @@ class InnerTransactionBuilder:
                         wtype_to_ir_type(field.wtype),
                         self.block_builder.active_block,
                     ),
-                    names=[(dest_field_register, var_loc)],
-                    source_location=var_loc,
+                    name=dest_field_register,
+                    assignment_location=var_loc,
                 )
             assign(
                 context=self.context,
@@ -536,8 +543,8 @@ class InnerTransactionBuilder:
                     IRType.uint64,
                     self.block_builder.active_block,
                 ),
-                names=[(dest_field_data.field_count_register_name, var_loc)],
-                source_location=var_loc,
+                name=dest_field_data.field_count_register_name,
+                assignment_location=var_loc,
             )
 
     def _resolve_inner_txn_params_var_name(self, params: awst_nodes.Expression) -> str:

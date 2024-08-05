@@ -38,10 +38,8 @@ contract examples.auction.contract.Auction:
                 let awst_tmp%0#0: uint64 = (- tmp%15#0 1u)
                 let tmp%16#0: uint64 = ((gtxns TypeEnum) awst_tmp%0#0)
                 let tmp%17#0: bool = (== tmp%16#0 axfer)
-                let value%0#0: uint64 = awst_tmp%0#0
-                let check%0#0: bool = tmp%17#0
-                (assert check%0#0) // transaction type is axfer
-                examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, value%0#0)
+                (assert tmp%17#0) // transaction type is axfer
+                examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, awst_tmp%0#0)
                 return 1u
             block@6: // opt_in_route_L62
                 let tmp%18#0: uint64 = (txn OnCompletion)
@@ -61,10 +59,8 @@ contract examples.auction.contract.Auction:
                 let awst_tmp%1#0: uint64 = (- tmp%24#0 1u)
                 let tmp%25#0: uint64 = ((gtxns TypeEnum) awst_tmp%1#0)
                 let tmp%26#0: bool = (== tmp%25#0 pay)
-                let value%1#0: uint64 = awst_tmp%1#0
-                let check%1#0: bool = tmp%26#0
-                (assert check%1#0) // transaction type is pay
-                examples.auction.contract.Auction.bid(value%1#0)
+                (assert tmp%26#0) // transaction type is pay
+                examples.auction.contract.Auction.bid(awst_tmp%1#0)
                 return 1u
             block@8: // claim_bids_route_L82
                 let tmp%27#0: uint64 = (txn OnCompletion)
@@ -179,9 +175,8 @@ contract examples.auction.contract.Auction:
                 let tmp%0#0: bytes = (txn Sender)
                 let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
                 (assert maybe_exists%0#0) // check self.claimable_amount exists for account
-                let awst_tmp%0#0: uint64 = maybe_value%0#0
-                let original_amount#0: uint64 = awst_tmp%0#0
-                let amount#0: uint64 = awst_tmp%0#0
+                let original_amount#0: uint64 = maybe_value%0#0
+                let amount#0: uint64 = maybe_value%0#0
                 let tmp%1#0: bytes = (txn Sender)
                 let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
                 (assert maybe_exists%1#0) // check self.previous_bidder exists

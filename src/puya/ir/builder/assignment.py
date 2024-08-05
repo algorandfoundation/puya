@@ -10,8 +10,8 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder._tuple_util import build_tuple_names
-from puya.ir.builder._utils import assign
+from puya.ir.builder._tuple_util import build_tuple_registers
+from puya.ir.builder._utils import assign_targets, assign_temp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     Intrinsic,
@@ -20,7 +20,6 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.types_ import get_wtype_arity
-from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -78,49 +77,48 @@ def _handle_assignment(
                     " which is being passed by reference",
                     assignment_location,
                 )
-            var_names = build_tuple_names(var_name, var_type, var_loc)
-            return assign(
+            registers = build_tuple_registers(context, var_name, var_type, var_loc)
+            assign_targets(
                 context,
                 source=value,
-                names=var_names,
-                source_location=assignment_location,
+                targets=registers,
+                assignment_location=assignment_location,
             )
+            return registers
         case awst_nodes.TupleExpression() as tup_expr:
             source = context.visitor.materialise_value_provider(
                 value, description="tuple_assignment"
             )
-            items = lvalue_items(tup_expr)
-            if len(source) != get_wtype_arity(tup_expr.wtype):
-                raise CodeError("unpacking vs result length mismatch", assignment_location)
-
             results = list[Value]()
-            offset = 0
-            for item in items:
+            for item in tup_expr.items:
                 arity = get_wtype_arity(item.wtype)
-                value = (
-                    source[offset]
-                    if arity == 1
-                    else ValueTuple(
-                        values=source[offset : offset + arity],
-                        source_location=source[offset].source_location,
-                    )
-                )
+                values = source[:arity]
+                del source[:arity]
+                if len(values) != arity:
+                    raise CodeError("not enough values to unpack", assignment_location)
+                if arity == 1:
+                    nested_value: ValueProvider = values[0]
+                else:
+                    nested_value = ValueTuple(values=values, source_location=value.source_location)
                 results.extend(
                     handle_assignment(
-                        context, target=item, value=value, assignment_location=assignment_location
+                        context,
+                        target=item,
+                        value=nested_value,
+                        assignment_location=assignment_location,
                     )
                 )
-                offset += arity
+            if source:
+                raise CodeError("too many values to unpack", assignment_location)
             return results
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
             _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value, *rest) = context.visitor.materialise_value_provider(
+            (mat_value,) = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
             )
-            assert not rest, "non-tuple state should have been already validated by AWST"
             context.block_builder.add(
                 Intrinsic(
                     op=AVMOp.app_global_put,
@@ -135,10 +133,9 @@ def _handle_assignment(
             _ = wtypes.persistable_stack_type(wtype, field_location)  # double check
             account = context.visitor.visit_and_materialise_single(account_expr)
             key_value = context.visitor.visit_and_materialise_single(awst_key)
-            (mat_value, *rest) = context.visitor.materialise_value_provider(
+            (mat_value,) = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
             )
-            assert not rest, "non-tuple state should have been already validated by AWST"
             context.block_builder.add(
                 Intrinsic(
                     op=AVMOp.app_local_put,
@@ -166,7 +163,7 @@ def _handle_assignment(
                         )
                     )
             elif scalar_type == AVMType.uint64:
-                (serialized_value,) = assign(
+                serialized_value = assign_temp(
                     context=context,
                     temp_description="new_box_value",
                     source=Intrinsic(

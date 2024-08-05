@@ -19,6 +19,8 @@ from puya.ir.builder._utils import (
     assert_value,
     assign,
     assign_intrinsic_op,
+    assign_targets,
+    assign_temp,
     invoke_puya_lib_subroutine,
     mktemp,
 )
@@ -259,7 +261,7 @@ def build_for_in_array(
         )
     array = context.visitor.visit_and_materialise_single(array_expr)
     length_vp = _get_arc4_array_length(array_wtype, array, source_location)
-    (array_length,) = assign(
+    array_length = assign_temp(
         context,
         length_vp,
         temp_description="array_length",
@@ -346,11 +348,12 @@ def handle_arc4_assign(
         case awst_nodes.TupleItemExpression(
             wtype=item_wtype,
         ) as ti_expr if not item_wtype.immutable:
-            (result,) = assign(
+            result = assign(
                 context=context,
-                names=[(_get_tuple_var_name(ti_expr), source_location)],
+                name=_get_tuple_var_name(ti_expr),
                 source=value,
-                source_location=source_location,
+                register_location=ti_expr.source_location,
+                assignment_location=source_location,
             )
             return result
         case _:
@@ -498,40 +501,33 @@ def pop_arc4_array(
     array_wtype: wtypes.ARC4DynamicArray,
 ) -> ValueProvider:
     source_location = expr.source_location
-    popped = mktemp(context, IRType.bytes, source_location, description="popped")
-    data = mktemp(context, IRType.bytes, source_location, description="data")
+
     base = context.visitor.visit_and_materialise_single(expr.base)
+    args: list[Value | int | bytes] = [base]
     if array_wtype.element_type == wtypes.arc4_bool_wtype:
         method_name = "dynamic_array_pop_bit"
-        args: list[Value] = [base]
     elif _is_byte_length_header(array_wtype.element_type):  # TODO: multi_byte_length prefix?
         method_name = "dynamic_array_pop_byte_length_head"
-        args = [base]
     elif is_arc4_dynamic_size(array_wtype.element_type):
         method_name = "dynamic_array_pop_dynamic_element"
-        args = [base]
     else:
         fixed_size = get_arc4_fixed_bit_size(array_wtype.element_type)
         method_name = "dynamic_array_pop_fixed_size"
-        args = [
-            base,
-            UInt64Constant(
-                value=fixed_size // 8,
-                source_location=source_location,
-            ),
-        ]
+        args.append(fixed_size // 8)
 
-    (popped, data) = assign(
+    popped = mktemp(context, IRType.bytes, source_location, description="popped")
+    data = mktemp(context, IRType.bytes, source_location, description="data")
+    assign_targets(
         context,
-        source_location=source_location,
-        names=[(popped.name, None), (data.name, None)],
+        targets=[popped, data],
         source=invoke_puya_lib_subroutine(
             context,
+            module_name="algopy_lib_arc4",
             method_name=method_name,
             args=args,
             source_location=source_location,
-            module_name="algopy_lib_arc4",
         ),
+        assignment_location=source_location,
     )
 
     handle_arc4_assign(context, target=expr.base, value=data, source_location=source_location)
@@ -563,7 +559,7 @@ def _visit_arc4_tuple_decode(
             index=index,
             source_location=source_location,
         )
-        (item,) = assign(
+        item = assign_temp(
             context,
             temp_description=f"item{index}",
             source=item_value,
@@ -853,7 +849,7 @@ def _read_nth_item_of_arc4_heterogeneous_container(
         value=bits_to_bytes(head_up_to_item), source_location=source_location
     )
     if is_arc4_dynamic_size(item_wtype):
-        (item_start_offset,) = assign_intrinsic_op(
+        item_start_offset = assign_intrinsic_op(
             context,
             target="item_start_offset",
             op=AVMOp.extract_uint16,
@@ -873,7 +869,7 @@ def _read_nth_item_of_arc4_heterogeneous_container(
                     value=bits_to_bytes(head_up_to_next_dynamic_item),
                     source_location=source_location,
                 )
-                (item_end_offset,) = assign_intrinsic_op(
+                item_end_offset = assign_intrinsic_op(
                     context,
                     target="item_end_offset",
                     op=AVMOp.extract_uint16,
@@ -882,7 +878,7 @@ def _read_nth_item_of_arc4_heterogeneous_container(
                 )
                 break
         else:
-            (item_end_offset,) = assign_intrinsic_op(
+            item_end_offset = assign_intrinsic_op(
                 context,
                 target="item_end_offset",
                 op=AVMOp.len_,
@@ -911,7 +907,7 @@ def _read_nth_bool_from_arc4_container(
     source_location: SourceLocation,
 ) -> ValueProvider:
     # index is the bit position
-    (is_true,) = assign(
+    is_true = assign_temp(
         context,
         temp_description="is_true",
         source=Intrinsic(op=AVMOp.getbit, args=[data, index], source_location=source_location),
@@ -988,7 +984,7 @@ def _itob_fixed(
     context: IRFunctionBuildContext, value: Value, num_bytes: int, source_location: SourceLocation
 ) -> ValueProvider:
     if value.atype == AVMType.uint64:
-        (val_as_bytes,) = assign(
+        val_as_bytes = assign_temp(
             context,
             temp_description="val_as_bytes",
             source=Intrinsic(op=AVMOp.itob, args=[value], source_location=source_location),
@@ -1006,13 +1002,13 @@ def _itob_fixed(
             )
         bytes_value: Value = val_as_bytes
     else:
-        (len_,) = assign(
+        len_ = assign_temp(
             context,
             temp_description="len_",
             source=Intrinsic(op=AVMOp.len_, args=[value], source_location=source_location),
             source_location=source_location,
         )
-        (no_overflow,) = assign(
+        no_overflow = assign_temp(
             context,
             temp_description="no_overflow",
             source=Intrinsic(
@@ -1036,7 +1032,7 @@ def _itob_fixed(
         )
         bytes_value = value
 
-    (b_zeros,) = assign(
+    b_zeros = assign_temp(
         context,
         temp_description="b_zeros",
         source=Intrinsic(
@@ -1064,91 +1060,38 @@ def _arc4_replace_array_item(
 ) -> Value:
     base = context.visitor.visit_and_materialise_single(base_expr)
 
-    (value,) = assign(
-        context,
-        source_location=source_location,
-        temp_description="assigned_value",
-        source=value,
+    value = assign_temp(
+        context, value, temp_description="assigned_value", source_location=source_location
     )
 
     index = context.visitor.visit_and_materialise_single(index_value_expr)
 
+    def updated_result(method_name: str, args: list[Value | int | bytes]) -> Register:
+        invoke = invoke_puya_lib_subroutine(
+            context,
+            module_name="algopy_lib_arc4",
+            method_name=method_name,
+            args=args,
+            source_location=source_location,
+        )
+        return assign_temp(
+            context, invoke, temp_description="updated_value", source_location=source_location
+        )
+
     if _is_byte_length_header(wtype.element_type):
         if isinstance(wtype, wtypes.ARC4DynamicArray):
-            (updated_value,) = assign(
-                context,
-                temp_description="updated_value",
-                source=invoke_puya_lib_subroutine(
-                    context,
-                    method_name="dynamic_array_replace_byte_length_head",
-                    module_name="algopy_lib_arc4",
-                    source_location=source_location,
-                    args=[
-                        base,
-                        value,
-                        index,
-                    ],
-                ),
-                source_location=source_location,
-            )
-            return updated_value
+            return updated_result("dynamic_array_replace_byte_length_head", [base, value, index])
         else:
-            (updated_value,) = assign(
-                context,
-                temp_description="updated_value",
-                source=invoke_puya_lib_subroutine(
-                    context,
-                    method_name="static_array_replace_byte_length_head",
-                    module_name="algopy_lib_arc4",
-                    source_location=source_location,
-                    args=[
-                        base,
-                        value,
-                        index,
-                        UInt64Constant(value=wtype.array_size, source_location=source_location),
-                    ],
-                ),
-                source_location=source_location,
+            return updated_result(
+                "static_array_replace_byte_length_head", [base, value, index, wtype.array_size]
             )
-            return updated_value
     elif is_arc4_dynamic_size(wtype.element_type):
         if isinstance(wtype, wtypes.ARC4DynamicArray):
-            (updated_value,) = assign(
-                context,
-                temp_description="updated_value",
-                source=invoke_puya_lib_subroutine(
-                    context,
-                    method_name="dynamic_array_replace_dynamic_element",
-                    module_name="algopy_lib_arc4",
-                    source_location=source_location,
-                    args=[
-                        base,
-                        value,
-                        index,
-                    ],
-                ),
-                source_location=source_location,
-            )
-            return updated_value
+            return updated_result("dynamic_array_replace_dynamic_element", [base, value, index])
         else:
-            (updated_value,) = assign(
-                context,
-                temp_description="updated_value",
-                source=invoke_puya_lib_subroutine(
-                    context,
-                    method_name="static_array_replace_dynamic_element",
-                    module_name="algopy_lib_arc4",
-                    source_location=source_location,
-                    args=[
-                        base,
-                        value,
-                        index,
-                        UInt64Constant(value=wtype.array_size, source_location=source_location),
-                    ],
-                ),
-                source_location=source_location,
+            return updated_result(
+                "static_array_replace_dynamic_element", [base, value, index, wtype.array_size]
             )
-            return updated_value
     array_length = (
         UInt64Constant(value=wtype.array_size, source_location=source_location)
         if isinstance(wtype, wtypes.ARC4StaticArray)
@@ -1158,12 +1101,7 @@ def _arc4_replace_array_item(
             args=[base, UInt64Constant(value=0, source_location=source_location)],
         )
     )
-    _assert_index_in_bounds(
-        context,
-        index,
-        array_length,
-        source_location,
-    )
+    _assert_index_in_bounds(context, index, array_length, source_location)
 
     element_size = get_arc4_fixed_bit_size(wtype.element_type)
     dynamic_offset = 0 if isinstance(wtype, wtypes.ARC4StaticArray) else 2
@@ -1179,50 +1117,45 @@ def _arc4_replace_array_item(
             source_location=source_location,
         )
     else:
-        (write_offset,) = assign_intrinsic_op(
+        write_offset = assign_intrinsic_op(
             context,
             target="write_offset",
             op=AVMOp.mul,
-            source_location=source_location,
             args=[index, offset_per_item],
+            source_location=source_location,
         )
         if dynamic_offset:
-            assert isinstance(write_offset, Register)
-            (write_offset,) = assign_intrinsic_op(
+            write_offset = assign_intrinsic_op(
                 context,
                 target=write_offset,
                 op=AVMOp.add,
-                source_location=source_location,
                 args=[write_offset, dynamic_offset],
+                source_location=source_location,
             )
 
     if element_size == 1:
-        (is_true,) = assign_intrinsic_op(
+        is_true = assign_intrinsic_op(
             context,
             target="is_true",
-            source_location=source_location,
             op=AVMOp.getbit,
             args=[value, 0],
+            source_location=source_location,
         )
-        (updated_target,) = assign_intrinsic_op(
+        updated_target = assign_intrinsic_op(
             context,
             target="updated_target",
-            source_location=source_location,
             op=AVMOp.setbit,
-            args=(base, write_offset, is_true),
-            return_type=[base.ir_type],
+            args=[base, write_offset, is_true],
+            return_type=base.ir_type,
+            source_location=source_location,
         )
     else:
-        (updated_target,) = assign_intrinsic_op(
+        updated_target = assign_intrinsic_op(
             context,
             target="updated_target",
-            source_location=source_location,
             op=AVMOp.replace3,
-            args=[
-                base,
-                write_offset,
-                value,
-            ],
+            args=[base, write_offset, value],
+            source_location=source_location,
         )
     return updated_target
 
@@ -1262,7 +1195,7 @@ def _concat_dynamic_array_fixed_size(
         len_ = factory.len(concatenated, "len_")
     else:
         byte_len = factory.len(concatenated, "byte_len")
-        (len_,) = assign_intrinsic_op(
+        len_ = assign_intrinsic_op(
             context,
             source_location=source_location,
             op=AVMOp.div_floor,
@@ -1307,14 +1240,14 @@ def _assert_index_in_bounds(
             return
         raise CodeError("Index access is out of bounds", source_location)
 
-    (array_length,) = assign(
+    array_length = assign_temp(
         context,
         source_location=source_location,
         temp_description="array_length",
         source=length,
     )
 
-    (index_is_in_bounds,) = assign(
+    index_is_in_bounds = assign_temp(
         context,
         source_location=source_location,
         temp_description="index_is_in_bounds",
@@ -1401,11 +1334,8 @@ class _OpFactory:
     source_location: SourceLocation | None
 
     def assign(self, value: ValueProvider, temp_desc: str) -> Register:
-        (register,) = assign(
-            self.context,
-            value,
-            temp_description=temp_desc,
-            source_location=self.source_location,
+        register = assign_temp(
+            self.context, value, temp_description=temp_desc, source_location=self.source_location
         )
         return register
 
@@ -1413,7 +1343,7 @@ class _OpFactory:
         return [self.assign(value, desc) for desc, value in values.items()]
 
     def add(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.add,
@@ -1423,7 +1353,7 @@ class _OpFactory:
         return result
 
     def sub(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.sub,
@@ -1433,7 +1363,7 @@ class _OpFactory:
         return result
 
     def mul(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.mul,
@@ -1443,7 +1373,7 @@ class _OpFactory:
         return result
 
     def len(self, value: Value, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.len_,
@@ -1453,7 +1383,7 @@ class _OpFactory:
         return result
 
     def eq(self, a: Value, b: Value, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.eq,
@@ -1463,18 +1393,18 @@ class _OpFactory:
         return result
 
     def select(self, false: Value, true: Value, condition: Value, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.select,
             args=[false, true, condition],
-            return_type=(true.ir_type,),
+            return_type=true.ir_type,
             source_location=self.source_location,
         )
         return result
 
     def extract_uint16(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.extract_uint16,
@@ -1484,7 +1414,7 @@ class _OpFactory:
         return result
 
     def itob(self, value: Value | int, temp_desc: str) -> Register:
-        (itob,) = assign_intrinsic_op(
+        itob = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.itob,
@@ -1495,7 +1425,7 @@ class _OpFactory:
 
     def as_u16_bytes(self, a: Value | int, temp_desc: str) -> Register:
         as_bytes = self.itob(a, "as_bytes")
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.extract,
@@ -1506,7 +1436,7 @@ class _OpFactory:
         return result
 
     def concat(self, a: Value | bytes, b: Value | bytes, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.concat,
@@ -1524,18 +1454,18 @@ class _OpFactory:
             )
 
     def set_bit(self, *, value: Value, index: int, bit: Value | int, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.setbit,
             args=[value, index, bit],
-            return_type=value.types,
+            return_type=value.ir_type,
             source_location=self.source_location,
         )
         return result
 
     def get_bit(self, value: Value, index: Value | int, temp_desc: str) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.getbit,
@@ -1549,7 +1479,7 @@ class _OpFactory:
             raise InternalError(
                 "Cannot use extract with a length of 0 if start > 255", self.source_location
             )
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.extract,
@@ -1566,7 +1496,7 @@ class _OpFactory:
         end_ex: Value | int,
         temp_desc: str,
     ) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.substring3,
@@ -1582,7 +1512,7 @@ class _OpFactory:
         replacement: Value | bytes,
         temp_desc: str,
     ) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             source_location=self.source_location,
@@ -1598,7 +1528,7 @@ class _OpFactory:
         length: Value | int,
         temp_desc: str,
     ) -> Register:
-        (result,) = assign_intrinsic_op(
+        result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.extract3,

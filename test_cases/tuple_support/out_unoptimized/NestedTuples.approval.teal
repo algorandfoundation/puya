@@ -72,7 +72,7 @@ main_nested_tuple_params_route@5:
     uncover 2
     uncover 2
     substring3
-    cover 1
+    uncover 1
     extract 2 0
     cover 1
     dup
@@ -90,7 +90,7 @@ main_nested_tuple_params_route@5:
     int 2
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    uncover 1
     extract 2 0
     cover 1
     int 0
@@ -118,7 +118,7 @@ main_nested_tuple_params_route@5:
     extract 6 2
     uncover 1
     concat
-    cover 1
+    uncover 1
     itob
     int 10
     itob
@@ -392,14 +392,13 @@ test_intrinsics:
     // tuple_support/nested_tuples.py:77
     // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
     dup
-    dig 2
-    cover 1
     int 0
     ==
-    cover 1
     frame_dig -2
     frame_dig -1
     +
+    dig 3
+    uncover 1
     ==
     &&
     assert
@@ -411,10 +410,11 @@ test_intrinsics:
     assert
     // tuple_support/nested_tuples.py:79
     // assert nt[1][1:] == (num1 + num2,)
-    dig 1
     frame_dig -2
     frame_dig -1
     +
+    dig 2
+    uncover 1
     ==
     assert
     // tuple_support/nested_tuples.py:81
@@ -920,14 +920,12 @@ test_single_evaluation_nested:
     dup
     uncover 1
     ==
-    cover 1
-    dup
-    uncover 1
+    dig 1
+    uncover 2
     ==
     &&
-    uncover 1
-    dup
-    uncover 1
+    dig 1
+    uncover 2
     ==
     ||
     bz test_single_evaluation_nested_ternary_false@2
