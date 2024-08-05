@@ -9,8 +9,13 @@ from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder._tuple_util import build_tuple_names, get_tuple_item_values
-from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
+from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
+from puya.ir.builder._utils import (
+    assert_value,
+    assign_intrinsic_op,
+    assign_targets,
+    assign_temp,
+)
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     ConditionalBranch,
@@ -22,6 +27,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
+from puya.ir.types_ import IRType
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -52,44 +58,35 @@ class LoopAssigner:
     def assign_user_loop_vars(
         self, item_provider: ValueProvider, index_provider: ValueProvider
     ) -> LoopVariables:
-
-        var_names = self._build_names_from_lvalue(self._items)
-
-        if self.has_enumerate:
-            (index_name, *item_names) = var_names
-            item_registers = assign(
-                self._context,
-                item_provider,
-                names=item_names,
-                source_location=self._items.source_location,
-            )
-            (index_register,) = assign(
-                self._context,
-                index_provider,
-                names=[index_name],
-                source_location=self._items.source_location,
-            )
-
-            return LoopVariables(item_registers, index_register)
+        registers = self._build_registers_from_lvalue(self._items)
+        if not self.has_enumerate:
+            index_register = None
+            item_registers = registers
         else:
-            item_registers = assign(
+            (index_register, *item_registers) = registers
+        assign_targets(
+            self._context,
+            source=item_provider,
+            targets=item_registers,
+            assignment_location=self._items.source_location,
+        )
+        if index_register:
+            assign_targets(
                 self._context,
-                item_provider,
-                names=var_names,
-                source_location=self._items.source_location,
+                source=index_provider,
+                targets=[index_register],
+                assignment_location=self._items.source_location,
             )
-            return LoopVariables(item_registers, None)
+        return LoopVariables(item_registers, index_register)
 
-    def _build_names_from_lvalue(
-        self, target: awst_nodes.Lvalue
-    ) -> typing.Sequence[tuple[str, SourceLocation | None]]:
+    def _build_registers_from_lvalue(self, target: awst_nodes.Lvalue) -> list[Register]:
         match target:
             case awst_nodes.VarExpression(name=var_name, source_location=var_loc, wtype=var_type):
-                return build_tuple_names(var_name, var_type, var_loc)
+                return build_tuple_registers(self._context, var_name, var_type, var_loc)
             case awst_nodes.TupleExpression() as tup_expr:
                 tuple_items = lvalue_items(tup_expr)
                 return [
-                    name for item in tuple_items for name in self._build_names_from_lvalue(item)
+                    reg for item in tuple_items for reg in self._build_registers_from_lvalue(item)
                 ]
             case _:
                 raise CodeError(
@@ -157,7 +154,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 )
         case awst_nodes.Expression(wtype=wtypes.bytes_wtype):
             bytes_value = context.visitor.visit_and_materialise_single(sequence)
-            (byte_length,) = assign(
+            byte_length = assign_temp(
                 context,
                 temp_description="bytes_length",
                 source=Intrinsic(
@@ -276,7 +273,7 @@ def _iterate_urange_simple(
     context.block_builder.goto(header)
     with context.block_builder.activate_open_block(header):
         (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
-        (continue_looping,) = assign_intrinsic_op(
+        continue_looping = assign_intrinsic_op(
             context,
             target="continue_looping",
             op=AVMOp.lt,
@@ -339,7 +336,7 @@ def _iterate_urange_with_reversal(
 
     # The following code will result in underflow if we don't pre-check the urange
     # params
-    (should_loop,) = assign_intrinsic_op(
+    should_loop = assign_intrinsic_op(
         context,
         target="should_loop",
         op=AVMOp.lt,
@@ -358,35 +355,35 @@ def _iterate_urange_with_reversal(
     context.block_builder.activate_block(header)
     # iteration_count = ((stop - 1) - start) // step + 1
     # => iteration_count - 1 = (stop - start - 1) // step
-    (range_length,) = assign_intrinsic_op(
+    range_length = assign_intrinsic_op(
         context,
         target="range_length",
         op=AVMOp.sub,
         args=[stop, start],
         source_location=range_loc,
     )
-    (range_length_minus_one,) = assign_intrinsic_op(
+    range_length_minus_one = assign_intrinsic_op(
         context,
         target="range_length_minus_one",
         op=AVMOp.sub,
         args=[range_length, 1],
         source_location=range_loc,
     )
-    (iteration_count_minus_one,) = assign_intrinsic_op(
+    iteration_count_minus_one = assign_intrinsic_op(
         context,
         target="iteration_count_minus_one",
         op=AVMOp.div_floor,
         args=[range_length_minus_one, step],
         source_location=range_loc,
     )
-    (range_delta,) = assign_intrinsic_op(
+    range_delta = assign_intrinsic_op(
         context,
         target="range_delta",
         op=AVMOp.mul,
         args=[step, iteration_count_minus_one],
         source_location=range_loc,
     )
-    (max_range_item,) = assign_intrinsic_op(
+    max_range_item = assign_intrinsic_op(
         context,
         target="max_range_item",
         op=AVMOp.add,
@@ -420,7 +417,7 @@ def _iterate_urange_with_reversal(
                 ),
                 source_location=range_loc,
             )
-            (continue_looping,) = assign(
+            continue_looping = assign_temp(
                 context,
                 source=continue_looping_op,
                 temp_description="continue_looping",
@@ -473,13 +470,13 @@ def _iterate_indexable(
         "for_header", "for_footer", "after_for", source_location=statement_loc
     )
 
-    (index_internal,) = assign(
+    index_internal = assign_temp(
         context,
         source=UInt64Constant(value=0, source_location=None),
         temp_description="item_index_internal",
         source_location=None,
     )
-    (reverse_index_internal,) = assign(
+    reverse_index_internal = assign_temp(
         context,
         source=indexable_size,
         temp_description="reverse_index_internal",
@@ -490,7 +487,7 @@ def _iterate_indexable(
     with context.block_builder.activate_open_block(header):
         current_index_internal = _refresh_mutated_variable(context, index_internal)
         if not (reverse_items or reverse_index):
-            (continue_looping,) = assign_intrinsic_op(
+            continue_looping = assign_intrinsic_op(
                 context,
                 target="continue_looping",
                 op=AVMOp.lt,
@@ -498,7 +495,7 @@ def _iterate_indexable(
                 source_location=statement_loc,
             )
         else:
-            (continue_looping,) = assign_intrinsic_op(
+            continue_looping = assign_intrinsic_op(
                 context,
                 target="continue_looping",
                 op=AVMOp.gt,
@@ -516,7 +513,7 @@ def _iterate_indexable(
 
         context.block_builder.activate_block(body)
         if reverse_items or reverse_index:
-            (reverse_index_internal,) = assign_intrinsic_op(
+            reverse_index_internal = assign_intrinsic_op(
                 context,
                 target=reverse_index_internal,
                 op=AVMOp.sub,
@@ -564,11 +561,12 @@ def _iterate_tuple(
     loop_counter_name = context.next_tmp_name("loop_counter")
 
     def assign_counter_and_user_vars(loop_count: int) -> Register:
-        (counter_reg,) = assign(
+        counter_reg = context.ssa.new_register(loop_counter_name, IRType.uint64, None)
+        assign_targets(
             context,
             source=UInt64Constant(value=loop_count, source_location=None),
-            names=[(loop_counter_name, None)],
-            source_location=None,
+            targets=[counter_reg],
+            assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
         item_reg, index_reg = assigner.assign_user_loop_vars(

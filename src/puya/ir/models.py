@@ -488,7 +488,9 @@ class Assignment(Op):
     """
 
     source_location: SourceLocation | None
-    targets: list[Register] = attrs.field(validator=[attrs.validators.min_len(1)])
+    targets: Sequence[Register] = attrs.field(
+        validator=[attrs.validators.min_len(1)], converter=tuple[Register, ...]
+    )
     source: ValueProvider = attrs.field()
 
     def _frozen_data(self) -> object:

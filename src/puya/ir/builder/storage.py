@@ -7,9 +7,9 @@ from puya.awst import (
 )
 from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assert_value, assign, assign_targets, mktemp
+from puya.ir.builder._utils import assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import Intrinsic, Register, UInt64Constant, Value, ValueProvider, ValueTuple
+from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider, ValueTuple
 from puya.ir.types_ import IRType, wtype_to_ir_type
 from puya.parse import SourceLocation
 
@@ -121,7 +121,7 @@ def _build_state_get_ex(
     source_location: SourceLocation,
     *,
     for_existence_check: bool = False,
-) -> tuple[Register, Register]:
+) -> tuple[Value, Value]:
     key = context.visitor.visit_and_materialise_single(expr.key)
     args: list[Value]
     true_value_ir_type = get_ex_value_ir_type = wtype_to_ir_type(expr.wtype)
@@ -156,11 +156,8 @@ def _build_state_get_ex(
         types=[get_ex_value_ir_type, IRType.bool],
         source_location=source_location,
     )
-    (value_tmp, did_exist_tmp) = assign(
-        context,
-        get_ex,
-        temp_description=["maybe_value", "maybe_exists"],
-        source_location=source_location,
+    value_tmp, did_exist_tmp = context.visitor.materialise_value_provider(
+        get_ex, ("maybe_value", "maybe_exists")
     )
     if convert_op is None:
         return value_tmp, did_exist_tmp

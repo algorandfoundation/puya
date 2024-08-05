@@ -4,8 +4,8 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder._tuple_util import build_tuple_names
-from puya.ir.builder._utils import assign
+from puya.ir.builder._tuple_util import build_tuple_registers
+from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -180,7 +180,7 @@ def handle_conditional_expression(
         "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location
     )
     tmp_var_name = context.next_tmp_name("ternary_result")
-    names = build_tuple_names(tmp_var_name, expr.wtype, expr.source_location)
+    true_registers = build_tuple_registers(context, tmp_var_name, expr.wtype, expr.source_location)
 
     process_conditional(
         context,
@@ -192,28 +192,28 @@ def handle_conditional_expression(
 
     context.block_builder.activate_block(true_block)
     true_vp = context.visitor.visit_expr(expr.true_expr)
-    registers = assign(
+    assign_targets(
         context,
         source=true_vp,
-        names=names,
-        source_location=expr.true_expr.source_location,
+        targets=true_registers,
+        assignment_location=expr.true_expr.source_location,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(false_block)
     false_vp = context.visitor.visit_expr(expr.false_expr)
-    assign(
+    assign_targets(
         context,
         source=false_vp,
-        names=names,
-        source_location=expr.false_expr.source_location,
+        targets=[new_register_version(context, reg) for reg in true_registers],
+        assignment_location=expr.false_expr.source_location,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(merge_block)
     result = [
         context.ssa.read_variable(variable=r.name, ir_type=r.ir_type, block=merge_block)
-        for r in registers
+        for r in true_registers
     ]
     if len(result) == 1:
         return result[0]

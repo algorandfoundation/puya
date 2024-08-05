@@ -20,6 +20,7 @@ from puya.ir.builder._utils import (
     assert_value,
     assign,
     assign_targets,
+    assign_temp,
     extract_const_int,
     mktemp,
 )
@@ -78,7 +79,7 @@ class FunctionIRBuilder(
     ):
         self.context = context.for_function(function, subroutine, self)
         self._itxn = InnerTransactionBuilder(self.context)
-        self._single_eval_registers = dict[awst_nodes.SingleEvaluation, TExpression]()
+        self._single_eval_cache = dict[awst_nodes.SingleEvaluation, TExpression]()
 
     @classmethod
     def build_body(
@@ -128,13 +129,12 @@ class FunctionIRBuilder(
             case wtypes.ARC4Type(immutable=False):
                 # Arc4 encoded types are value types
                 original_value = self.visit_and_materialise_single(expr.value)
-                (copy,) = assign(
+                return assign_temp(
                     temp_description="copy",
                     source=original_value,
                     source_location=expr.source_location,
                     context=self.context,
                 )
-                return copy
         raise InternalError(
             f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
         )
@@ -440,13 +440,7 @@ class FunctionIRBuilder(
         )
 
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
-        value_with_check = self.visit_expr(expr.expr)
-        value, check = assign(
-            self.context,
-            value_with_check,
-            temp_description=("value", "check"),
-            source_location=expr.source_location,
-        )
+        value, check = self.visit_and_materialise(expr.expr, ("value", "check"))
         assert_value(
             self.context,
             check,
@@ -664,7 +658,7 @@ class FunctionIRBuilder(
                     immediates=[index.value, 1],
                     source_location=expr.source_location,
                 )
-            (index_plus_1,) = assign(
+            index_plus_1 = assign_temp(
                 self.context,
                 Intrinsic(
                     op=AVMOp.add,
@@ -703,27 +697,19 @@ class FunctionIRBuilder(
 
     def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> TExpression:
         try:
-            return self._single_eval_registers[expr]
+            return self._single_eval_cache[expr]
         except KeyError:
             pass
         source = expr.source.accept(self)
-        result: TExpression
-        if source is None:
-            result = None
+        if not (source and source.types):
+            result: TExpression = None
         else:
-            registers = assign(
-                self.context,
-                source=source,
-                temp_description="awst_tmp",
-                source_location=expr.source_location,
-            )
-            if len(registers) == 1:
-                (result,) = registers
+            values = self.materialise_value_provider(source, description="awst_tmp")
+            if len(values) == 1:
+                (result,) = values
             else:
-                result = ValueTuple(
-                    values=list[Value](registers), source_location=expr.source_location
-                )
-        self._single_eval_registers[expr] = result
+                result = ValueTuple(values=values, source_location=expr.source_location)
+        self._single_eval_cache[expr] = result
         return result
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
@@ -803,8 +789,8 @@ class FunctionIRBuilder(
             assign(
                 self.context,
                 UInt64Constant(value=1, ir_type=IRType.bool, source_location=None),
-                names=[(tmp_name, None)],
-                source_location=None,
+                name=tmp_name,
+                assignment_location=None,
             )
             self.context.block_builder.goto(merge_block)
 
@@ -812,8 +798,8 @@ class FunctionIRBuilder(
             assign(
                 self.context,
                 UInt64Constant(value=0, ir_type=IRType.bool, source_location=None),
-                names=[(tmp_name, None)],
-                source_location=None,
+                name=tmp_name,
+                assignment_location=None,
             )
             self.context.block_builder.goto(merge_block)
             self.context.block_builder.activate_block(merge_block)
@@ -877,13 +863,13 @@ class FunctionIRBuilder(
             if not condition:
                 condition = equal_i
                 continue
-            (left_var,) = assign(
+            left_var = assign_temp(
                 self.context,
                 source=condition,
                 temp_description="contains",
                 source_location=expr.source_location,
             )
-            (right_var,) = assign(
+            right_var = assign_temp(
                 self.context,
                 source=equal_i,
                 temp_description="is_equal",
@@ -915,8 +901,8 @@ class FunctionIRBuilder(
         target = mktemp(
             self.context,
             outer_ir_type,
-            source_location=expr.source_location,
             description=f"reinterpret_{outer_ir_type.name}",
+            source_location=expr.source_location,
         )
         assign_targets(
             self.context,
@@ -1103,22 +1089,26 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_and_materialise_single(self, expr: awst_nodes.Expression) -> Value:
+    def visit_and_materialise_single(
+        self, expr: awst_nodes.Expression, temp_description: str = "tmp"
+    ) -> Value:
         """Translate an AWST Expression into a single Value"""
-        values = self.visit_and_materialise(expr)
+        values = self.visit_and_materialise(expr, temp_description=temp_description)
         try:
             (value,) = values
         except ValueError as ex:
             raise InternalError(
-                "_visit_and_materialise_single should not be used when"
+                "visit_and_materialise_single should not be used when"
                 f" an expression could be multi-valued, expression was: {expr}",
                 expr.source_location,
             ) from ex
         return value
 
-    def visit_and_materialise(self, expr: awst_nodes.Expression) -> Sequence[Value]:
+    def visit_and_materialise(
+        self, expr: awst_nodes.Expression, temp_description: str | Sequence[str] = "tmp"
+    ) -> Sequence[Value]:
         value_provider = self.visit_expr(expr)
-        return self.materialise_value_provider(value_provider, description="tmp")
+        return self.materialise_value_provider(value_provider, description=temp_description)
 
     def visit_expr(self, expr: awst_nodes.Expression) -> ValueProvider:
         """Visit the expression and ensure result is not None"""
@@ -1131,7 +1121,7 @@ class FunctionIRBuilder(
 
     def materialise_value_provider(
         self, provider: ValueProvider, description: str | Sequence[str]
-    ) -> Sequence[Value]:
+    ) -> list[Value]:
         """
         Given a ValueProvider with arity of N, return a Value sequence of length N.
 
@@ -1140,18 +1130,33 @@ class FunctionIRBuilder(
         Otherwise, the result is assigned to a temporary register, which is returned
         """
         if isinstance(provider, Value):
-            return (provider,)
+            return [provider]
 
         if isinstance(provider, ValueTuple):
-            return provider.values
+            return list(provider.values)
 
-        # TODO: should this be the source location of the site forcing materialisation?
-        return assign(
-            self.context,
+        ir_types = provider.types
+        if not ir_types:
+            raise InternalError(
+                "Attempted to assign from expression that has no result", provider.source_location
+            )
+
+        if isinstance(description, str):
+            temp_description: Sequence[str] = [description] * len(ir_types)
+        else:
+            temp_description = description
+        targets = [
+            mktemp(self.context, ir_type, provider.source_location, description=descr)
+            for ir_type, descr in zip(ir_types, temp_description, strict=True)
+        ]
+        assign_targets(
+            context=self.context,
             source=provider,
-            temp_description=description,
-            source_location=provider.source_location,
+            targets=targets,
+            # TODO: should this be the source location of the site forcing materialisation?
+            assignment_location=provider.source_location,
         )
+        return list[Value](targets)
 
 
 def create_uint64_binary_op(
@@ -1248,7 +1253,7 @@ def insert_on_create_call(context: IRFunctionBuildContext, to: Subroutine) -> No
     txn_app_id_intrinsic = Intrinsic(
         source_location=None, op=AVMOp("txn"), immediates=["ApplicationID"]
     )
-    (app_id_r,) = assign(
+    app_id_r = assign_temp(
         context,
         source=txn_app_id_intrinsic,
         temp_description="app_id",
