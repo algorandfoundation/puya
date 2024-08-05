@@ -179,6 +179,9 @@ def handle_conditional_expression(
     true_block, false_block, merge_block = context.block_builder.mkblocks(
         "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location
     )
+    tmp_var_name = context.next_tmp_name("ternary_result")
+    names = build_tuple_names(tmp_var_name, expr.wtype, expr.source_location)
+
     process_conditional(
         context,
         expr.condition,
@@ -187,17 +190,13 @@ def handle_conditional_expression(
         loc=expr.source_location,
     )
 
-    tmp_var_name = context.next_tmp_name("ternary_result")
-
     context.block_builder.activate_block(true_block)
     true_vp = context.visitor.visit_expr(expr.true_expr)
     registers = assign(
         context,
         source=true_vp,
-        names=build_tuple_names(
-            tmp_var_name, expr.true_expr.wtype, expr.true_expr.source_location
-        ),
-        source_location=expr.source_location,
+        names=names,
+        source_location=expr.true_expr.source_location,
     )
     context.block_builder.goto(merge_block)
 
@@ -206,12 +205,11 @@ def handle_conditional_expression(
     assign(
         context,
         source=false_vp,
-        names=build_tuple_names(
-            tmp_var_name, expr.false_expr.wtype, expr.false_expr.source_location
-        ),
-        source_location=expr.source_location,
+        names=names,
+        source_location=expr.false_expr.source_location,
     )
     context.block_builder.goto(merge_block)
+
     context.block_builder.activate_block(merge_block)
     result = [
         context.ssa.read_variable(variable=r.name, ir_type=r.ir_type, block=merge_block)
