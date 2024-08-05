@@ -11,7 +11,7 @@ from puya.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_type
-from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.utils import maybe_resolve_literal
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -54,13 +54,7 @@ class ARC4Signature:
 def get_arc4_signature(
     method: NodeBuilder, native_args: Sequence[NodeBuilder], loc: SourceLocation
 ) -> tuple[str, ARC4Signature]:
-    method = expect.argument_of_type(method, pytypes.StrLiteralType, default=expect.default_raise)
-    match method:
-        case LiteralBuilder(value=str(method_sig)):
-            pass
-        case _:
-            raise CodeError("method selector must be a simple str literal", method.source_location)
-
+    method_sig = expect.simple_string_literal(method, default=expect.default_raise)
     method_name, maybe_args, maybe_returns = _split_signature(method_sig, method.source_location)
     if maybe_args is None:
         arg_types = [

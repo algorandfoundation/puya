@@ -387,9 +387,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         "star expressions are not supported", self._location(star_expr)
                     )
                 match typ:
-                    case pytypes.ArrayType(items=homogenous_type) | pytypes.VariadicTupleType(
-                        items=homogenous_type
-                    ):
+                    case pytypes.SequenceType(items=homogenous_type):
                         tuple_item_types = (homogenous_type,) * len(lval_items)
                     case pytypes.TupleLikeType(items=tuple_item_types):
                         if len(tuple_item_types) != len(lval_items):

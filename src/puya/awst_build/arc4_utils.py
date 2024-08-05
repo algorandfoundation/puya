@@ -404,11 +404,7 @@ def pytype_to_arc4_pytype(
     match pytype:
         case pytypes.BoolType:
             return pytypes.ARC4BoolType
-        case pytypes.TupleLikeType(
-            generic=pytypes.GenericTupleType,
-            items=tuple_item_types,
-            source_location=tuple_location,
-        ):
+        case pytypes.TupleType(items=tuple_item_types, source_location=tuple_location):
             return pytypes.GenericARC4TupleType.parameterise(
                 [pytype_to_arc4_pytype(item_typ, on_error) for item_typ in tuple_item_types],
                 tuple_location,

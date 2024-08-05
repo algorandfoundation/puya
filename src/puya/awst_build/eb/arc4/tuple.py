@@ -38,9 +38,7 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
     ) -> InstanceBuilder:
         arg = expect.exactly_one_arg(args, location, default=expect.default_raise)
         match arg:
-            case InstanceBuilder(
-                pytype=pytypes.TupleLikeType(items=items, generic=pytypes.GenericTupleType)
-            ):
+            case InstanceBuilder(pytype=pytypes.TupleType(items=items)):
                 typ = pytypes.GenericARC4TupleType.parameterise(items, location)
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.ARC4Tuple)

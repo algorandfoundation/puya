@@ -143,19 +143,15 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
         *,
         reverse: bool,
     ) -> InstanceBuilder:
-        if op != BuilderBinaryOp.add:
-            return NotImplemented
-        if not _check_array_concat_arg(other, self.pytype):
+        # only __add__ is implemented, not __radd__
+        if op != BuilderBinaryOp.add or reverse:
             return NotImplemented
 
-        lhs: InstanceBuilder = self
-        rhs = other
-        if reverse:
-            (lhs, rhs) = (rhs, lhs)
+        other = _match_array_concat_arg(other, self.pytype)
         return DynamicArrayExpressionBuilder(
             ArrayConcat(
-                left=lhs.resolve(),
-                right=rhs.resolve(),
+                left=self.resolve(),
+                right=other.resolve(),
                 wtype=self.pytype.wtype,
                 source_location=location,
             ),
@@ -238,18 +234,16 @@ class _Extend(_ArrayFunc):
         )
 
 
-def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> bool:
+def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
     expected_item_type = arr_type.items
     match arg.pytype:
         case pytypes.ArrayType(items=array_items):
-            return expected_item_type <= array_items
+            okay = expected_item_type <= array_items
         case pytypes.TupleLikeType(items=tuple_items):
-            return all(expected_item_type <= ti for ti in tuple_items)
-    return False
-
-
-def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
-    if _check_array_concat_arg(arg, arr_type):
+            okay = all(expected_item_type <= ti for ti in tuple_items)
+        case _:
+            okay = False
+    if okay:
         return arg
     logger.error(
         "expected an array or tuple of the same element type", location=arg.source_location

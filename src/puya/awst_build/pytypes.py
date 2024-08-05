@@ -269,6 +269,8 @@ GenericTupleType: typing.Final = _GenericType(
 @attrs.frozen(kw_only=True, order=False)
 class TupleType(TupleLikeType):
     generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
     name: str = attrs.field(init=False)
 
     @name.default
@@ -292,18 +294,30 @@ class TupleType(TupleLikeType):
 @attrs.frozen(kw_only=True, order=False)
 class NamedTupleType(TupleLikeType):
     names: tuple[str, ...] = attrs.field()
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
     wtype: wtypes.WTuple
+
+    def __init__(
+        self, *, name: str, fields: dict[str, PyType], source_location: SourceLocation | None
+    ):
+        pass
 
     @names.validator
     def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
-        if names is not None and len(names) != len(self.items):
+        if len(names) != len(self.items):
             raise InternalError("names length must match items length", self.source_location)
+
+
+@attrs.frozen(order=False)
+class SequenceType(PyType, abc.ABC):
+    items: PyType
 
 
 @typing.final
 @attrs.frozen(order=False)
-class ArrayType(RuntimeType):
-    items: PyType
+class ArrayType(SequenceType, RuntimeType):
     size: int | None
     wtype: wtypes.WType
     # convenience accessors
@@ -376,7 +390,7 @@ class StructType(RuntimeType):
     frozen: bool
     wtype: wtypes.WType
     source_location: SourceLocation | None
-    generic: None = None
+    generic: None = attrs.field(default=None, init=False)
 
     @cached_property
     def names(self) -> Sequence[str]:
@@ -695,7 +709,6 @@ def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> NamedTuple
 
     pytype = NamedTupleType(
         name=name,
-        generic=None,
         names=tuple(items.keys()),
         items=tuple(items.values()),
         wtype=wtypes.WTuple(_flatten(items.values()), None),
@@ -730,8 +743,7 @@ CompiledLogicSigType: typing.Final = _flattened_named_tuple(
 
 @typing.final
 @attrs.frozen(order=False)
-class VariadicTupleType(PyType):
-    items: PyType
+class VariadicTupleType(SequenceType):
     generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
     bases: Sequence[PyType] = attrs.field(default=(), init=False)
     mro: Sequence[PyType] = attrs.field(default=(), init=False)
