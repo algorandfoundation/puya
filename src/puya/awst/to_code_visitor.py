@@ -594,8 +594,8 @@ class ToCodeVisitor(
     def visit_state_get_ex(self, expr: nodes.StateGetEx) -> str:
         return f"STATE_GET_EX({expr.field.accept(self)})"
 
-    def visit_state_delete(self, statement: nodes.StateDelete) -> list[str]:
-        return [f"STATE_DELETE({statement.field.accept(self)})"]
+    def visit_state_delete(self, statement: nodes.StateDelete) -> str:
+        return f"STATE_DELETE({statement.field.accept(self)})"
 
     def visit_state_get(self, expr: nodes.StateGet) -> str:
         return f"STATE_GET({expr.field.accept(self)}, default={expr.default.accept(self)})"
