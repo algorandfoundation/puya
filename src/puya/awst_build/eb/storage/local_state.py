@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     Expression,
+    ExpressionStatement,
     IntegerConstant,
     StateDelete,
     StateExists,
@@ -320,4 +321,4 @@ class _Maybe(_MemberFunction):
 
 class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppAccountStateExpression]):
     def delete(self, location: SourceLocation) -> Statement:
-        return StateDelete(field=self.resolve(), source_location=location)
+        return ExpressionStatement(StateDelete(field=self.resolve(), source_location=location))
