@@ -74,11 +74,10 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.ARC4TupleType]):
 
 
 class ARC4TupleExpressionBuilder(
-    BytesBackedInstanceExpressionBuilder[pytypes.TupleLikeType], StaticSizedCollectionBuilder
+    BytesBackedInstanceExpressionBuilder[pytypes.ARC4TupleType], StaticSizedCollectionBuilder
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.TupleLikeType)
-        assert typ.generic == pytypes.GenericARC4TupleType
+        assert isinstance(typ, pytypes.ARC4TupleType)
         super().__init__(typ, expr)
 
     @typing.override

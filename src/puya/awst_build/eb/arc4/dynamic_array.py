@@ -237,7 +237,7 @@ class _Extend(_ArrayFunc):
 def _match_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> InstanceBuilder:
     expected_item_type = arr_type.items
     match arg.pytype:
-        case pytypes.ArrayType(items=array_items):
+        case pytypes.SequenceType(items=array_items):
             okay = expected_item_type <= array_items
         case pytypes.TupleLikeType(items=tuple_items):
             okay = all(expected_item_type <= ti for ti in tuple_items)

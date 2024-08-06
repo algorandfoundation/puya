@@ -56,10 +56,9 @@ class GenericTupleTypeExpressionBuilder(GenericTypeBuilder):
         return _init(args, location)
 
 
-class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleLikeType]):
+class TupleTypeExpressionBuilder(TypeBuilder[pytypes.TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.TupleLikeType)
-        assert typ.generic == pytypes.GenericTupleType
+        assert isinstance(typ, pytypes.TupleType)
         super().__init__(typ, location)
 
     @typing.override
@@ -98,7 +97,7 @@ def _init(args: Sequence[NodeBuilder], location: SourceLocation) -> InstanceBuil
             raise CodeError("unhandled argument type", arg.source_location)
 
 
-class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleLikeType], StaticSizedCollectionBuilder):
+class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollectionBuilder):
     def __init__(self, items: Sequence[InstanceBuilder], location: SourceLocation):
         super().__init__(location)
         self._items = tuple(items)
@@ -106,7 +105,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleLikeType], StaticSizedCol
 
     @typing.override
     @property
-    def pytype(self) -> pytypes.TupleLikeType:
+    def pytype(self) -> pytypes.TupleType:
         return self._pytype
 
     @typing.override
