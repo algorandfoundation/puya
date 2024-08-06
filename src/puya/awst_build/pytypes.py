@@ -322,8 +322,6 @@ class TupleType(TupleLikeType):
 @attrs.frozen(kw_only=True, order=False, init=False)
 class NamedTupleType(TupleLikeType):
     generic: None = attrs.field(default=None, init=False)
-    bases: Sequence[PyType] = attrs.field(default=(NamedTupleBaseType,), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(NamedTupleBaseType,), init=False)
     wtype: wtypes.WTuple
     fields: immutabledict[str, PyType]
 
@@ -338,13 +336,17 @@ class NamedTupleType(TupleLikeType):
     def __init__(
         self, *, name: str, fields: dict[str, PyType], source_location: SourceLocation | None
     ):
+        tuple_type = TupleType(items=tuple(fields.values()), source_location=source_location)
+        tuple_wtype = tuple_type.wtype
+        if isinstance(tuple_wtype, str):
+            raise CodeError(tuple_wtype, source_location)
         self.__attrs_init__(
             name=name,
             fields=immutabledict(fields),
+            wtype=tuple_wtype,
+            bases=[NamedTupleBaseType, tuple_type],
+            mro=[NamedTupleBaseType, tuple_type],
             source_location=source_location,
-            wtype=wtypes.WTuple(
-                [f.checked_wtype(source_location) for f in fields.values()], source_location
-            ),
         )
         _register_builtin(self)
 

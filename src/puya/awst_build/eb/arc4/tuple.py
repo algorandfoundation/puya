@@ -50,10 +50,9 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
                 raise CodeError("unexpected argument type", arg.source_location)
 
 
-class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleLikeType]):
+class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.ARC4TupleType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.TupleLikeType)
-        assert typ.generic == pytypes.GenericARC4TupleType
+        assert isinstance(typ, pytypes.ARC4TupleType)
         super().__init__(typ, location)
 
     @typing.override
