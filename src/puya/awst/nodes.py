@@ -1727,6 +1727,7 @@ class ContractFragment(ModuleStatement):
 class StructureField(Node):
     name: str
     wtype: WType
+    docstring: str | None = None
 
 
 @attrs.frozen

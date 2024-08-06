@@ -727,10 +727,14 @@ def _extract_structure_fields(
     has_error = False
     for stmt in cdef.defs.body:
         match stmt:
-            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
+            case mypy.nodes.ExpressionStmt(
+                expr=mypy.nodes.StrExpr(value=str_value, line=str_start_line)
+            ):
                 # ignore class docstring, already extracted
-                # TODO: should we capture field "docstrings"?
-                pass
+                if field_decls:
+                    last_field_end_line = field_decls[-1].source_location.end_line
+                    if last_field_end_line and last_field_end_line + 1 == str_start_line:
+                        field_decls[-1] = attrs.evolve(field_decls[-1], docstring=str_value)
             case mypy.nodes.AssignmentStmt(
                 lvalues=[mypy.nodes.NameExpr(name=field_name)],
                 rvalue=mypy.nodes.TempNode(),
@@ -744,9 +748,10 @@ def _extract_structure_fields(
                     logger.error(wtype, location=stmt_loc)
                     has_error = True
                 else:
-                    field_decls.append(
-                        StructureField(name=field_name, wtype=wtype, source_location=stmt_loc)
+                    new_field = StructureField(
+                        name=field_name, wtype=wtype, source_location=stmt_loc
                     )
+                    field_decls.append(new_field)
             case mypy.nodes.SymbolNode(name=symbol_name) if (
                 cdef.info.names[symbol_name].plugin_generated
             ):
