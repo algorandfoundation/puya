@@ -244,7 +244,7 @@ class TupleExpressionBuilder(
         raise CodeError(f"cannot serialize {self.pytype}", location)
 
     @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> typing.Never:
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name in dir(tuple()):  # noqa: C408
             raise CodeError("method is not currently supported", location)
         raise CodeError("unrecognised member access", location)

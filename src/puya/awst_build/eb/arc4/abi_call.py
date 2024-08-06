@@ -36,11 +36,11 @@ from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.compiled import (
     APP_ALLOCATION_FIELDS,
     PROGRAM_FIELDS,
-    CompiledContractExpressionBuilder,
 )
 from puya.awst_build.eb.contracts import ContractTypeExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder, TypeBuilder
+from puya.awst_build.eb.named_tuple import NamedTupleExpressionBuilder
 from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puya.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
@@ -244,12 +244,13 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             case _:
                 raise CodeError("unexpected argument type", method_or_type.source_location)
         if compiled is None:
-            compiled = CompiledContractExpressionBuilder(
+            compiled = NamedTupleExpressionBuilder(
                 CompiledContract(
                     contract=contract_ref,
-                    wtype=pytypes.CompiledContractType.checked_wtype(location),
+                    wtype=pytypes.CompiledContractType.wtype,
                     source_location=location,
-                )
+                ),
+                pytypes.CompiledContractType,
             )
         else:
             _warn_if_different_contract(

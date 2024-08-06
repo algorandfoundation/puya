@@ -13,6 +13,7 @@ from puya.awst_build.eb import (
     ensure_budget,
     intrinsics,
     log,
+    named_tuple,
     none,
     storage,
     string,
@@ -155,6 +156,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructTypeBuilder,
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
+    pytypes.NamedTupleBaseType: named_tuple.NamedTupleTypeBuilder,
 }
 
 PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]] = {
@@ -169,8 +171,6 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
     pytypes.BigUIntType: biguint.BigUIntExpressionBuilder,
     pytypes.BoolType: bool_.BoolExpressionBuilder,
     pytypes.BytesType: bytes_.BytesExpressionBuilder,
-    pytypes.CompiledContractType: compiled.CompiledContractExpressionBuilder,
-    pytypes.CompiledLogicSigType: compiled.CompiledLogicSigExpressionBuilder,
     pytypes.StringType: string.StringExpressionBuilder,
     pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
     pytypes.NoneType: none.NoneExpressionBuilder,
@@ -235,6 +235,7 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructExpressionBuilder,
     pytypes.StructBaseType: struct.StructExpressionBuilder,
+    pytypes.NamedTupleBaseType: named_tuple.NamedTupleExpressionBuilder,
 }
 
 

@@ -176,9 +176,12 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 pass
             case mypy.nodes.TypedDictExpr():
                 self._unsupported(cdef, "TypedDict classes are not supported")
-            case mypy.nodes.NamedTupleExpr():
-                self._unsupported(cdef, "NamedTuple classes are not supported")
-            case _ as unrecognised_analysis_expression:
+            case mypy.nodes.NamedTupleExpr(is_typed=is_typed):
+                if not is_typed:
+                    self._unsupported(cdef, "untyped named tuples are not supported")
+                else:
+                    return _process_named_tuple(self.context, cdef)
+            case unrecognised_analysis_expression:
                 self.context.warning(
                     "Analyzed class expression of type"
                     f" {type(unrecognised_analysis_expression).__name__},"
@@ -668,40 +671,7 @@ def _process_contract_class_options(
 def _process_struct(
     context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
-    fields = dict[str, pytypes.PyType]()
-    field_decls = list[StructureField]()
-    docstring = cdef.docstring
-    has_error = False
-    for stmt in cdef.defs.body:
-        match stmt:
-            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
-                # ignore class docstring, already extracted
-                # TODO: should we capture field "docstrings"?
-                pass
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                rvalue=mypy.nodes.TempNode(),
-                type=mypy.types.Type() as mypy_type,
-            ):
-                stmt_loc = context.node_location(stmt)
-                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
-                fields[field_name] = pytype
-                field_decls.append(
-                    StructureField(
-                        source_location=stmt_loc,
-                        name=field_name,
-                        wtype=pytype.checked_wtype(stmt_loc),
-                    )
-                )
-            case mypy.nodes.SymbolNode(name=symbol_name) if (
-                cdef.info.names[symbol_name].plugin_generated
-            ):
-                pass
-            case mypy.nodes.PassStmt():
-                pass
-            case _:
-                context.error(f"Unsupported syntax for {base} member declaration", stmt)
-                has_error = True
+    fields, field_decls, docstring, has_error = _extract_structure_fields(context, base, cdef)
     if has_error:
         return []
     cls_loc = context.node_location(cdef)
@@ -724,6 +694,69 @@ def _process_struct(
             docstring=docstring,
         )
     ]
+
+
+def _process_named_tuple(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    fields, field_decls, docstring, has_error = _extract_structure_fields(
+        context, pytypes.NamedTupleBaseType, cdef
+    )
+    if has_error:
+        return []
+    cls_loc = context.node_location(cdef)
+    struct_typ = pytypes.NamedTupleType(name=cdef.fullname, fields=fields, source_location=cls_loc)
+    context.register_pytype(struct_typ)
+    return [
+        StructureDefinition(
+            name=cdef.name,
+            source_location=cls_loc,
+            fields=field_decls,
+            wtype=struct_typ.wtype,
+            docstring=docstring,
+        )
+    ]
+
+
+def _extract_structure_fields(
+    context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
+) -> tuple[dict[str, pytypes.PyType], list[StructureField], str | None, bool]:
+    fields = dict[str, pytypes.PyType]()
+    field_decls = list[StructureField]()
+    docstring = cdef.docstring
+    has_error = False
+    for stmt in cdef.defs.body:
+        match stmt:
+            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
+                # ignore class docstring, already extracted
+                # TODO: should we capture field "docstrings"?
+                pass
+            case mypy.nodes.AssignmentStmt(
+                lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                rvalue=mypy.nodes.TempNode(),
+                type=mypy.types.Type() as mypy_type,
+            ):
+                stmt_loc = context.node_location(stmt)
+                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
+                fields[field_name] = pytype
+                wtype = pytype.wtype
+                if isinstance(wtype, str):
+                    logger.error(wtype, location=stmt_loc)
+                    has_error = True
+                else:
+                    field_decls.append(
+                        StructureField(name=field_name, wtype=wtype, source_location=stmt_loc)
+                    )
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
+            case mypy.nodes.PassStmt():
+                pass
+            case _:
+                context.error(f"unsupported syntax for {base} member declaration", stmt)
+                has_error = True
+    return fields, field_decls, docstring, has_error
 
 
 def _map_scratch_space_reservation(

@@ -1,4 +1,3 @@
-import itertools
 import typing
 from collections.abc import Mapping, Sequence
 
@@ -9,21 +8,17 @@ from puya.awst.nodes import (
     CompiledContract,
     CompiledLogicSig,
     Expression,
-    TupleExpression,
-    TupleItemExpression,
 )
 from puya.awst.txn_fields import TxnField
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
-from puya.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
-from puya.awst_build.eb._utils import constant_bool_and_error, dummy_value
+from puya.awst_build.eb._base import FunctionBuilder
+from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.dict_ import DictLiteralBuilder
-from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puya.awst_build.eb.logicsig import LogicSigExpressionBuilder
-from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.eb.named_tuple import NamedTupleExpressionBuilder
 from puya.awst_build.utils import get_arg_mapping
-from puya.errors import CodeError
 from puya.log import get_logger
 from puya.models import ContractReference, LogicSigReference
 from puya.parse import SourceLocation
@@ -42,86 +37,6 @@ APP_ALLOCATION_FIELDS = {
     "local_bytes": TxnField.LocalNumByteSlice,
     "local_uints": TxnField.LocalNumUint,
 }
-
-
-class _LinearizedNamedTuple(NotIterableInstanceExpressionBuilder):
-    def __init__(self, expr: Expression, pytype: pytypes.NamedTupleType):
-        names = pytype.names
-        assert names is not None
-        self._item_map = {name: (idx, pytype.items[idx]) for idx, name in enumerate(names)}
-        super().__init__(pytype, expr)
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        return constant_bool_and_error(value=True, location=location, negate=negate)
-
-    @typing.override
-    @typing.final
-    def to_bytes(self, location: SourceLocation) -> Expression:
-        raise CodeError(f"cannot serialize {self.pytype}", location)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        try:
-            item_index, item_type = self._item_map[name]
-        except KeyError:
-            return super().member_access(name, location)
-        if isinstance(item_type, pytypes.TupleLikeType):
-            return self._read_tuple_slice(item_index, item_type, location)
-        else:
-            return self._read_tuple_index(item_index, item_type, location)
-
-    def _read_tuple_slice(
-        self, item_index: int, item_type: pytypes.TupleLikeType, location: SourceLocation
-    ) -> InstanceBuilder:
-        start_index = self._get_linear_index(item_index)
-        end_index = start_index + _get_linear_tuple_size(item_type)
-        expr = self.resolve()
-        return TupleExpressionBuilder(
-            TupleExpression.from_items(
-                [
-                    TupleItemExpression(base=expr, index=index, source_location=location)
-                    for index in range(start_index, end_index)
-                ],
-                location,
-            ),
-            item_type,
-        )
-
-    def _read_tuple_index(
-        self, item_index: int, item_type: pytypes.PyType, location: SourceLocation
-    ) -> InstanceBuilder:
-        return builder_for_instance(
-            item_type,
-            TupleItemExpression(
-                base=self.resolve(),
-                index=self._get_linear_index(item_index),
-                source_location=location,
-            ),
-        )
-
-    def _get_linear_index(self, index: int) -> int:
-        length = 0
-        for _, item_type in itertools.islice(self._item_map.values(), index):
-            length += _get_linear_tuple_size(item_type)
-        return length
-
-
-def _get_linear_tuple_size(pytyp: pytypes.PyType) -> int:
-    if isinstance(pytyp, pytypes.TupleLikeType):
-        return sum(map(_get_linear_tuple_size, pytyp.items))
-    return 1
-
-
-class CompiledContractExpressionBuilder(_LinearizedNamedTuple):
-    def __init__(self, expr: Expression) -> None:
-        super().__init__(expr, pytypes.CompiledContractType)
-
-
-class CompiledLogicSigExpressionBuilder(_LinearizedNamedTuple):
-    def __init__(self, expr: Expression) -> None:
-        super().__init__(expr, pytypes.CompiledLogicSigType)
 
 
 _TEMPLATE_VAR_KWARG_NAMES = [
@@ -175,15 +90,16 @@ class CompileContractFunctionBuilder(FunctionBuilder):
                     )
                 return dummy_value(result_type, location)
 
-        return CompiledContractExpressionBuilder(
+        return NamedTupleExpressionBuilder(
             CompiledContract(
                 contract=contract,
                 allocation_overrides=allocation_overrides,
                 prefix=prefix,
                 template_variables=template_vars,
-                wtype=result_type.checked_wtype(location),
+                wtype=result_type.wtype,
                 source_location=location,
-            )
+            ),
+            result_type,
         )
 
 
@@ -215,15 +131,17 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
                     logger.error(
                         "unexpected argument type", location=missing_or_invalid.source_location
                     )
+        result_type = pytypes.CompiledLogicSigType
         prefix, template_vars = _extract_prefix_template_args(arg_map)
-        return CompiledLogicSigExpressionBuilder(
+        return NamedTupleExpressionBuilder(
             CompiledLogicSig(
                 logic_sig=logic_sig,
                 prefix=prefix,
                 template_variables=template_vars,
-                wtype=pytypes.CompiledLogicSigType.checked_wtype(location),
+                wtype=result_type.wtype,
                 source_location=location,
-            )
+            ),
+            result_type,
         )
 
 

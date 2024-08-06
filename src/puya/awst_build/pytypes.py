@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -157,6 +157,30 @@ def builtins_registry() -> dict[str, PyType]:
     return _builtins_registry.copy()
 
 
+@attrs.frozen(order=False)
+class _BaseType(PyType):
+    """Type that is only usable as a base type"""
+
+    @typing.override
+    @property
+    def wtype(self) -> ErrorMessage:
+        return ErrorMessage(f"{self} is only usable as a base type")
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
+ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
+    name=constants.ARC4_CONTRACT_BASE,
+    bases=[ContractBaseType],
+    mro=[ContractBaseType],
+)
+ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
+ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")
+StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
+NamedTupleBaseType: typing.Final[PyType] = _BaseType(name="typing.NamedTuple")
+
 # https://typing.readthedocs.io/en/latest/spec/literal.html#legal-and-illegal-parameterizations
 # We don't support enums as typing.Literal parameters. mypy encodes these as str values with
 # an additional "fallback" data member, but we don't need that complication.
@@ -256,8 +280,11 @@ class TypingLiteralType(PyType):
 
 @attrs.frozen(kw_only=True, order=False)
 class TupleLikeType(PyType, abc.ABC):
-    items: tuple[PyType, ...]
     source_location: SourceLocation | None
+
+    @property
+    @abc.abstractmethod
+    def items(self) -> Sequence[PyType]: ...
 
 
 GenericTupleType: typing.Final = _GenericType(
@@ -268,6 +295,7 @@ GenericTupleType: typing.Final = _GenericType(
 
 @attrs.frozen(kw_only=True, order=False)
 class TupleType(TupleLikeType):
+    items: tuple[PyType, ...]
     generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
     bases: Sequence[PyType] = attrs.field(default=(), init=False)
     mro: Sequence[PyType] = attrs.field(default=(), init=False)
@@ -291,23 +319,34 @@ class TupleType(TupleLikeType):
         return wtypes.WTuple(tuple(item_wtypes), self.source_location)
 
 
-@attrs.frozen(kw_only=True, order=False)
+@attrs.frozen(kw_only=True, order=False, init=False)
 class NamedTupleType(TupleLikeType):
-    names: tuple[str, ...] = attrs.field()
     generic: None = attrs.field(default=None, init=False)
-    bases: Sequence[PyType] = attrs.field(default=(), init=False)
-    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    bases: Sequence[PyType] = attrs.field(default=(NamedTupleBaseType,), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(NamedTupleBaseType,), init=False)
     wtype: wtypes.WTuple
+    fields: immutabledict[str, PyType]
+
+    @property
+    def names(self) -> Sequence[str]:
+        return tuple(self.fields.keys())
+
+    @property
+    def items(self) -> Sequence[PyType]:
+        return tuple(self.fields.values())
 
     def __init__(
         self, *, name: str, fields: dict[str, PyType], source_location: SourceLocation | None
     ):
-        pass
-
-    @names.validator
-    def _validate_names(self, _attribute: object, names: tuple[str, ...]) -> None:
-        if len(names) != len(self.items):
-            raise InternalError("names length must match items length", self.source_location)
+        self.__attrs_init__(
+            name=name,
+            fields=immutabledict(fields),
+            source_location=source_location,
+            wtype=wtypes.WTuple(
+                [f.checked_wtype(source_location) for f in fields.values()], source_location
+            ),
+        )
+        _register_builtin(self)
 
 
 @attrs.frozen(order=False)
@@ -686,6 +725,7 @@ GenericARC4TupleType: typing.Final = _GenericType(
 
 @attrs.frozen(kw_only=True, order=False)
 class ARC4TupleType(TupleLikeType, RuntimeType):
+    items: tuple[PyType, ...]
     generic: _GenericType = attrs.field(default=GenericARC4TupleType, init=False)
     name: str = attrs.field(init=False)
     wtype: wtypes.ARC4Tuple
@@ -695,35 +735,9 @@ class ARC4TupleType(TupleLikeType, RuntimeType):
         return f"{self.generic.name}[{', '.join(pyt.name for pyt in self.items)}]"
 
 
-def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> NamedTupleType:
-    """
-    Produces a TupleLikeType with an underlying WType that is a linear WTuple of provided items
-    """
-
-    def _flatten(items_: Iterable[PyType]) -> Iterable[wtypes.WType]:
-        for item in items_:
-            if isinstance(item, TupleLikeType):
-                yield from _flatten(item.items)
-            else:
-                yield item.checked_wtype(None)
-
-    pytype = NamedTupleType(
-        name=name,
-        names=tuple(items.keys()),
-        items=tuple(items.values()),
-        wtype=wtypes.WTuple(_flatten(items.values()), None),
-        source_location=None,
-    )
-    _register_builtin(pytype)
-    return pytype
-
-
-# TODO: The CompiledContract and CompiledLogicSig types are currently just protocols in the stubs,
-#       however the should become named tuples once nested tuples are supported.
-#       For now it is convenient to represent them as named tuples at the pytypes level
-CompiledContractType: typing.Final = _flattened_named_tuple(
+CompiledContractType: typing.Final = NamedTupleType(
     name="algopy._compiled.CompiledContract",
-    items={
+    fields={
         "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
         "clear_state_program": GenericTupleType.parameterise([BytesType, BytesType], None),
         "extra_program_pages": UInt64Type,
@@ -732,12 +746,14 @@ CompiledContractType: typing.Final = _flattened_named_tuple(
         "local_uints": UInt64Type,
         "local_bytes": UInt64Type,
     },
+    source_location=None,
 )
-CompiledLogicSigType: typing.Final = _flattened_named_tuple(
+CompiledLogicSigType: typing.Final = NamedTupleType(
     name="algopy._compiled.CompiledLogicSig",
-    items={
+    fields={
         "account": AccountType,
     },
+    source_location=None,
 )
 
 
@@ -1159,30 +1175,6 @@ LogicSigType: typing.Final[PyType] = _CompileTimeType(
     name="algopy._logic_sig.LogicSig",
     wtype_error="{self} is only usable in a static context",
 )
-
-
-@attrs.frozen(order=False)
-class _BaseType(PyType):
-    """Type that is only usable as a base type"""
-
-    @typing.override
-    @property
-    def wtype(self) -> ErrorMessage:
-        return ErrorMessage(f"{self} is only usable as a base type")
-
-    def __attrs_post_init__(self) -> None:
-        _register_builtin(self)
-
-
-ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
-ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
-    name=constants.ARC4_CONTRACT_BASE,
-    bases=[ContractBaseType],
-    mro=[ContractBaseType],
-)
-ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
-ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")
-StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
 
 
 @typing.final
