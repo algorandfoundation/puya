@@ -7,6 +7,7 @@ import mypy.types
 from puya.awst.nodes import Expression, TupleExpression, TupleItemExpression
 from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
+from puya.awst_build.eb._base import FunctionBuilder
 from puya.awst_build.eb._utils import dummy_value
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -69,20 +70,58 @@ class NamedTupleExpressionBuilder(TupleExpressionBuilder):
         self._field_info = {
             name: (idx, typ) for idx, (name, typ) in enumerate(pytype.fields.items())
         }
+        self.namedtuple_pytype = pytype
         super().__init__(expr, pytype)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        try:
+        if name in self._field_info:
             item_index, item_type = self._field_info[name]
-        except KeyError:
-            if name in _NAMED_TUPLE_METHODS:
-                raise CodeError("method is not currently supported", location) from None
+            # TODO: field access instead
+            expr = TupleItemExpression(
+                base=self.resolve(),
+                index=item_index,
+                source_location=location,
+            )
+            return builder_for_instance(item_type, expr)
+        elif name == "_replace":
+            return _Replace(self, location)
+        elif name in _NAMED_TUPLE_METHODS:
+            raise CodeError("method is not currently supported", location) from None
+        else:
             return super().member_access(name, location)
-        # TODO: field access instead
-        expr = TupleItemExpression(
-            base=self.resolve(),
-            index=item_index,
-            source_location=location,
+
+
+class _Replace(FunctionBuilder):
+    def __init__(self, instance: NamedTupleExpressionBuilder, location: SourceLocation):
+        super().__init__(location)
+        self.instance = instance
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        pytype = self.instance.namedtuple_pytype
+        field_mapping, _ = get_arg_mapping(
+            optional_kw_only=list(pytype.fields),
+            args=args,
+            arg_names=arg_names,
+            call_location=location,
+            raise_on_missing=False,
         )
-        return builder_for_instance(item_type, expr)
+        base_expr = self.instance.single_eval().resolve()
+        items = list[Expression]()
+        for idx, (field_name, field_pytype) in enumerate(pytype.fields.items()):
+            new_value = field_mapping.get(field_name)
+            if new_value is not None:
+                item_builder = expect.argument_of_type_else_dummy(new_value, field_pytype)
+                item = item_builder.resolve()
+            else:
+                item = TupleItemExpression(base_expr, idx, location)
+            items.append(item)
+        new_tuple = TupleExpression(items=items, wtype=pytype.wtype, source_location=location)
+        return NamedTupleExpressionBuilder(new_tuple, pytype)

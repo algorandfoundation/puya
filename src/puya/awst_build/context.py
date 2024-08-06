@@ -223,10 +223,12 @@ def type_to_pytype(
                 raise CodeError(msg, loc)
             return _maybe_parameterise_pytype(registry, result, args, loc)
         case mypy.types.TupleType(items=items, partial_fallback=true_type):
-            generic = registry.get(true_type.type.fullname)
-            if generic is None:
+            maybe_generic = registry.get(true_type.type.fullname)
+            if maybe_generic is None:
                 raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
-            return _maybe_parameterise_pytype(registry, generic, items, loc)
+            if isinstance(maybe_generic, pytypes.NamedTupleType):
+                return maybe_generic
+            return _maybe_parameterise_pytype(registry, maybe_generic, items, loc)
         case mypy.types.LiteralType(fallback=fallback, value=literal_value) as mypy_literal_type:
             if not in_type_args:
                 # this is a bit clumsy, but exists because for some reason, bool types
