@@ -803,24 +803,31 @@ class BoxValueExpression(Expression):
         return visitor.visit_box_value_expression(self)
 
 
-@attrs.frozen(init=False, eq=False, hash=False)  # use identity equality
+@attrs.frozen
 class SingleEvaluation(Expression):
-    """caveat emptor"""
+    """
+    This node wraps an underlying expression and effectively caches the result of that lowering,
+    such that regardless of how many times the SingleEvaluation object
+    (or any object comparing equal to it) appears in the AWST,
+    the underlying source expression will only be evaluated once.
+    """
 
     source: Expression
+    _id: int = attrs.field()
+    wtype: WType = attrs.field(init=False, eq=False)
+    source_location: SourceLocation = attrs.field(eq=False)
 
-    def __init__(self, source: Expression):
-        self.__attrs_init__(
-            source=source,
-            source_location=source.source_location,
-            wtype=source.wtype,
-        )
-
-    def __eq__(self, other: object) -> bool:
-        return id(self) == id(other)
-
-    def __hash__(self) -> int:
+    @_id.default
+    def _default_id(self) -> int:
         return id(self)
+
+    @wtype.default
+    def _wtype(self) -> WType:
+        return self.source.wtype
+
+    @source_location.default
+    def _default_source_location(self) -> SourceLocation:
+        return self.source.source_location
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_single_evaluation(self)
