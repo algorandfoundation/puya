@@ -645,12 +645,20 @@ def _try_simplify_uint64_binary_op(
         # 0 != b <-> b
         #   OR
         # 0 < b <-> b
-        elif bool_context and a_const == 0 and op in (AVMOp.neq, AVMOp.lt):
+        elif (
+            (bool_context or b.ir_type == IRType.bool)
+            and a_const == 0
+            and op in (AVMOp.neq, AVMOp.lt)
+        ):
             c = b
         # a != 0 <-> a
         #   OR
         # a > 0 <-> a
-        elif bool_context and b_const == 0 and op in (AVMOp.neq, AVMOp.gt):
+        elif (
+            (bool_context or a.ir_type == IRType.bool)
+            and b_const == 0
+            and op in (AVMOp.neq, AVMOp.gt)
+        ):
             c = a
         elif a_const is not None and b_const is not None:
             match op:
