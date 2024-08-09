@@ -726,7 +726,7 @@ class FunctionIRBuilder(
     def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
         return storage.visit_state_get_ex(self.context, expr)
 
-    def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
+    def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TExpression:
         return storage.visit_state_delete(self.context, statement)
 
     def visit_state_get(self, expr: awst_nodes.StateGet) -> TExpression:

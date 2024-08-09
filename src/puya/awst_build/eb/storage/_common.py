@@ -6,6 +6,7 @@ import mypy.nodes
 
 from puya.awst.nodes import (
     BoxValueExpression,
+    ExpressionStatement,
     StateDelete,
     StateGet,
     StateGetEx,
@@ -76,7 +77,9 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxV
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        return StateDelete(field=self.resolve(), source_location=location)
+        return ExpressionStatement(
+            expr=StateDelete(field=self.resolve(), source_location=location)
+        )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
