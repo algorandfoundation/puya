@@ -1196,7 +1196,9 @@ def create_biguint_binary_op(
                 raise InternalError(
                     f"Unhandled uint64 binary operator: {op}", source_location
                 ) from ex
-    return Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
+    return Intrinsic(
+        op=avm_op, args=[left, right], types=(IRType.biguint,), source_location=source_location
+    )
 
 
 def create_bytes_binary_op(
