@@ -18,6 +18,7 @@ contract BiguintBinaryOps
     assert(left b| right == 58446744073709552000n)
     assert(left b& right == 18446744073709552000n)
     assert(left b^ right == 40000000000000000000n)
+    assert(test_cases.biguint_binary_ops.contract::bitwise_ops(left) == test_cases.biguint_binary_ops.contract::bitwise_ops(left))
     return true
   }
   
@@ -25,4 +26,11 @@ contract BiguintBinaryOps
   {
     return true
   }
+}
+
+subroutine bitwise_ops(value: biguint): biguint
+{
+  low128: biguint = reinterpret_cast<biguint>(bzero(16u) + b~(bzero(16u)))
+  wide_value_compl: biguint = value b^ low128 b+ 1n
+  return wide_value_compl b& low128
 }
