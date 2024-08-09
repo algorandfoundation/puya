@@ -1,4 +1,4 @@
-from algopy import BigUInt, Contract
+from algopy import BigUInt, Contract, op, subroutine
 
 
 class BiguintBinaryOps(Contract):
@@ -22,7 +22,16 @@ class BiguintBinaryOps(Contract):
         assert left | right == BigUInt(58446744073709552000)
         assert left & right == BigUInt(18446744073709552000)
         assert left ^ right == BigUInt(40000000000000000000)
+        assert bitwise_ops(left) == bitwise_ops(left)
         return True
 
     def clear_state_program(self) -> bool:
         return True
+
+
+@subroutine
+def bitwise_ops(value: BigUInt) -> BigUInt:
+    low128 = BigUInt.from_bytes(op.bzero(16) + ~op.bzero(16))
+    wide_value_compl = (value ^ low128) + BigUInt(1)
+
+    return wide_value_compl & low128
