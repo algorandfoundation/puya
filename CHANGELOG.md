@@ -1,4 +1,30 @@
 # CHANGELOG
+## v2.3.0 (2024-08-12)
+
+### Feature
+
+* improved optimization when uint64 comparisons involve a boolean value ([`a68ca06`](https://github.com/algorandfoundation/puya/commit/a68ca06bdcfca5c5df115f6af54e47f4ecc00413))
+
+* more aggressive optimization of `select` op involving constants or references to constants ([`8d59e2d`](https://github.com/algorandfoundation/puya/commit/8d59e2dd86bb03eaed806a48f07c04939e507660))
+
+* optimise away `select` op when both values are the same ([`f8eb257`](https://github.com/algorandfoundation/puya/commit/f8eb257ea903b9c7d51dee1384006e68897aaead))
+
+* optimise code size by converting conditional (ie ternary) expressions into `select` op when both values are simple variables / constants ([`b748976`](https://github.com/algorandfoundation/puya/commit/b74897677523a71cfb67c5393ecafd7c404af2c9))
+
+* more aggressive optimization of the boolean condition argument to `setbit` ([`e9828b3`](https://github.com/algorandfoundation/puya/commit/e9828b3b74571b01cb7315f80c84dae4ae6b223c))
+
+* support nested tuples ([`fe270dc`](https://github.com/algorandfoundation/puya/commit/fe270dcf8ebe26bdece34e1e0066c0eee8de0789))
+
+### Fix
+
+* correctly type the result of BigUInt bin ops at IR layer ([`d8d92bd`](https://github.com/algorandfoundation/puya/commit/d8d92bd1864d4ad810a3c8534f6ee0f0a45c9a09))
+
+* ensure non-zero UInt64 values that are explicitly converted to bool are handled correctly (issue #194) ([`13929de`](https://github.com/algorandfoundation/puya/commit/13929de2050acb6063697bc1c1e084ef7fed916a))
+
+### Documentation
+
+* fix link ([`c53d1f7`](https://github.com/algorandfoundation/puya/commit/c53d1f7ac1fba44f59a73183b09bcfe1aeae8fdf))
+
 ## v2.2.0 (2024-07-30)
 
 ### Feature
