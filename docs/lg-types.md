@@ -165,7 +165,7 @@ assert num == UInt64(2)
 num2 = num + 200 // 3
 ```
 
-[Further examples available here](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/uint64.py).
+[Further examples available here](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/biguint.py).
 
 ### bool
 
