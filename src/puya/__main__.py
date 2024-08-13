@@ -23,6 +23,12 @@ def main() -> None:
         help="Set optimization level of output TEAL / AVM bytecode",
     )
     parser.add_argument(
+        "--from-awst",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Produce compilation output from an AWST source.",
+    )
+    parser.add_argument(
         "--output-teal",
         action=argparse.BooleanOptionalAction,
         default=True,

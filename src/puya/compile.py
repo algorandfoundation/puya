@@ -25,6 +25,7 @@ from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import Module
 from puya.awst_build.arc32_client_gen import write_arc32_client
 from puya.awst_build.main import transform_ast
+from puya.awst_load.main import load_awst
 from puya.client_gen import parse_app_spec_methods
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
@@ -72,9 +73,12 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puya_options)
-        context, parse_result = parse_with_mypy(puya_options)
-        log_ctx.exit_if_errors()
-        awst = transform_ast(context, parse_result)
+        if puya_options.from_awst:
+            context, awst = load_awst(puya_options)
+        else:
+            context, parse_result = parse_with_mypy(puya_options)
+            log_ctx.exit_if_errors()
+            awst = transform_ast(context, parse_result)
         log_ctx.exit_if_errors()
         compiled_contracts_by_source_path = awst_to_teal(log_ctx, context, awst)
         log_ctx.exit_if_errors()

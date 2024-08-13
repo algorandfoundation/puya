@@ -51,8 +51,8 @@ class Expression(Node, ABC):
 class ExpressionStatement(Statement):
     expr: Expression
 
-    def __init__(self, expr: Expression):
-        self.__attrs_init__(expr=expr, source_location=expr.source_location)
+    def __init__(self, expr: Expression, source_location: SourceLocation | None = None):
+        self.__attrs_init__(expr=expr, source_location=source_location or expr.source_location)
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_expression_statement(self)

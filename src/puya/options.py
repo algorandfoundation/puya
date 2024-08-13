@@ -24,6 +24,7 @@ class LocalsCoalescingStrategy(enum.StrEnum):
 @attrs.define(kw_only=True)
 class PuyaOptions:
     paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
+    from_awst: bool = False
     output_teal: bool = True
     output_arc32: bool = True
     output_client: bool = False
