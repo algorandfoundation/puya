@@ -5,19 +5,17 @@ from pathlib import Path
 
 import attrs
 from puya.awst.nodes import Module
-from puya.awst_build.main import output_awst, transform_ast
-from puya.compile import (
-    awst_to_teal,
-    parse_with_mypy,
-    write_artifacts,
-)
+from puya.compile import awst_to_teal, write_artifacts
 from puya.context import CompileContext
 from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
 from puya.models import CompilationArtifact
 from puya.options import PuyaOptions
-from puya.parse import ParseResult, ParseSource, SourceLocation
+from puya.parse import ParseSource, SourceLocation
 from puya.utils import pushd
+from puyapy.awst_build.main import output_awst, transform_ast
+from puyapy.compile import parse_with_mypy
+from puyapy.parse import ParseResult
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 

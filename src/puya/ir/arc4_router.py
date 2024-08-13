@@ -1,6 +1,9 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
+from puyapy.awst_build import intrinsic_factory
+from puyapy.awst_build.eb.transaction import check_transaction_type
+
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -26,8 +29,6 @@ from puya.awst.wtypes import (
     string_wtype,
     uint64_wtype,
 )
-from puya.awst_build import intrinsic_factory
-from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4ABIMethod,
@@ -42,7 +43,7 @@ from puya.models import (
     ContractState,
     OnCompletionAction,
 )
-from puya.parse import SourceLocation, parse_docstring
+from puya.parse import SourceLocation
 
 __all__ = [
     "create_abi_router",
@@ -687,7 +688,7 @@ def create_abi_router(
 
     _validate_default_args(abi_methods.keys(), known_sources)
 
-    docs = {s: parse_docstring(s.docstring) for s in arc4_methods_with_configs}
+    docs = {s: s.documentation for s in arc4_methods_with_configs}
 
     arc4_method_metadata = list[ARC4Method]()
     for m, bare_method_config in bare_methods.items():
@@ -735,7 +736,7 @@ def create_abi_router(
         args=[],
         return_type=wtypes.bool_wtype,
         body=create_block(router_location, "abi_bare_routing", *router),
-        docstring=None,
+        documentation=awst_nodes.MethodDocumentation(),
         arc4_method_config=None,
     )
     return approval_program, arc4_method_metadata
@@ -757,7 +758,7 @@ def create_default_clear_state(contract: awst_nodes.ContractFragment) -> awst_no
             None,
             approve(contract.source_location),
         ),
-        docstring=None,
+        documentation=awst_nodes.MethodDocumentation(),
         arc4_method_config=None,
     )
 

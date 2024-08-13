@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 
 from puya import log
-from puya.compile import compile_to_teal
 from puya.options import PuyaOptions
+from puyapy.compile import compile_to_teal
 
 
 def main(example: str) -> None:

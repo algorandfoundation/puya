@@ -7,6 +7,7 @@ from pathlib import Path
 
 import attrs
 from immutabledict import immutabledict
+from puyapy.parse import EMBEDDED_MODULES
 
 from puya import algo_constants, log
 from puya.avm_type import AVMType
@@ -47,7 +48,7 @@ from puya.models import (
     LogicSigReference,
     StateTotals,
 )
-from puya.parse import EMBEDDED_MODULES, SourceLocation
+from puya.parse import SourceLocation
 from puya.utils import StableSet, attrs_extend
 
 logger = log.get_logger(__name__)
@@ -256,7 +257,7 @@ def _build_logic_sig_ir(
         program=sig_ir,
         metadata=LogicSignatureMetaData(
             ref=LogicSigReference(logic_sig.module_name, logic_sig.name),
-            description=logic_sig.program.docstring,
+            description=logic_sig.docstring,
         ),
     )
     return result

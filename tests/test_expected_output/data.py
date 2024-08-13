@@ -9,12 +9,13 @@ from pathlib import Path
 import attrs
 import pytest
 from puya.awst.to_code_visitor import ToCodeVisitor
-from puya.awst_build.main import transform_ast
-from puya.compile import awst_to_teal, parse_with_mypy
+from puya.compile import awst_to_teal
 from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.utils import coalesce
+from puyapy.awst_build.main import transform_ast
+from puyapy.compile import parse_with_mypy
 
 from tests.utils import narrow_sources
 

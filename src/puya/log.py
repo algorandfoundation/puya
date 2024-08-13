@@ -57,6 +57,7 @@ class Log:
 @attrs.define
 class LoggingContext:
     logs: list[Log] = attrs.field(factory=list)
+    sources_by_path: Mapping[str, Sequence[str] | None] | None = None
 
     def _log_level_counts(self) -> Mapping[LogLevel, int]:
         return Counter(log.level for log in self.logs)
@@ -337,9 +338,15 @@ def _add_source_context(kwargs: dict[str, typing.Any], location: SourceLocation 
     if not location:
         return
 
-    from puya.parse import read_source
+    try:
+        log_ctx = _current_ctx.get()
+    except LookupError:
+        return
 
-    file_source = read_source(location.file)
+    if not log_ctx.sources_by_path:
+        return
+
+    file_source = log_ctx.sources_by_path[location.file]
     if file_source and location.line <= len(file_source):
         kwargs["related_lines"] = _get_pretty_source(file_source, location)
 

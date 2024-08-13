@@ -13,7 +13,7 @@ import mypy.types
 import pytest
 from mypy.nodes import RevealExpr
 
-from puya.compile import get_mypy_options
+from puyapy.compile import get_mypy_options
 
 
 def get_assignment_var_named(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.nodes.Var:

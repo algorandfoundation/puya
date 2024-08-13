@@ -6,10 +6,11 @@ authors = ["Algorand Foundation <contact@algorand.foundation>"]
 readme = "README.md"
 packages = [
     { include = "puya", from = "src" },
+    { include = "puyapy", from = "src" },
     # copy stubs into published artifacts without the -stubs suffix
     # if poetry adds support for includes with a "to" like parameter, that might be a better solution
     # but in the mean-time this will suffice
-    { include = "*", from = "stubs/algopy-stubs", to = "puya/_typeshed/stdlib/algopy" }
+    { include = "*", from = "stubs/algopy-stubs", to = "puyapy/_typeshed/stdlib/algopy" }
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -75,8 +76,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-puyapy = "puya.__main__:main"
-puyapy-clientgen = "puya.client_gen:main"
+puya = "puya.__main__:main"
+puyapy = "puyapy.__main__:main"
+puyapy-clientgen = "puyapy.client_gen:main"
 
 [tool.pytest.ini_options]
 markers = [
@@ -102,7 +104,7 @@ xfail_strict = true
 [tool.black]
 line-length = 99
 # force-exclude ensures these files are excluded even when run via pre-commit
-force-exclude = "src/puya/(_typeshed|_vendor)"
+force-exclude = "src/puyapy/(_typeshed|_vendor)"
 
 [tool.mypy]
 python_version = "3.12"
@@ -111,8 +113,8 @@ untyped_calls_exclude = [
     "algosdk",
 ]
 exclude = [
-    "src/puya/_typeshed",
-    "src/puya/_vendor",
+    "src/puyapy/_typeshed",
+    "src/puyapy/_vendor",
     "stubs/algopy\\.py",
 ]
 enable_incomplete_feature = "NewGenericSyntax"
@@ -132,8 +134,8 @@ disallow_untyped_calls = false
 target-version = "py312"
 line-length = 99
 extend-exclude = [
-    "src/puya/_typeshed",
-    "src/puya/_vendor",
+    "src/puyapy/_typeshed",
+    "src/puyapy/_vendor",
     "test_cases/constants/non_utf8.py", # E902 ruff doesn't read this file encoding
 ]
 # force-exclude ensures these files are excluded even when run via pre-commit
@@ -236,7 +238,7 @@ unfixable = [
 "**/*.pyi" = [
     "SLOT"
 ]
-"src/puya/awst_build/eb/**" = [
+"src/puyapy/awst_build/eb/**" = [
     "ARG002", # TODO: remove this by either figuring out how to make it respect abstract methods
               #       or manually adding @typing.override everywhere 🥲
 ]
