@@ -1,3 +1,4 @@
+import collections.abc
 import inspect
 import typing
 
@@ -5,11 +6,13 @@ import attrs
 from cattrs import Converter
 from cattrs.gen import make_dict_structure_fn
 from cattrs.strategies import configure_tagged_union
+from immutabledict import immutabledict
 
 from puya.awst import (
+    wtypes,
     nodes as awst_nodes,
 )
-from puya.awst.wtypes import WType
+from puya.parse import SourceLocation
 from puya.utils import StableSet
 
 
@@ -17,25 +20,27 @@ def _make_subclasses_tree(cl: type) -> list[type]:
     return [cl] + [sscl for scl in type.__subclasses__(cl) for sscl in _make_subclasses_tree(scl)]
 
 
-nodes = {}
+nodes_map = {}
+
+wtypes_map = {}
 
 for cls in _make_subclasses_tree(awst_nodes.Node):
-    nodes[cls.__name__] = cls
+    nodes_map[cls.__name__] = cls
 
 
-for cls in _make_subclasses_tree(WType):
-    nodes[cls.__name__] = cls
+for cls in _make_subclasses_tree(wtypes.WType):
+    wtypes_map[cls.__name__] = cls
 
 
-def build_structure_func(
+def build_node_structure_func(
     converter: Converter,
 ) -> typing.Callable[[typing.Mapping[str, typing.Any], typing.Any], typing.Any]:
     def structure_func(data: typing.Mapping[str, typing.Any], cls: type) -> typing.Any:
-        # print (data)
 
-        if "_type" in data and data["_type"] in nodes:
-            node_type = nodes[data["_type"]]
+        if "_type" in data and data["_type"] in nodes_map:
+            node_type = nodes_map[data["_type"]]
 
+            # Add None for any missing optional fields
             data_with_optional_fields = {
                 field.name: data.get(field.name, None) for field in attrs.fields(node_type)
             }
@@ -50,9 +55,54 @@ def build_structure_func(
     return structure_func
 
 
-def node_predicate(cl: type) -> bool:
-    # print('predicate: ', cl.__name__, issubclass(cl, awst_nodes.Node | awst_nodes.WType))
-    return issubclass(cl, awst_nodes.Node | WType)
+def build_wtype_structure_func(
+    converter: Converter,
+) -> typing.Callable[[typing.Mapping[str, typing.Any], typing.Any], typing.Any]:
+    def structure_func(data: typing.Mapping[str, typing.Any], cls: type) -> typing.Any:
+
+        if "_type" in data and data["_type"] in wtypes_map:
+            wtype = wtypes_map[data["_type"]]
+
+            # Add None for any missing optional fields
+            data_with_optional_fields = {
+                field.name: data.get(field.name, None) for field in attrs.fields(wtype)
+            }
+
+            match wtype:
+                case wtypes.WTuple:
+                    return wtypes.WTuple(
+                        types=converter.structure(data.get("types", None), list[wtypes.WType]),
+                        source_location=converter.structure(
+                            data.get("source_location", None), SourceLocation | None
+                        ),
+                    )
+                case wtypes.ARC4UIntN:
+                    return wtypes.ARC4UIntN(
+                        alias=converter.structure(data.get("alias", None), str),
+                        n=converter.structure(data.get("n", None), int),
+                        decode_type=converter.structure(
+                            data.get("decode_type", None), wtypes.WType
+                        ),
+                        source_location=converter.structure(
+                            data.get("source_location", None), SourceLocation | None
+                        ),
+                    )
+                case _:
+                    return make_dict_structure_fn(
+                        wtype,
+                        converter,
+                    )(data_with_optional_fields, wtype)
+
+            return wtype(**data)
+            #
+            # return make_dict_structure_fn(
+            #     wtype,
+            #     converter,
+            # )(data_with_optional_fields, wtype)
+        else:
+            return make_dict_structure_fn(cls, converter)(data, cls)
+
+    return structure_func
 
 
 def structure_str_or_int(data: typing.Any, _: type) -> typing.Any:
@@ -85,12 +135,20 @@ def configure_cattrs() -> Converter:
     converter.register_structure_hook(str | int, structure_str_or_int)
 
     converter.register_structure_hook_func(
-        node_predicate,
-        build_structure_func(converter),
+        lambda t: issubclass_safe(t, awst_nodes.Node),
+        build_node_structure_func(converter),
+    )
+    converter.register_structure_hook_func(
+        lambda t: issubclass_safe(t, wtypes.WType),
+        build_wtype_structure_func(converter),
     )
 
     converter.register_structure_hook_func(
         lambda t: issubclass_safe(t, StableSet), structure_stable_set
+    )
+
+    converter.register_structure_hook_func(
+        lambda t: issubclass_safe(t, immutabledict), lambda o, t: immutabledict(o)
     )
 
     configure_tagged_union(awst_nodes.Lvalue, converter)
