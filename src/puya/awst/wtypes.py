@@ -194,7 +194,7 @@ class ARC4Type(WType):
     scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
     decode_type: WType | None
-    _other_encodeable_types: Collection[WType] = attrs.field(default=())
+    _other_encodeable_types: typing.Sequence[WType] = attrs.field(default=())
 
     @cached_property
     def encodeable_types(self) -> frozenset[WType]:
