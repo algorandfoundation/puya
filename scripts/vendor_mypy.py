@@ -34,7 +34,7 @@ def clone_branch(version: str) -> str:
 
 
 def vendor_mypy(version: str) -> None:
-    puya_src_dir = VCS_ROOT / "src" / "puya"
+    puya_src_dir = VCS_ROOT / "src" / "puyapy"
     vendor_dir = puya_src_dir / "_vendor"
     mypy_vendor = vendor_dir / "mypy"
     print(f"Vendoring mypy into: {mypy_vendor}")

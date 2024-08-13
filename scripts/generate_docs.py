@@ -5,15 +5,15 @@ import typing
 from collections.abc import Callable
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puya" / "_vendor"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puyapy" / "_vendor"))
 
 
 import attrs
 import mypy.build
 import mypy.nodes
 from mypy.visitor import NodeVisitor
-from puya.compile import get_mypy_options
-from puya.parse import ParseResult, parse_and_typecheck
+from puyapy.compile import get_mypy_options
+from puyapy.parse import ParseResult, parse_and_typecheck
 
 SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent

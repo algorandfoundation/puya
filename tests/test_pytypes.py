@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 
 import pytest
-from puya.awst_build import pytypes
+from puyapy.awst_build import pytypes
 
 from tests import VCS_ROOT
 
@@ -10,7 +10,7 @@ _STUB_SUFFIX = ".pyi"
 
 def stub_class_names_and_predefined_aliases() -> list[str]:
     from mypy import build, find_sources, fscache, nodes
-    from puya.compile import get_mypy_options
+    from puyapy.compile import get_mypy_options
 
     stubs_dir = (VCS_ROOT / "stubs" / "algopy-stubs").resolve()
     mypy_options = get_mypy_options()

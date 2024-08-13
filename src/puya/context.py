@@ -1,10 +1,11 @@
 from collections.abc import Mapping, Sequence
+from functools import cached_property
 
 import attrs
 
 from puya import log
 from puya.options import PuyaOptions
-from puya.parse import ParseSource, SourceLocation, read_source
+from puya.parse import ParseSource, SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -24,10 +25,14 @@ class CompileContext:
     sources: Sequence[ParseSource]
     module_paths: Mapping[str, str]
 
+    @cached_property
+    def sources_by_path(self) -> Mapping[str, Sequence[str] | None]:
+        return {str(s.path): s.lines for s in self.sources}
+
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta:
         if location is None:
             return _EmptyMeta
-        source_lines = read_source(location.file)
+        source_lines = self.sources_by_path.get(location.file)
         if not source_lines:
             src_content = list[str]()
         else:

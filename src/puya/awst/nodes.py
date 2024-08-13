@@ -1460,12 +1460,19 @@ class SubroutineArgument(Node):
 
 
 @attrs.frozen
+class MethodDocumentation:
+    description: str | None = None
+    args: immutabledict[str, str] = attrs.field(default={}, converter=immutabledict)
+    returns: str | None = None
+
+
+@attrs.frozen
 class Function(ModuleStatement, ABC):
     module_name: str
     args: Sequence[SubroutineArgument] = attrs.field(converter=tuple[SubroutineArgument, ...])
     return_type: WType
     body: Block
-    docstring: str | None
+    documentation: MethodDocumentation
 
     @property
     @abstractmethod
@@ -1518,6 +1525,7 @@ class AppStorageDefinition(Node):
 class LogicSignature(ModuleStatement):
     module_name: str
     program: Subroutine = attrs.field()
+    docstring: str | None
 
     @program.validator
     def _validate_program(self, _instance: object, program: Subroutine) -> None:

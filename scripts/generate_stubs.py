@@ -11,9 +11,9 @@ from pathlib import Path
 
 import attrs
 from puya import log
-from puya.awst_build import pytypes
-from puya.awst_build.intrinsic_models import FunctionOpMapping, OpMappingWithOverloads
-from puya.awst_build.utils import snake_case
+from puyapy.awst_build import pytypes
+from puyapy.awst_build.intrinsic_models import FunctionOpMapping, OpMappingWithOverloads
+from puyapy.awst_build.utils import snake_case
 
 from scripts.transform_lang_spec import (
     ArgEnum,
@@ -914,9 +914,9 @@ def build_awst_data(
 ) -> Iterable[str]:
     yield "import typing"
     yield "from collections.abc import Mapping, Sequence"
-    yield "from puya.awst_build import pytypes"
+    yield "from puyapy.awst_build import pytypes"
     yield (
-        "from puya.awst_build.intrinsic_models"
+        "from puyapy.awst_build.intrinsic_models"
         " import FunctionOpMapping, OpMappingWithOverloads, PropertyOpMapping"
     )
     yield "ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict("
@@ -991,7 +991,7 @@ def output_awst_data(
 ) -> None:
     awst_data = build_awst_data(lang_spec, enums, function_ops, class_ops)
 
-    awst_data_path = VCS_ROOT / "src" / "puya" / "awst_build" / "intrinsic_data.py"
+    awst_data_path = VCS_ROOT / "src" / "puyapy" / "awst_build" / "intrinsic_data.py"
     awst_data_path.write_text("\n".join(awst_data), encoding="utf-8")
     subprocess.run(["black", str(awst_data_path)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(awst_data_path)], check=False, cwd=VCS_ROOT)

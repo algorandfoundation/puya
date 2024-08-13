@@ -82,7 +82,7 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
         module_name="test_ir",
         args=(),
         return_type=wtypes.void_wtype,
-        docstring=None,
+        documentation=awst.MethodDocumentation(),
     )
     ctx = IRBuildContext(
         options=PuyaOptions(),
