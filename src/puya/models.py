@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import enum
 import typing
+from collections.abc import Sequence
 
 import attrs
 from immutabledict import immutabledict
@@ -10,7 +11,6 @@ from immutabledict import immutabledict
 from puya.parse import SourceLocation
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
 
     from puya.avm_type import AVMType
 
