@@ -1,7 +1,6 @@
 from puyapy.awst_build.eb.transaction.group import (
     GroupTransactionExpressionBuilder,
     GroupTransactionTypeBuilder,
-    check_transaction_type,
 )
 from puyapy.awst_build.eb.transaction.inner import (
     InnerTransactionExpressionBuilder,
@@ -21,5 +20,4 @@ __all__ = [
     "InnerTxnParamsTypeBuilder",
     "InnerTxnParamsExpressionBuilder",
     "SubmitInnerTransactionExpressionBuilder",
-    "check_transaction_type",
 ]

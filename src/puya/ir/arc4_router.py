@@ -2,7 +2,6 @@ import typing
 from collections.abc import Iterable, Mapping, Sequence
 
 from puyapy.awst_build import intrinsic_factory
-from puyapy.awst_build.eb.transaction import check_transaction_type
 
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -484,7 +483,9 @@ def map_abi_args(
                     ),
                     location,
                 )
-                yield check_transaction_type(transaction_index, txn_wtype, location)
+                yield awst_nodes.GroupTransactionReference(
+                    index=transaction_index, wtype=txn_wtype, source_location=location
+                )
                 transaction_arg_offset -= 1
             case _ if _has_arc4_equivalent_type(arg.wtype):
                 abi_arg = get_arg(abi_arg_index, _avm_to_arc4_equivalent_type(arg.wtype))

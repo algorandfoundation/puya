@@ -118,9 +118,9 @@ contract TransactionContract
   abimethod group_init(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
   {
     for txn in (txn1, txn2, txn3) {
-      txn_from_index: group_transaction = reinterpret_cast<group_transaction>(gtxns<GroupIndex>(txn))
+      txn_from_index: group_transaction = group_transaction(index=gtxns<GroupIndex>(txn), type=any)
       assert(gtxns<TxID>(txn) == gtxns<TxID>(txn_from_index))
     }
-    assert(gtxns<TxID>(txn1) == gtxns<TxID>(reinterpret_cast<group_transaction>(0u)))
+    assert(gtxns<TxID>(txn1) == gtxns<TxID>(group_transaction(index=0u, type=any)))
   }
 }

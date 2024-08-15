@@ -122,6 +122,10 @@ class FunctionTraverser(
             arg.accept(self)
 
     @typing.override
+    def visit_group_transaction_reference(self, ref: awst_nodes.GroupTransactionReference) -> None:
+        ref.index.accept(self)
+
+    @typing.override
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
         for expr in call.fields.values():
             expr.accept(self)

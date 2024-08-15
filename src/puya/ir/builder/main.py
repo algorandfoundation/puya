@@ -19,6 +19,7 @@ from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     assert_value,
     assign,
+    assign_intrinsic_op,
     assign_targets,
     assign_temp,
     extract_const_int,
@@ -516,6 +517,37 @@ class FunctionIRBuilder(
                     types=wtype_to_ir_types(call.wtype),
                     comment=call.comment,
                 )
+
+    def visit_group_transaction_reference(
+        self, ref: awst_nodes.GroupTransactionReference
+    ) -> TExpression:
+        index = self.visit_and_materialise_single(ref.index, "gtxn_idx")
+        if (txn_type := ref.wtype.transaction_type) is not None:
+            actual_type = assign_intrinsic_op(
+                self.context,
+                target="gtxn_type",
+                op=AVMOp.gtxns,
+                immediates=["TypeEnum"],
+                args=[index],
+                source_location=ref.source_location,
+            )
+            type_constant = UInt64Constant(
+                value=txn_type.value, teal_alias=txn_type.name, source_location=ref.source_location
+            )
+            type_matches = assign_intrinsic_op(
+                self.context,
+                target="gtxn_type_matches",
+                op=AVMOp.eq,
+                args=[actual_type, type_constant],
+                source_location=ref.source_location,
+            )
+            assert_value(
+                self.context,
+                type_matches,
+                comment=f"transaction type is {txn_type.name}",
+                source_location=ref.source_location,
+            )
+        return index
 
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
         # for semantic compatibility, this is an error, since we don't evaluate the args

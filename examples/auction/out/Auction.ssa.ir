@@ -35,63 +35,63 @@ contract examples.auction.contract.Auction:
                 let tmp%13#0: bytes = (txna ApplicationArgs 2)
                 let tmp%14#0: uint64 = (btoi tmp%13#0)
                 let tmp%15#0: uint64 = (txn GroupIndex)
-                let awst_tmp%0#0: uint64 = (- tmp%15#0 1u)
-                let tmp%16#0: uint64 = ((gtxns TypeEnum) awst_tmp%0#0)
-                let tmp%17#0: bool = (== tmp%16#0 axfer)
-                (assert tmp%17#0) // transaction type is axfer
-                examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, awst_tmp%0#0)
+                let gtxn_idx%0#0: uint64 = (- tmp%15#0 1u)
+                let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+                let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
+                (assert gtxn_type_matches%0#0) // transaction type is axfer
+                examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, gtxn_idx%0#0)
                 return 1u
             block@6: // opt_in_route_L62
-                let tmp%18#0: uint64 = (txn OnCompletion)
-                let tmp%19#0: bool = (== tmp%18#0 NoOp)
-                (assert tmp%19#0) // OnCompletion is NoOp
-                let tmp%20#0: bool = (txn ApplicationID)
-                (assert tmp%20#0) // is not creating
+                let tmp%16#0: uint64 = (txn OnCompletion)
+                let tmp%17#0: bool = (== tmp%16#0 NoOp)
+                (assert tmp%17#0) // OnCompletion is NoOp
+                let tmp%18#0: bool = (txn ApplicationID)
+                (assert tmp%18#0) // is not creating
                 examples.auction.contract.Auction.opt_in()
                 return 1u
             block@7: // bid_route_L66
-                let tmp%21#0: uint64 = (txn OnCompletion)
-                let tmp%22#0: bool = (== tmp%21#0 NoOp)
-                (assert tmp%22#0) // OnCompletion is NoOp
-                let tmp%23#0: bool = (txn ApplicationID)
-                (assert tmp%23#0) // is not creating
-                let tmp%24#0: uint64 = (txn GroupIndex)
-                let awst_tmp%1#0: uint64 = (- tmp%24#0 1u)
-                let tmp%25#0: uint64 = ((gtxns TypeEnum) awst_tmp%1#0)
-                let tmp%26#0: bool = (== tmp%25#0 pay)
-                (assert tmp%26#0) // transaction type is pay
-                examples.auction.contract.Auction.bid(awst_tmp%1#0)
+                let tmp%19#0: uint64 = (txn OnCompletion)
+                let tmp%20#0: bool = (== tmp%19#0 NoOp)
+                (assert tmp%20#0) // OnCompletion is NoOp
+                let tmp%21#0: bool = (txn ApplicationID)
+                (assert tmp%21#0) // is not creating
+                let tmp%22#0: uint64 = (txn GroupIndex)
+                let gtxn_idx%1#0: uint64 = (- tmp%22#0 1u)
+                let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
+                let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
+                (assert gtxn_type_matches%1#0) // transaction type is pay
+                examples.auction.contract.Auction.bid(gtxn_idx%1#0)
                 return 1u
             block@8: // claim_bids_route_L82
-                let tmp%27#0: uint64 = (txn OnCompletion)
-                let tmp%28#0: bool = (== tmp%27#0 NoOp)
-                (assert tmp%28#0) // OnCompletion is NoOp
-                let tmp%29#0: bool = (txn ApplicationID)
-                (assert tmp%29#0) // is not creating
+                let tmp%23#0: uint64 = (txn OnCompletion)
+                let tmp%24#0: bool = (== tmp%23#0 NoOp)
+                (assert tmp%24#0) // OnCompletion is NoOp
+                let tmp%25#0: bool = (txn ApplicationID)
+                (assert tmp%25#0) // is not creating
                 examples.auction.contract.Auction.claim_bids()
                 return 1u
             block@9: // claim_asset_route_L97
-                let tmp%30#0: uint64 = (txn OnCompletion)
-                let tmp%31#0: bool = (== tmp%30#0 NoOp)
-                (assert tmp%31#0) // OnCompletion is NoOp
-                let tmp%32#0: bool = (txn ApplicationID)
-                (assert tmp%32#0) // is not creating
-                let tmp%33#0: bytes = (txna ApplicationArgs 1)
-                let tmp%34#0: uint64 = (btoi tmp%33#0)
-                let tmp%35#0: uint64 = ((txnas Assets) tmp%34#0)
-                examples.auction.contract.Auction.claim_asset(tmp%35#0)
+                let tmp%26#0: uint64 = (txn OnCompletion)
+                let tmp%27#0: bool = (== tmp%26#0 NoOp)
+                (assert tmp%27#0) // OnCompletion is NoOp
+                let tmp%28#0: bool = (txn ApplicationID)
+                (assert tmp%28#0) // is not creating
+                let tmp%29#0: bytes = (txna ApplicationArgs 1)
+                let tmp%30#0: uint64 = (btoi tmp%29#0)
+                let tmp%31#0: uint64 = ((txnas Assets) tmp%30#0)
+                examples.auction.contract.Auction.claim_asset(tmp%31#0)
                 return 1u
             block@10: // switch_case_default_L16
                 goto block@11
             block@11: // switch_case_next_L16
                 fail // reject transaction
             block@12: // bare_routing_L16
-                let tmp%36#0: uint64 = (txn OnCompletion)
-                switch tmp%36#0 {0u => block@13, * => block@14}
+                let tmp%32#0: uint64 = (txn OnCompletion)
+                switch tmp%32#0 {0u => block@13, * => block@14}
             block@13: // create_L16
-                let tmp%37#0: bool = (txn ApplicationID)
-                let tmp%38#0: bool = (! tmp%37#0)
-                (assert tmp%38#0) // is creating
+                let tmp%33#0: bool = (txn ApplicationID)
+                let tmp%34#0: bool = (! tmp%33#0)
+                (assert tmp%34#0) // is creating
                 return 1u
             block@14: // reject_bare_on_completion_L16
                 fail // reject transaction
