@@ -7,7 +7,9 @@ from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
 from puya.ir._utils import bfs_block_order
+from puya.ir.models import Constant, InvokeSubroutine, Register, SubroutineReturn, TemplateVar
 from puya.ir.ssa import TrivialPhiRemover
+from puya.ir.visitor_mutator import IRMutator
 from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
@@ -317,3 +319,37 @@ class UnreachablePhiArgsRemover(visitor.IRTraverser):
                 f"{', '.join(map(str, self._unreachable_blocks))}"
             )
         TrivialPhiRemover.try_remove(phi, self._reachable_blocks)
+
+
+@attrs.define
+class RemoveCallsToNoOpSubroutines(IRMutator):
+    modified: int = 0
+
+    @classmethod
+    def apply(cls, to: models.Subroutine) -> int:
+        remover = cls()
+        for block in to.body:
+            remover.visit_block(block)
+        return remover.modified
+
+    def visit_invoke_subroutine(self, callsub: InvokeSubroutine) -> InvokeSubroutine | None:  # type: ignore[override]
+        callsub = super().visit_invoke_subroutine(callsub)
+        # TODO: find a more flexible way of determining if all args are side-effect free
+        if all(isinstance(a, Register | Constant | TemplateVar) for a in callsub.args):
+            try:
+                (sole_block,) = callsub.target.body
+                (sole_op,) = sole_block.all_ops
+            except ValueError:
+                pass
+            else:
+                match sole_op:
+                    case SubroutineReturn(result=[]):
+                        self.modified += 1
+                        return None
+        return callsub
+
+
+def remove_calls_to_no_op_subroutines(
+    _context: CompileContext, subroutine: models.Subroutine
+) -> bool:
+    return RemoveCallsToNoOpSubroutines.apply(subroutine) > 0
