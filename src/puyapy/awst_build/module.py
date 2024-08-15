@@ -254,7 +254,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             return []
 
         class_options = _process_contract_class_options(self.context, self, cdef)
-        return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
+        converter = ContractASTConverter(self.context, cdef, class_options)
+        return [converter.build]
 
     def visit_operator_assignment_stmt(
         self, stmt: mypy.nodes.OperatorAssignmentStmt
