@@ -31,9 +31,6 @@ class KeyRegistrationInnerTransaction(
 class AssetConfigInnerTransaction(_AssetConfigProtocol, _TransactionBaseProtocol, typing.Protocol):
     """Asset Config inner transaction"""
 
-    @property
-    def created_asset(self) -> Asset: ...
-
 class AssetTransferInnerTransaction(
     _AssetTransferProtocol, _TransactionBaseProtocol, typing.Protocol
 ):
@@ -46,17 +43,6 @@ class ApplicationCallInnerTransaction(
     _ApplicationProtocol, _TransactionBaseProtocol, typing.Protocol
 ):
     """Application Call inner transaction"""
-
-    def logs(self, index: UInt64 | int) -> Bytes:
-        """Log messages emitted by an application call"""
-
-    @property
-    def num_logs(self) -> UInt64:
-        """Number of logs"""
-
-    @property
-    def created_app(self) -> Application:
-        """ApplicationID allocated by the creation of an application"""
 
 class InnerTransactionResult(
     PaymentInnerTransaction,

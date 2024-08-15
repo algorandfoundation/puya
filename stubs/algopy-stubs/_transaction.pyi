@@ -143,6 +143,10 @@ class _AssetConfigProtocol(typing.Protocol):
     def clawback(self) -> Account:
         """32 byte address"""
 
+    @property
+    def created_asset(self) -> Asset:
+        """Asset ID allocated by the creation of an ASA"""
+
 class _AssetTransferProtocol(typing.Protocol):
     @property
     def xfer_asset(self) -> Asset:
@@ -233,6 +237,17 @@ class _ApplicationProtocol(typing.Protocol):
     @property
     def last_log(self) -> Bytes:
         """The last message emitted. Empty bytes if none were emitted. Application mode only"""
+
+    def logs(self, index: UInt64 | int) -> Bytes:
+        """Log messages emitted by an application call"""
+
+    @property
+    def num_logs(self) -> UInt64:
+        """Number of logs"""
+
+    @property
+    def created_app(self) -> Application:
+        """ApplicationID allocated by the creation of an application"""
 
     @property
     def num_approval_program_pages(self) -> UInt64:
