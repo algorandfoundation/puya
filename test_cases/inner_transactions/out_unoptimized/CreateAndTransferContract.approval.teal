@@ -35,15 +35,16 @@ main_bare_routing@5:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@6
+    match main___algopy_default_create@6
     b main_reject_bare_on_completion@7
 
-main_create@6:
+main___algopy_default_create@6:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -168,4 +169,12 @@ create_and_transfer:
     //     xfer_asset=new_asset,
     // ).submit()
     itxn_submit
+    retsub
+
+
+// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create() -> void:
+__algopy_default_create:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    proto 0 0
     retsub

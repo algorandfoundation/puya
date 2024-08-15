@@ -304,15 +304,16 @@ main_bare_routing@17:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@18
+    match main___algopy_default_create@18
     b main_reject_bare_on_completion@19
 
-main_create@18:
+main___algopy_default_create@18:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -2302,4 +2303,12 @@ test_no_args:
     byte 0x000000000000002a
     b==
     assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create() -> void:
+__algopy_default_create:
+    // typed_abi_call/typed_c2c.py:17
+    // class Greeter(ARC4Contract):
+    proto 0 0
     retsub

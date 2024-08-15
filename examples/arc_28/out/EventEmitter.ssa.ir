@@ -34,10 +34,11 @@ contract examples.arc_28.contract.EventEmitter:
             block@6: // bare_routing_L11
                 let tmp%12#0: uint64 = (txn OnCompletion)
                 switch tmp%12#0 {0u => block@7, * => block@8}
-            block@7: // create_L11
+            block@7: // __algopy_default_create_L11
                 let tmp%13#0: bool = (txn ApplicationID)
                 let tmp%14#0: bool = (! tmp%13#0)
                 (assert tmp%14#0) // is creating
+                examples.arc_28.contract.EventEmitter.__algopy_default_create()
                 return 1u
             block@8: // reject_bare_on_completion_L11
                 fail // reject transaction
@@ -72,6 +73,10 @@ contract examples.arc_28.contract.EventEmitter:
                 let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 b#0)
                 let tmp%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" encoded_tuple_buffer%2#0)
                 (log tmp%0#0)
+                return 
+        
+        subroutine examples.arc_28.contract.EventEmitter.__algopy_default_create() -> void:
+            block@0: // L11
                 return 
     
     program clear-state:

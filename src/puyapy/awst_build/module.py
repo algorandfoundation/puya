@@ -21,6 +21,7 @@ from puya.errors import CodeError, InternalError
 from puya.utils import StableSet, coalesce
 
 from puyapy.awst_build import constants, pytypes
+from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
@@ -237,7 +238,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
         )
         if info.is_protocol:
-            if pytypes.ARC4ClientBaseType not in direct_base_types:
+            if pytypes.ARC4ClientBaseType in direct_base_types:
+                ARC4ClientASTVisitor.visit(self.context, cdef)
+            else:
                 logger.debug(
                     f"Skipping further processing of protocol class {cdef.fullname}",
                     location=cdef_loc,
@@ -245,7 +248,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             return []
 
         if pytypes.ContractBaseType not in mro_types:
-            self._error(
+            logger.error(
                 f"Unsupported class declaration."
                 f" Contract classes must inherit either directly"
                 f" or indirectly from {pytypes.ContractBaseType}.",

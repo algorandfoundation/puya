@@ -88,10 +88,11 @@ contract examples.auction.contract.Auction:
             block@12: // bare_routing_L16
                 let tmp%32#0: uint64 = (txn OnCompletion)
                 switch tmp%32#0 {0u => block@13, * => block@14}
-            block@13: // create_L16
+            block@13: // __algopy_default_create_L16
                 let tmp%33#0: bool = (txn ApplicationID)
                 let tmp%34#0: bool = (! tmp%33#0)
                 (assert tmp%34#0) // is creating
+                examples.auction.contract.Auction.__algopy_default_create()
                 return 1u
             block@14: // reject_bare_on_completion_L16
                 fail // reject transaction
@@ -393,6 +394,10 @@ contract examples.auction.contract.Auction:
                 goto block@1
             block@1: // next_txn_L100
                 itxn_submit
+                return 
+        
+        subroutine examples.auction.contract.Auction.__algopy_default_create() -> void:
+            block@0: // L16
                 return 
         
         subroutine examples.auction.contract.Auction.__init__() -> void:

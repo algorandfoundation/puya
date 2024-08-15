@@ -18,15 +18,16 @@ main_bare_routing@4:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@5
+    match main___algopy_default_create@5
     b main_reject_bare_on_completion@6
 
-main_create@5:
+main___algopy_default_create@5:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -34,6 +35,14 @@ main_reject_bare_on_completion@6:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
     err // reject transaction
+
+
+// test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create() -> void:
+__algopy_default_create:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    proto 0 0
+    retsub
 
 
 // test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:

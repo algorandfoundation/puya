@@ -25,7 +25,6 @@ from puya.awst.nodes import (
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
 from puya.models import (
-    ARC4BareMethodConfig,
     ARC4CreateOption,
     ARC4MethodConfig,
     ContractReference,
@@ -36,7 +35,7 @@ from puya.parse import SourceLocation
 from puya.utils import StableSet
 
 from puyapy.awst_build import constants, pytypes
-from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data, get_arc4_baremethod_data
+from puyapy.awst_build.arc4_utils import ARC4ABIMethodData, ARC4BareMethodData, ARC4MethodData
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -62,7 +61,7 @@ from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import (
-    get_decorators_by_fullname,
+    qualified_class_name,
     resolve_member_node,
     symbol_node_is_function,
 )
@@ -131,7 +130,8 @@ class ARC4ClientTypeBuilder(TypeBuilder):
         if node is None:
             return super().member_access(name, location)
         if symbol_node_is_function(node):
-            return ARC4ClientMethodExpressionBuilder(self.context, node, location)
+            cref = qualified_class_name(self.type_info)
+            return ARC4ClientMethodExpressionBuilder(self.context, cref, name, location)
         raise CodeError("static references are only supported for methods", location)
 
 
@@ -139,12 +139,14 @@ class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,  # TODO: yeet me
-        node: mypy.nodes.FuncBase | mypy.nodes.Decorator,
+        cref: ContractReference,
+        func_name: str,
         location: SourceLocation,
     ):
         super().__init__(location)
         self.context = context
-        self.node = node
+        self.cref = cref
+        self.func_name = func_name
 
     @typing.override
     def call(
@@ -226,24 +228,21 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             case None:
                 raise CodeError("missing required positional argument 'method'", location)
             case BaseClassSubroutineInvokerExpressionBuilder(
-                target=BaseClassSubroutineTarget(base_class=contract_ref)
-            ) as eb:
-                method_call = _get_arc4_method_call(eb.context, eb.node, abi_args, location)
+                context=context,
+                target=BaseClassSubroutineTarget(base_class=contract_ref, name=func_name),
+            ):
+                method_call = _get_arc4_method_call(
+                    context, contract_ref, func_name, abi_args, location
+                )
             case ContractTypeExpressionBuilder(
-                pytype=pytypes.TypeType(typ=typ),
-                type_info=type_info,
-            ) as eb if pytypes.ARC4ContractBaseType in typ.mro:
+                context=context, pytype=pytypes.TypeType(typ=typ), cref=contract_ref
+            ) if pytypes.ARC4ContractBaseType in typ.mro:
                 method_call = _get_lifecycle_method_call(
-                    eb.context,
-                    type_info,
+                    context,
+                    contract_ref,
                     abi_args,
                     kind="update" if is_update else "create",
                     location=method_or_type.source_location,
-                )
-                module_name, class_name = type_info.fullname.rsplit(".", maxsplit=1)
-                contract_ref = ContractReference(
-                    module_name=module_name,
-                    class_name=class_name,
                 )
             case _:
                 raise CodeError("unexpected argument type", method_or_type.source_location)
@@ -257,7 +256,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             )
         else:
             _warn_if_different_contract(
-                compiled, contract_ref, related_location=eb.source_location
+                compiled, contract_ref, related_location=method_or_type.source_location
             )
         field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
         if is_update:
@@ -328,16 +327,17 @@ def _abi_call(
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
-        case (
-            ARC4ClientMethodExpressionBuilder()
-            | BaseClassSubroutineInvokerExpressionBuilder() as eb
+        case ARC4ClientMethodExpressionBuilder(
+            context=context, cref=cref, func_name=func_name
+        ) | BaseClassSubroutineInvokerExpressionBuilder(
+            context=context, target=BaseClassSubroutineTarget(base_class=cref, name=func_name)
         ):
             # in this case the arc4 signature and declared return type are inferred
             # TODO: in order to remove the usage of context, we should defer method body evaluation
             #       like we do for function body evaluation, and then these types should make the
             #       resulting metadata (decorator args, function signature) available on them,
             #       instead of shunting the context object around
-            method_call = _get_arc4_method_call(eb.context, eb.node, abi_args, location)
+            method_call = _get_arc4_method_call(context, cref, func_name, abi_args, location)
             arc4_args = method_call.arc4_args
             arc4_return_type = method_call.arc4_return_type
             arc4_config = method_call.config
@@ -428,92 +428,74 @@ class _ARC4MethodCall:
 
 def _get_arc4_method_call(
     context: ASTConversionModuleContext,
-    func_or_dec: mypy.nodes.FuncBase | mypy.nodes.Decorator,
+    contract: ContractReference,
+    func_name: str,
     abi_args: Sequence[NodeBuilder],
     location: SourceLocation,
 ) -> _ARC4MethodCall:
-    if isinstance(func_or_dec, mypy.nodes.Decorator):
-        func_def = func_or_dec.func
-        decorators = get_decorators_by_fullname(context, func_or_dec)
-        abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
-        if abimethod_dec is not None:
+    data = context.arc4_method_data(contract).get(func_name)
+    if data is None:
+        raise CodeError("not a valid ARC4 method", location)
+    return _map_arc4_method_data_to_call(data, abi_args, location)
 
-            arc4_method_data = get_arc4_abimethod_data(context, abimethod_dec, func_def)
+
+def _map_arc4_method_data_to_call(
+    data: ARC4MethodData,
+    abi_args: Sequence[NodeBuilder],
+    location: SourceLocation,
+) -> _ARC4MethodCall:
+    match data:
+        case ARC4ABIMethodData() as abi_method_data:
             signature = ARC4Signature(
-                arc4_method_data.config.name,
-                arc4_method_data.arc4_argument_types,
-                arc4_method_data.arc4_return_type,
+                abi_method_data.config.name,
+                abi_method_data.arc4_argument_types,
+                abi_method_data.arc4_return_type,
             )
             return _ARC4MethodCall(
-                config=arc4_method_data.config,
+                config=abi_method_data.config,
                 arc4_args=_method_selector_and_arc4_args(signature, abi_args, location),
-                method_return_type=arc4_method_data.return_type,
-                arc4_return_type=arc4_method_data.arc4_return_type,
+                method_return_type=abi_method_data.return_type,
+                arc4_return_type=abi_method_data.arc4_return_type,
             )
-        elif baremethod_dec := decorators.get(constants.BAREMETHOD_DECORATOR):
+        case ARC4BareMethodData() as bare_method_data:
             _expect_bare_method_args(abi_args)
-            bare_method_data = get_arc4_baremethod_data(context, baremethod_dec, func_def)
             return _ARC4MethodCall(
-                config=bare_method_data,
+                config=bare_method_data.config,
                 arc4_args=[],
                 method_return_type=pytypes.NoneType,
                 arc4_return_type=pytypes.NoneType,
             )
-    raise CodeError("not a valid ARC4 method", location)
+        case other:
+            typing.assert_never(other)
 
 
 def _get_lifecycle_method_call(
     context: ASTConversionModuleContext,
-    type_info: mypy.nodes.TypeInfo,
+    contract: ContractReference,
     abi_args: Sequence[NodeBuilder],
     kind: typing.Literal["create", "update"],
     location: SourceLocation,
 ) -> _ARC4MethodCall:
-    # TODO: replace with our own abstraction around classes and their members
-    contract = type_info.fullname
-    possible_methods = {}
-    for base in type_info.mro:
-        for symbol_name, symbol in base.names.items():
-            if not isinstance(symbol.node, mypy.nodes.Decorator):
-                continue
-            if symbol_name in possible_methods:  # ignore base methods that are overridden
-                continue
-            func_def = symbol.node.func
-            decorators = get_decorators_by_fullname(context, symbol.node)
-            if abimethod_dec := decorators.get(constants.ABIMETHOD_DECORATOR):
-                config: ARC4MethodConfig = get_arc4_abimethod_data(
-                    context, abimethod_dec, func_def
-                ).config
-            elif baremethod_dec := decorators.get(constants.BAREMETHOD_DECORATOR):
-                config = get_arc4_baremethod_data(context, baremethod_dec, func_def)
-            else:
-                continue
-            if (kind == "create" and config.create != ARC4CreateOption.disallow) or (
-                kind == "update"
-                and OnCompletionAction.UpdateApplication in config.allowed_completion_types
-            ):
-                possible_methods[symbol_name] = symbol.node
+    possible_methods = {
+        func_name: data
+        for func_name, data in context.arc4_method_data(contract).items()
+        if (kind == "create" and data.config.create != ARC4CreateOption.disallow)
+        or (
+            kind == "update"
+            and OnCompletionAction.UpdateApplication in data.config.allowed_completion_types
+        )
+    }
 
     try:
         single_method, *others = possible_methods.values()
     except ValueError:
-        # can assume a bare create will be created in the absence of any other create methods
-        if kind == "create":
-            _expect_bare_method_args(abi_args)
-            return _ARC4MethodCall(
-                config=ARC4BareMethodConfig(source_location=None, create=ARC4CreateOption.require),
-                arc4_args=[],
-                method_return_type=pytypes.NoneType,
-                arc4_return_type=pytypes.NoneType,
-            )
-        else:
-            raise CodeError(f"could not find an update method on {contract}", location) from None
+        raise CodeError(f"could not find {kind} method on {contract}", location) from None
     if others:
         raise CodeError(
             f"found multiple {kind} methods on {contract}, please specify which one to use",
             location,
         )
-    return _get_arc4_method_call(context, single_method, abi_args, location)
+    return _map_arc4_method_data_to_call(single_method, abi_args, location)
 
 
 def _method_selector_and_arc4_args(

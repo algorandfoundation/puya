@@ -422,15 +422,23 @@ def fold_state_and_special_methods(
                 "This could result in insufficient reserved state at run time.",
                 location=contract.source_location,
             )
-    result = FoldedContract(declared_totals=contract.state_totals)
+    result = FoldedContract(
+        declared_totals=contract.state_totals,
+        init=contract.init,
+        approval_program=contract.approval_program,
+        clear_program=contract.clear_program,
+    )
     maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
     for c in [contract, *bases]:
-        if result.init is None:
-            result.init = c.init
-        if result.approval_program is None:
-            result.approval_program = c.approval_program
-        if result.clear_program is None:
-            result.clear_program = c.clear_program
+        if result.init is None:  # noqa: SIM102
+            if c.init and c.init.inheritable:
+                result.init = c.init
+        if result.approval_program is None:  # noqa: SIM102
+            if c.approval_program and c.approval_program.inheritable:
+                result.approval_program = c.approval_program
+        if result.clear_program is None:  # noqa: SIM102
+            if c.clear_program and c.clear_program.inheritable:
+                result.clear_program = c.clear_program
         for state in c.app_state.values():
             storage_type = wtypes.persistable_stack_type(
                 state.storage_wtype, state.source_location
@@ -470,10 +478,11 @@ def fold_state_and_special_methods(
                 case _:
                     typing.assert_never(state.kind)
         for cm in c.subroutines:
-            if cm.arc4_method_config:
-                maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
-            else:
-                maybe_arc4_method_refs.setdefault(cm.name, None)
+            if (c is contract) or cm.inheritable:
+                if cm.arc4_method_config:
+                    maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
+                else:
+                    maybe_arc4_method_refs.setdefault(cm.name, None)
     arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
     if arc4_method_refs and not contract.is_arc4:
         raise InternalError(

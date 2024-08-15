@@ -51,15 +51,16 @@ main_bare_routing@5:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@6
+    match main___algopy_default_create@6
     b main_reject_bare_on_completion@7
 
-main_create@6:
+main___algopy_default_create@6:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -80,4 +81,12 @@ hello:
     byte "Hello, "
     frame_dig -1
     concat
+    retsub
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create() -> void:
+__algopy_default_create:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    proto 0 0
     retsub

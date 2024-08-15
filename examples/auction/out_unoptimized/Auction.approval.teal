@@ -155,15 +155,16 @@ main_bare_routing@12:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@13
+    match main___algopy_default_create@13
     b main_reject_bare_on_completion@14
 
-main_create@13:
+main___algopy_default_create@13:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -590,6 +591,14 @@ claim_asset:
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_submit
+    retsub
+
+
+// examples.auction.contract.Auction.__algopy_default_create() -> void:
+__algopy_default_create:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    proto 0 0
     retsub
 
 

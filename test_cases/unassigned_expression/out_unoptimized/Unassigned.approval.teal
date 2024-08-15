@@ -63,15 +63,16 @@ main_bare_routing@7:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@8
+    match main___algopy_default_create@8
     b main_reject_bare_on_completion@9
 
-main_create@8:
+main___algopy_default_create@8:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -125,5 +126,13 @@ discard_constants:
     // unassigned_expression/contract.py:13-14
     // @arc4.abimethod()
     // def discard_constants(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create() -> void:
+__algopy_default_create:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
     proto 0 0
     retsub

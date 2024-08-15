@@ -28,6 +28,8 @@ from puyapy.awst_build.utils import extract_bytes_literal_from_mypy, get_unalias
 
 __all__ = [
     "ARC4ABIMethodData",
+    "ARC4BareMethodData",
+    "ARC4MethodData",
     "get_arc4_abimethod_data",
     "get_arc4_baremethod_data",
     "arc4_to_pytype",
@@ -62,8 +64,17 @@ def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]
 
 
 @attrs.frozen
+class ARC4BareMethodData:
+    config: ARC4BareMethodConfig
+    is_synthetic_create: bool
+    is_bare: bool = attrs.field(default=True, init=False)
+
+
+@attrs.frozen
 class ARC4ABIMethodData:
     config: ARC4ABIMethodConfig
+    is_synthetic_create: bool = attrs.field(default=False, init=False)
+    is_bare: bool = attrs.field(default=False, init=False)
     _signature: dict[str, pytypes.PyType]
     _arc4_signature: Mapping[str, pytypes.PyType] = attrs.field(init=False)
 
@@ -99,6 +110,9 @@ class ARC4ABIMethodData:
         names, types = zip(*self._arc4_signature.items(), strict=True)
         assert names[-1] == "output"
         return tuple(types[:-1])
+
+
+ARC4MethodData: typing.TypeAlias = ARC4BareMethodData | ARC4ABIMethodData
 
 
 @attrs.frozen
@@ -164,7 +178,7 @@ def get_arc4_baremethod_data(
     context: ASTConversionModuleContext,
     decorator: mypy.nodes.Expression,
     func_def: mypy.nodes.FuncDef,
-) -> ARC4BareMethodConfig:
+) -> ARC4BareMethodData:
     dec_loc = context.node_location(decorator, func_def.info)
     func_types = _get_func_types(context, func_def, dec_loc)
     if func_types != {"output": pytypes.NoneType}:
@@ -180,10 +194,13 @@ def get_arc4_baremethod_data(
             f"unexpected parameters: {', '.join(map(str, evaluated_args))}", location=dec_loc
         )
 
-    return ARC4BareMethodConfig(
-        source_location=dec_loc,
-        allowed_completion_types=allowed_completion_types,
-        create=create,
+    return ARC4BareMethodData(
+        config=ARC4BareMethodConfig(
+            allowed_completion_types=allowed_completion_types,
+            create=create,
+            source_location=dec_loc,
+        ),
+        is_synthetic_create=False,
     )
 
 

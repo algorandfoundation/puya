@@ -54,15 +54,16 @@ main_bare_routing@6:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@7
+    match main___algopy_default_create@7
     b main_reject_bare_on_completion@8
 
-main_create@7:
+main___algopy_default_create@7:
     // compile/apps.py:38
     // class LargeProgram(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -102,5 +103,13 @@ delete:
     // compile/apps.py:44-45
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     // def delete(self) -> None:
+    proto 0 0
+    retsub
+
+
+// test_cases.compile.apps.LargeProgram.__algopy_default_create() -> void:
+__algopy_default_create:
+    // compile/apps.py:38
+    // class LargeProgram(ARC4Contract):
     proto 0 0
     retsub

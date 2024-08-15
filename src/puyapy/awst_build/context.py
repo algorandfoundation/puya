@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import ast
 import contextlib
 import functools
+import typing
 from collections.abc import Iterator, Mapping, Sequence
 
 import attrs
@@ -19,6 +22,9 @@ from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.exceptions import TypeUnionError
 from puyapy.parse import ParseResult, source_location_from_mypy
 
+if typing.TYPE_CHECKING:
+    from puyapy.awst_build.arc4_utils import ARC4MethodData
+
 logger = log.get_logger(__name__)
 
 
@@ -30,8 +36,11 @@ class ASTConversionContext(CompileContext):
     _state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
         factory=dict
     )
+    _arc4_method_data: dict[ContractReference, dict[str, ARC4MethodData]] = attrs.field(
+        factory=dict
+    )
 
-    def for_module(self, current_module: mypy.nodes.MypyFile) -> "ASTConversionModuleContext":
+    def for_module(self, current_module: mypy.nodes.MypyFile) -> ASTConversionModuleContext:
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
 
     def state_defs(self, cref: ContractReference) -> Mapping[str, AppStorageDeclaration]:
@@ -63,6 +72,14 @@ class ASTConversionContext(CompileContext):
                     location=decl.source_location,
                 )
             for_contract[decl.member_name] = decl
+
+    def arc4_method_data(self, cref: ContractReference) -> Mapping[str, ARC4MethodData]:
+        return self._arc4_method_data.get(cref) or {}
+
+    def add_arc4_method_data(
+        self, cref: ContractReference, func_name: str, data: ARC4MethodData
+    ) -> None:
+        self._arc4_method_data.setdefault(cref, {})[func_name] = data
 
     def register_pytype(self, typ: pytypes.PyType, *, alias: str | None = None) -> None:
         name = alias or typ.name

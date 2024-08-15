@@ -46,15 +46,16 @@ main_bare_routing@5:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@6
+    match main___algopy_default_create@6
     b main_reject_bare_on_completion@7
 
-main_create@6:
+main___algopy_default_create@6:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -129,4 +130,12 @@ verify_after_if_else@2:
     concat
     uncover 1
     concat
+    retsub
+
+
+// test_cases.regression_tests.issue_118.Issue118.__algopy_default_create() -> void:
+__algopy_default_create:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    proto 0 0
     retsub

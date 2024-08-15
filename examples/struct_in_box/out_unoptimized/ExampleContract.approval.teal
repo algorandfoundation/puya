@@ -85,15 +85,16 @@ main_bare_routing@7:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@8
+    match main___algopy_default_create@8
     b main_reject_bare_on_completion@9
 
-main_create@8:
+main___algopy_default_create@8:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -222,4 +223,12 @@ get_user:
     // return self.read_from_box(user_id)
     frame_dig -1
     callsub read_from_box
+    retsub
+
+
+// examples.struct_in_box.contract.ExampleContract.__algopy_default_create() -> void:
+__algopy_default_create:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    proto 0 0
     retsub

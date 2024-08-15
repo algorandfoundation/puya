@@ -38,10 +38,11 @@ from puya.awst.nodes import (
     WhileLoop,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
+from puya.models import ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
+from puyapy.awst_build.arc4_utils import ARC4MethodData
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
@@ -92,7 +93,7 @@ logger = log.get_logger(__name__)
 class ContractMethodInfo:
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
-    arc4_method_config: ARC4MethodConfig | None
+    arc4_method_data: ARC4MethodData | None
 
 
 class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | None, NodeBuilder]):
@@ -182,6 +183,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 documentation=documentation,
             )
         else:
+            arc4_method_config = None
+            if self.contract_method_info.arc4_method_data is not None:
+                arc4_method_config = self.contract_method_info.arc4_method_data.config
             self.result = ContractMethod(
                 module_name=self.contract_method_info.cref.module_name,
                 class_name=self.contract_method_info.cref.class_name,
@@ -191,7 +195,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 return_type=self._return_type.wtype,
                 body=translated_body,
                 documentation=documentation,
-                arc4_method_config=self.contract_method_info.arc4_method_config,
+                arc4_method_config=arc4_method_config,
             )
 
     @classmethod

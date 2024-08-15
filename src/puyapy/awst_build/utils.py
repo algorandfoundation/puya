@@ -61,9 +61,11 @@ def get_aliased_instance(ref_expr: mypy.nodes.RefExpr) -> mypy.types.Instance | 
 def get_decorators_by_fullname(
     ctx: ASTConversionModuleContext,
     decorator: mypy.nodes.Decorator,
+    *,
+    original: bool = False,
 ) -> dict[str, mypy.nodes.Expression]:
     result = dict[str, mypy.nodes.Expression]()
-    for d in decorator.decorators:
+    for d in decorator.original_decorators if original else decorator.decorators:
         if isinstance(d, mypy.nodes.RefExpr):
             full_name = get_unaliased_fullname(d)
             result[get_unaliased_fullname(d)] = d
