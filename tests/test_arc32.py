@@ -1466,3 +1466,54 @@ def test_nested_tuples(
     assert bytes(response.return_value[0]) == b"World"
     assert response.return_value[1][0] == "Hello"
     assert response.return_value[1][1] == 123
+
+
+def test_group_side_effects(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    test_dir = TEST_CASES_DIR / "group_side_effects"
+    other_app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(test_dir / "other.py")
+    )
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(test_dir / "contract.py")
+    )
+    other_app_client = algokit_utils.ApplicationClient(
+        algod_client, other_app_spec, signer=account
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create app
+    app_client.create()
+    sp = algod_client.suggested_params()
+
+    # compose group with asset and app create txns
+    asset_create_txn = TransactionWithSigner(
+        transaction.AssetCreateTxn(
+            account.address,
+            sp,
+            10_000_000,
+            0,
+            default_frozen=False,
+            asset_name="asset group",
+            unit_name="AGRP",
+        ),
+        signer=account.signer,
+    )
+    atc = AtomicTransactionComposer()
+    other_app_client.compose_create(atc)
+    app_create_txn = atc.txn_list[-1]
+
+    # call app with create txns
+    response = app_client.call(
+        "create_group", asset_create=asset_create_txn, app_create=app_create_txn
+    )
+    asset_id, other_app_id = response.return_value
+
+    # compose group with app call
+    other_app_client.app_id = other_app_id
+    atc = AtomicTransactionComposer()
+    other_app_client.compose_call(atc, "some_value")
+    app_call_txn = atc.txn_list[-1]
+    app_client.call("log_group", app_call=app_call_txn)

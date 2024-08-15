@@ -1,0 +1,56 @@
+#pragma version 10
+
+test_cases.group_side_effects.other.AppCall.approval_program:
+    // group_side_effects/other.py:4
+    // class AppCall(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "some_value()uint64"
+    txna ApplicationArgs 0
+    match main_some_value_route@2
+    err // reject transaction
+
+main_some_value_route@2:
+    // group_side_effects/other.py:5
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub some_value
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@5:
+    // group_side_effects/other.py:4
+    // class AppCall(ARC4Contract):
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.group_side_effects.other.AppCall.some_value() -> uint64:
+some_value:
+    // group_side_effects/other.py:5-6
+    // @arc4.abimethod()
+    // def some_value(self) -> UInt64:
+    proto 0 1
+    // group_side_effects/other.py:7
+    // return Global.group_size * (Txn.group_index + 1)
+    global GroupSize
+    txn GroupIndex
+    int 1
+    +
+    *
+    retsub
