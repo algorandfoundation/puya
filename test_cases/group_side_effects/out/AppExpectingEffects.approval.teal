@@ -1,0 +1,198 @@
+#pragma version 10
+
+test_cases.group_side_effects.contract.AppExpectingEffects.approval_program:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "create_group(acfg,appl)(uint64,uint64)"
+    method "log_group(appl)void"
+    txna ApplicationArgs 0
+    match main_create_group_route@2 main_log_group_route@3
+    err // reject transaction
+
+main_create_group_route@2:
+    // group_side_effects/contract.py:5
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn GroupIndex
+    int 2
+    -
+    dup
+    gtxns TypeEnum
+    int acfg
+    ==
+    assert // transaction type is acfg
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int appl
+    ==
+    assert // transaction type is appl
+    // group_side_effects/contract.py:5
+    // @arc4.abimethod
+    callsub create_group
+    swap
+    itob
+    swap
+    itob
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_log_group_route@3:
+    // group_side_effects/contract.py:22
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int appl
+    ==
+    assert // transaction type is appl
+    // group_side_effects/contract.py:22
+    // @arc4.abimethod
+    callsub log_group
+    int 1
+    return
+
+main_bare_routing@6:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> uint64, uint64:
+create_group:
+    // group_side_effects/contract.py:5-10
+    // @arc4.abimethod
+    // def create_group(
+    //     self,
+    //     asset_create: gtxn.AssetConfigTransaction,
+    //     app_create: gtxn.ApplicationCallTransaction,
+    // ) -> tuple[UInt64, UInt64]:
+    proto 2 2
+    // group_side_effects/contract.py:11
+    // assert asset_create.created_asset.id, "expected asset created"
+    frame_dig -2
+    gtxns CreatedAssetID
+    dup
+    assert // expected asset created
+    // group_side_effects/contract.py:13
+    // op.gaid(asset_create.group_index) == asset_create.created_asset.id
+    frame_dig -2
+    gtxns GroupIndex
+    gaids
+    dig 1
+    ==
+    // group_side_effects/contract.py:12-14
+    // assert (
+    //     op.gaid(asset_create.group_index) == asset_create.created_asset.id
+    // ), "expected correct asset id"
+    assert // expected correct asset id
+    // group_side_effects/contract.py:15
+    // assert app_create.created_app.id, "expected app created"
+    frame_dig -1
+    gtxns CreatedApplicationID
+    dup
+    assert // expected app created
+    // group_side_effects/contract.py:17
+    // op.gaid(app_create.group_index) == app_create.created_app.id
+    frame_dig -1
+    gtxns GroupIndex
+    gaids
+    dig 1
+    ==
+    // group_side_effects/contract.py:16-18
+    // assert (
+    //     op.gaid(app_create.group_index) == app_create.created_app.id
+    // ), "expected correct app id"
+    assert // expected correct app id
+    // group_side_effects/contract.py:20
+    // return asset_create.created_asset.id, app_create.created_app.id
+    retsub
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.log_group(app_call: uint64) -> void:
+log_group:
+    // group_side_effects/contract.py:22-23
+    // @arc4.abimethod
+    // def log_group(self, app_call: gtxn.ApplicationCallTransaction) -> None:
+    proto 1 0
+    // group_side_effects/contract.py:24
+    // assert app_call.app_args(0) == arc4.arc4_signature(
+    frame_dig -1
+    int 0
+    gtxnsas ApplicationArgs
+    // group_side_effects/contract.py:24-26
+    // assert app_call.app_args(0) == arc4.arc4_signature(
+    //     "some_value()uint64"
+    // ), "expected correct method called"
+    method "some_value()uint64"
+    ==
+    assert // expected correct method called
+    // group_side_effects/contract.py:27
+    // assert app_call.num_logs == 1, "expected logs"
+    frame_dig -1
+    gtxns NumLogs
+    int 1
+    ==
+    assert // expected logs
+    // group_side_effects/contract.py:29
+    // arc4.UInt64.from_log(app_call.last_log)
+    frame_dig -1
+    gtxns LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    // group_side_effects/contract.py:30
+    // == (app_call.group_index + 1) * Global.group_size
+    frame_dig -1
+    gtxns GroupIndex
+    int 1
+    +
+    global GroupSize
+    *
+    // group_side_effects/contract.py:29-30
+    // arc4.UInt64.from_log(app_call.last_log)
+    // == (app_call.group_index + 1) * Global.group_size
+    itob
+    b==
+    // group_side_effects/contract.py:28-31
+    // assert (
+    //     arc4.UInt64.from_log(app_call.last_log)
+    //     == (app_call.group_index + 1) * Global.group_size
+    // )
+    assert
+    retsub

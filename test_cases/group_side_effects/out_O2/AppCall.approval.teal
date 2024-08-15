@@ -1,0 +1,45 @@
+#pragma version 10
+
+test_cases.group_side_effects.other.AppCall.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "some_value()uint64"
+    txna ApplicationArgs 0
+    match main_some_value_route@2
+    err // reject transaction
+
+main_some_value_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub some_value
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@5:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.group_side_effects.other.AppCall.some_value() -> uint64:
+some_value:
+    proto 0 1
+    global GroupSize
+    txn GroupIndex
+    int 1
+    +
+    *
+    retsub

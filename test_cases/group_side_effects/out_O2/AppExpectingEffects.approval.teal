@@ -1,0 +1,134 @@
+#pragma version 10
+
+test_cases.group_side_effects.contract.AppExpectingEffects.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "create_group(acfg,appl)(uint64,uint64)"
+    method "log_group(appl)void"
+    txna ApplicationArgs 0
+    match main_create_group_route@2 main_log_group_route@3
+    err // reject transaction
+
+main_create_group_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txn GroupIndex
+    int 2
+    -
+    dup
+    gtxns TypeEnum
+    int acfg
+    ==
+    assert // transaction type is acfg
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int appl
+    ==
+    assert // transaction type is appl
+    callsub create_group
+    swap
+    itob
+    swap
+    itob
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_log_group_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int appl
+    ==
+    assert // transaction type is appl
+    callsub log_group
+    int 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> uint64, uint64:
+create_group:
+    proto 2 2
+    frame_dig -2
+    gtxns CreatedAssetID
+    dup
+    assert // expected asset created
+    frame_dig -2
+    gtxns GroupIndex
+    gaids
+    dig 1
+    ==
+    assert // expected correct asset id
+    frame_dig -1
+    gtxns CreatedApplicationID
+    dup
+    assert // expected app created
+    frame_dig -1
+    gtxns GroupIndex
+    gaids
+    dig 1
+    ==
+    assert // expected correct app id
+    retsub
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.log_group(app_call: uint64) -> void:
+log_group:
+    proto 1 0
+    frame_dig -1
+    int 0
+    gtxnsas ApplicationArgs
+    method "some_value()uint64"
+    ==
+    assert // expected correct method called
+    frame_dig -1
+    gtxns NumLogs
+    int 1
+    ==
+    assert // expected logs
+    frame_dig -1
+    gtxns LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    frame_dig -1
+    gtxns GroupIndex
+    int 1
+    +
+    global GroupSize
+    *
+    itob
+    b==
+    assert
+    retsub
