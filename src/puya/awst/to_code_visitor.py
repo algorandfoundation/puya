@@ -1,6 +1,6 @@
 import base64
-import typing as t
-from collections.abc import Iterable, Mapping
+import typing
+from collections.abc import Iterable, Iterator, Mapping
 
 import puya.models
 from puya.awst import nodes, wtypes
@@ -302,7 +302,7 @@ class ToCodeVisitor(
                 else:
                     deco = "abimethod"
             case other:
-                t.assert_never(other)
+                typing.assert_never(other)
 
         return [
             "",
@@ -619,7 +619,7 @@ class ToCodeVisitor(
         return f"{expr.target.accept(self)}{expr.op}"
 
 
-def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
+def _indent(lines: Iterable[str], indent_size: str = "  ") -> Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)
 
 

@@ -121,7 +121,7 @@ class FunctionIRBuilder(
             subroutine.body = block_builder.finalise()
             subroutine.validate_with_ssa()
 
-    def visit_copy(self, expr: puya.awst.nodes.Copy) -> TExpression:
+    def visit_copy(self, expr: awst_nodes.Copy) -> TExpression:
         # For reference types, we need to clone the data
         # For value types, we can just visit the expression and the resulting read
         # will effectively be a copy. We assign the copy to a new register in case it is
@@ -576,7 +576,7 @@ class FunctionIRBuilder(
     ) -> TExpression:
         return self._itxn.handle_inner_transaction_field(itxn_field)
 
-    def visit_method_constant(self, expr: puya.awst.nodes.MethodConstant) -> TExpression:
+    def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> TExpression:
         return MethodConstant(value=expr.value, source_location=expr.source_location)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
@@ -905,7 +905,7 @@ class FunctionIRBuilder(
         for stmt in block.body:
             stmt.accept(self)
 
-    def visit_goto(self, statement: puya.awst.nodes.Goto) -> TStatement:
+    def visit_goto(self, statement: awst_nodes.Goto) -> TStatement:
         self.context.block_builder.goto_label(statement.target, statement.source_location)
 
     def visit_if_else(self, stmt: awst_nodes.IfElse) -> TStatement:
@@ -949,7 +949,7 @@ class FunctionIRBuilder(
             )
         )
 
-    def visit_template_var(self, expr: puya.awst.nodes.TemplateVar) -> TExpression:
+    def visit_template_var(self, expr: awst_nodes.TemplateVar) -> TExpression:
         return TemplateVar(
             name=expr.name,
             ir_type=wtype_to_ir_type(expr.wtype),
@@ -983,7 +983,7 @@ class FunctionIRBuilder(
         # The frontend should have already warned about this
 
     def visit_uint64_augmented_assignment(
-        self, statement: puya.awst.nodes.UInt64AugmentedAssignment
+        self, statement: awst_nodes.UInt64AugmentedAssignment
     ) -> TStatement:
         target_value = self.visit_and_materialise_single(statement.target)
         rhs = self.visit_and_materialise_single(statement.value)
@@ -997,7 +997,7 @@ class FunctionIRBuilder(
         )
 
     def visit_biguint_augmented_assignment(
-        self, statement: puya.awst.nodes.BigUIntAugmentedAssignment
+        self, statement: awst_nodes.BigUIntAugmentedAssignment
     ) -> TStatement:
         target_value = self.visit_and_materialise_single(statement.target)
         rhs = self.visit_and_materialise_single(statement.value)
@@ -1027,7 +1027,7 @@ class FunctionIRBuilder(
     def visit_enumeration(self, expr: awst_nodes.Enumeration) -> TStatement:
         raise CodeError("Nested enumeration is not currently supported", expr.source_location)
 
-    def visit_reversed(self, expr: puya.awst.nodes.Reversed) -> TExpression:
+    def visit_reversed(self, expr: awst_nodes.Reversed) -> TExpression:
         raise CodeError("Reversed is not valid outside of an enumeration", expr.source_location)
 
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> TStatement:
@@ -1042,7 +1042,7 @@ class FunctionIRBuilder(
             case _:
                 typing.assert_never(expr.wtype)
 
-    def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> TExpression:
+    def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
         source_location = expr.source_location
         match expr.base.wtype:
             case wtypes.ARC4DynamicArray() as array_wtype:
@@ -1052,7 +1052,7 @@ class FunctionIRBuilder(
                     f"Unsupported target for array pop: {expr.base.wtype}", source_location
                 )
 
-    def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> TExpression:
+    def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         return arc4.concat_values(
             self.context,
             left_expr=expr.left,
@@ -1060,7 +1060,7 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_array_extend(self, expr: puya.awst.nodes.ArrayExtend) -> TExpression:
+    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
         return arc4.handle_arc4_assign(
             self.context,
             target=expr.base,

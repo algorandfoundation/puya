@@ -4,16 +4,9 @@ import mypy.nodes
 import mypy.types
 import mypy.visitor
 from puya import log
-from puya.awst.nodes import (
-    ContractFragment,
-    ContractMethod,
-)
+from puya.awst.nodes import ContractFragment, ContractMethod
 from puya.errors import CodeError, InternalError
-from puya.models import (
-    ARC4MethodConfig,
-    ContractReference,
-    OnCompletionAction,
-)
+from puya.models import ARC4MethodConfig, ContractReference
 from puya.parse import SourceLocation
 from puya.utils import unique
 
@@ -27,10 +20,6 @@ from puyapy.awst_build.utils import (
     get_decorators_by_fullname,
     iterate_user_bases,
     qualified_class_name,
-)
-
-ALLOWABLE_OCA = frozenset(
-    [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
 )
 
 logger = log.get_logger(__name__)
