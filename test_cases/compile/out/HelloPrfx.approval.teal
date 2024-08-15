@@ -26,7 +26,6 @@ main_create_route@4:
     txn ApplicationID
     !
     assert // is creating
-    callsub create
     int 1
     return
 
@@ -39,7 +38,6 @@ main_delete_route@5:
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
     assert // is not creating
-    callsub delete
     int 1
     return
 
@@ -87,27 +85,8 @@ main_update@10:
     // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
-    callsub update
     int 1
     return
-
-
-// test_cases.compile.apps.HelloPrfx.create() -> void:
-create:
-    // compile/apps.py:76-77
-    // @arc4.abimethod(create="require")
-    // def create(self) -> None:
-    proto 0 0
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.delete() -> void:
-delete:
-    // compile/apps.py:25-26
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    // def delete(self) -> None:
-    proto 0 0
-    retsub
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
@@ -130,15 +109,6 @@ greet:
     concat
     frame_dig -1
     concat
-    retsub
-
-
-// test_cases.compile.apps.HelloBase.update() -> void:
-update:
-    // compile/apps.py:29-30
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    // def update(self) -> None:
-    proto 0 0
     retsub
 
 
