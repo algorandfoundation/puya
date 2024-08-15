@@ -244,7 +244,7 @@ def extract_uint64(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`extract_uint64`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#extract_uint64)
     """
 
-def gaid(a: UInt64 | int, /) -> Application:
+def gaid(a: UInt64 | int, /) -> UInt64:
     """
     ID of the asset or application created in the Ath transaction of the current group
     `gaids` fails unless the requested transaction created an asset or application and A < GroupIndex.

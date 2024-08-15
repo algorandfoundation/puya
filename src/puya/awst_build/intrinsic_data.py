@@ -325,7 +325,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         ],
     ),
     gaid=OpMappingWithOverloads(
-        result=pytypes.ApplicationType,
+        result=pytypes.UInt64Type,
         arity=1,
         overloads=[
             FunctionOpMapping(
