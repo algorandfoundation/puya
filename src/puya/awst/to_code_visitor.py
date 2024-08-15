@@ -427,6 +427,13 @@ class ToCodeVisitor(
         result += ")"
         return result
 
+    def visit_group_transaction_reference(self, ref: nodes.GroupTransactionReference) -> str:
+        if ref.wtype.transaction_type is None:
+            type_ = "any"
+        else:
+            type_ = ref.wtype.transaction_type.name
+        return f"group_transaction(index={ref.index.accept(self)}, type={type_})"
+
     def visit_create_inner_transaction(self, expr: nodes.CreateInnerTransaction) -> str:
         fields = []
         for field, value in expr.fields.items():

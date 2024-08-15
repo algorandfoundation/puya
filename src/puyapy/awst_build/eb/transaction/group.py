@@ -4,15 +4,7 @@ from collections.abc import Sequence
 import mypy.nodes
 from puya import algo_constants, log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    CheckedMaybe,
-    Expression,
-    IntrinsicCall,
-    NumericComparison,
-    NumericComparisonExpression,
-    ReinterpretCast,
-    UInt64Constant,
-)
+from puya.awst.nodes import Expression, GroupTransactionReference, IntrinsicCall, UInt64Constant
 from puya.awst.txn_fields import TxnField
 from puya.parse import SourceLocation
 
@@ -26,7 +18,6 @@ from puyapy.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puyapy.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
-from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 logger = log.get_logger(__name__)
 
@@ -53,7 +44,9 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
                 wtype = typ.wtype
                 assert isinstance(wtype, wtypes.WGroupTransaction)
                 group_index = UInt64Constant(value=int_value, source_location=location)
-                txn = check_transaction_type(group_index, wtype, location)
+                txn = GroupTransactionReference(
+                    index=group_index, wtype=wtype, source_location=location
+                )
                 return GroupTransactionExpressionBuilder(txn, typ)
         return None
 
@@ -74,7 +67,7 @@ class GroupTransactionTypeBuilder(TypeBuilder[pytypes.TransactionRelatedType]):
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.WGroupTransaction)
         group_index = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type).resolve()
-        txn = check_transaction_type(group_index, wtype, location)
+        txn = GroupTransactionReference(index=group_index, wtype=wtype, source_location=location)
         return GroupTransactionExpressionBuilder(txn, typ)
 
 
@@ -117,39 +110,3 @@ class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
             source_location=location,
         )
         return builder_for_instance(typ, expr)
-
-
-def check_transaction_type(  # TODO: introduce GroupTransaction node and push this down to IR
-    transaction_index: Expression,
-    expected_transaction_type: wtypes.WGroupTransaction,
-    location: SourceLocation,
-) -> Expression:
-    if expected_transaction_type.transaction_type is None:
-        uint64_expr = transaction_index
-    else:
-        index_builder = UInt64ExpressionBuilder(transaction_index).single_eval()
-        runtime_type_check = NumericComparisonExpression(
-            lhs=IntrinsicCall(
-                op_code="gtxns",
-                immediates=["TypeEnum"],
-                stack_args=[index_builder.resolve()],
-                wtype=wtypes.uint64_wtype,
-                source_location=location,
-            ),
-            operator=NumericComparison.eq,
-            rhs=UInt64Constant(
-                value=expected_transaction_type.transaction_type.value,
-                teal_alias=expected_transaction_type.transaction_type.name,
-                source_location=location,
-            ),
-            source_location=location,
-        )
-        uint64_expr = CheckedMaybe.from_tuple_items(
-            index_builder.resolve(),
-            runtime_type_check,
-            location,
-            comment=f"transaction type is {expected_transaction_type.transaction_type.name}",
-        )
-    return ReinterpretCast(
-        expr=uint64_expr, wtype=expected_transaction_type, source_location=location
-    )

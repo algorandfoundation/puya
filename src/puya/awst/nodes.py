@@ -535,6 +535,15 @@ class UpdateInnerTransaction(Expression):
         return visitor.visit_update_inner_transaction(self)
 
 
+@attrs.frozen
+class GroupTransactionReference(Expression):
+    index: Expression = attrs.field(validator=wtype_is_uint64)
+    wtype: wtypes.WGroupTransaction
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_group_transaction_reference(self)
+
+
 @attrs.define(init=False)
 class CheckedMaybe(Expression):
     """Allows evaluating a maybe type i.e. tuple[_T, bool] as _T, but with the assertion that
