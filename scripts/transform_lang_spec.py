@@ -270,14 +270,6 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
         _patch_arg_type(ops, op_name, arg_index, "uint64", "application")
 
     # patch ops that use a stack type of uint64
-    # for return types that should be an Application
-    for op_name in [
-        "gaid",
-        "gaids",
-    ]:
-        _patch_return_type(ops, op_name, 0, "uint64", "application")
-
-    # patch ops that use a stack type of uint64
     # for return types that should be a bool
     for op_name in [
         "!",

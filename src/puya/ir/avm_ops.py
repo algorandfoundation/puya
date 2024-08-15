@@ -1657,8 +1657,7 @@ class AVMOp(enum.StrEnum):
     gaid = AVMOpData(
         op_code="gaid",
         variants=Variant(
-            signature=OpSignature(args=[], returns=[StackType.application]),
-            supported_modes=RunMode.app,
+            signature=OpSignature(args=[], returns=[StackType.uint64]), supported_modes=RunMode.app
         ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
@@ -1675,7 +1674,7 @@ class AVMOp(enum.StrEnum):
     gaids = AVMOpData(
         op_code="gaids",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.application]),
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
             supported_modes=RunMode.app,
         ),
         immediate_types=(),
