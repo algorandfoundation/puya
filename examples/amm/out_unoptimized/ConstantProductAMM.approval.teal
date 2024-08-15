@@ -243,15 +243,16 @@ main_bare_routing@11:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@12
+    match main___algopy_default_create@12
     b main_reject_bare_on_completion@13
 
-main_create@12:
+main___algopy_default_create@12:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -1457,6 +1458,14 @@ tokens_to_swap:
     // return out_total // in_total
     uncover 1
     /
+    retsub
+
+
+// examples.amm.contract.ConstantProductAMM.__algopy_default_create() -> void:
+__algopy_default_create:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    proto 0 0
     retsub
 
 

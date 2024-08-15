@@ -30,10 +30,11 @@ contract examples.hello_world_arc4.contract.HelloWorldContract:
             block@5: // bare_routing_L9
                 let tmp%9#0: uint64 = (txn OnCompletion)
                 switch tmp%9#0 {0u => block@6, * => block@7}
-            block@6: // create_L9
+            block@6: // __algopy_default_create_L9
                 let tmp%10#0: bool = (txn ApplicationID)
                 let tmp%11#0: bool = (! tmp%10#0)
                 (assert tmp%11#0) // is creating
+                examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create()
                 return 1u
             block@7: // reject_bare_on_completion_L9
                 fail // reject transaction
@@ -42,6 +43,10 @@ contract examples.hello_world_arc4.contract.HelloWorldContract:
             block@0: // L10
                 let tmp%0#0: bytes = (concat "Hello, " name#0)
                 return tmp%0#0
+        
+        subroutine examples.hello_world_arc4.contract.HelloWorldContract.__algopy_default_create() -> void:
+            block@0: // L9
+                return 
     
     program clear-state:
         subroutine examples.hello_world_arc4.contract.HelloWorldContract.clear_state_program() -> bool:

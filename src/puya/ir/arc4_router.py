@@ -150,10 +150,8 @@ def create_oca_switch(
 def route_bare_methods(
     location: SourceLocation,
     bare_methods: dict[awst_nodes.ContractMethod, ARC4BareMethodConfig],
-    *,
-    add_create: bool,
 ) -> awst_nodes.Block | None:
-    if not bare_methods and not add_create:
+    if not bare_methods:
         return None
     err_block = create_block(
         location,
@@ -178,25 +176,6 @@ def route_bare_methods(
                     bare_location,
                 )
             bare_blocks[oca] = bare_block
-    if add_create:
-        if bare_blocks[OnCompletionAction.NoOp] is not err_block:
-            raise CodeError(
-                "Application has no methods that can be called to create the contract, "
-                "but does have a NoOp bare method, so one couldn't be inserted. "
-                "In order to allow creating the contract add either an @abimethod or @baremethod"
-                'decorated method with create="require" or create="allow"',
-                location,
-            )
-        bare_blocks[OnCompletionAction.NoOp] = create_block(
-            location,
-            "create",
-            *assert_create_state(
-                ARC4BareMethodConfig(create=ARC4CreateOption.require, source_location=location),
-                location,
-            ),
-            approve(location),
-        )
-
     return create_block(
         location,
         "bare_routing",
@@ -656,15 +635,12 @@ def create_abi_router(
 ) -> tuple[awst_nodes.ContractMethod, list[ARC4Method]]:
     abi_methods = {}
     bare_methods = {}
-    has_create = False
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
         **global_state,
         **local_state,
     }
     for m, arc4_config in arc4_methods_with_configs.items():
         assert arc4_config is m.arc4_method_config
-        if arc4_config.create != ARC4CreateOption.disallow:
-            has_create = True
         if isinstance(arc4_config, ARC4BareMethodConfig):
             bare_methods[m] = arc4_config
         elif isinstance(arc4_config, ARC4ABIMethodConfig):
@@ -673,15 +649,13 @@ def create_abi_router(
         else:
             typing.assert_never(arc4_config)
     router_location = contract.source_location
-    if bare_methods or not has_create:
+    if bare_methods:
         router: list[awst_nodes.Statement] = [
             awst_nodes.IfElse(
                 source_location=router_location,
                 condition=has_app_args(router_location),
                 if_branch=route_abi_methods(router_location, abi_methods),
-                else_branch=route_bare_methods(
-                    router_location, bare_methods, add_create=not has_create
-                ),
+                else_branch=route_bare_methods(router_location, bare_methods),
             )
         ]
     else:
@@ -717,15 +691,6 @@ def create_abi_router(
                     type_=_wtype_to_arc4(m.return_type),
                 ),
                 config=abi_method_config,
-            )
-        )
-    if not has_create:
-        arc4_method_metadata.append(
-            ARC4BareMethod(
-                config=ARC4BareMethodConfig(
-                    create=ARC4CreateOption.require, source_location=router_location
-                ),
-                desc=None,
             )
         )
 

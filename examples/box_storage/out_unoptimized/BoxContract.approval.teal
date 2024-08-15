@@ -334,15 +334,16 @@ main_bare_routing@19:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@20
+    match main___algopy_default_create@20
     b main_reject_bare_on_completion@21
 
-main_create@20:
+main___algopy_default_create@20:
     // box_storage/contract.py:8
     // class BoxContract(arc4.ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -2437,6 +2438,14 @@ box_map_exists:
     pop
     // box_storage/contract.py:176
     // return key in self.box_map
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.__algopy_default_create() -> void:
+__algopy_default_create:
+    // box_storage/contract.py:8
+    // class BoxContract(arc4.ARC4Contract):
+    proto 0 0
     retsub
 
 

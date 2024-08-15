@@ -38,10 +38,11 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
             block@6: // bare_routing_L5
                 let tmp%12#0: uint64 = (txn OnCompletion)
                 switch tmp%12#0 {0u => block@7, 4u => block@8, 5u => block@9, * => block@10}
-            block@7: // create_L5
+            block@7: // __algopy_default_create_L5
                 let tmp%13#0: bool = (txn ApplicationID)
                 let tmp%14#0: bool = (! tmp%13#0)
                 (assert tmp%14#0) // is creating
+                test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create()
                 return 1u
             block@8: // on_update_L15
                 let tmp%15#0: bool = (txn ApplicationID)
@@ -69,6 +70,10 @@ contract test_cases.template_variables.contract.TemplateVariablesContract:
                 let b_zeros%0#0: bytes = (bzero 64u)
                 let tmp%0#0: bytes = (b| x#0 b_zeros%0#0)
                 return tmp%0#0
+        
+        subroutine test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create() -> void:
+            block@0: // L5
+                return 
         
         subroutine test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
             block@0: // L15

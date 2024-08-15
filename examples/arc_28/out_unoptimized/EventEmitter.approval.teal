@@ -61,15 +61,16 @@ main_bare_routing@6:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@7
+    match main___algopy_default_create@7
     b main_reject_bare_on_completion@8
 
-main_create@7:
+main___algopy_default_create@7:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -142,4 +143,12 @@ emit_ufixed:
     uncover 1
     concat
     log
+    retsub
+
+
+// examples.arc_28.contract.EventEmitter.__algopy_default_create() -> void:
+__algopy_default_create:
+    // arc_28/contract.py:11
+    // class EventEmitter(ARC4Contract):
+    proto 0 0
     retsub

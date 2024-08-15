@@ -57,15 +57,16 @@ main_bare_routing@6:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@7
+    match main___algopy_default_create@7
     b main_reject_bare_on_completion@8
 
-main_create@7:
+main___algopy_default_create@7:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -222,4 +223,12 @@ xyz_raw:
     concat
     // arc4_types/dynamic_string_array.py:20
     // return arc4.DynamicArray[arc4.String].from_bytes(raw.bytes)
+    retsub
+
+
+// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create() -> void:
+__algopy_default_create:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    proto 0 0
     retsub

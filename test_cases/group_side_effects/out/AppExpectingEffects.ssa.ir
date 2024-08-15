@@ -53,10 +53,11 @@ contract test_cases.group_side_effects.contract.AppExpectingEffects:
             block@6: // bare_routing_L4
                 let tmp%12#0: uint64 = (txn OnCompletion)
                 switch tmp%12#0 {0u => block@7, * => block@8}
-            block@7: // create_L4
+            block@7: // __algopy_default_create_L4
                 let tmp%13#0: bool = (txn ApplicationID)
                 let tmp%14#0: bool = (! tmp%13#0)
                 (assert tmp%14#0) // is creating
+                test_cases.group_side_effects.contract.AppExpectingEffects.__algopy_default_create()
                 return 1u
             block@8: // reject_bare_on_completion_L4
                 fail // reject transaction
@@ -104,6 +105,10 @@ contract test_cases.group_side_effects.contract.AppExpectingEffects:
                 let tmp%11#0: biguint = (itob tmp%10#0)
                 let tmp%12#0: bool = (b== reinterpret_biguint%0#0 tmp%11#0)
                 (assert tmp%12#0)
+                return 
+        
+        subroutine test_cases.group_side_effects.contract.AppExpectingEffects.__algopy_default_create() -> void:
+            block@0: // L4
                 return 
     
     program clear-state:

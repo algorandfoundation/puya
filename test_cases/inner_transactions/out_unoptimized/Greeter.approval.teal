@@ -64,15 +64,16 @@ main_bare_routing@8:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@9
+    match main___algopy_default_create@9
     b main_reject_bare_on_completion@10
 
-main_create@9:
+main___algopy_default_create@9:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -225,6 +226,14 @@ log_greetings:
     extract 2 0
     concat
     log
+    retsub
+
+
+// test_cases.inner_transactions.c2c.Greeter.__algopy_default_create() -> void:
+__algopy_default_create:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    proto 0 0
     retsub
 
 

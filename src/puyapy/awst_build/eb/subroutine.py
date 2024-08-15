@@ -137,8 +137,6 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
         target: BaseClassSubroutineTarget,
         func_type: pytypes.FuncType,
         location: SourceLocation,
-        node: mypy.nodes.FuncBase | mypy.nodes.Decorator,
     ):
         super().__init__(target, func_type, location)
         self.context = context
-        self.node = node

@@ -488,15 +488,16 @@ main_bare_routing@19:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@20
+    match main___algopy_default_create@20
     b main_reject_bare_on_completion@21
 
-main_create@20:
+main___algopy_default_create@20:
     // typed_abi_call/logger.py:20
     // class Logger(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -806,4 +807,12 @@ return_args_after_14th:
     extract 6 2
     uncover 1
     concat
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.__algopy_default_create() -> void:
+__algopy_default_create:
+    // typed_abi_call/logger.py:20
+    // class Logger(ARC4Contract):
+    proto 0 0
     retsub

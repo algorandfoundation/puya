@@ -48,9 +48,9 @@ class ContractTypeExpressionBuilder(TypeBuilder):
         location: SourceLocation,
     ):
         super().__init__(pytype, location)
-        self.context = context
-        self.type_info = type_info
-        self._cref = qualified_class_name(type_info)
+        self.context: typing.Final = context
+        self.type_info: typing.Final = type_info
+        self.cref: typing.Final = qualified_class_name(type_info)
 
     @typing.override
     def call(
@@ -71,12 +71,11 @@ class ContractTypeExpressionBuilder(TypeBuilder):
             func_mypy_type = require_callable_type(node, location)
             func_type = self.context.type_to_pytype(func_mypy_type, source_location=location)
             assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
-            target = BaseClassSubroutineTarget(self._cref, name)
+            target = BaseClassSubroutineTarget(self.cref, name)
             return BaseClassSubroutineInvokerExpressionBuilder(
                 context=self.context,
                 target=target,
                 func_type=func_type,
-                node=node,
                 location=location,
             )
         raise CodeError("static references are only supported for methods", location)

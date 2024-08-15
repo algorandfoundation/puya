@@ -40,15 +40,16 @@ main_bare_routing@5:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@6
+    match main___algopy_default_create@6
     b main_reject_bare_on_completion@7
 
-main_create@6:
+main___algopy_default_create@6:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
+    callsub __algopy_default_create
     int 1
     return
 
@@ -71,4 +72,12 @@ some_value:
     int 1
     +
     *
+    retsub
+
+
+// test_cases.group_side_effects.other.AppCall.__algopy_default_create() -> void:
+__algopy_default_create:
+    // group_side_effects/other.py:4
+    // class AppCall(ARC4Contract):
+    proto 0 0
     retsub

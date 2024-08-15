@@ -40,10 +40,11 @@ contract test_cases.inner_transactions.c2c.Greeter:
             block@8: // bare_routing_L6
                 let tmp%11#0: uint64 = (txn OnCompletion)
                 switch tmp%11#0 {0u => block@9, * => block@10}
-            block@9: // create_L6
+            block@9: // __algopy_default_create_L6
                 let tmp%12#0: bool = (txn ApplicationID)
                 let tmp%13#0: bool = (! tmp%12#0)
                 (assert tmp%13#0) // is creating
+                test_cases.inner_transactions.c2c.Greeter.__algopy_default_create()
                 return 1u
             block@10: // reject_bare_on_completion_L6
                 fail // reject transaction
@@ -267,6 +268,10 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 let tmp%4#0: bytes = ((extract 2 0) greeting#0)
                 let tmp%5#0: bytes = (concat tmp%3#0 tmp%4#0)
                 (log tmp%5#0)
+                return 
+        
+        subroutine test_cases.inner_transactions.c2c.Greeter.__algopy_default_create() -> void:
+            block@0: // L6
                 return 
         
         subroutine test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
