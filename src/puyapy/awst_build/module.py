@@ -179,7 +179,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 self._unsupported(cdef, "TypedDict classes are not supported")
             case mypy.nodes.NamedTupleExpr():
                 self._unsupported(cdef, "NamedTuple classes are not supported")
-            case _ as unrecognised_analysis_expression:
+            case unrecognised_analysis_expression:
                 self.context.warning(
                     "Analyzed class expression of type"
                     f" {type(unrecognised_analysis_expression).__name__},"
