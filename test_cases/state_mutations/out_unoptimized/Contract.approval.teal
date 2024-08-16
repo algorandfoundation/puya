@@ -1,0 +1,1053 @@
+#pragma version 10
+
+test_cases.state_mutations.contract.Contract.approval_program:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@7
+    txna ApplicationArgs 0
+    method "append()void"
+    method "modify()void"
+    method "get()(uint64,string)[]"
+    uncover 3
+    match main_append_route@2 main_modify_route@3 main_get_route@4
+    b main_switch_case_default@5
+
+main_append_route@2:
+    // state_mutations/contract.py:36
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub append
+    int 1
+    return
+
+main_modify_route@3:
+    // state_mutations/contract.py:44
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub modify
+    int 1
+    return
+
+main_get_route@4:
+    // state_mutations/contract.py:51
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub get
+    byte 0x151f7c75
+    uncover 1
+    concat
+    log
+    int 1
+    return
+
+main_switch_case_default@5:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    err // reject transaction
+
+main_bare_routing@7:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    txn OnCompletion
+    int 0
+    int 1
+    uncover 2
+    match main_create@8 main_opt_in@9
+    b main_reject_bare_on_completion@10
+
+main_create@8:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_opt_in@9:
+    // state_mutations/contract.py:29
+    // @arc4.baremethod(allow_actions=["OptIn"])
+    txn ApplicationID
+    assert // is not creating
+    // state_mutations/contract.py:29-30
+    // @arc4.baremethod(allow_actions=["OptIn"])
+    // def opt_in(self) -> None:
+    callsub opt_in
+    int 1
+    return
+
+main_reject_bare_on_completion@10:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    err // reject transaction
+
+
+// test_cases.state_mutations.contract.Contract.append() -> void:
+append:
+    // state_mutations/contract.py:36-37
+    // @arc4.abimethod
+    // def append(self) -> None:
+    proto 0 0
+    // state_mutations/contract.py:38
+    // struct = get_struct()
+    callsub get_struct
+    // state_mutations/contract.py:39
+    // self.glob.value.append(struct.copy())
+    int 0
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:39
+    // self.glob.value.append(struct.copy())
+    app_global_get_ex
+    cover 1
+    cover 2
+    assert // check self.glob exists
+    dup
+    int 2
+    itob
+    extract 6 2
+    byte 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    dig 2
+    int 0
+    extract_uint16
+    cover 1
+    uncover 3
+    extract 2 0
+    uncover 2
+    uncover 1
+    int 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:39
+    // self.glob.value.append(struct.copy())
+    uncover 1
+    app_global_put
+    // state_mutations/contract.py:40
+    // self.loc[Txn.sender].append(struct.copy())
+    txn Sender
+    int 0
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:40
+    // self.loc[Txn.sender].append(struct.copy())
+    app_local_get_ex
+    assert // check self.loc exists for account
+    dig 1
+    int 2
+    itob
+    extract 6 2
+    byte 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    dig 1
+    int 0
+    extract_uint16
+    cover 1
+    uncover 2
+    extract 2 0
+    uncover 2
+    uncover 1
+    int 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    txn Sender
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:40
+    // self.loc[Txn.sender].append(struct.copy())
+    uncover 2
+    app_local_put
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:41
+    // self.box.value.append(struct.copy())
+    box_get
+    assert // check self.box exists
+    dig 1
+    int 2
+    itob
+    extract 6 2
+    byte 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    dig 1
+    int 0
+    extract_uint16
+    cover 1
+    uncover 2
+    extract 2 0
+    uncover 2
+    uncover 1
+    int 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:41
+    // self.box.value.append(struct.copy())
+    box_del
+    pop
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:41
+    // self.box.value.append(struct.copy())
+    uncover 1
+    box_put
+    // state_mutations/contract.py:42
+    // self.map[Txn.sender].append(struct.copy())
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:42
+    // self.map[Txn.sender].append(struct.copy())
+    uncover 1
+    concat
+    box_get
+    assert // check self.map entry exists
+    uncover 1
+    int 2
+    itob
+    extract 6 2
+    byte 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    dig 1
+    int 0
+    extract_uint16
+    cover 1
+    uncover 2
+    extract 2 0
+    uncover 2
+    uncover 1
+    int 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:42
+    // self.map[Txn.sender].append(struct.copy())
+    uncover 1
+    concat
+    dup
+    box_del
+    pop
+    uncover 1
+    box_put
+    retsub
+
+
+// test_cases.state_mutations.contract.get_struct() -> bytes:
+get_struct:
+    // state_mutations/contract.py:64-65
+    // @subroutine
+    // def get_struct() -> MyStruct:
+    proto 0 1
+    // state_mutations/contract.py:68
+    // baz=arc4.String("baz"),
+    byte "baz"
+    len
+    itob
+    extract 6 2
+    byte "baz"
+    concat
+    // state_mutations/contract.py:66-69
+    // return MyStruct(
+    //     bar=arc4.UInt64(1),
+    //     baz=arc4.String("baz"),
+    // )
+    byte 0x
+    // state_mutations/contract.py:67
+    // bar=arc4.UInt64(1),
+    byte 0x0000000000000001
+    // state_mutations/contract.py:66-69
+    // return MyStruct(
+    //     bar=arc4.UInt64(1),
+    //     baz=arc4.String("baz"),
+    // )
+    concat
+    int 10
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.modify() -> void:
+modify:
+    // state_mutations/contract.py:44-45
+    // @arc4.abimethod
+    // def modify(self) -> None:
+    proto 0 0
+    // state_mutations/contract.py:46
+    // self.glob.value[0].baz = arc4.String("modified")
+    byte "modified"
+    len
+    itob
+    extract 6 2
+    byte "modified"
+    concat
+    int 0
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:46
+    // self.glob.value[0].baz = arc4.String("modified")
+    app_global_get_ex
+    assert // check self.glob exists
+    dup
+    extract 2 0
+    int 0
+    int 2
+    *
+    dig 1
+    uncover 1
+    extract_uint16
+    cover 2
+    uncover 1
+    int 0
+    extract_uint16
+    int 0
+    int 1
+    +
+    dup
+    cover 2
+    - // on error: Index access is out of bounds
+    cover 1
+    dig 2
+    len
+    cover 2
+    int 2
+    *
+    dig 3
+    uncover 1
+    extract_uint16
+    uncover 2
+    uncover 1
+    uncover 2
+    select
+    uncover 1
+    uncover 2
+    uncover 2
+    substring3
+    dup
+    int 8
+    extract_uint16
+    uncover 1
+    int 0
+    uncover 2
+    extract3
+    uncover 1
+    concat
+    int 0
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:46
+    // self.glob.value[0].baz = arc4.String("modified")
+    app_global_get_ex
+    assert // check self.glob exists
+    uncover 1
+    int 0
+    callsub dynamic_array_replace_dynamic_element
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:46
+    // self.glob.value[0].baz = arc4.String("modified")
+    uncover 1
+    app_global_put
+    // state_mutations/contract.py:47
+    // self.loc[Txn.sender][0].baz = arc4.String("modified")
+    byte "modified"
+    len
+    itob
+    extract 6 2
+    byte "modified"
+    concat
+    txn Sender
+    int 0
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:47
+    // self.loc[Txn.sender][0].baz = arc4.String("modified")
+    app_local_get_ex
+    assert // check self.loc exists for account
+    dup
+    extract 2 0
+    int 0
+    int 2
+    *
+    dig 1
+    uncover 1
+    extract_uint16
+    cover 2
+    uncover 1
+    int 0
+    extract_uint16
+    int 0
+    int 1
+    +
+    dup
+    cover 2
+    - // on error: Index access is out of bounds
+    cover 1
+    dig 2
+    len
+    cover 2
+    int 2
+    *
+    dig 3
+    uncover 1
+    extract_uint16
+    uncover 2
+    uncover 1
+    uncover 2
+    select
+    uncover 1
+    uncover 2
+    uncover 2
+    substring3
+    dup
+    int 8
+    extract_uint16
+    uncover 1
+    int 0
+    uncover 2
+    extract3
+    uncover 1
+    concat
+    txn Sender
+    int 0
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:47
+    // self.loc[Txn.sender][0].baz = arc4.String("modified")
+    app_local_get_ex
+    assert // check self.loc exists for account
+    uncover 1
+    int 0
+    callsub dynamic_array_replace_dynamic_element
+    txn Sender
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:47
+    // self.loc[Txn.sender][0].baz = arc4.String("modified")
+    uncover 2
+    app_local_put
+    // state_mutations/contract.py:48
+    // self.box.value[0].baz = arc4.String("modified")
+    byte "modified"
+    len
+    itob
+    extract 6 2
+    byte "modified"
+    concat
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:48
+    // self.box.value[0].baz = arc4.String("modified")
+    box_get
+    assert // check self.box exists
+    dup
+    extract 2 0
+    int 0
+    int 2
+    *
+    dig 1
+    uncover 1
+    extract_uint16
+    cover 2
+    uncover 1
+    int 0
+    extract_uint16
+    int 0
+    int 1
+    +
+    dup
+    cover 2
+    - // on error: Index access is out of bounds
+    cover 1
+    dig 2
+    len
+    cover 2
+    int 2
+    *
+    dig 3
+    uncover 1
+    extract_uint16
+    uncover 2
+    uncover 1
+    uncover 2
+    select
+    uncover 1
+    uncover 2
+    uncover 2
+    substring3
+    dup
+    int 8
+    extract_uint16
+    uncover 1
+    int 0
+    uncover 2
+    extract3
+    uncover 1
+    concat
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:48
+    // self.box.value[0].baz = arc4.String("modified")
+    box_get
+    assert // check self.box exists
+    uncover 1
+    int 0
+    callsub dynamic_array_replace_dynamic_element
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:48
+    // self.box.value[0].baz = arc4.String("modified")
+    box_del
+    pop
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:48
+    // self.box.value[0].baz = arc4.String("modified")
+    uncover 1
+    box_put
+    // state_mutations/contract.py:49
+    // self.map[Txn.sender][0].baz = arc4.String("modified")
+    byte "modified"
+    len
+    itob
+    extract 6 2
+    byte "modified"
+    concat
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:49
+    // self.map[Txn.sender][0].baz = arc4.String("modified")
+    uncover 1
+    concat
+    box_get
+    assert // check self.map entry exists
+    dup
+    extract 2 0
+    int 0
+    int 2
+    *
+    dig 1
+    uncover 1
+    extract_uint16
+    cover 2
+    uncover 1
+    int 0
+    extract_uint16
+    int 0
+    int 1
+    +
+    dup
+    cover 2
+    - // on error: Index access is out of bounds
+    cover 1
+    dig 2
+    len
+    cover 2
+    int 2
+    *
+    dig 3
+    uncover 1
+    extract_uint16
+    uncover 2
+    uncover 1
+    uncover 2
+    select
+    uncover 1
+    uncover 2
+    uncover 2
+    substring3
+    dup
+    int 8
+    extract_uint16
+    uncover 1
+    int 0
+    uncover 2
+    extract3
+    uncover 1
+    concat
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:49
+    // self.map[Txn.sender][0].baz = arc4.String("modified")
+    uncover 1
+    concat
+    box_get
+    assert // check self.map entry exists
+    uncover 1
+    int 0
+    callsub dynamic_array_replace_dynamic_element
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:49
+    // self.map[Txn.sender][0].baz = arc4.String("modified")
+    uncover 1
+    concat
+    dup
+    box_del
+    pop
+    uncover 1
+    box_put
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.get() -> bytes:
+get:
+    // state_mutations/contract.py:51-52
+    // @arc4.abimethod
+    // def get(self) -> MyArray:
+    proto 0 1
+    // state_mutations/contract.py:53
+    // a1 = self.glob.value.copy()
+    int 0
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:53
+    // a1 = self.glob.value.copy()
+    app_global_get_ex
+    assert // check self.glob exists
+    // state_mutations/contract.py:54
+    // a2 = self.loc[Txn.sender].copy()
+    txn Sender
+    int 0
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:54
+    // a2 = self.loc[Txn.sender].copy()
+    app_local_get_ex
+    assert // check self.loc exists for account
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:55
+    // a3 = self.box.value.copy()
+    box_get
+    assert // check self.box exists
+    // state_mutations/contract.py:56
+    // a4 = self.map[Txn.sender].copy()
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:56
+    // a4 = self.map[Txn.sender].copy()
+    uncover 1
+    concat
+    box_get
+    assert // check self.map entry exists
+    // state_mutations/contract.py:58
+    // assert a1 == a2, "expected local == global"
+    dig 3
+    uncover 3
+    ==
+    assert // expected local == global
+    // state_mutations/contract.py:59
+    // assert a1 == a3, "expected box == global"
+    dig 2
+    uncover 2
+    ==
+    assert // expected box == global
+    // state_mutations/contract.py:60
+    // assert a1 == a4, "expected map == global"
+    dig 1
+    uncover 1
+    ==
+    assert // expected map == global
+    // state_mutations/contract.py:61
+    // return a1
+    retsub
+
+
+// test_cases.state_mutations.contract.Contract.opt_in() -> void:
+opt_in:
+    // state_mutations/contract.py:29-30
+    // @arc4.baremethod(allow_actions=["OptIn"])
+    // def opt_in(self) -> None:
+    proto 0 0
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    byte 0x0000
+    byte 0x
+    concat
+    // state_mutations/contract.py:24
+    // self.glob = GlobalState(MyArray)
+    byte "glob"
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    uncover 1
+    app_global_put
+    // state_mutations/contract.py:32
+    // self.box.value = MyArray()
+    byte 0x0000
+    byte 0x
+    concat
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:32
+    // self.box.value = MyArray()
+    box_del
+    pop
+    // state_mutations/contract.py:26
+    // self.box = Box(MyArray)
+    byte "box"
+    // state_mutations/contract.py:32
+    // self.box.value = MyArray()
+    uncover 1
+    box_put
+    // state_mutations/contract.py:33
+    // self.loc[Txn.sender] = MyArray()
+    byte 0x0000
+    byte 0x
+    concat
+    txn Sender
+    // state_mutations/contract.py:25
+    // self.loc = LocalState(MyArray)
+    byte "loc"
+    // state_mutations/contract.py:33
+    // self.loc[Txn.sender] = MyArray()
+    uncover 2
+    app_local_put
+    // state_mutations/contract.py:34
+    // self.map[Txn.sender] = MyArray()
+    byte 0x0000
+    byte 0x
+    concat
+    txn Sender
+    // state_mutations/contract.py:27
+    // self.map = BoxMap(Account, MyArray)
+    byte "map"
+    // state_mutations/contract.py:34
+    // self.map[Txn.sender] = MyArray()
+    uncover 1
+    concat
+    dup
+    box_del
+    pop
+    uncover 1
+    box_put
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+dynamic_array_concat_dynamic_element:
+    // <algopy>/algopy_lib_arc4.py:189-196
+    proto 4 1
+    byte ""
+    // <algopy>/algopy_lib_arc4.py:197
+    byte 0x
+    // <algopy>/algopy_lib_arc4.py:198
+    frame_dig -2
+    int 2
+    *
+    // <algopy>/algopy_lib_arc4.py:199
+    frame_dig -4
+    int 2
+    *
+    int 2
+    assert // Step cannot be zero
+    int 0
+
+dynamic_array_concat_dynamic_element_for_header@1:
+    // <algopy>/algopy_lib_arc4.py:199
+    frame_dig 4
+    frame_dig 3
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@4
+    // <algopy>/algopy_lib_arc4.py:200
+    frame_dig -3
+    frame_dig 4
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:201
+    frame_dig 2
+    uncover 1
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    uncover 1
+    concat
+    frame_bury 1
+    // <algopy>/algopy_lib_arc4.py:199
+    frame_dig 4
+    int 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@1
+
+dynamic_array_concat_dynamic_element_after_for@4:
+    // <algopy>/algopy_lib_arc4.py:203
+    frame_dig -3
+    len
+    frame_bury 2
+    // <algopy>/algopy_lib_arc4.py:204
+    frame_dig -2
+    int 2
+    *
+    frame_bury 0
+    int 2
+    assert // Step cannot be zero
+    int 0
+    frame_bury 4
+
+dynamic_array_concat_dynamic_element_for_header@5:
+    // <algopy>/algopy_lib_arc4.py:204
+    frame_dig 4
+    frame_dig 0
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@8
+    // <algopy>/algopy_lib_arc4.py:205
+    frame_dig -1
+    frame_dig 4
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:206
+    frame_dig 2
+    uncover 1
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    uncover 1
+    concat
+    frame_bury 1
+    // <algopy>/algopy_lib_arc4.py:204
+    frame_dig 4
+    int 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@5
+
+dynamic_array_concat_dynamic_element_after_for@8:
+    // <algopy>/algopy_lib_arc4.py:208
+    frame_dig -4
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    // <algopy>/algopy_lib_arc4.py:208-209
+    frame_dig 1
+    concat
+    // <algopy>/algopy_lib_arc4.py:211
+    frame_dig -4
+    int 2
+    *
+    frame_dig -3
+    len
+    // <algopy>/algopy_lib_arc4.py:210-212
+    frame_dig -3
+    uncover 2
+    uncover 2
+    substring3
+    // <algopy>/algopy_lib_arc4.py:208-212
+    concat
+    // <algopy>/algopy_lib_arc4.py:213
+    frame_dig -2
+    int 2
+    *
+    frame_dig -1
+    len
+    frame_dig -1
+    uncover 2
+    uncover 2
+    substring3
+    // <algopy>/algopy_lib_arc4.py:208-213
+    concat
+    // <algopy>/algopy_lib_arc4.py:207-214
+    frame_bury 0
+    retsub
+
+
+// algopy_lib_arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
+dynamic_array_replace_dynamic_element:
+    // <algopy>/algopy_lib_arc4.py:240-241
+    proto 3 1
+    // <algopy>/algopy_lib_arc4.py:242
+    frame_dig -3
+    substring 0 2
+    // <algopy>/algopy_lib_arc4.py:243
+    dup
+    btoi
+    // <algopy>/algopy_lib_arc4.py:245
+    frame_dig -3
+    extract 2 0
+    // <algopy>/algopy_lib_arc4.py:244-249
+    frame_dig -2
+    frame_dig -1
+    uncover 3
+    callsub static_array_replace_dynamic_element
+    concat
+    retsub
+
+
+// algopy_lib_arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+static_array_replace_dynamic_element:
+    // <algopy>/algopy_lib_arc4.py:252-255
+    proto 4 1
+    // <algopy>/algopy_lib_arc4.py:256
+    frame_dig -2
+    int 2
+    *
+    frame_dig -4
+    uncover 1
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:257
+    frame_dig -2
+    int 1
+    +
+    int 2
+    *
+    frame_dig -4
+    uncover 1
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:258
+    frame_dig -4
+    len
+    // <algopy>/algopy_lib_arc4.py:259
+    frame_dig -1
+    frame_dig -2
+    -
+    int 1
+    -
+    // <algopy>/algopy_lib_arc4.py:260
+    dig 1
+    uncover 3
+    uncover 2
+    select
+    // <algopy>/algopy_lib_arc4.py:262
+    dup
+    dig 3
+    -
+    cover 3
+    // <algopy>/algopy_lib_arc4.py:263
+    frame_dig -3
+    len
+    cover 3
+    // <algopy>/algopy_lib_arc4.py:265
+    frame_dig -4
+    int 0
+    uncover 4
+    substring3
+    // <algopy>/algopy_lib_arc4.py:265-266
+    frame_dig -3
+    concat
+    // <algopy>/algopy_lib_arc4.py:267
+    frame_dig -4
+    uncover 2
+    uncover 3
+    substring3
+    // <algopy>/algopy_lib_arc4.py:265-267
+    concat
+    // <algopy>/algopy_lib_arc4.py:269
+    frame_dig -1
+    int 2
+    *
+    frame_dig -2
+    int 1
+    +
+    int 2
+    *
+    int 2
+    assert // Step cannot be zero
+
+static_array_replace_dynamic_element_for_header@1:
+    // <algopy>/algopy_lib_arc4.py:269
+    frame_dig 4
+    frame_dig 3
+    <
+    bz static_array_replace_dynamic_element_after_for@4
+    // <algopy>/algopy_lib_arc4.py:270
+    frame_dig 2
+    dup
+    frame_dig 4
+    dup
+    cover 3
+    extract_uint16
+    // <algopy>/algopy_lib_arc4.py:271
+    frame_dig 1
+    +
+    // <algopy>/algopy_lib_arc4.py:272
+    frame_dig 0
+    -
+    // <algopy>/algopy_lib_arc4.py:273
+    itob
+    extract 6 2
+    // <algopy>/algopy_lib_arc4.py:274
+    uncover 1
+    uncover 2
+    uncover 2
+    replace3
+    frame_bury 2
+    // <algopy>/algopy_lib_arc4.py:269
+    frame_dig 4
+    int 2
+    +
+    frame_bury 4
+    b static_array_replace_dynamic_element_for_header@1
+
+static_array_replace_dynamic_element_after_for@4:
+    // <algopy>/algopy_lib_arc4.py:275
+    frame_dig 2
+    frame_bury 0
+    retsub
