@@ -5,7 +5,6 @@ from functools import reduce
 
 import attrs
 import mypy.nodes
-import mypy.types
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (

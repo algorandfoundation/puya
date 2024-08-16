@@ -3,7 +3,6 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
-import mypy.types
 from puya import log
 from puya.awst.nodes import (
     Enumeration,

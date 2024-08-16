@@ -2,7 +2,6 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
-import mypy.types
 from puya.awst import wtypes
 from puya.awst.nodes import Expression
 from puya.parse import SourceLocation
