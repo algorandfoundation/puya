@@ -1517,3 +1517,45 @@ def test_group_side_effects(
     other_app_client.compose_call(atc, "some_value")
     app_call_txn = atc.txn_list[-1]
     app_client.call("log_group", app_call=app_call_txn)
+
+
+def test_state_mutations(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    test_dir = TEST_CASES_DIR / "state_mutations"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(test_dir))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create app
+    app_client.create()
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
+    box_key = b"box"
+    map_key = b"map" + account.public_key
+    txn_params: algokit_utils.OnCompleteCallParametersDict = {
+        "boxes": [(0, box_key), (0, map_key)]
+    }
+    app_client.opt_in(transaction_parameters=txn_params)
+    response = app_client.call("get", transaction_parameters=txn_params)
+    assert response.return_value == []
+
+    # append
+    app_client.call("append", transaction_parameters=txn_params)
+    response = app_client.call("get", transaction_parameters=txn_params)
+    assert response.return_value == [[1, "baz"]]
+
+    # modify
+    app_client.call("modify", transaction_parameters=txn_params)
+    response = app_client.call("get", transaction_parameters=txn_params)
+    assert response.return_value == [[1, "modified"]]
+
+    # append
+    app_client.call("append", transaction_parameters=txn_params)
+    response = app_client.call("get", transaction_parameters=txn_params)
+    assert response.return_value == [[1, "modified"], [1, "baz"]]
