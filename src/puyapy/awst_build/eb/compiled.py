@@ -3,7 +3,6 @@ import typing
 from collections.abc import Mapping, Sequence
 
 import mypy.nodes
-import mypy.types
 from puya.awst.nodes import (
     CompiledContract,
     CompiledLogicSig,
