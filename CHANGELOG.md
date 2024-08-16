@@ -1,4 +1,18 @@
 # CHANGELOG
+## v3.0.0 (2024-08-16)
+
+### Breaking
+
+* use correct return type for `algopy.op.gaid` ([`a5c57ef`](https://github.com/algorandfoundation/puya/commit/a5c57efae3f07df7c59b050edce9318818078896))
+
+  BREAKING CHANGE: `algop.op.gaid` return type has changed from `algopy.Application` to `algopy.UInt64` as the return value could be the id of either an application or an asset. Any existing usages of `algopy.op.gaid` will need to pass the result to either `algopy.Application` or `algopy.Asset` as appropriate
+
+### Feature
+
+* include `num_log`, `log`, `create_app` and `created_asset` properties for group transactions ([`5359c4d`](https://github.com/algorandfoundation/puya/commit/5359c4d9ea377e34add5c15d064d79cbf838eaaa))
+
+* as part of optimization, remove no-op subroutines ([`5663a55`](https://github.com/algorandfoundation/puya/commit/5663a55bebf7152f525bf12c639fe280fe0574fd))
+
 ## v2.3.0 (2024-08-12)
 
 ### Feature
