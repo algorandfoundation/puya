@@ -81,10 +81,11 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let and_result%0#0: bool = 1u
                 goto block@8
             block@7: // bool_false_L33
-                let and_result%0#0: bool = 0u
+                let and_result%0#1: bool = 0u
                 goto block@8
             block@8: // bool_merge_L33
-                (assert and_result%0#0) // Move must be in range
+                let and_result%0#2: bool = φ(and_result%0#0 <- block@6, and_result%0#1 <- block@7)
+                (assert and_result%0#2) // Move must be in range
                 let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
                 (assert maybe_exists%2#0) // check self.game exists
                 let item_offset%0#0: uint64 = (* move.1#0 3u)
@@ -121,10 +122,11 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let and_result%0#0: bool = 1u
                 goto block@4
             block@3: // bool_false_L63
-                let and_result%0#0: bool = 0u
+                let and_result%0#1: bool = 0u
                 goto block@4
             block@4: // bool_merge_L63
-                (assert and_result%0#0) // Move must be in range
+                let and_result%0#2: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
+                (assert and_result%0#2) // Move must be in range
                 let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
                 (assert maybe_exists%0#0) // check self.game exists
                 let item_offset%0#0: uint64 = (* move.1#0 3u)
@@ -254,10 +256,11 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%7#0: bytes = (select tmp%6#0 maybe_value%3#0 maybe_exists%3#0)
                 let tmp%8#0: bool = (== tmp%5#0 tmp%7#0)
                 (assert tmp%8#0) // It is the challenger's turn
-                let player#0: bytes = 0x02
+                let player#1: bytes = 0x02
                 goto block@3
             block@3: // after_if_else_L50
-                examples.tictactoe.tictactoe.TicTacToeContract.make_move(player#0, move.0#0, move.1#0)
+                let player#2: bytes = φ(player#0 <- block@1, player#1 <- block@2)
+                examples.tictactoe.tictactoe.TicTacToeContract.make_move(player#2, move.0#0, move.1#0)
                 return 
     
     program clear-state:

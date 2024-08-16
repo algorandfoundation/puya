@@ -1,6 +1,11 @@
 #pragma version 10
 
 test_cases.everything.contract.Everything.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txna ApplicationArgs 0
@@ -10,10 +15,10 @@ test_cases.everything.contract.Everything.approval_program:
     method "calculate(uint64,uint64)uint64"
     method "close_out()void"
     uncover 5
-    match main_create_route@1 main_register_route@2 main_say_hello_route@3 main_calculate_route@4 main_close_out_route@5
-    b main_switch_case_default@6
+    match main_create_route@3 main_register_route@4 main_say_hello_route@5 main_calculate_route@6 main_close_out_route@7
+    b main_switch_case_default@8
 
-main_create_route@1:
+main_create_route@3:
     // everything/contract.py:41
     // @abimethod(create="require")
     txn OnCompletion
@@ -27,7 +32,7 @@ main_create_route@1:
     int 1
     return
 
-main_register_route@2:
+main_register_route@4:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
@@ -48,7 +53,7 @@ main_register_route@2:
     int 1
     return
 
-main_say_hello_route@3:
+main_say_hello_route@5:
     // everything/contract.py:56
     // @abimethod
     txn OnCompletion
@@ -65,7 +70,7 @@ main_say_hello_route@3:
     int 1
     return
 
-main_calculate_route@4:
+main_calculate_route@6:
     // everything/contract.py:64
     // @abimethod
     txn OnCompletion
@@ -88,7 +93,7 @@ main_calculate_route@4:
     int 1
     return
 
-main_close_out_route@5:
+main_close_out_route@7:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
@@ -101,7 +106,7 @@ main_close_out_route@5:
     int 1
     return
 
-main_switch_case_default@6:
+main_switch_case_default@8:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     err // reject transaction
@@ -407,4 +412,12 @@ positive_one:
     // everything/contract.py:88
     // return UInt64(1)
     int 1
+    retsub
+
+
+// test_cases.everything.contract.Everything.__init__() -> void:
+__init__:
+    // everything/contract.py:38
+    // def __init__(self) -> None:
+    proto 0 0
     retsub
