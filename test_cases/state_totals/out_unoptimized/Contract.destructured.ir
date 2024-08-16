@@ -2,24 +2,34 @@ contract test_cases.state_totals.contract.Contract:
     program approval:
         subroutine test_cases.state_totals.contract.Contract.approval_program() -> bool:
             block@0: // L6
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L10
+                test_cases.state_totals.contract.Contract.__init__()
+                goto block@2
+            block@2: // entrypoint_L10
                 let tmp%0#0: bool = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@2
-            block@1: // reject_abi_methods_L6
+                goto tmp%0#0 ? block@3 : block@4
+            block@3: // reject_abi_methods_L6
                 fail // reject transaction
-            block@2: // bare_routing_L6
+            block@4: // bare_routing_L6
                 let tmp%1#0: uint64 = (txn OnCompletion)
-                switch tmp%1#0 {0u => block@3, * => block@4}
-            block@3: // create_L14
+                switch tmp%1#0 {0u => block@5, * => block@6}
+            block@5: // create_L14
                 let tmp%2#0: bool = (txn ApplicationID)
                 let tmp%3#0: bool = (! tmp%2#0)
                 (assert tmp%3#0) // is creating
                 test_cases.state_totals.contract.Contract.create()
                 return 1u
-            block@4: // reject_bare_on_completion_L6
+            block@6: // reject_bare_on_completion_L6
                 fail // reject transaction
         
         subroutine test_cases.state_totals.contract.Contract.create() -> void:
             block@0: // L14
+                return 
+        
+        subroutine test_cases.state_totals.contract.Contract.__init__() -> void:
+            block@0: // L10
                 return 
     
     program clear-state:

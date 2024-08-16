@@ -1,6 +1,11 @@
 #pragma version 10
 
 examples.tictactoe.tictactoe.TicTacToeContract.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -9,10 +14,10 @@ examples.tictactoe.tictactoe.TicTacToeContract.approval_program:
     method "whose_turn()uint8"
     method "play((uint64,uint64))void"
     uncover 4
-    match main_new_game_route@1 main_join_game_route@2 main_whose_turn_route@3 main_play_route@4
-    b main_switch_case_default@5
+    match main_new_game_route@3 main_join_game_route@4 main_whose_turn_route@5 main_play_route@6
+    b main_switch_case_default@7
 
-main_new_game_route@1:
+main_new_game_route@3:
     // tictactoe/tictactoe.py:20
     // @arc4.abimethod(create="allow")
     txn OnCompletion
@@ -40,7 +45,7 @@ main_new_game_route@1:
     int 1
     return
 
-main_join_game_route@2:
+main_join_game_route@4:
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
     txn OnCompletion
@@ -70,7 +75,7 @@ main_join_game_route@2:
     int 1
     return
 
-main_whose_turn_route@3:
+main_whose_turn_route@5:
     // tictactoe/tictactoe.py:43
     // @arc4.abimethod
     txn OnCompletion
@@ -87,7 +92,7 @@ main_whose_turn_route@3:
     int 1
     return
 
-main_play_route@4:
+main_play_route@6:
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
     txn OnCompletion
@@ -117,7 +122,7 @@ main_play_route@4:
     int 1
     return
 
-main_switch_case_default@5:
+main_switch_case_default@7:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     err // reject transaction
@@ -827,4 +832,12 @@ play_after_if_else@3:
     frame_dig -2
     frame_dig -1
     callsub make_move
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.__init__() -> void:
+__init__:
+    // tictactoe/tictactoe.py:16
+    // def __init__(self) -> None:
+    proto 0 0
     retsub

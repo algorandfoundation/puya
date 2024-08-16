@@ -2,12 +2,18 @@ contract test_cases.state_mutations.contract.Contract:
     program approval:
         subroutine test_cases.state_mutations.contract.Contract.approval_program() -> bool:
             block@0: // L22
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L23
+                test_cases.state_mutations.contract.Contract.__init__()
+                goto block@2
+            block@2: // entrypoint_L23
                 let tmp%0#0: bool = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@7
-            block@1: // abi_routing_L22
+                goto tmp%0#0 ? block@3 : block@9
+            block@3: // abi_routing_L22
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "append()void" => block@2, method "modify()void" => block@3, method "get()(uint64,string)[]" => block@4, * => block@5}
-            block@2: // append_route_L36
+                switch tmp%1#0 {method "append()void" => block@4, method "modify()void" => block@5, method "get()(uint64,string)[]" => block@6, * => block@7}
+            block@4: // append_route_L36
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: bool = (== tmp%2#0 NoOp)
                 (assert tmp%3#0) // OnCompletion is NoOp
@@ -15,7 +21,7 @@ contract test_cases.state_mutations.contract.Contract:
                 (assert tmp%4#0) // is not creating
                 test_cases.state_mutations.contract.Contract.append()
                 return 1u
-            block@3: // modify_route_L44
+            block@5: // modify_route_L44
                 let tmp%5#0: uint64 = (txn OnCompletion)
                 let tmp%6#0: bool = (== tmp%5#0 NoOp)
                 (assert tmp%6#0) // OnCompletion is NoOp
@@ -23,7 +29,7 @@ contract test_cases.state_mutations.contract.Contract:
                 (assert tmp%7#0) // is not creating
                 test_cases.state_mutations.contract.Contract.modify()
                 return 1u
-            block@4: // get_route_L51
+            block@6: // get_route_L51
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (== tmp%8#0 NoOp)
                 (assert tmp%9#0) // OnCompletion is NoOp
@@ -33,24 +39,24 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%12#0: bytes = (concat 0x151f7c75 tmp%11#0)
                 (log tmp%12#0)
                 return 1u
-            block@5: // switch_case_default_L22
-                goto block@6
-            block@6: // switch_case_next_L22
+            block@7: // switch_case_default_L22
+                goto block@8
+            block@8: // switch_case_next_L22
                 fail // reject transaction
-            block@7: // bare_routing_L22
+            block@9: // bare_routing_L22
                 let tmp%13#0: uint64 = (txn OnCompletion)
-                switch tmp%13#0 {0u => block@8, 1u => block@9, * => block@10}
-            block@8: // create_L22
+                switch tmp%13#0 {0u => block@10, 1u => block@11, * => block@12}
+            block@10: // create_L22
                 let tmp%14#0: bool = (txn ApplicationID)
                 let tmp%15#0: bool = (! tmp%14#0)
                 (assert tmp%15#0) // is creating
                 return 1u
-            block@9: // opt_in_L29
+            block@11: // opt_in_L29
                 let tmp%16#0: bool = (txn ApplicationID)
                 (assert tmp%16#0) // is not creating
                 test_cases.state_mutations.contract.Contract.opt_in()
                 return 1u
-            block@10: // reject_bare_on_completion_L22
+            block@12: // reject_bare_on_completion_L22
                 fail // reject transaction
         
         subroutine test_cases.state_mutations.contract.Contract.append() -> void:
@@ -306,6 +312,10 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%2#0: bytes = (concat "map" tmp%1#0)
                 (box_del tmp%2#0)
                 (box_put tmp%2#0 array_data%3#0)
+                return 
+        
+        subroutine test_cases.state_mutations.contract.Contract.__init__() -> void:
+            block@0: // L23
                 return 
         
         subroutine algopy_lib_arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

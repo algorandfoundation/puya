@@ -3,70 +3,70 @@ contract examples.local_state.local_state_contract.LocalStateContract:
         subroutine examples.local_state.local_state_contract.LocalStateContract.approval_program() -> bool:
             block@0: // L20
                 let tmp%0#0: uint64 = (txn ApplicationID)
-                goto tmp%0#0 ? block@2 : block@1
-            block@1: // if_body_L22
+                goto tmp%0#0 ? block@4 : block@3
+            block@3: // if_body_L22
                 return 1u
-            block@2: // after_if_else_L21
+            block@4: // after_if_else_L21
                 let awst_tmp%0#0: uint64 = (txn OnCompletion)
-                goto awst_tmp%0#0 ? block@3 : block@5
-            block@3: // or_contd_L23
+                goto awst_tmp%0#0 ? block@5 : block@7
+            block@5: // or_contd_L23
                 let tmp%3#0: bool = (== awst_tmp%0#0 OptIn)
-                goto tmp%3#0 ? block@5 : block@4
-            block@4: // if_body_L24
+                goto tmp%3#0 ? block@7 : block@6
+            block@6: // if_body_L24
                 return 0u
-            block@5: // after_if_else_L23
+            block@7: // after_if_else_L23
                 let tmp%4#0: uint64 = (txn NumAppArgs)
-                goto tmp%4#0 ? block@7 : block@4
-            block@7: // after_if_else_L25
+                goto tmp%4#0 ? block@9 : block@6
+            block@9: // after_if_else_L25
                 let method#0: bytes = (txna ApplicationArgs 0)
                 let tmp%6#0: uint64 = (txn NumAppArgs)
                 let tmp%7#0: bool = (== tmp%6#0 1u)
-                goto tmp%7#0 ? block@8 : block@18
-            block@8: // if_body_L30
+                goto tmp%7#0 ? block@10 : block@20
+            block@10: // if_body_L30
                 let tmp%8#0: bool = (== method#0 0x6765745f67756172616e746565645f64617461)
-                goto tmp%8#0 ? block@9 : block@10
-            block@9: // if_body_L31
+                goto tmp%8#0 ? block@11 : block@12
+            block@11: // if_body_L31
                 let tmp%9#0: bytes = (txn Sender)
                 let tmp%10#0: bytes = examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(tmp%9#0)
                 (log tmp%10#0)
-                goto block@1
-            block@10: // else_body_L32
+                goto block@3
+            block@12: // else_body_L32
                 let tmp%11#0: bool = (== method#0 0x6765745f646174615f6f725f617373657274)
-                goto tmp%11#0 ? block@11 : block@12
-            block@11: // if_body_L33
+                goto tmp%11#0 ? block@13 : block@14
+            block@13: // if_body_L33
                 let tmp%12#0: bytes = (txn Sender)
                 let tmp%13#0: bytes = examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(tmp%12#0)
                 (log tmp%13#0)
-                goto block@1
-            block@12: // else_body_L34
+                goto block@3
+            block@14: // else_body_L34
                 let tmp%14#0: bool = (== method#0 0x64656c6574655f64617461)
-                goto tmp%14#0 ? block@13 : block@4
-            block@13: // if_body_L35
+                goto tmp%14#0 ? block@15 : block@6
+            block@15: // if_body_L35
                 let tmp%15#0: bytes = (txn Sender)
                 examples.local_state.local_state_contract.LocalStateContract.delete_data(tmp%15#0)
                 (log "Deleted")
-                goto block@1
-            block@18: // else_body_L40
+                goto block@3
+            block@20: // else_body_L40
                 let tmp%16#0: uint64 = (txn NumAppArgs)
                 let tmp%17#0: bool = (== tmp%16#0 2u)
-                goto tmp%17#0 ? block@19 : block@4
-            block@19: // if_body_L41
+                goto tmp%17#0 ? block@21 : block@6
+            block@21: // if_body_L41
                 let tmp%18#0: bool = (== method#0 0x7365745f64617461)
-                goto tmp%18#0 ? block@20 : block@21
-            block@20: // if_body_L42
+                goto tmp%18#0 ? block@22 : block@23
+            block@22: // if_body_L42
                 let tmp%19#0: bytes = (txn Sender)
                 let tmp%20#0: bytes = (txna ApplicationArgs 1)
                 examples.local_state.local_state_contract.LocalStateContract.set_data(tmp%19#0, tmp%20#0)
-                goto block@1
-            block@21: // else_body_L43
+                goto block@3
+            block@23: // else_body_L43
                 let tmp%21#0: bool = (== method#0 0x6765745f646174615f776974685f64656661756c74)
-                goto tmp%21#0 ? block@22 : block@4
-            block@22: // if_body_L44
+                goto tmp%21#0 ? block@24 : block@6
+            block@24: // if_body_L44
                 let tmp%22#0: bytes = (txn Sender)
                 let tmp%23#0: bytes = (txna ApplicationArgs 1)
                 let tmp%24#0: bytes = examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(tmp%22#0, tmp%23#0)
                 (log tmp%24#0)
-                goto block@1
+                goto block@3
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:
             block@0: // L54

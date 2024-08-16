@@ -4,18 +4,23 @@ examples.local_state.local_state_with_offsets.LocalStateContract.approval_progra
     int 0
     byte ""
     dup
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
     // local_state/local_state_with_offsets.py:19
     // if Txn.application_id == 0:
     txn ApplicationID
     int 0
     ==
-    bz main_after_if_else@2
+    bz main_after_if_else@4
     // local_state/local_state_with_offsets.py:20
     // return True
     int 1
     return
 
-main_after_if_else@2:
+main_after_if_else@4:
     // local_state/local_state_with_offsets.py:21
     // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
@@ -23,29 +28,29 @@ main_after_if_else@2:
     bury 3
     int NoOp
     ==
-    bnz main_after_if_else@5
+    bnz main_after_if_else@7
     dig 1
     int OptIn
     ==
-    bnz main_after_if_else@5
+    bnz main_after_if_else@7
     // local_state/local_state_with_offsets.py:22
     // return False
     int 0
     return
 
-main_after_if_else@5:
+main_after_if_else@7:
     // local_state/local_state_with_offsets.py:23
     // if Txn.num_app_args < 1:
     txn NumAppArgs
     int 1
     <
-    bz main_after_if_else@7
+    bz main_after_if_else@9
     // local_state/local_state_with_offsets.py:24
     // return False
     int 0
     return
 
-main_after_if_else@7:
+main_after_if_else@9:
     // local_state/local_state_with_offsets.py:26
     // offset = op.btoi(Txn.application_args(0))
     txna ApplicationArgs 0
@@ -60,41 +65,41 @@ main_after_if_else@7:
     txn NumAppArgs
     int 2
     ==
-    bz main_else_body@18
+    bz main_else_body@20
     // local_state/local_state_with_offsets.py:29
     // if method == b"get_guaranteed_data":
     dig 2
     byte 0x6765745f67756172616e746565645f64617461
     ==
-    bz main_else_body@10
+    bz main_else_body@12
     // local_state/local_state_with_offsets.py:30
     // log(self.get_guaranteed_data(offset))
     dup
     callsub get_guaranteed_data
     log
-    b main_after_if_else@17
+    b main_after_if_else@19
 
-main_else_body@10:
+main_else_body@12:
     // local_state/local_state_with_offsets.py:31
     // elif method == b"get_data_or_assert":
     dig 2
     byte 0x6765745f646174615f6f725f617373657274
     ==
-    bz main_else_body@12
+    bz main_else_body@14
     // local_state/local_state_with_offsets.py:32
     // log(self.get_data_or_assert(offset))
     dup
     callsub get_data_or_assert
     log
-    b main_after_if_else@16
+    b main_after_if_else@18
 
-main_else_body@12:
+main_else_body@14:
     // local_state/local_state_with_offsets.py:33
     // elif method == b"delete_data":
     dig 2
     byte 0x64656c6574655f64617461
     ==
-    bz main_else_body@14
+    bz main_else_body@16
     // local_state/local_state_with_offsets.py:34
     // self.delete_data(offset)
     dup
@@ -103,52 +108,52 @@ main_else_body@12:
     // log("Deleted")
     byte "Deleted"
     log
-    b main_after_if_else@15
+    b main_after_if_else@17
 
-main_else_body@14:
+main_else_body@16:
     // local_state/local_state_with_offsets.py:37
     // return False
     int 0
     return
 
-main_after_if_else@15:
-
-main_after_if_else@16:
-
 main_after_if_else@17:
+
+main_after_if_else@18:
+
+main_after_if_else@19:
     // local_state/local_state_with_offsets.py:38
     // return True
     int 1
     return
 
-main_else_body@18:
+main_else_body@20:
     // local_state/local_state_with_offsets.py:39
     // elif Txn.num_app_args == 3:
     txn NumAppArgs
     int 3
     ==
-    bz main_else_body@26
+    bz main_else_body@28
     // local_state/local_state_with_offsets.py:40
     // if method == b"set_data":
     dig 2
     byte 0x7365745f64617461
     ==
-    bz main_else_body@21
+    bz main_else_body@23
     // local_state/local_state_with_offsets.py:41
     // self.set_data(offset, Txn.application_args(2))
     txna ApplicationArgs 2
     dig 1
     uncover 1
     callsub set_data
-    b main_after_if_else@25
+    b main_after_if_else@27
 
-main_else_body@21:
+main_else_body@23:
     // local_state/local_state_with_offsets.py:42
     // elif method == b"get_data_with_default":
     dig 2
     byte 0x6765745f646174615f776974685f64656661756c74
     ==
-    bz main_else_body@23
+    bz main_else_body@25
     // local_state/local_state_with_offsets.py:43
     // log(self.get_data_with_default(offset, Txn.application_args(2)))
     txna ApplicationArgs 2
@@ -156,23 +161,23 @@ main_else_body@21:
     uncover 1
     callsub get_data_with_default
     log
-    b main_after_if_else@24
+    b main_after_if_else@26
 
-main_else_body@23:
+main_else_body@25:
     // local_state/local_state_with_offsets.py:45
     // return False
     int 0
     return
 
-main_after_if_else@24:
+main_after_if_else@26:
 
-main_after_if_else@25:
+main_after_if_else@27:
     // local_state/local_state_with_offsets.py:46
     // return True
     int 1
     return
 
-main_else_body@26:
+main_else_body@28:
     // local_state/local_state_with_offsets.py:48
     // return False
     int 0
@@ -281,4 +286,12 @@ get_data_with_default:
     uncover 1
     uncover 2
     select
+    retsub
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.__init__() -> void:
+__init__:
+    // local_state/local_state_with_offsets.py:15
+    // def __init__(self) -> None:
+    proto 0 0
     retsub

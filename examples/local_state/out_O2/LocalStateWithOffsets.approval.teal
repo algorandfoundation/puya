@@ -5,31 +5,31 @@ examples.local_state.local_state_with_offsets.LocalStateContract.approval_progra
     byte ""
     dup
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz main_after_if_else@4
 
-main_if_body@1:
+main_if_body@3:
     int 1
     return
 
-main_after_if_else@2:
+main_after_if_else@4:
     txn OnCompletion
     dup
     bury 3
-    bz main_after_if_else@5
+    bz main_after_if_else@7
     dig 1
     int OptIn
     ==
-    bnz main_after_if_else@5
+    bnz main_after_if_else@7
 
-main_if_body@4:
+main_if_body@6:
     int 0
     return
 
-main_after_if_else@5:
+main_after_if_else@7:
     txn NumAppArgs
     int 1
     <
-    bnz main_if_body@4
+    bnz main_if_body@6
     txna ApplicationArgs 0
     btoi
     bury 1
@@ -38,61 +38,61 @@ main_after_if_else@5:
     txn NumAppArgs
     int 2
     ==
-    bz main_else_body@18
+    bz main_else_body@20
     dig 2
     byte 0x6765745f67756172616e746565645f64617461
     ==
-    bz main_else_body@10
+    bz main_else_body@12
     dup
     callsub get_guaranteed_data
     log
-    b main_if_body@1
-
-main_else_body@10:
-    dig 2
-    byte 0x6765745f646174615f6f725f617373657274
-    ==
-    bz main_else_body@12
-    dup
-    callsub get_data_or_assert
-    log
-    b main_if_body@1
+    b main_if_body@3
 
 main_else_body@12:
     dig 2
+    byte 0x6765745f646174615f6f725f617373657274
+    ==
+    bz main_else_body@14
+    dup
+    callsub get_data_or_assert
+    log
+    b main_if_body@3
+
+main_else_body@14:
+    dig 2
     byte 0x64656c6574655f64617461
     ==
-    bz main_if_body@4
+    bz main_if_body@6
     dup
     callsub delete_data
     byte "Deleted"
     log
-    b main_if_body@1
+    b main_if_body@3
 
-main_else_body@18:
+main_else_body@20:
     txn NumAppArgs
     int 3
     ==
-    bz main_if_body@4
+    bz main_if_body@6
     dig 2
     byte 0x7365745f64617461
     ==
-    bz main_else_body@21
+    bz main_else_body@23
     dup
     txna ApplicationArgs 2
     callsub set_data
-    b main_if_body@1
+    b main_if_body@3
 
-main_else_body@21:
+main_else_body@23:
     dig 2
     byte 0x6765745f646174615f776974685f64656661756c74
     ==
-    bz main_if_body@4
+    bz main_if_body@6
     dup
     txna ApplicationArgs 2
     callsub get_data_with_default
     log
-    b main_if_body@1
+    b main_if_body@3
 
 
 // examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:
