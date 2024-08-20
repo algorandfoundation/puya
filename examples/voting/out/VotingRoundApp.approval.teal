@@ -8,16 +8,28 @@ examples.voting.voting.VotingRoundApp.approval_program:
 main_entrypoint@2:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@10
     method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
     method "bootstrap(pay)void"
     method "close()void"
     method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
     method "vote(pay,byte[],uint8[])void"
     txna ApplicationArgs 0
-    match main_create_route@3 main_bootstrap_route@4 main_close_route@5 main_get_preconditions_route@6 main_vote_route@7
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___close_route@4 __puya_arc4_router___get_preconditions_route@5 __puya_arc4_router___vote_route@6
+    int 0
+    retsub
 
-main_create_route@3:
+__puya_arc4_router___create_route@2:
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -47,9 +59,9 @@ main_create_route@3:
     // @arc4.abimethod(create="require")
     callsub create
     int 1
-    return
+    retsub
 
-main_bootstrap_route@4:
+__puya_arc4_router___bootstrap_route@3:
     // voting/voting.py:82
     // @arc4.abimethod
     txn OnCompletion
@@ -71,9 +83,9 @@ main_bootstrap_route@4:
     // @arc4.abimethod
     callsub bootstrap
     int 1
-    return
+    retsub
 
-main_close_route@5:
+__puya_arc4_router___close_route@4:
     // voting/voting.py:110
     // @arc4.abimethod
     txn OnCompletion
@@ -83,9 +95,9 @@ main_close_route@5:
     assert // is not creating
     callsub close
     int 1
-    return
+    retsub
 
-main_get_preconditions_route@6:
+__puya_arc4_router___get_preconditions_route@5:
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
     txn OnCompletion
@@ -105,9 +117,9 @@ main_get_preconditions_route@6:
     concat
     log
     int 1
-    return
+    retsub
 
-main_vote_route@7:
+__puya_arc4_router___vote_route@6:
     // voting/voting.py:169
     // @arc4.abimethod
     txn OnCompletion
@@ -132,7 +144,13 @@ main_vote_route@7:
     // @arc4.abimethod
     callsub vote
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    int 0
+    retsub
 
 
 // examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:

@@ -8,8 +8,19 @@ examples.auction.contract.Auction.approval_program:
 main_entrypoint@2:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@12
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@10
     txna ApplicationArgs 0
     method "opt_into_asset(asset)void"
     method "start_auction(uint64,uint64,axfer)void"
@@ -18,10 +29,10 @@ main_entrypoint@2:
     method "claim_bids()void"
     method "claim_asset(asset)void"
     uncover 6
-    match main_opt_into_asset_route@4 main_start_auction_route@5 main_opt_in_route@6 main_bid_route@7 main_claim_bids_route@8 main_claim_asset_route@9
-    b main_switch_case_default@10
+    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7
+    b __puya_arc4_router___switch_case_default@8
 
-main_opt_into_asset_route@4:
+__puya_arc4_router___opt_into_asset_route@2:
     // auction/contract.py:25
     // @arc4.abimethod
     txn OnCompletion
@@ -29,6 +40,8 @@ main_opt_into_asset_route@4:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // auction/contract.py:16
     // class Auction(ARC4Contract):
@@ -39,9 +52,9 @@ main_opt_into_asset_route@4:
     // @arc4.abimethod
     callsub opt_into_asset
     int 1
-    return
+    retsub
 
-main_start_auction_route@5:
+__puya_arc4_router___start_auction_route@3:
     // auction/contract.py:40
     // @arc4.abimethod
     txn OnCompletion
@@ -49,6 +62,8 @@ main_start_auction_route@5:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // auction/contract.py:16
     // class Auction(ARC4Contract):
@@ -71,9 +86,9 @@ main_start_auction_route@5:
     uncover 2
     callsub start_auction
     int 1
-    return
+    retsub
 
-main_opt_in_route@6:
+__puya_arc4_router___opt_in_route@4:
     // auction/contract.py:62
     // @arc4.abimethod
     txn OnCompletion
@@ -81,12 +96,14 @@ main_opt_in_route@6:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub opt_in
     int 1
-    return
+    retsub
 
-main_bid_route@7:
+__puya_arc4_router___bid_route@5:
     // auction/contract.py:66
     // @arc4.abimethod
     txn OnCompletion
@@ -94,6 +111,8 @@ main_bid_route@7:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // auction/contract.py:16
     // class Auction(ARC4Contract):
@@ -109,9 +128,9 @@ main_bid_route@7:
     // @arc4.abimethod
     callsub bid
     int 1
-    return
+    retsub
 
-main_claim_bids_route@8:
+__puya_arc4_router___claim_bids_route@6:
     // auction/contract.py:82
     // @arc4.abimethod
     txn OnCompletion
@@ -119,12 +138,14 @@ main_claim_bids_route@8:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub claim_bids
     int 1
-    return
+    retsub
 
-main_claim_asset_route@9:
+__puya_arc4_router___claim_asset_route@7:
     // auction/contract.py:97
     // @arc4.abimethod
     txn OnCompletion
@@ -132,6 +153,8 @@ main_claim_asset_route@9:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // auction/contract.py:16
     // class Auction(ARC4Contract):
@@ -142,36 +165,38 @@ main_claim_asset_route@9:
     // @arc4.abimethod
     callsub claim_asset
     int 1
-    return
+    retsub
 
-main_switch_case_default@10:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@8:
+    b __puya_arc4_router___after_if_else@14
 
-main_bare_routing@12:
+__puya_arc4_router___bare_routing@10:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@13
-    b main_reject_bare_on_completion@14
+    match __puya_arc4_router_____algopy_default_create@11
+    b __puya_arc4_router___switch_case_default@12
 
-main___algopy_default_create@13:
+__puya_arc4_router_____algopy_default_create@11:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@14:
+__puya_arc4_router___switch_case_default@12:
+
+__puya_arc4_router___after_if_else@14:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:

@@ -3,15 +3,25 @@
 test_cases.compile.apps.LargeProgram.approval_program:
     // compile/apps.py:38
     // class LargeProgram(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.compile.apps.LargeProgram.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // compile/apps.py:38
+    // class LargeProgram(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@6
     method "get_big_bytes_length()uint64"
     method "delete()void"
     txna ApplicationArgs 0
-    match main_get_big_bytes_length_route@2 main_delete_route@3
-    err // reject transaction
+    match __puya_arc4_router___get_big_bytes_length_route@2 __puya_arc4_router___delete_route@3
+    int 0
+    retsub
 
-main_get_big_bytes_length_route@2:
+__puya_arc4_router___get_big_bytes_length_route@2:
     // compile/apps.py:40
     // @arc4.abimethod()
     txn OnCompletion
@@ -26,9 +36,9 @@ main_get_big_bytes_length_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_delete_route@3:
+__puya_arc4_router___delete_route@3:
     // compile/apps.py:44
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -38,19 +48,24 @@ main_delete_route@3:
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     // compile/apps.py:38
     // class LargeProgram(ARC4Contract):
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    // compile/apps.py:38
+    // class LargeProgram(ARC4Contract):
+    int 0
+    retsub
 
 
 // test_cases.compile.apps.LargeProgram.get_big_bytes_length() -> uint64:

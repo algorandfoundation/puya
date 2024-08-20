@@ -3,16 +3,27 @@
 examples.arc_28.contract.EventEmitter.approval_program:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.arc_28.contract.EventEmitter.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // arc_28/contract.py:11
+    // class EventEmitter(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
     method "emit_swapped(uint64,uint64)void"
     method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     uncover 2
-    match main_emit_swapped_route@2 main_emit_ufixed_route@3
-    b main_switch_case_default@4
+    match __puya_arc4_router___emit_swapped_route@2 __puya_arc4_router___emit_ufixed_route@3
+    b __puya_arc4_router___switch_case_default@4
 
-main_emit_swapped_route@2:
+__puya_arc4_router___emit_swapped_route@2:
     // arc_28/contract.py:12
     // @arc4.abimethod
     txn OnCompletion
@@ -20,6 +31,8 @@ main_emit_swapped_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
@@ -29,9 +42,9 @@ main_emit_swapped_route@2:
     // @arc4.abimethod
     callsub emit_swapped
     int 1
-    return
+    retsub
 
-main_emit_ufixed_route@3:
+__puya_arc4_router___emit_ufixed_route@3:
     // arc_28/contract.py:18
     // @arc4.abimethod()
     txn OnCompletion
@@ -39,6 +52,8 @@ main_emit_ufixed_route@3:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
@@ -48,36 +63,38 @@ main_emit_ufixed_route@3:
     // @arc4.abimethod()
     callsub emit_ufixed
     int 1
-    return
+    retsub
 
-main_switch_case_default@4:
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@4:
+    b __puya_arc4_router___after_if_else@10
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@7
-    b main_reject_bare_on_completion@8
+    match __puya_arc4_router_____algopy_default_create@7
+    b __puya_arc4_router___switch_case_default@8
 
-main___algopy_default_create@7:
+__puya_arc4_router_____algopy_default_create@7:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@8:
+__puya_arc4_router___switch_case_default@8:
+
+__puya_arc4_router___after_if_else@10:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:

@@ -6,18 +6,26 @@ examples.amm.contract.ConstantProductAMM.approval_program:
     callsub __init__
 
 main_entrypoint@2:
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@11
+    bz __puya_arc4_router___bare_routing@9
     method "set_governor(account)void"
     method "bootstrap(pay,asset,asset)uint64"
     method "mint(axfer,axfer,asset,asset,asset)void"
     method "burn(axfer,asset,asset,asset)void"
     method "swap(axfer,asset,asset)void"
     txna ApplicationArgs 0
-    match main_set_governor_route@4 main_bootstrap_route@5 main_mint_route@6 main_burn_route@7 main_swap_route@8
-    err // reject transaction
+    match __puya_arc4_router___set_governor_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___mint_route@4 __puya_arc4_router___burn_route@5 __puya_arc4_router___swap_route@6
+    int 0
+    retsub
 
-main_set_governor_route@4:
+__puya_arc4_router___set_governor_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -28,9 +36,9 @@ main_set_governor_route@4:
     txnas Accounts
     callsub set_governor
     int 1
-    return
+    retsub
 
-main_bootstrap_route@5:
+__puya_arc4_router___bootstrap_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -57,9 +65,9 @@ main_bootstrap_route@5:
     concat
     log
     int 1
-    return
+    retsub
 
-main_mint_route@6:
+__puya_arc4_router___mint_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -92,9 +100,9 @@ main_mint_route@6:
     txnas Assets
     callsub mint
     int 1
-    return
+    retsub
 
-main_burn_route@7:
+__puya_arc4_router___burn_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -119,9 +127,9 @@ main_burn_route@7:
     txnas Assets
     callsub burn
     int 1
-    return
+    retsub
 
-main_swap_route@8:
+__puya_arc4_router___swap_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -143,17 +151,20 @@ main_swap_route@8:
     txnas Assets
     callsub swap
     int 1
-    return
+    retsub
 
-main_bare_routing@11:
+__puya_arc4_router___bare_routing@9:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@13
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@13:
+    int 0
+    retsub
 
 
 // examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:

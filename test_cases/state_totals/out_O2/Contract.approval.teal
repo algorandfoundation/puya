@@ -1,14 +1,23 @@
 #pragma version 10
 
 test_cases.state_totals.contract.Contract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.state_totals.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@6
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@6
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@6:
+    int 0
+    retsub

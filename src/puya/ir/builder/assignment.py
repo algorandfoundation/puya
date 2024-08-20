@@ -73,7 +73,7 @@ def _handle_assignment(
             )
             if is_implicit_return and not is_mutation:
                 raise CodeError(
-                    f"Cannot reassign mutable parameter {var_name!r}"
+                    f"cannot reassign mutable parameter {var_name!r}"
                     " which is being passed by reference",
                     assignment_location,
                 )

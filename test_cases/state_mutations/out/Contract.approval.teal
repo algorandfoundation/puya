@@ -3,16 +3,26 @@
 test_cases.state_mutations.contract.Contract.approval_program:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz __puya_arc4_router___bare_routing@7
     method "append()void"
     method "modify()void"
     method "get()(uint64,string)[]"
     txna ApplicationArgs 0
-    match main_append_route@4 main_modify_route@5 main_get_route@6
-    err // reject transaction
+    match __puya_arc4_router___append_route@2 __puya_arc4_router___modify_route@3 __puya_arc4_router___get_route@4
+    int 0
+    retsub
 
-main_append_route@4:
+__puya_arc4_router___append_route@2:
     // state_mutations/contract.py:36
     // @arc4.abimethod
     txn OnCompletion
@@ -22,9 +32,9 @@ main_append_route@4:
     assert // is not creating
     callsub append
     int 1
-    return
+    retsub
 
-main_modify_route@5:
+__puya_arc4_router___modify_route@3:
     // state_mutations/contract.py:44
     // @arc4.abimethod
     txn OnCompletion
@@ -34,9 +44,9 @@ main_modify_route@5:
     assert // is not creating
     callsub modify
     int 1
-    return
+    retsub
 
-main_get_route@6:
+__puya_arc4_router___get_route@4:
     // state_mutations/contract.py:51
     // @arc4.abimethod
     txn OnCompletion
@@ -50,25 +60,26 @@ main_get_route@6:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@9:
+__puya_arc4_router___bare_routing@7:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main___algopy_default_create@10 main_opt_in@11
-    err // reject transaction
+    switch __puya_arc4_router_____algopy_default_create@8 __puya_arc4_router___opt_in@9
+    int 0
+    retsub
 
-main___algopy_default_create@10:
+__puya_arc4_router_____algopy_default_create@8:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
 
-main_opt_in@11:
+__puya_arc4_router___opt_in@9:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID
@@ -78,7 +89,7 @@ main_opt_in@11:
     // def opt_in(self) -> None:
     callsub opt_in
     int 1
-    return
+    retsub
 
 
 // test_cases.state_mutations.contract.Contract.append() -> void:

@@ -3,15 +3,26 @@
 test_cases.regression_tests.issue_118.Issue118.approval_program:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@5
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
     method "verify(uint256[])(bool,string)"
     uncover 1
-    match main_verify_route@2
-    b main_switch_case_default@3
+    match __puya_arc4_router___verify_route@2
+    b __puya_arc4_router___switch_case_default@3
 
-main_verify_route@2:
+__puya_arc4_router___verify_route@2:
     // regression_tests/issue_118.py:6-7
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
@@ -20,6 +31,8 @@ main_verify_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
@@ -33,36 +46,38 @@ main_verify_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_switch_case_default@3:
-    // regression_tests/issue_118.py:5
-    // class Issue118(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@3:
+    b __puya_arc4_router___after_if_else@9
 
-main_bare_routing@5:
+__puya_arc4_router___bare_routing@5:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@6
-    b main_reject_bare_on_completion@7
+    match __puya_arc4_router_____algopy_default_create@6
+    b __puya_arc4_router___switch_case_default@7
 
-main___algopy_default_create@6:
+__puya_arc4_router_____algopy_default_create@6:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@7:
+__puya_arc4_router___switch_case_default@7:
+
+__puya_arc4_router___after_if_else@9:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:

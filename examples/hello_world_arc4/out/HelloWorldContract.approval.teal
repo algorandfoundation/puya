@@ -3,14 +3,24 @@
 examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@5
+    bz __puya_arc4_router___bare_routing@5
     method "hello(string)string"
     txna ApplicationArgs 0
-    match main_hello_route@2
-    err // reject transaction
+    match __puya_arc4_router___hello_route@2
+    int 0
+    retsub
 
-main_hello_route@2:
+__puya_arc4_router___hello_route@2:
     // hello_world_arc4/contract.py:10
     // @arc4.abimethod
     txn OnCompletion
@@ -36,19 +46,24 @@ main_hello_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@5:
+__puya_arc4_router___bare_routing@5:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@9
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    int 0
+    retsub
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:

@@ -8,16 +8,27 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
 main_entrypoint@2:
     // tuple_support/nested_tuples.py:4
     // class NestedTuples(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // tuple_support/nested_tuples.py:4
+    // class NestedTuples(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@8
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
     method "run_tests()bool"
     method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
     uncover 2
-    match main_run_tests_route@4 main_nested_tuple_params_route@5
-    b main_switch_case_default@6
+    match __puya_arc4_router___run_tests_route@2 __puya_arc4_router___nested_tuple_params_route@3
+    b __puya_arc4_router___switch_case_default@4
 
-main_run_tests_route@4:
+__puya_arc4_router___run_tests_route@2:
     // tuple_support/nested_tuples.py:8
     // @arc4.abimethod()
     txn OnCompletion
@@ -25,6 +36,8 @@ main_run_tests_route@4:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub run_tests
     byte 0x00
@@ -36,9 +49,9 @@ main_run_tests_route@4:
     concat
     log
     int 1
-    return
+    retsub
 
-main_nested_tuple_params_route@5:
+__puya_arc4_router___nested_tuple_params_route@3:
     // tuple_support/nested_tuples.py:37
     // @arc4.abimethod()
     txn OnCompletion
@@ -46,6 +59,8 @@ main_nested_tuple_params_route@5:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // tuple_support/nested_tuples.py:4
     // class NestedTuples(ARC4Contract):
@@ -153,36 +168,38 @@ main_nested_tuple_params_route@5:
     concat
     log
     int 1
-    return
+    retsub
 
-main_switch_case_default@6:
-    // tuple_support/nested_tuples.py:4
-    // class NestedTuples(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@4:
+    b __puya_arc4_router___after_if_else@10
 
-main_bare_routing@8:
+__puya_arc4_router___bare_routing@6:
     // tuple_support/nested_tuples.py:4
     // class NestedTuples(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@9
-    b main_reject_bare_on_completion@10
+    match __puya_arc4_router_____algopy_default_create@7
+    b __puya_arc4_router___switch_case_default@8
 
-main___algopy_default_create@9:
+__puya_arc4_router_____algopy_default_create@7:
     // tuple_support/nested_tuples.py:4
     // class NestedTuples(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@10:
+__puya_arc4_router___switch_case_default@8:
+
+__puya_arc4_router___after_if_else@10:
     // tuple_support/nested_tuples.py:4
     // class NestedTuples(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:

@@ -6,14 +6,24 @@ test_cases.compile.apps.HelloOtherConstants.approval_program:
     callsub __init__
 
 main_entrypoint@2:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@8
     method "create()void"
     method "delete()void"
     method "greet(string)byte[]"
     txna ApplicationArgs 0
-    match main_create_route@3 main_delete_route@4 main_greet_route@5
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    int 0
+    retsub
 
-main_create_route@3:
+__puya_arc4_router___create_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -21,9 +31,9 @@ main_create_route@3:
     !
     assert // is creating
     int 1
-    return
+    retsub
 
-main_delete_route@4:
+__puya_arc4_router___delete_route@3:
     txn OnCompletion
     int DeleteApplication
     ==
@@ -31,9 +41,9 @@ main_delete_route@4:
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_greet_route@5:
+__puya_arc4_router___greet_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -53,7 +63,11 @@ main_greet_route@5:
     concat
     log
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@8:
+    int 0
+    retsub
 
 
 // test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:

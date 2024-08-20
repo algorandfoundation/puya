@@ -1,16 +1,24 @@
 #pragma version 10
 
 test_cases.unassigned_expression.contract.Unassigned.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz __puya_arc4_router___bare_routing@7
     method "discard_op()void"
     method "discard_subroutine()void"
     method "discard_constants()void"
     txna ApplicationArgs 0
-    match main_discard_op_route@2 main_discard_subroutine_route@3 main_discard_constants_route@4
-    err // reject transaction
+    match __puya_arc4_router___discard_op_route@2 __puya_arc4_router___discard_subroutine_route@3 __puya_arc4_router___discard_constants_route@4
+    int 0
+    retsub
 
-main_discard_op_route@2:
+__puya_arc4_router___discard_op_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -18,9 +26,9 @@ main_discard_op_route@2:
     assert // is not creating
     callsub discard_op
     int 1
-    return
+    retsub
 
-main_discard_subroutine_route@3:
+__puya_arc4_router___discard_subroutine_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -28,26 +36,29 @@ main_discard_subroutine_route@3:
     assert // is not creating
     callsub discard_subroutine
     int 1
-    return
+    retsub
 
-main_discard_constants_route@4:
+__puya_arc4_router___discard_constants_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_bare_routing@7:
+__puya_arc4_router___bare_routing@7:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@11
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@11:
+    int 0
+    retsub
 
 
 // test_cases.unassigned_expression.contract.Unassigned.discard_op() -> void:

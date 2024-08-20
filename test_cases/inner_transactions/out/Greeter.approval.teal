@@ -8,15 +8,25 @@ test_cases.inner_transactions.c2c.Greeter.approval_program:
 main_entrypoint@2:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz __puya_arc4_router___bare_routing@6
     method "bootstrap()uint64"
     method "log_greetings(string)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@4 main_log_greetings_route@5
-    err // reject transaction
+    match __puya_arc4_router___bootstrap_route@2 __puya_arc4_router___log_greetings_route@3
+    int 0
+    retsub
 
-main_bootstrap_route@4:
+__puya_arc4_router___bootstrap_route@2:
     // inner_transactions/c2c.py:10
     // @arc4.abimethod()
     txn OnCompletion
@@ -31,9 +41,9 @@ main_bootstrap_route@4:
     concat
     log
     int 1
-    return
+    retsub
 
-main_log_greetings_route@5:
+__puya_arc4_router___log_greetings_route@3:
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     txn OnCompletion
@@ -48,19 +58,24 @@ main_log_greetings_route@5:
     // @arc4.abimethod()
     callsub log_greetings
     int 1
-    return
+    retsub
 
-main_bare_routing@8:
+__puya_arc4_router___bare_routing@6:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    int 0
+    retsub
 
 
 // test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:

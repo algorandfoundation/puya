@@ -3,17 +3,28 @@
 test_cases.unassigned_expression.contract.Unassigned.approval_program:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@7
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
     method "discard_op()void"
     method "discard_subroutine()void"
     method "discard_constants()void"
     uncover 3
-    match main_discard_op_route@2 main_discard_subroutine_route@3 main_discard_constants_route@4
-    b main_switch_case_default@5
+    match __puya_arc4_router___discard_op_route@2 __puya_arc4_router___discard_subroutine_route@3 __puya_arc4_router___discard_constants_route@4
+    b __puya_arc4_router___switch_case_default@5
 
-main_discard_op_route@2:
+__puya_arc4_router___discard_op_route@2:
     // unassigned_expression/contract.py:5
     // @arc4.abimethod()
     txn OnCompletion
@@ -21,12 +32,14 @@ main_discard_op_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub discard_op
     int 1
-    return
+    retsub
 
-main_discard_subroutine_route@3:
+__puya_arc4_router___discard_subroutine_route@3:
     // unassigned_expression/contract.py:9
     // @arc4.abimethod()
     txn OnCompletion
@@ -34,12 +47,14 @@ main_discard_subroutine_route@3:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub discard_subroutine
     int 1
-    return
+    retsub
 
-main_discard_constants_route@4:
+__puya_arc4_router___discard_constants_route@4:
     // unassigned_expression/contract.py:13
     // @arc4.abimethod()
     txn OnCompletion
@@ -47,39 +62,43 @@ main_discard_constants_route@4:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub discard_constants
     int 1
-    return
+    retsub
 
-main_switch_case_default@5:
-    // unassigned_expression/contract.py:4
-    // class Unassigned(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@5:
+    b __puya_arc4_router___after_if_else@11
 
-main_bare_routing@7:
+__puya_arc4_router___bare_routing@7:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@8
-    b main_reject_bare_on_completion@9
+    match __puya_arc4_router_____algopy_default_create@8
+    b __puya_arc4_router___switch_case_default@9
 
-main___algopy_default_create@8:
+__puya_arc4_router_____algopy_default_create@8:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@9:
+__puya_arc4_router___switch_case_default@9:
+
+__puya_arc4_router___after_if_else@11:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.unassigned_expression.contract.Unassigned.discard_op() -> void:

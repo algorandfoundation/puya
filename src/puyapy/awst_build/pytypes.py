@@ -11,7 +11,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
-from puya.models import TransactionType
+from puya.models import ContractReference, TransactionType
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -282,6 +282,29 @@ class FuncType(PyType):
 @typing.final
 @attrs.frozen
 class StaticType(PyType):
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
+
+
+@typing.final
+@attrs.frozen(kw_only=True)
+class ContractType(PyType):
+    generic: None = attrs.field(default=None, init=False)
+    module_name: str
+    class_name: str
+    name: str = attrs.field(init=False)
+    source_location: SourceLocation
+
+    @name.default
+    def _name(self) -> str:
+        return ".".join((self.module_name, self.class_name))
+
+    @cached_property
+    def cref(self) -> ContractReference:
+        return ContractReference(module_name=self.module_name, class_name=self.class_name)
+
     @typing.override
     @property
     def wtype(self) -> typing.Never:

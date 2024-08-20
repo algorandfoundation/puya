@@ -2,48 +2,53 @@ contract test_cases.state_mutations.contract.Contract:
     program approval:
         subroutine test_cases.state_mutations.contract.Contract.approval_program() -> bool:
             block@0: // L22
-                let tmp%0#0: bool = (txn NumAppArgs)
-                goto tmp%0#0 ? block@3 : block@9
-            block@3: // abi_routing_L22
-                let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "append()void" => block@4, method "modify()void" => block@5, method "get()(uint64,string)[]" => block@6, * => fail // reject transaction}
-            block@4: // append_route_L36
-                let tmp%2#0: uint64 = (txn OnCompletion)
-                let tmp%3#0: bool = (! tmp%2#0)
-                (assert tmp%3#0) // OnCompletion is NoOp
-                let tmp%4#0: bool = (txn ApplicationID)
-                (assert tmp%4#0) // is not creating
+                let tmp%0#0: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__()
+                return tmp%0#0
+        
+        subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> bool:
+            block@0: // L22
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@7
+            block@1: // abi_routing_L22
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%2#0 {method "append()void" => block@2, method "modify()void" => block@3, method "get()(uint64,string)[]" => block@4, * => return 0u}
+            block@2: // append_route_L36
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let tmp%4#0: bool = (! tmp%3#0)
+                (assert tmp%4#0) // OnCompletion is NoOp
+                let tmp%5#0: uint64 = (txn ApplicationID)
+                (assert tmp%5#0) // is not creating
                 test_cases.state_mutations.contract.Contract.append()
                 return 1u
-            block@5: // modify_route_L44
-                let tmp%5#0: uint64 = (txn OnCompletion)
-                let tmp%6#0: bool = (! tmp%5#0)
-                (assert tmp%6#0) // OnCompletion is NoOp
-                let tmp%7#0: bool = (txn ApplicationID)
-                (assert tmp%7#0) // is not creating
+            block@3: // modify_route_L44
+                let tmp%7#0: uint64 = (txn OnCompletion)
+                let tmp%8#0: bool = (! tmp%7#0)
+                (assert tmp%8#0) // OnCompletion is NoOp
+                let tmp%9#0: uint64 = (txn ApplicationID)
+                (assert tmp%9#0) // is not creating
                 test_cases.state_mutations.contract.Contract.modify()
                 return 1u
-            block@6: // get_route_L51
-                let tmp%8#0: uint64 = (txn OnCompletion)
-                let tmp%9#0: bool = (! tmp%8#0)
-                (assert tmp%9#0) // OnCompletion is NoOp
-                let tmp%10#0: bool = (txn ApplicationID)
-                (assert tmp%10#0) // is not creating
-                let tmp%11#0: bytes = test_cases.state_mutations.contract.Contract.get()
-                let tmp%12#0: bytes = (concat 0x151f7c75 tmp%11#0)
-                (log tmp%12#0)
+            block@4: // get_route_L51
+                let tmp%11#0: uint64 = (txn OnCompletion)
+                let tmp%12#0: bool = (! tmp%11#0)
+                (assert tmp%12#0) // OnCompletion is NoOp
+                let tmp%13#0: uint64 = (txn ApplicationID)
+                (assert tmp%13#0) // is not creating
+                let tmp%15#0: bytes = test_cases.state_mutations.contract.Contract.get()
+                let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
+                (log tmp%16#0)
                 return 1u
-            block@9: // bare_routing_L22
-                let tmp%13#0: uint64 = (txn OnCompletion)
-                goto_nth [block@10, block@11][tmp%13#0] else fail // reject transaction
-            block@10: // __algopy_default_create_L22
-                let tmp%14#0: bool = (txn ApplicationID)
-                let tmp%15#0: bool = (! tmp%14#0)
-                (assert tmp%15#0) // is creating
+            block@7: // bare_routing_L22
+                let tmp%17#0: uint64 = (txn OnCompletion)
+                goto_nth [block@8, block@9][tmp%17#0] else return 0u
+            block@8: // __algopy_default_create_L22
+                let tmp%18#0: uint64 = (txn ApplicationID)
+                let tmp%19#0: bool = (! tmp%18#0)
+                (assert tmp%19#0) // is creating
                 return 1u
-            block@11: // opt_in_L29
-                let tmp%16#0: bool = (txn ApplicationID)
-                (assert tmp%16#0) // is not creating
+            block@9: // opt_in_L29
+                let tmp%20#0: uint64 = (txn ApplicationID)
+                (assert tmp%20#0) // is not creating
                 test_cases.state_mutations.contract.Contract.opt_in()
                 return 1u
         
@@ -295,6 +300,6 @@ contract test_cases.state_mutations.contract.Contract:
                 return new_head_and_tail#0
     
     program clear-state:
-        subroutine test_cases.state_mutations.contract.Contract.clear_state_program() -> bool:
-            block@0: // L22
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L-1
                 return 1u

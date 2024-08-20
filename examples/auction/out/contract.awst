@@ -1,4 +1,4 @@
-contract Auction
+contract Auction extends (algopy.arc4::ARC4Contract)
 {
   globals {
     ['auction_end']: uint64
@@ -18,6 +18,11 @@ contract Auction
     GlobalState['asa_amount']: uint64 = 0u
     GlobalState['asa']: asset = reinterpret_cast<asset>(0u)
     GlobalState['previous_bidder']: account = global<ZeroAddress>()
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
   }
   
   clear_state_program(): bool

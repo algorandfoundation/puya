@@ -105,7 +105,7 @@ class ARC32StructDef:
     elements: Sequence[tuple[str, str]] = attrs.field(default=(), converter=_freeze_list_of_lists)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class ContractReference:
     module_name: str
     class_name: str
@@ -118,7 +118,7 @@ class ContractReference:
         return self.full_name
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class LogicSigReference:
     module_name: str
     func_name: str
@@ -178,7 +178,7 @@ class ContractMetaData:
 
     @property
     def is_arc4(self) -> bool:
-        return bool(self.arc4_methods)
+        return bool(self.arc4_methods)  # TODO: should this be an explicit flag instead?
 
     @property
     def name(self) -> str:

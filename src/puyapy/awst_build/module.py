@@ -234,10 +234,10 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 )
                 return []
 
-        self.context.register_pytype(
-            pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
-        )
         if info.is_protocol:
+            self.context.register_pytype(
+                pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
+            )
             if pytypes.ARC4ClientBaseType in direct_base_types:
                 ARC4ClientASTVisitor.visit(self.context, cdef)
             else:
@@ -256,8 +256,21 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             )
             return []
 
+        module_name = cdef.info.module_name
+        class_name = cdef.name
+        assert "." not in class_name
+        assert cdef.fullname == f"{module_name}.{class_name}"
+        contract_type = pytypes.ContractType(
+            module_name=module_name,
+            class_name=class_name,
+            bases=direct_base_types,
+            mro=mro_types,
+            source_location=cdef_loc,
+        )
+        self.context.register_pytype(contract_type)
+
         class_options = _process_contract_class_options(self.context, self, cdef)
-        converter = ContractASTConverter(self.context, cdef, class_options)
+        converter = ContractASTConverter(self.context, cdef, class_options, contract_type)
         return [converter.build]
 
     def visit_operator_assignment_stmt(

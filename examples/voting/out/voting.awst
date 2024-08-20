@@ -11,7 +11,7 @@ struct VotingPreconditions {
   current_time: arc4.uint64
 }
 
-contract VotingRoundApp
+contract VotingRoundApp extends (algopy.arc4::ARC4Contract)
 {
   globals {
     ['is_bootstrapped']: bool
@@ -37,6 +37,11 @@ contract VotingRoundApp
   {
     GlobalState['is_bootstrapped']: bool = false
     GlobalState['voter_count']: uint64 = 0u
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
   }
   
   abimethod create(vote_id: string, snapshot_public_key: bytes, metadata_ipfs_cid: string, start_time: uint64, end_time: uint64, option_counts: arc4.dynamic_array<arc4.uint8>, quorum: uint64, nft_image_url: string): void

@@ -18,8 +18,9 @@ from puya.awst import (
 from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError
-from puya.ir.arc4_router import create_abi_router, create_default_clear_state
+from puya.errors import InternalError
+from puya.ir import arc4_router
+from puya.ir.arc4_router import extract_arc4_methods
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext, IRBuildContextWithFallback
 from puya.ir.destructure.main import destructure_ssa
@@ -167,15 +168,25 @@ def _build_embedded_ir(ctx: IRBuildContext) -> None:
 def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFragment) -> Contract:
     if contract.is_abstract:
         raise InternalError("attempted to compile abstract contract")
-    folded = fold_state_and_special_methods(ctx, contract)
+    folded, arc4_method_data = _fold_state_and_special_methods(ctx, contract)
     if not (folded.approval_program and folded.clear_program):
         raise InternalError(
             "contract is non abstract but doesn't have approval and clear programs in hierarchy",
             contract.source_location,
         )
+    arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
+    ctx.subroutines[arc4_router_func] = ctx.routers[contract.cref] = _make_subroutine(
+        arc4_router_func, allow_implicits=False
+    )
+
     # visit call graph starting at entry point(s) to collect all references for each
     callees = CalleesLookup(set)
-    approval_subs_srefs = SubroutineCollector.collect(
+    approval_subs_srefs = StableSet[awst_nodes.Function]()
+    approval_subs_srefs.add(arc4_router_func)
+    approval_subs_srefs |= SubroutineCollector.collect(
+        ctx, start=arc4_router_func, callees=callees
+    )
+    approval_subs_srefs |= SubroutineCollector.collect(
         ctx, start=folded.approval_program, callees=callees
     )
     clear_subs_srefs = SubroutineCollector.collect(
@@ -190,7 +201,7 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
     for func in itertools.chain(approval_subs_srefs, clear_subs_srefs):
         if func not in ctx.subroutines:
             allow_implicits = _should_include_implicit_returns(
-                func, callees=callees[func], approval_program=folded.approval_program
+                func, callees=callees[func], arc4_router_func=arc4_router_func
             )
             # make the emtpy subroutine, because functions reference other functions
             ctx.subroutines[func] = _make_subroutine(func, allow_implicits=allow_implicits)
@@ -218,7 +229,7 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
         metadata=ContractMetaData(
             description=contract.docstring,
             name_override=contract.name_override,
-            ref=ContractReference(contract.module_name, contract.name),
+            ref=ContractReference(module_name=contract.module_name, class_name=contract.name),
             arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),
@@ -256,7 +267,7 @@ def _build_logic_sig_ir(
         source_location=logic_sig.source_location,
         program=sig_ir,
         metadata=LogicSignatureMetaData(
-            ref=LogicSigReference(logic_sig.module_name, logic_sig.name),
+            ref=LogicSigReference(module_name=logic_sig.module_name, func_name=logic_sig.name),
             description=logic_sig.docstring,
         ),
     )
@@ -288,7 +299,7 @@ def _expand_tuple_parameters(
 def _should_include_implicit_returns(
     func: awst_nodes.Function,
     callees: set[awst_nodes.Function],
-    approval_program: awst_nodes.Function,
+    arc4_router_func: awst_nodes.Function,
 ) -> bool:
     """
     Determine if a function should implicitly return mutable reference parameters.
@@ -301,7 +312,7 @@ def _should_include_implicit_returns(
     the implicit returns.
     """
     if isinstance(func, awst_nodes.ContractMethod) and func.arc4_method_config:
-        return bool(callees - {approval_program})
+        return bool(callees - {arc4_router_func})
     return True
 
 
@@ -409,9 +420,25 @@ class FoldedContract:
         return merged
 
 
-def fold_state_and_special_methods(
+def _gather_arc4_methods(
     ctx: IRBuildContext, contract: awst_nodes.ContractFragment
-) -> FoldedContract:
+) -> dict[awst_nodes.ContractMethod, ARC4MethodConfig]:
+    bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
+    maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
+    for c in [contract, *bases]:
+        for cm in c.subroutines:
+            if (c is contract) or cm.inheritable:
+                if cm.arc4_method_config:
+                    maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
+                else:
+                    maybe_arc4_method_refs.setdefault(cm.name, None)
+    arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
+    return arc4_method_refs
+
+
+def _fold_state_and_special_methods(
+    ctx: IRBuildContext, contract: awst_nodes.ContractFragment
+) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, ARC4MethodConfig]]:
     bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
     if contract.state_totals is None:
         base_with_defined = next((b for b in bases if b.state_totals is not None), None)
@@ -428,7 +455,6 @@ def fold_state_and_special_methods(
         approval_program=contract.approval_program,
         clear_program=contract.clear_program,
     )
-    maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
     for c in [contract, *bases]:
         if result.init is None:  # noqa: SIM102
             if c.init and c.init.inheritable:
@@ -477,34 +503,14 @@ def fold_state_and_special_methods(
                     pass  # TODO: forward these on
                 case _:
                     typing.assert_never(state.kind)
-        for cm in c.subroutines:
-            if (c is contract) or cm.inheritable:
-                if cm.arc4_method_config:
-                    maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
-                else:
-                    maybe_arc4_method_refs.setdefault(cm.name, None)
-    arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
-    if arc4_method_refs and not contract.is_arc4:
-        raise InternalError(
-            "Contracts making use of the @abimethod decorator "
-            "should extend the ARC4Contract class",
-            contract.source_location,
-        )
-    if contract.is_arc4:
-        if result.approval_program:
-            raise CodeError(
-                "approval_program should not be defined for ARC4 contracts",
-                contract.source_location,
-            )
-        result.approval_program, result.arc4_methods = create_abi_router(
-            contract,
+    arc4_method_refs = _gather_arc4_methods(ctx, contract)
+    if arc4_method_refs:
+        result.arc4_methods = extract_arc4_methods(
             arc4_method_refs,
             local_state=result.local_state,
             global_state=result.global_state,
         )
-        if not result.clear_program:
-            result.clear_program = create_default_clear_state(contract)
-    return result
+    return result, arc4_method_refs
 
 
 class SubroutineCollector(FunctionTraverser):

@@ -11,11 +11,25 @@ main_entrypoint@2:
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    txn NumAppArgs
-    bz main_bare_routing@4
-    err // reject transaction
+    callsub __puya_arc4_router__
+    return
 
-main_bare_routing@4:
+
+// test_cases.state_totals.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    proto 0 1
+    txn NumAppArgs
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@2
+    b __puya_arc4_router___after_if_else@6
+
+__puya_arc4_router___bare_routing@2:
     // state_totals/contract.py:6-9
     // class Contract(
     //     arc4.ARC4Contract,
@@ -24,29 +38,33 @@ main_bare_routing@4:
     txn OnCompletion
     int 0
     uncover 1
-    match main_create@5
-    b main_reject_bare_on_completion@6
+    match __puya_arc4_router___create@3
+    b __puya_arc4_router___switch_case_default@4
 
-main_create@5:
+__puya_arc4_router___create@3:
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     // state_totals/contract.py:14-15
     // @arc4.baremethod(create="require")
     // def create(self) -> None:
     callsub create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@6:
+__puya_arc4_router___switch_case_default@4:
+
+__puya_arc4_router___after_if_else@6:
     // state_totals/contract.py:6-9
     // class Contract(
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.state_totals.contract.Contract.create() -> void:

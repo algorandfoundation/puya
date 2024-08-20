@@ -3,15 +3,25 @@
 test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.approval_program:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@6
     method "xyz()string[]"
     method "xyz_raw()string[]"
     txna ApplicationArgs 0
-    match main_xyz_route@2 main_xyz_raw_route@3
-    err // reject transaction
+    match __puya_arc4_router___xyz_route@2 __puya_arc4_router___xyz_raw_route@3
+    int 0
+    retsub
 
-main_xyz_route@2:
+__puya_arc4_router___xyz_route@2:
     // arc4_types/dynamic_string_array.py:5
     // @arc4.abimethod
     txn OnCompletion
@@ -25,9 +35,9 @@ main_xyz_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_xyz_raw_route@3:
+__puya_arc4_router___xyz_raw_route@3:
     // arc4_types/dynamic_string_array.py:13
     // @arc4.abimethod
     txn OnCompletion
@@ -41,19 +51,24 @@ main_xyz_raw_route@3:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    int 0
+    retsub
 
 
 // test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:

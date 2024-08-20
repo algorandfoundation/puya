@@ -1,16 +1,24 @@
 #pragma version 10
 
 test_cases.state_mutations.contract.Contract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz __puya_arc4_router___bare_routing@7
     method "append()void"
     method "modify()void"
     method "get()(uint64,string)[]"
     txna ApplicationArgs 0
-    match main_append_route@4 main_modify_route@5 main_get_route@6
-    err // reject transaction
+    match __puya_arc4_router___append_route@2 __puya_arc4_router___modify_route@3 __puya_arc4_router___get_route@4
+    int 0
+    retsub
 
-main_append_route@4:
+__puya_arc4_router___append_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -18,9 +26,9 @@ main_append_route@4:
     assert // is not creating
     callsub append
     int 1
-    return
+    retsub
 
-main_modify_route@5:
+__puya_arc4_router___modify_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -28,9 +36,9 @@ main_modify_route@5:
     assert // is not creating
     callsub modify
     int 1
-    return
+    retsub
 
-main_get_route@6:
+__puya_arc4_router___get_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -42,26 +50,27 @@ main_get_route@6:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@9:
+__puya_arc4_router___bare_routing@7:
     txn OnCompletion
-    switch main___algopy_default_create@10 main_opt_in@11
-    err // reject transaction
+    switch __puya_arc4_router_____algopy_default_create@8 __puya_arc4_router___opt_in@9
+    int 0
+    retsub
 
-main___algopy_default_create@10:
+__puya_arc4_router_____algopy_default_create@8:
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
 
-main_opt_in@11:
+__puya_arc4_router___opt_in@9:
     txn ApplicationID
     assert // is not creating
     callsub opt_in
     int 1
-    return
+    retsub
 
 
 // test_cases.state_mutations.contract.Contract.append() -> void:

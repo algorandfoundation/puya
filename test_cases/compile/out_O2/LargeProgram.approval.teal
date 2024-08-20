@@ -1,15 +1,23 @@
 #pragma version 10
 
 test_cases.compile.apps.LargeProgram.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.compile.apps.LargeProgram.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@6
     method "get_big_bytes_length()uint64"
     method "delete()void"
     txna ApplicationArgs 0
-    match main_get_big_bytes_length_route@2 main_delete_route@3
-    err // reject transaction
+    match __puya_arc4_router___get_big_bytes_length_route@2 __puya_arc4_router___delete_route@3
+    int 0
+    retsub
 
-main_get_big_bytes_length_route@2:
+__puya_arc4_router___get_big_bytes_length_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -22,9 +30,9 @@ main_get_big_bytes_length_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_delete_route@3:
+__puya_arc4_router___delete_route@3:
     txn OnCompletion
     int DeleteApplication
     ==
@@ -32,17 +40,20 @@ main_delete_route@3:
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    int 0
+    retsub
 
 
 // test_cases.compile.apps.LargeProgram.get_big_bytes_length() -> uint64:

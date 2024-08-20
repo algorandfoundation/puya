@@ -6,12 +6,22 @@ test_cases.state_totals.contract.Contract.approval_program:
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.state_totals.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    proto 0 1
     txn NumAppArgs
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@6
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@6
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
     txn ApplicationID
@@ -21,4 +31,13 @@ test_cases.state_totals.contract.Contract.approval_program:
     // @arc4.baremethod(create="require")
     // def create(self) -> None:
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@6:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    int 0
+    retsub

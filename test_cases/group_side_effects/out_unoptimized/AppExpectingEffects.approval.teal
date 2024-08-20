@@ -3,16 +3,27 @@
 test_cases.group_side_effects.contract.AppExpectingEffects.approval_program:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
     method "create_group(acfg,appl)(uint64,uint64)"
     method "log_group(appl)void"
     uncover 2
-    match main_create_group_route@2 main_log_group_route@3
-    b main_switch_case_default@4
+    match __puya_arc4_router___create_group_route@2 __puya_arc4_router___log_group_route@3
+    b __puya_arc4_router___switch_case_default@4
 
-main_create_group_route@2:
+__puya_arc4_router___create_group_route@2:
     // group_side_effects/contract.py:5
     // @arc4.abimethod
     txn OnCompletion
@@ -20,6 +31,8 @@ main_create_group_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
@@ -57,9 +70,9 @@ main_create_group_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_log_group_route@3:
+__puya_arc4_router___log_group_route@3:
     // group_side_effects/contract.py:22
     // @arc4.abimethod
     txn OnCompletion
@@ -67,6 +80,8 @@ main_log_group_route@3:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
@@ -82,36 +97,38 @@ main_log_group_route@3:
     // @arc4.abimethod
     callsub log_group
     int 1
-    return
+    retsub
 
-main_switch_case_default@4:
-    // group_side_effects/contract.py:4
-    // class AppExpectingEffects(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@4:
+    b __puya_arc4_router___after_if_else@10
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@7
-    b main_reject_bare_on_completion@8
+    match __puya_arc4_router_____algopy_default_create@7
+    b __puya_arc4_router___switch_case_default@8
 
-main___algopy_default_create@7:
+__puya_arc4_router_____algopy_default_create@7:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@8:
+__puya_arc4_router___switch_case_default@8:
+
+__puya_arc4_router___after_if_else@10:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> uint64, uint64:

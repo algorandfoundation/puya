@@ -210,7 +210,7 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
             case LogicSigExpressionBuilder(ref=logic_sig):
                 pass
             case missing_or_invalid:
-                logic_sig = LogicSigReference("", "")  # dummy reference
+                logic_sig = LogicSigReference(module_name="", func_name="")  # dummy reference
                 # if None (=missing), then error message already logged by get_arg_mapping
                 if missing_or_invalid is not None:
                     logger.error(
