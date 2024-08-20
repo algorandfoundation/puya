@@ -211,3 +211,13 @@ class Greeter(ARC4Contract):
             txn.last_log
         )
         assert result1 == result3
+
+    @arc4.abimethod()
+    def test_no_args(self, app: Application) -> None:
+        result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
+        assert result == 42
+        arc4_result, _txn = arc4.abi_call[arc4.UInt64]("no_args()uint64", app_id=app)
+        assert arc4_result == 42
+
+        arc4.abi_call(Logger.no_args, app_id=app)
+        assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42

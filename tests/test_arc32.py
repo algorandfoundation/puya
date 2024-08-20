@@ -924,6 +924,12 @@ def test_typed_abi_call(
         app=logger.app_id,
     )
 
+    app_client.call(
+        "test_no_args",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
 
 def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(

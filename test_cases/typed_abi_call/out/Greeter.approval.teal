@@ -4,7 +4,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
+    bz main_bare_routing@16
     method "test_method_selector_kinds(application)void"
     method "test_method_overload(application)void"
     method "test_arg_conversion(application)void"
@@ -16,8 +16,9 @@ test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
     method "test_native_uint64(application)void"
     method "test_native_biguint(application)void"
     method "test_native_tuple(application)void"
+    method "test_no_args(application)void"
     txna ApplicationArgs 0
-    match main_test_method_selector_kinds_route@2 main_test_method_overload_route@3 main_test_arg_conversion_route@4 main_test_15plus_args_route@5 main_test_void_route@6 main_test_ref_types_route@7 main_test_native_string_route@8 main_test_native_bytes_route@9 main_test_native_uint64_route@10 main_test_native_biguint_route@11 main_test_native_tuple_route@12
+    match main_test_method_selector_kinds_route@2 main_test_method_overload_route@3 main_test_arg_conversion_route@4 main_test_15plus_args_route@5 main_test_void_route@6 main_test_ref_types_route@7 main_test_native_string_route@8 main_test_native_bytes_route@9 main_test_native_uint64_route@10 main_test_native_biguint_route@11 main_test_native_tuple_route@12 main_test_no_args_route@13
     err // reject transaction
 
 main_test_method_selector_kinds_route@2:
@@ -232,7 +233,26 @@ main_test_native_tuple_route@12:
     int 1
     return
 
-main_bare_routing@15:
+main_test_no_args_route@13:
+    // typed_abi_call/typed_c2c.py:215
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call/typed_c2c.py:17
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    // typed_abi_call/typed_c2c.py:215
+    // @arc4.abimethod()
+    callsub test_no_args
+    int 1
+    return
+
+main_bare_routing@16:
     // typed_abi_call/typed_c2c.py:17
     // class Greeter(ARC4Contract):
     txn OnCompletion
@@ -1587,5 +1607,95 @@ test_native_tuple:
     // typed_abi_call/typed_c2c.py:213
     // assert result1 == result3
     ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(app: uint64) -> void:
+test_no_args:
+    // typed_abi_call/typed_c2c.py:215-216
+    // @arc4.abimethod()
+    // def test_no_args(self, app: Application) -> None:
+    proto 1 0
+    // typed_abi_call/typed_c2c.py:217
+    // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "no_args()uint64"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    btoi
+    // typed_abi_call/typed_c2c.py:218
+    // assert result == 42
+    int 42
+    ==
+    assert
+    // typed_abi_call/typed_c2c.py:219
+    // arc4_result, _txn = arc4.abi_call[arc4.UInt64]("no_args()uint64", app_id=app)
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "no_args()uint64"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    // typed_abi_call/typed_c2c.py:220
+    // assert arc4_result == 42
+    byte 0x000000000000002a
+    b==
+    assert
+    // typed_abi_call/typed_c2c.py:222
+    // arc4.abi_call(Logger.no_args, app_id=app)
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "no_args()uint64"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    // typed_abi_call/typed_c2c.py:223
+    // assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte 0x000000000000002a
+    b==
     assert
     retsub

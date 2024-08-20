@@ -22,6 +22,10 @@ class Logger(ARC4Contract):
     def echo(self, value: arc4.String) -> arc4.String:
         return "echo: " + value
 
+    @arc4.abimethod
+    def no_args(self) -> UInt64:
+        return UInt64(42)
+
     @arc4.abimethod(name=LOG_METHOD_NAME)
     def log_uint64(self, value: arc4.UInt64) -> None:
         log(value)

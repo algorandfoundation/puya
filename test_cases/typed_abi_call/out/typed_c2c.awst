@@ -121,4 +121,14 @@ contract Greeter
     result3: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=46, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=46)) == hex<"151F7C75">))
     assert(result1 == result3)
   }
+  
+  abimethod test_no_args(app: application): void
+  {
+    (result, _txn): tuple<uint64,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=48, source=SINGLE_EVAL(id=47, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=48)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=47))
+    assert(result == 42u)
+    (arc4_result, _txn): tuple<arc4.uint64,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=50, source=SINGLE_EVAL(id=49, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=50)) == hex<"151F7C75">)), SINGLE_EVAL(id=49))
+    assert(reinterpret_cast<biguint>(arc4_result) == reinterpret_cast<biguint>(42arc4u64))
+    (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=52, source=SINGLE_EVAL(id=51, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("no_args()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=52)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=51))
+    assert(reinterpret_cast<biguint>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=53, source=itxn<LastLog>())), extract<0, 4>(SINGLE_EVAL(id=53)) == hex<"151F7C75">))) == reinterpret_cast<biguint>(42arc4u64))
+  }
 }
