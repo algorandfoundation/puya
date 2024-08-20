@@ -833,54 +833,6 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_contains_expression(self, expr: awst_nodes.Contains) -> TExpression:
-        item_register = self.visit_and_materialise_single(expr.item)
-
-        if not isinstance(expr.sequence.wtype, wtypes.WTuple):
-            raise InternalError(
-                f"Containment operation IR lowering"
-                f" not implemented for sequence type {expr.sequence.wtype.name}",
-                expr.source_location,
-            )
-        items_sequence = [
-            item
-            for item, item_wtype in zip(
-                self.visit_and_materialise(expr.sequence), expr.sequence.wtype.types, strict=True
-            )
-            if item_wtype == expr.item.wtype
-        ]
-
-        condition = None
-        for item in items_sequence:
-            equal_i = Intrinsic(
-                op=get_comparison_op_for_wtype(awst_nodes.NumericComparison.eq, expr.item.wtype),
-                args=[
-                    item_register,
-                    item,
-                ],
-                source_location=expr.source_location,
-            )
-            if not condition:
-                condition = equal_i
-                continue
-            left_var = assign_temp(
-                self.context,
-                source=condition,
-                temp_description="contains",
-                source_location=expr.source_location,
-            )
-            right_var = assign_temp(
-                self.context,
-                source=equal_i,
-                temp_description="is_equal",
-                source_location=expr.source_location,
-            )
-            condition = Intrinsic(
-                op=AVMOp.or_, args=[left_var, right_var], source_location=expr.source_location
-            )
-
-        return condition or UInt64Constant(source_location=expr.source_location, value=0)
-
     def visit_reinterpret_cast(self, expr: awst_nodes.ReinterpretCast) -> TExpression:
         # should be a no-op for us, but we validate the cast here too
         source = self.visit_expr(expr.expr)

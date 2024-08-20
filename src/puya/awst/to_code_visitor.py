@@ -60,9 +60,6 @@ class ToCodeVisitor(
     def visit_arc4_encode(self, expr: nodes.ARC4Encode) -> str:
         return f"arc4_encode({expr.value.accept(self)}, {expr.wtype})"
 
-    def visit_contains_expression(self, expr: nodes.Contains) -> str:
-        return f"{expr.item.accept(self)} IS IN {expr.sequence.accept(self)}"
-
     def visit_reinterpret_cast(self, expr: nodes.ReinterpretCast) -> str:
         return f"reinterpret_cast<{expr.wtype}>({expr.expr.accept(self)})"
 

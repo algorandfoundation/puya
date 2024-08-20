@@ -245,11 +245,6 @@ class FunctionTraverser(
         expr.expr.accept(self)
 
     @typing.override
-    def visit_contains_expression(self, expr: awst_nodes.Contains) -> None:
-        expr.item.accept(self)
-        expr.sequence.accept(self)
-
-    @typing.override
     def visit_block(self, statement: awst_nodes.Block) -> None:
         for stmt in statement.body:
             stmt.accept(self)
