@@ -653,7 +653,7 @@ def test_literal_conditional_expressions(harness: _TestHarness) -> None:
 
 
 def test_contains_operator(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "contains")
+    harness.deploy(TEST_CASES_DIR / "contains", request=AppCallRequest(increase_budget=1))
 
 
 def test_boolean_binary_ops(harness: _TestHarness) -> None:

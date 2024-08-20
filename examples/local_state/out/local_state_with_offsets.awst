@@ -13,7 +13,7 @@ contract LocalStateContract
     if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
-    if (!(txn<OnCompletion>() IS IN (NoOp, OptIn))) {
+    if (!(SINGLE_EVAL(id=0, source=txn<OnCompletion>()) == SINGLE_EVAL(id=1, source=(NoOp, OptIn))[0] or SINGLE_EVAL(id=0) == SINGLE_EVAL(id=1)[1])) {
       return false
     }
     if (txn<NumAppArgs>() < 1u) {
