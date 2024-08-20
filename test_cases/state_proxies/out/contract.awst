@@ -1,4 +1,4 @@
-contract StateProxyContract
+contract StateProxyContract extends (algopy.arc4::ARC4Contract)
 {
   globals {
     ['g1']: uint64
@@ -14,6 +14,11 @@ contract StateProxyContract
     GlobalState[hex<"6732">]: uint64 = 0u
     funky_town: state_key = (txn<NumAppArgs>() != 0u) ? ('funky') : ('town')
     GlobalState[funky_town]: uint64 = 123u
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
   }
   
   abimethod create(): void

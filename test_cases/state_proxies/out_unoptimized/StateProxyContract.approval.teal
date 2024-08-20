@@ -8,13 +8,26 @@ test_cases.state_proxies.contract.StateProxyContract.approval_program:
 main_entrypoint@2:
     // state_proxies/contract.py:12
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // state_proxies/contract.py:12
+    // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+    proto 0 1
+    txn NumAppArgs
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
     method "create()void"
     uncover 1
-    match main_create_route@3
-    b main_switch_case_default@4
+    match __puya_arc4_router___create_route@2
+    b __puya_arc4_router___switch_case_default@3
 
-main_create_route@3:
+__puya_arc4_router___create_route@2:
     // state_proxies/contract.py:25
     // @arc4.abimethod(allow_actions=["OptIn"], create="require")
     txn OnCompletion
@@ -22,16 +35,23 @@ main_create_route@3:
     ==
     assert // OnCompletion is OptIn
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub create
     int 1
-    return
+    retsub
 
-main_switch_case_default@4:
+__puya_arc4_router___switch_case_default@3:
+    b __puya_arc4_router___after_if_else@6
+
+__puya_arc4_router___bare_routing@5:
+
+__puya_arc4_router___after_if_else@6:
     // state_proxies/contract.py:12
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.state_proxies.contract.StateProxyContract.create() -> void:

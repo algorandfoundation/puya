@@ -3,13 +3,25 @@
 test_cases.avm_types_in_abi.contract.TestContract.approval_program:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@7
     method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
-    match main_create_route@1 main_tuple_of_arc4_route@2
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___tuple_of_arc4_route@3
+    int 0
+    retsub
 
-main_create_route@1:
+__puya_arc4_router___create_route@2:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     txn OnCompletion
@@ -142,9 +154,9 @@ main_create_route@1:
     concat
     log
     int 1
-    return
+    retsub
 
-main_tuple_of_arc4_route@2:
+__puya_arc4_router___tuple_of_arc4_route@3:
     // avm_types_in_abi/contract.py:19
     // @arc4.abimethod
     txn OnCompletion
@@ -168,7 +180,13 @@ main_tuple_of_arc4_route@2:
     concat
     log
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@7:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    int 0
+    retsub
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:

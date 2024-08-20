@@ -8,14 +8,26 @@ test_cases.compile.apps.HelloOtherConstants.approval_program:
 main_entrypoint@2:
     // compile/apps.py:81
     // class HelloOtherConstants(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // compile/apps.py:81
+    // class HelloOtherConstants(ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@8
     method "create()void"
     method "delete()void"
     method "greet(string)byte[]"
     txna ApplicationArgs 0
-    match main_create_route@3 main_delete_route@4 main_greet_route@5
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    int 0
+    retsub
 
-main_create_route@3:
+__puya_arc4_router___create_route@2:
     // compile/apps.py:89
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -25,9 +37,9 @@ main_create_route@3:
     !
     assert // is creating
     int 1
-    return
+    retsub
 
-main_delete_route@4:
+__puya_arc4_router___delete_route@3:
     // compile/apps.py:93
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -37,9 +49,9 @@ main_delete_route@4:
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_greet_route@5:
+__puya_arc4_router___greet_route@4:
     // compile/apps.py:97
     // @arc4.abimethod()
     txn OnCompletion
@@ -65,7 +77,13 @@ main_greet_route@5:
     concat
     log
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@8:
+    // compile/apps.py:81
+    // class HelloOtherConstants(ARC4Contract):
+    int 0
+    retsub
 
 
 // test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:

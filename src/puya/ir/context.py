@@ -29,6 +29,7 @@ class IRBuildContext(CompileContext):
     embedded_funcs: Sequence[awst_nodes.Function] = attrs.field()
     contract: awst_nodes.ContractFragment | None = None
     logic_sig: awst_nodes.LogicSignature | None = None
+    routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
 
     def for_contract(self, contract: awst_nodes.ContractFragment) -> "IRBuildContextWithFallback":
         return attrs_extend(

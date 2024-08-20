@@ -3,14 +3,27 @@
 examples.merkle.contract.MerkleTree.approval_program:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
     method "create(byte[32])void"
     method "verify(byte[32][],byte[32])bool"
     uncover 2
-    match main_create_route@1 main_verify_route@2
-    b main_switch_case_default@3
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___verify_route@3
+    b __puya_arc4_router___switch_case_default@4
 
-main_create_route@1:
+__puya_arc4_router___create_route@2:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -18,7 +31,8 @@ main_create_route@1:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
@@ -27,9 +41,9 @@ main_create_route@1:
     // @arc4.abimethod(create="require")
     callsub create
     int 1
-    return
+    retsub
 
-main_verify_route@2:
+__puya_arc4_router___verify_route@3:
     // merkle/contract.py:14
     // @arc4.abimethod
     txn OnCompletion
@@ -37,6 +51,8 @@ main_verify_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
@@ -54,12 +70,18 @@ main_verify_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_switch_case_default@3:
+__puya_arc4_router___switch_case_default@4:
+    b __puya_arc4_router___after_if_else@7
+
+__puya_arc4_router___bare_routing@6:
+
+__puya_arc4_router___after_if_else@7:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // examples.merkle.contract.MerkleTree.create(root: bytes) -> void:

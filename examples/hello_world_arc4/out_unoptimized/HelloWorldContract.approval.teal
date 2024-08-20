@@ -3,15 +3,26 @@
 examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@5
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
     method "hello(string)string"
     uncover 1
-    match main_hello_route@2
-    b main_switch_case_default@3
+    match __puya_arc4_router___hello_route@2
+    b __puya_arc4_router___switch_case_default@3
 
-main_hello_route@2:
+__puya_arc4_router___hello_route@2:
     // hello_world_arc4/contract.py:10
     // @arc4.abimethod
     txn OnCompletion
@@ -19,6 +30,8 @@ main_hello_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
@@ -38,36 +51,38 @@ main_hello_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_switch_case_default@3:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@3:
+    b __puya_arc4_router___after_if_else@9
 
-main_bare_routing@5:
+__puya_arc4_router___bare_routing@5:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@6
-    b main_reject_bare_on_completion@7
+    match __puya_arc4_router_____algopy_default_create@6
+    b __puya_arc4_router___switch_case_default@7
 
-main___algopy_default_create@6:
+__puya_arc4_router_____algopy_default_create@6:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@7:
+__puya_arc4_router___switch_case_default@7:
+
+__puya_arc4_router___after_if_else@9:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:

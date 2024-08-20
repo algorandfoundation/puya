@@ -8,17 +8,30 @@ test_cases.abi_routing.minimal.MinimumARC4.approval_program:
 main_entrypoint@2:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@6
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@6
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@6:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    int 0
+    retsub
 
 
 // test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:

@@ -1073,6 +1073,18 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
+        if self.context.contract is None:
+            raise CodeError(
+                "cannot create ARC4 router outside of a contract", expr.source_location
+            )
+
+        return InvokeSubroutine(
+            target=self.context.routers[self.context.contract.cref],
+            args=[],
+            source_location=expr.source_location,
+        )
+
     def visit_and_materialise_single(
         self, expr: awst_nodes.Expression, temp_description: str = "tmp"
     ) -> Value:

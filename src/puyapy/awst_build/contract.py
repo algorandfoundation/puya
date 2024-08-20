@@ -1,6 +1,6 @@
 import enum
 import typing
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 
 import mypy.nodes
 import mypy.types
@@ -31,11 +31,7 @@ from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
-from puyapy.awst_build.utils import (
-    get_decorators_by_fullname,
-    iterate_user_bases,
-    qualified_class_name,
-)
+from puyapy.awst_build.utils import get_decorators_by_fullname, qualified_class_name
 
 logger = log.get_logger(__name__)
 
@@ -57,16 +53,18 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
         class_options: ContractClassOptions,
+        typ: pytypes.ContractType,
     ):
         super().__init__(context=context)
         self.class_def = class_def
-        self.cref = cref = qualified_class_name(class_def.info)
-        self.is_arc4 = class_def.info.has_base(constants.ARC4_CONTRACT_BASE)
+        self.typ = typ
+        self.cref = cref = typ.cref
+        self.is_arc4 = pytypes.ARC4ContractBaseType in typ.mro
         self.is_abstract = _check_class_abstractness(context, class_def)
         self._methods = list[tuple[DeferredContractMethod, SourceLocation, SpecialMethod | None]]()
         self.class_options: typing.Final = class_options
         self.source_location: typing.Final = self._location(class_def)
-        self.bases = bases = _gather_bases(context, class_def)
+        self.bases = bases = _gather_bases(typ)
         self._synthetic_methods = list[awst_nodes.ContractMethod]()
 
         if self.is_arc4:
@@ -160,7 +158,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
     def build(self, context: ASTConversionModuleContext) -> awst_nodes.ContractFragment:
         class_def = self.class_def
         cref = self.cref
-        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def)
+        inherited_and_direct_storage = _gather_app_storage_recursive(
+            context, class_def, self.bases
+        )
         context.set_state_defs(cref, inherited_and_direct_storage)
         approval_program: awst_nodes.ContractMethod | None = None
         clear_program: awst_nodes.ContractMethod | None = None
@@ -181,6 +181,30 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     case invalid:
                         typing.assert_never(invalid)
 
+        if self.is_arc4 and not self.is_abstract:
+            # TODO: yoink this and replace with base method once MRO solved
+            approval_program = awst_nodes.ContractMethod(
+                module_name=cref.module_name,
+                class_name=cref.class_name,
+                source_location=self.source_location,
+                synthetic=True,
+                inheritable=False,
+                arc4_method_config=None,
+                args=[],
+                return_type=wtypes.bool_wtype,
+                documentation=awst_nodes.MethodDocumentation(),
+                name=constants.APPROVAL_METHOD,
+                body=awst_nodes.Block(
+                    source_location=self.source_location,
+                    body=[
+                        awst_nodes.ReturnStatement(
+                            value=awst_nodes.ARC4Router(source_location=self.source_location),
+                            source_location=self.source_location,
+                        )
+                    ],
+                ),
+            )
+
         app_state = {
             name: state_decl.definition
             for name, state_decl in context.state_defs(cref).items()
@@ -192,7 +216,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             module_name=cref.module_name,
             name=cref.class_name,
             name_override=class_options.name_override,
-            is_arc4=self.is_arc4,
             is_abstract=self.is_abstract,
             bases=self.bases,
             init=init_method,
@@ -441,55 +464,34 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported_stmt("type", stmt)
 
 
-def _gather_bases(
-    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
-) -> list[ContractReference]:
-    class_def_loc = context.node_location(class_def)
+def _gather_bases(contract_type: pytypes.ContractType) -> list[ContractReference]:
+    class_def_loc = contract_type.source_location
     contract_bases_mro = list[ContractReference]()
-    for base_type in iterate_user_bases(class_def.info):
-        base_cref = qualified_class_name(base_type)
-        if "." in base_cref.class_name:
-            raise CodeError(
-                f"Reference to base class {base_type.fullname},"
-                f" which is nested inside another class",
-                class_def_loc,
+    for ancestor in contract_type.mro:
+        if ancestor is pytypes.ContractBaseType:
+            pass
+        elif ancestor is pytypes.ARC4ContractBaseType:
+            contract_bases_mro.append(
+                ContractReference(module_name="algopy.arc4", class_name="ARC4Contract")
             )
-
-        try:
-            base_symbol = context.parse_result.manager.modules[base_cref.module_name].names[
-                base_cref.class_name
-            ]
-        except KeyError as ex:
-            raise InternalError(
-                f"Couldn't resolve reference to class {base_cref.class_name}"
-                f" in module {base_cref.module_name}",
-                class_def_loc,
-            ) from ex
-        base_class_info = base_symbol.node
-        if not isinstance(base_class_info, mypy.nodes.TypeInfo):
-            raise CodeError(
-                f"Base class {base_type.fullname} is not a class,"
-                f" node type is {type(base_class_info).__name__}",
-                class_def_loc,
-            )
-        if not base_class_info.has_base(constants.CONTRACT_BASE):
-            raise CodeError(
-                f"Base class {base_type.fullname} is not a contract subclass", class_def_loc
-            )
-        contract_bases_mro.append(base_cref)
+        elif isinstance(ancestor, pytypes.ContractType):
+            contract_bases_mro.append(ancestor.cref)
+        else:
+            raise CodeError(f"base class {ancestor} is not a contract subclass", class_def_loc)
 
     return contract_bases_mro
 
 
 def _gather_app_storage_recursive(
-    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
+    context: ASTConversionModuleContext,
+    class_def: mypy.nodes.ClassDef,
+    bases: Sequence[ContractReference],
 ) -> dict[str, AppStorageDeclaration]:
     this_global_directs = {
         defn.member_name: defn for defn in _gather_global_direct_storages(context, class_def.info)
     }
     combined_app_state = this_global_directs.copy()
-    for base in iterate_user_bases(class_def.info):
-        base_cref = qualified_class_name(base)
+    for base_cref in bases:
         base_app_state = {
             name: defn
             for name, defn in context.state_defs(base_cref).items()

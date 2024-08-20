@@ -618,6 +618,10 @@ class ToCodeVisitor(
     def visit_uint64_postfix_unary_operation(self, expr: nodes.UInt64PostfixUnaryOperation) -> str:
         return f"{expr.target.accept(self)}{expr.op}"
 
+    @typing.override
+    def visit_arc4_router(self, expr: nodes.ARC4Router) -> str:
+        return "arc4_router()"
+
 
 def _indent(lines: Iterable[str], indent_size: str = "  ") -> Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

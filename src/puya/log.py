@@ -335,7 +335,7 @@ class _Logger:
 
 
 def _add_source_context(kwargs: dict[str, typing.Any], location: SourceLocation | None) -> None:
-    if not location:
+    if location is None or location.line < 0:
         return
 
     try:

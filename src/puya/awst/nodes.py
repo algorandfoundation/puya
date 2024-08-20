@@ -1624,13 +1624,20 @@ class StateTotals:
 
 
 @attrs.frozen
+class ARC4Router(Expression):
+    wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_arc4_router(self)
+
+
+@attrs.frozen
 class ContractFragment(ModuleStatement):
     # note: it's a fragment because it needs to be stitched together with bases,
     #       assuming it's not abstract (in which case it should remain a fragment?)
     module_name: str
     name_override: str | None
     is_abstract: bool
-    is_arc4: bool
     bases: Sequence[ContractReference] = attrs.field(converter=tuple[ContractReference, ...])
     init: ContractMethod | None = attrs.field()
     approval_program: ContractMethod | None = attrs.field()
@@ -1715,6 +1722,10 @@ class ContractFragment(ModuleStatement):
     @property
     def full_name(self) -> str:
         return ".".join((self.module_name, self.name))
+
+    @property
+    def cref(self) -> ContractReference:
+        return ContractReference(module_name=self.module_name, class_name=self.name)
 
     def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
         return visitor.visit_contract_fragment(self)

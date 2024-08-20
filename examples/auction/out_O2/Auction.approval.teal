@@ -6,8 +6,15 @@ examples.auction.contract.Auction.approval_program:
     callsub __init__
 
 main_entrypoint@2:
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@12
+    bz __puya_arc4_router___bare_routing@10
     method "opt_into_asset(asset)void"
     method "start_auction(uint64,uint64,axfer)void"
     method "opt_in()void"
@@ -15,10 +22,11 @@ main_entrypoint@2:
     method "claim_bids()void"
     method "claim_asset(asset)void"
     txna ApplicationArgs 0
-    match main_opt_into_asset_route@4 main_start_auction_route@5 main_opt_in_route@6 main_bid_route@7 main_claim_bids_route@8 main_claim_asset_route@9
-    err // reject transaction
+    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7
+    int 0
+    retsub
 
-main_opt_into_asset_route@4:
+__puya_arc4_router___opt_into_asset_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -29,9 +37,9 @@ main_opt_into_asset_route@4:
     txnas Assets
     callsub opt_into_asset
     int 1
-    return
+    retsub
 
-main_start_auction_route@5:
+__puya_arc4_router___start_auction_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -51,18 +59,18 @@ main_start_auction_route@5:
     assert // transaction type is axfer
     callsub start_auction
     int 1
-    return
+    retsub
 
-main_opt_in_route@6:
+__puya_arc4_router___opt_in_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_bid_route@7:
+__puya_arc4_router___bid_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -78,9 +86,9 @@ main_bid_route@7:
     assert // transaction type is pay
     callsub bid
     int 1
-    return
+    retsub
 
-main_claim_bids_route@8:
+__puya_arc4_router___claim_bids_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -88,9 +96,9 @@ main_claim_bids_route@8:
     assert // is not creating
     callsub claim_bids
     int 1
-    return
+    retsub
 
-main_claim_asset_route@9:
+__puya_arc4_router___claim_asset_route@7:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -101,17 +109,20 @@ main_claim_asset_route@9:
     txnas Assets
     callsub claim_asset
     int 1
-    return
+    retsub
 
-main_bare_routing@12:
+__puya_arc4_router___bare_routing@10:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@14
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@14:
+    int 0
+    retsub
 
 
 // examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:

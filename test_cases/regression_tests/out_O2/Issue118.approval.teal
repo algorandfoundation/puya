@@ -1,14 +1,22 @@
 #pragma version 10
 
 test_cases.regression_tests.issue_118.Issue118.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@5
+    bz __puya_arc4_router___bare_routing@5
     method "verify(uint256[])(bool,string)"
     txna ApplicationArgs 0
-    match main_verify_route@2
-    err // reject transaction
+    match __puya_arc4_router___verify_route@2
+    int 0
+    retsub
 
-main_verify_route@2:
+__puya_arc4_router___verify_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -21,17 +29,20 @@ main_verify_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@5:
+__puya_arc4_router___bare_routing@5:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@9
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    int 0
+    retsub
 
 
 // test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:

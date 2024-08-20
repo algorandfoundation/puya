@@ -3,16 +3,26 @@
 examples.struct_in_box.contract.ExampleContract.approval_program:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz __puya_arc4_router___bare_routing@7
     method "add_user((string,uint64,uint64))void"
     method "attach_asset_to_user(uint64,asset)void"
     method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
-    match main_add_user_route@2 main_attach_asset_to_user_route@3 main_get_user_route@4
-    err // reject transaction
+    match __puya_arc4_router___add_user_route@2 __puya_arc4_router___attach_asset_to_user_route@3 __puya_arc4_router___get_user_route@4
+    int 0
+    retsub
 
-main_add_user_route@2:
+__puya_arc4_router___add_user_route@2:
     // struct_in_box/contract.py:31
     // @arc4.abimethod()
     txn OnCompletion
@@ -27,9 +37,9 @@ main_add_user_route@2:
     // @arc4.abimethod()
     callsub add_user
     int 1
-    return
+    retsub
 
-main_attach_asset_to_user_route@3:
+__puya_arc4_router___attach_asset_to_user_route@3:
     // struct_in_box/contract.py:36
     // @arc4.abimethod()
     txn OnCompletion
@@ -47,9 +57,9 @@ main_attach_asset_to_user_route@3:
     // @arc4.abimethod()
     callsub attach_asset_to_user
     int 1
-    return
+    retsub
 
-main_get_user_route@4:
+__puya_arc4_router___get_user_route@4:
     // struct_in_box/contract.py:42
     // @arc4.abimethod()
     txn OnCompletion
@@ -68,19 +78,24 @@ main_get_user_route@4:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@7:
+__puya_arc4_router___bare_routing@7:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@11
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@11:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    int 0
+    retsub
 
 
 // examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:

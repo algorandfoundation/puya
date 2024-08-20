@@ -8,17 +8,28 @@ test_cases.compile.apps.Hello.approval_program:
 main_entrypoint@2:
     // compile/apps.py:54
     // class Hello(HelloBase):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.compile.apps.Hello.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@9
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
     method "create(string)void"
     method "delete()void"
     method "greet(string)string"
     uncover 3
-    match main_create_route@4 main_delete_route@5 main_greet_route@6
-    b main_switch_case_default@7
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    b __puya_arc4_router___switch_case_default@5
 
-main_create_route@4:
+__puya_arc4_router___create_route@2:
     // compile/apps.py:56
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -26,7 +37,8 @@ main_create_route@4:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     // compile/apps.py:54
     // class Hello(HelloBase):
@@ -36,9 +48,9 @@ main_create_route@4:
     // @arc4.abimethod(create="require")
     callsub create
     int 1
-    return
+    retsub
 
-main_delete_route@5:
+__puya_arc4_router___delete_route@3:
     // compile/apps.py:25
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -46,12 +58,14 @@ main_delete_route@5:
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub delete
     int 1
-    return
+    retsub
 
-main_greet_route@6:
+__puya_arc4_router___greet_route@4:
     // compile/apps.py:33
     // @arc4.abimethod()
     txn OnCompletion
@@ -59,6 +73,8 @@ main_greet_route@6:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // compile/apps.py:54
     // class Hello(HelloBase):
@@ -78,38 +94,41 @@ main_greet_route@6:
     concat
     log
     int 1
-    return
+    retsub
 
-main_switch_case_default@7:
-    // compile/apps.py:54
-    // class Hello(HelloBase):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@5:
+    b __puya_arc4_router___after_if_else@11
 
-main_bare_routing@9:
+__puya_arc4_router___bare_routing@7:
     // compile/apps.py:54
     // class Hello(HelloBase):
     txn OnCompletion
     int 4
     uncover 1
-    match main_update@10
-    b main_reject_bare_on_completion@11
+    match __puya_arc4_router___update@8
+    b __puya_arc4_router___switch_case_default@9
 
-main_update@10:
+__puya_arc4_router___update@8:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     callsub update
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@11:
+__puya_arc4_router___switch_case_default@9:
+
+__puya_arc4_router___after_if_else@11:
     // compile/apps.py:54
     // class Hello(HelloBase):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.compile.apps.Hello.create(greeting: bytes) -> void:

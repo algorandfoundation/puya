@@ -1,6 +1,15 @@
 #pragma version 10
 
 test_cases.transaction.contract.TransactionContract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.transaction.contract.TransactionContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@15
     method "create()void"
     method "pay(pay)void"
     method "key(keyreg)void"
@@ -12,10 +21,11 @@ test_cases.transaction.contract.TransactionContract.approval_program:
     method "any_txn(txn,txn,txn)void"
     method "group_init(txn,txn,txn)void"
     txna ApplicationArgs 0
-    match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9 main_group_init_route@10
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___pay_route@3 __puya_arc4_router___key_route@4 __puya_arc4_router___asset_config_route@5 __puya_arc4_router___asset_transfer_route@6 __puya_arc4_router___asset_freeze_route@7 __puya_arc4_router___application_call_route@8 __puya_arc4_router___multiple_txns_route@9 __puya_arc4_router___any_txn_route@10 __puya_arc4_router___group_init_route@11
+    int 0
+    retsub
 
-main_create_route@1:
+__puya_arc4_router___create_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -23,9 +33,9 @@ main_create_route@1:
     !
     assert // is creating
     int 1
-    return
+    retsub
 
-main_pay_route@2:
+__puya_arc4_router___pay_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -41,9 +51,9 @@ main_pay_route@2:
     assert // transaction type is pay
     callsub pay
     int 1
-    return
+    retsub
 
-main_key_route@3:
+__puya_arc4_router___key_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -59,9 +69,9 @@ main_key_route@3:
     assert // transaction type is keyreg
     callsub key
     int 1
-    return
+    retsub
 
-main_asset_config_route@4:
+__puya_arc4_router___asset_config_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -77,9 +87,9 @@ main_asset_config_route@4:
     assert // transaction type is acfg
     callsub asset_config
     int 1
-    return
+    retsub
 
-main_asset_transfer_route@5:
+__puya_arc4_router___asset_transfer_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -95,9 +105,9 @@ main_asset_transfer_route@5:
     assert // transaction type is axfer
     callsub asset_transfer
     int 1
-    return
+    retsub
 
-main_asset_freeze_route@6:
+__puya_arc4_router___asset_freeze_route@7:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -113,9 +123,9 @@ main_asset_freeze_route@6:
     assert // transaction type is afrz
     callsub asset_freeze
     int 1
-    return
+    retsub
 
-main_application_call_route@7:
+__puya_arc4_router___application_call_route@8:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -131,9 +141,9 @@ main_application_call_route@7:
     assert // transaction type is appl
     callsub application_call
     int 1
-    return
+    retsub
 
-main_multiple_txns_route@8:
+__puya_arc4_router___multiple_txns_route@9:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -165,9 +175,9 @@ main_multiple_txns_route@8:
     assert // transaction type is appl
     callsub multiple_txns
     int 1
-    return
+    retsub
 
-main_any_txn_route@9:
+__puya_arc4_router___any_txn_route@10:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -184,9 +194,9 @@ main_any_txn_route@9:
     -
     callsub any_txn
     int 1
-    return
+    retsub
 
-main_group_init_route@10:
+__puya_arc4_router___group_init_route@11:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -203,7 +213,11 @@ main_group_init_route@10:
     -
     callsub group_init
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@15:
+    int 0
+    retsub
 
 
 // test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:

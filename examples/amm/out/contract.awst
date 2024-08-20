@@ -3,7 +3,7 @@ SCALE = 1000
 FEE = 5
 FACTOR = 995
 
-contract ConstantProductAMM
+contract ConstantProductAMM extends (algopy.arc4::ARC4Contract)
 {
   globals {
     ['asset_a']: asset
@@ -20,6 +20,11 @@ contract ConstantProductAMM
     GlobalState['governor']: account = txn<Sender>()
     GlobalState['pool_token']: asset = reinterpret_cast<asset>(0u)
     GlobalState['ratio']: uint64 = 0u
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
   }
   
   baremethod __algopy_default_create(): void

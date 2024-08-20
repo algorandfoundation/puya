@@ -6,15 +6,23 @@ test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
     callsub __init__
 
 main_entrypoint@2:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz __puya_arc4_router___bare_routing@6
     method "run_tests()bool"
     method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
     txna ApplicationArgs 0
-    match main_run_tests_route@4 main_nested_tuple_params_route@5
-    err // reject transaction
+    match __puya_arc4_router___run_tests_route@2 __puya_arc4_router___nested_tuple_params_route@3
+    int 0
+    retsub
 
-main_run_tests_route@4:
+__puya_arc4_router___run_tests_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -30,9 +38,9 @@ main_run_tests_route@4:
     concat
     log
     int 1
-    return
+    retsub
 
-main_nested_tuple_params_route@5:
+__puya_arc4_router___nested_tuple_params_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -116,17 +124,20 @@ main_nested_tuple_params_route@5:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@8:
+__puya_arc4_router___bare_routing@6:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    int 0
+    retsub
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> uint64:

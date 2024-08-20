@@ -3,15 +3,27 @@
 examples.tictactoe.tictactoe.TicTacToeContract.approval_program:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@9
     method "new_game((uint64,uint64))void"
     method "join_game((uint64,uint64))void"
     method "whose_turn()uint8"
     method "play((uint64,uint64))void"
     txna ApplicationArgs 0
-    match main_new_game_route@3 main_join_game_route@4 main_whose_turn_route@5 main_play_route@6
-    err // reject transaction
+    match __puya_arc4_router___new_game_route@2 __puya_arc4_router___join_game_route@3 __puya_arc4_router___whose_turn_route@4 __puya_arc4_router___play_route@5
+    int 0
+    retsub
 
-main_new_game_route@3:
+__puya_arc4_router___new_game_route@2:
     // tictactoe/tictactoe.py:20
     // @arc4.abimethod(create="allow")
     txn OnCompletion
@@ -32,9 +44,9 @@ main_new_game_route@3:
     // @arc4.abimethod(create="allow")
     callsub new_game
     int 1
-    return
+    retsub
 
-main_join_game_route@4:
+__puya_arc4_router___join_game_route@3:
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
     txn OnCompletion
@@ -57,9 +69,9 @@ main_join_game_route@4:
     // @arc4.abimethod
     callsub join_game
     int 1
-    return
+    retsub
 
-main_whose_turn_route@5:
+__puya_arc4_router___whose_turn_route@4:
     // tictactoe/tictactoe.py:43
     // @arc4.abimethod
     txn OnCompletion
@@ -73,9 +85,9 @@ main_whose_turn_route@5:
     concat
     log
     int 1
-    return
+    retsub
 
-main_play_route@6:
+__puya_arc4_router___play_route@5:
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
     txn OnCompletion
@@ -98,7 +110,13 @@ main_play_route@6:
     // @arc4.abimethod
     callsub play
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    int 0
+    retsub
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint64, move.1: uint64) -> void:

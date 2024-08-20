@@ -8,16 +8,26 @@ test_cases.compile.apps.Hello.approval_program:
 main_entrypoint@2:
     // compile/apps.py:54
     // class Hello(HelloBase):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.compile.apps.Hello.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz __puya_arc4_router___bare_routing@7
     method "create(string)void"
     method "delete()void"
     method "greet(string)string"
     txna ApplicationArgs 0
-    match main_create_route@4 main_delete_route@5 main_greet_route@6
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
+    int 0
+    retsub
 
-main_create_route@4:
+__puya_arc4_router___create_route@2:
     // compile/apps.py:56
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -34,9 +44,9 @@ main_create_route@4:
     // @arc4.abimethod(create="require")
     callsub create
     int 1
-    return
+    retsub
 
-main_delete_route@5:
+__puya_arc4_router___delete_route@3:
     // compile/apps.py:25
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -46,9 +56,9 @@ main_delete_route@5:
     txn ApplicationID
     assert // is not creating
     int 1
-    return
+    retsub
 
-main_greet_route@6:
+__puya_arc4_router___greet_route@4:
     // compile/apps.py:33
     // @arc4.abimethod()
     txn OnCompletion
@@ -74,17 +84,18 @@ main_greet_route@6:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@9:
+__puya_arc4_router___bare_routing@7:
     // compile/apps.py:54
     // class Hello(HelloBase):
     int 4
     txn OnCompletion
-    match main_update@10
-    err // reject transaction
+    match __puya_arc4_router___update@8
+    int 0
+    retsub
 
-main_update@10:
+__puya_arc4_router___update@8:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
@@ -93,7 +104,7 @@ main_update@10:
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     int 1
-    return
+    retsub
 
 
 // test_cases.compile.apps.Hello.create(greeting: bytes) -> void:

@@ -1,15 +1,23 @@
 #pragma version 10
 
 examples.arc_28.contract.EventEmitter.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.arc_28.contract.EventEmitter.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@6
     method "emit_swapped(uint64,uint64)void"
     method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
-    match main_emit_swapped_route@2 main_emit_ufixed_route@3
-    err // reject transaction
+    match __puya_arc4_router___emit_swapped_route@2 __puya_arc4_router___emit_ufixed_route@3
+    int 0
+    retsub
 
-main_emit_swapped_route@2:
+__puya_arc4_router___emit_swapped_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -19,9 +27,9 @@ main_emit_swapped_route@2:
     txna ApplicationArgs 2
     callsub emit_swapped
     int 1
-    return
+    retsub
 
-main_emit_ufixed_route@3:
+__puya_arc4_router___emit_ufixed_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -31,17 +39,20 @@ main_emit_ufixed_route@3:
     txna ApplicationArgs 2
     callsub emit_ufixed
     int 1
-    return
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    int 0
+    retsub
 
 
 // examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:

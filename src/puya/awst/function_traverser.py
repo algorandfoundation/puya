@@ -374,3 +374,7 @@ class FunctionTraverser(
         self, expr: awst_nodes.UInt64PostfixUnaryOperation
     ) -> None:
         expr.target.accept(self)
+
+    @typing.override
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> None:
+        pass

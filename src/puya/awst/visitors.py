@@ -278,3 +278,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
     def visit_biguint_postfix_unary_operation(
         self, expr: puya.awst.nodes.BigUIntPostfixUnaryOperation
     ) -> T: ...
+
+    @abstractmethod
+    def visit_arc4_router(self, expr: puya.awst.nodes.ARC4Router) -> T: ...

@@ -3,16 +3,27 @@
 test_cases.template_variables.contract.TemplateVariablesContract.approval_program:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
     method "get_bytes()byte[]"
     method "get_big_uint()uint512"
     uncover 2
-    match main_get_bytes_route@2 main_get_big_uint_route@3
-    b main_switch_case_default@4
+    match __puya_arc4_router___get_bytes_route@2 __puya_arc4_router___get_big_uint_route@3
+    b __puya_arc4_router___switch_case_default@4
 
-main_get_bytes_route@2:
+__puya_arc4_router___get_bytes_route@2:
     // template_variables/contract.py:6
     // @arc4.abimethod()
     txn OnCompletion
@@ -20,6 +31,8 @@ main_get_bytes_route@2:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub get_bytes
     dup
@@ -33,9 +46,9 @@ main_get_bytes_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_get_big_uint_route@3:
+__puya_arc4_router___get_big_uint_route@3:
     // template_variables/contract.py:10
     // @arc4.abimethod()
     txn OnCompletion
@@ -43,6 +56,8 @@ main_get_big_uint_route@3:
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     callsub get_big_uint
     byte 0x151f7c75
@@ -50,14 +65,12 @@ main_get_big_uint_route@3:
     concat
     log
     int 1
-    return
+    retsub
 
-main_switch_case_default@4:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
-    err // reject transaction
+__puya_arc4_router___switch_case_default@4:
+    b __puya_arc4_router___after_if_else@12
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -65,47 +78,55 @@ main_bare_routing@6:
     int 4
     int 5
     uncover 3
-    match main___algopy_default_create@7 main_on_update@8 main_on_delete@9
-    b main_reject_bare_on_completion@10
+    match __puya_arc4_router_____algopy_default_create@7 __puya_arc4_router___on_update@8 __puya_arc4_router___on_delete@9
+    b __puya_arc4_router___switch_case_default@10
 
-main___algopy_default_create@7:
+__puya_arc4_router_____algopy_default_create@7:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_on_update@8:
+__puya_arc4_router___on_update@8:
     // template_variables/contract.py:15
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // template_variables/contract.py:15-16
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def on_update(self) -> None:
     callsub on_update
     int 1
-    return
+    retsub
 
-main_on_delete@9:
+__puya_arc4_router___on_delete@9:
     // template_variables/contract.py:19
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     txn ApplicationID
+    int 0
+    !=
     assert // is not creating
     // template_variables/contract.py:19-20
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     // def on_delete(self) -> None:
     callsub on_delete
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@10:
+__puya_arc4_router___switch_case_default@10:
+
+__puya_arc4_router___after_if_else@12:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:

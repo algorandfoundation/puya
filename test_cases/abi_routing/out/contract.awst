@@ -1,4 +1,4 @@
-contract Reference
+contract Reference extends (algopy.arc4::ARC4Contract)
 {
   globals {
     ['asa']: asset
@@ -16,6 +16,11 @@ contract Reference
     GlobalState['creator']: account = txn<Sender>()
     GlobalState['app']: application = reinterpret_cast<application>(123u)
     assert(len(Method("get(uint64,byte[])byte[]")) != 0u, comment="has method selector")
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
   }
   
   abimethod noop_with_uint64(a: arc4.uint64): arc4.uint8

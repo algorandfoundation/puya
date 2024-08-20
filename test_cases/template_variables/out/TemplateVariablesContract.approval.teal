@@ -3,15 +3,25 @@
 test_cases.template_variables.contract.TemplateVariablesContract.approval_program:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@6
     method "get_bytes()byte[]"
     method "get_big_uint()uint512"
     txna ApplicationArgs 0
-    match main_get_bytes_route@2 main_get_big_uint_route@3
-    err // reject transaction
+    match __puya_arc4_router___get_bytes_route@2 __puya_arc4_router___get_big_uint_route@3
+    int 0
+    retsub
 
-main_get_bytes_route@2:
+__puya_arc4_router___get_bytes_route@2:
     // template_variables/contract.py:6
     // @arc4.abimethod()
     txn OnCompletion
@@ -31,9 +41,9 @@ main_get_bytes_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_get_big_uint_route@3:
+__puya_arc4_router___get_big_uint_route@3:
     // template_variables/contract.py:10
     // @arc4.abimethod()
     txn OnCompletion
@@ -47,25 +57,26 @@ main_get_big_uint_route@3:
     concat
     log
     int 1
-    return
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
-    switch main___algopy_default_create@7 main_reject_bare_on_completion@10 main_reject_bare_on_completion@10 main_reject_bare_on_completion@10 main_on_update@8 main_on_delete@9
-    err // reject transaction
+    switch __puya_arc4_router_____algopy_default_create@7 __puya_arc4_router___after_if_else@12 __puya_arc4_router___after_if_else@12 __puya_arc4_router___after_if_else@12 __puya_arc4_router___on_update@8 __puya_arc4_router___on_delete@9
+    int 0
+    retsub
 
-main___algopy_default_create@7:
+__puya_arc4_router_____algopy_default_create@7:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
 
-main_on_update@8:
+__puya_arc4_router___on_update@8:
     // template_variables/contract.py:15
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
@@ -75,9 +86,9 @@ main_on_update@8:
     // def on_update(self) -> None:
     callsub on_update
     int 1
-    return
+    retsub
 
-main_on_delete@9:
+__puya_arc4_router___on_delete@9:
     // template_variables/contract.py:19
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     txn ApplicationID
@@ -87,12 +98,13 @@ main_on_delete@9:
     // def on_delete(self) -> None:
     callsub on_delete
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@10:
+__puya_arc4_router___after_if_else@12:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:

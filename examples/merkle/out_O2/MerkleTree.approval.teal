@@ -1,13 +1,23 @@
 #pragma version 10
 
 examples.merkle.contract.MerkleTree.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@7
     method "create(byte[32])void"
     method "verify(byte[32][],byte[32])bool"
     txna ApplicationArgs 0
-    match main_create_route@1 main_verify_route@2
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___verify_route@3
+    int 0
+    retsub
 
-main_create_route@1:
+__puya_arc4_router___create_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -17,9 +27,9 @@ main_create_route@1:
     txna ApplicationArgs 1
     callsub create
     int 1
-    return
+    retsub
 
-main_verify_route@2:
+__puya_arc4_router___verify_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -37,7 +47,11 @@ main_verify_route@2:
     concat
     log
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@7:
+    int 0
+    retsub
 
 
 // examples.merkle.contract.MerkleTree.create(root: bytes) -> void:

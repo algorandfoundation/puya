@@ -8,33 +8,48 @@ test_cases.abi_routing.minimal.MinimumARC4.approval_program:
 main_entrypoint@2:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
-    txn NumAppArgs
-    bz main_bare_routing@4
-    err // reject transaction
+    callsub __puya_arc4_router__
+    return
 
-main_bare_routing@4:
+
+// test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    int 0
+    !=
+    bz __puya_arc4_router___bare_routing@2
+    b __puya_arc4_router___after_if_else@6
+
+__puya_arc4_router___bare_routing@2:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match main___algopy_default_create@5
-    b main_reject_bare_on_completion@6
+    match __puya_arc4_router_____algopy_default_create@3
+    b __puya_arc4_router___switch_case_default@4
 
-main___algopy_default_create@5:
+__puya_arc4_router_____algopy_default_create@3:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
     txn ApplicationID
-    !
+    int 0
+    ==
     assert // is creating
     callsub __algopy_default_create
     int 1
-    return
+    retsub
 
-main_reject_bare_on_completion@6:
+__puya_arc4_router___switch_case_default@4:
+
+__puya_arc4_router___after_if_else@6:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
-    err // reject transaction
+    int 0
+    retsub
 
 
 // test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create() -> void:

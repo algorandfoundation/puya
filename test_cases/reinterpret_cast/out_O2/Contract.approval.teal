@@ -1,15 +1,23 @@
 #pragma version 10
 
 test_cases.reinterpret_cast.contract.Contract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz __puya_arc4_router___bare_routing@6
     method "bytes_to_bool()bool"
     method "test_bytes_to_biguint()void"
     txna ApplicationArgs 0
-    match main_bytes_to_bool_route@2 main_test_bytes_to_biguint_route@3
-    err // reject transaction
+    match __puya_arc4_router___bytes_to_bool_route@2 __puya_arc4_router___test_bytes_to_biguint_route@3
+    int 0
+    retsub
 
-main_bytes_to_bool_route@2:
+__puya_arc4_router___bytes_to_bool_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -25,9 +33,9 @@ main_bytes_to_bool_route@2:
     concat
     log
     int 1
-    return
+    retsub
 
-main_test_bytes_to_biguint_route@3:
+__puya_arc4_router___test_bytes_to_biguint_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -35,17 +43,20 @@ main_test_bytes_to_biguint_route@3:
     assert // is not creating
     callsub test_bytes_to_biguint
     int 1
-    return
+    retsub
 
-main_bare_routing@6:
+__puya_arc4_router___bare_routing@6:
     txn OnCompletion
-    !
-    assert // reject transaction
+    bnz __puya_arc4_router___after_if_else@10
     txn ApplicationID
     !
     assert // is creating
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    int 0
+    retsub
 
 
 // test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:

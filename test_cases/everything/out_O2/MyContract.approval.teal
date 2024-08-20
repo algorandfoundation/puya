@@ -1,16 +1,26 @@
 #pragma version 10
 
 test_cases.everything.contract.Everything.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.everything.contract.Everything.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___after_if_else@10
     method "create()void"
     method "register(string)void"
     method "say_hello()string"
     method "calculate(uint64,uint64)uint64"
     method "close_out()void"
     txna ApplicationArgs 0
-    match main_create_route@3 main_register_route@4 main_say_hello_route@5 main_calculate_route@6 main_close_out_route@7
-    err // reject transaction
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___register_route@3 __puya_arc4_router___say_hello_route@4 __puya_arc4_router___calculate_route@5 __puya_arc4_router___close_out_route@6
+    int 0
+    retsub
 
-main_create_route@3:
+__puya_arc4_router___create_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -19,9 +29,9 @@ main_create_route@3:
     assert // is creating
     callsub create
     int 1
-    return
+    retsub
 
-main_register_route@4:
+__puya_arc4_router___register_route@3:
     int 1
     txn OnCompletion
     shl
@@ -33,9 +43,9 @@ main_register_route@4:
     txna ApplicationArgs 1
     callsub register
     int 1
-    return
+    retsub
 
-main_say_hello_route@5:
+__puya_arc4_router___say_hello_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -47,9 +57,9 @@ main_say_hello_route@5:
     concat
     log
     int 1
-    return
+    retsub
 
-main_calculate_route@6:
+__puya_arc4_router___calculate_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -63,9 +73,9 @@ main_calculate_route@6:
     concat
     log
     int 1
-    return
+    retsub
 
-main_close_out_route@7:
+__puya_arc4_router___close_out_route@6:
     txn OnCompletion
     int CloseOut
     ==
@@ -74,7 +84,11 @@ main_close_out_route@7:
     assert // is not creating
     callsub close_out
     int 1
-    return
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    int 0
+    retsub
 
 
 // test_cases.everything.contract.Everything.create() -> void:

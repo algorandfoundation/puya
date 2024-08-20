@@ -4,9 +4,12 @@ from puya import log
 from puya.awst.nodes import Module
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.context import CompileContext
+from puya.models import ContractReference
 from puya.options import PuyaOptions
-from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
+from puya.parse import SourceLocation
+from puya.utils import StableSet, attrs_extend, determine_out_dir, make_path_relative_to_cwd
 
+from puyapy.awst_build import constants
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
 from puyapy.parse import EMBEDDED_MODULES, TYPESHED_PATH, ParseResult
@@ -20,6 +23,7 @@ def transform_ast(compile_context: CompileContext, parse_result: ParseResult) ->
         ASTConversionContext, compile_context, parse_result=parse_result
     )
     user_modules = {}
+    result["algopy.arc4"] = _algopy_arc4_module(ctx)
     for module in ctx.parse_result.ordered_modules:
         module_name = module.fullname
         module_rel_path = make_path_relative_to_cwd(module.path)
@@ -38,6 +42,7 @@ def transform_ast(compile_context: CompileContext, parse_result: ParseResult) ->
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
             user_modules[module_name] = ModuleASTConverter(ctx, module)
+
     sources = tuple(str(s.path) for s in ctx.parse_result.sources)
     for module_name, converter in user_modules.items():
         logger.debug(f"Building AWST for module {module_name}")
@@ -49,6 +54,85 @@ def transform_ast(compile_context: CompileContext, parse_result: ParseResult) ->
             and module_awst.source_file_path.startswith(sources)
         ):
             output_awst(module_awst, ctx.options)
+    return result
+
+
+def _algopy_arc4_module(ctx: ASTConversionContext) -> Module:
+    from puya.awst import wtypes
+    from puya.awst.nodes import (
+        # ARC4Router,
+        Block,
+        BoolConstant,
+        ContractFragment,
+        ContractMethod,
+        MethodDocumentation,
+        ReturnStatement,
+    )
+
+    location = SourceLocation(file="", line=-1)
+    module_name, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
+    cref = ContractReference(module_name=module_name, class_name=class_name)
+    ctx.set_state_defs(cref, {})
+    body = [
+        ContractFragment(
+            module_name=module_name,
+            name=class_name,
+            name_override=None,
+            is_abstract=True,
+            bases=[],
+            init=None,
+            approval_program=None,
+            # TODO: use the below once MRO is solved?
+            # approval_program=ContractMethod(
+            #     module_name=module_name,
+            #     class_name=class_name,
+            #     source_location=location,
+            #     synthetic=True,
+            #     arc4_method_config=None,
+            #     args=[],
+            #     return_type=wtypes.bool_wtype,
+            #     documentation=MethodDocumentation(),
+            #     name=constants.APPROVAL_METHOD,
+            #     body=Block(
+            #         source_location=location,
+            #         body=[
+            #             ReturnStatement(
+            #                 value=ARC4Router(source_location=location),
+            #                 source_location=location,
+            #             )
+            #         ],
+            #     ),
+            # ),
+            clear_program=ContractMethod(
+                module_name=module_name,
+                class_name=class_name,
+                source_location=location,
+                synthetic=True,
+                arc4_method_config=None,
+                args=[],
+                return_type=wtypes.bool_wtype,
+                documentation=MethodDocumentation(),
+                name=constants.CLEAR_STATE_METHOD,
+                body=Block(
+                    source_location=location,
+                    body=[
+                        ReturnStatement(
+                            value=BoolConstant(value=True, source_location=location),
+                            source_location=location,
+                        )
+                    ],
+                ),
+            ),
+            subroutines=[],
+            app_state={},
+            reserved_scratch_space=StableSet[int](),
+            state_totals=None,
+            docstring=None,
+            source_location=location,
+        ),
+    ]
+
+    result = Module(name="algopy.arc4", source_file_path=location.file, body=body)
     return result
 
 
