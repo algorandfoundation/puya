@@ -2,6 +2,7 @@
 
 examples.local_state.local_state_contract.LocalStateContract.approval_program:
     int 0
+    byte ""
     // local_state/local_state_contract.py:21
     // if Txn.application_id == 0:
     txn ApplicationID
@@ -18,75 +19,76 @@ main_after_if_else@2:
     // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
+    bury 2
     int NoOp
     ==
-    cover 1
+    bnz main_after_if_else@5
+    dup
     int OptIn
     ==
-    ||
-    bnz main_after_if_else@4
+    bnz main_after_if_else@5
     // local_state/local_state_contract.py:24
     // return False
     int 0
     return
 
-main_after_if_else@4:
+main_after_if_else@5:
     // local_state/local_state_contract.py:25
     // if Txn.num_app_args == 0:
     txn NumAppArgs
     int 0
     ==
-    bz main_after_if_else@6
+    bz main_after_if_else@7
     // local_state/local_state_contract.py:26
     // return False
     int 0
     return
 
-main_after_if_else@6:
+main_after_if_else@7:
     // local_state/local_state_contract.py:28
     // method = Txn.application_args(0)
     txna ApplicationArgs 0
-    bury 1
+    bury 2
     // local_state/local_state_contract.py:29
     // if Txn.num_app_args == 1:
     txn NumAppArgs
     int 1
     ==
-    bz main_else_body@17
+    bz main_else_body@18
     // local_state/local_state_contract.py:30
     // if method == b"get_guaranteed_data":
-    dup
+    dig 1
     byte 0x6765745f67756172616e746565645f64617461
     ==
-    bz main_else_body@9
+    bz main_else_body@10
     // local_state/local_state_contract.py:31
     // log(self.get_guaranteed_data(Txn.sender))
     txn Sender
     callsub get_guaranteed_data
     log
-    b main_after_if_else@16
+    b main_after_if_else@17
 
-main_else_body@9:
+main_else_body@10:
     // local_state/local_state_contract.py:32
     // elif method == b"get_data_or_assert":
-    dup
+    dig 1
     byte 0x6765745f646174615f6f725f617373657274
     ==
-    bz main_else_body@11
+    bz main_else_body@12
     // local_state/local_state_contract.py:33
     // log(self.get_data_or_assert(Txn.sender))
     txn Sender
     callsub get_data_or_assert
     log
-    b main_after_if_else@15
+    b main_after_if_else@16
 
-main_else_body@11:
+main_else_body@12:
     // local_state/local_state_contract.py:34
     // elif method == b"delete_data":
-    dup
+    dig 1
     byte 0x64656c6574655f64617461
     ==
-    bz main_else_body@13
+    bz main_else_body@14
     // local_state/local_state_contract.py:35
     // self.delete_data(Txn.sender)
     txn Sender
@@ -95,74 +97,74 @@ main_else_body@11:
     // log("Deleted")
     byte "Deleted"
     log
-    b main_after_if_else@14
+    b main_after_if_else@15
 
-main_else_body@13:
+main_else_body@14:
     // local_state/local_state_contract.py:38
     // return False
     int 0
     return
 
-main_after_if_else@14:
-
 main_after_if_else@15:
 
 main_after_if_else@16:
+
+main_after_if_else@17:
     // local_state/local_state_contract.py:39
     // return True
     int 1
     return
 
-main_else_body@17:
+main_else_body@18:
     // local_state/local_state_contract.py:40
     // elif Txn.num_app_args == 2:
     txn NumAppArgs
     int 2
     ==
-    bz main_else_body@25
+    bz main_else_body@26
     // local_state/local_state_contract.py:41
     // if method == b"set_data":
-    dup
+    dig 1
     byte 0x7365745f64617461
     ==
-    bz main_else_body@20
+    bz main_else_body@21
     // local_state/local_state_contract.py:42
     // self.set_data(Txn.sender, Txn.application_args(1))
     txn Sender
     txna ApplicationArgs 1
     callsub set_data
-    b main_after_if_else@24
+    b main_after_if_else@25
 
-main_else_body@20:
+main_else_body@21:
     // local_state/local_state_contract.py:43
     // elif method == b"get_data_with_default":
-    dup
+    dig 1
     byte 0x6765745f646174615f776974685f64656661756c74
     ==
-    bz main_else_body@22
+    bz main_else_body@23
     // local_state/local_state_contract.py:44
     // log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
     txn Sender
     txna ApplicationArgs 1
     callsub get_data_with_default
     log
-    b main_after_if_else@23
+    b main_after_if_else@24
 
-main_else_body@22:
+main_else_body@23:
     // local_state/local_state_contract.py:46
     // return False
     int 0
     return
 
-main_after_if_else@23:
-
 main_after_if_else@24:
+
+main_after_if_else@25:
     // local_state/local_state_contract.py:47
     // return True
     int 1
     return
 
-main_else_body@25:
+main_else_body@26:
     // local_state/local_state_contract.py:49
     // return False
     int 0

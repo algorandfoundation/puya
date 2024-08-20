@@ -4,7 +4,7 @@ test_cases.simplish.contract.Simplish.approval_program:
     int 0
     dup
     byte ""
-    dupn 3
+    dupn 2
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -22,19 +22,20 @@ main_after_if_else@4:
     dup
     bury 2
     txn Sender
-    bury 6
-    dup
+    bury 5
     int UpdateApplication
     ==
-    swap
+    bnz main_if_body@6
+    dup
     int DeleteApplication
     ==
+    bz main_after_if_else@9
+
+main_if_body@6:
     dup
-    bury 5
-    ||
+    int DeleteApplication
+    ==
     bz main_after_if_else@8
-    dig 2
-    bz main_after_if_else@7
     int 0
     byte "counter"
     app_global_get_ex
@@ -47,75 +48,75 @@ main_after_if_else@4:
     concat
     log
 
-main_after_if_else@7:
+main_after_if_else@8:
     global CreatorAddress
-    dig 5
+    dig 4
     ==
     return
 
-main_after_if_else@8:
+main_after_if_else@9:
     dup
     int OptIn
     ==
-    bz main_after_if_else@12
+    bz main_after_if_else@13
     txn NumAppArgs
     bz main_if_body@3
     txna ApplicationArgs 0
     callsub set_sender_nickname
     b main_if_body@3
 
-main_after_if_else@12:
+main_after_if_else@13:
     dup
-    bz main_after_if_else@14
+    bz main_after_if_else@15
     int 0
     return
 
-main_after_if_else@14:
+main_after_if_else@15:
     txn NumAppArgs
     dup
     bury 3
-    bz main_else_body@16
+    bz main_else_body@17
     txna ApplicationArgs 0
     dig 2
     callsub call
     swap
-    bury 7
-    b main_after_if_else@23
+    bury 6
+    b main_after_if_else@24
 
-main_else_body@16:
+main_else_body@17:
     txn NumAssets
     int 1
     ==
-    bz main_else_body@21
-    dig 4
+    bz main_else_body@22
+    dig 3
     int 0
     asset_holding_get AssetBalance
     swap
-    bury 5
-    bnz main_else_body@19
+    bury 4
+    bnz main_else_body@20
     byte 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
-    bury 6
-    b main_after_if_else@20
+    bury 5
+    b main_after_if_else@21
 
-main_else_body@19:
-    dig 3
+main_else_body@20:
+    dig 2
     callsub itoa
     byte 0x596f7520686176652061737365742062616c616e63653a20
     swap
     concat
-    bury 6
+    bury 5
 
-main_after_if_else@20:
+main_after_if_else@21:
     int 1
-    b main_after_if_else@23
+    b main_after_if_else@24
 
-main_else_body@21:
+main_else_body@22:
     byte 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
-    bury 6
+    bury 5
     int 0
 
-main_after_if_else@23:
-    dig 6
+main_after_if_else@24:
+    dig 5
     log
     callsub increment_counter
     return

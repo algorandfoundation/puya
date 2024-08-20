@@ -4,7 +4,7 @@ test_cases.simplish.contract.Simplish.approval_program:
     int 0
     dup
     byte ""
-    dupn 3
+    dupn 2
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -28,13 +28,7 @@ main_after_if_else@4:
     // simplish/contract.py:34
     // sender = Txn.sender
     txn Sender
-    bury 6
-    // simplish/contract.py:35-38
-    // if oca in (
-    //     OnCompleteAction.UpdateApplication,
-    //     OnCompleteAction.DeleteApplication,
-    // ):
-    dup
+    bury 5
     // simplish/contract.py:36
     // OnCompleteAction.UpdateApplication,
     int UpdateApplication
@@ -44,7 +38,8 @@ main_after_if_else@4:
     //     OnCompleteAction.DeleteApplication,
     // ):
     ==
-    swap
+    bnz main_if_body@6
+    dup
     // simplish/contract.py:37
     // OnCompleteAction.DeleteApplication,
     int DeleteApplication
@@ -54,14 +49,15 @@ main_after_if_else@4:
     //     OnCompleteAction.DeleteApplication,
     // ):
     ==
-    dup
-    bury 5
-    ||
-    bz main_after_if_else@8
+    bz main_after_if_else@9
+
+main_if_body@6:
     // simplish/contract.py:39
     // if oca == OnCompleteAction.DeleteApplication:
-    dig 2
-    bz main_after_if_else@7
+    dup
+    int DeleteApplication
+    ==
+    bz main_after_if_else@8
     // simplish/contract.py:40
     // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
     int 0
@@ -80,53 +76,53 @@ main_after_if_else@4:
     concat
     log
 
-main_after_if_else@7:
+main_after_if_else@8:
     // simplish/contract.py:41
     // return Global.creator_address == sender
     global CreatorAddress
-    dig 5
+    dig 4
     ==
     return
 
-main_after_if_else@8:
+main_after_if_else@9:
     // simplish/contract.py:43
     // if oca == OnCompleteAction.OptIn:
     dup
     int OptIn
     ==
-    bz main_after_if_else@12
+    bz main_after_if_else@13
     // simplish/contract.py:44
     // if Txn.num_app_args > 0:
     txn NumAppArgs
-    bz main_after_if_else@11
+    bz main_after_if_else@12
     // simplish/contract.py:45
     // self.set_sender_nickname(Txn.application_args(0))
     txna ApplicationArgs 0
     callsub set_sender_nickname
 
-main_after_if_else@11:
+main_after_if_else@12:
     // simplish/contract.py:46
     // return True
     int 1
     return
 
-main_after_if_else@12:
+main_after_if_else@13:
     // simplish/contract.py:47
     // if oca != OnCompleteAction.NoOp:
     dup
-    bz main_after_if_else@14
+    bz main_after_if_else@15
     // simplish/contract.py:48
     // return False
     int 0
     return
 
-main_after_if_else@14:
+main_after_if_else@15:
     // simplish/contract.py:50
     // if (num_app_args := Txn.num_app_args) > 0:
     txn NumAppArgs
     dup
     bury 3
-    bz main_else_body@16
+    bz main_else_body@17
     // simplish/contract.py:51
     // method_name = Txn.application_args(0)
     txna ApplicationArgs 0
@@ -135,61 +131,61 @@ main_after_if_else@14:
     dig 2
     callsub call
     swap
-    bury 7
-    b main_after_if_else@23
+    bury 6
+    b main_after_if_else@24
 
-main_else_body@16:
+main_else_body@17:
     // simplish/contract.py:53
     // elif Txn.num_assets == 1:
     txn NumAssets
     int 1
     ==
-    bz main_else_body@21
+    bz main_else_body@22
     // simplish/contract.py:54
     // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
-    dig 4
+    dig 3
     int 0
     asset_holding_get AssetBalance
     swap
-    bury 5
+    bury 4
     // simplish/contract.py:55
     // if not asset_exists:
-    bnz main_else_body@19
+    bnz main_else_body@20
     // simplish/contract.py:56
     // msg = Bytes(b"You do not have any of the asset")
     byte 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
-    bury 6
-    b main_after_if_else@20
+    bury 5
+    b main_after_if_else@21
 
-main_else_body@19:
+main_else_body@20:
     // simplish/contract.py:58
     // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
-    dig 3
+    dig 2
     callsub itoa
     byte 0x596f7520686176652061737365742062616c616e63653a20
     swap
     concat
-    bury 6
+    bury 5
 
-main_after_if_else@20:
+main_after_if_else@21:
     // simplish/contract.py:59
     // result = True
     int 1
-    b main_after_if_else@23
+    b main_after_if_else@24
 
-main_else_body@21:
+main_else_body@22:
     // simplish/contract.py:61
     // msg = Bytes(b"not enough app args or foreign assets")
     byte 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
-    bury 6
+    bury 5
     // simplish/contract.py:62
     // result = False
     int 0
 
-main_after_if_else@23:
+main_after_if_else@24:
     // simplish/contract.py:63
     // log(msg)
-    dig 6
+    dig 5
     log
     // simplish/contract.py:64
     // self.increment_counter()

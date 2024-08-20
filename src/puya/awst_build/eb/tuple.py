@@ -7,7 +7,8 @@ import mypy.nodes
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    Contains,
+    BinaryBooleanOperator,
+    BooleanBinaryOperation,
     Expression,
     IntegerConstant,
     IntrinsicCall,
@@ -22,6 +23,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.eb import _expect as expect
 from puya.awst_build.eb._base import GenericTypeBuilder, InstanceExpressionBuilder
 from puya.awst_build.eb._literals import LiteralBuilderImpl
+from puya.awst_build.eb._utils import constant_bool_and_error, dummy_value
 from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.factories import builder_for_instance
 from puya.awst_build.eb.interface import (
@@ -364,12 +366,34 @@ class TupleExpressionBuilder(
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        contains_expr = Contains(
-            sequence=self.resolve(),
-            item=item.resolve(),
-            source_location=location,
-        )
-        return BoolExpressionBuilder(contains_expr)
+        contains_expr = None
+        if isinstance(item.pytype, pytypes.LiteralOnlyType):
+            logger.error(
+                "a Python literal is not valid at this location", location=self.source_location
+            )
+            return dummy_value(pytypes.BoolType, location)
+        item = item.single_eval()
+        # note: iterate_static single_evals the sequence and is the only usage of self
+        for compare_to in self.iterate_static():
+            eq_compare = item.compare(compare_to, BuilderComparisonOp.eq, location)
+            if eq_compare is NotImplemented:
+                eq_compare = compare_to.compare(item, BuilderComparisonOp.eq, location)
+            if eq_compare is NotImplemented:
+                # if types don't support comparison, then skip
+                continue
+            if contains_expr is None:
+                contains_expr = eq_compare.resolve()
+            else:
+                contains_expr = BooleanBinaryOperation(
+                    left=contains_expr,
+                    op=BinaryBooleanOperator.or_,
+                    right=eq_compare.resolve(),
+                    source_location=location,
+                )
+        if contains_expr is None:
+            return constant_bool_and_error(value=False, location=location)
+        else:
+            return BoolExpressionBuilder(contains_expr)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
