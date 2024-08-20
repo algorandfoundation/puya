@@ -2,8 +2,9 @@
 
 test_cases.typed_abi_call.logger.Logger.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@17
+    bz main_bare_routing@18
     method "echo(string)string"
+    method "no_args()uint64"
     method "log(uint64)void"
     method "log(uint512)void"
     method "log(string)void"
@@ -17,7 +18,7 @@ test_cases.typed_abi_call.logger.Logger.approval_program:
     method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     txna ApplicationArgs 0
-    match main_echo_route@2 main_log_route@3 main_log_route@4 main_log_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_echo_native_string_route@9 main_echo_native_bytes_route@10 main_echo_native_uint64_route@11 main_echo_native_biguint_route@12 main_echo_native_tuple_route@13 main_return_args_after_14th_route@14
+    match main_echo_route@2 main_no_args_route@3 main_log_route@4 main_log_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_log_route@9 main_echo_native_string_route@10 main_echo_native_bytes_route@11 main_echo_native_uint64_route@12 main_echo_native_biguint_route@13 main_echo_native_tuple_route@14 main_return_args_after_14th_route@15
     err // reject transaction
 
 main_echo_route@2:
@@ -35,14 +36,18 @@ main_echo_route@2:
     int 1
     return
 
-main_log_route@3:
+main_no_args_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    txna ApplicationArgs 1
-    callsub log_uint64
+    callsub no_args
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
     int 1
     return
 
@@ -53,7 +58,7 @@ main_log_route@4:
     txn ApplicationID
     assert // is not creating
     txna ApplicationArgs 1
-    callsub log_uint512
+    callsub log_uint64
     int 1
     return
 
@@ -64,7 +69,7 @@ main_log_route@5:
     txn ApplicationID
     assert // is not creating
     txna ApplicationArgs 1
-    callsub log_string
+    callsub log_uint512
     int 1
     return
 
@@ -75,7 +80,7 @@ main_log_route@6:
     txn ApplicationID
     assert // is not creating
     txna ApplicationArgs 1
-    callsub log_bool
+    callsub log_string
     int 1
     return
 
@@ -86,11 +91,22 @@ main_log_route@7:
     txn ApplicationID
     assert // is not creating
     txna ApplicationArgs 1
-    callsub log_bytes
+    callsub log_bool
     int 1
     return
 
 main_log_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub log_bytes
+    int 1
+    return
+
+main_log_route@9:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -109,7 +125,7 @@ main_log_route@8:
     int 1
     return
 
-main_echo_native_string_route@9:
+main_echo_native_string_route@10:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -131,7 +147,7 @@ main_echo_native_string_route@9:
     int 1
     return
 
-main_echo_native_bytes_route@10:
+main_echo_native_bytes_route@11:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -153,7 +169,7 @@ main_echo_native_bytes_route@10:
     int 1
     return
 
-main_echo_native_uint64_route@11:
+main_echo_native_uint64_route@12:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -170,7 +186,7 @@ main_echo_native_uint64_route@11:
     int 1
     return
 
-main_echo_native_biguint_route@12:
+main_echo_native_biguint_route@13:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -193,7 +209,7 @@ main_echo_native_biguint_route@12:
     int 1
     return
 
-main_echo_native_tuple_route@13:
+main_echo_native_tuple_route@14:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -258,7 +274,7 @@ main_echo_native_tuple_route@13:
     int 1
     return
 
-main_return_args_after_14th_route@14:
+main_return_args_after_14th_route@15:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -298,7 +314,7 @@ main_return_args_after_14th_route@14:
     int 1
     return
 
-main_bare_routing@17:
+main_bare_routing@18:
     txn OnCompletion
     !
     assert // reject transaction
@@ -323,6 +339,13 @@ echo:
     extract 6 2
     swap
     concat
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.no_args() -> uint64:
+no_args:
+    proto 0 1
+    int 42
     retsub
 
 

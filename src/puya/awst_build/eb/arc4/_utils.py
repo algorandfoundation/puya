@@ -161,7 +161,7 @@ def _split_signature(
         if remaining:
             if not name:
                 name = remaining
-            elif not args:
+            elif args is None:
                 raise CodeError(
                     f"invalid signature, args not well defined: {name=}, {remaining=}", location
                 )
