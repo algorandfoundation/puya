@@ -1,4 +1,12 @@
 # CHANGELOG
+## v3.0.1 (2024-08-20)
+
+### Fix
+
+* handle `in`/`not in` tests correctly for differing types that can still be considered equal ([`234c376`](https://github.com/algorandfoundation/puya/commit/234c376aaad6ae5eab897a934fd8609075222757))
+
+* do not error when using `algopy.arc4.abi_call` with a method selector string containing no arguments ([`74577c4`](https://github.com/algorandfoundation/puya/commit/74577c4aa3261567f514decf75f53abe5d44c421))
+
 ## v3.0.0 (2024-08-16)
 
 ### Breaking
