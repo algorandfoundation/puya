@@ -1256,41 +1256,6 @@ class Not(Expression):
 
 
 @attrs.frozen
-class Contains(Expression):
-    item: Expression
-    sequence: Expression
-    wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
-
-    def __attrs_post_init__(self) -> None:
-        if self.sequence.wtype == wtypes.bytes_wtype:
-            raise InternalError(
-                "Use IsSubstring for 'in' or 'not in' checks with Bytes", self.source_location
-            )
-        # TODO: this type handling here probably isn't scalable
-        if isinstance(self.sequence.wtype, wtypes.WArray):
-            if self.sequence.wtype.element_type != self.item.wtype:
-                raise CodeError(
-                    f"array element type {self.sequence.wtype.element_type}"
-                    f" differs from {self.item.wtype}",
-                    self.source_location,
-                )
-        elif isinstance(self.sequence.wtype, wtypes.WTuple):
-            if self.item.wtype not in self.sequence.wtype.types:
-                raise CodeError(
-                    f"{self.sequence.wtype} does not have element with type {self.item.wtype}",
-                    self.source_location,
-                )
-        else:
-            raise CodeError(
-                f"Type doesn't support in/not in checks: {self.sequence.wtype}",
-                self.source_location,
-            )
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_contains_expression(self)
-
-
-@attrs.frozen
 class UInt64AugmentedAssignment(Statement):
     target: Lvalue = attrs.field(validator=[wtype_is_uint64])
     op: UInt64BinaryOperator

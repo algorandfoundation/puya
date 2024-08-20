@@ -227,9 +227,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
     def visit_not_expression(self, expr: puya.awst.nodes.Not) -> T: ...
 
     @abstractmethod
-    def visit_contains_expression(self, expr: puya.awst.nodes.Contains) -> T: ...
-
-    @abstractmethod
     def visit_reinterpret_cast(self, expr: puya.awst.nodes.ReinterpretCast) -> T: ...
 
     @abstractmethod
