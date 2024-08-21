@@ -355,7 +355,7 @@ class StaticArray(
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
 
-    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
+    def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem: ...
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
@@ -374,7 +374,7 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
 
-    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
+    def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem: ...
     def append(self, item: _TArrayItem, /) -> None:
         """Append an item to this array"""
 
