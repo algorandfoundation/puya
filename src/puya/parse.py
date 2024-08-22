@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import typing
+import encodings
 from pathlib import Path
 
 import attrs
@@ -327,7 +328,7 @@ def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Pat
         return
     # otherwise look at first two lines and check if PEP-263 coding is present
     encoding, _ = mypy.util.find_python_encoding(source)
-    if encoding != "utf8":
+    if encodings.normalize_encoding(encoding) not in encodings.aliases.aliases["utf8"]:
         logger.warning(
             f"UH OH SPAGHETTI-O's,"
             f" darn tootin' non-utf8(?!) encoded file encountered:"
