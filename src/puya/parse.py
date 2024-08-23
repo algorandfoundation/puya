@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import codecs
 import functools
 import os
 import re
@@ -327,10 +328,12 @@ def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Pat
         return
     # otherwise look at first two lines and check if PEP-263 coding is present
     encoding, _ = mypy.util.find_python_encoding(source)
-    if encoding != "utf8":
+    # find the codec for this encoding and check it is utf-8
+    codec = codecs.lookup(encoding)
+    if codec.name != "utf-8":
         logger.warning(
-            f"UH OH SPAGHETTI-O's,"
-            f" darn tootin' non-utf8(?!) encoded file encountered:"
+            "UH OH SPAGHETTI-O's,"
+            " darn tootin' non-utf8(?!) encoded file encountered:"
             f" {module_rel_path} encoded as {encoding}",
             location=module_loc,
         )
