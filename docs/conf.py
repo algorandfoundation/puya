@@ -74,8 +74,12 @@ autodoc2_hidden_objects = [
     "private",  # single-underscore methods, e.g. _private
     "undoc",
 ]
+autodoc2_hidden_regexes = [
+    r".*\.__subclasshook__",  # inherited from Protocol
+]
 autodoc2_class_inheritance = False
 autodoc2_module_all_regexes = [r"algopy.*"]
 autodoc2_render_plugin = "myst"
 autodoc2_sort_names = True
 autodoc2_index_template = None
+autodoc2_docstrings = "all"

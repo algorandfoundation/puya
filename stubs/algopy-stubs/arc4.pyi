@@ -355,15 +355,21 @@ class StaticArray(
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
 
-    def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem: ...
-    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
+    def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
+        """Gets the item of the array at provided index"""
+
+    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem:
+        """Sets the item of the array at specified index to provided value"""
+
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
 class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized ARC4 Array of the specified type"""
 
-    def __init__(self, *items: _TArrayItem): ...
+    def __init__(self, *items: _TArrayItem):
+        """Initializes a new array with items provided"""
+
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
 
@@ -374,7 +380,9 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
 
-    def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem: ...
+    def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
+        """Gets the item of the array at provided index"""
+
     def append(self, item: _TArrayItem, /) -> None:
         """Append an item to this array"""
 
@@ -389,7 +397,9 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     ) -> None:
         """Extend this array with the contents of another array"""
 
-    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
+    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem:
+        """Sets the item of the array at specified index to provided value"""
+
     def __add__(
         self,
         other: (
@@ -397,8 +407,12 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
             | StaticArray[_TArrayItem, _TArrayLength]
             | tuple[_TArrayItem, ...]
         ),
-    ) -> DynamicArray[_TArrayItem]: ...
-    def pop(self) -> _TArrayItem: ...
+    ) -> DynamicArray[_TArrayItem]:
+        """Concat two arrays together, returning a new array"""
+
+    def pop(self) -> _TArrayItem:
+        """Remove and return the last item of this array"""
+
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
@@ -487,7 +501,8 @@ class Struct(metaclass=_StructMeta):
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 
-class ARC4Client(typing.Protocol): ...
+class ARC4Client(typing.Protocol):
+    """Used to provide typed method signatures for ARC4 contracts"""
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
 _TABIArg: typing.TypeAlias = (
