@@ -1,4 +1,16 @@
 # CHANGELOG
+## v3.0.2 (2024-08-23)
+
+### Fix
+
+* handle utf-8 alias&#39;s when checking for encoding, addresses #300 ([`90bf86f`](https://github.com/algorandfoundation/puya/commit/90bf86fed54bfb1ab658020b31e8adad52a30412))
+
+* remove `slice` from `__getitem__` in `algopy.arc4.DynamicArray` and `algopy.arc4.StaticArray` ([`c0049f1`](https://github.com/algorandfoundation/puya/commit/c0049f16a40e208f178586450eed2a4bf7648e97))
+
+### Documentation
+
+* improve ARC4 array documentation ([`251759f`](https://github.com/algorandfoundation/puya/commit/251759fa6475ef5d9d4ea1f99aeeb11cb1b1c7a6))
+
 ## v3.0.1 (2024-08-20)
 
 ### Fix
