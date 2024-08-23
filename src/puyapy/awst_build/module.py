@@ -650,8 +650,8 @@ def _process_contract_class_options(
                     context.error("metaclass option is unsupported", kw_expr)
                 case _:
                     context.error("unrecognised class option", kw_expr)
-    for base in cdef.info.bases:
-        base_cdef = base.type.defn
+    for base in cdef.info.mro[1:]:
+        base_cdef = base.defn
         if not base_cdef.info.has_base(constants.CONTRACT_BASE):
             continue
         base_options = _process_contract_class_options(context, expr_visitor, base_cdef)
