@@ -11,6 +11,7 @@ from puya import log
 from puya.arc32 import create_arc32_json
 from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import Module
+from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
@@ -33,6 +34,7 @@ from puya.models import (
     LogicSigReference,
     TemplateValue,
 )
+from puya.options import PuyaOptions
 from puya.teal import models as teal
 from puya.teal.main import mir_to_teal
 from puya.teal.output import emit_teal
@@ -48,6 +50,11 @@ def awst_to_teal(
     module_asts: dict[str, Module],
 ) -> dict[Path, list[CompilationArtifact]]:
     log_ctx.exit_if_errors()
+    if context.options.output_awst:
+        sources = tuple(str(s.path) for s in context.sources)
+        for module_awst in module_asts.values():
+            if module_awst.source_file_path.startswith(sources):
+                _output_awst(module_awst, context.options)
     module_irs = build_module_irs(context, module_asts)
     log_ctx.exit_if_errors()
     compiled_contracts = module_irs_to_teal(log_ctx, context, module_irs)
@@ -322,3 +329,16 @@ def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:
         else:
             logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
             output_path.write_bytes(program)
+
+
+def _output_awst(module_awst: Module, options: PuyaOptions) -> None:
+    formatter = ToCodeVisitor()
+    awst_module_str = formatter.visit_module(module_awst)
+    if awst_module_str:
+        module_path = Path(module_awst.source_file_path)
+        if module_path.is_dir():
+            module_path = module_path / "__init__.py"
+        awst_module_output_path = (
+            determine_out_dir(module_path.parent, options) / module_path.stem
+        ).with_suffix(".awst")
+        awst_module_output_path.write_text(awst_module_str, "utf-8")

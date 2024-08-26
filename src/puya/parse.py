@@ -14,6 +14,7 @@ class ParseSource:
     path: Path
     module_name: str
     is_explicit: bool
+    """whether this file was explicitly supplied, otherwise it came from directory"""
     lines: Sequence[str] | None
 
 
