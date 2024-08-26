@@ -119,5 +119,5 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> Module:
         ),
     ]
 
-    result = Module(name="algopy.arc4", source_file_path=location.file, body=body)
+    result = Module(name="algopy.arc4", body=body)
     return result

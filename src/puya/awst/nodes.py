@@ -1750,7 +1750,6 @@ class StructureDefinition(ModuleStatement):
 @attrs.frozen
 class Module:
     name: str
-    source_file_path: str
     body: Sequence[ModuleStatement] = attrs.field(converter=tuple[ModuleStatement, ...])
 
     @cached_property
