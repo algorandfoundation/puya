@@ -542,6 +542,26 @@ def test_arc4_routing_with_many_params(
     (logged_string,) = decode_logs(result.tx_info["logs"][:-1], "u")
     assert logged_string == "ab"
 
+    result2 = app_client.call(
+        "method_with_15_args",
+        one=1,
+        two=1,
+        three=1,
+        four=1,
+        five=1,
+        six=1,
+        seven=1,
+        eight=1,
+        nine=1,
+        ten=1,
+        eleven=1,
+        twelve=1,
+        thirteen=1,
+        fourteen=1,
+        fifteen=b"fifteen",
+    )
+    assert result2.return_value == list(b"fifteen")
+
 
 def test_transaction(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(

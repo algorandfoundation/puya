@@ -164,6 +164,44 @@ class Reference(ARC4Contract):
         assert int_from_function.native == 3, "wrong int from function"
 
     @arc4.abimethod
+    def method_with_15_args(
+        self,
+        one: UInt64,
+        two: UInt64,
+        three: UInt64,
+        four: UInt64,
+        five: UInt64,
+        six: UInt64,
+        seven: UInt64,
+        eight: UInt64,
+        nine: UInt64,
+        ten: UInt64,
+        eleven: UInt64,
+        twelve: UInt64,
+        thirteen: UInt64,
+        fourteen: UInt64,
+        fifteen: Bytes,
+    ) -> Bytes:
+        """Fifteen args should not encode the last argument as a tuple"""
+        assert (
+            one
+            + two
+            + three
+            + four
+            + five
+            + six
+            + seven
+            + eight
+            + nine
+            + ten
+            + eleven
+            + twelve
+            + thirteen
+            + fourteen
+        )
+        return fifteen
+
+    @arc4.abimethod
     def method_with_more_than_15_args(
         self,
         a: arc4.UInt64,
