@@ -177,7 +177,6 @@ def test_assemble_last_op_jump() -> None:
         CompileContext(
             options=PuyaOptions(),
             sources=[],
-            module_paths={},
         ),
         program=teal.TealProgram(
             target_avm_version=10,

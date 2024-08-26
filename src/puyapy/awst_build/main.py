@@ -3,25 +3,21 @@ from pathlib import Path
 from puya import log
 from puya.awst.nodes import Module
 from puya.awst.to_code_visitor import ToCodeVisitor
-from puya.context import CompileContext
 from puya.models import ContractReference
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
-from puya.utils import StableSet, attrs_extend, determine_out_dir, make_path_relative_to_cwd
+from puya.utils import StableSet, determine_out_dir, make_path_relative_to_cwd
 
 from puyapy.awst_build import constants
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
-from puyapy.parse import EMBEDDED_MODULES, TYPESHED_PATH, ParseResult
+from puyapy.parse import EMBEDDED_MODULES, TYPESHED_PATH
 
 logger = log.get_logger(__name__)
 
 
-def transform_ast(compile_context: CompileContext, parse_result: ParseResult) -> dict[str, Module]:
+def transform_ast(ctx: ASTConversionContext) -> dict[str, Module]:
     result = dict[str, Module]()
-    ctx: ASTConversionContext = attrs_extend(
-        ASTConversionContext, compile_context, parse_result=parse_result
-    )
     user_modules = {}
     result["algopy.arc4"] = _algopy_arc4_module(ctx)
     for module in ctx.parse_result.ordered_modules:

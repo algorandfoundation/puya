@@ -23,7 +23,6 @@ _EmptyMeta = SourceMeta(None, None)
 class CompileContext:
     options: PuyaOptions
     sources: Sequence[ParseSource]
-    module_paths: Mapping[str, str]
 
     @cached_property
     def sources_by_path(self) -> Mapping[str, Sequence[str] | None]:

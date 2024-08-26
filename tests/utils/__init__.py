@@ -56,9 +56,9 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # optimisation and debug levels, which is currently true.
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
-        context, parse_result = parse_with_mypy(PuyaOptions(paths=[root_dir]))
-        awst = transform_ast(context, parse_result)
-    return _CompileCache(context, parse_result, awst, log_ctx.logs)
+        context = parse_with_mypy(PuyaOptions(paths=[root_dir]))
+        awst = transform_ast(context)
+    return _CompileCache(context, context.parse_result, awst, log_ctx.logs)
 
 
 @attrs.frozen(kw_only=True)

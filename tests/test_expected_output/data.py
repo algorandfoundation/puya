@@ -300,13 +300,13 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 srcs.append(tmp_src)
                 file.src_path = tmp_src
                 file.module_name = get_python_module_name(root_dir, tmp_src)
-        context, parse_result = parse_with_mypy(
+        context = parse_with_mypy(
             PuyaOptions(
                 paths=srcs,
                 output_bytecode=True,
             )
         )
-        awst = transform_ast(context, parse_result)
+        awst = transform_ast(context)
         # lower each case further if possible and process
         for case in cases:
             if case_has_awst_errors(awst_log_ctx.logs, case):
