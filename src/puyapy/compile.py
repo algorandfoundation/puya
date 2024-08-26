@@ -16,12 +16,12 @@ import mypy.util
 from packaging import version
 from puya import log
 from puya.compile import awst_to_teal, write_artifacts
-from puya.context import CompileContext
 from puya.errors import log_exceptions
 from puya.options import PuyaOptions
 
+from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.main import transform_ast
-from puyapy.parse import TYPESHED_PATH, ParseResult, parse_and_typecheck
+from puyapy.parse import TYPESHED_PATH, parse_and_typecheck
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
@@ -35,10 +35,10 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puya_options)
-        context, parse_result = parse_with_mypy(puya_options)
+        context = parse_with_mypy(puya_options)
         log_ctx.sources_by_path = context.sources_by_path
         log_ctx.exit_if_errors()
-        awst = transform_ast(context, parse_result)
+        awst = transform_ast(context)
         log_ctx.exit_if_errors()
         compiled_contracts_by_source_path = awst_to_teal(log_ctx, context, awst)
         log_ctx.exit_if_errors()
@@ -46,7 +46,7 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
     log_ctx.exit_if_errors()
 
 
-def parse_with_mypy(puya_options: PuyaOptions) -> tuple[CompileContext, ParseResult]:
+def parse_with_mypy(puya_options: PuyaOptions) -> ASTConversionContext:
     mypy_options = get_mypy_options()
 
     # this generates the ASTs from the build sources, and all imported modules (recursively)
@@ -55,13 +55,14 @@ def parse_with_mypy(puya_options: PuyaOptions) -> tuple[CompileContext, ParseRes
     # We don't want to crash when that happens.
     parse_result.manager.errors.set_file("<puya>", module=None, scope=None, options=mypy_options)
 
-    context = CompileContext(
+    context = ASTConversionContext(
         options=puya_options,
         sources=parse_result.sources,
         module_paths={m.fullname: m.path for m in parse_result.ordered_modules},
+        parse_result=parse_result,
     )
 
-    return context, parse_result
+    return context
 
 
 def get_mypy_options() -> mypy.options.Options:

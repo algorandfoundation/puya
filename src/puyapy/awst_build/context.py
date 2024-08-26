@@ -30,6 +30,7 @@ logger = log.get_logger(__name__)
 
 @attrs.frozen(kw_only=True)
 class ASTConversionContext(CompileContext):
+    module_paths: Mapping[str, str]
     parse_result: ParseResult
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
