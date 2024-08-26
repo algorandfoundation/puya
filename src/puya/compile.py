@@ -51,10 +51,15 @@ def awst_to_teal(
 ) -> dict[Path, list[CompilationArtifact]]:
     log_ctx.exit_if_errors()
     if context.options.output_awst:
-        sources = tuple(str(s.path) for s in context.sources)
+        sources = tuple(s.path for s in context.sources)
+        module_name_to_path = {s.module_name: s.path for s in context.sources}
         for module_awst in module_asts.values():
-            if module_awst.source_file_path.startswith(sources):
-                _output_awst(module_awst, context.options)
+            module_source_file_path = module_name_to_path.get(module_awst.name)
+            if module_source_file_path is not None and any(
+                module_source_file_path == p or module_source_file_path.is_relative_to(p)
+                for p in sources
+            ):
+                _output_awst(module_awst, Path(module_source_file_path), context.options)
     module_irs = build_module_irs(context, module_asts)
     log_ctx.exit_if_errors()
     compiled_contracts = module_irs_to_teal(log_ctx, context, module_irs)
@@ -331,11 +336,10 @@ def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:
             output_path.write_bytes(program)
 
 
-def _output_awst(module_awst: Module, options: PuyaOptions) -> None:
+def _output_awst(module_awst: Module, module_path: Path, options: PuyaOptions) -> None:
     formatter = ToCodeVisitor()
     awst_module_str = formatter.visit_module(module_awst)
     if awst_module_str:
-        module_path = Path(module_awst.source_file_path)
         if module_path.is_dir():
             module_path = module_path / "__init__.py"
         awst_module_output_path = (
