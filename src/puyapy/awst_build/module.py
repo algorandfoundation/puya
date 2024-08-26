@@ -1,4 +1,4 @@
-import typing as t
+import typing
 from collections.abc import Callable
 
 import attrs
@@ -40,9 +40,9 @@ from puyapy.awst_build.validation.main import validate_awst
 logger = log.get_logger(__name__)
 
 
-DeferredModuleStatement: t.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
+DeferredModuleStatement: typing.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
 
-StatementResult: t.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
+StatementResult: typing.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
 
 
 @attrs.frozen(kw_only=True)
@@ -50,14 +50,7 @@ class _LogicSigDecoratorInfo:
     name_override: str | None
 
 
-def value_or_error(callback: Callable[[], object]) -> object:
-    try:
-        return callback()
-    except Exception as ex:
-        return ex
-
-
-_BUILTIN_INHERITABLE: t.Final = frozenset(
+_BUILTIN_INHERITABLE: typing.Final = frozenset(
     ("builtins.object", "abc.ABC", *mypy.types.PROTOCOL_NAMES)
 )
 
@@ -69,16 +62,16 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
         super().__init__(context=context.for_module(module))
 
-        self._mypy_module = module
+        self._module_name = module.name
+        self._module_path = module.path
 
         # pre-parse
         errors_start = log.get_num_errors()
-        pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
-        for node in self._mypy_module.defs:
+        self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
+        for node in module.defs:
             with self.context.log_exceptions(fallback_location=node):
                 items = node.accept(self)
-                pre_parse_result.append((node, items))
-        self._pre_parse_result = pre_parse_result
+                self._pre_parse_result.append((node, items))
         self._error_count = log.get_num_errors() - errors_start
 
     @property
@@ -95,10 +88,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                         statements.append(stmt_or_deferred)
                     else:
                         statements.append(stmt_or_deferred(self.context))
-        module = self._mypy_module
         result = Module(
-            name=module.name,
-            source_file_path=module.path,
+            name=self._module_name,
+            source_file_path=self._module_path,
             body=statements,
         )
         validate_awst(result)
@@ -350,7 +342,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def _check_assignment_lvalues(
         self, lvalues: list[mypy.nodes.Lvalue]
-    ) -> t.TypeGuard[list[mypy.nodes.NameExpr]]:
+    ) -> typing.TypeGuard[list[mypy.nodes.NameExpr]]:
         """Does some pre-condition checks, including that all lvalues are simple (ie name-exprs),
         hence the TypeGuard return type. If it returns True, then we should try and handle the
         assignment."""
@@ -540,7 +532,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         node: mypy.nodes.Node,
         details: str = "not supported at module level",
         ex: Exception | None = None,
-    ) -> t.Never:
+    ) -> typing.Never:
         raise UnsupportedASTError(node, self._location(node), details=details) from ex
 
     # Unsupported Statements
