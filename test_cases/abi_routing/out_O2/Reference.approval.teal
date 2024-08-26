@@ -14,7 +14,7 @@ main_entrypoint@2:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@17
+    bz __puya_arc4_router___bare_routing@18
     method "noop_with_uint64(uint64)uint8"
     method "all_the_things(uint64)uint8"
     method "mixed_oca(uint64)uint8"
@@ -26,10 +26,11 @@ __puya_arc4_router__:
     method "get_application()uint64"
     method "get_an_int()uint64"
     method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void"
+    method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]"
     method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64"
     method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
-    match __puya_arc4_router___noop_with_uint64_route@2 __puya_arc4_router___all_the_things_route@3 __puya_arc4_router___mixed_oca_route@4 __puya_arc4_router___opt_into_asset_route@5 __puya_arc4_router___with_transactions_route@6 __puya_arc4_router___compare_assets_route@7 __puya_arc4_router___get_address_route@8 __puya_arc4_router___get_asset_route@9 __puya_arc4_router___get_application_route@10 __puya_arc4_router___get_an_int_route@11 __puya_arc4_router___method_with_default_args_route@12 __puya_arc4_router___method_with_more_than_15_args_route@13 __puya_arc4_router___hello_with_algopy_string_route@14
+    match __puya_arc4_router___noop_with_uint64_route@2 __puya_arc4_router___all_the_things_route@3 __puya_arc4_router___mixed_oca_route@4 __puya_arc4_router___opt_into_asset_route@5 __puya_arc4_router___with_transactions_route@6 __puya_arc4_router___compare_assets_route@7 __puya_arc4_router___get_address_route@8 __puya_arc4_router___get_asset_route@9 __puya_arc4_router___get_application_route@10 __puya_arc4_router___get_an_int_route@11 __puya_arc4_router___method_with_default_args_route@12 __puya_arc4_router___method_with_15_args_route@13 __puya_arc4_router___method_with_more_than_15_args_route@14 __puya_arc4_router___hello_with_algopy_string_route@15
     int 0
     retsub
 
@@ -215,7 +216,57 @@ __puya_arc4_router___method_with_default_args_route@12:
     int 1
     retsub
 
-__puya_arc4_router___method_with_more_than_15_args_route@13:
+__puya_arc4_router___method_with_15_args_route@13:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    txna ApplicationArgs 6
+    btoi
+    txna ApplicationArgs 7
+    btoi
+    txna ApplicationArgs 8
+    btoi
+    txna ApplicationArgs 9
+    btoi
+    txna ApplicationArgs 10
+    btoi
+    txna ApplicationArgs 11
+    btoi
+    txna ApplicationArgs 12
+    btoi
+    txna ApplicationArgs 13
+    btoi
+    txna ApplicationArgs 14
+    btoi
+    txna ApplicationArgs 15
+    extract 2 0
+    callsub method_with_15_args
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___method_with_more_than_15_args_route@14:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -304,7 +355,7 @@ __puya_arc4_router___method_with_more_than_15_args_route@13:
     int 1
     retsub
 
-__puya_arc4_router___hello_with_algopy_string_route@14:
+__puya_arc4_router___hello_with_algopy_string_route@15:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -326,13 +377,13 @@ __puya_arc4_router___hello_with_algopy_string_route@14:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@17:
+__puya_arc4_router___bare_routing@18:
     txn OnCompletion
-    switch __puya_arc4_router___bare_abi_config@18 __puya_arc4_router___bare_abi_config@18 __puya_arc4_router___bare_abi_config@18 __puya_arc4_router___after_if_else@21 __puya_arc4_router___bare_abi_config@18 __puya_arc4_router___bare_abi_config@18
+    switch __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___after_if_else@22 __puya_arc4_router___bare_abi_config@19 __puya_arc4_router___bare_abi_config@19
     int 0
     retsub
 
-__puya_arc4_router___bare_abi_config@18:
+__puya_arc4_router___bare_abi_config@19:
     txn ApplicationID
     !
     assert // is creating
@@ -340,7 +391,7 @@ __puya_arc4_router___bare_abi_config@18:
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@21:
+__puya_arc4_router___after_if_else@22:
     int 0
     retsub
 
@@ -528,6 +579,41 @@ method_with_default_args:
     int 3
     ==
     assert // wrong int from function
+    retsub
+
+
+// test_cases.abi_routing.contract.Reference.method_with_15_args(one: uint64, two: uint64, three: uint64, four: uint64, five: uint64, six: uint64, seven: uint64, eight: uint64, nine: uint64, ten: uint64, eleven: uint64, twelve: uint64, thirteen: uint64, fourteen: uint64, fifteen: bytes) -> bytes:
+method_with_15_args:
+    proto 15 1
+    frame_dig -15
+    frame_dig -14
+    +
+    frame_dig -13
+    +
+    frame_dig -12
+    +
+    frame_dig -11
+    +
+    frame_dig -10
+    +
+    frame_dig -9
+    +
+    frame_dig -8
+    +
+    frame_dig -7
+    +
+    frame_dig -6
+    +
+    frame_dig -5
+    +
+    frame_dig -4
+    +
+    frame_dig -3
+    +
+    frame_dig -2
+    +
+    assert
+    frame_dig -1
     retsub
 
 

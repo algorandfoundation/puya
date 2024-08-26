@@ -82,6 +82,26 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def method_with_15_args(
+        self,
+        one: algopy.arc4.UIntN[typing.Literal[64]],
+        two: algopy.arc4.UIntN[typing.Literal[64]],
+        three: algopy.arc4.UIntN[typing.Literal[64]],
+        four: algopy.arc4.UIntN[typing.Literal[64]],
+        five: algopy.arc4.UIntN[typing.Literal[64]],
+        six: algopy.arc4.UIntN[typing.Literal[64]],
+        seven: algopy.arc4.UIntN[typing.Literal[64]],
+        eight: algopy.arc4.UIntN[typing.Literal[64]],
+        nine: algopy.arc4.UIntN[typing.Literal[64]],
+        ten: algopy.arc4.UIntN[typing.Literal[64]],
+        eleven: algopy.arc4.UIntN[typing.Literal[64]],
+        twelve: algopy.arc4.UIntN[typing.Literal[64]],
+        thirteen: algopy.arc4.UIntN[typing.Literal[64]],
+        fourteen: algopy.arc4.UIntN[typing.Literal[64]],
+        fifteen: algopy.arc4.DynamicBytes,
+    ) -> algopy.arc4.DynamicBytes: ...
+
+    @algopy.arc4.abimethod
     def method_with_more_than_15_args(
         self,
         a: algopy.arc4.UIntN[typing.Literal[64]],
