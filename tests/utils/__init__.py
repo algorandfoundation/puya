@@ -13,7 +13,7 @@ from puya.models import CompilationArtifact
 from puya.options import PuyaOptions
 from puya.parse import ParseSource, SourceLocation
 from puya.utils import pushd
-from puyapy.awst_build.main import output_awst, transform_ast
+from puyapy.awst_build.main import transform_ast
 from puyapy.compile import parse_with_mypy
 from puyapy.parse import ParseResult
 
@@ -149,13 +149,6 @@ def compile_src_from_options(options: PuyaOptions) -> CompilationResult:
         )
 
         with pushd(root_dir):
-            # write AWST
-            if options.output_awst:
-                sources = tuple(str(s.path) for s in context.sources)
-                for module in awst.values():
-                    if module.source_file_path.startswith(sources):
-                        output_awst(module, context.options)
-
             try:
                 teal = awst_to_teal(log_ctx, context, awst)
             except SystemExit as ex:

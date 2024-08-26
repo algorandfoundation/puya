@@ -66,21 +66,14 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         self._module_path = module.path
 
         # pre-parse
-        errors_start = log.get_num_errors()
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
         for node in module.defs:
             with self.context.log_exceptions(fallback_location=node):
                 items = node.accept(self)
                 self._pre_parse_result.append((node, items))
-        self._error_count = log.get_num_errors() - errors_start
-
-    @property
-    def has_errors(self) -> bool:
-        return self._error_count > 0
 
     def convert(self) -> Module:
         statements = []
-        errors_start = log.get_num_errors()
         for node, items in self._pre_parse_result:
             with self.context.log_exceptions(fallback_location=node):
                 for stmt_or_deferred in items:
@@ -94,7 +87,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             body=statements,
         )
         validate_awst(result)
-        self._error_count += log.get_num_errors() - errors_start
         return result
 
     # Supported Statements

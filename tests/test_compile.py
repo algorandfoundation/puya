@@ -140,6 +140,7 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
         output_arc32=False,
         output_destructured_ir=True,
         output_optimization_ir=False,
+        output_awst=False,
     )
 
 
