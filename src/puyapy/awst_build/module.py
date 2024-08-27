@@ -62,7 +62,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
         super().__init__(context=context.for_module(module))
 
-        self._module_name = module.fullname
+        self.module_name: typing.Final = module.fullname
 
         # pre-parse
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
@@ -80,7 +80,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                         statements.append(stmt_or_deferred)
                     else:
                         statements.append(stmt_or_deferred(self.context))
-        result = Module(name=self._module_name, body=statements)
+        result = Module(name=self.module_name, body=statements)
         validate_awst(result)
         return result
 

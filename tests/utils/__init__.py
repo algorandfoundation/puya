@@ -46,7 +46,7 @@ def _get_root_dir(path: Path) -> Path:
 class _CompileCache(typing.NamedTuple):
     context: CompileContext
     parse_result: ParseResult
-    module_awst: dict[str, Module]
+    module_awst: Sequence[Module]
     logs: list[Log]
 
 
@@ -64,7 +64,7 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
 @attrs.frozen(kw_only=True)
 class CompilationResult:
     context: CompileContext
-    module_awst: dict[str, Module]
+    module_awst: Sequence[Module]
     logs: list[Log]
     teal: dict[Path, list[CompilationArtifact]]
     src_path: Path

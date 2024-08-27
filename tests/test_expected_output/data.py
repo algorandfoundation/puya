@@ -361,15 +361,14 @@ def map_error_tuple_to_dict(errors: set[tuple[int, TestCaseOutput]]) -> OutputMa
 
 
 def process_test_case(
-    case: TestCase,
-    captured_logs: Sequence[Log],
-    awst: dict[str, Module],
+    case: TestCase, captured_logs: Sequence[Log], awst: Sequence[Module]
 ) -> None:
     if case.failure:
         return
     missing_output = dict[Path, OutputMapping]()
     unexpected_output = dict[Path, OutputMapping]()
     unexpected_awst = dict[Path, list[str]]()
+    awst_lookup = {m.name: m for m in awst}
     for file in case.files:
         path = file.src_path
         assert path is not None
@@ -401,7 +400,7 @@ def process_test_case(
         if file.expected_awst:
             module_name = file.module_name
             assert module_name is not None
-            observed_awst = trim_empty_lines(module_to_awst_repr(awst[module_name]))
+            observed_awst = trim_empty_lines(module_to_awst_repr(awst_lookup[module_name]))
             expected_awst = trim_empty_lines(file.expected_awst)
             if observed_awst != expected_awst:
                 unexpected_awst[path] = observed_awst

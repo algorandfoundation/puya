@@ -1,5 +1,6 @@
 import functools
 import typing
+from collections.abc import Sequence
 from pathlib import Path
 
 import attrs
@@ -47,20 +48,20 @@ logger = log.get_logger(__name__)
 def awst_to_teal(
     log_ctx: LoggingContext,
     context: CompileContext,
-    module_asts: dict[str, Module],
+    module_asts: Sequence[Module],
 ) -> dict[Path, list[CompilationArtifact]]:
     log_ctx.exit_if_errors()
     if context.options.output_awst:
         sources = tuple(s.path for s in context.sources)
         module_name_to_path = {s.module_name: s.path for s in context.sources}
-        for module_awst in module_asts.values():
+        for module_awst in module_asts:
             module_source_file_path = module_name_to_path.get(module_awst.name)
             if module_source_file_path is not None and any(
                 module_source_file_path == p or module_source_file_path.is_relative_to(p)
                 for p in sources
             ):
                 _output_awst(module_awst, Path(module_source_file_path), context.options)
-    module_irs = build_module_irs(context, module_asts)
+    module_irs = build_module_irs(context, {m.name: m for m in module_asts})
     log_ctx.exit_if_errors()
     compiled_contracts = module_irs_to_teal(log_ctx, context, module_irs)
     log_ctx.exit_if_errors()
