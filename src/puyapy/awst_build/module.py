@@ -7,16 +7,7 @@ import mypy.types
 import mypy.visitor
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst.nodes import (
-    ConstantDeclaration,
-    ConstantValue,
-    LogicSignature,
-    Module,
-    ModuleStatement,
-    StateTotals,
-    StructureDefinition,
-    StructureField,
-)
+from puya.awst.nodes import ConstantValue, LogicSignature, Module, ModuleStatement, StateTotals
 from puya.errors import CodeError, InternalError
 from puya.utils import StableSet, coalesce
 
@@ -315,17 +306,11 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         if any(lvalue.is_special_form for lvalue in lvalues):
             self._error("Unsupported type-form", stmt_loc)
 
-        const_delcs = StatementResult()
         constant_value = stmt.rvalue.accept(self)
         for lvalue in lvalues:
             self.context.constants[lvalue.fullname] = constant_value
-            const_delcs.append(
-                ConstantDeclaration(
-                    name=lvalue.name, value=constant_value, source_location=stmt_loc
-                )
-            )
 
-        return const_delcs
+        return []
 
     def _check_assignment_lvalues(
         self, lvalues: list[mypy.nodes.Lvalue]
@@ -664,8 +649,6 @@ def _process_struct(
     context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
     fields = dict[str, pytypes.PyType]()
-    field_decls = list[StructureField]()
-    docstring = cdef.docstring
     has_error = False
     for stmt in cdef.defs.body:
         match stmt:
@@ -681,13 +664,6 @@ def _process_struct(
                 stmt_loc = context.node_location(stmt)
                 pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
                 fields[field_name] = pytype
-                field_decls.append(
-                    StructureField(
-                        source_location=stmt_loc,
-                        name=field_name,
-                        wtype=pytype.wtype,
-                    )
-                )
             case mypy.nodes.SymbolNode(name=symbol_name) if (
                 cdef.info.names[symbol_name].plugin_generated
             ):
@@ -710,15 +686,7 @@ def _process_struct(
         source_location=cls_loc,
     )
     context.register_pytype(struct_typ)
-    return [
-        StructureDefinition(
-            name=cdef.name,
-            source_location=cls_loc,
-            fields=field_decls,
-            wtype=struct_typ.wtype,
-            docstring=docstring,
-        )
-    ]
+    return []
 
 
 def _map_scratch_space_reservation(

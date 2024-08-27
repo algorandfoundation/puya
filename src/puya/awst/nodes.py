@@ -1450,14 +1450,6 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class ConstantDeclaration(ModuleStatement):
-    value: ConstantValue
-
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
-        return visitor.visit_constant_declaration(self)
-
-
-@attrs.frozen
 class SubroutineArgument(Node):
     name: str
     wtype: WType = attrs.field()
@@ -1729,22 +1721,6 @@ class ContractFragment(ModuleStatement):
 
     def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
         return visitor.visit_contract_fragment(self)
-
-
-@attrs.frozen
-class StructureField(Node):
-    name: str
-    wtype: WType
-
-
-@attrs.frozen
-class StructureDefinition(ModuleStatement):
-    fields: Sequence[StructureField] = attrs.field(converter=tuple[StructureField, ...])
-    wtype: WType
-    docstring: str | None
-
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
-        return visitor.visit_structure_definition(self)
 
 
 @attrs.frozen

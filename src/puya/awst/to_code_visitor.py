@@ -557,9 +557,6 @@ class ToCodeVisitor(
     def visit_loop_exit(self, _statement: nodes.LoopExit) -> list[str]:
         return ["break"]
 
-    def visit_constant_declaration(self, statement: nodes.ConstantDeclaration) -> list[str]:
-        return [f"{statement.name} = {statement.value!r}"]
-
     def visit_return_statement(self, statement: nodes.ReturnStatement) -> list[str]:
         if not statement.value:
             return ["return"]
@@ -585,14 +582,6 @@ class ToCodeVisitor(
     ) -> list[str]:
         return [
             f"{statement.target.accept(self)} {statement.op.value}= {statement.value.accept(self)}"
-        ]
-
-    def visit_structure_definition(self, statement: nodes.StructureDefinition) -> list[str]:
-        return [
-            "",
-            f"struct {statement.name} {{",
-            *_indent(f"{f.name}: {f.wtype}" for f in statement.fields),
-            "}",
         ]
 
     def visit_state_get_ex(self, expr: nodes.StateGetEx) -> str:

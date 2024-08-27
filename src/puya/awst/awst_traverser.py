@@ -36,14 +36,8 @@ class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
     def visit_app_state_definition(self, state_defn: awst_nodes.AppStorageDefinition) -> None:
         pass
 
-    def visit_structure_definition(self, statement: awst_nodes.StructureDefinition) -> None:
-        pass
-
     def visit_contract_method(self, statement: awst_nodes.ContractMethod) -> None:
         statement.body.accept(self)
-
-    def visit_constant_declaration(self, statement: awst_nodes.ConstantDeclaration) -> None:
-        pass
 
     def visit_logic_signature(self, statement: awst_nodes.LogicSignature) -> None:
         statement.program.accept(self)

@@ -61,16 +61,10 @@ class StatementVisitor(t.Generic[T], ABC):
 
 class ModuleStatementVisitor(t.Generic[T], ABC):
     @abstractmethod
-    def visit_constant_declaration(self, statement: puya.awst.nodes.ConstantDeclaration) -> T: ...
-
-    @abstractmethod
     def visit_subroutine(self, statement: puya.awst.nodes.Subroutine) -> T: ...
 
     @abstractmethod
     def visit_contract_fragment(self, statement: puya.awst.nodes.ContractFragment) -> T: ...
-
-    @abstractmethod
-    def visit_structure_definition(self, statement: puya.awst.nodes.StructureDefinition) -> T: ...
 
     @abstractmethod
     def visit_contract_method(self, statement: puya.awst.nodes.ContractMethod) -> T: ...
