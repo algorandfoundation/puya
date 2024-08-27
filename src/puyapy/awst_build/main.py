@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from pathlib import Path
 
 from puya import log
@@ -14,10 +15,9 @@ from puyapy.parse import EMBEDDED_MODULES, TYPESHED_PATH
 logger = log.get_logger(__name__)
 
 
-def transform_ast(ctx: ASTConversionContext) -> dict[str, Module]:
-    result = dict[str, Module]()
-    user_modules = {}
-    result["algopy.arc4"] = _algopy_arc4_module(ctx)
+def transform_ast(ctx: ASTConversionContext) -> Sequence[Module]:
+    user_modules = []
+    result = [_algopy_arc4_module(ctx)]
     for module in ctx.parse_result.ordered_modules:
         module_name = module.fullname
         module_rel_path = make_path_relative_to_cwd(module.path)
@@ -32,15 +32,15 @@ def transform_ast(ctx: ASTConversionContext) -> dict[str, Module]:
                 logger.warning(f"Skipping stub: {module_rel_path}")
         elif module_name in EMBEDDED_MODULES:
             logger.debug(f"Building AWST for embedded algopy lib at {module_rel_path}")
-            result[module_name] = ModuleASTConverter(ctx, module).convert()
+            result.append(ModuleASTConverter(ctx, module).convert())
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
-            user_modules[module_name] = ModuleASTConverter(ctx, module)
+            user_modules.append(ModuleASTConverter(ctx, module))
 
-    for module_name, converter in user_modules.items():
-        logger.debug(f"Building AWST for module {module_name}")
+    for converter in user_modules:
+        logger.debug(f"Building AWST for module {converter.module_name}")
         module_awst = converter.convert()
-        result[module_name] = module_awst
+        result.append(module_awst)
     return result
 
 
