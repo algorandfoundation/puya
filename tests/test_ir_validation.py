@@ -1,4 +1,5 @@
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from puya.awst import (
@@ -14,7 +15,7 @@ from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 
 _location = SourceLocation(
-    file="test_ir.ts",
+    file=Path("test_ir.ts"),
     line=1,
 )
 
@@ -75,11 +76,13 @@ def test_address_validation() -> None:
 
 
 def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
+    module_name = "test_ir"
+    func_name = "test_ir"
     function = awst.Subroutine(
-        name="test_ir",
+        id=awst.SubroutineID(f"{module_name}.{func_name}"),
+        name=func_name,
         body=awst.Block(body=[awst.ExpressionStatement(expr)], source_location=_location),
         source_location=_location,
-        module_name="test_ir",
         args=(),
         return_type=wtypes.void_wtype,
         documentation=awst.MethodDocumentation(),
@@ -87,15 +90,14 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     ctx = IRBuildContext(
         options=PuyaOptions(),
         sources=[],
-        module_awsts={},
+        awst=[],
         subroutines={},
         embedded_funcs=[],
     )
     subroutine = ir.Subroutine(
         source_location=_location,
-        module_name="test_ir",
-        class_name=None,
-        method_name="test_ir",
+        full_name=function.id,
+        short_name=function.short_name,
         parameters=(),
         returns=(),
         body=[],

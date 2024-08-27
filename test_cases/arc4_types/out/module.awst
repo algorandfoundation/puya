@@ -1,0 +1,656 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Arc4TuplesTypeContract
+{
+  approval_program(): bool
+  {
+    my_tuple: arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8> = arc4_encode((1arc4u8, 2arc4u8, arc4_encode('hello', arc4.dynamic_array<arc4.uint8>), arc4_encode('world', arc4.dynamic_array<arc4.uint8>), 255arc4u8), arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8>)
+    assert(my_tuple == reinterpret_cast<arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8>>(hex<"01020007000EFF000568656C6C6F0005776F726C64">))
+    boolean_packing: arc4.tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8> = arc4_encode((4arc4u8, arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), 16arc4u8), arc4.tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>)
+    assert(reinterpret_cast<bytes>(boolean_packing) == hex<"04BD8010">)
+    (a, b, c, d, e, f, g, h, i, j, k): tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8> = arc4_decode(boolean_packing, tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>)
+    assert(reinterpret_cast<biguint>(boolean_packing[10]) == reinterpret_cast<biguint>(k))
+    assert(arc4_decode(a, uint64) == 4u, comment="a is 4")
+    assert((b == hex<"00">) ? (b) : ((d == hex<"00">) ? (d) : ((e == hex<"00">) ? (e) : ((f == hex<"00">) ? (f) : ((g == hex<"00">) ? (g) : ((i == hex<"00">) ? (i) : (j)))))) != hex<"00">, comment="b,d,e,f,g,i,j are true")
+    assert((c != hex<"00">) ? (c) : (h) == hex<"00">, comment="c and h are false")
+    assert(arc4_decode(k, uint64) == 16u, comment="k is 16")
+    assert(boolean_packing == arc4_encode(arc4_decode(boolean_packing, tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>), arc4.tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>))
+    (total, concat): tuple<uint64,arc4.dynamic_array<arc4.uint8>> = this::test_stuff(my_tuple)
+    assert(arc4_decode(concat, string) == 'hello world')
+    assert(total == 258u)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_stuff(test_tuple: arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8>): tuple<uint64,arc4.dynamic_array<arc4.uint8>>
+  {
+    (a, b, c, d, e): tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8> = arc4_decode(test_tuple, tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8>)
+    assert(reinterpret_cast<biguint>(test_tuple[0]) == reinterpret_cast<biguint>(a))
+    assert(reinterpret_cast<biguint>(test_tuple[-1]) == reinterpret_cast<biguint>(e))
+    assert(test_tuple[-2] == d)
+    total: uint64 = arc4_decode(a, uint64) + arc4_decode(b, uint64) + arc4_decode(e, uint64)
+    text: string = arc4_decode(c, string) + ' ' + arc4_decode(d, string)
+    return (total, arc4_encode(text, arc4.dynamic_array<arc4.uint8>))
+  }
+}
+
+contract Arc4StructsTypeContract
+{
+  approval_program(): bool
+  {
+    coord_1: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_2: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs.add(coord_1.copy(), coord_2.copy())
+    for val in (coord_3.x, coord_3.y) {
+      log(reinterpret_cast<bytes>(val))
+    }
+    flags: test_cases.arc4_types.structs.Flags = new test_cases.arc4_types.structs.Flags(a=arc4_encode(true, arc4.bool), b=arc4_encode(false, arc4.bool), c=arc4_encode(true, arc4.bool), d=arc4_encode(false, arc4.bool))
+    test_cases.arc4_types.structs.check(flags.copy())
+    log(reinterpret_cast<bytes>(flags))
+    assert(reinterpret_cast<bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
+    test_cases.arc4_types.structs.nested_decode(new test_cases.arc4_types.structs.VectorFlags(vector=coord_1.copy(), flags=flags.copy()))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine add(v1: test_cases.arc4_types.structs.Vector, v2: test_cases.arc4_types.structs.Vector): test_cases.arc4_types.structs.Vector
+{
+  return new test_cases.arc4_types.structs.Vector(x=test_cases.arc4_types.structs.add_decimal(v1.x, v2.x), y=test_cases.arc4_types.structs.add_decimal(v1.y, v2.y))
+}
+
+subroutine check(flags: test_cases.arc4_types.structs.Flags): void
+{
+  assert(arc4_decode(flags.a, bool))
+  assert(!(arc4_decode(flags.b, bool)))
+  assert(arc4_decode(flags.c, bool))
+  assert(!(arc4_decode(flags.d, bool)))
+}
+
+subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): void
+{
+  assert(reinterpret_cast<bytes>(vector_flags.vector.x) == itob(35382882839u))
+  assert(arc4_decode(vector_flags.flags.c, bool))
+}
+
+subroutine add_decimal(x: arc4.ufixed64x9, y: arc4.ufixed64x9): arc4.ufixed64x9
+{
+  return reinterpret_cast<arc4.ufixed64x9>(itob(btoi(reinterpret_cast<bytes>(x)) + btoi(reinterpret_cast<bytes>(y))))
+}
+
+contract Arc4StringTypesContract
+{
+  approval_program(): bool
+  {
+    some_bytes_as_string: arc4.dynamic_array<arc4.uint8> = arc4_encode(reinterpret_cast<string>(hex<"48656C6C6F20576F726C6421">), arc4.dynamic_array<arc4.uint8>)
+    some_bytes_as_bytes_again: bytes = reinterpret_cast<bytes>(arc4_decode(some_bytes_as_string, string))
+    assert(reinterpret_cast<bytes>(some_bytes_as_string) != hex<"48656C6C6F20576F726C6421">, comment="Original bytes should not match encoded bytes")
+    assert(reinterpret_cast<bytes>(some_bytes_as_string)[2:] == hex<"48656C6C6F20576F726C6421">, comment="Original bytes should match encoded if we strip the length header")
+    assert(some_bytes_as_bytes_again == hex<"48656C6C6F20576F726C6421">)
+    hello: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
+    space: arc4.dynamic_array<arc4.uint8> = arc4_encode(' ', arc4.dynamic_array<arc4.uint8>)
+    world: arc4.dynamic_array<arc4.uint8> = arc4_encode('World!', arc4.dynamic_array<arc4.uint8>)
+    assert(arc4_encode('Hello World!', arc4.dynamic_array<arc4.uint8>) == hello + space + world)
+    thing: arc4.dynamic_array<arc4.uint8> = arc4_encode('hi', arc4.dynamic_array<arc4.uint8>)
+    thing.extend(thing)
+    assert(thing == arc4_encode('hihi', arc4.dynamic_array<arc4.uint8>))
+    value: arc4.dynamic_array<arc4.uint8> = arc4_encode('a', arc4.dynamic_array<arc4.uint8>) + arc4_encode('b', arc4.dynamic_array<arc4.uint8>) + arc4_encode('cd', arc4.dynamic_array<arc4.uint8>)
+    value.extend(arc4_encode('e', arc4.dynamic_array<arc4.uint8>))
+    value.extend(arc4_encode('f', arc4.dynamic_array<arc4.uint8>))
+    value.extend(arc4_encode('g', arc4.dynamic_array<arc4.uint8>))
+    assert(arc4_encode('abcdefg', arc4.dynamic_array<arc4.uint8>) == value)
+    assert(arc4_decode(arc4_encode('', arc4.dynamic_array<arc4.uint8>), string) == '')
+    assert(arc4_decode(arc4_encode('hello', arc4.dynamic_array<arc4.uint8>), string) == 'hello')
+    assert((txn<NumAppArgs>() != 0u) ? (arc4_encode('aye', arc4.dynamic_array<arc4.uint8>)) : (arc4_encode('bee', arc4.dynamic_array<arc4.uint8>)) == arc4_encode('bee', arc4.dynamic_array<arc4.uint8>))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Arc4RefTypesContract
+{
+  approval_program(): bool
+  {
+    sender_address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>())
+    assert(sender_address == reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>()))
+    checked_address: arc4.static_array<arc4.uint8, 32> = checked_maybe((reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>()))), 32u == len(SINGLE_EVAL(id=0))))
+    unchecked_address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(reinterpret_cast<bytes>(txn<Sender>()))
+    assert(sender_address == checked_address and checked_address == unchecked_address)
+    assert(global<ZeroAddress>() == Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Arc4NumericTypesContract
+{
+  approval_program(): bool
+  {
+    uint8: uint64 = 255u
+    int8_encoded: arc4.uint8 = arc4_encode(uint8, arc4.uint8)
+    int8_decoded: uint64 = arc4_decode(int8_encoded, uint64)
+    assert(uint8 == int8_decoded)
+    test_bytes: bytes = hex<"7FFFFFFFFFFFFFFF00">
+    assert(arc4_decode(reinterpret_cast<arc4.uint8>(test_bytes[:1]), uint64) == 127u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint24>(test_bytes[:3]), uint64) == 8388607u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint16>(test_bytes[:2]), uint64) == 32767u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint32>(test_bytes[:4]), uint64) == 2147483647u)
+    assert(arc4_decode(reinterpret_cast<arc4.uint64>(test_bytes[:8]), uint64) == 9223372036854775807u)
+    assert(reinterpret_cast<biguint>((txn<NumAppArgs>() != 0u) ? (1arc4u8) : (2arc4u8)) == reinterpret_cast<biguint>(2arc4u8))
+    assert(reinterpret_cast<biguint>((txn<NumAppArgs>() != 0u) ? (1arc4n512) : (2arc4n512)) == reinterpret_cast<biguint>(2arc4n512))
+    decimals: arc4.ufixed64x10 = 145.6853943940arc4u64x10
+    assert(reinterpret_cast<bytes>(decimals) == itob(1456853943940u))
+    decimals_from_truncated_str: arc4.ufixed64x10 = 145.0000000000arc4u64x10
+    assert(reinterpret_cast<bytes>(decimals_from_truncated_str) == itob(1450000000000u))
+    thousand: arc4.ufixed64x10 = 1000.0000000000arc4u64x10
+    assert(len(reinterpret_cast<bytes>(thousand)) == 8u)
+    assert(reinterpret_cast<bytes>(thousand) == itob(10000000000000u))
+    one_decimal: arc4.ufixed64x10 = 1.0000000000arc4u64x10
+    assert(reinterpret_cast<bytes>(one_decimal) == itob(10000000000u))
+    zero_decimal: arc4.ufixed64x10 = 0E-10arc4u64x10
+    assert(reinterpret_cast<bytes>(zero_decimal) == itob(0u))
+    small_decimal: arc4.ufixed64x10 = 1.00E-8arc4u64x10
+    assert(reinterpret_cast<bytes>(small_decimal) == itob(100u))
+    smaller_decimal: arc4.ufixed64x10 = 1.0E-9arc4u64x10
+    assert(reinterpret_cast<bytes>(smaller_decimal) == itob(10u))
+    smallest_decimal: arc4.ufixed64x10 = 1E-10arc4u64x10
+    assert(reinterpret_cast<bytes>(smallest_decimal) == itob(1u))
+    sixty_four_decimal: arc4.ufixed64x10 = 1844674407.3709551615arc4u64x10
+    assert(reinterpret_cast<bytes>(sixty_four_decimal) == itob(18446744073709551615u))
+    really_big_int: arc4.uint512 = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095arc4n512
+    assert(reinterpret_cast<biguint>(really_big_int) == reinterpret_cast<biguint>(reinterpret_cast<arc4.uint512>(reinterpret_cast<bytes>(really_big_int))))
+    really_big_decimal: arc4.ufixed512x2 = reinterpret_cast<arc4.ufixed512x2>(reinterpret_cast<bytes>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n))
+    assert((txn<NumAppArgs>() != 0u) ? (1844674407.3709551615arc4u64x10) : (0E-10arc4u64x10) == 0E-10arc4u64x10)
+    biguint: biguint = 1n
+    arc4_biguint_const: arc4.uint128 = 1arc4n128
+    arc4_biguint_dynamic: arc4.uint128 = arc4_encode(biguint b+ 1n, arc4.uint128)
+    assert(biguint == arc4_decode(arc4_biguint_const, biguint))
+    assert(len(reinterpret_cast<bytes>(arc4_biguint_dynamic)) == 16u)
+    assert(len(reinterpret_cast<bytes>(really_big_decimal)) == 64u)
+    tup: arc4.tuple<arc4.uint64> = arc4_encode((arc4_encode(ClearState, arc4.uint64)), arc4.tuple<arc4.uint64>)
+    assert(arc4_decode(tup[0], uint64) == ClearState)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    assert(reinterpret_cast<biguint>(reinterpret_cast<bytes>(0E-10arc4u64x10)) == 0n)
+    assert(reinterpret_cast<biguint>(reinterpret_cast<bytes>(0.00000arc4n512x5)) == 0n)
+    assert(reinterpret_cast<biguint>(0arc4u8) == reinterpret_cast<biguint>(0arc4u8))
+    assert(reinterpret_cast<biguint>(0arc4u64) == reinterpret_cast<biguint>(0arc4u64))
+    assert(reinterpret_cast<biguint>(0arc4n512) == reinterpret_cast<biguint>(0arc4n512))
+    return true
+  }
+}
+
+contract Arc4MutationContract
+{
+  approval_program(): bool
+  {
+    this::dynamic_array_fixed_size()
+    this::dynamic_array_bool()
+    this::dynamic_array_string()
+    this::array_of_array_dynamic()
+    this::array_of_array_static()
+    this::index_assign()
+    this::struct_assign()
+    this::array_concat()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine check_copy_required(): void
+  {
+    d_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('Test', arc4.dynamic_array<arc4.uint8>))
+    nested_in_array: arc4.dynamic_array<arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>>(d_array.copy())
+    nested_in_struct: test_cases.arc4_types.mutation.StructWithArray = new test_cases.arc4_types.mutation.StructWithArray(d_array=nested_in_array[0u].copy())
+    assert(d_array == nested_in_struct.d_array)
+  }
+  
+  subroutine array_concat(): void
+  {
+    uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    array_concat_tuple: arc4.dynamic_array<arc4.uint8> = uint8_array + (3arc4u8, 4arc4u8)
+    assert(array_concat_tuple == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8))
+    array_concat_tuple.extend((5arc4u8))
+    assert(array_concat_tuple == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8))
+    hello_world: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>), arc4_encode('World', arc4.dynamic_array<arc4.uint8>))
+    hello_world_concat: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)) + new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('World', arc4.dynamic_array<arc4.uint8>))
+    assert(hello_world == hello_world_concat)
+  }
+  
+  subroutine array_of_array_dynamic(): void
+  {
+    array_of_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>()
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"0000">)
+    array_of_array.extend((new arc4.dynamic_array<arc4.uint8>(10arc4u8)))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"0001000200010A">)
+    array_of_array.extend((new arc4.dynamic_array<arc4.uint8>(16arc4u8)))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"00020004000700010A000110">)
+    array_of_array[0u].extend((255arc4u8))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"00020004000800020AFF000110">)
+    array_of_array[0u][1u]: arc4.uint8 = 0arc4u8
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"00020004000800020A00000110">)
+  }
+  
+  subroutine array_of_array_static(): void
+  {
+    array_of_array: arc4.static_array<arc4.static_array<arc4.uint8, 2>, 2> = new arc4.static_array<arc4.static_array<arc4.uint8, 2>, 2>(new arc4.static_array<arc4.uint8, 2>(10arc4u8, 9arc4u8), new arc4.static_array<arc4.uint8, 2>(64arc4u8, 128arc4u8))
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"0A094080">)
+    array_of_array[0u]: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(255arc4u8, 254arc4u8)
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"FFFE4080">)
+    array_of_array[1u][0u]: arc4.uint8 = 1arc4u8
+    assert(reinterpret_cast<bytes>(array_of_array) == hex<"FFFE0180">)
+  }
+  
+  subroutine index_assign(): void
+  {
+    dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    dynamic_uint8_array[0u]: arc4.uint8 = 255arc4u8
+    assert(reinterpret_cast<bytes>(dynamic_uint8_array) == hex<"0002FF02">)
+    static_uint8_array: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(1arc4u8, 2arc4u8)
+    static_uint8_array[1u]: arc4.uint8 = 255arc4u8
+    assert(reinterpret_cast<bytes>(static_uint8_array) == hex<"01FF">)
+    dynamic_bool_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
+    dynamic_bool_array[0u]: arc4.bool = arc4_encode(false, arc4.bool)
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"000200">)
+    static_bool_array: arc4.static_array<arc4.bool, 2> = new arc4.static_array<arc4.bool, 2>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    static_bool_array[1u]: arc4.bool = arc4_encode(false, arc4.bool)
+    assert(reinterpret_cast<bytes>(static_bool_array) == hex<"80">)
+  }
+  
+  subroutine struct_assign(): void
+  {
+    test_struct: test_cases.arc4_types.mutation.TestStruct = new test_cases.arc4_types.mutation.TestStruct(b_val=arc4_encode(true, arc4.bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', arc4.dynamic_array<arc4.uint8>), s_val_2=arc4_encode('Days', arc4.dynamic_array<arc4.uint8>))
+    test_struct.b_val: arc4.bool = arc4_encode(false, arc4.bool)
+    test_struct.u_val: arc4.uint8 = 12arc4u8
+    assert(test_struct == new test_cases.arc4_types.mutation.TestStruct(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Happy', arc4.dynamic_array<arc4.uint8>), s_val_2=arc4_encode('Days', arc4.dynamic_array<arc4.uint8>)))
+    test_struct.s_val_1: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hmmmm', arc4.dynamic_array<arc4.uint8>)
+    test_struct.s_val_2: arc4.dynamic_array<arc4.uint8> = arc4_encode('Oh well', arc4.dynamic_array<arc4.uint8>)
+    assert(test_struct == new test_cases.arc4_types.mutation.TestStruct(b_val=arc4_encode(false, arc4.bool), u_val=12arc4u8, s_val_1=arc4_encode('Hmmmm', arc4.dynamic_array<arc4.uint8>), s_val_2=arc4_encode('Oh well', arc4.dynamic_array<arc4.uint8>)))
+  }
+  
+  subroutine dynamic_array_fixed_size(): void
+  {
+    dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    dynamic_uint8_array.extend((50arc4u8))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8))
+    dynamic_uint8_array.extend(dynamic_uint8_array)
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8))
+    dynamic_uint8_array.extend((4arc4u8, 90arc4u8))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8))
+    popped: arc4.uint8 = dynamic_uint8_array.pop()
+    assert(reinterpret_cast<biguint>(popped) == reinterpret_cast<biguint>(90arc4u8))
+    assert(dynamic_uint8_array == new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8))
+  }
+  
+  subroutine dynamic_array_bool(): void
+  {
+    dynamic_bool_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"000280">)
+    dynamic_bool_array.extend((arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
+    assert(reinterpret_cast<bytes>(dynamic_bool_array) == hex<"0004A0">)
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
+    dynamic_bool_array.extend(dynamic_bool_array)
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool)))
+    dynamic_bool_array.extend((arc4_encode(true, arc4.bool)))
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
+    assert(dynamic_bool_array.pop() == arc4_encode(true, arc4.bool))
+    assert(dynamic_bool_array.pop() == arc4_encode(false, arc4.bool))
+    assert(dynamic_bool_array == new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool)))
+  }
+  
+  subroutine dynamic_array_string(): void
+  {
+    hello: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
+    world: arc4.dynamic_array<arc4.uint8> = arc4_encode('World', arc4.dynamic_array<arc4.uint8>)
+    foo: arc4.dynamic_array<arc4.uint8> = arc4_encode('Foo', arc4.dynamic_array<arc4.uint8>)
+    bar: arc4.dynamic_array<arc4.uint8> = arc4_encode('Bar', arc4.dynamic_array<arc4.uint8>)
+    dynamic_string_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(hello, world)
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == hex<"00020004000B000548656C6C6F0005576F726C64">)
+    dynamic_string_array.extend((foo, bar))
+    assert(reinterpret_cast<bytes>(dynamic_string_array) == hex<"00040008000F0016001B000548656C6C6F0005576F726C640003466F6F0003426172">)
+    dynamic_string_array.extend(dynamic_string_array)
+    assert(dynamic_string_array == new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(hello, world, foo, bar, hello, world, foo, bar))
+    dynamic_string_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(hello, world, foo, bar, hello, world, foo, bar)
+    dynamic_string_array[3u]: arc4.dynamic_array<arc4.uint8> = hello
+    dynamic_string_array[5u]: arc4.dynamic_array<arc4.uint8> = hello
+    assert(dynamic_string_array == new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(hello, world, foo, hello, hello, hello, foo, bar))
+    assert(dynamic_string_array.pop() == bar)
+    assert(dynamic_string_array.pop() == foo)
+    assert(dynamic_string_array == new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(hello, world, foo, hello, hello, hello))
+  }
+}
+
+contract Arc4MutableParamsContract
+{
+  approval_program(): bool
+  {
+    this::mutating_copies()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine mutating_copies(): void
+  {
+    my_array: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8)
+    my_struct: test_cases.arc4_types.mutable_params.TestStruct = new test_cases.arc4_types.mutable_params.TestStruct(b_val=arc4_encode(true, arc4.bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', arc4.dynamic_array<arc4.uint8>), s_val_2=arc4_encode('Days', arc4.dynamic_array<arc4.uint8>))
+    my_array_copy: arc4.static_array<arc4.uint8, 4> = my_array.copy()
+    my_struct_copy: test_cases.arc4_types.mutable_params.TestStruct = my_struct.copy()
+    my_array[2u]: arc4.uint8 = 5arc4u8
+    assert(reinterpret_cast<biguint>(my_array_copy[2u]) == reinterpret_cast<biguint>(3arc4u8), comment="my_array_copy should be unchanged")
+    assert(reinterpret_cast<biguint>(my_array[2u]) == reinterpret_cast<biguint>(5arc4u8), comment="my_array should be mutated")
+    (t, f): tuple<bool,bool> = this::other_routine(my_array, my_struct)
+    assert(t)
+    assert(!(f))
+    assert(reinterpret_cast<biguint>(my_array[1u]) == reinterpret_cast<biguint>(5arc4u8), comment="my_array has been mutated by the subroutine")
+    assert(my_struct.s_val_1 == arc4_encode('AARRGH!', arc4.dynamic_array<arc4.uint8>), comment="my_struct has been mutated by the subroutine")
+    this::other_routine(my_array_copy.copy(), my_struct_copy.copy())
+    assert(reinterpret_cast<biguint>(my_array_copy[1u]) == reinterpret_cast<biguint>(2arc4u8), comment="my_array_copy should not be mutated by the subroutine")
+    assert(my_struct_copy.s_val_1 == arc4_encode('Happy', arc4.dynamic_array<arc4.uint8>), comment="my_struct_copy should not be mutated by the subroutine")
+    my_array_copy_2: arc4.static_array<arc4.uint8, 4> = my_array_copy.copy()
+    my_array_copy_2: arc4.static_array<arc4.uint8, 4> = this::other_routine_2(my_array_copy_2)
+    assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(1arc4u8), comment="my_array_copy_2 should have original value")
+    this::other_routine_2(my_array_copy_2)
+    assert(reinterpret_cast<biguint>(my_array_copy_2[0u]) == reinterpret_cast<biguint>(10arc4u8), comment="my_array_copy_2 should have mutated value")
+    this::other_routine_3((my_array.copy(), my_array_copy_2.copy(), my_array_copy_2.copy()))
+    nested: test_cases.arc4_types.mutable_params.StructWithArray = new test_cases.arc4_types.mutable_params.StructWithArray(test_array=my_array.copy())
+    this::other_routine_2(nested.test_array.copy())
+  }
+  
+  subroutine other_routine(array: arc4.static_array<arc4.uint8, 4>, struct: test_cases.arc4_types.mutable_params.TestStruct): tuple<bool,bool>
+  {
+    array[1u]: arc4.uint8 = 5arc4u8
+    struct.s_val_1: arc4.dynamic_array<arc4.uint8> = arc4_encode('AARRGH!', arc4.dynamic_array<arc4.uint8>)
+    return (true, false)
+  }
+  
+  subroutine other_routine_2(array: arc4.static_array<arc4.uint8, 4>): arc4.static_array<arc4.uint8, 4>
+  {
+    copy: arc4.static_array<arc4.uint8, 4> = array.copy()
+    array[0u]: arc4.uint8 = 10arc4u8
+    return copy
+  }
+  
+  subroutine other_routine_3(arrays: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>>): void
+  {
+    for array in arrays {
+      array[0u]: arc4.uint8 = 99arc4u8
+    }
+    arrays[0][0u]: arc4.uint8 = 99arc4u8
+    arrays[1][0u]: arc4.uint8 = 99arc4u8
+    arrays[2][0u]: arc4.uint8 = 99arc4u8
+  }
+}
+
+contract Arc4DynamicStringArrayContract extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod xyz(): arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
+  {
+    return new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('X', arc4.dynamic_array<arc4.uint8>), arc4_encode('Y', arc4.dynamic_array<arc4.uint8>), arc4_encode('Z', arc4.dynamic_array<arc4.uint8>))
+  }
+  
+  abimethod xyz_raw(): arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
+  {
+    raw: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(new arc4.dynamic_array<arc4.uint8>(88arc4u8), new arc4.dynamic_array<arc4.uint8>(89arc4u8), new arc4.dynamic_array<arc4.uint8>(90arc4u8))
+    return reinterpret_cast<arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>>(reinterpret_cast<bytes>(raw))
+  }
+}
+
+contract Arc4DynamicBytesContract
+{
+  approval_program(): bool
+  {
+    total: uint64 = 0u
+    dynamic_bytes: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(2arc4u8, 3arc4u8, 1arc4u8)
+    assert(arc4_decode(dynamic_bytes, bytes) == hex<"020301">)
+    assert(reinterpret_cast<bytes>(dynamic_bytes) == hex<"0003020301">)
+    for uint8_item in dynamic_bytes {
+      total += arc4_decode(uint8_item, uint64)
+    }
+    assert(total == 6u, comment="Total should be of dynamic_bytes items")
+    dynamic_bytes2: arc4.dynamic_array<arc4.uint8> = arc4_encode(hex<"0304">, arc4.dynamic_array<arc4.uint8>)
+    assert(arc4_decode(dynamic_bytes2, bytes) == hex<"0304">)
+    assert(reinterpret_cast<bytes>(dynamic_bytes2) == hex<"00020304">)
+    for uint8_item in dynamic_bytes2 {
+      total += arc4_decode(uint8_item, uint64)
+    }
+    dynamic_bytes3: arc4.dynamic_array<arc4.uint8> = arc4_encode(arc4_decode(dynamic_bytes2, bytes), arc4.dynamic_array<arc4.uint8>)
+    assert(arc4_decode(dynamic_bytes3, bytes) == hex<"0304">)
+    assert(reinterpret_cast<bytes>(dynamic_bytes3) == hex<"00020304">)
+    for uint8_item in dynamic_bytes3 {
+      total += arc4_decode(uint8_item, uint64)
+    }
+    assert(total == 20u, comment="Total should now include sum of dynamic_bytes3 items")
+    dynamic_bytes3.extend(arc4_encode(hex<"616263">, arc4.dynamic_array<arc4.uint8>))
+    assert(reinterpret_cast<bytes>(dynamic_bytes3) == hex<"00050304616263">)
+    assert(arc4_decode(dynamic_bytes3, bytes) == hex<"0304616263">)
+    dynamic_bytes: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>((txn<NumAppArgs>() != 0u) ? (2arc4u8) : (3arc4u8), 3arc4u8, 1arc4u8)
+    assert(arc4_decode(dynamic_bytes, bytes) == hex<"030301">)
+    dynamic_bytes: arc4.dynamic_array<arc4.uint8> = (txn<NumAppArgs>() != 0u) ? (arc4_encode(hex<"32">, arc4.dynamic_array<arc4.uint8>)) : (arc4_encode(hex<"33">, arc4.dynamic_array<arc4.uint8>))
+    assert(arc4_decode(dynamic_bytes, bytes) == hex<"33">)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Arc4BoolEvalContract
+{
+  approval_program(): bool
+  {
+    assert(arc4_encode(false, arc4.bool) == hex<"00">)
+    assert(arc4_encode(true, arc4.bool) != hex<"00">)
+    assert(arc4_encode('', arc4.dynamic_array<arc4.uint8>) == hex<"0000">)
+    assert(arc4_encode('.', arc4.dynamic_array<arc4.uint8>) != hex<"0000">)
+    assert(global<ZeroAddress>() == global<ZeroAddress>())
+    assert(reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>()) != global<ZeroAddress>())
+    assert(0arc4u8 == hex<"00">)
+    assert(1arc4u8 != hex<"00">)
+    assert(0arc4u16 == hex<"0000">)
+    assert(1arc4u16 != hex<"0000">)
+    assert(0arc4u32 == hex<"00000000">)
+    assert(1arc4u32 != hex<"00000000">)
+    assert(0arc4u64 == hex<"0000000000000000">)
+    assert(1arc4u64 != hex<"0000000000000000">)
+    assert(0arc4n128 == hex<"00000000000000000000000000000000">)
+    assert(1arc4n128 != hex<"00000000000000000000000000000000">)
+    assert(0arc4n256 == hex<"0000000000000000000000000000000000000000000000000000000000000000">)
+    assert(1arc4n256 != hex<"0000000000000000000000000000000000000000000000000000000000000000">)
+    assert(0arc4n512 == hex<"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">)
+    assert(1arc4n512 != hex<"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">)
+    assert(0arc4u24 == hex<"000000">)
+    assert(1arc4u24 != hex<"000000">)
+    assert(0arc4n504 == hex<"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">)
+    assert(1arc4n504 != hex<"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">)
+    assert(0E-10arc4u48x10 == hex<"000000000000">)
+    assert(1.0000000000arc4u48x10 != hex<"000000000000">)
+    assert(0E-10arc4n496x10 == hex<"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">)
+    assert(0.0100000000arc4n496x10 != hex<"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">)
+    dynamic_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
+    assert(dynamic_arr == hex<"0000">)
+    dynamic_arr.extend((0arc4u64))
+    assert(dynamic_arr != hex<"0000">)
+    assert(arc4_encode(false, arc4.bool) == arc4_encode(false, arc4.bool))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Arc4BoolTypeContract
+{
+  approval_program(): bool
+  {
+    this::test_stuff(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool))
+    assert(arc4_decode(arc4_encode((txn<NumAppArgs>() != 0u) ? (false) : (true), arc4.bool), bool), comment="conditional expr")
+    static_boolean_array: arc4.static_array<arc4.bool, 12> = new arc4.static_array<arc4.bool, 12>(arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool))
+    assert(reinterpret_cast<bytes>(static_boolean_array) == hex<"FFF0">)
+    assert(static_boolean_array[0u] == arc4_encode(true, arc4.bool), comment="Single boolean can be unpacked")
+    assert(static_boolean_array[12u - 1u] == arc4_encode(true, arc4.bool), comment="Single boolean can be unpacked")
+    dynamic_boolean_array: arc4.dynamic_array<arc4.bool> = new arc4.dynamic_array<arc4.bool>(arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool))
+    assert(reinterpret_cast<bytes>(dynamic_boolean_array) == hex<"0003A0">)
+    assert(arc4_decode(arc4_encode(true, arc4.bool), bool) == true)
+    assert(arc4_decode(arc4_encode(false, arc4.bool), bool) != true)
+    assert(arc4_decode(arc4_encode(false, arc4.bool), bool) == false)
+    assert(arc4_decode(arc4_encode(true, arc4.bool), bool) != false)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_stuff(true: arc4.bool, false: arc4.bool): bool
+  {
+    assert(arc4_decode(true, bool))
+    assert(!(arc4_decode(false, bool)))
+    assert(true == arc4_encode(arc4_decode(true, bool), arc4.bool))
+    assert(false == arc4_encode(arc4_decode(false, bool), arc4.bool))
+    return arc4_decode(true, bool)
+  }
+}
+
+contract Arc4ArraysContract
+{
+  approval_program(): bool
+  {
+    dynamic_uint8_array: arc4.dynamic_array<arc4.uint8> = new arc4.dynamic_array<arc4.uint8>(1arc4u8, 2arc4u8)
+    total: uint64 = 0u
+    for uint8_item in dynamic_uint8_array {
+      total += arc4_decode(uint8_item, uint64)
+    }
+    assert(total == 3u, comment="Total should be sum of dynamic_uint8_array items")
+    aliased_dynamic: arc4.dynamic_array<arc4.uint16> = new arc4.dynamic_array<arc4.uint16>(1arc4u16)
+    for uint16_item in aliased_dynamic {
+      total += arc4_decode(uint16_item, uint64)
+    }
+    assert(total == 4u, comment="Total should now include sum of aliased_dynamic items")
+    dynamic_string_array: arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> = new arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>(arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>), arc4_encode('World', arc4.dynamic_array<arc4.uint8>))
+    assert(extract_uint16(dynamic_string_array, 0u) == 2u)
+    assert(dynamic_string_array[0u] == arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>))
+    result: string = ''
+    for (index, string_item) in enumerate(dynamic_string_array) {
+      if (index == 0u) {
+        result: string = arc4_decode(string_item, string)
+      } else {
+        result += ' ' + arc4_decode(string_item, string)
+      }
+    }
+    assert(result == 'Hello World')
+    static_uint32_array: arc4.static_array<arc4.uint32, 4> = new arc4.static_array<arc4.uint32, 4>(1arc4u32, 10arc4u32, 255arc4u32, 128arc4u32)
+    for uint32_item in static_uint32_array {
+      total += arc4_decode(uint32_item, uint64)
+    }
+    assert(total == 398u)
+    aliased_static: arc4.static_array<arc4.uint8, 1> = new arc4.static_array<arc4.uint8, 1>(101arc4u8)
+    index: uint64 = 0u
+    assert(arc4_decode(aliased_static[0u], uint64) + arc4_decode(aliased_static[index], uint64) == 202u)
+    static_string_array: arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2> = new arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>(arc4_encode('Ping', arc4.dynamic_array<arc4.uint8>), arc4_encode('Pong', arc4.dynamic_array<arc4.uint8>))
+    result: string = ''
+    for (index, string_item) in enumerate(static_string_array) {
+      if (index == 0u) {
+        result: string = arc4_decode(string_item, string)
+      } else {
+        result += ' ' + arc4_decode(string_item, string)
+      }
+    }
+    assert(result == 'Ping Pong')
+    this::hash_as_array(hex<"54657374696E6720313233">)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine hash_as_array(commitment_args_concat: bytes): arc4.static_array<arc4.uint8, 32>
+  {
+    return reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(sha3_256(commitment_args_concat))
+  }
+}
+
+contract Arc4AddressContract
+{
+  approval_program(): bool
+  {
+    address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>())
+    assert(address == reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>()))
+    assert(32u == 32u)
+    assert(reinterpret_cast<account>(address) == txn<Sender>())
+    zero_address: arc4.static_array<arc4.uint8, 32> = checked_maybe((reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(SINGLE_EVAL(id=1, source=reinterpret_cast<bytes>(global<ZeroAddress>()))), 32u == len(SINGLE_EVAL(id=1))))
+    assert(reinterpret_cast<bytes>(zero_address) == reinterpret_cast<bytes>(global<ZeroAddress>()))
+    some_address: arc4.static_array<arc4.uint8, 32> = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
+    assert(some_address == Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"))
+    some_address[0u]: arc4.uint8 = 123arc4u8
+    assert(some_address != Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Arc4StructsFromAnotherModule
+{
+  approval_program(): bool
+  {
+    flags: test_cases.arc4_types.structs.Flags = new test_cases.arc4_types.structs.Flags(a=arc4_encode(true, arc4.bool), b=arc4_encode(false, arc4.bool), c=arc4_encode(true, arc4.bool), d=arc4_encode(false, arc4.bool))
+    log(reinterpret_cast<bytes>(flags))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

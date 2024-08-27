@@ -66,7 +66,7 @@ class ModuleStatementVisitor(t.Generic[T], ABC):
     @abstractmethod
     def visit_contract_fragment(self, statement: puya.awst.nodes.ContractFragment) -> T: ...
 
-    @abstractmethod
+    @abstractmethod  # TODO: yeet me, not a ModuleStatement anymore
     def visit_contract_method(self, statement: puya.awst.nodes.ContractMethod) -> T: ...
 
     @abstractmethod

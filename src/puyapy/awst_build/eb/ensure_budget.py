@@ -7,8 +7,8 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     CallArg,
     Expression,
-    FreeSubroutineTarget,
     SubroutineCallExpression,
+    SubroutineID,
     UInt64Constant,
 )
 from puya.parse import SourceLocation
@@ -70,9 +70,9 @@ class EnsureBudgetBuilder(FunctionBuilder):
             ),
         ]
         call_expr = SubroutineCallExpression(
-            source_location=location,
-            target=FreeSubroutineTarget(module_name="algopy", name="ensure_budget"),
+            target=SubroutineID("_algopy_.ensure_budget"),
             args=call_args,
             wtype=wtypes.void_wtype,
+            source_location=location,
         )
         return NoneExpressionBuilder(call_expr)

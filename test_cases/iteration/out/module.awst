@@ -1,0 +1,298 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+abstract contract IterationTestBase
+{
+  approval_program(): bool
+  {
+    log('test_forwards')
+    this::test_forwards()
+    log('test_reversed')
+    this::test_reversed()
+    log('test_forwards_with_forwards_index')
+    this::test_forwards_with_forwards_index()
+    log('test_forwards_with_reverse_index')
+    this::test_forwards_with_reverse_index()
+    log('test_reverse_with_forwards_index')
+    this::test_reverse_with_forwards_index()
+    log('test_reverse_with_reverse_index')
+    this::test_reverse_with_reverse_index()
+    log('test_empty')
+    this::test_empty()
+    log('test_break')
+    this::test_break()
+    log('test_tuple_target')
+    this::test_tuple_target()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine _log_with_index(idx: uint64, value: bytes): void
+  {
+    digits: bytes = hex<"30313233343536373839">
+    log(concat(concat(digits[idx], '='), value))
+  }
+}
+
+contract URangeIterationTest extends (test_cases.iteration.base.IterationTestBase)
+{
+  subroutine test_forwards(): void
+  {
+    values: bytes = hex<"206120622063">
+    for i in range(1u, 7u, 2u) {
+      log(values[i])
+      i += 1u
+    }
+  }
+  
+  subroutine test_reversed(): void
+  {
+    values: bytes = hex<"206120622063">
+    for i in reversed(range(1u, 7u, 2u)) {
+      log(values[i])
+      i += 1u
+    }
+  }
+  
+  subroutine test_forwards_with_forwards_index(): void
+  {
+    values: bytes = hex<"206120622063">
+    for (idx, i) in enumerate(range(1u, 7u, 2u)) {
+      this::_log_with_index(idx, values[i])
+      i += 1u
+      idx += 1u
+    }
+  }
+  
+  subroutine test_forwards_with_reverse_index(): void
+  {
+    values: bytes = hex<"206120622063">
+    for (idx, i) in reversed(enumerate(reversed(range(1u, 7u, 2u)))) {
+      this::_log_with_index(idx, values[i])
+      i += 1u
+      idx += 1u
+    }
+  }
+  
+  subroutine test_reverse_with_forwards_index(): void
+  {
+    values: bytes = hex<"206120622063">
+    for (idx, i) in enumerate(reversed(range(1u, 7u, 2u))) {
+      this::_log_with_index(idx, values[i])
+      i += 1u
+      idx += 1u
+    }
+  }
+  
+  subroutine test_reverse_with_reverse_index(): void
+  {
+    values: bytes = hex<"206120622063">
+    for (idx, i) in reversed(enumerate(range(1u, 7u, 2u))) {
+      this::_log_with_index(idx, values[i])
+      i += 1u
+      idx += 1u
+    }
+  }
+  
+  subroutine test_empty(): void
+  {
+    for i in range(0u, 0u, 1u) {
+      log(itob(i))
+    }
+    for i in reversed(range(0u, 0u, 1u)) {
+      log(itob(i))
+    }
+    for (idx, i) in enumerate(range(0u, 0u, 1u)) {
+      log(concat(concat(itob(idx), ''), itob(i)))
+    }
+    for (idx, i) in reversed(enumerate(reversed(range(0u, 0u, 1u)))) {
+      log(concat(concat(itob(idx), ''), itob(i)))
+    }
+    for (idx, i) in enumerate(reversed(range(0u, 0u, 1u))) {
+      log(concat(concat(itob(idx), ''), itob(i)))
+    }
+    for (idx, i) in reversed(enumerate(range(0u, 0u, 1u))) {
+      log(concat(concat(itob(idx), ''), itob(i)))
+    }
+  }
+  
+  subroutine test_break(): void
+  {
+    values: bytes = hex<"206120622063">
+    for i in range(1u, 7u, 2u) {
+      log(values[i])
+      break
+    }
+  }
+  
+  subroutine test_tuple_target(): void
+  {
+    values: bytes = hex<"74">
+    for tup in enumerate(range(0u, 1u, 1u)) {
+      this::_log_with_index(tup[0], values[tup[1]])
+    }
+  }
+}
+
+contract TupleIterationTest extends (test_cases.iteration.base.IterationTestBase)
+{
+  subroutine test_forwards(): void
+  {
+    for i in (hex<"61">, hex<"62">, hex<"63">) {
+      log(i)
+    }
+  }
+  
+  subroutine test_reversed(): void
+  {
+    for i in reversed((hex<"61">, hex<"62">, hex<"63">)) {
+      log(i)
+    }
+  }
+  
+  subroutine test_forwards_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate((hex<"61">, hex<"62">, hex<"63">)) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_forwards_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate(reversed((hex<"61">, hex<"62">, hex<"63">)))) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_reverse_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate(reversed((hex<"61">, hex<"62">, hex<"63">))) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_reverse_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate((hex<"61">, hex<"62">, hex<"63">))) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_empty(): void
+  {
+  }
+  
+  subroutine test_break(): void
+  {
+    for x in (hex<"61">, hex<"62">, hex<"63">) {
+      log(x)
+      break
+    }
+  }
+  
+  subroutine test_tuple_target(): void
+  {
+    for tup in enumerate((hex<"74">)) {
+      this::_log_with_index(tup[0], tup[1])
+    }
+  }
+}
+
+contract IndexableIterationTest extends (test_cases.iteration.base.IterationTestBase)
+{
+  subroutine test_forwards(): void
+  {
+    for i in hex<"616263"> {
+      log(i)
+    }
+  }
+  
+  subroutine test_reversed(): void
+  {
+    for i in reversed(hex<"616263">) {
+      log(i)
+    }
+  }
+  
+  subroutine test_forwards_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate(hex<"616263">) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_forwards_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate(reversed(hex<"616263">))) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_reverse_with_forwards_index(): void
+  {
+    for (idx, i) in enumerate(reversed(hex<"616263">)) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_reverse_with_reverse_index(): void
+  {
+    for (idx, i) in reversed(enumerate(hex<"616263">)) {
+      this::_log_with_index(idx, i)
+      idx += 1u
+    }
+  }
+  
+  subroutine test_empty(): void
+  {
+    for i in hex<""> {
+      log(i)
+    }
+    for i in reversed(hex<"">) {
+      log(i)
+    }
+    for (idx, i) in enumerate(hex<"">) {
+      this::_log_with_index(idx, i)
+    }
+    for (idx, i) in reversed(enumerate(reversed(hex<"">))) {
+      this::_log_with_index(idx, i)
+    }
+    for (idx, i) in enumerate(reversed(hex<"">)) {
+      this::_log_with_index(idx, i)
+    }
+    for (idx, i) in reversed(enumerate(hex<"">)) {
+      this::_log_with_index(idx, i)
+    }
+  }
+  
+  subroutine test_break(): void
+  {
+    for b in hex<"616263"> {
+      log(b)
+      break
+    }
+  }
+  
+  subroutine test_tuple_target(): void
+  {
+    for tup in enumerate(hex<"74">) {
+      this::_log_with_index(tup[0], tup[1])
+    }
+  }
+}

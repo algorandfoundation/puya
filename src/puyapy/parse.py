@@ -18,7 +18,7 @@ import mypy.options
 import mypy.util
 from puya import log
 from puya.awst.nodes import MethodDocumentation
-from puya.parse import ParseSource, SourceLocation
+from puya.parse import CompileSource, SourceLocation
 from puya.utils import make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
@@ -62,6 +62,13 @@ _MYPY_EMBEDDED_MODULES = {
 }
 
 EMBEDDED_MODULES = tuple(es.puya_module_name for es in _MYPY_EMBEDDED_MODULES.values())
+
+
+@attrs.frozen
+class ParseSource(CompileSource):
+    module_name: str
+    is_explicit: bool
+    """whether this file was explicitly supplied, otherwise it came from directory"""
 
 
 @attrs.frozen
@@ -174,7 +181,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
 
 def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Path) -> None:
     module_rel_path = make_path_relative_to_cwd(module_path)
-    module_loc = SourceLocation(file=str(module_path), line=1)
+    module_loc = SourceLocation(file=module_path, line=1)
     try:
         source = mypy_fscache.read(str(module_path))
     except OSError:
@@ -323,7 +330,7 @@ def parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
     )
 
 
-def source_location_from_mypy(file: str, node: mypy.nodes.Context) -> SourceLocation:
+def source_location_from_mypy(file: Path, node: mypy.nodes.Context) -> SourceLocation:
     assert node.line is not None
     assert node.line >= 1
 

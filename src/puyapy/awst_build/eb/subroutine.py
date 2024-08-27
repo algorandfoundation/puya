@@ -4,13 +4,13 @@ from collections.abc import Sequence
 import mypy.nodes
 from puya import log
 from puya.awst.nodes import (
-    BaseClassSubroutineTarget,
     CallArg,
-    FreeSubroutineTarget,
-    InstanceSubroutineTarget,
+    ContractMethodTarget,
     SubroutineCallExpression,
+    SubroutineTarget,
 )
 from puya.errors import CodeError, InternalError
+from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
@@ -27,10 +27,7 @@ logger = log.get_logger(__name__)
 
 class SubroutineInvokerExpressionBuilder(FunctionBuilder):
     def __init__(
-        self,
-        target: InstanceSubroutineTarget | BaseClassSubroutineTarget | FreeSubroutineTarget,
-        func_type: pytypes.FuncType,
-        location: SourceLocation,
+        self, target: SubroutineTarget, func_type: pytypes.FuncType, location: SourceLocation
     ):
         super().__init__(location)
         self.target = target
@@ -134,9 +131,13 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        target: BaseClassSubroutineTarget,
+        cref: ContractReference,
+        member_name: str,
         func_type: pytypes.FuncType,
         location: SourceLocation,
     ):
+        target = ContractMethodTarget(cref=cref, member_name=member_name)
         super().__init__(target, func_type, location)
-        self.context = context
+        self.context: typing.Final = context
+        self.cref: typing.Final = cref
+        self.member_name: typing.Final = member_name

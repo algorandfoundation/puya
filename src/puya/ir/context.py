@@ -3,6 +3,7 @@ import itertools
 import typing
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
+from functools import cached_property
 
 import attrs
 
@@ -24,21 +25,23 @@ TMP_VAR_INDICATOR = "%"
 
 @attrs.frozen(kw_only=True)
 class IRBuildContext(CompileContext):
-    module_awsts: Mapping[str, awst_nodes.Module]
+    awst: awst_nodes.AWST
     subroutines: dict[awst_nodes.Function, Subroutine]
-    embedded_funcs: Sequence[awst_nodes.Function] = attrs.field()
-    contract: awst_nodes.ContractFragment | None = None
-    logic_sig: awst_nodes.LogicSignature | None = None
+    embedded_funcs: Sequence[awst_nodes.Subroutine] = attrs.field()
+    root: awst_nodes.ContractFragment | awst_nodes.LogicSignature | None = None
     routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
 
-    def for_contract(self, contract: awst_nodes.ContractFragment) -> "IRBuildContextWithFallback":
-        return attrs_extend(
-            IRBuildContextWithFallback,
+    @cached_property
+    def _awst_lookup(self) -> Mapping[str, awst_nodes.ModuleStatement]:
+        return {node.id: node for node in (*self.awst, *self.embedded_funcs)}
+
+    def for_root(
+        self, root: awst_nodes.ContractFragment | awst_nodes.LogicSignature
+    ) -> typing.Self:
+        return attrs.evolve(
             self,
-            default_fallback=contract.source_location,
-            contract=contract,
-            # copy subroutines so that contract specific subroutines do not pollute other contract
-            # passes
+            root=root,
+            # copy subroutines so that contract specific subroutines do not pollute other passes
             subroutines=self.subroutines.copy(),
         )
 
@@ -46,69 +49,69 @@ class IRBuildContext(CompileContext):
         self, function: awst_nodes.Function, subroutine: Subroutine, visitor: "FunctionIRBuilder"
     ) -> "IRFunctionBuildContext":
         return attrs_extend(
-            IRFunctionBuildContext,
-            self,
-            default_fallback=function.source_location,
-            visitor=visitor,
-            function=function,
-            subroutine=subroutine,
-        )
-
-    def for_logic_signature(
-        self, logic_sig: awst_nodes.LogicSignature
-    ) -> "IRBuildContextWithFallback":
-        return attrs_extend(
-            IRBuildContextWithFallback,
-            self,
-            default_fallback=logic_sig.source_location,
-            logic_sig=logic_sig,
-            subroutines=self.subroutines.copy(),
+            IRFunctionBuildContext, self, visitor=visitor, function=function, subroutine=subroutine
         )
 
     def resolve_contract_reference(
         self, cref: puya.models.ContractReference
     ) -> awst_nodes.ContractFragment:
-        try:
-            module = self.module_awsts[cref.module_name]
-            contract = module.symtable[cref.class_name]
-        except KeyError as ex:
-            raise InternalError(f"Failed to resolve contract reference {cref}") from ex
+        contract = self._awst_lookup[cref]
         if not isinstance(contract, awst_nodes.ContractFragment):
-            raise InternalError(f"Contract reference {cref} resolved to {contract}")
+            raise InternalError(f"contract reference {cref} resolved to {contract}")
         return contract
 
     def resolve_function_reference(
-        self, target: awst_nodes.SubroutineTarget, source_location: SourceLocation
+        self,
+        target: awst_nodes.SubroutineTarget,
+        source_location: SourceLocation,
+        caller: awst_nodes.Function,
     ) -> awst_nodes.Function:
         try:
             match target:
-                case awst_nodes.BaseClassSubroutineTarget(base_class=base_cref, name=func_name):
-                    func: awst_nodes.Node = self._resolve_contract_attribute(
-                        func_name, source_location, start=base_cref
+                case awst_nodes.SubroutineID(sub_id):
+                    func: awst_nodes.Node = self._awst_lookup[sub_id]
+                case awst_nodes.InstanceMethodTarget(member_name=member_name):
+                    func = self._resolve_contract_attribute(member_name, source_location)
+                case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
+                    func = self._resolve_contract_attribute(
+                        member_name, source_location, start=start_at
                     )
-                case awst_nodes.InstanceSubroutineTarget(name=func_name):
-                    func = self._resolve_contract_attribute(func_name, source_location)
-                case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
-                    # remap the internal _algopy_ lib to algopy so that functions
-                    # defined in _algopy_ can reference other functions defined in the same module
-                    module_name = "algopy" if module_name == "_algopy_" else module_name
-                    func = self.module_awsts[module_name].symtable[func_name]
-                case _:
-                    raise InternalError(
-                        f"Unhandled subroutine invocation target: {target}",
-                        source_location,
+                case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
+                    if not isinstance(caller, awst_nodes.ContractMethod):
+                        raise CodeError(
+                            "call to contract method from outside of contract class",
+                            source_location,
+                        )
+                    func = self._resolve_contract_attribute(
+                        member_name, source_location, start=caller.cref, skip=True
                     )
+
+                case unhandled:
+                    typing.assert_never(unhandled)
         except KeyError as ex:
             raise CodeError(
-                f"Unable to resolve function reference {target}",
-                source_location,
+                f"unable to resolve function reference {target}", source_location
             ) from ex
         if not isinstance(func, awst_nodes.Function):
             raise CodeError(
-                f"Function reference {target} resolved to {func}",
-                source_location,
+                f"function reference {target} resolved to non-function {func}", source_location
             )
         return func
+
+    @typing.overload
+    def _resolve_contract_attribute(
+        self, name: str, source_location: SourceLocation
+    ) -> awst_nodes.ContractMethod: ...
+
+    @typing.overload
+    def _resolve_contract_attribute(
+        self,
+        name: str,
+        source_location: SourceLocation,
+        *,
+        start: puya.models.ContractReference,
+        skip: bool = False,
+    ) -> awst_nodes.ContractMethod: ...
 
     def _resolve_contract_attribute(
         self,
@@ -116,34 +119,36 @@ class IRBuildContext(CompileContext):
         source_location: SourceLocation,
         *,
         start: puya.models.ContractReference | None = None,
+        skip: bool = False,
     ) -> awst_nodes.ContractMethod:
-        current = self.contract
-        if current is None:
+        root = self.root
+        if not isinstance(root, awst_nodes.ContractFragment):
             raise InternalError(
                 f"Cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
-        if start is None:
-            start_contract = current
-        else:
-            if start not in current.bases:
-                raise CodeError("Call to base method outside current hierarchy", source_location)
-            start_contract = self.resolve_contract_reference(start)
-        for contract in (
-            start_contract,
-            *[self.resolve_contract_reference(cref) for cref in start_contract.bases],
-        ):
+        mro = [root.cref, *root.bases]
+        if start:
+            try:
+                curr_idx = mro.index(start)
+            except ValueError:
+                raise CodeError(
+                    "call to base method outside current hierarchy", source_location
+                ) from None
+            mro = mro[curr_idx:]
+        if skip:
+            mro = mro[1:]
+        for cref in mro:
+            contract = self.resolve_contract_reference(cref)
             with contextlib.suppress(KeyError):
                 return contract.methods[name]
-        raise CodeError(
-            f"Unresolvable attribute '{name}' of {start_contract.full_name}",
-            source_location,
-        )
+        raise CodeError(f"unable to resolve contract method '{name}'", source_location)
 
-
-@attrs.define(kw_only=True)
-class IRBuildContextWithFallback(IRBuildContext):
-    default_fallback: SourceLocation
+    @property
+    def default_fallback(self) -> SourceLocation | None:
+        if self.root:
+            return self.root.source_location
+        return None
 
     @contextlib.contextmanager
     def log_exceptions(self, fallback_location: SourceLocation | None = None) -> Iterator[None]:
@@ -152,7 +157,7 @@ class IRBuildContextWithFallback(IRBuildContext):
 
 
 @attrs.frozen(kw_only=True)
-class IRFunctionBuildContext(IRBuildContextWithFallback):
+class IRFunctionBuildContext(IRBuildContext):
     """Context when building from an awst Function node"""
 
     function: awst_nodes.Function
@@ -174,3 +179,17 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])
         return f"{description}{TMP_VAR_INDICATOR}{counter_value}"
+
+    @property
+    def default_fallback(self) -> SourceLocation | None:
+        return self.function.source_location
+
+    def resolve_function_reference(
+        self,
+        target: awst_nodes.SubroutineTarget,
+        source_location: SourceLocation,
+        caller: awst_nodes.Function | None = None,
+    ) -> awst_nodes.Function:
+        return super().resolve_function_reference(
+            target, source_location, caller=caller or self.function
+        )

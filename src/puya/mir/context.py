@@ -18,26 +18,16 @@ class ProgramMIRContext(CompileContext):
     def _get_short_subroutine_names(self) -> dict[ir.Subroutine, str]:
         """Return a mapping of unique TEAL names for all subroutines in program, while attempting
         to use the shortest name possible"""
-        names = dict[ir.Subroutine, str]()
-        names[self.program.main] = "main"
-        seen_names = set(names.values())
+        names = {"main": self.program.main}
         for subroutine in self.program.subroutines:
-            name: str
-            if subroutine.method_name not in seen_names:
-                name = subroutine.method_name
-            elif (
-                subroutine.class_name is not None
-                and (class_prefixed := f"{subroutine.class_name}.{subroutine.method_name}")
-                not in seen_names
-            ):
-                name = class_prefixed
+            if subroutine.short_name and subroutine.short_name not in names:
+                name = subroutine.short_name
             else:
+                assert subroutine.full_name not in names
                 name = subroutine.full_name
-            assert name not in seen_names
-            names[subroutine] = name
-            seen_names.add(name)
+            names[name] = subroutine
 
-        return names
+        return {v: k for k, v in names.items()}
 
     def for_subroutine(self, subroutine: models.MemorySubroutine) -> "SubroutineCodeGenContext":
         return attrs_extend(SubroutineCodeGenContext, self, subroutine=subroutine)

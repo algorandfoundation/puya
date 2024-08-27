@@ -1,0 +1,38 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract StateProxyContract extends (algopy.arc4.ARC4Contract)
+{
+  globals {
+    ['g1']: uint64
+    [hex<"6732">]: uint64
+  }
+  locals {
+    ['l1']: uint64
+    [hex<"6C32">]: uint64
+  }
+  
+  constructor()
+  {
+    GlobalState[hex<"6732">]: uint64 = 0u
+    funky_town: state_key = (txn<NumAppArgs>() != 0u) ? ('funky') : ('town')
+    GlobalState[funky_town]: uint64 = 123u
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(): void
+  {
+    GlobalState['g1']: uint64 = 1u
+    LocalState['l1', txn<Sender>()]: uint64 = 2u
+    LocalState[hex<"6C32">, txn<Sender>()]: uint64 = 3u
+  }
+}

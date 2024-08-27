@@ -14,8 +14,8 @@ logger = log.get_logger(__name__)
 
 class StorageTypesValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
-        for module_statement in module.body:
+    def validate(cls, module: awst_nodes.AWST) -> None:
+        for module_statement in module:
             # create a new instance for each top level construct,
             # either subroutine or contract class, so that we can de-dupe
             # messages (where possible) there

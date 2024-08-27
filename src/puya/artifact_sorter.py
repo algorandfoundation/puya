@@ -57,7 +57,7 @@ class ArtifactCompilationSorter(IRTraverser):
             artifact_cycle: Sequence[Artifact] = ex.args[1]
             *_, before, last = artifact_cycle
             cycle_loc = last.depends_on[before.ir.metadata.ref]
-            programs = " -> ".join(a.ir.metadata.ref.full_name for a in reversed(artifact_cycle))
+            programs = " -> ".join(a.ir.metadata.ref for a in reversed(artifact_cycle))
             raise CodeError(f"cyclical program reference: {programs}", cycle_loc) from None
         return result
 

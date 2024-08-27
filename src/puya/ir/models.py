@@ -794,13 +794,12 @@ class Parameter(Register):
     implicit_return: bool
 
 
-@attrs.define(eq=False)
+@attrs.define(eq=False, kw_only=True)
 class Subroutine(Context):
+    full_name: str  # TODO: rename to id
+    short_name: str
     # source_location might be None if it was synthesized e.g. ARC4 approval method
     source_location: SourceLocation | None
-    module_name: str
-    class_name: str | None  # None if a function (vs a method)
-    method_name: str
     parameters: Sequence[Parameter]
     _returns: Sequence[IRType]
     body: list[BasicBlock] = attrs.field()
@@ -866,10 +865,6 @@ class Subroutine(Context):
                 f" {', '.join(map(str, bad_reads))}",
                 self.source_location,
             )
-
-    @property
-    def full_name(self) -> str:
-        return ".".join(filter(None, (self.module_name, self.class_name, self.method_name)))
 
     @property
     def entry(self) -> BasicBlock:

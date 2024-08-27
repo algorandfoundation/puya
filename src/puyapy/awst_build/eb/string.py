@@ -12,10 +12,10 @@ from puya.awst.nodes import (
     CallArg,
     ConditionalExpression,
     Expression,
-    FreeSubroutineTarget,
     Statement,
     StringConstant,
     SubroutineCallExpression,
+    SubroutineID,
     UInt64Constant,
 )
 from puya.errors import CodeError
@@ -168,7 +168,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         item = expect.argument_of_type_else_dummy(item, pytypes.StringType, resolve_literal=True)
         is_substring_expr = SubroutineCallExpression(
-            target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
+            target=SubroutineID("algopy_lib_bytes.is_substring"),  # TODO: extract constant
             args=[
                 CallArg(value=item.to_bytes(item.source_location), name="item"),
                 CallArg(value=self.to_bytes(self.source_location), name="sequence"),

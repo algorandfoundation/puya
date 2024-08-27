@@ -1,0 +1,43 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract MerkleTree extends (algopy.arc4.ARC4Contract)
+{
+  globals {
+    ['root']: bytes
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(root: arc4.static_array<arc4.uint8, 32>): void
+  {
+    GlobalState['root']: bytes = reinterpret_cast<bytes>(root)
+  }
+  
+  abimethod verify(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>, leaf: arc4.static_array<arc4.uint8, 32>): bool
+  {
+    return GlobalState['root'] == examples.merkle.contract.compute_root_hash(proof, reinterpret_cast<bytes>(leaf))
+  }
+}
+
+subroutine compute_root_hash(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>, leaf: bytes): bytes
+{
+  computed: bytes = leaf
+  for idx in range(0u, extract_uint16(proof, 0u), 1u) {
+    computed: bytes = examples.merkle.contract.hash_pair(computed, reinterpret_cast<bytes>(proof[idx]))
+  }
+  return computed
+}
+
+subroutine hash_pair(a: bytes, b: bytes): bytes
+{
+  return sha256((reinterpret_cast<biguint>(a) < reinterpret_cast<biguint>(b)) ? (a + b) : (b + a))
+}

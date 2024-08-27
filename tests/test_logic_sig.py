@@ -39,7 +39,7 @@ def compile_logic_sig(
             cli_template_definitions=template_variables or [],
         )
     )
-    (logic_sig,) = (a for file in result.teal.values() for a in file)
+    (logic_sig,) = result.teal
     assert isinstance(
         logic_sig, CompiledLogicSig
     ), "Compilation artifact must be a logic signature"

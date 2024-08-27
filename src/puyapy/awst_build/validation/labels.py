@@ -9,8 +9,8 @@ logger = log.get_logger(__name__)
 
 class LabelsValidator(FunctionTraverser):
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
-        for module_statement in module.body:
+    def validate(cls, module: awst_nodes.AWST) -> None:
+        for module_statement in module:
             if isinstance(module_statement, awst_nodes.Subroutine):
                 cls(module_statement)
             elif isinstance(module_statement, awst_nodes.ContractFragment):

@@ -1,0 +1,50 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract ByteConstantsContract
+{
+  approval_program(): uint64
+  {
+    base_64: bytes = b64<"QmFzZSA2NCBlbmNvZGVk">
+    base_32: bytes = b32<"IJQXGZJAGMZCAZLOMNXWIZLE">
+    base_16: bytes = hex<"4261736520313620656E636F646564">
+    utf8: bytes = hex<"5554462D3820456E636F646564">
+    result: bytes = base_16 + hex<"7C"> + base_64 + hex<"7C"> + base_32 + hex<"7C"> + utf8
+    log(result)
+    log(itob(len(result)))
+    return 1u
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract AddressConstantContract
+{
+  approval_program(): bool
+  {
+    some_address: account = global<ZeroAddress>()
+    assert(some_address == global<ZeroAddress>())
+    some_address: account = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
+    assert(some_address != global<ZeroAddress>())
+    some_address: account = reinterpret_cast<account>(reinterpret_cast<bytes>(some_address))
+    some_address: account = checked_maybe((reinterpret_cast<account>(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(some_address))), 32u == len(SINGLE_EVAL(id=0))))
+    sender: account = txn<Sender>()
+    sender_bytes: bytes = reinterpret_cast<bytes>(sender)
+    log(sender_bytes)
+    is_some_address: bool = txn<Sender>() == some_address
+    return !(is_some_address)
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

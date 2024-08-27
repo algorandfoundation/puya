@@ -10,7 +10,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
-    BaseClassSubroutineTarget,
     BytesConstant,
     BytesEncoding,
     CompiledContract,
@@ -228,8 +227,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             case None:
                 raise CodeError("missing required positional argument 'method'", location)
             case BaseClassSubroutineInvokerExpressionBuilder(
-                context=context,
-                target=BaseClassSubroutineTarget(base_class=contract_ref, name=func_name),
+                context=context, member_name=func_name, cref=contract_ref
             ):
                 method_call = _get_arc4_method_call(
                     context, contract_ref, func_name, abi_args, location
@@ -330,7 +328,7 @@ def _abi_call(
         case ARC4ClientMethodExpressionBuilder(
             context=context, cref=cref, func_name=func_name
         ) | BaseClassSubroutineInvokerExpressionBuilder(
-            context=context, target=BaseClassSubroutineTarget(base_class=cref, name=func_name)
+            context=context, cref=cref, member_name=func_name
         ):
             # in this case the arc4 signature and declared return type are inferred
             # TODO: in order to remove the usage of context, we should defer method body evaluation

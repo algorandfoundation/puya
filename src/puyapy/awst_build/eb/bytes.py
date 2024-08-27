@@ -15,11 +15,11 @@ from puya.awst.nodes import (
     BytesUnaryOperator,
     CallArg,
     Expression,
-    FreeSubroutineTarget,
     IndexExpression,
     IntersectionSliceExpression,
     Statement,
     SubroutineCallExpression,
+    SubroutineID,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -240,7 +240,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
             item, pytypes.BytesType, resolve_literal=True
         ).resolve()
         is_substring_expr = SubroutineCallExpression(
-            target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
+            target=SubroutineID("algopy_lib_bytes.is_substring"),  # TODO: extract constant
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
             wtype=wtypes.bool_wtype,
             source_location=location,

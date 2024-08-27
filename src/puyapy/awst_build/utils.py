@@ -176,10 +176,8 @@ def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.Ty
 
 
 def qualified_class_name(info: mypy.nodes.TypeInfo) -> ContractReference:
-    # we don't support nested classes just yet, but this is easy enough to do now
-    module_name = info.module_name
-    qual_name = info.fullname.removeprefix(module_name + ".")
-    return ContractReference(module_name=module_name, class_name=qual_name)
+    # TODO: inline me
+    return ContractReference(info.fullname)
 
 
 def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:

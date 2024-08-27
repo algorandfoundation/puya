@@ -55,29 +55,28 @@ def test_assemble_matches_algod(
             cli_template_definitions=template_vars,
         )
     )
-    for artifacts in compile_result.teal.values():
-        for artifact in artifacts:
-            match artifact:
-                case CompiledContract(approval_program=approval, clear_program=clear):
-                    assemble_and_compare_program(
-                        compile_result.context,
-                        algod_client,
-                        approval,
-                        f"{artifact.metadata.name}-approval",
-                    )
-                    assemble_and_compare_program(
-                        compile_result.context,
-                        algod_client,
-                        clear,
-                        f"{artifact.metadata.name}-clear",
-                    )
-                case CompiledLogicSig(program=logic_sig):
-                    assemble_and_compare_program(
-                        compile_result.context,
-                        algod_client,
-                        logic_sig,
-                        f"{artifact.metadata.name}-logicsig",
-                    )
+    for artifact in compile_result.teal:
+        match artifact:
+            case CompiledContract(approval_program=approval, clear_program=clear):
+                assemble_and_compare_program(
+                    compile_result.context,
+                    algod_client,
+                    approval,
+                    f"{artifact.metadata.ref}-approval",
+                )
+                assemble_and_compare_program(
+                    compile_result.context,
+                    algod_client,
+                    clear,
+                    f"{artifact.metadata.ref}-clear",
+                )
+            case CompiledLogicSig(program=logic_sig):
+                assemble_and_compare_program(
+                    compile_result.context,
+                    algod_client,
+                    logic_sig,
+                    f"{artifact.metadata.ref}-logicsig",
+                )
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])

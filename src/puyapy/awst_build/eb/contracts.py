@@ -4,11 +4,7 @@ from collections.abc import Sequence
 import attrs
 import mypy.nodes
 from puya import log
-from puya.awst.nodes import (
-    AppStateExpression,
-    BaseClassSubroutineTarget,
-    InstanceSubroutineTarget,
-)
+from puya.awst.nodes import AppStateExpression, InstanceMethodTarget
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -39,11 +35,11 @@ from puyapy.awst_build.utils import (
 logger = log.get_logger(__name__)
 
 
-class ContractTypeExpressionBuilder(TypeBuilder):
+class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        pytype: pytypes.PyType,
+        pytype: pytypes.ContractType,
         type_info: mypy.nodes.TypeInfo,
         location: SourceLocation,
     ):
@@ -71,10 +67,10 @@ class ContractTypeExpressionBuilder(TypeBuilder):
             func_mypy_type = require_callable_type(node, location)
             func_type = self.context.type_to_pytype(func_mypy_type, source_location=location)
             assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
-            target = BaseClassSubroutineTarget(self.cref, name)
             return BaseClassSubroutineInvokerExpressionBuilder(
                 context=self.context,
-                target=target,
+                cref=self.cref,
+                member_name=name,
                 func_type=func_type,
                 location=location,
             )
@@ -116,7 +112,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
             if not is_static:
                 func_type = attrs.evolve(func_type, args=func_type.args[1:])
             return SubroutineInvokerExpressionBuilder(
-                target=InstanceSubroutineTarget(name=name),
+                target=InstanceMethodTarget(member_name=name),
                 func_type=func_type,
                 location=location,
             )

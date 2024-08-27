@@ -1,0 +1,52 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract AppCall extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod some_value(): uint64
+  {
+    return global<GroupSize>() * txn<GroupIndex>() + 1u
+  }
+}
+
+contract AppExpectingEffects extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod create_group(asset_create: group_transaction_acfg, app_create: group_transaction_appl): tuple<uint64,uint64>
+  {
+    assert(reinterpret_cast<uint64>(gtxns<CreatedAssetID>(asset_create)) != 0u, comment="expected asset created")
+    assert(gaids(gtxns<GroupIndex>(asset_create)) == reinterpret_cast<uint64>(gtxns<CreatedAssetID>(asset_create)), comment="expected correct asset id")
+    assert(reinterpret_cast<uint64>(gtxns<CreatedApplicationID>(app_create)) != 0u, comment="expected app created")
+    assert(gaids(gtxns<GroupIndex>(app_create)) == reinterpret_cast<uint64>(gtxns<CreatedApplicationID>(app_create)), comment="expected correct app id")
+    return (reinterpret_cast<uint64>(gtxns<CreatedAssetID>(asset_create)), reinterpret_cast<uint64>(gtxns<CreatedApplicationID>(app_create)))
+  }
+  
+  abimethod log_group(app_call: group_transaction_appl): void
+  {
+    assert(gtxnsas<ApplicationArgs>(app_call, 0u) == Method("some_value()uint64"), comment="expected correct method called")
+    assert(gtxns<NumLogs>(app_call) == 1u, comment="expected logs")
+    assert(reinterpret_cast<biguint>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=gtxns<LastLog>(app_call))), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">))) == itob(gtxns<GroupIndex>(app_call) + 1u * global<GroupSize>()))
+  }
+}

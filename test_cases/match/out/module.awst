@@ -1,0 +1,162 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Counter
+{
+  globals {
+    ['counter']: uint64
+  }
+  
+  constructor()
+  {
+    GlobalState['counter']: uint64 = 0u
+  }
+  
+  approval_program(): bool
+  {
+    switch (txn<OnCompletion>()) {
+      case NoOp: {
+        this::increment_counter()
+        return true
+      }
+      case _: {
+        return false
+      }
+    }
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine increment_counter(): void
+  {
+    GlobalState['counter'] += 1u
+  }
+}
+
+contract MyContract
+{
+  globals {
+    ['case_one']: uint64
+    ['case_two']: uint64
+  }
+  
+  approval_program(): bool
+  {
+    GlobalState['case_one']: uint64 = 1u
+    GlobalState['case_two']: uint64 = 2u
+    this::match_uint64()
+    this::match_biguint()
+    this::match_bytes()
+    this::match_address()
+    this::match_attributes()
+    this::match_bools()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine match_uint64(): void
+  {
+    n: uint64 = txn<NumAppArgs>()
+    switch (n) {
+      case 0u: {
+        hello: bytes = hex<"48656C6C6F">
+        log(hello)
+      }
+      case 10u: {
+        hello: bytes = hex<"48656C6C6F205468657265">
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_bytes(): void
+  {
+    n: bytes = txna<ApplicationArgs, 0>()
+    switch (n) {
+      case hex<"">: {
+        hello: bytes = hex<"48656C6C6F206279746573">
+        log(hello)
+      }
+      case hex<"3130">: {
+        hello: bytes = hex<"48656C6C6F205468657265206279746573">
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_biguint(): void
+  {
+    n: biguint = itob(txn<NumAppArgs>()) b* 10n
+    switch (n) {
+      case 0n: {
+        hello: bytes = hex<"48656C6C6F2062696775696E74">
+        log(hello)
+      }
+      case 10n: {
+        hello: bytes = hex<"48656C6C6F2054686572652062696775696E74">
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_address(): void
+  {
+    n: account = txn<Sender>()
+    switch (n) {
+      case Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"): {
+        hello: bytes = hex<"48656C6C6F2061646472657373">
+        log(hello)
+      }
+      case Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"): {
+        hello: bytes = hex<"48656C6C6F2054686572652061646472657373">
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_attributes(): void
+  {
+    n: uint64 = txn<NumAppArgs>()
+    switch (n) {
+      case GlobalState['case_one']: {
+        hello: bytes = hex<"48656C6C6F206F6E65">
+        log(hello)
+      }
+      case GlobalState['case_two']: {
+        hello: bytes = hex<"48656C6C6F2074776F">
+        log(hello)
+      }
+      case _: {
+        hello: bytes = hex<"48656C6C6F2064656661756C74">
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_bools(): void
+  {
+    n: bool = txn<NumAppArgs>() > 0u
+    switch (n) {
+      case true: {
+        hello: bytes = hex<"48656C6C6F2054727565">
+        log(hello)
+      }
+      case false: {
+        hello: bytes = hex<"48656C6C6F2046616C7365">
+        log(hello)
+      }
+    }
+  }
+}

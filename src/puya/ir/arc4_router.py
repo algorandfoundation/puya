@@ -49,12 +49,12 @@ def create_block(
 
 
 def call(
-    location: SourceLocation, function: awst_nodes.Function, *args: awst_nodes.Expression
+    location: SourceLocation, method: awst_nodes.ContractMethod, *args: awst_nodes.Expression
 ) -> awst_nodes.SubroutineCallExpression:
     return awst_nodes.SubroutineCallExpression(
         source_location=location,
-        wtype=function.return_type,
-        target=awst_nodes.InstanceSubroutineTarget(name=function.name),
+        wtype=method.return_type,
+        target=awst_nodes.ContractMethodTarget(cref=method.cref, member_name=method.member_name),
         args=[awst_nodes.CallArg(name=None, value=arg) for arg in args],
     )
 
@@ -122,7 +122,7 @@ def route_bare_methods(
         bare_location = bare_method.source_location
         bare_block = create_block(
             bare_location,
-            bare_method.name,
+            bare_method.member_name,
             *assert_create_state(config, config.source_location or bare_location),
             awst_nodes.ExpressionStatement(expr=call(bare_location, bare_method)),
             approve(bare_location),
@@ -589,7 +589,7 @@ def extract_arc4_methods(
             bare_methods[m] = arc4_config
         elif isinstance(arc4_config, ARC4ABIMethodConfig):
             abi_methods[m] = arc4_config
-            known_sources[m.name] = m
+            known_sources[m.member_name] = m
         else:
             typing.assert_never(arc4_config)
 
@@ -606,7 +606,7 @@ def extract_arc4_methods(
     for m, abi_method_config in abi_methods.items():
         arc4_method_metadata.append(
             ARC4ABIMethod(
-                name=m.name,
+                name=m.member_name,
                 desc=m.documentation.description,
                 args=[
                     ARC4MethodArg(
@@ -643,7 +643,7 @@ def create_abi_router(
         elif isinstance(arc4_config, ARC4ABIMethodConfig):
             abi_methods[m] = arc4_config
             metadata = ARC4ABIMethod(
-                name=m.name,
+                name=m.member_name,
                 desc=doc.description,
                 args=[
                     ARC4MethodArg(
@@ -671,9 +671,8 @@ def create_abi_router(
         reject(router_location),
     ]
     approval_program = awst_nodes.ContractMethod(
-        module_name=contract.module_name,
-        class_name=contract.name,
-        name="__puya_arc4_router__",
+        cref=contract.cref,
+        member_name="__puya_arc4_router__",
         source_location=router_location,
         args=[],
         return_type=wtypes.bool_wtype,

@@ -11,8 +11,8 @@ logger = log.get_logger(__name__)
 
 class ScratchSlotReservationValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
-        for module_statement in module.body:
+    def validate(cls, module: awst_nodes.AWST) -> None:
+        for module_statement in module:
             validator = cls()
             module_statement.accept(validator)
             for slot, loc in validator.invalid_slot_usages:

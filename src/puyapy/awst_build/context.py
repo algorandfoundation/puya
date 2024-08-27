@@ -5,6 +5,7 @@ import contextlib
 import functools
 import typing
 from collections.abc import Iterator, Mapping, Sequence
+from pathlib import Path
 
 import attrs
 import mypy.nodes
@@ -30,7 +31,7 @@ logger = log.get_logger(__name__)
 
 @attrs.frozen(kw_only=True)
 class ASTConversionContext(CompileContext):
-    module_paths: Mapping[str, str]
+    module_paths: Mapping[str, Path]
     parse_result: ParseResult
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
@@ -51,25 +52,25 @@ class ASTConversionContext(CompileContext):
         self, cref: ContractReference, data: dict[str, AppStorageDeclaration]
     ) -> None:
         if cref in self._state_defs:
-            raise InternalError(f"Tried to reinitialise state defs for {cref.full_name}")
+            raise InternalError(f"tried to reinitialise state defs for {cref}")
         self._state_defs[cref] = data
 
     def add_state_def(self, cref: ContractReference, decl: AppStorageDeclaration) -> None:
         for_contract = self._state_defs.get(cref)
         if for_contract is None:
             logger.error(
-                f"Failed to look up state definition of {cref.full_name}",
+                f"failed to look up state definition of {cref}",
                 location=decl.source_location,
             )
         else:
             existing_def = for_contract.get(decl.member_name)
             if existing_def:
                 logger.info(
-                    f"Previous definition of {decl.member_name} was here",
+                    f"previous definition of {decl.member_name} was here",
                     location=existing_def.source_location,
                 )
                 logger.error(
-                    f"Redefinition of {decl.member_name}",
+                    f"redefinition of {decl.member_name}",
                     location=decl.source_location,
                 )
             for_contract[decl.member_name] = decl
@@ -113,8 +114,8 @@ class ASTConversionModuleContext(ASTConversionContext):
         return self.current_module.fullname
 
     @property
-    def module_path(self) -> str:
-        return self.current_module.path
+    def module_path(self) -> Path:
+        return Path(self.current_module.path)
 
     def node_location(
         self,
@@ -130,27 +131,30 @@ class ASTConversionModuleContext(ASTConversionContext):
             except KeyError as ex:
                 raise CodeError(f"Could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
-        lines = self.try_get_source(loc).code
-        if loc.line > 1:
-            prior_code = self.try_get_source(
-                SourceLocation(file=module_path, line=1, end_line=loc.line - 1)
-            ).code
-            unchop = 0
-            for line in reversed(prior_code or ()):
-                if not line.strip().startswith("#"):
-                    break
-                unchop += 1
-            if unchop:
-                loc = attrs.evolve(loc, line=loc.line - unchop)
-        if loc.end_line is not None and loc.end_line != loc.line:
-            chop = 0
-            for line in reversed(lines or ()):
-                l_stripped = line.lstrip()
-                if l_stripped and not l_stripped.startswith("#"):
-                    break
-                chop += 1
-            if chop:
-                loc = attrs.evolve(loc, end_line=loc.end_line - chop)
+        src_meta = self.try_get_source(loc)
+        if src_meta is not None:
+            lines = src_meta.code
+            if loc.line > 1:
+                prior_code_meta = self.try_get_source(
+                    SourceLocation(file=module_path, line=1, end_line=loc.line - 1)
+                )
+                prior_code = (prior_code_meta and prior_code_meta.code) or []
+                unchop = 0
+                for line in reversed(prior_code):
+                    if not line.strip().startswith("#"):
+                        break
+                    unchop += 1
+                if unchop:
+                    loc = attrs.evolve(loc, line=loc.line - unchop)
+            if loc.end_line is not None and loc.end_line != loc.line:
+                chop = 0
+                for line in reversed(lines or ()):
+                    l_stripped = line.lstrip()
+                    if l_stripped and not l_stripped.startswith("#"):
+                        break
+                    chop += 1
+                if chop:
+                    loc = attrs.evolve(loc, end_line=loc.end_line - chop)
         return loc
 
     def _maybe_convert_location(

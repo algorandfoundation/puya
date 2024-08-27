@@ -294,16 +294,12 @@ class ContractType(PyType):
     generic: None = attrs.field(default=None, init=False)
     module_name: str
     class_name: str
-    name: str = attrs.field(init=False)
+    name: ContractReference = attrs.field(init=False)
     source_location: SourceLocation
 
     @name.default
-    def _name(self) -> str:
-        return ".".join((self.module_name, self.class_name))
-
-    @cached_property
-    def cref(self) -> ContractReference:
-        return ContractReference(module_name=self.module_name, class_name=self.class_name)
+    def _name(self) -> ContractReference:
+        return ContractReference(".".join((self.module_name, self.class_name)))
 
     @typing.override
     @property

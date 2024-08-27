@@ -938,7 +938,7 @@ class FunctionIRBuilder(
         return_types = [r.ir_type for r in result]
         if return_types != self.context.subroutine.returns:
             raise CodeError(
-                f"Invalid return type {return_types} in {self.context.function.full_name},"
+                f"invalid return type {return_types} in {self.context.function.full_name},"
                 f" should be {self.context.subroutine.returns}",
                 statement.source_location,
             )
@@ -1074,13 +1074,14 @@ class FunctionIRBuilder(
         )
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
-        if self.context.contract is None:
+        root = self.context.root
+        if not isinstance(root, awst_nodes.ContractFragment):
             raise CodeError(
                 "cannot create ARC4 router outside of a contract", expr.source_location
             )
 
         return InvokeSubroutine(
-            target=self.context.routers[self.context.contract.cref],
+            target=self.context.routers[root.cref],
             args=[],
             source_location=expr.source_location,
         )

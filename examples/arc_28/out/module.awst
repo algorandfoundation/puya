@@ -1,0 +1,31 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract EventEmitter extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod emit_swapped(a: arc4.uint64, b: arc4.uint64): void
+  {
+    log(concat(Method("Swapped(uint64,uint64)"), new examples.arc_28.contract.Swapped(a=b, b=a)))
+    log(concat(Method("Swapped(uint64,uint64)"), arc4_encode((b, a), arc4.tuple<arc4.uint64,arc4.uint64>)))
+    log(concat(Method("Swapped(uint64,uint64)"), arc4_encode((b, a), arc4.tuple<arc4.uint64,arc4.uint64>)))
+  }
+  
+  abimethod emit_ufixed(a: arc4.ufixed256x16, b: arc4.ufixed64x2): void
+  {
+    log(concat(Method("AnEvent(ufixed256x16,ufixed64x2)"), arc4_encode((a, b), arc4.tuple<arc4.ufixed256x16,arc4.ufixed64x2>)))
+  }
+}

@@ -1,0 +1,266 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract Uint64Contract
+{
+  approval_program(): uint64
+  {
+    zero: uint64 = 0u
+    one: uint64 = 1u
+    two: uint64 = 2u
+    five: uint64 = 5u
+    three: uint64 = 3u
+    sixty: uint64 = 60u
+    assert(one != 0u, comment="Any non-zero number should be Truthy")
+    assert(zero == 0u, comment="Zero should beFalsy")
+    assert(one < five)
+    assert(five > one)
+    assert(one <= one)
+    assert(five >= five)
+    assert(one + five == 6u)
+    c: uint64 = five
+    c += sixty
+    assert(c == 65u)
+    assert(sixty - five == 55u)
+    c -= five
+    assert(c == 60u)
+    assert(sixty // five == 12u)
+    c //= five
+    assert(c == 12u)
+    assert(five * sixty == 300u)
+    assert(five ** three == 125u)
+    c **= 2u
+    assert(c == 144u)
+    assert(one << two == 4u)
+    c >>= 6u
+    assert(c == 2u)
+    c <<= 6u
+    assert(c == 128u)
+    assert(five >> three == 0u)
+    assert(~(one) == 18446744073709551614u)
+    true: uint64 = 1u
+    false: uint64 = 0u
+    assert((true == 0u) ? (true) : (true) == true)
+    assert((true == 0u) ? (true) : (false) == false)
+    assert((false == 0u) ? (false) : (true) == false)
+    assert((false == 0u) ? (false) : (false) == false)
+    assert((true != 0u) ? (true) : (true) == true)
+    assert((true != 0u) ? (true) : (false) == true)
+    assert((false != 0u) ? (false) : (true) == true)
+    assert((false != 0u) ? (false) : (false) == false)
+    assert(one & five == one)
+    assert(sixty | five == 61u)
+    assert(sixty ^ five == 57u)
+    y: uint64 = 254u
+    y &= 31u
+    assert(y == 30u)
+    y |= 54u
+    assert(y == 62u)
+    y ^= 255u
+    assert(y == 193u)
+    assert(sqrt(17u) == sqrt(16u))
+    assert(one == one)
+    assert((txn<NumAppArgs>() != 0u) ? (1u) : (5u) == 5u, comment="constructor expressions supported")
+    return 1u
+  }
+  
+  clear_state_program(): bool
+  {
+    assert(0u == 0u)
+    assert(reinterpret_cast<uint64>(false) == 0u)
+    return true
+  }
+}
+
+contract StringContract
+{
+  approval_program(): bool
+  {
+    empty: string = ''
+    assert(len(empty) == 0u, comment="Empty bytes should be False")
+    non_empty: string = ' '
+    assert(len(non_empty) != 0u, comment="Non-empty bytes should be True")
+    assert('a' + 'b' == 'ab')
+    assert('a' + 'b' == 'ab')
+    assert('a' + 'b' == 'ab')
+    assert(empty != non_empty)
+    c: string = 'c'
+    c += 'd'
+    c += 'e'
+    assert(c == 'cde')
+    assert(algopy_lib_bytes.is_substring(item=reinterpret_cast<bytes>('brown fox'), sequence=reinterpret_cast<bytes>('The quick brown fox jumped over the lazy dog')))
+    assert(!(algopy_lib_bytes.is_substring(item=reinterpret_cast<bytes>('red fox'), sequence=reinterpret_cast<bytes>('The quick brown fox jumped over the lazy dog'))))
+    alpha: string = 'abcdefg'
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0, source=''))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0)))) == SINGLE_EVAL(id=0)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=1, source='a'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=1)))) == SINGLE_EVAL(id=1)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2, source='ab'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2)))) == SINGLE_EVAL(id=2)))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=3, source='b'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=3)))) == SINGLE_EVAL(id=3))))
+    assert((len(reinterpret_cast<bytes>(alpha)) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(alpha))) == alpha))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=4, source=alpha + '!'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=4)))) == SINGLE_EVAL(id=4))))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5, source=''))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5)))) == SINGLE_EVAL(id=5)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6, source='g'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6)))) == SINGLE_EVAL(id=6)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7, source='fg'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7)))) == SINGLE_EVAL(id=7)))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8, source='f'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8)))) == SINGLE_EVAL(id=8))))
+    assert((len(reinterpret_cast<bytes>(alpha)) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(alpha)), len(reinterpret_cast<bytes>(alpha))) == alpha))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9, source='!' + alpha))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9)))) == SINGLE_EVAL(id=9))))
+    (d, e, f): tuple<string,string,string> = ('d', 'e', 'f')
+    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=10, source='.')), e), SINGLE_EVAL(id=10)), f) == 'd.e.f')
+    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=11, source='.')), 'e'), SINGLE_EVAL(id=11)), f) == 'd.e.f')
+    assert(concat(concat(concat(concat('d', SINGLE_EVAL(id=12, source='.')), 'e'), SINGLE_EVAL(id=12)), 'f') == 'd.e.f')
+    assert(concat(concat(concat(concat('d', SINGLE_EVAL(id=13, source='.')), 'e'), SINGLE_EVAL(id=13)), 'f') == 'd.e.f')
+    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=14, source='')), e), SINGLE_EVAL(id=14)), f) == 'def')
+    assert(d == 'd')
+    assert(d == 'd')
+    assert((txn<NumAppArgs>() != 0u) ? ('args') : ('no args') == 'no args', comment="constructor expressions supported")
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract BytesContract
+{
+  approval_program(): uint64
+  {
+    base_64: bytes = b64<"QmFzZSA2NCBlbmNvZGVk">
+    assert(base_64 == hex<"4261736520363420656E636F646564">)
+    base_32: bytes = b32<"IJQXGZJAGMZCAZLOMNXWIZLE">
+    assert(base_32 == hex<"4261736520333220656E636F646564">)
+    base_16: bytes = hex<"4261736520313620656E636F646564">
+    assert(base_16 == hex<"4261736520313620656E636F646564">)
+    empty: bytes = hex<"">
+    assert(len(base_64) != 0u, comment="Non empty bytes should be Truthy")
+    assert(len(empty) == 0u, comment="Empty bytes should be Falsy")
+    assert(hex<"61"> + hex<"62"> == hex<"6162">)
+    c: bytes = hex<"63">
+    c += hex<"64">
+    assert(c == hex<"6364">)
+    abc: bytes = hex<"616263">
+    assert(abc[0u] == hex<"61">)
+    assert(abc[1:] == hex<"6263">)
+    assert(abc[1:1] == hex<"">)
+    assert(abc[:1] == hex<"61">)
+    assert(abc[:-1] == hex<"6162">)
+    assert(abc[-2:] == hex<"6263">)
+    assert(abc[-2:-1] == hex<"62">)
+    assert(hex<"31323334353637">[1:-1] == hex<"3233343536">)
+    assert(abc[-10:10] == hex<"616263">)
+    true: bytes = hex<"31">
+    false: bytes = hex<"">
+    x: bool = (len(true) == 0u) ? (true) : (true) == true
+    assert(x)
+    assert((len(true) == 0u) ? (true) : (true) == true)
+    assert((len(true) == 0u) ? (true) : (false) == false)
+    assert((len(false) == 0u) ? (false) : (true) == false)
+    assert((len(false) == 0u) ? (false) : (false) == false)
+    assert((len(true) != 0u) ? (true) : (true) == true)
+    assert((len(true) != 0u) ? (true) : (false) == true)
+    assert((len(false) != 0u) ? (false) : (true) == true)
+    assert((len(false) != 0u) ? (false) : (false) == false)
+    (a, b, c, d): tuple<bytes,bytes,bytes,bytes> = (hex<"00">, hex<"0F">, hex<"F0">, hex<"FF">)
+    assert(a & b == a)
+    assert(b | c == d)
+    assert(b ^ d == c)
+    y: bytes = a
+    y &= d
+    assert(y == a)
+    y |= d
+    assert(y == d)
+    y ^= c
+    assert(y == b)
+    test_cases.stubs.bytes.check_slicing_with_uint64(abc)
+    test_cases.stubs.bytes.check_end_before_start_slicing(abc)
+    assert((txn<NumAppArgs>() != 0u) ? (hex<"61726773">) : (hex<"6E6F2061726773">) == hex<"6E6F2061726773">, comment="constructor expressions supported")
+    return 1u
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine check_slicing_with_uint64(abc: bytes): void
+{
+  one: uint64 = 1u
+  ten: uint64 = 10u
+  assert(abc[one:] == hex<"6263">)
+  assert(abc[one:one] == hex<"">)
+  assert(abc[:one] == hex<"61">)
+  assert(test_cases.stubs.bytes.one_to_seven()[one:-1] == hex<"3233343536">)
+  assert(abc[0u:ten] == hex<"616263">)
+}
+
+subroutine check_end_before_start_slicing(abc: bytes): void
+{
+  assert(abc[10:1] == hex<"">)
+  assert(abc[-10:-12] == hex<"">)
+  one: uint64 = 1u
+  ten: uint64 = 10u
+  assert(abc[ten:one] == hex<"">)
+}
+
+subroutine one_to_seven(): bytes
+{
+  log('one_to_seven called')
+  return hex<"31323334353637">
+}
+
+contract BigUIntContract
+{
+  approval_program(): bool
+  {
+    one: biguint = 1n
+    test_cases.stubs.biguint.compare_biguints(one, 2n)
+    test_cases.stubs.biguint.compare_biguint_vs_uint64(one, 2u)
+    test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2n)
+    assert((txn<NumAppArgs>() != 0u) ? (1n) : (5n) == 5n, comment="constructor expressions supported")
+    assert(bsqrt(9n) == bsqrt(10n))
+    assert(one == one)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    assert(0n == 0n)
+    return true
+  }
+}
+
+subroutine compare_biguints(one: biguint, two: biguint): void
+{
+  assert(one < two)
+  assert(one <= two)
+  assert(one == one)
+  assert(two > one)
+  assert(two >= one)
+  assert(one != two)
+}
+
+subroutine compare_biguint_vs_uint64(one: biguint, two: uint64): void
+{
+  assert(one < itob(two))
+  assert(one <= itob(two))
+  assert(one == one)
+  assert(one < itob(two))
+  assert(one <= itob(two))
+  assert(one != itob(two))
+}
+
+subroutine compare_uint64_vs_biguint(one: uint64, two: biguint): void
+{
+  assert(two > itob(one))
+  assert(two >= itob(one))
+  assert(one == one)
+  assert(two > itob(one))
+  assert(two >= itob(one))
+  assert(two != itob(one))
+}
