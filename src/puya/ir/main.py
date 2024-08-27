@@ -2,12 +2,11 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 
 import attrs
 from immutabledict import immutabledict
-from puyapy.parse import EMBEDDED_MODULES
 
 from puya import algo_constants, log
 from puya.avm_type import AVMType
@@ -15,14 +14,13 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods
 from puya.ir.builder.main import FunctionIRBuilder
-from puya.ir.context import IRBuildContext, IRBuildContextWithFallback
+from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
 from puya.ir.models import (
     Contract,
@@ -43,10 +41,8 @@ from puya.models import (
     ARC4Method,
     ARC4MethodConfig,
     ContractMetaData,
-    ContractReference,
     ContractState,
     LogicSignatureMetaData,
-    LogicSigReference,
     StateTotals,
 )
 from puya.parse import SourceLocation
@@ -58,74 +54,28 @@ logger = log.get_logger(__name__)
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]
 
 
-class ArtifactReferenceCollector(AWSTTraverser):
-    def __init__(self, modules: Iterable[str]) -> None:
-        super().__init__()
-        self.modules = StableSet(*modules)
-
-    def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> None:
-        super().visit_compiled_contract(expr)
-        self.modules.add(expr.contract.module_name)
-
-    def visit_compiled_logicsig(self, expr: awst_nodes.CompiledLogicSig) -> None:
-        super().visit_compiled_logicsig(expr)
-        self.modules.add(expr.logic_sig.module_name)
-
-    @classmethod
-    def extend(cls, modules: Iterable[str], asts: Mapping[str, awst_nodes.Module]) -> list[str]:
-        visitor = cls(modules)
-        for module_name in modules:
-            module = asts[module_name]
-            for stmt in module.body:
-                stmt.accept(visitor)
-        return list(visitor.modules)
-
-
-def build_module_irs(
-    context: CompileContext, module_asts: dict[str, awst_nodes.Module]
-) -> dict[str, list[ModuleArtifact]]:
-    embedded_funcs = [
-        func
-        for embedded_module_name in EMBEDDED_MODULES
-        for func in module_asts[embedded_module_name].body
-        if isinstance(func, awst_nodes.Function)
-    ]
+def awst_to_ir(
+    context: CompileContext, awst: awst_nodes.AWST, embedded_funcs: Sequence[awst_nodes.Subroutine]
+) -> list[ModuleArtifact]:
     build_context: IRBuildContext = attrs_extend(
-        IRBuildContext,
-        context,
-        subroutines={},
-        module_awsts=module_asts,
-        embedded_funcs=embedded_funcs,
+        IRBuildContext, context, subroutines={}, awst=awst, embedded_funcs=embedded_funcs
     )
     _build_embedded_ir(build_context)
 
-    result = {}
-    module_names = ArtifactReferenceCollector.extend(
-        [source.module_name for source in context.sources], module_asts
-    )
-    for module_name in module_names:
-        artifacts = result[module_name] = list[ModuleArtifact]()
-        concrete_contract_nodes = [
-            node
-            for node in module_asts[module_name].body
-            if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
-        ]
-        for contract_node in concrete_contract_nodes:
-            ctx = build_context.for_contract(contract_node)
-            with ctx.log_exceptions():
-                contract_ir = _build_ir(ctx, contract_node)
-                artifacts.append(contract_ir)
+    result = list[ModuleArtifact]()
 
-        logic_signature_nodes = [
-            node
-            for node in module_asts[module_name].body
-            if isinstance(node, awst_nodes.LogicSignature)
-        ]
-        for logic_signature in logic_signature_nodes:
-            ctx = build_context.for_logic_signature(logic_signature)
-            with ctx.log_exceptions():
-                logic_sig_ir = _build_logic_sig_ir(ctx, logic_signature)
-                artifacts.append(logic_sig_ir)
+    for node in awst:  # TODO: maybe trim this down to only things included directly or referenced?
+        match node:
+            case awst_nodes.ContractFragment(is_abstract=False) as contract_node:
+                ctx = build_context.for_root(contract_node)
+                with ctx.log_exceptions():
+                    contract_ir = _build_ir(ctx, contract_node)
+                    result.append(contract_ir)
+            case awst_nodes.LogicSignature() as logic_signature:
+                ctx = build_context.for_root(logic_signature)
+                with ctx.log_exceptions():
+                    logic_sig_ir = _build_logic_sig_ir(ctx, logic_signature)
+                    result.append(logic_sig_ir)
     return result
 
 
@@ -136,8 +86,7 @@ def optimize_and_destructure_ir(
     if context.options.output_ssa_ir:
         output_artifact_ir_to_path(artifact_ir, artifact_ir_base_path.with_suffix(".ssa.ir"))
     logger.info(
-        f"Optimizing {artifact_ir.metadata.full_name} "
-        f"at level {context.options.optimization_level}"
+        f"optimizing {artifact_ir.metadata.ref} at level {context.options.optimization_level}"
     )
     artifact_ir = optimize_contract_ir(
         context,
@@ -165,7 +114,7 @@ def _build_embedded_ir(ctx: IRBuildContext) -> None:
         FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
 
 
-def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFragment) -> Contract:
+def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Contract:
     if contract.is_abstract:
         raise InternalError("attempted to compile abstract contract")
     folded, arc4_method_data = _fold_state_and_special_methods(ctx, contract)
@@ -228,8 +177,8 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
         clear_program=clear_state_ir,
         metadata=ContractMetaData(
             description=contract.docstring,
-            name_override=contract.name_override,
-            ref=ContractReference(module_name=contract.module_name, class_name=contract.name),
+            name=contract.name,
+            ref=contract.cref,
             arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),
@@ -240,7 +189,7 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
 
 
 def _build_logic_sig_ir(
-    ctx: IRBuildContextWithFallback, logic_sig: awst_nodes.LogicSignature
+    ctx: IRBuildContext, logic_sig: awst_nodes.LogicSignature
 ) -> LogicSignature:
     # visit call graph starting at entry point(s) to collect all references for each
     callees = CalleesLookup(set)
@@ -267,8 +216,9 @@ def _build_logic_sig_ir(
         source_location=logic_sig.source_location,
         program=sig_ir,
         metadata=LogicSignatureMetaData(
-            ref=LogicSigReference(module_name=logic_sig.module_name, func_name=logic_sig.name),
+            ref=logic_sig.id,
             description=logic_sig.docstring,
+            name=logic_sig.short_name,
         ),
     )
     return result
@@ -330,13 +280,12 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
     ]
     returns = wtype_to_ir_types(func.return_type)
     return Subroutine(
-        source_location=func.source_location,
-        module_name=func.module_name,
-        class_name=func.class_name if isinstance(func, awst_nodes.ContractMethod) else None,
-        method_name=func.name,
+        full_name=func.full_name,
+        short_name=func.short_name,
         parameters=parameters,
         returns=returns,
         body=[],
+        source_location=func.source_location,
     )
 
 
@@ -352,13 +301,12 @@ def _make_program(
     if return_type.avm_type != AVMType.uint64:
         raise InternalError("main method should return uint64 backed type")
     main_sub = Subroutine(
-        source_location=main.source_location,
-        module_name=main.module_name,
-        class_name=main.class_name if isinstance(main, awst_nodes.ContractMethod) else None,
-        method_name=main.name,
+        full_name=main.full_name,
+        short_name=main.short_name,
         parameters=[],
         returns=[return_type],
         body=[],
+        source_location=main.source_location,
     )
     on_create_sub: Subroutine | None = None
     if on_create is not None:
@@ -429,9 +377,9 @@ def _gather_arc4_methods(
         for cm in c.subroutines:
             if (c is contract) or cm.inheritable:
                 if cm.arc4_method_config:
-                    maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.arc4_method_config))
+                    maybe_arc4_method_refs.setdefault(cm.member_name, (cm, cm.arc4_method_config))
                 else:
-                    maybe_arc4_method_refs.setdefault(cm.name, None)
+                    maybe_arc4_method_refs.setdefault(cm.member_name, None)
     arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
     return arc4_method_refs
 
@@ -522,10 +470,7 @@ class SubroutineCollector(FunctionTraverser):
 
     @classmethod
     def collect(
-        cls,
-        context: IRBuildContext,
-        start: awst_nodes.Function,
-        callees: CalleesLookup,
+        cls, context: IRBuildContext, start: awst_nodes.Function, callees: CalleesLookup
     ) -> StableSet[awst_nodes.Function]:
         collector = cls(context, callees)
         with collector._enter_func(start):  # noqa: SLF001
@@ -534,8 +479,10 @@ class SubroutineCollector(FunctionTraverser):
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
-        func = self.context.resolve_function_reference(expr.target, expr.source_location)
         callee = self._func_stack[-1]
+        func = self.context.resolve_function_reference(
+            expr.target, expr.source_location, caller=callee
+        )
         self.callees[func].add(callee)
         if func not in self.result:
             self.result.add(func)

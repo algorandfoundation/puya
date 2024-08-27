@@ -1,0 +1,43 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract UnaryContract
+{
+  approval_program(): bool
+  {
+    test_cases.unary.contract.uint_unary()
+    test_cases.unary.contract.biguint_unary()
+    test_cases.unary.contract.bytes_unary()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine uint_unary(): void
+{
+  assert(0u == 0u, comment="not uint")
+  for i in (1u, 2u, 150u, 18446744073709551615u) {
+    assert(~(18446744073709551615u - i) == i, comment="~ uint")
+  }
+}
+
+subroutine biguint_unary(): void
+{
+  assert(0n == 0n, comment="not biguint")
+}
+
+subroutine bytes_unary(): void
+{
+  assert(len(hex<"">) == 0u, comment="not bytes")
+  assert(b~(hex<"FF">) == hex<"00">, comment="~ bytes")
+  assert(b~(hex<"0000">) == hex<"FFFF">, comment="~ bytes")
+}

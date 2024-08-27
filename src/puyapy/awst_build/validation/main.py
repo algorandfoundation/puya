@@ -12,7 +12,7 @@ from puyapy.awst_build.validation.scratch_slots import ScratchSlotReservationVal
 from puyapy.awst_build.validation.storage import StorageTypesValidator
 
 
-def validate_awst(module: awst_nodes.Module) -> None:
+def validate_awst(module: awst_nodes.AWST) -> None:
     ARC4CopyValidator.validate(module)
     ScratchSlotReservationValidator.validate(module)
     InnerTransactionsValidator.validate(module)

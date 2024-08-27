@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -10,17 +8,14 @@ from puya.utils import make_path_relative_to_cwd
 
 
 @attrs.frozen
-class ParseSource:
+class CompileSource:
     path: Path
-    module_name: str
-    is_explicit: bool
-    """whether this file was explicitly supplied, otherwise it came from directory"""
     lines: Sequence[str] | None
 
 
 @attrs.frozen(kw_only=True, repr=False, str=False)
 class SourceLocation:
-    file: str
+    file: Path = attrs.field(converter=Path.resolve)  # type: ignore[misc]
     line: int
     # TODO: much better validation below
     end_line: int | None = None
@@ -42,7 +37,7 @@ class SourceLocation:
                 result += f"-{self.end_column}"
         return result
 
-    def __add__(self, other: SourceLocation | None) -> SourceLocation:
+    def __add__(self, other: "SourceLocation | None") -> "SourceLocation":
         if other is None:
             return self
 

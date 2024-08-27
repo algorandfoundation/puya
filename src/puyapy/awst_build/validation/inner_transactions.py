@@ -45,8 +45,8 @@ class InnerTransactionsValidator(AWSTTraverser):
     """
 
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
-        for module_statement in module.body:
+    def validate(cls, module: awst_nodes.AWST) -> None:
+        for module_statement in module:
             validator = cls()
             module_statement.accept(validator)
 
@@ -116,8 +116,8 @@ class InnerTransactionUsedInALoopValidator(AWSTTraverser):
         self._current_itxn_var_stack = list[list[str]]()
 
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
-        for module_statement in module.body:
+    def validate(cls, module: awst_nodes.AWST) -> None:
+        for module_statement in module:
             validator = cls()
             module_statement.accept(validator)
 
@@ -228,8 +228,8 @@ class StaleInnerTransactionsValidator(AWSTTraverser):
     """Validates that inner transaction array access are not stale"""
 
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
-        for module_statement in module.body:
+    def validate(cls, module: awst_nodes.AWST) -> None:
+        for module_statement in module:
             validator = cls()
             module_statement.accept(validator)
 

@@ -1,0 +1,163 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod test_static_elements(): void
+  {
+    byte_array1: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte1(), test_cases.arc4_dynamic_arrays.contract.get_byte2())
+    byte_array2: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte3(), test_cases.arc4_dynamic_arrays.contract.get_byte4())
+    struct1: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=byte_array1.copy())
+    struct2: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=byte_array2.copy())
+    array: arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.StaticStruct> = new arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.StaticStruct>(struct1.copy(), struct1.copy())
+    array[1u]: test_cases.arc4_dynamic_arrays.contract.StaticStruct = struct2.copy()
+    log(reinterpret_cast<bytes>(array))
+    log(reinterpret_cast<bytes>(array[0u]))
+    log(reinterpret_cast<bytes>(array[1u]))
+    assert(array.pop() == struct2)
+    assert(array.pop() == struct1)
+  }
+  
+  abimethod test_dynamic_elements(): void
+  {
+    struct1: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
+    struct2: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string3(), b=test_cases.arc4_dynamic_arrays.contract.get_string1())
+    array: arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.DynamicStruct> = new arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.DynamicStruct>(struct1.copy(), struct1.copy())
+    array.extend((struct1.copy()))
+    array[1u]: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = struct2.copy()
+    log(reinterpret_cast<bytes>(array))
+    log(reinterpret_cast<bytes>(array[0u]))
+    log(reinterpret_cast<bytes>(array[1u]))
+    log(reinterpret_cast<bytes>(array[2u]))
+    assert(array.pop() == struct1)
+    log(reinterpret_cast<bytes>(array))
+    assert(array.pop() == struct2)
+    log(reinterpret_cast<bytes>(array))
+    assert(array.pop() == struct1)
+    log(reinterpret_cast<bytes>(array))
+  }
+  
+  abimethod test_mixed_single_dynamic_elements(): void
+  {
+    struct1: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2())
+    struct2: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=test_cases.arc4_dynamic_arrays.contract.get_string2(), c=test_cases.arc4_dynamic_arrays.contract.get_uint1())
+    array: arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct> = new arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct>()
+    array.extend((struct2.copy()))
+    array.extend((struct2.copy()))
+    array[0u]: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = struct1.copy()
+    log(reinterpret_cast<bytes>(array))
+    log(reinterpret_cast<bytes>(array[0u]))
+    log(reinterpret_cast<bytes>(array[1u]))
+    assert(array.pop() == struct2)
+    assert(array.pop() == struct1)
+  }
+  
+  abimethod test_mixed_multiple_dynamic_elements(): void
+  {
+    struct1: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr1(), e=test_cases.arc4_dynamic_arrays.contract.get_uint1())
+    struct2: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=test_cases.arc4_dynamic_arrays.contract.get_string2(), c=test_cases.arc4_dynamic_arrays.contract.get_uint1(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr2(), e=test_cases.arc4_dynamic_arrays.contract.get_uint2())
+    array: arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct> = new arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct>(struct1.copy(), struct1.copy())
+    array[1u]: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = struct2.copy()
+    log(reinterpret_cast<bytes>(array))
+    log(reinterpret_cast<bytes>(array[0u]))
+    log(reinterpret_cast<bytes>(array[1u]))
+    assert(array.pop() == struct2)
+    assert(array.pop() == struct1)
+  }
+  
+  abimethod test_nested_struct_replacement(): void
+  {
+    one: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte1(), test_cases.arc4_dynamic_arrays.contract.get_byte2()))
+    two: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
+    three: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte2(), test_cases.arc4_dynamic_arrays.contract.get_byte1()))
+    four: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr1(), e=test_cases.arc4_dynamic_arrays.contract.get_uint1())
+    five: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
+    struct1: test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct = new test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct(one=one.copy(), two=two.copy(), three=three.copy(), four=four.copy(), five=five.copy())
+    struct2: test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct = new test_cases.arc4_dynamic_arrays.contract.NestedDynamicStruct(one=one.copy(), two=new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string2(), b=test_cases.arc4_dynamic_arrays.contract.get_string1()), three=three.copy(), four=four.copy(), five=five.copy())
+    struct2.two: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = two.copy()
+    assert(reinterpret_cast<bytes>(struct1) == reinterpret_cast<bytes>(struct2), comment="struct1 does not match struct2")
+  }
+  
+  abimethod test_nested_tuple_modification(): void
+  {
+    one: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte1(), test_cases.arc4_dynamic_arrays.contract.get_byte2()))
+    two: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
+    three: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte2(), test_cases.arc4_dynamic_arrays.contract.get_byte1()))
+    four1: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr1(), e=test_cases.arc4_dynamic_arrays.contract.get_uint1())
+    four2: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() + (123arc4u16), e=test_cases.arc4_dynamic_arrays.contract.get_uint1())
+    five: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
+    tup1: arc4.tuple<test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct,test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct> = arc4_encode((one.copy(), two.copy(), three.copy(), four1.copy(), five.copy()), arc4.tuple<test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct,test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct>)
+    tup2: arc4.tuple<test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct,test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct> = arc4_encode((one.copy(), two.copy(), three.copy(), four2.copy(), five.copy()), arc4.tuple<test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct,test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct>)
+    tup2[3].d.pop()
+    assert(reinterpret_cast<bytes>(tup1) == reinterpret_cast<bytes>(tup2), comment="tup1 does not match tup2")
+  }
+}
+
+subroutine get_string1(): arc4.dynamic_array<arc4.uint8>
+{
+  return arc4_encode('a', arc4.dynamic_array<arc4.uint8>)
+}
+
+subroutine get_string2(): arc4.dynamic_array<arc4.uint8>
+{
+  return arc4_encode('bee', arc4.dynamic_array<arc4.uint8>)
+}
+
+subroutine get_string3(): arc4.dynamic_array<arc4.uint8>
+{
+  return arc4_encode('Hello World', arc4.dynamic_array<arc4.uint8>)
+}
+
+subroutine get_uint1(): arc4.uint64
+{
+  return 3arc4u64
+}
+
+subroutine get_uint2(): arc4.uint64
+{
+  return 4398046511104arc4u64
+}
+
+subroutine get_byte1(): arc4.uint8
+{
+  return 4arc4u8
+}
+
+subroutine get_byte2(): arc4.uint8
+{
+  return 5arc4u8
+}
+
+subroutine get_byte3(): arc4.uint8
+{
+  return 42arc4u8
+}
+
+subroutine get_byte4(): arc4.uint8
+{
+  return 255arc4u8
+}
+
+subroutine get_u16_arr1(): arc4.dynamic_array<arc4.uint16>
+{
+  return new arc4.dynamic_array<arc4.uint16>(65535arc4u16, 0arc4u16, 42arc4u16)
+}
+
+subroutine get_u16_arr2(): arc4.dynamic_array<arc4.uint16>
+{
+  return new arc4.dynamic_array<arc4.uint16>(1arc4u16, 2arc4u16, 3arc4u16, 4arc4u16)
+}

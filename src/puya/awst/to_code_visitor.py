@@ -2,7 +2,6 @@ import base64
 import typing
 from collections.abc import Iterable, Iterator, Mapping
 
-import puya.models
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
@@ -47,9 +46,9 @@ class ToCodeVisitor(
     def _single_eval_index(self, tmp: nodes.SingleEvaluation) -> int:
         return self._seen_single_evals.setdefault(tmp, len(self._seen_single_evals))
 
-    def visit_module(self, module: nodes.Module) -> str:
+    def visit_module(self, module: nodes.AWST) -> str:
         result = list[str]()
-        for stmt in module.body:
+        for stmt in module:
             lines = stmt.accept(self)
             result.extend(lines)
         return "\n".join(result).strip()
@@ -106,22 +105,16 @@ class ToCodeVisitor(
 
     def visit_subroutine_call_expression(self, expr: nodes.SubroutineCallExpression) -> str:
         match expr.target:
-            case nodes.InstanceSubroutineTarget() as instance_sub:
-                target = f"this::{instance_sub.name}"
-            case nodes.BaseClassSubroutineTarget(
-                name=func_name,
-                base_class=puya.models.ContractReference(
-                    module_name=module_name, class_name=class_name
-                ),
-            ):
-                target = "::".join((module_name, class_name, func_name))
-            case nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
-                target = "::".join((module_name, func_name))
-            case _ as unhandled:
-                raise InternalError(
-                    f"Unhandled subroutine call expression target: {unhandled}",
-                    expr.source_location,
-                )
+            case nodes.InstanceMethodTarget(member_name=member_name):
+                target = f"this::{member_name}"
+            case nodes.InstanceSuperMethodTarget(member_name=member_name):
+                target = f"super::{member_name}"
+            case nodes.ContractMethodTarget(cref=cref, member_name=member_name):
+                target = "::".join((cref, member_name))
+            case nodes.SubroutineID(target):
+                pass
+            case unhandled:
+                typing.assert_never(unhandled)
         args = ", ".join(
             [(f"{a.name}=" if a.name else "") + a.value.accept(self) for a in expr.args]
         )
@@ -235,11 +228,7 @@ class ToCodeVisitor(
 
         if c.bases:
             header.append("extends")
-            header.append(
-                "("
-                + ", ".join("::".join((cref.module_name, cref.class_name)) for cref in c.bases)
-                + ")"
-            )
+            header.append("(" + ", ".join(c.bases) + ")")
         return [
             "",
             " ".join(header),
@@ -252,7 +241,7 @@ class ToCodeVisitor(
         body = statement.program.body.accept(self)
         return [
             "",
-            f"logicsig {statement.name}",
+            f"logicsig {statement.id}",
             "{",
             *_indent(body),
             "}",
@@ -297,7 +286,7 @@ class ToCodeVisitor(
             case ARC4BareMethodConfig():
                 deco = "baremethod"
             case ARC4ABIMethodConfig(name=config_name):
-                if statement.name != config_name:
+                if statement.member_name != config_name:
                     deco = f"abimethod[name_override={config_name}]"
                 else:
                     deco = "abimethod"
@@ -306,7 +295,7 @@ class ToCodeVisitor(
 
         return [
             "",
-            f"{deco} {statement.name}({args}): {statement.return_type}",
+            f"{deco} {statement.member_name}({args}): {statement.return_type}",
             "{",
             *_indent(body),
             "}",
@@ -386,9 +375,7 @@ class ToCodeVisitor(
         overrides = ", ".join(
             f"{k.name}={v.accept(self)}" for k, v in expr.allocation_overrides.items()
         )
-        return (
-            f"compiled_contract({expr.contract.full_name!r},{overrides},{template_vars_fragment})"
-        )
+        return f"compiled_contract({expr.contract},{overrides},{template_vars_fragment})"
 
     def visit_compiled_logicsig(self, expr: nodes.CompiledLogicSig) -> str:
         template_vars_fragment = self._template_vars_fragment(expr.prefix, expr.template_variables)

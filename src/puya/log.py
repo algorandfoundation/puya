@@ -46,7 +46,7 @@ class Log:
     location: SourceLocation | None
 
     @property
-    def file(self) -> str | None:
+    def file(self) -> Path | None:
         return None if self.location is None else self.location.file
 
     @property
@@ -57,7 +57,7 @@ class Log:
 @attrs.define
 class LoggingContext:
     logs: list[Log] = attrs.field(factory=list)
-    sources_by_path: Mapping[str, Sequence[str] | None] | None = None
+    sources_by_path: Mapping[Path, Sequence[str] | None] | None = None
 
     def _log_level_counts(self) -> Mapping[LogLevel, int]:
         return Counter(log.level for log in self.logs)
@@ -92,7 +92,7 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
         if not location or not location.file:
             return ""
 
-        file = str(Path(location.file).resolve())
+        file = str(location.file)
         if file.startswith(self.base_path):
             file = file[len(self.base_path) :]
 

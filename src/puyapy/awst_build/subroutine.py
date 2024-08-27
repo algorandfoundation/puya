@@ -12,7 +12,6 @@ from puya.awst.nodes import (
     AppStateExpression,
     AssignmentExpression,
     AssignmentStatement,
-    BaseClassSubroutineTarget,
     BinaryBooleanOperator,
     Block,
     BooleanBinaryOperation,
@@ -21,9 +20,9 @@ from puya.awst.nodes import (
     Expression,
     ExpressionStatement,
     ForInLoop,
-    FreeSubroutineTarget,
     Goto,
     IfElse,
+    InstanceSuperMethodTarget,
     Label,
     LoopContinue,
     LoopExit,
@@ -33,6 +32,7 @@ from puya.awst.nodes import (
     Statement,
     Subroutine,
     SubroutineArgument,
+    SubroutineID,
     Switch,
     VarExpression,
     WhileLoop,
@@ -79,7 +79,6 @@ from puyapy.awst_build.utils import (
     get_unaliased_fullname,
     iterate_user_bases,
     maybe_resolve_literal,
-    qualified_class_name,
     require_callable_type,
     resolve_member_node,
     symbol_node_is_function,
@@ -174,7 +173,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         documentation = parse_docstring(func_def.docstring)
         if self.contract_method_info is None:
             self.result = Subroutine(
-                module_name=self.context.module_name,
+                id=SubroutineID(func_def.fullname),
                 name=func_def.name,
                 source_location=source_location,
                 args=args,
@@ -187,9 +186,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             if self.contract_method_info.arc4_method_data is not None:
                 arc4_method_config = self.contract_method_info.arc4_method_data.config
             self.result = ContractMethod(
-                module_name=self.contract_method_info.cref.module_name,
-                class_name=self.contract_method_info.cref.class_name,
-                name=func_def.name,
+                cref=self.contract_method_info.cref,
+                member_name=func_def.name,
                 source_location=source_location,
                 args=args,
                 return_type=self._return_type.wtype,
@@ -737,18 +735,14 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             return func_builder
         match expr:
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if py_typ:
-                if pytypes.ContractBaseType in py_typ.mro:
+                if isinstance(py_typ, pytypes.ContractType):
                     return ContractTypeExpressionBuilder(
                         self.context, py_typ, typ.defn.info, expr_loc
                     )
                 if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
                     return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
-            case mypy.nodes.RefExpr(fullname=fullname) if py_typ == pytypes.LogicSigType:
-                module_name, func_name = fullname.rsplit(".", maxsplit=1)
-                ref = LogicSigReference(
-                    module_name=module_name,
-                    func_name=func_name,
-                )
+            case mypy.nodes.RefExpr() if py_typ == pytypes.LogicSigType:
+                ref = LogicSigReference(fullname)
                 return LogicSigExpressionBuilder(ref, expr_loc)
             case mypy.nodes.NameExpr(
                 node=mypy.nodes.Var(is_self=True, type=mypy.types.Instance() as self_mypy_type)
@@ -769,17 +763,17 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 for de in decorators
                 if isinstance(de, mypy.nodes.RefExpr)  # TODO: why wouldn't this be a RefExpr
             ):
-                func_name = expr.name
-                module_name = fullname.removesuffix(func_name).removesuffix(".")
                 self._precondition(
-                    bool(module_name), "unqualified name found in call to function", expr_loc
+                    expr.fullname != expr.name,
+                    "unqualified name found in call to function",
+                    expr_loc,
                 )
                 mypy_func_type = require_callable_type(dec, expr_loc)
                 func_type = self.context.type_to_pytype(mypy_func_type, source_location=expr_loc)
                 if not isinstance(func_type, pytypes.FuncType):
                     raise CodeError("decorated function has non-function type", expr_loc)
                 return SubroutineInvokerExpressionBuilder(
-                    target=FreeSubroutineTarget(module_name=module_name, name=func_name),
+                    target=SubroutineID(expr.fullname),
                     func_type=func_type,
                     location=expr_loc,
                 )
@@ -1250,13 +1244,12 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             if base_member_node is not None:
                 if symbol_node_is_function(base_member_node):
                     base_func_node = base_member_node
-                    base_class = qualified_class_name(base)
                     break
                 raise CodeError("super() is only supported for calling functions", super_loc)
         else:
             raise CodeError(
                 f"unable to locate method {super_expr.name}"
-                f" in bases of {self.contract_method_info.cref.full_name}",
+                f" in bases of {self.contract_method_info.cref}",
                 super_loc,
             )
 
@@ -1271,7 +1264,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if not is_static:
             func_type = attrs.evolve(func_type, args=func_type.args[1:])
 
-        super_target = BaseClassSubroutineTarget(base_class, name=super_expr.name)
+        super_target = InstanceSuperMethodTarget(member_name=super_expr.name)
         return SubroutineInvokerExpressionBuilder(
             target=super_target, func_type=func_type, location=super_loc
         )

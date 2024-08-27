@@ -13,7 +13,7 @@ from puya.awst.nodes import (
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
 from puya.log import get_logger
-from puya.models import ContractReference, LogicSigReference
+from puya.models import LogicSigReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
@@ -160,14 +160,8 @@ class CompileContractFunctionBuilder(FunctionBuilder):
 
         result_type = pytypes.CompiledContractType
         match arg_map[contract_arg_name]:
-            case NodeBuilder(
-                pytype=pytypes.TypeType(typ=typ)
-            ) if pytypes.ContractBaseType in typ.mro:
-                module_name, class_name = typ.name.rsplit(".", maxsplit=1)
-                contract = ContractReference(
-                    module_name=module_name,
-                    class_name=class_name,
-                )
+            case NodeBuilder(pytype=pytypes.TypeType(typ=pytypes.ContractType() as contract_typ)):
+                contract = contract_typ.name
             case invalid_or_none:
                 # if None (=missing), then error message already logged by get_arg_mapping
                 if invalid_or_none is not None:
@@ -210,7 +204,7 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
             case LogicSigExpressionBuilder(ref=logic_sig):
                 pass
             case missing_or_invalid:
-                logic_sig = LogicSigReference(module_name="", func_name="")  # dummy reference
+                logic_sig = LogicSigReference("")  # dummy reference
                 # if None (=missing), then error message already logged by get_arg_mapping
                 if missing_or_invalid is not None:
                     logger.error(

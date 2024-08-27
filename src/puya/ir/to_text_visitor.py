@@ -191,7 +191,7 @@ def render_program(emitter: TextEmitter, name: str, program: models.Program) -> 
 
 
 def render_contract(emitter: TextEmitter, contract: models.Contract) -> None:
-    emitter.append(f"contract {contract.metadata.full_name}:")
+    emitter.append(f"contract {contract.metadata.ref}:")
     with emitter.indent():
         render_program(emitter, "approval", contract.approval_program)
         emitter.append("")
@@ -199,7 +199,7 @@ def render_contract(emitter: TextEmitter, contract: models.Contract) -> None:
 
 
 def render_logic_signature(emitter: TextEmitter, logic_sig: models.LogicSignature) -> None:
-    render_program(emitter, f"logicsig {logic_sig.metadata.full_name}", logic_sig.program)
+    render_program(emitter, f"logicsig {logic_sig.metadata.ref}", logic_sig.program)
 
 
 def output_artifact_ir_to_path(artifact: models.ModuleArtifact, path: Path) -> None:

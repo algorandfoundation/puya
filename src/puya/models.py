@@ -1,18 +1,23 @@
-from __future__ import annotations
-
 import abc
 import enum
 import typing
+from collections.abc import Sequence
 
 import attrs
 from immutabledict import immutabledict
 
+from puya.avm_type import AVMType
 from puya.parse import SourceLocation
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+TemplateValue = tuple[int | bytes, SourceLocation | None]
 
-    from puya.avm_type import AVMType
+
+class ContractReference(str):  # can't use typing.NewType with pattern matching
+    __slots__ = ()
+
+
+class LogicSigReference(str):  # can't use typing.NewType with pattern matching
+    __slots__ = ()
 
 
 # values and names are matched to AVM definitions
@@ -38,6 +43,16 @@ class ARC4CreateOption(enum.Enum):
     allow = enum.auto()
     require = enum.auto()
     disallow = enum.auto()
+
+
+def _freeze_list_of_lists(elements: Sequence[Sequence[str]]) -> Sequence[tuple[str, str]]:
+    return tuple((e1, e2) for (e1, e2) in elements)
+
+
+@attrs.frozen
+class ARC32StructDef:
+    name: str
+    elements: Sequence[tuple[str, str]] = attrs.field(default=(), converter=_freeze_list_of_lists)
 
 
 @attrs.frozen(kw_only=True)
@@ -95,42 +110,6 @@ class ARC4BareMethod:
     config: ARC4BareMethodConfig
 
 
-def _freeze_list_of_lists(elements: Sequence[Sequence[str]]) -> Sequence[tuple[str, str]]:
-    return tuple((e1, e2) for (e1, e2) in elements)
-
-
-@attrs.frozen
-class ARC32StructDef:
-    name: str
-    elements: Sequence[tuple[str, str]] = attrs.field(default=(), converter=_freeze_list_of_lists)
-
-
-@attrs.frozen(kw_only=True)
-class ContractReference:
-    module_name: str
-    class_name: str
-
-    @property
-    def full_name(self) -> str:
-        return ".".join((self.module_name, self.class_name))
-
-    def __str__(self) -> str:
-        return self.full_name
-
-
-@attrs.frozen(kw_only=True)
-class LogicSigReference:
-    module_name: str
-    func_name: str
-
-    @property
-    def full_name(self) -> str:
-        return ".".join((self.module_name, self.func_name))
-
-    def __str__(self) -> str:
-        return self.full_name
-
-
 @attrs.define(eq=False)
 class ContractState:
     name: str
@@ -140,18 +119,11 @@ class ContractState:
     description: str | None
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class LogicSignatureMetaData:
     ref: LogicSigReference
+    name: str
     description: str | None
-
-    @property
-    def name(self) -> str:
-        return self.ref.func_name
-
-    @property
-    def full_name(self) -> str:
-        return self.ref.full_name
 
 
 @attrs.frozen
@@ -166,11 +138,11 @@ ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig
 ARC4Method = ARC4BareMethod | ARC4ABIMethod
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class ContractMetaData:
-    description: str | None
-    name_override: str | None
     ref: ContractReference
+    name: str
+    description: str | None
     global_state: immutabledict[str, ContractState]
     local_state: immutabledict[str, ContractState]
     state_totals: StateTotals
@@ -180,17 +152,8 @@ class ContractMetaData:
     def is_arc4(self) -> bool:
         return bool(self.arc4_methods)  # TODO: should this be an explicit flag instead?
 
-    @property
-    def name(self) -> str:
-        return self.name_override or self.ref.class_name
-
-    @property
-    def full_name(self) -> str:
-        return self.ref.full_name
-
 
 class CompiledProgram(abc.ABC):
-
     @property
     @abc.abstractmethod
     def teal_src(self) -> str: ...
@@ -207,6 +170,10 @@ class CompiledProgram(abc.ABC):
 class CompiledContract(abc.ABC):
     @property
     @abc.abstractmethod
+    def source_location(self) -> SourceLocation | None: ...
+
+    @property
+    @abc.abstractmethod
     def approval_program(self) -> CompiledProgram: ...
 
     @property
@@ -221,6 +188,9 @@ class CompiledContract(abc.ABC):
 class CompiledLogicSig(abc.ABC):
     @property
     @abc.abstractmethod
+    def source_location(self) -> SourceLocation | None: ...
+    @property
+    @abc.abstractmethod
     def program(self) -> CompiledProgram: ...
 
     @property
@@ -229,6 +199,3 @@ class CompiledLogicSig(abc.ABC):
 
 
 CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSig
-
-
-TemplateValue = tuple[int | bytes, SourceLocation | None]

@@ -34,7 +34,7 @@ def visit_subroutine_call_expression(
     if not implicit_args:
         return invoke_expr
 
-    return_values = context.visitor.materialise_value_provider(invoke_expr, target.method_name)
+    return_values = context.visitor.materialise_value_provider(invoke_expr, target.short_name)
     while implicit_args:
         in_arg = implicit_args.pop()
         out_value = return_values.pop()

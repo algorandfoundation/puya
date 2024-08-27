@@ -23,7 +23,7 @@ if t.TYPE_CHECKING:
     from collections.abc import Sequence
 
     import _pytest._code.code
-    from puya.awst.nodes import Module
+    from puya.awst.nodes import AWST
 
 THIS_DIR = Path(__file__).parent
 REPO_DIR = THIS_DIR.parent.parent
@@ -93,9 +93,7 @@ class TestCaseFile:
 
     src_path: Path | None = None
     """Temporary location of where test file is written during compilation,
-    used to correlate log items"""
-    module_name: str | None = None
-    """Module name based on src_path, used to correlate awst output"""
+    used to correlate log items and awst output"""
 
 
 @attrs.define
@@ -273,11 +271,6 @@ def get_test_lines_to_match_output(
     return expected
 
 
-def get_python_module_name(root_dir: Path, src_dir: Path) -> str:
-    relative = src_dir.relative_to(root_dir)
-    return ".".join(relative.with_suffix("").parts)
-
-
 def compile_and_update_cases(cases: list[TestCase]) -> None:
     with tempfile.TemporaryDirectory() as root_dir_str, logging_context() as awst_log_ctx:
         root_dir = Path(root_dir_str).resolve()
@@ -299,14 +292,13 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 tmp_src.write_text("\n".join(file.body))
                 srcs.append(tmp_src)
                 file.src_path = tmp_src
-                file.module_name = get_python_module_name(root_dir, tmp_src)
         context = parse_with_mypy(
             PuyaOptions(
                 paths=srcs,
                 output_bytecode=True,
             )
         )
-        awst = transform_ast(context)
+        awst, embedded_funcs = transform_ast(context)
         # lower each case further if possible and process
         for case in cases:
             if case_has_awst_errors(awst_log_ctx.logs, case):
@@ -329,7 +321,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                     logging_context() as case_log_ctx,
                     log_exceptions(),
                 ):
-                    awst_to_teal(case_log_ctx, case_context, awst)
+                    awst_to_teal(case_log_ctx, case_context, awst, embedded_funcs)
                 case_logs = case_log_ctx.logs
             process_test_case(case, awst_log_ctx.logs + case_logs, awst)
 
@@ -338,7 +330,7 @@ def case_has_awst_errors(captured_logs: list[Log], case: TestCase) -> bool:
     for file in case.files:
         path = file.src_path
         assert path is not None
-        abs_path = str(path.resolve())
+        abs_path = path.resolve()
         path_records = [record for record in captured_logs if record.file == abs_path]
         if any(r.level == LogLevel.error and r.line is not None for r in path_records):
             return True
@@ -360,19 +352,16 @@ def map_error_tuple_to_dict(errors: set[tuple[int, TestCaseOutput]]) -> OutputMa
     return result
 
 
-def process_test_case(
-    case: TestCase, captured_logs: Sequence[Log], awst: Sequence[Module]
-) -> None:
+def process_test_case(case: TestCase, captured_logs: Sequence[Log], awst: AWST) -> None:
     if case.failure:
         return
     missing_output = dict[Path, OutputMapping]()
     unexpected_output = dict[Path, OutputMapping]()
     unexpected_awst = dict[Path, list[str]]()
-    awst_lookup = {m.name: m for m in awst}
     for file in case.files:
         path = file.src_path
         assert path is not None
-        abs_path = str(path.resolve())
+        abs_path = path.resolve()
         expected_output = {
             (line, message)
             for line, messages in file.expected_output.items()
@@ -398,9 +387,8 @@ def process_test_case(
             unexpected_output[path] = map_error_tuple_to_dict(file_unexpected_output)
 
         if file.expected_awst:
-            module_name = file.module_name
-            assert module_name is not None
-            observed_awst = trim_empty_lines(module_to_awst_repr(awst_lookup[module_name]))
+            assert file.src_path is not None
+            observed_awst = trim_empty_lines(module_to_awst_repr(awst, file.src_path))
             expected_awst = trim_empty_lines(file.expected_awst)
             if observed_awst != expected_awst:
                 unexpected_awst[path] = observed_awst
@@ -556,6 +544,7 @@ def trim_empty_lines(lines: list[str]) -> list[str]:
     return lines[start : end + 1]
 
 
-def module_to_awst_repr(module: Module) -> list[str]:
+def module_to_awst_repr(awst: AWST, src_path: Path) -> list[str]:
     visitor = ToCodeVisitor()
-    return visitor.visit_module(module).splitlines()
+    filtered_awst = [n for n in awst if n.source_location.file == src_path]
+    return visitor.visit_module(filtered_awst).splitlines()

@@ -1,0 +1,267 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+logicsig test_cases.compile.apps.always_approve_sig
+{
+  return true
+}
+
+contract HelloBase extends (algopy.arc4.ARC4Contract)
+{
+  globals {
+    ['greeting']: string
+  }
+  
+  constructor()
+  {
+    GlobalState['greeting']: string = ''
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod delete(): void
+  {
+  }
+  
+  baremethod update(): void
+  {
+  }
+  
+  abimethod greet(name: string): string
+  {
+    return GlobalState['greeting'] + ' ' + name
+  }
+}
+
+contract LargeProgram extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod get_big_bytes_length(): uint64
+  {
+    return len(test_cases.compile.apps.get_big_bytes())
+  }
+  
+  abimethod delete(): void
+  {
+  }
+}
+
+subroutine get_big_bytes(): bytes
+{
+  return hex<"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000">
+}
+
+contract Hello extends (test_cases.compile.apps.HelloBase, algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(greeting: string): void
+  {
+    GlobalState['greeting']: string = greeting
+  }
+}
+
+contract HelloTmpl extends (test_cases.compile.apps.HelloBase, algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    GlobalState['greeting']: string = TemplateVar[string](TMPL_GREETING)
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(): void
+  {
+  }
+}
+
+contract HelloPrfx extends (test_cases.compile.apps.HelloBase, algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    GlobalState['greeting']: string = TemplateVar[string](PRFX_GREETING)
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(): void
+  {
+  }
+}
+
+contract HelloOtherConstants extends (algopy.arc4.ARC4Contract)
+{
+  globals {
+    ['greeting']: string
+    ['num']: biguint
+    ['address']: account
+    ['method']: bytes
+  }
+  
+  constructor()
+  {
+    GlobalState['greeting']: string = TemplateVar[string](TMPL_GREETING)
+    GlobalState['num']: biguint = TemplateVar[biguint](TMPL_NUM)
+    GlobalState['address']: account = TemplateVar[account](TMPL_ACCOUNT)
+    GlobalState['method']: bytes = TemplateVar[bytes](TMPL_METHOD)
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(): void
+  {
+  }
+  
+  abimethod delete(): void
+  {
+  }
+  
+  abimethod greet(name: string): bytes
+  {
+    num_alpha: bytes = reinterpret_cast<bytes>(GlobalState['num'] b+ 48n)[len(reinterpret_cast<bytes>(GlobalState['num'] b+ 48n)) - 1u]
+    return reinterpret_cast<bytes>(GlobalState['greeting']) + hex<"20"> + reinterpret_cast<bytes>(name) + num_alpha + reinterpret_cast<bytes>(GlobalState['address']) + GlobalState['method']
+  }
+}
+
+contract HelloFactory extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod test_logicsig(): arc4.static_array<arc4.uint8, 32>
+  {
+    return reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(compiled_logicsig('test_cases.compile.apps.always_approve_sig', prefix=None, variables={})[0])
+  }
+  
+  abimethod test_compile_contract(): void
+  {
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.Hello,,, prefix=None, variables={})
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create(string)void"), reinterpret_cast<bytes>(arc4_encode('hello', arc4.dynamic_array<arc4.uint8>))), ApprovalProgramPages=(SINGLE_EVAL(id=0, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=0)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=1, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=1)[1]), GlobalNumByteSlice=1u)).CreatedApplicationID
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), reinterpret_cast<bytes>(arc4_encode('world', arc4.dynamic_array<arc4.uint8>))), ApplicationID=hello_app))
+    result: arc4.dynamic_array<arc4.uint8> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=2, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=2)) == hex<"151F7C75">))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=hello_app, ApplicationArgs=(Method("delete()void")), OnCompletion=DeleteApplication))
+    assert(result == arc4_encode('hello world', arc4.dynamic_array<arc4.uint8>))
+  }
+  
+  abimethod test_compile_contract_tmpl(): void
+  {
+    greeting: string = 'hey'
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.HelloTmpl,,, prefix=None, variables={'GREETING': greeting})
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=3, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=3)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=4, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=4)[1]), GlobalNumUint=compiled[5], GlobalNumByteSlice=compiled[6], LocalNumUint=compiled[7], LocalNumByteSlice=compiled[8])).CreatedApplicationID
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), reinterpret_cast<bytes>(arc4_encode('world', arc4.dynamic_array<arc4.uint8>))), ApplicationID=hello_app))
+    result: arc4.dynamic_array<arc4.uint8> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=5, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=5)) == hex<"151F7C75">))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=hello_app, ApplicationArgs=(Method("delete()void")), OnCompletion=DeleteApplication))
+    assert(result == arc4_encode('hey world', arc4.dynamic_array<arc4.uint8>))
+  }
+  
+  abimethod test_compile_contract_prfx(): void
+  {
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.HelloPrfx,,, prefix='PRFX_', variables={'GREETING': 'hi'})
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=6, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=6)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=7, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=7)[1]), GlobalNumByteSlice=compiled[6])).CreatedApplicationID
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), reinterpret_cast<bytes>(arc4_encode('world', arc4.dynamic_array<arc4.uint8>))), ApplicationID=hello_app))
+    result: arc4.dynamic_array<arc4.uint8> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=8, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=8)) == hex<"151F7C75">))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=hello_app, ApplicationArgs=(Method("delete()void")), OnCompletion=DeleteApplication))
+    assert(result == arc4_encode('hi world', arc4.dynamic_array<arc4.uint8>))
+  }
+  
+  abimethod test_compile_contract_large(): void
+  {
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.LargeProgram,,, prefix=None, variables={})
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=9, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=9)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=10, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=10)[1]), ExtraProgramPages=compiled[4], GlobalNumByteSlice=compiled[6])).CreatedApplicationID
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("get_big_bytes_length()uint64")), ApplicationID=hello_app))
+    result: arc4.uint64 = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=11, source=txn.LastLog)), extract<0, 4>(SINGLE_EVAL(id=11)) == hex<"151F7C75">))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=hello_app, ApplicationArgs=(Method("delete()void")), OnCompletion=DeleteApplication))
+    assert(reinterpret_cast<biguint>(result) == reinterpret_cast<biguint>(4096arc4u64))
+  }
+  
+  abimethod test_arc4_create(): void
+  {
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create(string)void"), arc4_encode('hello', arc4.dynamic_array<arc4.uint8>)), ApprovalProgramPages=(SINGLE_EVAL(id=13, source=(SINGLE_EVAL(id=12, source=compiled_contract(test_cases.compile.apps.Hello,,, prefix=None, variables={}))[0], SINGLE_EVAL(id=12)[1]))[0], SINGLE_EVAL(id=13)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=14, source=(SINGLE_EVAL(id=12)[2], SINGLE_EVAL(id=12)[3]))[0], SINGLE_EVAL(id=14)[1]), ExtraProgramPages=SINGLE_EVAL(id=12)[4], GlobalNumByteSlice=SINGLE_EVAL(id=12)[6], GlobalNumUint=SINGLE_EVAL(id=12)[5], LocalNumByteSlice=SINGLE_EVAL(id=12)[8], LocalNumUint=SINGLE_EVAL(id=12)[7])).CreatedApplicationID
+    (result, _txn): tuple<string,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=16, source=SINGLE_EVAL(id=15, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), arc4_encode('world', arc4.dynamic_array<arc4.uint8>)), ApplicationID=hello_app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=16)) == hex<"151F7C75">)), string), SINGLE_EVAL(id=15))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=hello_app, OnCompletion=DeleteApplication))
+    assert(result == 'hello world')
+  }
+  
+  abimethod test_arc4_create_tmpl(): void
+  {
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.HelloTmpl,,, prefix=None, variables={'GREETING': 'tmpl2'})
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=17, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=17)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=18, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=18)[1]), ExtraProgramPages=compiled[4], GlobalNumByteSlice=compiled[6], GlobalNumUint=compiled[5], LocalNumByteSlice=compiled[8], LocalNumUint=compiled[7])).CreatedApplicationID
+    (result, _txn): tuple<string,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=20, source=SINGLE_EVAL(id=19, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), arc4_encode('world', arc4.dynamic_array<arc4.uint8>)), ApplicationID=hello_app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=20)) == hex<"151F7C75">)), string), SINGLE_EVAL(id=19))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=hello_app, OnCompletion=DeleteApplication))
+    assert(result == 'tmpl2 world')
+  }
+  
+  abimethod test_arc4_create_prfx(): void
+  {
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.HelloPrfx,,, prefix='PRFX_', variables={'GREETING': 'prfx2'})
+    hello_app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=21, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=21)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=22, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=22)[1]), ExtraProgramPages=compiled[4], GlobalNumByteSlice=compiled[6], GlobalNumUint=compiled[5], LocalNumByteSlice=compiled[8], LocalNumUint=compiled[7])).CreatedApplicationID
+    (result, _txn): tuple<string,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=24, source=SINGLE_EVAL(id=23, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), arc4_encode('world', arc4.dynamic_array<arc4.uint8>)), ApplicationID=hello_app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=24)) == hex<"151F7C75">)), string), SINGLE_EVAL(id=23))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=hello_app, OnCompletion=DeleteApplication))
+    assert(result == 'prfx2 world')
+  }
+  
+  abimethod test_arc4_create_large(): void
+  {
+    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=26, source=(SINGLE_EVAL(id=25, source=compiled_contract(test_cases.compile.apps.LargeProgram,,, prefix=None, variables={}))[0], SINGLE_EVAL(id=25)[1]))[0], SINGLE_EVAL(id=26)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=27, source=(SINGLE_EVAL(id=25)[2], SINGLE_EVAL(id=25)[3]))[0], SINGLE_EVAL(id=27)[1]), ExtraProgramPages=SINGLE_EVAL(id=25)[4], GlobalNumByteSlice=SINGLE_EVAL(id=25)[6], GlobalNumUint=SINGLE_EVAL(id=25)[5], LocalNumByteSlice=SINGLE_EVAL(id=25)[8], LocalNumUint=SINGLE_EVAL(id=25)[7])).CreatedApplicationID
+    (result, _txn): tuple<uint64,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=29, source=SINGLE_EVAL(id=28, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("get_big_bytes_length()uint64")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=29)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=28))
+    assert(result == 4096u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_arc4_update(): void
+  {
+    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=31, source=(SINGLE_EVAL(id=30, source=compiled_contract(test_cases.compile.apps.HelloTmpl,ExtraProgramPages=1u, GlobalNumByteSlice=2u, GlobalNumUint=2u, LocalNumByteSlice=2u, LocalNumUint=2u,, prefix=None, variables={'GREETING': 'hi'}))[0], SINGLE_EVAL(id=30)[1]))[0], SINGLE_EVAL(id=31)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=32, source=(SINGLE_EVAL(id=30)[2], SINGLE_EVAL(id=30)[3]))[0], SINGLE_EVAL(id=32)[1]), ExtraProgramPages=SINGLE_EVAL(id=30)[4], GlobalNumByteSlice=SINGLE_EVAL(id=30)[6], GlobalNumUint=SINGLE_EVAL(id=30)[5], LocalNumByteSlice=SINGLE_EVAL(id=30)[8], LocalNumUint=SINGLE_EVAL(id=30)[7])).CreatedApplicationID
+    (result, _txn): tuple<string,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=34, source=SINGLE_EVAL(id=33, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), arc4_encode('there', arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=34)) == hex<"151F7C75">)), string), SINGLE_EVAL(id=33))
+    assert(result == 'hi there')
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=app, OnCompletion=UpdateApplication, ApprovalProgramPages=(SINGLE_EVAL(id=36, source=(SINGLE_EVAL(id=35, source=compiled_contract(test_cases.compile.apps.Hello,,, prefix=None, variables={}))[0], SINGLE_EVAL(id=35)[1]))[0], SINGLE_EVAL(id=36)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=37, source=(SINGLE_EVAL(id=35)[2], SINGLE_EVAL(id=35)[3]))[0], SINGLE_EVAL(id=37)[1])))
+    (result, _txn): tuple<string,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=39, source=SINGLE_EVAL(id=38, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), arc4_encode('there', arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=39)) == hex<"151F7C75">)), string), SINGLE_EVAL(id=38))
+    assert(result == 'hi there')
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_other_constants(): void
+  {
+    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=41, source=(SINGLE_EVAL(id=40, source=compiled_contract(test_cases.compile.apps.HelloOtherConstants,,, prefix=None, variables={'NUM': 5n, 'GREETING': 'hello', 'ACCOUNT': Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"), 'METHOD': Method("something()void")}))[0], SINGLE_EVAL(id=40)[1]))[0], SINGLE_EVAL(id=41)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=42, source=(SINGLE_EVAL(id=40)[2], SINGLE_EVAL(id=40)[3]))[0], SINGLE_EVAL(id=42)[1]), ExtraProgramPages=SINGLE_EVAL(id=40)[4], GlobalNumByteSlice=SINGLE_EVAL(id=40)[6], GlobalNumUint=SINGLE_EVAL(id=40)[5], LocalNumByteSlice=SINGLE_EVAL(id=40)[8], LocalNumUint=SINGLE_EVAL(id=40)[7])).CreatedApplicationID
+    (result, _txn): tuple<bytes,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=44, source=SINGLE_EVAL(id=43, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)byte[]"), arc4_encode('Johnny', arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=44)) == hex<"151F7C75">)), bytes), SINGLE_EVAL(id=43))
+    assert(result == hex<"68656C6C6F204A6F686E6E7935"> + reinterpret_cast<bytes>(global<ZeroAddress>()) + Method("something()void"))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+}

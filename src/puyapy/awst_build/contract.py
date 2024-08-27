@@ -58,7 +58,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         super().__init__(context=context)
         self.class_def = class_def
         self.typ = typ
-        self.cref = cref = typ.cref
+        self.cref = cref = typ.name
         self.is_arc4 = pytypes.ARC4ContractBaseType in typ.mro
         self.is_abstract = _check_class_abstractness(context, class_def)
         self._methods = list[tuple[DeferredContractMethod, SourceLocation, SpecialMethod | None]]()
@@ -138,11 +138,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     )
                     self._synthetic_methods.append(
                         awst_nodes.ContractMethod(
+                            cref=cref,
+                            member_name=default_create_name,
                             synthetic=True,
                             inheritable=False,
-                            module_name=self.cref.module_name,
-                            class_name=self.cref.class_name,
-                            name=default_create_name,
                             args=[],
                             return_type=wtypes.void_wtype,
                             body=awst_nodes.Block(
@@ -184,8 +183,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         if self.is_arc4 and not self.is_abstract:
             # TODO: yoink this and replace with base method once MRO solved
             approval_program = awst_nodes.ContractMethod(
-                module_name=cref.module_name,
-                class_name=cref.class_name,
+                cref=cref,
                 source_location=self.source_location,
                 synthetic=True,
                 inheritable=False,
@@ -193,7 +191,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 args=[],
                 return_type=wtypes.bool_wtype,
                 documentation=awst_nodes.MethodDocumentation(),
-                name=constants.APPROVAL_METHOD,
+                member_name=constants.APPROVAL_METHOD,
                 body=awst_nodes.Block(
                     source_location=self.source_location,
                     body=[
@@ -213,9 +211,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         class_options = self.class_options
 
         result = awst_nodes.ContractFragment(
-            module_name=cref.module_name,
-            name=cref.class_name,
-            name_override=class_options.name_override,
+            id=cref,
+            name=class_options.name_override or class_def.name,
             is_abstract=self.is_abstract,
             bases=self.bases,
             init=init_method,
@@ -470,12 +467,10 @@ def _gather_bases(contract_type: pytypes.ContractType) -> list[ContractReference
     for ancestor in contract_type.mro:
         if ancestor is pytypes.ContractBaseType:
             pass
-        elif ancestor is pytypes.ARC4ContractBaseType:
-            contract_bases_mro.append(
-                ContractReference(module_name="algopy.arc4", class_name="ARC4Contract")
-            )
+        elif ancestor is pytypes.ARC4ContractBaseType:  # TODO: merge branches?
+            contract_bases_mro.append(ContractReference(ancestor.name))
         elif isinstance(ancestor, pytypes.ContractType):
-            contract_bases_mro.append(ancestor.cref)
+            contract_bases_mro.append(ancestor.name)
         else:
             raise CodeError(f"base class {ancestor} is not a contract subclass", class_def_loc)
 

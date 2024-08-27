@@ -111,7 +111,7 @@ def _encode_default_arg(
                 "data": _encode_abi_method(method),
             }
     # TODO: constants
-    raise InternalError(f"Cannot find source '{source}' on {metadata.full_name}", loc)
+    raise InternalError(f"Cannot find source '{source}' on {metadata.ref}", loc)
 
 
 def _encode_arc32_method_hint(metadata: ContractMetaData, method: ARC4ABIMethod) -> JSONDict:

@@ -33,8 +33,7 @@ def compile_arc32(
     debug_level: int = 2,
 ) -> str:
     result = compile_src(src_path, optimization_level=optimization_level, debug_level=debug_level)
-    artifacts = [a for artifacts in result.teal.values() for a in artifacts]
-    (contract,) = artifacts
+    (contract,) = result.teal
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(
         contract.approval_program.teal_src, contract.clear_program.teal_src, contract.metadata

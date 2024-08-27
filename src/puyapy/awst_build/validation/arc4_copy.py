@@ -13,9 +13,9 @@ logger = log.get_logger(__name__)
 
 class ARC4CopyValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, module: awst_nodes.Module) -> None:
+    def validate(cls, module: awst_nodes.AWST) -> None:
         validator = cls()
-        for module_statement in module.body:
+        for module_statement in module:
             module_statement.accept(validator)
 
     def __init__(self) -> None:

@@ -1,0 +1,47 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine zero(): uint64
+{
+  return 0u
+}
+
+subroutine one(): uint64
+{
+  return 1u
+}
+
+contract MyContract
+{
+  approval_program(): uint64
+  {
+    a: uint64 = 1u + 2u
+    b: uint64 = 4u * 5u
+    if (a == 3u) {
+      if (b < 2u) {
+        b: uint64 = 3u + 2u
+        return a + b
+      } else {
+        b: uint64 = 2u * a
+        if (14u * b != 0u) {
+          return 2u
+        } else {
+          return 3u
+        }
+      }
+    } else {
+      return 4u
+    }
+  }
+  
+  clear_state_program(): uint64
+  {
+    assert(txn<NumAppArgs>() == 0u)
+    return test_cases.simple.subs.zero() * test_cases.simple.pkg_a.pkg_1.subs.one()
+  }
+}

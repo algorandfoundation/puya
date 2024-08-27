@@ -7,8 +7,9 @@ import mypy.types
 import mypy.visitor
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst.nodes import ConstantValue, LogicSignature, Module, ModuleStatement, StateTotals
+from puya.awst.nodes import AWST, ConstantValue, LogicSignature, ModuleStatement, StateTotals
 from puya.errors import CodeError, InternalError
+from puya.models import LogicSigReference
 from puya.utils import StableSet, coalesce
 
 from puyapy.awst_build import constants, pytypes
@@ -52,17 +53,14 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
         super().__init__(context=context.for_module(module))
-
         self.module_name: typing.Final = module.fullname
-
-        # pre-parse
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
         for node in module.defs:
             with self.context.log_exceptions(fallback_location=node):
                 items = node.accept(self)
                 self._pre_parse_result.append((node, items))
 
-    def convert(self) -> Module:
+    def convert(self) -> AWST:
         statements = []
         for node, items in self._pre_parse_result:
             with self.context.log_exceptions(fallback_location=node):
@@ -71,9 +69,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                         statements.append(stmt_or_deferred)
                     else:
                         statements.append(stmt_or_deferred(self.context))
-        result = Module(name=self.module_name, body=statements)
-        validate_awst(result)
-        return result
+        validate_awst(statements)
+        return statements
 
     # Supported Statements
 
@@ -100,9 +97,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 program = FunctionASTConverter.convert(ctx, func_def, source_location)
                 ctx.register_pytype(pytypes.LogicSigType, alias=func_def.fullname)
                 return LogicSignature(
-                    module_name=ctx.module_name,
+                    id=LogicSigReference(func_def.fullname),
                     program=program,
-                    name=coalesce(info.name_override, program.name),
+                    short_name=coalesce(info.name_override, program.name),
                     docstring=func_def.docstring,
                     source_location=self._location(logicsig_dec),
                 )

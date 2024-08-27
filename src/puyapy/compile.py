@@ -38,11 +38,11 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
         context = parse_with_mypy(puya_options)
         log_ctx.sources_by_path = context.sources_by_path
         log_ctx.exit_if_errors()
-        awst = transform_ast(context)
+        awst, embedded_funcs = transform_ast(context)
         log_ctx.exit_if_errors()
-        compiled_contracts_by_source_path = awst_to_teal(log_ctx, context, awst)
+        artifacts = awst_to_teal(log_ctx, context, awst, embedded_funcs)
         log_ctx.exit_if_errors()
-        write_artifacts(context, compiled_contracts_by_source_path)
+        write_artifacts(context, artifacts)
     log_ctx.exit_if_errors()
 
 
@@ -58,7 +58,7 @@ def parse_with_mypy(puya_options: PuyaOptions) -> ASTConversionContext:
     context = ASTConversionContext(
         options=puya_options,
         sources=parse_result.sources,
-        module_paths={m.fullname: m.path for m in parse_result.ordered_modules},
+        module_paths={m.fullname: Path(m.path) for m in parse_result.ordered_modules},
         parse_result=parse_result,
     )
 

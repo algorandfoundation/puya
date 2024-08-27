@@ -1,0 +1,40 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract TemplateVariablesContract extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod get_bytes(): bytes
+  {
+    return TemplateVar[bytes](TMPL_SOME_BYTES)
+  }
+  
+  abimethod get_big_uint(): arc4.uint512
+  {
+    x: biguint = TemplateVar[biguint](TMPL_SOME_BIG_UINT)
+    return arc4_encode(x, arc4.uint512)
+  }
+  
+  baremethod on_update(): void
+  {
+    assert(TemplateVar[bool](TMPL_UPDATABLE))
+  }
+  
+  baremethod on_delete(): void
+  {
+    assert(TemplateVar[uint64](TMPL_DELETABLE) != 0u)
+  }
+}

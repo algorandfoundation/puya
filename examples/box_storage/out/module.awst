@@ -1,0 +1,195 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract BoxContract extends (algopy.arc4.ARC4Contract)
+{
+  boxes {
+    ['box_a']: uint64
+    ['b']: arc4.dynamic_array<arc4.uint8>
+    [hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8>
+    ['box_d']: bytes
+    ['']: uint64 => string
+    ['box_ref']: bytes
+  }
+  
+  constructor()
+  {
+  }
+  
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod set_boxes(a: uint64, b: arc4.dynamic_array<arc4.uint8>, c: arc4.dynamic_array<arc4.uint8>): void
+  {
+    Box['box_a']: uint64 = a
+    Box['b']: arc4.dynamic_array<arc4.uint8> = b.copy()
+    Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = c
+    Box['box_d']: bytes = arc4_decode(b, bytes)
+    b_value: arc4.dynamic_array<arc4.uint8> = Box['b'].copy()
+    assert(extract_uint16(Box['b'], 0u) == extract_uint16(b_value, 0u), comment="direct reference should match copy")
+    Box['box_a'] += 3u
+    assert(checked_maybe(box_len('box_a')) == 8u)
+    assert(checked_maybe(box_len('b')) == len(reinterpret_cast<bytes>(b)))
+    assert(checked_maybe(box_len(hex<"424F585F43">)) == len(reinterpret_cast<bytes>(c)))
+    assert(checked_maybe(box_len('box_d')) == len(arc4_decode(b, bytes)))
+    assert(box_extract(hex<"424F585F43">, 0u, 1u) == reinterpret_cast<bytes>(c)[0u])
+    assert(box_extract(hex<"424F585F43">, box_len(hex<"424F585F43">)[0] - 1u, 1u) == reinterpret_cast<bytes>(c)[len(reinterpret_cast<bytes>(c)) - 1u])
+    assert(box_extract(hex<"424F585F43">, 0u, SINGLE_EVAL(id=0, source=box_len(hex<"424F585F43">)[0]) - select(SINGLE_EVAL(id=0), 1u, 1u < SINGLE_EVAL(id=0)) - 0u) == reinterpret_cast<bytes>(c)[:-1])
+    assert(box_extract(hex<"424F585F43">, 0u, select(SINGLE_EVAL(id=1, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=1)) - 0u) == reinterpret_cast<bytes>(c)[:2])
+    assert(box_extract('box_d', 0u, 1u) == arc4_decode(b, bytes)[0u])
+    assert(box_extract('box_d', box_len('box_d')[0] - 1u, 1u) == arc4_decode(b, bytes)[len(arc4_decode(b, bytes)) - 1u])
+    assert(box_extract('box_d', 0u, SINGLE_EVAL(id=2, source=box_len('box_d')[0]) - select(SINGLE_EVAL(id=2), 1u, 1u < SINGLE_EVAL(id=2)) - 0u) == arc4_decode(b, bytes)[:-1])
+    assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=3, source=box_len('box_d')[0]), 5u, 5u < SINGLE_EVAL(id=3)) - 0u) == arc4_decode(b, bytes)[:5])
+    assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=4, source=box_len('box_d')[0]), 2u, 2u < SINGLE_EVAL(id=4)) - 0u) == arc4_decode(b, bytes)[:2u])
+  }
+  
+  abimethod check_keys(): void
+  {
+    assert(reinterpret_cast<bytes>('box_a') == hex<"626F785F61">, comment="box a key ok")
+    assert(reinterpret_cast<bytes>('b') == hex<"62">, comment="box b key ok")
+    assert(reinterpret_cast<bytes>(hex<"424F585F43">) == hex<"424F585F43">, comment="box c key ok")
+  }
+  
+  abimethod delete_boxes(): void
+  {
+    STATE_DELETE(Box['box_a'])
+    STATE_DELETE(Box['b'])
+    STATE_DELETE(Box[hex<"424F585F43">])
+    assert(STATE_GET(Box['box_a'], default=42u) == 42u)
+    assert(arc4_decode(STATE_GET(Box['b'], default=arc4_encode(hex<"3432">, arc4.dynamic_array<arc4.uint8>)), bytes) == hex<"3432">)
+    assert(STATE_GET(Box[hex<"424F585F43">], default=arc4_encode('42', arc4.dynamic_array<arc4.uint8>)) == arc4_encode('42', arc4.dynamic_array<arc4.uint8>))
+    (a, a_exists): tuple<uint64,bool> = STATE_GET_EX(Box['box_a'])
+    assert(!(a_exists))
+    assert(a == 0u)
+  }
+  
+  abimethod read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
+  {
+    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">])
+  }
+  
+  abimethod boxes_exist(): tuple<bool,bool,bool>
+  {
+    return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]))
+  }
+  
+  abimethod slice_box(): void
+  {
+    box_0: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('0'))
+    Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
+    assert(box_extract(box_0, select(SINGLE_EVAL(id=5, source=box_len(box_0)[0]), 0u, 0u < SINGLE_EVAL(id=5)), select(SINGLE_EVAL(id=5), 7u, 7u < SINGLE_EVAL(id=5)) - select(SINGLE_EVAL(id=5), 0u, 0u < SINGLE_EVAL(id=5))) == hex<"54657374696E67">)
+    Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = arc4_encode('Hello', arc4.dynamic_array<arc4.uint8>)
+    assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=6)), select(SINGLE_EVAL(id=6), 10u, 10u < SINGLE_EVAL(id=6)) - select(SINGLE_EVAL(id=6), 2u, 2u < SINGLE_EVAL(id=6))) == hex<"48656C6C6F">)
+  }
+  
+  abimethod arc4_box(): void
+  {
+    box_d: box_key = hex<"64">
+    Box[box_d]: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
+    assert(reinterpret_cast<biguint>(Box[box_d][0u]) == reinterpret_cast<biguint>(0arc4u8))
+    assert(reinterpret_cast<biguint>(Box[box_d][1u]) == reinterpret_cast<biguint>(1arc4u8))
+    assert(reinterpret_cast<biguint>(Box[box_d][2u]) == reinterpret_cast<biguint>(2arc4u8))
+    assert(reinterpret_cast<biguint>(Box[box_d][3u]) == reinterpret_cast<biguint>(3arc4u8))
+  }
+  
+  abimethod test_box_ref(): void
+  {
+    box_ref: box_key = 'blob'
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    box_ref: box_key = hex<"626C6F62">
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    box_ref: box_key = hex<"626C6F62">
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    box_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('blob'))
+    assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
+    assert(box_create(box_ref, 32u))
+    assert(STATE_EXISTS(Box[box_ref]), comment="has data")
+    sender_bytes: bytes = reinterpret_cast<bytes>(txn<Sender>())
+    app_address: bytes = reinterpret_cast<bytes>(global<CurrentApplicationAddress>())
+    value_3: bytes = hex<"68656C6C6F">
+    box_replace(box_ref, 0u, sender_bytes)
+    box_resize(box_ref, 8000u)
+    box_splice(box_ref, 0u, 0u, app_address)
+    box_replace(box_ref, 64u, value_3)
+    prefix: bytes = box_extract(box_ref, 0u, 64u + len(value_3))
+    assert(prefix == app_address + sender_bytes + value_3)
+    assert(box_del(box_ref))
+    assert(reinterpret_cast<bytes>(box_ref) == hex<"626C6F62">)
+    (value, exists): tuple<bytes,bool> = STATE_GET_EX(Box[box_ref])
+    assert(!(exists))
+    assert(value == hex<"">)
+    assert(STATE_GET(Box[box_ref], default=sender_bytes) == sender_bytes)
+    box_put(box_ref, sender_bytes + app_address)
+    assert(STATE_EXISTS(Box[box_ref]), comment="Blob exists")
+    assert(checked_maybe(box_len(box_ref)) == 64u)
+    assert(examples.box_storage.contract.get_box_ref_length(box_ref) == 64u)
+    box_create('box_ref', 32u)
+    assert(STATE_EXISTS(Box['box_ref']), comment="has data")
+    box_del('box_ref')
+  }
+  
+  abimethod box_map_test(): void
+  {
+    key_0: uint64 = 0u
+    key_1: uint64 = 1u
+    value: string = 'Hmmmmm'
+    Box[concat('', itob(key_0))]: string = value
+    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
+    assert(checked_maybe(box_len(concat('', itob(key_0)))) == len(reinterpret_cast<bytes>(value)))
+    assert(STATE_GET(Box[concat('', itob(key_1))], default='default') == 'default')
+    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[concat('', itob(key_1))])
+    assert(!(exists))
+    assert(STATE_EXISTS(Box[concat('', itob(key_0))]))
+    assert(reinterpret_cast<bytes>('') == hex<"">)
+    tmp_box_map: box_key = hex<"">
+    Box[concat(tmp_box_map, itob(key_1))]: string = 'hello'
+    assert(examples.box_storage.contract.get_box_map_value_from_key_plus_1(tmp_box_map, 0u) == 'hello')
+    STATE_DELETE(Box[concat(tmp_box_map, itob(key_1))])
+  }
+  
+  abimethod box_map_set(key: uint64, value: string): void
+  {
+    Box[concat('', itob(key))]: string = value
+  }
+  
+  abimethod box_map_get(key: uint64): string
+  {
+    return Box[concat('', itob(key))]
+  }
+  
+  abimethod box_map_del(key: uint64): void
+  {
+    STATE_DELETE(Box[concat('', itob(key))])
+  }
+  
+  abimethod box_map_exists(key: uint64): bool
+  {
+    return STATE_EXISTS(Box[concat('', itob(key))])
+  }
+}
+
+subroutine get_box_value_plus_1(box: box_key): uint64
+{
+  return Box[box] + 1u
+}
+
+subroutine get_box_ref_length(ref: box_key): uint64
+{
+  return checked_maybe(box_len(ref))
+}
+
+subroutine get_box_map_value_from_key_plus_1(box_map: box_key, key: uint64): string
+{
+  return Box[concat(box_map, itob(key + 1u))]
+}

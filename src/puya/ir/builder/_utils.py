@@ -135,7 +135,7 @@ def _convert_constants(arg: int | bytes | Value, source_location: SourceLocation
             return arg
 
 
-def invoke_puya_lib_subroutine(
+def invoke_puya_lib_subroutine(  # TODO: gotta keep em seperated
     context: IRFunctionBuildContext,
     *,
     method_name: str,
@@ -143,7 +143,7 @@ def invoke_puya_lib_subroutine(
     args: Sequence[Value | int | bytes],
     source_location: SourceLocation,
 ) -> InvokeSubroutine:
-    target = awst_nodes.FreeSubroutineTarget(module_name=module_name, name=method_name)
+    target = awst_nodes.SubroutineID(".".join((module_name, method_name)))
     func = context.resolve_function_reference(target, source_location)
     try:
         sub = context.subroutines[func]

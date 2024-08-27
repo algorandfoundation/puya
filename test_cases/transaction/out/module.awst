@@ -1,0 +1,139 @@
+abstract contract ARC4Contract
+{
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+contract TransactionContract extends (algopy.arc4.ARC4Contract)
+{
+  approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  abimethod create(): void
+  {
+  }
+  
+  subroutine _common_checks(txn: group_transaction_base): void
+  {
+    assert(len(gtxns<TxID>(txn)) != 0u, comment="txn_id")
+    assert(gtxns<Sender>(txn) == global<CreatorAddress>(), comment="sender")
+    assert(gtxns<Fee>(txn) != 0u, comment="fee")
+    assert(gtxns<TypeEnum>(txn) != 0u, comment="type")
+    assert(len(gtxns<Type>(txn)) != 0u, comment="type_bytes")
+    assert(gtxns<Note>(txn) == hex<"">, comment="note")
+    assert(gtxns<GroupIndex>(txn) == 0u, comment="group_index")
+    assert(gtxns<FirstValid>(txn) != 0u, comment="first_valid")
+    assert(gtxns<LastValid>(txn) != 0u, comment="last_valid")
+    assert(len(gtxns<Lease>(txn)) != 0u, comment="lease")
+    assert(gtxns<RekeyTo>(txn) == global<ZeroAddress>(), comment="rekey_to")
+  }
+  
+  abimethod pay(txn: group_transaction_pay): void
+  {
+    this::_common_checks(txn)
+    assert(gtxns<Receiver>(txn) == global<CurrentApplicationAddress>(), comment="Payment should be for this app")
+    assert(gtxns<Amount>(txn) > 1000u, comment="Payment should be for >1000 micro algos")
+    assert(gtxns<CloseRemainderTo>(txn) == global<ZeroAddress>(), comment="close_remainder_to")
+  }
+  
+  abimethod key(txn: group_transaction_keyreg): void
+  {
+    this::_common_checks(txn)
+    assert(len(gtxns<VotePK>(txn)) != 0u, comment="vote_key")
+    assert(len(gtxns<SelectionPK>(txn)) != 0u, comment="selection_key")
+    assert(gtxns<VoteKeyDilution>(txn) != 0u, comment="vote_key_dilution")
+    assert(gtxns<VoteFirst>(txn) != 0u, comment="vote_first")
+    assert(gtxns<VoteLast>(txn) != 0u, comment="vote_last")
+    assert(gtxns<Nonparticipation>(txn), comment="non_participation")
+    assert(len(gtxns<StateProofPK>(txn)) != 0u, comment="state_proof_key")
+  }
+  
+  abimethod asset_config(txn: group_transaction_acfg): void
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
+    assert(gtxns<ConfigAssetTotal>(txn) != 0u, comment="total")
+    assert(gtxns<ConfigAssetDecimals>(txn) != 0u, comment="decimals")
+    assert(gtxns<ConfigAssetDefaultFrozen>(txn), comment="default_frozen")
+    assert(len(gtxns<ConfigAssetUnitName>(txn)) != 0u, comment="unit_name")
+    assert(len(gtxns<ConfigAssetName>(txn)) != 0u, comment="asset_name")
+    assert(len(gtxns<ConfigAssetURL>(txn)) != 0u, comment="url")
+    assert(len(gtxns<ConfigAssetMetadataHash>(txn)) != 0u, comment="metadata_hash")
+    assert(gtxns<ConfigAssetManager>(txn) != global<ZeroAddress>(), comment="manager")
+    assert(gtxns<ConfigAssetReserve>(txn) != global<ZeroAddress>(), comment="reserve")
+    assert(gtxns<ConfigAssetFreeze>(txn) != global<ZeroAddress>(), comment="freeze")
+    assert(gtxns<ConfigAssetClawback>(txn) != global<ZeroAddress>(), comment="clawback")
+  }
+  
+  abimethod asset_transfer(txn: group_transaction_axfer): void
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
+    assert(gtxns<AssetAmount>(txn) != 0u, comment="asset_amount")
+    assert(gtxns<AssetSender>(txn) != global<ZeroAddress>(), comment="asset_sender")
+    assert(gtxns<AssetReceiver>(txn) != global<ZeroAddress>(), comment="asset_receiver")
+    assert(gtxns<AssetCloseTo>(txn) != global<ZeroAddress>(), comment="asset_close_to")
+  }
+  
+  abimethod asset_freeze(txn: group_transaction_afrz): void
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
+    assert(gtxns<FreezeAssetAccount>(txn) != global<ZeroAddress>(), comment="freeze_account")
+    assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
+  }
+  
+  abimethod application_call(txn: group_transaction_appl): void
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="app_id")
+    assert(gtxns<OnCompletion>(txn) != 0u, comment="on_completion")
+    assert(gtxns<NumAppArgs>(txn) != 0u, comment="num_app_args")
+    assert(gtxns<NumAccounts>(txn) != 0u, comment="num_accounts")
+    assert(len(gtxns<ApprovalProgram>(txn)) != 0u, comment="approval_program")
+    assert(len(gtxns<ClearStateProgram>(txn)) != 0u, comment="clear_state_program")
+    assert(gtxns<NumAssets>(txn) != 0u, comment="num_assets")
+    assert(gtxns<NumApplications>(txn) != 0u, comment="num_apps")
+    assert(gtxns<GlobalNumUint>(txn) != 0u, comment="global_num_uint")
+    assert(gtxns<GlobalNumByteSlice>(txn) != 0u, comment="global_num_bytes")
+    assert(gtxns<LocalNumUint>(txn) != 0u, comment="local_num_uint")
+    assert(gtxns<LocalNumByteSlice>(txn) != 0u, comment="local_num_bytes")
+    assert(gtxns<ExtraProgramPages>(txn) != 0u, comment="extra_program_pages")
+    assert(len(gtxns<LastLog>(txn)) != 0u, comment="last_log")
+    assert(gtxns<NumApprovalProgramPages>(txn) != 0u, comment="num_approval_program_pages")
+    assert(gtxns<NumClearStateProgramPages>(txn) != 0u, comment="num_clear_state_program_pages")
+    assert(len(gtxnsas<ApplicationArgs>(txn, 0u)) != 0u, comment="app_args(0)")
+    assert(gtxnsas<Accounts>(txn, 0u) != global<ZeroAddress>(), comment="accounts(0)")
+    assert(reinterpret_cast<bool>(gtxnsas<Assets>(txn, 0u)), comment="assets(0)")
+    assert(reinterpret_cast<bool>(gtxnsas<Applications>(txn, 0u)), comment="apps(0)")
+    assert(len(gtxnsas<ApprovalProgramPages>(txn, 0u)) != 0u, comment="approval_program_pages(0)")
+    assert(len(gtxnsas<ClearStateProgramPages>(txn, 0u)) != 0u, comment="clear_state_program_pages(0)")
+  }
+  
+  abimethod multiple_txns(txn1: group_transaction_appl, txn2: group_transaction_appl, txn3: group_transaction_appl): void
+  {
+    for (index, app) in enumerate((txn1, txn2, txn3)) {
+      assert(gtxns<GroupIndex>(app) == index)
+    }
+  }
+  
+  abimethod any_txn(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
+  {
+    for (index, txn) in enumerate((txn1, txn2, txn3)) {
+      assert(gtxns<GroupIndex>(txn) == index)
+    }
+  }
+  
+  abimethod group_init(txn1: group_transaction, txn2: group_transaction, txn3: group_transaction): void
+  {
+    for txn in (txn1, txn2, txn3) {
+      txn_from_index: group_transaction = group_transaction(index=gtxns<GroupIndex>(txn), type=any)
+      assert(gtxns<TxID>(txn) == gtxns<TxID>(txn_from_index))
+    }
+    assert(gtxns<TxID>(txn1) == gtxns<TxID>(group_transaction(index=0u, type=any)))
+  }
+}
