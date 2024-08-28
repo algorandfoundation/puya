@@ -1,4 +1,10 @@
 # CHANGELOG
+## v3.0.3 (2024-08-28)
+
+### Fix
+
+* do not remove swap ops before `itxn_field` if it&#39;s immediates point to the same field ([`0e88cdb`](https://github.com/algorandfoundation/puya/commit/0e88cdbaf5372e14b8de04aa28f244379d367528))
+
 ## v3.0.2 (2024-08-23)
 
 ### Fix
