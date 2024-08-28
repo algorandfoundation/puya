@@ -160,6 +160,11 @@ def _optimize_triplet(
                 and c.op_code == "frame_bury"
                 and b.immediates == c.immediates
             )
+            or (  # can't swap itxn_field if they refer to the same field e.g. ApplicationArgs
+                b.op_code == "itxn_field"
+                and c.op_code == "itxn_field"
+                and b.immediates == c.immediates
+            )
         ):
             return [c, b], True
 
