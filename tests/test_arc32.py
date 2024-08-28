@@ -930,6 +930,14 @@ def test_typed_abi_call(
         app=logger.app_id,
     )
 
+    app_client.call(
+        "test_is_a_b",
+        transaction_parameters=txn_params,
+        a=b"a",
+        b=b"b",
+        app=logger.app_id,
+    )
+
 
 def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(

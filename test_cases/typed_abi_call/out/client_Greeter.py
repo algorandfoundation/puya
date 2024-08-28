@@ -8,6 +8,14 @@ import algopy
 
 class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
+    def test_is_a_b(
+        self,
+        a: algopy.arc4.DynamicBytes,
+        b: algopy.arc4.DynamicBytes,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_method_selector_kinds(
         self,
         app: algopy.Application,
