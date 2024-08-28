@@ -15,6 +15,15 @@ from test_cases.typed_abi_call.logger import LOG_METHOD_NAME, Logger, LoggerClie
 
 
 class Greeter(ARC4Contract):
+    @arc4.abimethod
+    def test_is_a_b(self, a: Bytes, b: Bytes, app: Application) -> None:
+        arc4.abi_call(
+            "is_a_b(byte[],byte[])void",
+            a,
+            b,
+            app_id=app,
+        )
+
     @arc4.abimethod()
     def test_method_selector_kinds(self, app: Application) -> None:
         result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)

@@ -8,6 +8,13 @@ import algopy
 
 class Logger(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
+    def is_a_b(
+        self,
+        a: algopy.arc4.DynamicBytes,
+        b: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def echo(
         self,
         value: algopy.arc4.String,

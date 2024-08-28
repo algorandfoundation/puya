@@ -1,5 +1,10 @@
 contract Greeter
 {
+  abimethod test_is_a_b(a: bytes, b: bytes, app: application): void
+  {
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("is_a_b(byte[],byte[])void"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
+  }
+  
   abimethod test_method_selector_kinds(app: application): void
   {
     (result, _txn): tuple<arc4.dynamic_array<arc4.uint8>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo(string)string"), arc4_encode('test1', arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=1)) == hex<"151F7C75">)), SINGLE_EVAL(id=0))

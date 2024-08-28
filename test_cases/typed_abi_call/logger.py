@@ -19,6 +19,11 @@ LOG_METHOD_NAME = "log"
 
 class Logger(ARC4Contract):
     @arc4.abimethod
+    def is_a_b(self, a: Bytes, b: Bytes) -> None:
+        assert a == b"a", "a is not a"
+        assert b == b"b", "b is not b"
+
+    @arc4.abimethod
     def echo(self, value: arc4.String) -> arc4.String:
         return "echo: " + value
 
