@@ -1743,9 +1743,5 @@ class ContractFragment(RootNode):
                     clear.source_location,
                 )
 
-    @property
-    def cref(self) -> ContractReference:
-        return self.id  # TODO: inline me
-
     def accept(self, visitor: RootNodeVisitor[T]) -> T:
         return visitor.visit_contract_fragment(self)

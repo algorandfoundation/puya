@@ -127,7 +127,7 @@ class IRBuildContext(CompileContext):
                 f"Cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
-        mro = [root.cref, *root.bases]
+        mro = [root.id, *root.bases]
         if start:
             try:
                 curr_idx = mro.index(start)
