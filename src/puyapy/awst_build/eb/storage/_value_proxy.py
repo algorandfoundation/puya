@@ -14,7 +14,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     NodeBuilder,
 )
 
@@ -96,7 +95,7 @@ class ValueProxyExpressionBuilder(InstanceExpressionBuilder[_TPyType_co, _TExpre
         return self._proxied.member_access(name, location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return self._proxied.iterate()
 
     @typing.override

@@ -25,7 +25,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     NodeBuilder,
     TypeBuilder,
 )
@@ -224,7 +223,7 @@ class _RangeIterBuilder(_IterableOnlyBuilder):
         return pytypes.urangeType
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return Range(
             start=self._start.resolve(),
             stop=self._stop.resolve(),
@@ -258,7 +257,7 @@ class _EnumerateIterBuilder(_IterableOnlyBuilder):
         return pytypes.uenumerateGenericType
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return Enumeration(expr=self._sequence.iterate(), source_location=self.source_location)
 
     @typing.override
@@ -285,7 +284,7 @@ class _ReversedIterBuilder(_IterableOnlyBuilder):
         return pytypes.reversedGenericType
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return Reversed(expr=self._sequence.iterate(), source_location=self.source_location)
 
     @typing.override

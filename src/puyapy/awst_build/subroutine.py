@@ -164,7 +164,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 )
             pytyp = self.context.type_to_pytype(arg_type, source_location=arg_loc)
             arg_name = arg.variable.name
-            args.append(SubroutineArgument(arg_loc, arg_name, pytyp.wtype))
+            args.append(
+                SubroutineArgument(name=arg_name, wtype=pytyp.wtype, source_location=arg_loc)
+            )
             self._symtable[arg_name] = pytyp
         # translate body
         translated_body = self.visit_block(func_def.body)

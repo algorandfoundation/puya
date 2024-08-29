@@ -32,7 +32,7 @@ class IRBuildContext(CompileContext):
     routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
 
     @cached_property
-    def _awst_lookup(self) -> Mapping[str, awst_nodes.ModuleStatement]:
+    def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:
         return {node.id: node for node in (*self.awst, *self.embedded_funcs)}
 
     def for_root(

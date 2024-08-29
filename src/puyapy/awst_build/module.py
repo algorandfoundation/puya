@@ -7,7 +7,7 @@ import mypy.types
 import mypy.visitor
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst.nodes import AWST, ConstantValue, LogicSignature, ModuleStatement, StateTotals
+from puya.awst.nodes import AWST, ConstantValue, LogicSignature, RootNode, StateTotals
 from puya.errors import CodeError, InternalError
 from puya.models import LogicSigReference
 from puya.utils import StableSet, coalesce
@@ -32,9 +32,9 @@ from puyapy.awst_build.validation.main import validate_awst
 logger = log.get_logger(__name__)
 
 
-DeferredModuleStatement: typing.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
+DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode]
 
-StatementResult: typing.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
+StatementResult: typing.TypeAlias = list[RootNode | DeferredRootNode]
 
 
 @attrs.frozen(kw_only=True)
@@ -65,7 +65,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         for node, items in self._pre_parse_result:
             with self.context.log_exceptions(fallback_location=node):
                 for stmt_or_deferred in items:
-                    if isinstance(stmt_or_deferred, ModuleStatement):
+                    if isinstance(stmt_or_deferred, RootNode):
                         statements.append(stmt_or_deferred)
                     else:
                         statements.append(stmt_or_deferred(self.context))
@@ -93,7 +93,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 self._error(f'Unsupported logicsig decorator "{dec_fullname}"', dec)
             info = self._process_logic_sig_decorator(logicsig_dec)
 
-            def deferred(ctx: ASTConversionModuleContext) -> ModuleStatement:
+            def deferred(ctx: ASTConversionModuleContext) -> RootNode:
                 program = FunctionASTConverter.convert(ctx, func_def, source_location)
                 ctx.register_pytype(pytypes.LogicSigType, alias=func_def.fullname)
                 return LogicSignature(

@@ -6,10 +6,8 @@ from abc import ABC, abstractmethod
 if t.TYPE_CHECKING:
     import puya.awst.nodes
 
-T = t.TypeVar("T")
 
-
-class StatementVisitor(t.Generic[T], ABC):
+class StatementVisitor[T](ABC):
     @abstractmethod
     def visit_block(self, statement: puya.awst.nodes.Block) -> T: ...
 
@@ -59,21 +57,28 @@ class StatementVisitor(t.Generic[T], ABC):
     def visit_goto(self, statement: puya.awst.nodes.Goto) -> T: ...
 
 
-class ModuleStatementVisitor(t.Generic[T], ABC):
+class RootNodeVisitor[T](ABC):
     @abstractmethod
     def visit_subroutine(self, statement: puya.awst.nodes.Subroutine) -> T: ...
 
     @abstractmethod
     def visit_contract_fragment(self, statement: puya.awst.nodes.ContractFragment) -> T: ...
 
-    @abstractmethod  # TODO: yeet me, not a ModuleStatement anymore
-    def visit_contract_method(self, statement: puya.awst.nodes.ContractMethod) -> T: ...
-
     @abstractmethod
     def visit_logic_signature(self, statement: puya.awst.nodes.LogicSignature) -> T: ...
 
 
-class ExpressionVisitor(t.Generic[T], ABC):
+class ContractMemberVisitor[T](ABC):
+    @abstractmethod
+    def visit_contract_method(self, statement: puya.awst.nodes.ContractMethod) -> T: ...
+
+    @abstractmethod
+    def visit_app_storage_definition(
+        self, statement: puya.awst.nodes.AppStorageDefinition
+    ) -> T: ...
+
+
+class ExpressionVisitor[T](ABC):
     @abstractmethod
     def visit_state_delete(self, expr: puya.awst.nodes.StateDelete) -> T: ...
 
@@ -275,3 +280,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
 
     @abstractmethod
     def visit_arc4_router(self, expr: puya.awst.nodes.ARC4Router) -> T: ...
+
+    @abstractmethod
+    def visit_range(self, node: puya.awst.nodes.Range) -> T: ...

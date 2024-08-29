@@ -91,6 +91,25 @@ box_key: typing.Final = WType(
     immutable=True,
 )
 
+uint64_range_wtype: typing.Final = WType(
+    name="uint64_range",
+    scalar_type=None,
+    immutable=True,
+)
+
+
+@attrs.frozen
+class WEnumeration(WType):
+    sequence_type: WType
+    name: str = attrs.field(init=False)
+    immutable: bool = attrs.field(default=True, init=False)
+    scalar_type: None = attrs.field(default=None, init=False)
+    ephemeral: bool = attrs.field(default=False, init=False)
+
+    @name.default
+    def _name_factory(self) -> str:
+        return f"enumerate_{self.sequence_type.name}"
+
 
 @attrs.frozen
 class _TransactionRelatedWType(WType):

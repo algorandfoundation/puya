@@ -34,7 +34,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
     StaticSizedCollectionBuilder,
@@ -197,7 +196,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
         raise CodeError("'tuple' is an illegal expression for augmented assignment", location)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return self.resolve()
 
     @typing.override
@@ -346,7 +345,7 @@ class TupleExpressionBuilder(
         return expr, idx
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return self.resolve()
 
     @typing.override

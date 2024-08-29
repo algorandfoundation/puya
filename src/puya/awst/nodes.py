@@ -1,3 +1,4 @@
+import abc
 import decimal
 import enum
 import itertools
@@ -11,7 +12,12 @@ from immutabledict import immutabledict
 from puya.avm_type import AVMType
 from puya.awst import wtypes
 from puya.awst.txn_fields import TxnField
-from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
+from puya.awst.visitors import (
+    ContractMemberVisitor,
+    ExpressionVisitor,
+    RootNodeVisitor,
+    StatementVisitor,
+)
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
 from puya.models import (
@@ -1312,54 +1318,45 @@ class BytesAugmentedAssignment(Statement):
 
 
 @attrs.frozen
-class Range(Node):
+class Range(Expression):
+    wtype: WType = attrs.field(default=wtypes.uint64_range_wtype, init=False)
     start: Expression = attrs.field(validator=[wtype_is_uint64])
     stop: Expression = attrs.field(validator=[wtype_is_uint64])
     step: Expression = attrs.field(validator=[wtype_is_uint64])
 
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_range(self)
+
 
 @attrs.frozen
-class OpUp(Node):
-    n: Expression
-
-
-@attrs.frozen(init=False)
 class Enumeration(Expression):
-    expr: Expression | Range
+    expr: Expression
+    wtype: wtypes.WEnumeration = attrs.field(init=False)
 
-    def __init__(self, expr: Expression | Range, source_location: SourceLocation):
-        item_wtype = expr.wtype if isinstance(expr, Expression) else wtypes.uint64_wtype
-        wtype = wtypes.WTuple((wtypes.uint64_wtype, item_wtype), source_location)
-        self.__attrs_init__(
-            expr=expr,
-            source_location=source_location,
-            wtype=wtype,
-        )
+    @wtype.default
+    def _wtype(self) -> wtypes.WEnumeration:
+        return wtypes.WEnumeration(self.expr.wtype)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_enumeration(self)
 
 
-@attrs.frozen(init=False)
+@attrs.frozen
 class Reversed(Expression):
-    expr: Expression | Range
+    expr: Expression
+    wtype: WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> WType:
+        return self.expr.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_reversed(self)
 
-    def __init__(self, expr: Expression | Range, source_location: SourceLocation):
-        wtype = expr.wtype if isinstance(expr, Expression) else wtypes.uint64_wtype
-
-        self.__attrs_init__(
-            expr=expr,
-            source_location=source_location,
-            wtype=wtype,
-        )
-
 
 @attrs.frozen
 class ForInLoop(Statement):
-    sequence: Expression | Range
+    sequence: Expression
     items: Lvalue  # item variable(s)
     loop_body: Block
 
@@ -1446,19 +1443,20 @@ class NewStruct(Expression):
 
 
 @attrs.frozen
-class ModuleStatement(Node, ABC):  # TODO: rename class
+class RootNode(Node, ABC):
     @property
     @abstractmethod
     def id(self) -> str: ...
 
     @abstractmethod
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T: ...
+    def accept(self, visitor: RootNodeVisitor[T]) -> T: ...
 
 
-@attrs.frozen
-class SubroutineArgument(Node):
+@attrs.frozen(kw_only=True)
+class SubroutineArgument:
     name: str
     wtype: WType = attrs.field()
+    source_location: SourceLocation | None
 
     @wtype.validator
     def _wtype_validator(self, _attribute: object, wtype: WType) -> None:
@@ -1490,7 +1488,7 @@ class Function(Node, ABC):
 
 
 @attrs.frozen
-class Subroutine(Function, ModuleStatement):
+class Subroutine(Function, RootNode):
     id: SubroutineID
     name: str
 
@@ -1502,15 +1500,25 @@ class Subroutine(Function, ModuleStatement):
     def full_name(self) -> str:
         return self.id
 
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
+    def accept(self, visitor: RootNodeVisitor[T]) -> T:
         return visitor.visit_subroutine(self)
 
 
-AWST: typing.TypeAlias = Sequence[ModuleStatement]
+AWST: typing.TypeAlias = Sequence[RootNode]
 
 
 @attrs.frozen
-class ContractMethod(Function):
+class ContractMemberNode(Node, ABC):
+    @property
+    @abc.abstractmethod
+    def member_name(self) -> str: ...
+
+    @abc.abstractmethod
+    def accept(self, visitor: ContractMemberVisitor[T]) -> T: ...
+
+
+@attrs.frozen
+class ContractMethod(Function, ContractMemberNode):
     cref: ContractReference  # TODO: remove this
     member_name: str
     arc4_method_config: ARC4MethodConfig | None
@@ -1530,8 +1538,7 @@ class ContractMethod(Function):
     def full_name(self) -> str:
         return f"{self.cref}.{self.member_name}"
 
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
-        # TODO: yeet me, not a ModuleStatement anymore
+    def accept(self, visitor: ContractMemberVisitor[T]) -> T:
         return visitor.visit_contract_method(self)
 
 
@@ -1543,7 +1550,7 @@ class AppStorageKind(enum.Enum):
 
 
 @attrs.frozen
-class AppStorageDefinition(Node):
+class AppStorageDefinition(ContractMemberNode):
     member_name: str
     kind: AppStorageKind
     storage_wtype: WType
@@ -1553,9 +1560,12 @@ class AppStorageDefinition(Node):
     """for maps, this is the prefix"""
     description: str | None
 
+    def accept(self, visitor: ContractMemberVisitor[T]) -> T:
+        return visitor.visit_app_storage_definition(self)
+
 
 @attrs.frozen(kw_only=True)
-class LogicSignature(ModuleStatement):
+class LogicSignature(RootNode):
     id: LogicSigReference
     short_name: str
     program: Subroutine = attrs.field()
@@ -1574,7 +1584,7 @@ class LogicSignature(ModuleStatement):
                 program.source_location,
             )
 
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
+    def accept(self, visitor: RootNodeVisitor[T]) -> T:
         return visitor.visit_logic_signature(self)
 
 
@@ -1646,7 +1656,7 @@ class ARC4Router(Expression):
 
 
 @attrs.frozen(kw_only=True)
-class ContractFragment(ModuleStatement):
+class ContractFragment(RootNode):
     # note: it's a fragment because it needs to be stitched together with bases,
     #       assuming it's not abstract (in which case it should remain a fragment?)
     id: ContractReference
@@ -1737,5 +1747,5 @@ class ContractFragment(ModuleStatement):
     def cref(self) -> ContractReference:
         return self.id  # TODO: inline me
 
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
+    def accept(self, visitor: RootNodeVisitor[T]) -> T:
         return visitor.visit_contract_fragment(self)
