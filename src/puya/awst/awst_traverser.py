@@ -1,5 +1,4 @@
-import contextlib
-from collections.abc import Iterator
+import typing
 
 from puya.awst import nodes as awst_nodes
 from puya.awst.function_traverser import FunctionTraverser
@@ -7,37 +6,24 @@ from puya.awst.visitors import ModuleStatementVisitor
 
 
 class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
-    def __init__(self) -> None:
-        self._contract: awst_nodes.ContractFragment | None = None
-
-    @property
-    def contract(self) -> awst_nodes.ContractFragment | None:
-        return self._contract
-
-    @contextlib.contextmanager
-    def _enter_contract(self, contract: awst_nodes.ContractFragment) -> Iterator[None]:
-        assert self._contract is None
-        self._contract = contract
-        try:
-            yield
-        finally:
-            self._contract = None
-
+    @typing.override
     def visit_subroutine(self, statement: awst_nodes.Subroutine) -> None:
         statement.body.accept(self)
 
+    @typing.override
     def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
-        with self._enter_contract(statement):
-            for storage in statement.app_state.values():
-                self.visit_app_state_definition(storage)
-            for method in statement.methods.values():
-                method.accept(self)
+        for storage in statement.app_state.values():
+            self.visit_app_state_definition(storage)
+        for method in statement.methods.values():
+            method.accept(self)
 
     def visit_app_state_definition(self, state_defn: awst_nodes.AppStorageDefinition) -> None:
         pass
 
+    @typing.override
     def visit_contract_method(self, statement: awst_nodes.ContractMethod) -> None:
         statement.body.accept(self)
 
+    @typing.override
     def visit_logic_signature(self, statement: awst_nodes.LogicSignature) -> None:
         statement.program.accept(self)

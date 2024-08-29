@@ -112,9 +112,8 @@ def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
 def get_relative_path(location: SourceLocation | None, root_dir: Path) -> Path | None:
     if not location:
         return None
-    relative_path = Path(location.file).resolve()
     try:
-        return relative_path.relative_to(root_dir)
+        return location.file.relative_to(root_dir)
     except ValueError:
         return None
 

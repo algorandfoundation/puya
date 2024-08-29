@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator, Sequence
 from pathlib import Path
 
 import attrs
@@ -14,6 +14,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.context import CompileContext
 from puya.errors import InternalError
@@ -54,6 +55,91 @@ logger = log.get_logger(__name__)
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]
 
 
+class CompilationSetCollector(AWSTTraverser):
+    def __init__(self, awst: awst_nodes.AWST, *, source_set: Collection[Path]) -> None:
+        super().__init__()
+        self._source_set: typing.Final = source_set
+        self.compilation_set: typing.Final = dict[
+            str, awst_nodes.ContractFragment | awst_nodes.LogicSignature
+        ]()
+        self._nodes_by_id: typing.Final = immutabledict[str, awst_nodes.ModuleStatement](
+            {n.id: n for n in awst}
+        )
+
+    def visit_compiled_contract(self, compiled_contract: awst_nodes.CompiledContract) -> None:
+        super().visit_compiled_contract(compiled_contract)
+        node = self._nodes_by_id.get(compiled_contract.contract)
+        match node:
+            case awst_nodes.ContractFragment() as contract:
+                if contract.is_abstract:
+                    logger.error(
+                        "cannot compile abstract contract",
+                        location=compiled_contract.source_location,
+                    )
+                else:
+                    self.visit_contract_fragment(contract, reference=True)
+            case None:
+                logger.error(
+                    "unable to resolve contract reference",
+                    location=compiled_contract.source_location,
+                )
+            case _:
+                logger.error(
+                    "reference is not a contract", location=compiled_contract.source_location
+                )
+
+    def visit_compiled_logicsig(self, compiled_lsig: awst_nodes.CompiledLogicSig) -> None:
+        super().visit_compiled_logicsig(compiled_lsig)
+        node = self._nodes_by_id.get(compiled_lsig.logic_sig)
+        match node:
+            case awst_nodes.LogicSignature() as lsig:
+                self.visit_logic_signature(lsig, reference=True)
+            case None:
+                logger.error(
+                    "unable to resolve logic signature reference",
+                    location=compiled_lsig.source_location,
+                )
+            case _:
+                logger.error(
+                    "reference is not a logic signature", location=compiled_lsig.source_location
+                )
+
+    def visit_contract_fragment(
+        self, contract: awst_nodes.ContractFragment, *, reference: bool = False
+    ) -> None:
+        if contract.id in self.compilation_set:
+            return  # already visited
+        direct = contract.source_location.file in self._source_set  # is this an explicit inclusion
+        if direct or reference:
+            if contract.is_abstract:  # we don't lower abstract contracts
+                assert not reference  # caller should check first, to provide better error location
+            else:
+                self.compilation_set[contract.id] = contract
+                super().visit_contract_fragment(contract)
+
+    def visit_logic_signature(
+        self, lsig: awst_nodes.LogicSignature, *, reference: bool = False
+    ) -> None:
+        if lsig.id in self.compilation_set:
+            return  # already visited
+        direct = lsig.source_location.file in self._source_set  # is this an explicit inclusion
+        if direct or reference:
+            self.compilation_set[lsig.id] = lsig
+            super().visit_logic_signature(lsig)
+
+    @classmethod
+    def collect(
+        cls, context: CompileContext, awst: awst_nodes.AWST
+    ) -> Collection[awst_nodes.ContractFragment | awst_nodes.LogicSignature]:
+        collector = cls(
+            awst,
+            source_set=context.sources_by_path,  # TODO: hmmm
+        )
+        for node in awst:
+            node.accept(collector)
+        return collector.compilation_set.values()
+
+
 def awst_to_ir(
     context: CompileContext, awst: awst_nodes.AWST, embedded_funcs: Sequence[awst_nodes.Subroutine]
 ) -> list[ModuleArtifact]:
@@ -62,11 +148,11 @@ def awst_to_ir(
     )
     _build_embedded_ir(build_context)
 
+    compilation_set = CompilationSetCollector.collect(context, awst)
     result = list[ModuleArtifact]()
-
-    for node in awst:  # TODO: maybe trim this down to only things included directly or referenced?
+    for node in compilation_set:
         match node:
-            case awst_nodes.ContractFragment(is_abstract=False) as contract_node:
+            case awst_nodes.ContractFragment() as contract_node:
                 ctx = build_context.for_root(contract_node)
                 with ctx.log_exceptions():
                     contract_ir = _build_ir(ctx, contract_node)
@@ -76,6 +162,8 @@ def awst_to_ir(
                 with ctx.log_exceptions():
                     logic_sig_ir = _build_logic_sig_ir(ctx, logic_signature)
                     result.append(logic_sig_ir)
+            case unexpected:
+                typing.assert_never(unexpected)
     return result
 
 

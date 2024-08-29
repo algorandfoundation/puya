@@ -1,5 +1,4 @@
 from decimal import Decimal
-from pathlib import Path
 
 import pytest
 from puya.awst import (
@@ -15,7 +14,7 @@ from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 
 _location = SourceLocation(
-    file=Path("test_ir.ts"),
+    file="test_ir.ts",
     line=1,
 )
 

@@ -1,4 +1,6 @@
+import contextlib
 import typing
+from collections.abc import Iterator
 
 from puya import log
 from puya.awst import nodes as awst_nodes
@@ -14,12 +16,34 @@ logger = log.get_logger(__name__)
 
 
 class BaseInvokerValidator(AWSTTraverser):
+    def __init__(self) -> None:
+        self._contract: awst_nodes.ContractFragment | None = None
+
+    @property
+    def contract(self) -> awst_nodes.ContractFragment | None:
+        return self._contract
+
+    @contextlib.contextmanager
+    def _enter_contract(self, contract: awst_nodes.ContractFragment) -> Iterator[None]:
+        assert self._contract is None
+        self._contract = contract
+        try:
+            yield
+        finally:
+            self._contract = None
+
     @classmethod
     def validate(cls, module: awst_nodes.AWST) -> None:
         validator = cls()
         for module_statement in module:
             module_statement.accept(validator)
 
+    @typing.override
+    def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
+        with self._enter_contract(statement):
+            super().visit_contract_fragment(statement)
+
+    @typing.override
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
         match expr.target:

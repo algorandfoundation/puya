@@ -13,9 +13,15 @@ class CompileSource:
     lines: Sequence[str] | None
 
 
+def _resolved_path(p: Path | str) -> Path:
+    if isinstance(p, str):
+        p = Path(p)
+    return p.resolve()
+
+
 @attrs.frozen(kw_only=True, repr=False, str=False)
 class SourceLocation:
-    file: Path = attrs.field(converter=Path.resolve)  # type: ignore[misc]
+    file: Path = attrs.field(converter=_resolved_path)
     line: int
     # TODO: much better validation below
     end_line: int | None = None

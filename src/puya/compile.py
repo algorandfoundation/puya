@@ -38,7 +38,6 @@ from puya.models import (
     LogicSigReference,
     TemplateValue,
 )
-from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram, TealSubroutine
@@ -57,12 +56,18 @@ def awst_to_teal(
 ) -> list[CompilationArtifact]:
     log_ctx.exit_if_errors()
     if context.options.output_awst:
-        _output_awst(awst, context.options)
+        _output_awst(context, awst)
     ir = awst_to_ir(context, awst, embedded_funcs)
     log_ctx.exit_if_errors()
     teal = ir_to_teal(log_ctx, context, ir)
     log_ctx.exit_if_errors()
-    return teal
+    filtered_teal = [
+        t
+        for t in teal
+        # TODO: hmmm
+        if (t.source_location and t.source_location.file in context.sources_by_path)
+    ]
+    return filtered_teal
 
 
 def ir_to_teal(
@@ -94,10 +99,7 @@ def ir_to_teal(
             raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
 
     all_artifact_irs = {
-        artifact.metadata.ref: Artifact(
-            path=Path(artifact.source_location.file),
-            ir=artifact,
-        )
+        artifact.metadata.ref: Artifact(path=artifact.source_location.file, ir=artifact)
         for artifact in all_ir
     }
 
@@ -320,10 +322,11 @@ def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:
             output_path.write_bytes(program)
 
 
-def _output_awst(module_awst: AWST, options: PuyaOptions) -> None:
+def _output_awst(context: CompileContext, awst: AWST) -> None:
     formatter = ToCodeVisitor()
-    awst_module_str = formatter.visit_module(module_awst)
-    out_dir = options.out_dir or Path.cwd()  # TODO: fixme, maybe make this defaulted on init?
+    nodes = [n for n in awst if n.source_location.file in context.sources_by_path]  # TODO: hmm
+    awst_module_str = formatter.visit_module(nodes)
+    out_dir = context.options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
     out_dir.mkdir(exist_ok=True)
     awst_module_output_path = out_dir / "module.awst"
     awst_module_output_path.write_text(awst_module_str, "utf-8")
