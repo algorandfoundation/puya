@@ -90,6 +90,7 @@ logger = log.get_logger(__name__)
 
 @attrs.frozen
 class ContractMethodInfo:
+    contract_type: pytypes.ContractType
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
     arc4_method_data: ARC4MethodData | None
@@ -746,16 +747,15 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             case mypy.nodes.RefExpr() if py_typ == pytypes.LogicSigType:
                 ref = LogicSigReference(fullname)
                 return LogicSigExpressionBuilder(ref, expr_loc)
-            case mypy.nodes.NameExpr(
-                node=mypy.nodes.Var(is_self=True, type=mypy.types.Instance() as self_mypy_type)
-            ):
-                contract_type = self.context.type_to_pytype(
-                    self_mypy_type, source_location=expr_loc
-                )
+            case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True)):
+                if self.contract_method_info is None:
+                    raise InternalError(
+                        "variable is inferred as self outside of contract scope", expr_loc
+                    )
                 return ContractSelfExpressionBuilder(
                     context=self.context,
-                    type_info=self_mypy_type.type,
-                    pytype=contract_type,
+                    type_info=self.contract_method_info.type_info,
+                    pytype=self.contract_method_info.contract_type,
                     location=expr_loc,
                 )
             case mypy.nodes.RefExpr(

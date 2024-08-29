@@ -60,7 +60,6 @@ from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import (
-    qualified_class_name,
     resolve_member_node,
     symbol_node_is_function,
 )
@@ -129,7 +128,7 @@ class ARC4ClientTypeBuilder(TypeBuilder):
         if node is None:
             return super().member_access(name, location)
         if symbol_node_is_function(node):
-            cref = qualified_class_name(self.type_info)
+            cref = ContractReference(self.type_info.fullname)
             return ARC4ClientMethodExpressionBuilder(self.context, cref, name, location)
         raise CodeError("static references are only supported for methods", location)
 

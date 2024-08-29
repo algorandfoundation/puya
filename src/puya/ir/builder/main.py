@@ -1081,7 +1081,7 @@ class FunctionIRBuilder(
             )
 
         return InvokeSubroutine(
-            target=self.context.routers[root.cref],
+            target=self.context.routers[root.id],
             args=[],
             source_location=expr.source_location,
         )

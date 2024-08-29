@@ -11,7 +11,7 @@ from puyapy.awst_build import constants
 from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
-from puyapy.awst_build.utils import get_decorators_by_fullname, qualified_class_name
+from puyapy.awst_build.utils import get_decorators_by_fullname
 
 logger = log.get_logger(__name__)
 
@@ -23,7 +23,7 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[None]):
 
     @classmethod
     def visit(cls, context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef) -> None:
-        cref = qualified_class_name(class_def.info)
+        cref = ContractReference(class_def.info.fullname)
         visitor = ARC4ClientASTVisitor(context, cref)
         for stmt in class_def.defs.body:
             with context.log_exceptions(fallback_location=stmt):

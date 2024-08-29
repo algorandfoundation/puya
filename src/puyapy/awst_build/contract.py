@@ -31,7 +31,7 @@ from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
-from puyapy.awst_build.utils import get_decorators_by_fullname, qualified_class_name
+from puyapy.awst_build.utils import get_decorators_by_fullname
 
 logger = log.get_logger(__name__)
 
@@ -380,6 +380,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     func_def=func_def,
                     source_location=source_location,
                     contract_method_info=ContractMethodInfo(
+                        contract_type=self.typ,
                         type_info=self.class_def.info,
                         arc4_method_data=arc4_method_data,
                         cref=self.cref,
@@ -514,7 +515,7 @@ def _gather_app_storage_recursive(
 def _gather_global_direct_storages(
     context: ASTConversionModuleContext, class_info: mypy.nodes.TypeInfo
 ) -> Iterator[AppStorageDeclaration]:
-    cref = qualified_class_name(class_info)
+    cref = ContractReference(class_info.fullname)
     for name, sym in class_info.names.items():
         if isinstance(sym.node, mypy.nodes.Var):
             var_loc = context.node_location(sym.node)

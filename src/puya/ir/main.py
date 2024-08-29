@@ -212,7 +212,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
             contract.source_location,
         )
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
-    ctx.subroutines[arc4_router_func] = ctx.routers[contract.cref] = _make_subroutine(
+    ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
         arc4_router_func, allow_implicits=False
     )
 
@@ -266,7 +266,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
         metadata=ContractMetaData(
             description=contract.docstring,
             name=contract.name,
-            ref=contract.cref,
+            ref=contract.id,
             arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),

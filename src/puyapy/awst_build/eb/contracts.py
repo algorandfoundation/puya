@@ -26,7 +26,6 @@ from puyapy.awst_build.eb.subroutine import (
     SubroutineInvokerExpressionBuilder,
 )
 from puyapy.awst_build.utils import (
-    qualified_class_name,
     require_callable_type,
     resolve_member_node,
     symbol_node_is_function,
@@ -46,7 +45,7 @@ class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
         super().__init__(pytype, location)
         self.context: typing.Final = context
         self.type_info: typing.Final = type_info
-        self.cref: typing.Final = qualified_class_name(type_info)
+        self.cref: typing.Final = pytype.name
 
     @typing.override
     def call(
@@ -82,7 +81,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
         self,
         context: ASTConversionModuleContext,
         type_info: mypy.nodes.TypeInfo,
-        pytype: pytypes.PyType,
+        pytype: pytypes.ContractType,
         location: SourceLocation,
     ):
         super().__init__(location)
@@ -92,7 +91,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
 
     @typing.override
     @property
-    def pytype(self) -> pytypes.PyType:
+    def pytype(self) -> pytypes.ContractType:
         return self._pytype
 
     @typing.override
@@ -117,7 +116,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
                 location=location,
             )
         else:
-            state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
+            state_decl = self.context.state_defs(self._pytype.name).get(name)
             if state_decl is not None:
                 return _builder_for_storage_access(state_decl, location)
             raise CodeError("cannot resolve state member", location)

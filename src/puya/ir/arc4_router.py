@@ -671,7 +671,7 @@ def create_abi_router(
         reject(router_location),
     ]
     approval_program = awst_nodes.ContractMethod(
-        cref=contract.cref,
+        cref=contract.id,
         member_name="__puya_arc4_router__",
         source_location=router_location,
         args=[],

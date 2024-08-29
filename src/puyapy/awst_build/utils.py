@@ -13,7 +13,6 @@ from mypy.types import get_proper_type, is_named_instance
 from puya import log
 from puya.awst.nodes import ConstantValue
 from puya.errors import CodeError, InternalError
-from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import unique
 
@@ -173,11 +172,6 @@ def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.Ty
             continue  # OK, ignore, just stubs
         else:
             yield base_type
-
-
-def qualified_class_name(info: mypy.nodes.TypeInfo) -> ContractReference:
-    # TODO: inline me
-    return ContractReference(info.fullname)
 
 
 def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:

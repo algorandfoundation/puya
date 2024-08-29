@@ -64,7 +64,7 @@ class BaseInvokerValidator(AWSTTraverser):
                         location=expr.source_location,
                     )
                 else:
-                    caller_ref = caller_class.cref
+                    caller_ref = caller_class.id
                     if target_class != caller_ref and target_class not in caller_class.bases:
                         logger.error(
                             "invocation of a contract method outside of current hierarchy",
