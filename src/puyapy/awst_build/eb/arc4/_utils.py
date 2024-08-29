@@ -34,7 +34,11 @@ class ARC4Signature:
         return f"{self.method_name}({args}){return_type}"
 
     def convert_args(
-        self, native_args: Sequence[NodeBuilder], location: SourceLocation
+        self,
+        native_args: Sequence[NodeBuilder],
+        location: SourceLocation,
+        *,
+        expect_itxn_args: bool = False,
     ) -> Sequence[InstanceBuilder]:
         num_args = len(native_args)
         num_sig_args = len(self.arg_types)
@@ -44,11 +48,24 @@ class ARC4Signature:
                 f" got {num_args}",
                 location=location,
             )
+        arg_types = (
+            list(map(_gtxn_to_itxn, self.arg_types)) if expect_itxn_args else self.arg_types
+        )
         arc4_args = [
             _implicit_arc4_conversion(arg, pt)
-            for arg, pt in zip(native_args, self.arg_types, strict=False)
+            for arg, pt in zip(native_args, arg_types, strict=False)
         ]
         return arc4_args
+
+
+def _gtxn_to_itxn(pytype: pytypes.PyType) -> pytypes.PyType:
+    if (
+        isinstance(pytype, pytypes.TransactionRelatedType)
+        and pytypes.GroupTransactionBaseType in pytype.mro
+    ):
+        txn_type = pytype.transaction_type
+        return pytypes.InnerTransactionFieldsetTypes[txn_type]
+    return pytype
 
 
 def get_arc4_signature(
@@ -98,6 +115,20 @@ def _implicit_arc4_type_conversion(typ: pytypes.PyType, loc: SourceLocation) -> 
     return pytype_to_arc4_pytype(typ, on_error)
 
 
+def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
+    from puya.awst.wtypes import WInnerTransactionFields
+
+    if not isinstance(instance.wtype, WInnerTransactionFields):
+        return False
+    if not isinstance(target.wtype, WInnerTransactionFields):
+        return False
+    return (
+        instance.wtype == target.wtype
+        or instance.wtype.transaction_type is None
+        or target.wtype.transaction_type is None
+    )
+
+
 def _implicit_arc4_conversion(
     operand: NodeBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
@@ -108,6 +139,15 @@ def _implicit_arc4_conversion(
     if instance.pytype == target_type:
         return instance
     target_wtype = target_type.wtype
+    if isinstance(target_type, pytypes.TransactionRelatedType):
+        if _inner_transaction_type_matches(instance.pytype, target_type):
+            return instance
+        else:
+            logger.error(
+                f"expected type {target_type}, got type {instance.pytype}",
+                location=instance.source_location,
+            )
+            return dummy_value(target_type, instance.source_location)
     if not isinstance(target_wtype, ARC4Type):
         raise InternalError(
             "implicit_operand_conversion expected target_type to be an ARC-4 type,"
