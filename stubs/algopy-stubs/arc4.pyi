@@ -504,25 +504,13 @@ class ARC4Client(typing.Protocol):
     """Used to provide typed method signatures for ARC4 contracts"""
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
-_TABIArg: typing.TypeAlias = (
-    algopy.BytesBacked
-    | algopy.UInt64
-    | algopy.Bytes
-    | algopy.Asset
-    | algopy.Account
-    | algopy.Application
-    | int
-    | bool
-    | bytes
-    | str
-)
 
 class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
     def __call__(
         self,
         method: str,
         /,
-        *args: _TABIArg,
+        *args: object,
         app_id: algopy.Application | algopy.UInt64 | int = ...,
         on_completion: algopy.OnCompleteAction = ...,
         approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
@@ -544,7 +532,7 @@ class _ABICallProtocolType(typing.Protocol):
         self,
         method: Callable[..., None] | str,
         /,
-        *args: _TABIArg,
+        *args: object,
         app_id: algopy.Application | algopy.UInt64 | int = ...,
         on_completion: algopy.OnCompleteAction = ...,
         approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
@@ -564,7 +552,7 @@ class _ABICallProtocolType(typing.Protocol):
         self,
         method: Callable[..., _TABIResult_co],
         /,
-        *args: _TABIArg,
+        *args: object,
         app_id: algopy.Application | algopy.UInt64 | int = ...,
         on_completion: algopy.OnCompleteAction = ...,
         approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
@@ -655,7 +643,7 @@ txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 def arc4_create(  # type: ignore[overload-overlap]
     method: type[ARC4Contract] | Callable[_P, None],
     /,
-    *args: _TABIArg,
+    *args: object,
     compiled: algopy.CompiledContract = ...,
     on_completion: algopy.OnCompleteAction = ...,
     fee: algopy.UInt64 | int = 0,
@@ -667,7 +655,7 @@ def arc4_create(  # type: ignore[overload-overlap]
 def arc4_create(
     method: Callable[_P, _TABIResult_co],
     /,
-    *args: _TABIArg,
+    *args: object,
     compiled: algopy.CompiledContract = ...,
     on_completion: algopy.OnCompleteAction = ...,
     fee: algopy.UInt64 | int = 0,
@@ -694,7 +682,7 @@ def arc4_create(
 def arc4_update(  # type: ignore[overload-overlap]
     method: type[ARC4Contract] | Callable[_P, None],
     /,
-    *args: _TABIArg,
+    *args: object,
     app_id: algopy.Application | algopy.UInt64 | int,
     compiled: algopy.CompiledContract = ...,
     fee: algopy.UInt64 | int = 0,
@@ -706,7 +694,7 @@ def arc4_update(  # type: ignore[overload-overlap]
 def arc4_update(
     method: Callable[_P, _TABIResult_co],
     /,
-    *args: _TABIArg,
+    *args: object,
     app_id: algopy.Application | algopy.UInt64 | int,
     compiled: algopy.CompiledContract = ...,
     fee: algopy.UInt64 | int = 0,
@@ -731,9 +719,9 @@ def arc4_update(
 @typing.overload
 def emit(event: Struct, /) -> None: ...
 @typing.overload
-def emit(event: str, /, *args: _TABIArg) -> None: ...
+def emit(event: str, /, *args: object) -> None: ...
 @typing.overload
-def emit(event: str | Struct, /, *args: _TABIArg) -> None:
+def emit(event: str | Struct, /, *args: object) -> None:
     """Emit an ARC-28 event for the provided event signature or name, and provided args.
 
     :param event: Either an ARC4 Struct, an event name, or event signature.

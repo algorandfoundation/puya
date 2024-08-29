@@ -1,7 +1,7 @@
 # ruff: noqa
 # fmt: off
 # type: ignore
-
+import gtxn
 ## case: test_invalid_arc4_struct_member_type
 from algopy import *
 
@@ -485,10 +485,18 @@ def test_ref_types_with_literal() -> None:
     )
 
 @subroutine
+def test_txn_arg_with_gtxn() -> None:
+    arc4.abi_call(
+        Logger.acfg_arg,
+        gtxn.AssetConfigTransaction(0), ## E: expected type algopy.itxn.AssetConfig, got type algopy.gtxn.AssetConfigTransaction
+        app_id=1,
+    )
+
+@subroutine
 def test_txn_arg_with_literal() -> None:
     arc4.abi_call(
         Logger.acfg_arg,
-        1, ## E: transaction arguments are not supported for contract to contract calls
+        1, ## E: can't covert literal to algopy.itxn.AssetConfig
         app_id=1,
     )
 
@@ -496,8 +504,7 @@ def test_txn_arg_with_literal() -> None:
 def test_txn_arg_with_wrong_literal_type() -> None:
     arc4.abi_call(
         Logger.acfg_arg,
-        "", ## E: can't covert literal to algopy.gtxn.AssetConfigTransaction \
-            ## E: transaction arguments are not supported for contract to contract calls
+        "", ## E: can't covert literal to algopy.itxn.AssetConfig
         app_id=1,
     )
 

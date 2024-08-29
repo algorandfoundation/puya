@@ -257,7 +257,7 @@ class InnerTransactionBuilder:
             # otherwise infer based on itxn expr
             case _:
                 is_last_in_group = UInt64Constant(
-                    value=int(_is_single_submit_expr(itxn_field.itxn)),
+                    value=int(_is_last_itxn(itxn_field.itxn)),
                     ir_type=IRType.bool,
                     source_location=src_loc,
                 )
@@ -594,12 +594,30 @@ def _get_assignment_target_local_names(
     return names
 
 
-def _is_single_submit_expr(expr: awst_nodes.Expression) -> bool:
+def _is_last_itxn(expr: awst_nodes.Expression) -> bool:
+    # is last itxn if expr is a submit expr of size 1 OR
+    if not isinstance(expr, awst_nodes.TupleItemExpression):
+        return _is_submit_expr_of_size(expr, 1)
+
+    # if expr is a tuple item expression with an index into the last item of a submit expr
+    base = expr.base
+    if not isinstance(base.wtype, wtypes.WTuple):
+        return False
+
+    index = expr.index
+    tuple_size = len(base.wtype.types)
+    if index == -1 or (index + 1) == tuple_size:
+        return _is_submit_expr_of_size(base, tuple_size)
+    else:
+        return False
+
+
+def _is_submit_expr_of_size(expr: awst_nodes.Expression, expected_group_size: int) -> bool:
     match expr:
-        case awst_nodes.SubmitInnerTransaction(itxns=itxns) if len(itxns) == 1:
+        case awst_nodes.SubmitInnerTransaction(itxns=itxns) if len(itxns) == expected_group_size:
             return True
         case awst_nodes.SingleEvaluation(source=source):
-            return _is_single_submit_expr(source)
+            return _is_submit_expr_of_size(source, expected_group_size)
         case _:
             return False
 

@@ -1,0 +1,119 @@
+contract test_cases.typed_abi_call_txn.caller.Caller:
+    program approval:
+        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+            block@0: // L-1
+                let tmp%0#0: bool = test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__()
+                return tmp%0#0
+        
+        subroutine test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__() -> bool:
+            block@0: // L12
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@6
+            block@1: // abi_routing_L12
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%2#0 {method "test_call_with_txn(byte[],byte[],application)void" => block@2, method "test_call_with_acfg(byte[],byte[],application)void" => block@3, * => return 0u}
+            block@2: // test_call_with_txn_route_L13
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let tmp%4#0: bool = (! tmp%3#0)
+                (assert tmp%4#0) // OnCompletion is NoOp
+                let tmp%5#0: uint64 = (txn ApplicationID)
+                (assert tmp%5#0) // is not creating
+                let tmp%7#0: bytes = (txna ApplicationArgs 1)
+                let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
+                let tmp%9#0: bytes = (txna ApplicationArgs 2)
+                let tmp%10#0: bytes = ((extract 2 0) tmp%9#0)
+                let tmp%11#0: bytes = (txna ApplicationArgs 3)
+                let tmp%12#0: uint64 = (btoi tmp%11#0)
+                let tmp%13#0: uint64 = ((txnas Applications) tmp%12#0)
+                test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(tmp%8#0, tmp%10#0, tmp%13#0)
+                return 1u
+            block@3: // test_call_with_acfg_route_L28
+                let tmp%14#0: uint64 = (txn OnCompletion)
+                let tmp%15#0: bool = (! tmp%14#0)
+                (assert tmp%15#0) // OnCompletion is NoOp
+                let tmp%16#0: uint64 = (txn ApplicationID)
+                (assert tmp%16#0) // is not creating
+                let tmp%18#0: bytes = (txna ApplicationArgs 1)
+                let tmp%19#0: bytes = ((extract 2 0) tmp%18#0)
+                let tmp%20#0: bytes = (txna ApplicationArgs 2)
+                let tmp%21#0: bytes = ((extract 2 0) tmp%20#0)
+                let tmp%22#0: bytes = (txna ApplicationArgs 3)
+                let tmp%23#0: uint64 = (btoi tmp%22#0)
+                let tmp%24#0: uint64 = ((txnas Applications) tmp%23#0)
+                test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(tmp%19#0, tmp%21#0, tmp%24#0)
+                return 1u
+            block@6: // bare_routing_L12
+                let tmp%25#0: uint64 = (txn OnCompletion)
+                goto tmp%25#0 ? block@10 : block@7
+            block@7: // __algopy_default_create_L12
+                let tmp%26#0: uint64 = (txn ApplicationID)
+                let tmp%27#0: bool = (! tmp%26#0)
+                (assert tmp%27#0) // is creating
+                return 1u
+            block@10: // after_if_else_L12
+                return 0u
+        
+        subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:
+            block@0: // L13
+                itxn_begin
+                ((itxn_field ConfigAssetTotal) 1u)
+                ((itxn_field ConfigAssetName) "TEST")
+                ((itxn_field ConfigAssetUnitName) "TST")
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field Fee) 0u)
+                itxn_next
+                let length%0#0: uint64 = (len a#0)
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 a#0)
+                let length%1#0: uint64 = (len b#0)
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 b#0)
+                ((itxn_field ApplicationID) app#0)
+                ((itxn_field ApplicationArgs) method "call_with_txn(byte[],txn,byte[])uint64")
+                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                itxn_submit
+                let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                (assert tmp%2#0) // ARC4 prefix is valid
+                return 
+        
+        subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
+            block@0: // L28
+                itxn_begin
+                ((itxn_field ConfigAssetTotal) 1u)
+                ((itxn_field ConfigAssetName) "TEST")
+                ((itxn_field ConfigAssetUnitName) "TST")
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field Fee) 0u)
+                itxn_next
+                let length%0#0: uint64 = (len a#0)
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 a#0)
+                let length%1#0: uint64 = (len b#0)
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 b#0)
+                ((itxn_field ApplicationID) app#0)
+                ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
+                ((itxn_field ApplicationArgs) encoded_value%0#0)
+                ((itxn_field ApplicationArgs) encoded_value%1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                itxn_submit
+                let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                (assert tmp%2#0) // ARC4 prefix is valid
+                return 
+    
+    program clear-state:
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L-1
+                return 1u
