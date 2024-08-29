@@ -174,7 +174,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def iterable_item_type(self) -> pytypes.PyType:
-        """Produce target of ForInLoop"""
+        """The type of the item if this expression is iterable"""
         raise CodeError("expression is not iterable", self.source_location)
 
     @abc.abstractmethod
