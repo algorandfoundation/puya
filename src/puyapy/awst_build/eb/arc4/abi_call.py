@@ -19,6 +19,7 @@ from puya.awst.nodes import (
     MethodConstant,
     SubmitInnerTransaction,
     TupleExpression,
+    TupleItemExpression,
     UInt64Constant,
 )
 from puya.awst.txn_fields import TxnField
@@ -57,7 +58,7 @@ from puyapy.awst_build.eb.interface import (
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
-from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
+from puyapy.awst_build.eb.tuple import TupleExpressionBuilder, TupleLiteralBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import (
     resolve_member_node,
@@ -500,7 +501,7 @@ def _method_selector_and_arc4_args(
         BytesExpressionBuilder(
             MethodConstant(value=signature.method_selector, source_location=location)
         ),
-        *signature.convert_args(abi_args, location),
+        *signature.convert_args(abi_args, location, expect_itxn_args=True),
     ]
 
 
@@ -512,6 +513,7 @@ def _create_abi_call_expr(
     field_nodes: dict[TxnField, NodeBuilder],
     location: SourceLocation,
 ) -> InstanceBuilder:
+    group = []
     array_fields: dict[TxnField, list[Expression]] = {
         TxnField.ApplicationArgs: [],
         TxnField.Accounts: [],
@@ -533,11 +535,15 @@ def _create_abi_call_expr(
 
     for arg_b in abi_args:
         match arg_b.pytype:
-            case pytypes.TransactionRelatedType():
-                logger.error(
-                    "transaction arguments are not supported for contract to contract calls",
-                    location=arg_b.source_location,
-                )
+            case pytypes.TransactionRelatedType() as txn_pytype:
+                if isinstance(txn_pytype.wtype, wtypes.WInnerTransactionFields):
+                    group.append(arg_b.resolve())
+                else:
+                    logger.error(
+                        "only inner transaction types can be used to call another contract",
+                        location=arg_b.source_location,
+                    )
+                # continue to next arg as txn aren't part of the app args
                 continue
             case pytypes.AssetType:
                 arg_expr = ref_to_arg(TxnField.Assets, arg_b)
@@ -580,15 +586,38 @@ def _create_abi_call_expr(
         wtype=wtypes.WInnerTransactionFields.from_type(txn_type_appl),
         source_location=location,
     )
-    itxn_builder = InnerTransactionExpressionBuilder(
-        SubmitInnerTransaction(itxns=[create_itxn], source_location=location), itxn_result_pytype
-    )
+    group.append(create_itxn)
+    if len(group) == 1:
+        itxn_builder: InstanceBuilder = InnerTransactionExpressionBuilder(
+            SubmitInnerTransaction(itxns=group, source_location=location), itxn_result_pytype
+        )
+    else:
+        itxn_types = []
+        for itxn in group:
+            assert isinstance(itxn.wtype, wtypes.WInnerTransactionFields)
+            itxn_types.append(pytypes.InnerTransactionResultTypes[itxn.wtype.transaction_type])
+        itxn_tuple_result_pytype = pytypes.GenericTupleType.parameterise(
+            itxn_types,
+            location,
+        )
+        itxn_tuple_builder = TupleExpressionBuilder(
+            SubmitInnerTransaction(itxns=group, source_location=location),
+            itxn_tuple_result_pytype,
+        ).single_eval()
+        itxn_builder = InnerTransactionExpressionBuilder(
+            TupleItemExpression(
+                base=itxn_tuple_builder.resolve(),
+                index=-1,
+                source_location=location,
+            ),
+            itxn_result_pytype,
+        )
 
     if declared_result_type == pytypes.NoneType:
         return itxn_builder
-    itxn_tmp = itxn_builder.single_eval()
-    assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)
-    last_log = itxn_tmp.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
+    itxn_builder = itxn_builder.single_eval()
+    assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
+    last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
     abi_result = ARC4FromLogBuilder.abi_expr_from_log(arc4_return_type, last_log, location)
     # the declared result wtype may be different to the arc4 signature return wtype
     # due to automatic conversion of ARC4 -> native types
@@ -598,7 +627,7 @@ def _create_abi_call_expr(
         )
 
     abi_result_builder = builder_for_instance(declared_result_type, abi_result)
-    return TupleLiteralBuilder((abi_result_builder, itxn_tmp), location)
+    return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
 
 
 def _combine_locs(exprs: Sequence[Expression | NodeBuilder]) -> SourceLocation:

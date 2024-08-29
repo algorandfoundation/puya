@@ -1,0 +1,159 @@
+#pragma version 10
+
+test_cases.typed_abi_call_txn.caller.Caller.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@6
+    method "test_call_with_txn(byte[],byte[],application)void"
+    method "test_call_with_acfg(byte[],byte[],application)void"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___test_call_with_txn_route@2 __puya_arc4_router___test_call_with_acfg_route@3
+    int 0
+    retsub
+
+__puya_arc4_router___test_call_with_txn_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    callsub test_call_with_txn
+    int 1
+    retsub
+
+__puya_arc4_router___test_call_with_acfg_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    callsub test_call_with_acfg
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@6:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@10
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    int 0
+    retsub
+
+
+// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:
+test_call_with_txn:
+    proto 3 0
+    itxn_begin
+    int 1
+    itxn_field ConfigAssetTotal
+    byte "TEST"
+    itxn_field ConfigAssetName
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    int acfg
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_next
+    frame_dig -3
+    len
+    itob
+    extract 6 2
+    frame_dig -3
+    concat
+    frame_dig -2
+    len
+    itob
+    extract 6 2
+    frame_dig -2
+    concat
+    frame_dig -1
+    itxn_field ApplicationID
+    method "call_with_txn(byte[],txn,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 1 LastLog
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    retsub
+
+
+// test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
+test_call_with_acfg:
+    proto 3 0
+    itxn_begin
+    int 1
+    itxn_field ConfigAssetTotal
+    byte "TEST"
+    itxn_field ConfigAssetName
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    int acfg
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_next
+    frame_dig -3
+    len
+    itob
+    extract 6 2
+    frame_dig -3
+    concat
+    frame_dig -2
+    len
+    itob
+    extract 6 2
+    frame_dig -2
+    concat
+    frame_dig -1
+    itxn_field ApplicationID
+    method "call_with_acfg(byte[],acfg,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 1 LastLog
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    retsub
