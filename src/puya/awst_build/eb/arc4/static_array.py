@@ -13,7 +13,7 @@ from puya.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puya.awst_build.eb._utils import constant_bool_and_error
 from puya.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
 from puya.awst_build.eb.arc4._utils import no_literal_items
-from puya.awst_build.eb.factories import builder_for_instance
+from puya.awst_build.eb.factories import builder_for_instance, builder_for_type
 from puya.awst_build.eb.interface import InstanceBuilder, NodeBuilder, StaticSizedCollectionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.errors import CodeError
@@ -72,7 +72,16 @@ class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
     ) -> InstanceBuilder:
         typ = self.produces()
         no_literal_items(typ, location)
-        n_args = expect.exactly_n_args_of_type_else_dummy(args, typ.items, location, self._size)
+
+        if self._size > 0 and len(args) == 0:
+            n_args: Sequence[InstanceBuilder] = [
+                builder_for_type(typ.items, location).call([], [], [], location)
+                for _ in range(self._size)
+            ]
+        else:
+            n_args = expect.exactly_n_args_of_type_else_dummy(
+                args, typ.items, location, self._size
+            )
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4StaticArray)
         return StaticArrayExpressionBuilder(
