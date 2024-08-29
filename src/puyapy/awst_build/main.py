@@ -62,7 +62,7 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> list[ModuleStatement]:
         ReturnStatement,
     )
 
-    location = SourceLocation(file=Path("/algopy/arc4.py"), line=-1)
+    location = SourceLocation(file="/algopy/arc4.py", line=-1)
     _, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
     cref = ContractReference(constants.ARC4_CONTRACT_BASE)
     ctx.set_state_defs(cref, {})

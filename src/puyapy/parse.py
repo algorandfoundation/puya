@@ -290,14 +290,14 @@ def _parse_log_message(log_message: str) -> log.Log:
 def _try_parse_log_parts(
     path_str: str | None, line_str: str, severity_str: str, msg: str
 ) -> log.Log:
-    if path_str:
+    if not path_str:
+        location = None
+    else:
         try:
             line = int(line_str)
         except ValueError:
             line = 1
-        location: SourceLocation | None = SourceLocation(file=path_str, line=line)
-    else:
-        location = None
+        location = SourceLocation(file=path_str, line=line)
     level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity_str]
     return log.Log(message=msg, level=level, location=location)
 
