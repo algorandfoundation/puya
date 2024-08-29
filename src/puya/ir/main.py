@@ -62,7 +62,7 @@ class CompilationSetCollector(AWSTTraverser):
         self.compilation_set: typing.Final = dict[
             str, awst_nodes.ContractFragment | awst_nodes.LogicSignature
         ]()
-        self._nodes_by_id: typing.Final = immutabledict[str, awst_nodes.ModuleStatement](
+        self._nodes_by_id: typing.Final = immutabledict[str, awst_nodes.RootNode](
             {n.id: n for n in awst}
         )
 
@@ -313,7 +313,7 @@ def _build_logic_sig_ir(
 
 
 def _expand_tuple_parameters(
-    name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation
+    name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation | None
 ) -> Iterator[Parameter]:
     if isinstance(typ, wtypes.WTuple):
         for item_idx, item_type in enumerate(typ.types):

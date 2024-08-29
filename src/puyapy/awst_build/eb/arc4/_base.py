@@ -34,7 +34,6 @@ from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
-    Iteration,
     NodeBuilder,
 )
 
@@ -137,7 +136,7 @@ def arc4_bool_bytes(
 
 class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.ArrayType], ABC):
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         if not self.pytype.items.wtype.immutable:
             logger.error(
                 "cannot directly iterate an ARC4 array of mutable objects,"

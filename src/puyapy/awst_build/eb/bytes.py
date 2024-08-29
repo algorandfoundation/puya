@@ -39,7 +39,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     BuilderUnaryOp,
     InstanceBuilder,
-    Iteration,
     LiteralBuilder,
     NodeBuilder,
     TypeBuilder,
@@ -209,7 +208,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         return BytesExpressionBuilder(slice_expr)
 
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return self.resolve()
 
     @typing.override

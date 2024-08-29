@@ -7,7 +7,7 @@ import typing
 import mypy.nodes
 import typing_extensions
 from puya import log
-from puya.awst.nodes import ConstantValue, Expression, Lvalue, Range, Statement
+from puya.awst.nodes import ConstantValue, Expression, Lvalue, Statement
 from puya.errors import CodeError
 from puya.models import ContractReference
 from puya.parse import SourceLocation
@@ -18,8 +18,6 @@ from puyapy.awst_build.contract_data import AppStorageDeclaration
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
-
-Iteration: typing.TypeAlias = Expression | Range
 
 logger = log.get_logger(__name__)
 
@@ -170,7 +168,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         return dummy_value(pytypes.BoolType, location)
 
     @abc.abstractmethod
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         """Produce target of ForInLoop"""
         raise CodeError("expression is not iterable", self.source_location)
 

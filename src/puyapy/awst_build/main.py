@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from puya import log
-from puya.awst.nodes import ModuleStatement, Subroutine
+from puya.awst.nodes import RootNode, Subroutine
 from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import StableSet, make_path_relative_to_cwd
@@ -17,7 +17,7 @@ logger = log.get_logger(__name__)
 
 def transform_ast(
     ctx: ASTConversionContext,
-) -> tuple[Sequence[ModuleStatement], Sequence[Subroutine]]:
+) -> tuple[Sequence[RootNode], Sequence[Subroutine]]:
     user_modules = []
     result = [*_algopy_arc4_module(ctx)]
     embedded_funcs = []
@@ -50,7 +50,7 @@ def transform_ast(
     return result, embedded_funcs
 
 
-def _algopy_arc4_module(ctx: ASTConversionContext) -> list[ModuleStatement]:
+def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
     from puya.awst import wtypes
     from puya.awst.nodes import (
         # ARC4Router,

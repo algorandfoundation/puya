@@ -24,7 +24,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderUnaryOp,
     CallableBuilder,
     InstanceBuilder,
-    Iteration,
     NodeBuilder,
     TypeBuilder,
 )
@@ -179,7 +178,7 @@ class NotIterableInstanceExpressionBuilder(InstanceExpressionBuilder[_TPyType_co
 
     @typing.final
     @typing.override
-    def iterate(self) -> Iteration:
+    def iterate(self) -> Expression:
         return super().iterate()
 
     @typing.final

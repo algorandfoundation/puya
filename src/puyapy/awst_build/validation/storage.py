@@ -1,3 +1,4 @@
+import typing
 from collections import defaultdict
 
 from puya import log
@@ -26,22 +27,26 @@ class StorageTypesValidator(AWSTTraverser):
         super().__init__()
         self._seen_keys = defaultdict[AppStorageKind, set[bytes]](set)
 
-    def visit_app_state_definition(self, state_defn: awst_nodes.AppStorageDefinition) -> None:
-        super().visit_app_state_definition(state_defn)
-        wtypes.validate_persistable(state_defn.storage_wtype, state_defn.source_location)
-        if state_defn.key_wtype is not None:
-            wtypes.validate_persistable(state_defn.key_wtype, state_defn.source_location)
+    @typing.override
+    def visit_app_storage_definition(self, defn: awst_nodes.AppStorageDefinition) -> None:
+        super().visit_app_storage_definition(defn)
+        wtypes.validate_persistable(defn.storage_wtype, defn.source_location)
+        if defn.key_wtype is not None:
+            wtypes.validate_persistable(defn.key_wtype, defn.source_location)
 
+    @typing.override
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> None:
         super().visit_app_state_expression(expr)
         self._validate_usage(expr, AppStorageKind.app_global)
 
+    @typing.override
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> None:
         super().visit_app_account_state_expression(expr)
         self._validate_usage(expr, AppStorageKind.account_local)
 
+    @typing.override
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
         super().visit_box_value_expression(expr)
         self._validate_usage(expr, AppStorageKind.box)

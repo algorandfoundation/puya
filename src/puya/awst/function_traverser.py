@@ -318,13 +318,7 @@ class FunctionTraverser(
 
     @typing.override
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> None:
-        if isinstance(statement.sequence, awst_nodes.Range):
-            range_ = statement.sequence
-            range_.start.accept(self)
-            range_.stop.accept(self)
-            range_.step.accept(self)
-        else:
-            statement.sequence.accept(self)
+        statement.sequence.accept(self)
         statement.items.accept(self)
         statement.loop_body.accept(self)
 
@@ -334,13 +328,7 @@ class FunctionTraverser(
 
     @typing.override
     def visit_enumeration(self, expr: awst_nodes.Enumeration) -> None:
-        if isinstance(expr.expr, awst_nodes.Range):
-            range_ = expr.expr
-            range_.start.accept(self)
-            range_.stop.accept(self)
-            range_.step.accept(self)
-        else:
-            expr.expr.accept(self)
+        expr.expr.accept(self)
 
     @typing.override
     def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> None:
@@ -378,3 +366,9 @@ class FunctionTraverser(
     @typing.override
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> None:
         pass
+
+    @typing.override
+    def visit_range(self, node: awst_nodes.Range) -> None:
+        node.start.accept(self)
+        node.stop.accept(self)
+        node.step.accept(self)
