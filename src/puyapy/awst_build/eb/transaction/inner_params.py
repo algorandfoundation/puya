@@ -100,7 +100,7 @@ class _Submit(_MemberFunction):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
         result_typ = pytypes.InnerTransactionResultTypes[self.base.pytype.transaction_type]
-        submit_expr = SubmitInnerTransaction(group=self.base.resolve(), source_location=location)
+        submit_expr = SubmitInnerTransaction(itxns=[self.base.resolve()], source_location=location)
         return InnerTransactionExpressionBuilder(submit_expr, result_typ)
 
 

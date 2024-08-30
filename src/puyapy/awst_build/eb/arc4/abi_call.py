@@ -583,7 +583,7 @@ def _create_abi_call_expr(
         source_location=location,
     )
     itxn_builder = InnerTransactionExpressionBuilder(
-        SubmitInnerTransaction(group=create_itxn, source_location=location), itxn_result_pytype
+        SubmitInnerTransaction(itxns=[create_itxn], source_location=location), itxn_result_pytype
     )
 
     if declared_result_type is None or declared_result_type == pytypes.NoneType:
@@ -614,7 +614,7 @@ def _arc4_tuple_from_items(
     args_tuple = TupleExpression.from_items(items, source_location)
     return ARC4Encode(
         value=args_tuple,
-        wtype=wtypes.ARC4Tuple(args_tuple.wtype.types, source_location),
+        wtype=wtypes.ARC4Tuple(types=args_tuple.wtype.types, source_location=source_location),
         source_location=source_location,
     )
 

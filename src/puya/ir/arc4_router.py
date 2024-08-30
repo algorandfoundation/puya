@@ -358,8 +358,8 @@ def map_abi_args(
                 return wtype
 
         args_overflow_wtype = wtypes.ARC4Tuple(
-            [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]],
-            location,
+            types=[map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]],
+            source_location=location,
         )
         last_arg = app_arg(15, args_overflow_wtype, location)
 
@@ -693,7 +693,9 @@ def _arc4_encode(base: awst_nodes.Expression) -> awst_nodes.Expression:
             if not isinstance(base, awst_nodes.SingleEvaluation):
                 base = awst_nodes.SingleEvaluation(base)
             encoded_items = [
-                _maybe_arc4_encode(awst_nodes.TupleItemExpression(base, i, location))
+                _maybe_arc4_encode(
+                    awst_nodes.TupleItemExpression(base=base, index=i, source_location=location)
+                )
                 for i, t in enumerate(types)
             ]
             value = awst_nodes.TupleExpression.from_items(encoded_items, location)
@@ -723,7 +725,10 @@ def _arc4_decode(
             decoded = awst_nodes.SingleEvaluation(decode_expression)
             decoded_items = [
                 _maybe_arc4_decode(
-                    awst_nodes.TupleItemExpression(decoded, idx, location), target_item_wtype
+                    awst_nodes.TupleItemExpression(
+                        base=decoded, index=idx, source_location=location
+                    ),
+                    target_item_wtype,
                 )
                 for idx, target_item_wtype in enumerate(target_item_types)
             ]
@@ -804,12 +809,12 @@ def _avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type:
     if wtype is wtypes.bool_wtype:
         return wtypes.arc4_bool_wtype
     if wtype is wtypes.uint64_wtype:
-        return wtypes.ARC4UIntN(64, decode_type=wtype, source_location=None)
+        return wtypes.ARC4UIntN(n=64, decode_type=wtype, source_location=None)
     if wtype is wtypes.biguint_wtype:
-        return wtypes.ARC4UIntN(512, decode_type=wtype, source_location=None)
+        return wtypes.ARC4UIntN(n=512, decode_type=wtype, source_location=None)
     if wtype is wtypes.bytes_wtype:
         return wtypes.ARC4DynamicArray(
-            element_type=wtypes.arc4_byte_alias, native_type=wtype, source_location=None
+            element_type=wtypes.arc4_byte_alias, decode_type=wtype, source_location=None
         )
     if wtype is wtypes.string_wtype:
         return wtypes.arc4_string_alias

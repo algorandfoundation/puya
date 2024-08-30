@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -192,20 +192,24 @@ class WArray(WType):
 
 
 @typing.final
-@attrs.frozen(init=False)
+@attrs.frozen
 class WTuple(WType):
-    types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
+    types: Sequence[WType] = attrs.field(converter=tuple[WType, ...])
     scalar_type: None = attrs.field(default=None, init=False)
     immutable: bool = attrs.field(default=True, init=False)
+    name: str = attrs.field(init=False)
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
-    def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
-        types = tuple(types)
+    @types.validator
+    def _types_validator(self, _attribute: object, types: Sequence[WType]) -> None:
         if not types:
-            raise CodeError("empty tuples are not supported", source_location)
+            raise CodeError("empty tuples are not supported", self.source_location)
         if void_wtype in types:
-            raise CodeError("tuple should not contain void types", source_location)
-        name = f"tuple<{','.join([t.name for t in types])}>"
-        self.__attrs_init__(name=name, types=types)
+            raise CodeError("tuple should not contain void types", self.source_location)
+
+    @name.default
+    def _name(self) -> str:
+        return f"tuple<{','.join([t.name for t in self.types])}>"
 
 
 @attrs.frozen(kw_only=True)
@@ -213,13 +217,13 @@ class ARC4Type(WType):
     scalar_type: typing.Literal[AVMType.bytes] = attrs.field(default=AVMType.bytes, init=False)
     arc4_name: str = attrs.field(eq=False)  # exclude from equality in case of aliasing
     decode_type: WType | None
-    _other_encodeable_types: Collection[WType] = attrs.field(default=())
 
-    @cached_property
-    def encodeable_types(self) -> frozenset[WType]:
-        if self.decode_type is None:
-            return frozenset(self._other_encodeable_types)
-        return frozenset([self.decode_type, *self._other_encodeable_types])
+    @property
+    def encodeable_types(self) -> Sequence[WType]:
+        if self.decode_type:
+            return (self.decode_type,)
+        else:
+            return ()
 
 
 arc4_bool_wtype: typing.Final = ARC4Type(
@@ -231,176 +235,197 @@ arc4_bool_wtype: typing.Final = ARC4Type(
 
 
 @typing.final
-@attrs.frozen(init=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class ARC4UIntN(ARC4Type):
     immutable: bool = attrs.field(default=True, init=False)
-    decode_type: WType
-    n: int
+    decode_type: WType = attrs.field()
+    n: int = attrs.field()
+    arc4_name: str = attrs.field(eq=False)
+    name: str = attrs.field(init=False)
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
-    def __init__(
-        self,
-        n: int,
-        source_location: SourceLocation | None,
-        *,
-        decode_type: WType,
-        alias: str | None = None,
-    ):
+    @n.validator
+    def _n_validator(self, _attribute: object, n: int) -> None:
         if not (n % 8 == 0):
-            raise CodeError("Bit size must be multiple of 8", source_location)
+            raise CodeError("Bit size must be multiple of 8", self.source_location)
         if not (8 <= n <= 512):
-            raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
+            raise CodeError("Bit size must be between 8 and 512 inclusive", self.source_location)
+
+    @decode_type.validator
+    def _decode_type_validator(self, _attribute: object, decode_type: WType) -> None:
         if decode_type == uint64_wtype:
-            if n > 64:
+            if self.n > 64:
                 raise InternalError(
                     f"ARC-4 UIntN type received decode type {decode_type},"
-                    f" which is smaller than size {n=}",
-                    source_location,
+                    f" which is smaller than size {self.n}",
+                    self.source_location,
                 )
         elif decode_type == biguint_wtype:
             pass
         else:
             raise InternalError(
-                f"Unhandled decode_type for ARC-4 UIntN: {decode_type}", source_location
+                f"Unhandled decode_type for ARC-4 UIntN: {decode_type}", self.source_location
             )
-        default_arc4_name = f"uint{n}"
-        arc4_name = alias or default_arc4_name
-        self.__attrs_init__(
-            name=f"arc4.{default_arc4_name}",
-            arc4_name=arc4_name,
-            n=n,
-            decode_type=decode_type,
-            other_encodeable_types=frozenset({bool_wtype, uint64_wtype, biguint_wtype}),
-        )
+
+    @arc4_name.default
+    def _arc4_name(self) -> str:
+        return f"uint{self.n}"
+
+    @name.default
+    def _name(self) -> str:
+        return f"arc4.{self._arc4_name()}"
+
+    @property
+    def encodeable_types(self) -> Sequence[WType]:
+        return *super().encodeable_types, bool_wtype, uint64_wtype, biguint_wtype
 
 
 @typing.final
-@attrs.frozen(init=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class ARC4UFixedNxM(ARC4Type):
-    n: int
-    m: int
+    n: int = attrs.field()
+    m: int = attrs.field()
     immutable: bool = attrs.field(default=True, init=False)
+    arc4_name: str = attrs.field(init=False, eq=False)
+    name: str = attrs.field(init=False)
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+    decode_type = attrs.field(default=None, init=False)
 
-    def __init__(self, bits: int, precision: int, source_location: SourceLocation | None):
-        if not (bits % 8 == 0):
-            raise CodeError("Bit size must be multiple of 8", source_location)
-        if not (8 <= bits <= 512):
-            raise CodeError("Bit size must be between 8 and 512 inclusive", source_location)
-        if not (1 <= precision <= 160):
-            raise CodeError("Precision must be between 1 and 160 inclusive", source_location)
+    @arc4_name.default
+    def _arc4_name(self) -> str:
+        return f"ufixed{self.n}x{self.m}"
 
-        arc4_name = f"ufixed{bits}x{precision}"
-        self.__attrs_init__(
-            name=f"arc4.{arc4_name}",
-            arc4_name=arc4_name,
-            n=bits,
-            m=precision,
-            decode_type=None,
-        )
+    @name.default
+    def _name(self) -> str:
+        return f"arc4.{self.arc4_name}"
+
+    @n.validator
+    def _n_validator(self, _attribute: object, n: int) -> None:
+        if not (n % 8 == 0):
+            raise CodeError("Bit size must be multiple of 8", self.source_location)
+        if not (8 <= n <= 512):
+            raise CodeError("Bit size must be between 8 and 512 inclusive", self.source_location)
+
+    @m.validator
+    def _m_validator(self, _attribute: object, m: int) -> None:
+        if not (1 <= m <= 160):
+            raise CodeError("Precision must be between 1 and 160 inclusive", self.source_location)
+
+
+def _required_arc4_wtypes(wtypes: Iterable[WType]) -> Sequence[ARC4Type]:
+    result = []
+    for wtype in wtypes:
+        if not isinstance(wtype, ARC4Type):
+            raise CodeError(f"expected ARC4 type: {wtype}")
+        result.append(wtype)
+    return tuple(result)
 
 
 @typing.final
-@attrs.frozen(init=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class ARC4Tuple(ARC4Type):
-    types: tuple[ARC4Type, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+    types: Sequence[ARC4Type] = attrs.field(converter=_required_arc4_wtypes)
+    name: str = attrs.field(init=False)
+    arc4_name: str = attrs.field(init=False, eq=False)
+    immutable: bool = attrs.field(init=False)
+    decode_type: WTuple = attrs.field(init=False)
 
-    def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
-        types = tuple(types)
-        if not types:
-            raise CodeError("empty tuples are not supported", source_location)
-        immutable = True
-        arc4_types = []
-        for typ_idx, typ in enumerate(types):
-            if not isinstance(typ, ARC4Type):
-                raise CodeError(
-                    f"invalid ARC4 Tuple type:"
-                    f" type at index {typ_idx} is not an ARC4 encoded type",
-                    source_location,
-                )
-            arc4_types.append(typ)
-            # this seems counterintuitive, but is necessary.
-            # despite the overall collection remaining stable, since ARC4 types
-            # are encoded as a single value, if items within the tuple can be mutated,
-            # then the overall value is also mutable
-            immutable = immutable and typ.immutable
-        name = f"arc4.tuple<{','.join([t.name for t in types])}>"
-        arc4_name = f"({','.join(item.arc4_name for item in arc4_types)})"
-        native_type = WTuple(types, source_location)
-        self.__attrs_init__(
-            name=name,
-            arc4_name=arc4_name,
-            types=tuple(arc4_types),
-            immutable=immutable,
-            decode_type=native_type,
-        )
+    @name.default
+    def _name(self) -> str:
+        return f"arc4.tuple<{','.join(t.name for t in self.types)}>"
+
+    @arc4_name.default
+    def _arc4_name(self) -> str:
+        return f"({','.join(item.arc4_name for item in self.types)})"
+
+    @immutable.default
+    def _immutable(self) -> bool:
+        return all(typ.immutable for typ in self.types)
+
+    @decode_type.default
+    def _decode_type(self) -> WTuple:
+        return WTuple(self.types, self.source_location)
+
+
+def _expect_arc4_type(wtype: WType) -> ARC4Type:
+    if not isinstance(wtype, ARC4Type):
+        raise CodeError(f"expected ARC4 type: {wtype}")
+    return wtype
 
 
 @attrs.frozen(kw_only=True)
 class ARC4Array(ARC4Type):
-    element_type: ARC4Type
+    element_type: ARC4Type = attrs.field(converter=_expect_arc4_type)
+    decode_type: WType | None = None
+    immutable: bool = False
 
 
 @typing.final
-@attrs.frozen(init=False)
+@attrs.frozen(kw_only=True)
 class ARC4DynamicArray(ARC4Array):
-    def __init__(
-        self,
-        element_type: WType,
-        source_location: SourceLocation | None,
-        *,
-        alias: str | None = None,
-        native_type: WType | None = None,
-        immutable: bool = False,
-    ):
-        if not isinstance(element_type, ARC4Type):
-            raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
-        name = f"arc4.dynamic_array<{element_type.name}>"
-        arc4_name = alias or f"{element_type.arc4_name}[]"
-        self.__attrs_init__(
-            name=name,
-            arc4_name=arc4_name,
-            element_type=element_type,
-            decode_type=native_type,
-            immutable=immutable,
-        )
+    name: str = attrs.field(init=False)
+    arc4_name: str = attrs.field(eq=False)
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+
+    @name.default
+    def _name(self) -> str:
+        return f"arc4.dynamic_array<{self.element_type.name}>"
+
+    @arc4_name.default
+    def _arc4_name(self) -> str:
+        return f"{self.element_type.arc4_name}[]"
 
 
 @typing.final
-@attrs.frozen(kw_only=True, init=False)
+@attrs.frozen(kw_only=True)
 class ARC4StaticArray(ARC4Array):
-    array_size: int
+    array_size: int = attrs.field(validator=attrs.validators.ge(0))
+    name: str = attrs.field(init=False)
+    arc4_name: str = attrs.field(eq=False)
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
 
-    def __init__(
-        self,
-        element_type: WType,
-        array_size: int,
-        source_location: SourceLocation | None,
-        *,
-        alias: str | None = None,
-        native_type: WType | None = None,
-        immutable: bool = False,
-    ):
-        if not isinstance(element_type, ARC4Type):
-            raise CodeError("ARC4 arrays must have ARC4 encoded element type", source_location)
-        if array_size < 0:
-            raise CodeError("ARC4 static array size must be non-negative", source_location)
-        name = f"arc4.static_array<{element_type.name}, {array_size}>"
-        arc4_name = alias or f"{element_type.arc4_name}[{array_size}]"
-        self.__attrs_init__(
-            name=name,
-            arc4_name=arc4_name,
-            element_type=element_type,
-            array_size=array_size,
-            decode_type=native_type,
-            immutable=immutable,
+    @name.default
+    def _name(self) -> str:
+        return f"arc4.static_array<{self.element_type.name}, {self.array_size}>"
+
+    @arc4_name.default
+    def _arc4_name(self) -> str:
+        return f"{self.element_type.arc4_name}[{self.array_size}]"
+
+
+def _require_arc4_fields(fields: Mapping[str, WType]) -> immutabledict[str, ARC4Type]:
+    if not fields:
+        raise CodeError("arc4.Struct needs at least one element")
+    non_arc4_fields = [
+        field_name
+        for field_name, field_type in fields.items()
+        if not isinstance(field_type, ARC4Type)
+    ]
+    if non_arc4_fields:
+        raise CodeError(
+            "Invalid ARC4 Struct declaration,"
+            f" the following fields are not ARC4 encoded types: {', '.join(non_arc4_fields)}",
         )
+    return immutabledict(fields)
 
 
 @typing.final
-@attrs.frozen(kw_only=True, init=False)
+@attrs.frozen(kw_only=True)
 class ARC4Struct(ARC4Type):
-    fields: Mapping[str, ARC4Type] = attrs.field(
-        converter=immutabledict, validator=[attrs.validators.min_len(1)]
-    )
+    fields: Mapping[str, ARC4Type] = attrs.field(converter=_require_arc4_fields)
+    immutable: bool = attrs.field()
+    source_location: SourceLocation | None = attrs.field(default=None, eq=False)
+    arc4_name: str = attrs.field(init=False, eq=False)
+    decode_type: WType | None = None
+
+    @immutable.default
+    def _immutable(self) -> bool:
+        return all(typ.immutable for typ in self.fields.values())
+
+    @arc4_name.default
+    def _arc4_name(self) -> str:
+        return f"({','.join(item.arc4_name for item in self.types)})"
 
     @cached_property
     def names(self) -> Sequence[str]:
@@ -410,67 +435,26 @@ class ARC4Struct(ARC4Type):
     def types(self) -> Sequence[ARC4Type]:
         return list(self.fields.values())
 
-    def __init__(
-        self,
-        fields: Mapping[str, WType],
-        *,
-        name: str,
-        immutable: bool,
-        source_location: SourceLocation | None,
-    ):
-        if not fields:
-            raise CodeError("arc4.Struct needs at least one element", source_location)
-        arc4_fields = {}
-        bad_field_names = []
-        for field_name, field_wtype in fields.items():
-            if not isinstance(field_wtype, ARC4Type):
-                bad_field_names.append(field_name)
-                continue
-
-            arc4_fields[field_name] = field_wtype
-            # this seems counterintuitive, but is necessary.
-            # despite the overall collection remaining stable, since ARC4 types
-            # are encoded as a single value, if items within a "frozen" struct can be mutated,
-            # then the overall value is also mutable
-            immutable = immutable and field_wtype.immutable
-        if bad_field_names:
-            raise CodeError(
-                "Invalid ARC4 Struct declaration,"
-                f" the following fields are not ARC4 encoded types: {', '.join(bad_field_names)}",
-                source_location,
-            )
-
-        arc4_name = ARC4Tuple(
-            types=arc4_fields.values(), source_location=source_location
-        ).arc4_name
-        self.__attrs_init__(
-            name=name,
-            arc4_name=arc4_name,
-            fields=arc4_fields,
-            immutable=immutable,
-            decode_type=None,
-        )
-
 
 arc4_byte_alias: typing.Final = ARC4UIntN(
     n=8,
-    alias="byte",
+    arc4_name="byte",
     decode_type=uint64_wtype,
     source_location=None,
 )
 
 arc4_string_alias: typing.Final = ARC4DynamicArray(
-    alias="string",
+    arc4_name="string",
     element_type=arc4_byte_alias,
-    native_type=string_wtype,
+    decode_type=string_wtype,
     immutable=True,
     source_location=None,
 )
 
 arc4_address_alias: typing.Final = ARC4StaticArray(
-    alias="address",
+    arc4_name="address",
     element_type=arc4_byte_alias,
-    native_type=account_wtype,
+    decode_type=account_wtype,
     array_size=32,
     immutable=True,
     source_location=None,

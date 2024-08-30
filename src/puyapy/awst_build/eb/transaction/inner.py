@@ -93,6 +93,6 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
             result_types.append(arg_result_type)
         result_typ = pytypes.GenericTupleType.parameterise(result_types, location)
         return TupleExpressionBuilder(
-            SubmitInnerTransaction(group=tuple(arg_exprs), source_location=location),
+            SubmitInnerTransaction(itxns=arg_exprs, source_location=location),
             result_typ,
         )

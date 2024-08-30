@@ -207,10 +207,11 @@ class TypingLiteralType(PyType):
         raise CodeError(f"{self} is not usable as a value", self.source_location)
 
 
-_TupleWTypeFactory = Callable[
-    [Iterable[wtypes.WType], SourceLocation | None],
-    wtypes.WTuple | wtypes.ARC4Tuple,
-]
+class _TupleWTypeFactory(typing.Protocol):
+
+    def __call__(
+        self, *, types: Iterable[wtypes.WType], source_location: SourceLocation | None
+    ) -> wtypes.WTuple | wtypes.ARC4Tuple: ...
 
 
 @typing.final
@@ -228,7 +229,9 @@ class TupleType(PyType):
 
     @property
     def wtype(self) -> wtypes.WTuple | wtypes.ARC4Tuple:
-        return self._wtype_factory((i.wtype for i in self.items), self.source_location)
+        return self._wtype_factory(
+            types=(i.wtype for i in self.items), source_location=self.source_location
+        )
 
 
 @typing.final
@@ -348,7 +351,7 @@ class StructType(PyType):
         else:
             raise InternalError(f"Unknown struct base type: {base}", source_location)
         wtype = wtype_cls(
-            field_wtypes, name=name, immutable=frozen, source_location=source_location
+            fields=field_wtypes, name=name, immutable=frozen, source_location=source_location
         )
         self.__attrs_init__(
             bases=[base],
@@ -572,7 +575,7 @@ def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> _P
             name=name,
             bits=bits,
             precision=precision,
-            wtype=wtypes.ARC4UFixedNxM(bits, precision, source_location),
+            wtype=wtypes.ARC4UFixedNxM(n=bits, m=precision, source_location=source_location),
         )
 
     return parameterise
@@ -630,12 +633,17 @@ def _flattened_named_tuple(name: str, items: Mapping[str, PyType]) -> TupleType:
             else:
                 yield item
 
+    def _wtuple_factory(
+        *, types: Iterable[wtypes.WType], source_location: SourceLocation | None
+    ) -> wtypes.WTuple:
+        return wtypes.WTuple(types=_flatten(types), source_location=source_location)
+
     pytype = TupleType(
         name=name,
         generic=None,
         names=tuple(items.keys()),
         items=tuple(items.values()),
-        wtype_factory=lambda items, loc: wtypes.WTuple(_flatten(items), loc),
+        wtype_factory=_wtuple_factory,
         source_location=None,
     )
     _register_builtin(pytype)
@@ -685,7 +693,7 @@ class VariadicTupleType(PyType):
 
 
 def _make_array_parameterise(
-    typ: Callable[[wtypes.WType, SourceLocation | None], wtypes.WType]
+    typ: type[wtypes.WArray | wtypes.ARC4DynamicArray],
 ) -> _Parameterise[ArrayType]:
     def parameterise(
         self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
@@ -702,7 +710,7 @@ def _make_array_parameterise(
             name=name,
             size=None,
             items=arg,
-            wtype=typ(arg.wtype, source_location),
+            wtype=typ(element_type=arg.wtype, source_location=source_location),
         )
 
     return parameterise
@@ -722,7 +730,7 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
         name="algopy.arc4.DynamicBytes",
         wtype=wtypes.ARC4DynamicArray(
             element_type=ARC4ByteType.wtype,
-            native_type=wtypes.bytes_wtype,
+            decode_type=wtypes.bytes_wtype,
             source_location=None,
         ),
         size=None,
@@ -733,37 +741,34 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
 )
 
 
-def _make_fixed_array_parameterise(
-    typ: Callable[[wtypes.WType, int, SourceLocation | None], wtypes.WType]
-) -> _Parameterise[ArrayType]:
-    def parameterise(
-        self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
-    ) -> ArrayType:
-        try:
-            items, size_t = args
-        except ValueError:
-            raise CodeError(
-                f"Expected a single type parameter, got {len(args)} parameters", source_location
-            ) from None
-        size = _require_int_literal(self, size_t, source_location, position_qualifier="second")
-        if size < 0:
-            raise CodeError("Array size should be non-negative", source_location)
+def _parameterise_arc4_static_array(
+    self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
+) -> ArrayType:
+    try:
+        items, size_t = args
+    except ValueError:
+        raise CodeError(
+            f"Expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    size = _require_int_literal(self, size_t, source_location, position_qualifier="second")
+    if size < 0:
+        raise CodeError("Array size should be non-negative", source_location)
 
-        name = f"{self.name}[{items.name}, {size_t.name}]"
-        return ArrayType(
-            generic=self,
-            name=name,
-            size=size,
-            items=items,
-            wtype=typ(items.wtype, size, source_location),
-        )
-
-    return parameterise
+    name = f"{self.name}[{items.name}, {size_t.name}]"
+    return ArrayType(
+        generic=self,
+        name=name,
+        size=size,
+        items=items,
+        wtype=wtypes.ARC4StaticArray(
+            element_type=items.wtype, array_size=size, source_location=source_location
+        ),
+    )
 
 
 GenericARC4StaticArrayType: typing.Final = _GenericType(
     name="algopy.arc4.StaticArray",
-    parameterise=_make_fixed_array_parameterise(wtypes.ARC4StaticArray),
+    parameterise=_parameterise_arc4_static_array,
 )
 ARC4AddressType: typing.Final = _register_builtin(
     ArrayType(

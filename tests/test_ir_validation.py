@@ -51,7 +51,7 @@ def test_arc4_uintn_validation(value: int) -> None:
 def test_decimal_validation(value: Decimal) -> None:
     expr = awst.DecimalConstant(
         value=value,
-        wtype=wtypes.ARC4UFixedNxM(bits=8, precision=2, source_location=None),
+        wtype=wtypes.ARC4UFixedNxM(n=8, m=2, source_location=None),
         source_location=_location,
     )
     assert _build_ir_and_return_errors(expr) == ["invalid arc4.ufixed8x2 value"]
@@ -78,7 +78,7 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     module_name = "test_ir"
     func_name = "test_ir"
     function = awst.Subroutine(
-        id=awst.SubroutineID(f"{module_name}.{func_name}"),
+        id=f"{module_name}.{func_name}",
         name=func_name,
         body=awst.Block(body=[awst.ExpressionStatement(expr)], source_location=_location),
         source_location=_location,
