@@ -54,7 +54,7 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
   
   abimethod close(): void
   {
-    _algopy_.ensure_budget(required_budget=20000u, fee_source=0u)
+    _puya_lib.util.ensure_budget(required_budget=20000u, fee_source=0u)
     assert(!(STATE_EXISTS(GlobalState['close_time'])), comment="Already closed")
     GlobalState['close_time']: uint64 = global<LatestTimestamp>()
     note: string = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + GlobalState['vote_id'] + '.","properties":{"metadata":"ipfs://' + GlobalState['metadata_ipfs_cid'] + '","id":"' + GlobalState['vote_id'] + '","quorum":' + examples.voting.voting.itoa(GlobalState['quorum']) + ',"voterCount":' + examples.voting.voting.itoa(GlobalState['voter_count']) + ',"tallies":['
@@ -87,7 +87,7 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
   
   abimethod vote(fund_min_bal_req: group_transaction_pay, signature: bytes, answer_ids: arc4.dynamic_array<arc4.uint8>): void
   {
-    _algopy_.ensure_budget(required_budget=7700u, fee_source=0u)
+    _puya_lib.util.ensure_budget(required_budget=7700u, fee_source=0u)
     assert(this::allowed_to_vote(signature), comment="Not allowed to vote")
     assert(this::voting_open(), comment="Voting not open")
     assert(!(this::already_voted()), comment="Already voted")
@@ -134,7 +134,7 @@ contract VotingRoundApp extends (algopy.arc4.ARC4Contract)
   
   subroutine allowed_to_vote(signature: bytes): bool
   {
-    _algopy_.ensure_budget(required_budget=2000u, fee_source=0u)
+    _puya_lib.util.ensure_budget(required_budget=2000u, fee_source=0u)
     return ed25519verify_bare(reinterpret_cast<bytes>(txn<Sender>()), signature, GlobalState['snapshot_public_key'])
   }
   
