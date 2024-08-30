@@ -70,7 +70,7 @@ class EnsureBudgetBuilder(FunctionBuilder):
             ),
         ]
         call_expr = SubroutineCallExpression(
-            target=SubroutineID("_algopy_.ensure_budget"),
+            target=SubroutineID("_puya_lib.util.ensure_budget"),
             args=call_args,
             wtype=wtypes.void_wtype,
             source_location=location,

@@ -38,9 +38,9 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
         context = parse_with_mypy(puya_options)
         log_ctx.sources_by_path = context.sources_by_path
         log_ctx.exit_if_errors()
-        awst, embedded_funcs = transform_ast(context)
+        awst = transform_ast(context)
         log_ctx.exit_if_errors()
-        artifacts = awst_to_teal(log_ctx, context, awst, embedded_funcs)
+        artifacts = awst_to_teal(log_ctx, context, awst)
         log_ctx.exit_if_errors()
         write_artifacts(context, artifacts)
     log_ctx.exit_if_errors()

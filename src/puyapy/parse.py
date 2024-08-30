@@ -52,18 +52,6 @@ class EmbeddedSource:
         )
 
 
-_MYPY_EMBEDDED_MODULES = {
-    es.mypy_module_name: es
-    for es in (
-        EmbeddedSource.from_path("_algopy_.py", module_override="algopy"),
-        EmbeddedSource.from_path("algopy_lib_arc4.py"),
-        EmbeddedSource.from_path("algopy_lib_bytes.py"),
-    )
-}
-
-EMBEDDED_MODULES = tuple(es.puya_module_name for es in _MYPY_EMBEDDED_MODULES.values())
-
-
 @attrs.frozen
 class ParseSource(CompileSource):
     module_name: str
@@ -123,19 +111,6 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
     )
     sources = get_parse_sources(paths, _MYPY_FSCACHE, mypy_options)
 
-    # insert embedded lib, after source list that is returned has been constructed,
-    # so we don't try to output it
-    mypy_build_sources.extend(
-        [
-            mypy.build.BuildSource(
-                # present a 'tidy' path to the user
-                path=str(Path("<algopy>") / f"{module.puya_module_name}.py"),
-                module=module.mypy_module_name,
-                text=module.path.read_text("utf8"),
-            )
-            for module in _MYPY_EMBEDDED_MODULES.values()
-        ]
-    )
     result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()
     if missing_module_names:
@@ -158,11 +133,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
             if not module.path:
                 raise InternalError(f"No path for module: {module_name}")
 
-            if embedded_src := _MYPY_EMBEDDED_MODULES.get(module_name):
-                module._fullname = embedded_src.puya_module_name  # noqa: SLF001
-                module_path = embedded_src.path
-            else:
-                module_path = Path(module.path)
+            module_path = Path(module.path)
 
             if module_path.is_dir():
                 # this module is a module directory with no __init__.py, ie it contains

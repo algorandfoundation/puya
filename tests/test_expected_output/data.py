@@ -298,7 +298,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 output_bytecode=True,
             )
         )
-        awst, embedded_funcs = transform_ast(context)
+        awst = transform_ast(context)
         # lower each case further if possible and process
         for case in cases:
             if case_has_awst_errors(awst_log_ctx.logs, case):
@@ -321,7 +321,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                     logging_context() as case_log_ctx,
                     log_exceptions(),
                 ):
-                    awst_to_teal(case_log_ctx, case_context, awst, embedded_funcs)
+                    awst_to_teal(case_log_ctx, case_context, awst)
                 case_logs = case_log_ctx.logs
             process_test_case(case, awst_log_ctx.logs + case_logs, awst)
 
