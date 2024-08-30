@@ -1,0 +1,99 @@
+#pragma version 10
+
+test_cases.abi_routing.custom_approval.CustomApproval.approval_program:
+    byte ""
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    txn NumAppArgs
+    int 2
+    ==
+    bz main_after_if_else@5
+    txna ApplicationArgs 1
+    int 42
+    itob
+    ==
+    bz main_after_if_else@5
+    byte "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
+    log
+
+main_after_if_else@5:
+    callsub approval_program
+    dup
+    bury 2
+    bnz main_after_if_else@7
+    byte "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here"
+    log
+
+main_after_if_else@7:
+    dup
+    return
+
+
+// test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@5
+    method "add_one(uint64)uint64"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___add_one_route@2
+    int 0
+    retsub
+
+__puya_arc4_router___add_one_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    callsub add_one
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@5:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@9
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    int 0
+    retsub
+
+
+// test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64) -> uint64:
+add_one:
+    proto 1 1
+    frame_dig -1
+    int 1
+    +
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+    proto 0 1
+    callsub __puya_arc4_router__
+    retsub
+
+
+// test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
+__init__:
+    proto 0 0
+    txn ApplicationID
+    !
+    assert // nonsense assert just to generate an init method
+    retsub

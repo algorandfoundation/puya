@@ -16,12 +16,6 @@ URANGE = "algopy._unsigned_builtins.urange"
 CLS_ARC4_STRUCT_META = "algopy.arc4._StructMeta"
 CLS_ARC4_ABI_CALL = "algopy.arc4.abi_call"
 
-CONTRACT_STUB_TYPES = [
-    CONTRACT_BASE,
-    ARC4_CONTRACT_BASE,
-]
-
-
 KNOWN_METHOD_DECORATORS = [
     SUBROUTINE_HINT,
     ABIMETHOD_DECORATOR,
