@@ -16,7 +16,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import unique
 
-from puyapy.awst_build import constants, pytypes
+from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.factories import builder_for_type
 from puyapy.awst_build.eb.interface import (
@@ -160,20 +160,6 @@ def fold_binary_expr(
     return result
 
 
-def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:
-    assert type_info.mro[0].defn is type_info.defn, "first MRO entry should always be class itself"
-    for base_type in type_info.mro[1:]:
-        base_class_fullname = base_type.fullname
-        if base_class_fullname in (
-            constants.CONTRACT_BASE,
-            "builtins.object",
-            "abc.ABC",
-        ):
-            continue  # OK, ignore, just stubs
-        else:
-            yield base_type
-
-
 def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:
     import ast
 
@@ -261,9 +247,16 @@ def snake_case(s: str) -> str:
 
 
 def resolve_member_node(
-    type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
+    type_info: mypy.nodes.TypeInfo,
+    name: str,
+    location: SourceLocation,
+    *,
+    include_inherited: bool = True,
 ) -> mypy.nodes.SymbolNode | None:
-    member = type_info.get(name)
+    if include_inherited:
+        member = type_info.get(name)
+    else:
+        member = type_info.names.get(name)
     if member is None:
         return None
     if member.node is None:
