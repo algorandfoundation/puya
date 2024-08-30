@@ -5,6 +5,7 @@ from algopy import ARC4Contract, Txn, UInt64, arc4, log, op
 
 class CustomApproval(ARC4Contract):
     def __init__(self) -> None:
+        super().__init__()
         assert Txn.application_id == 0, "nonsense assert just to generate an init method"
 
     @typing.override
