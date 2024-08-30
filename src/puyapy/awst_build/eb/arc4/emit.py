@@ -39,8 +39,8 @@ class EmitBuilder(FunctionBuilder):
                         "unexpected additional arguments", location=rest[0].source_location
                     )
             case _:
-                _, signature = get_arc4_signature(first, rest, location)
-                if signature.return_type is not None:
+                method_sig, signature = get_arc4_signature(first, rest, location)
+                if signature.return_type != pytypes.NoneType or method_sig.endswith(")void"):
                     logger.error(
                         "event signatures cannot include return types",
                         location=first.source_location,

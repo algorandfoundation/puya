@@ -102,8 +102,9 @@ contract HelloOtherConstants extends (algopy.arc4.ARC4Contract)
     GlobalState['method']: bytes = TemplateVar[bytes](TMPL_METHOD)
   }
   
-  abimethod create(): void
+  abimethod create(): uint64
   {
+    return 1u
   }
   
   abimethod delete(): void
@@ -216,7 +217,7 @@ contract HelloFactory extends (algopy.arc4.ARC4Contract)
   
   abimethod test_other_constants(): void
   {
-    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()void")), ApprovalProgramPages=(SINGLE_EVAL(id=41, source=(SINGLE_EVAL(id=40, source=compiled_contract(test_cases.compile.apps.HelloOtherConstants,,, prefix=None, variables={'NUM': 5n, 'GREETING': 'hello', 'ACCOUNT': Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"), 'METHOD': Method("something()void")}))[0], SINGLE_EVAL(id=40)[1]))[0], SINGLE_EVAL(id=41)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=42, source=(SINGLE_EVAL(id=40)[2], SINGLE_EVAL(id=40)[3]))[0], SINGLE_EVAL(id=42)[1]), ExtraProgramPages=SINGLE_EVAL(id=40)[4], GlobalNumByteSlice=SINGLE_EVAL(id=40)[6], GlobalNumUint=SINGLE_EVAL(id=40)[5], LocalNumByteSlice=SINGLE_EVAL(id=40)[8], LocalNumUint=SINGLE_EVAL(id=40)[7])).CreatedApplicationID
+    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create()uint64")), ApprovalProgramPages=(SINGLE_EVAL(id=41, source=(SINGLE_EVAL(id=40, source=compiled_contract(test_cases.compile.apps.HelloOtherConstants,,, prefix=None, variables={'NUM': 5n, 'GREETING': 'hello', 'ACCOUNT': Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"), 'METHOD': Method("something()void")}))[0], SINGLE_EVAL(id=40)[1]))[0], SINGLE_EVAL(id=41)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=42, source=(SINGLE_EVAL(id=40)[2], SINGLE_EVAL(id=40)[3]))[0], SINGLE_EVAL(id=42)[1]), ExtraProgramPages=SINGLE_EVAL(id=40)[4], GlobalNumByteSlice=SINGLE_EVAL(id=40)[6], GlobalNumUint=SINGLE_EVAL(id=40)[5], LocalNumByteSlice=SINGLE_EVAL(id=40)[8], LocalNumUint=SINGLE_EVAL(id=40)[7])).CreatedApplicationID
     (result, _txn): tuple<bytes,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=44, source=SINGLE_EVAL(id=43, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)byte[]"), arc4_encode('Johnny', arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=44)) == hex<"151F7C75">)), bytes), SINGLE_EVAL(id=43))
     assert(result == hex<"68656C6C6F204A6F686E6E7935"> + reinterpret_cast<bytes>(global<ZeroAddress>()) + Method("something()void"))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
