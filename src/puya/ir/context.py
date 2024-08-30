@@ -70,18 +70,16 @@ class IRBuildContext(CompileContext):
             case awst_nodes.SubroutineID(sub_id):
                 func: awst_nodes.Node | None = self._awst_lookup.get(sub_id)
             case awst_nodes.InstanceMethodTarget(member_name=member_name):
-                func = self._resolve_contract_attribute(member_name, source_location)
+                func = self._resolve_contract_method(member_name, source_location)
             case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
-                func = self._resolve_contract_attribute(
-                    member_name, source_location, start=start_at
-                )
+                func = self._resolve_contract_method(member_name, source_location, start=start_at)
             case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
                 if not isinstance(caller, awst_nodes.ContractMethod):
                     raise CodeError(
                         "call to contract method from outside of contract class",
                         source_location,
                     )
-                func = self._resolve_contract_attribute(
+                func = self._resolve_contract_method(
                     member_name, source_location, start=caller.cref, skip=True
                 )
             case unexpected:
@@ -95,12 +93,12 @@ class IRBuildContext(CompileContext):
         return func
 
     @typing.overload
-    def _resolve_contract_attribute(
+    def _resolve_contract_method(
         self, name: str, source_location: SourceLocation
     ) -> awst_nodes.ContractMethod: ...
 
     @typing.overload
-    def _resolve_contract_attribute(
+    def _resolve_contract_method(
         self,
         name: str,
         source_location: SourceLocation,
@@ -109,7 +107,7 @@ class IRBuildContext(CompileContext):
         skip: bool = False,
     ) -> awst_nodes.ContractMethod: ...
 
-    def _resolve_contract_attribute(
+    def _resolve_contract_method(
         self,
         name: str,
         source_location: SourceLocation,
@@ -137,7 +135,9 @@ class IRBuildContext(CompileContext):
         for cref in mro:
             contract = self.resolve_contract_reference(cref)
             with contextlib.suppress(KeyError):
-                return contract.methods[name]
+                method = contract.methods[name]
+                if method.inheritable or cref == root.id:
+                    return method
         return None
 
     @property
