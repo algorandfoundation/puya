@@ -15,6 +15,7 @@ from puya.awst.nodes import (
     AWST,
     Subroutine as AWSTSubroutine,
 )
+from puya.awst.serialize import awst_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
@@ -57,7 +58,9 @@ def awst_to_teal(
     log_ctx.exit_if_errors()
     if context.options.output_awst:
         _output_awst(context, awst)
-    ir = awst_to_ir(context, awst, embedded_funcs)
+    if context.options.output_awst_json:
+        _output_awst_json(context, awst)
+    ir = awst_to_ir(context, awst)
     log_ctx.exit_if_errors()
     teal = ir_to_teal(log_ctx, context, ir)
     log_ctx.exit_if_errors()
@@ -328,5 +331,16 @@ def _output_awst(context: CompileContext, awst: AWST) -> None:
     awst_module_str = formatter.visit_module(nodes)
     out_dir = context.options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
     out_dir.mkdir(exist_ok=True)
-    awst_module_output_path = out_dir / "module.awst"
-    awst_module_output_path.write_text(awst_module_str, "utf-8")
+    output_path = out_dir / "module.awst"
+    logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
+    output_path.write_text(awst_module_str, "utf-8")
+
+
+def _output_awst_json(context: CompileContext, awst: AWST) -> None:
+    nodes = [n for n in awst if n.source_location.file in context.sources_by_path]  # TODO: hmm
+    json = awst_to_json(nodes)
+    out_dir = context.options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
+    out_dir.mkdir(exist_ok=True)
+    output_path = out_dir / "module.awst.json"
+    logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
+    output_path.write_text(json, "utf-8")
