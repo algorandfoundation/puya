@@ -17,7 +17,7 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___after_if_else@8
-    method "create()void"
+    method "create()uint64"
     method "delete()void"
     method "greet(string)byte[]"
     txna ApplicationArgs 0
@@ -34,6 +34,12 @@ __puya_arc4_router___create_route@2:
     txn ApplicationID
     !
     assert // is creating
+    callsub create
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
     int 1
     retsub
 
@@ -81,6 +87,18 @@ __puya_arc4_router___after_if_else@8:
     // compile/apps.py:81
     // class HelloOtherConstants(ARC4Contract):
     int 0
+    retsub
+
+
+// test_cases.compile.apps.HelloOtherConstants.create() -> uint64:
+create:
+    // compile/apps.py:89-90
+    // @arc4.abimethod(create="require")
+    // def create(self) -> UInt64:
+    proto 0 1
+    // compile/apps.py:91
+    // return UInt64(1)
+    int 1
     retsub
 
 

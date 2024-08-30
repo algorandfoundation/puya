@@ -168,7 +168,7 @@ class ABICallGenericTypeBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        return _abi_call(args, arg_names, location, return_type_annotation=None)
+        return _abi_call(args, arg_names, location, return_type_annotation=pytypes.NoneType)
 
 
 class ABICallTypeBuilder(FunctionBuilder):
@@ -314,12 +314,12 @@ def _abi_call(
     arg_names: list[str | None],
     location: SourceLocation,
     *,
-    return_type_annotation: pytypes.PyType | None,
+    return_type_annotation: pytypes.PyType,
 ) -> InstanceBuilder:
     method, abi_args, kwargs = _get_method_abi_args_and_kwargs(
         args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
-    declared_result_type: pytypes.PyType | None
+    declared_result_type: pytypes.PyType
     arc4_config = None
     match method:
         case None:
@@ -339,10 +339,7 @@ def _abi_call(
             arc4_return_type = method_call.arc4_return_type
             arc4_config = method_call.config
             declared_result_type = method_call.method_return_type
-            if (
-                return_type_annotation is not None
-                and return_type_annotation != declared_result_type
-            ):
+            if return_type_annotation not in (declared_result_type, pytypes.NoneType):
                 logger.error(
                     "mismatch between return type of method and generic parameter",
                     location=location,
@@ -350,19 +347,16 @@ def _abi_call(
         case _:
             method_str, signature = get_arc4_signature(method, abi_args, location)
             declared_result_type = return_type_annotation
-            if declared_result_type is not None:
+            if declared_result_type != pytypes.NoneType:
                 # this will be validated against signature below, by comparing
                 # the generated method_selector against the supplied method_str
                 signature = attrs.evolve(signature, return_type=declared_result_type)
-            elif signature.return_type is None:
-                signature = attrs.evolve(signature, return_type=pytypes.NoneType)
             if not signature.method_selector.startswith(method_str):
                 logger.error(
                     f"method selector from args '{signature.method_selector}' "
                     f"does not match provided method selector: '{method_str}'",
                     location=method.source_location,
                 )
-            assert signature.return_type is not None
             arc4_args = _method_selector_and_arc4_args(signature, abi_args, location)
             arc4_return_type = signature.return_type
 
@@ -492,7 +486,11 @@ def _get_lifecycle_method_call(
             f"found multiple {kind} methods on {contract}, please specify which one to use",
             location,
         )
-    return _map_arc4_method_data_to_call(single_method, abi_args, location)
+    method_call = _map_arc4_method_data_to_call(single_method, abi_args, location)
+    # remove method_return_type from result
+    # so _create_abi_call_expr does not attempt to include any decoded ARC4 result
+    # as per the stubs overload for arc4_create/arc4_update with a Contract type
+    return attrs.evolve(method_call, method_return_type=pytypes.NoneType)
 
 
 def _method_selector_and_arc4_args(
@@ -510,7 +508,7 @@ def _create_abi_call_expr(
     *,
     abi_args: Sequence[InstanceBuilder],
     arc4_return_type: pytypes.PyType,
-    declared_result_type: pytypes.PyType | None,
+    declared_result_type: pytypes.PyType,
     field_nodes: dict[TxnField, NodeBuilder],
     location: SourceLocation,
 ) -> InstanceBuilder:
@@ -586,7 +584,7 @@ def _create_abi_call_expr(
         SubmitInnerTransaction(itxns=[create_itxn], source_location=location), itxn_result_pytype
     )
 
-    if declared_result_type is None or declared_result_type == pytypes.NoneType:
+    if declared_result_type == pytypes.NoneType:
         return itxn_builder
     itxn_tmp = itxn_builder.single_eval()
     assert isinstance(itxn_tmp, InnerTransactionExpressionBuilder)

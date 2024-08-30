@@ -23,7 +23,7 @@ class BadStruct3(arc4.Struct):
     x: arc4.UInt64 = arc4.UInt64(1) ## E: Unsupported syntax for algopy.arc4.Struct member declaration
 
 ## case: test_emit_errors
-from algopy import arc4, subroutine
+from algopy import *
 
 class Event(arc4.Struct):
     a: arc4.String
@@ -45,6 +45,11 @@ def abi_call_tuple_ok() -> None:
 @subroutine
 def abi_call_wrong_return() -> None:
     event, txn = arc4.abi_call[Event]("foo()(string,uint64)", app_id=1) ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
+
+@subroutine ## E: not an ARC4 type or native equivalent: typing.Never
+def abi_call_none_return() -> None:
+    arc4.abi_call[None]("foo()(string,uint64)", app_id=1) # type: ignore[index]
+
 
 @subroutine
 def wrong_arg_type1() -> None:

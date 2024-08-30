@@ -87,8 +87,8 @@ class HelloOtherConstants(ARC4Contract):
         self.method = TemplateVar[Bytes]("METHOD")
 
     @arc4.abimethod(create="require")
-    def create(self) -> None:
-        pass
+    def create(self) -> UInt64:
+        return UInt64(1)
 
     @arc4.abimethod(allow_actions=["DeleteApplication"])
     def delete(self) -> None:
