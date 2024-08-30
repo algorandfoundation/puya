@@ -289,57 +289,7 @@ def check_allowed_oca(
     )
 
 
-def asset_id_at(
-    asset_index: awst_nodes.Expression, location: SourceLocation
-) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.asset_wtype,
-        op_code="txnas",
-        immediates=["Assets"],
-        stack_args=[asset_index],
-    )
-
-
-def account_at(
-    account_index: awst_nodes.Expression, location: SourceLocation
-) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.account_wtype,
-        op_code="txnas",
-        immediates=["Accounts"],
-        stack_args=[account_index],
-    )
-
-
-def application_at(
-    application_index: awst_nodes.Expression, location: SourceLocation
-) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.application_wtype,
-        op_code="txnas",
-        immediates=["Applications"],
-        stack_args=[application_index],
-    )
-
-
-def current_group_index(location: SourceLocation) -> awst_nodes.Expression:
-    return intrinsic_factory.txn("GroupIndex", wtypes.uint64_wtype, location)
-
-
-def arc4_tuple_index(
-    arc4_tuple_expression: awst_nodes.Expression, index: int, location: SourceLocation
-) -> awst_nodes.Expression:
-    assert isinstance(arc4_tuple_expression.wtype, wtypes.ARC4Tuple)
-
-    return awst_nodes.TupleItemExpression(
-        base=arc4_tuple_expression, index=index, source_location=location
-    )
-
-
-def map_abi_args(
+def _map_abi_args(
     args: Sequence[awst_nodes.SubroutineArgument], location: SourceLocation
 ) -> Iterable[awst_nodes.Expression]:
     abi_arg_index = 1  # 0th arg is for method selector
@@ -348,17 +298,10 @@ def map_abi_args(
     non_transaction_args = [a for a in args if not isinstance(a.wtype, wtypes.WGroupTransaction)]
     last_arg: awst_nodes.Expression | None = None
     if len(non_transaction_args) > 15:
-
-        def map_param_wtype_to_arc4_tuple_type(wtype: wtypes.WType) -> wtypes.WType:
-            if _has_arc4_equivalent_type(wtype):
-                return _avm_to_arc4_equivalent_type(wtype)
-            elif _is_reference_type(wtype):
-                return wtypes.arc4_byte_alias
-            else:
-                return wtype
-
         args_overflow_wtype = wtypes.ARC4Tuple(
-            types=[map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]],
+            types=[
+                _map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]
+            ],
             source_location=location,
         )
         last_arg = app_arg(15, args_overflow_wtype, location)
@@ -369,54 +312,55 @@ def map_abi_args(
         else:
             if last_arg is None:
                 raise InternalError("last_arg should not be None if there are more than 15 args")
-            return arc4_tuple_index(last_arg, index - 15, location)
+            assert isinstance(last_arg.wtype, wtypes.ARC4Tuple)
+            return awst_nodes.TupleItemExpression(
+                base=last_arg, index=index - 15, source_location=location
+            )
 
     for arg in args:
-        match arg.wtype:
-            case wtypes.asset_wtype:
-                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
-                asset_index = intrinsic_factory.btoi(bytes_arg, location)
-                asset_id = asset_id_at(asset_index, location)
-                yield asset_id
-                abi_arg_index += 1
-
-            case wtypes.account_wtype:
-                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
-                account_index = intrinsic_factory.btoi(bytes_arg, location)
-                account = account_at(account_index, location)
-                yield account
-                abi_arg_index += 1
-            case wtypes.application_wtype:
-                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
-                application_index = intrinsic_factory.btoi(bytes_arg, location)
-                application = application_at(application_index, location)
-                yield application
-                abi_arg_index += 1
-            case wtypes.WGroupTransaction() as txn_wtype:
-                transaction_index = uint64_sub(
-                    current_group_index(location),
-                    constant(
-                        transaction_arg_offset,
-                        location,
-                    ),
+        if isinstance(arg.wtype, wtypes.WGroupTransaction):
+            transaction_index = uint64_sub(
+                intrinsic_factory.txn("GroupIndex", wtypes.uint64_wtype, location),
+                constant(
+                    transaction_arg_offset,
                     location,
+                ),
+                location,
+            )
+            yield awst_nodes.GroupTransactionReference(
+                index=transaction_index, wtype=arg.wtype, source_location=location
+            )
+            transaction_arg_offset -= 1
+        else:
+            if (ref_array := _reference_type_array(arg.wtype)) is not None:
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
+                uint64_index = intrinsic_factory.btoi(bytes_arg, location)
+                yield awst_nodes.IntrinsicCall(
+                    op_code="txnas",
+                    immediates=[ref_array],
+                    stack_args=[uint64_index],
+                    wtype=arg.wtype,
+                    source_location=location,
                 )
-                yield awst_nodes.GroupTransactionReference(
-                    index=transaction_index, wtype=txn_wtype, source_location=location
-                )
-                transaction_arg_offset -= 1
-            case _ if _has_arc4_equivalent_type(arg.wtype):
-                abi_arg = get_arg(abi_arg_index, _avm_to_arc4_equivalent_type(arg.wtype))
-                decoded_abi_arg = _arc4_decode(
-                    bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
-                )
-                yield decoded_abi_arg
-                abi_arg_index += 1
-
-            case _:
-                abi_arg = get_arg(abi_arg_index, arg.wtype)
+            else:
+                converted = _maybe_avm_to_arc4_equivalent_type(arg.wtype)
+                abi_arg = get_arg(abi_arg_index, converted or arg.wtype)
+                if converted is not None:
+                    abi_arg = _arc4_decode(
+                        bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
+                    )
                 yield abi_arg
-                abi_arg_index += 1
+            abi_arg_index += 1
+
+
+def _map_param_wtype_to_arc4_tuple_type(wtype: wtypes.WType) -> wtypes.WType:
+    converted = _maybe_avm_to_arc4_equivalent_type(wtype)
+    if converted is not None:
+        return converted
+    elif _reference_type_array(wtype) is not None:
+        return wtypes.arc4_byte_alias
+    else:
+        return wtype
 
 
 def route_abi_methods(
@@ -427,19 +371,20 @@ def route_abi_methods(
     seen_signatures = set[str]()
     for method, config in methods.items():
         abi_loc = config.source_location or location
-        method_result = call(abi_loc, method, *map_abi_args(method.args, location))
+        method_result = call(abi_loc, method, *_map_abi_args(method.args, location))
         match method.return_type:
             case wtypes.void_wtype:
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
             case wtypes.ARC4Type():
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
             case _:
-                if not _has_arc4_equivalent_type(method.return_type):
+                converted_return_type = _maybe_avm_to_arc4_equivalent_type(method.return_type)
+                if converted_return_type is None:
                     raise CodeError(
                         f"{method.return_type} is not a valid ABI return type",
                         method.source_location,
                     )
-                arc4_encoded = _arc4_encode(method_result)
+                arc4_encoded = _arc4_encode(method_result, converted_return_type)
                 call_and_maybe_log = log_arc4_result(abi_loc, arc4_encoded)
 
         arc4_signature = _get_abi_signature(method, config)
@@ -683,30 +628,35 @@ def create_abi_router(
     return approval_program
 
 
-def _arc4_encode(base: awst_nodes.Expression) -> awst_nodes.Expression:
+def _arc4_encode(
+    base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type
+) -> awst_nodes.Expression:
     """encode, with special handling of native tuples"""
     location = base.source_location
-    target_wtype = _avm_to_arc4_equivalent_type(base.wtype)
     value = base
-    match base.wtype:
-        case wtypes.WTuple(types=types):
+    match base.wtype, target_wtype:
+        case wtypes.WTuple(types=source_types), wtypes.ARC4Tuple(types=arc4_types) if len(
+            source_types
+        ) == len(arc4_types):
             if not isinstance(base, awst_nodes.SingleEvaluation):
                 base = awst_nodes.SingleEvaluation(base)
             encoded_items = [
                 _maybe_arc4_encode(
-                    awst_nodes.TupleItemExpression(base=base, index=i, source_location=location)
+                    awst_nodes.TupleItemExpression(base=base, index=i, source_location=location), t
                 )
-                for i, t in enumerate(types)
+                for i, t in enumerate(arc4_types)
             ]
             value = awst_nodes.TupleExpression.from_items(encoded_items, location)
     return awst_nodes.ARC4Encode(value=value, wtype=target_wtype, source_location=location)
 
 
-def _maybe_arc4_encode(item: awst_nodes.Expression) -> awst_nodes.Expression:
+def _maybe_arc4_encode(
+    item: awst_nodes.Expression, target_wtype: wtypes.ARC4Type
+) -> awst_nodes.Expression:
     """Encode as arc4 if wtype is not already an arc4 encoded type"""
     if isinstance(item.wtype, wtypes.ARC4Type):
         return item
-    return _arc4_encode(item)
+    return _arc4_encode(item, target_wtype)
 
 
 def _arc4_decode(
@@ -762,68 +712,51 @@ def _wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> st
             | wtypes.asset_wtype
             | wtypes.account_wtype
             | wtypes.application_wtype
-            | wtypes.uint64_wtype
-            | wtypes.bool_wtype
-            | wtypes.string_wtype
         ):
             return wtype.name
-        case wtypes.biguint_wtype:
-            return "uint512"
-        case wtypes.bytes_wtype:
-            return "byte[]"
         case wtypes.WGroupTransaction(transaction_type=transaction_type):
             return transaction_type.name if transaction_type else "txn"
-        case wtypes.WTuple(types=types):
-            item_types = ",".join([_wtype_to_arc4(item) for item in types])
-            return f"({item_types})"
-        case _:
-            raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
+    converted = _maybe_avm_to_arc4_equivalent_type(wtype)
+    if converted is None:
+        raise CodeError(f"not an ARC4 type or native equivalent: {wtype}", loc)
+    return _wtype_to_arc4(converted, loc)
 
 
-def _is_reference_type(wtype: wtypes.WType) -> bool:
-    return wtype in (wtypes.asset_wtype, wtypes.account_wtype, wtypes.application_wtype)
-
-
-def _has_arc4_equivalent_type(wtype: wtypes.WType) -> bool:
-    """
-    Checks if a non-arc4 encoded type has an arc4 equivalent
-    """
-    if wtype in (
-        wtypes.bool_wtype,
-        wtypes.uint64_wtype,
-        wtypes.bytes_wtype,
-        wtypes.biguint_wtype,
-        wtypes.string_wtype,
-    ):
-        return True
-
+def _reference_type_array(wtype: wtypes.WType) -> str | None:
     match wtype:
-        case wtypes.WTuple(types=types):
-            return all(
-                (_has_arc4_equivalent_type(t) or isinstance(t, wtypes.ARC4Type)) for t in types
+        case wtypes.asset_wtype:
+            return "Assets"
+        case wtypes.account_wtype:
+            return "Accounts"
+        case wtypes.application_wtype:
+            return "Applications"
+    return None
+
+
+def _maybe_avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type | None:
+    match wtype:
+        case wtypes.bool_wtype:
+            return wtypes.arc4_bool_wtype
+        case wtypes.uint64_wtype:
+            return wtypes.ARC4UIntN(n=64, decode_type=wtype, source_location=None)
+        case wtypes.biguint_wtype:
+            return wtypes.ARC4UIntN(n=512, decode_type=wtype, source_location=None)
+        case wtypes.bytes_wtype:
+            return wtypes.ARC4DynamicArray(
+                element_type=wtypes.arc4_byte_alias, decode_type=wtype, source_location=None
             )
-    return False
-
-
-def _avm_to_arc4_equivalent_type(wtype: wtypes.WType) -> wtypes.ARC4Type:
-    if wtype is wtypes.bool_wtype:
-        return wtypes.arc4_bool_wtype
-    if wtype is wtypes.uint64_wtype:
-        return wtypes.ARC4UIntN(n=64, decode_type=wtype, source_location=None)
-    if wtype is wtypes.biguint_wtype:
-        return wtypes.ARC4UIntN(n=512, decode_type=wtype, source_location=None)
-    if wtype is wtypes.bytes_wtype:
-        return wtypes.ARC4DynamicArray(
-            element_type=wtypes.arc4_byte_alias, decode_type=wtype, source_location=None
-        )
-    if wtype is wtypes.string_wtype:
-        return wtypes.arc4_string_alias
-    if isinstance(wtype, wtypes.WTuple):
-        return wtypes.ARC4Tuple(
-            types=(
-                t if isinstance(t, wtypes.ARC4Type) else _avm_to_arc4_equivalent_type(t)
-                for t in wtype.types
-            ),
-            source_location=None,
-        )
-    raise InternalError(f"{wtype} does not have an arc4 equivalent type")
+        case wtypes.string_wtype:
+            return wtypes.arc4_string_alias
+        case wtypes.WTuple(types=tuple_item_types):
+            arc4_item_types = []
+            for t in tuple_item_types:
+                if isinstance(t, wtypes.ARC4Type):
+                    arc4_item_types.append(t)
+                else:
+                    converted = _maybe_avm_to_arc4_equivalent_type(t)
+                    if converted is None:
+                        return None
+                    arc4_item_types.append(converted)
+            return wtypes.ARC4Tuple(types=arc4_item_types, source_location=None)
+        case _:
+            return None
