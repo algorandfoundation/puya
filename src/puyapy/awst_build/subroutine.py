@@ -71,13 +71,13 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puyapy.awst_build.eb.logicsig import LogicSigExpressionBuilder
+from puyapy.awst_build.eb.none import NoneTypeBuilder
 from puyapy.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puyapy.awst_build.exceptions import TypeUnionError
 from puyapy.awst_build.utils import (
     determine_base_type,
     extract_bytes_literal_from_mypy,
     get_unaliased_fullname,
-    iterate_user_bases,
     maybe_resolve_literal,
     require_callable_type,
     resolve_member_node,
@@ -1241,8 +1241,21 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 "only the zero-arguments version of super() is supported",
                 self._location(super_expr.call),
             )
-        for base in iterate_user_bases(self.contract_method_info.type_info):
-            base_member_node = resolve_member_node(base, super_expr.name, super_loc)
+        if (
+            super_expr.name.startswith("__")
+            and super_expr.name.endswith("__")
+            and super_expr.name != "__init__"
+        ):
+            raise CodeError("the only dunder method supported for calling is init", super_loc)
+        for base in self.contract_method_info.type_info.mro[1:]:
+            if base.fullname == "builtins.object" and super_expr.name == "__init__":
+                # support fall through to object __init__, it's the only method from
+                # non-member bases that is callable, and it's a no-op, but it can be useful
+                # in the case of multiple inheritance
+                return NoneTypeBuilder(super_loc)
+            base_member_node = resolve_member_node(
+                base, super_expr.name, super_loc, include_inherited=False
+            )
             if base_member_node is not None:
                 if symbol_node_is_function(base_member_node):
                     base_func_node = base_member_node
@@ -1255,15 +1268,28 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 super_loc,
             )
 
+        if isinstance(base_func_node, mypy.nodes.Decorator):
+            mypy_func = base_func_node.func
+        elif isinstance(base_func_node, mypy.nodes.FuncDef):
+            mypy_func = base_func_node
+        elif isinstance(base_func_node, mypy.nodes.OverloadedFuncDef):
+            raise CodeError("overloaded functions are not supported", super_loc)
+        else:
+            raise InternalError(
+                f"unexpected node type for method: {type(base_func_node).__name__}", super_loc
+            )
+        # the check for class abstractness is because in theory the next method in the MRO
+        # when compiling a derived class could still be non-trivial
+        if mypy_func.is_trivial_body and self.contract_method_info.type_info.is_abstract:
+            raise CodeError("call to trivial method via super()", super_loc)
+
         func_mypy_type = require_callable_type(base_func_node, super_loc)
         func_type = self.context.type_to_pytype(func_mypy_type, source_location=super_loc)
         assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
-        is_static = (
-            base_func_node.func.is_static
-            if isinstance(base_func_node, mypy.nodes.Decorator)
-            else base_func_node.is_static
-        )
-        if not is_static:
+        if not mypy_func.is_static:
+            # remove self from the arguments in the type signature, since it's implicit.
+            # @staticmethod is not supported currently, but this prevents further errors,
+            # there should already be an error at the declaration site.
             func_type = attrs.evolve(func_type, args=func_type.args[1:])
 
         super_target = InstanceSuperMethodTarget(member_name=super_expr.name)
