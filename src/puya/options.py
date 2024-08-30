@@ -28,6 +28,7 @@ class PuyaOptions:
     output_arc32: bool = True
     output_client: bool = False
     output_awst: bool = False
+    output_awst_json: bool = False
     output_ssa_ir: bool = False
     output_optimization_ir: bool = False
     output_destructured_ir: bool = False
