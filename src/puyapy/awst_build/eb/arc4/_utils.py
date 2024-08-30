@@ -25,12 +25,12 @@ _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 class ARC4Signature:
     method_name: str
     arg_types: Sequence[pytypes.PyType] = attrs.field(converter=tuple[pytypes.PyType, ...])
-    return_type: pytypes.PyType | None
+    return_type: pytypes.PyType
 
     @property
     def method_selector(self) -> str:
         args = ",".join(map(arc4_utils.pytype_to_arc4, self.arg_types))
-        return_type = arc4_utils.pytype_to_arc4(self.return_type or pytypes.NoneType)
+        return_type = arc4_utils.pytype_to_arc4(self.return_type)
         return f"{self.method_name}({args}){return_type}"
 
     def convert_args(
@@ -75,7 +75,9 @@ def get_arc4_signature(
         ]
     else:  # args are specified but empty
         arg_types = []
-    return_type = arc4_utils.arc4_to_pytype(maybe_returns, loc) if maybe_returns else None
+    return_type = (
+        arc4_utils.arc4_to_pytype(maybe_returns, loc) if maybe_returns else pytypes.NoneType
+    )
     return method_sig, ARC4Signature(method_name, arg_types, return_type)
 
 

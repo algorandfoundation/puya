@@ -10,7 +10,7 @@ class HelloOtherConstants(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod(create='require')
     def create(
         self,
-    ) -> None: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod(allow_actions=['DeleteApplication'])
     def delete(
