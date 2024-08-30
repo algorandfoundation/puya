@@ -239,7 +239,7 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
             item, pytypes.BytesType, resolve_literal=True
         ).resolve()
         is_substring_expr = SubroutineCallExpression(
-            target=SubroutineID("algopy_lib_bytes.is_substring"),  # TODO: extract constant
+            target=SubroutineID("_puya_lib.bytes_.is_substring"),  # TODO: extract constant
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
             wtype=wtypes.bool_wtype,
             source_location=location,

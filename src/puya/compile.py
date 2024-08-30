@@ -13,7 +13,6 @@ from puya.arc32 import create_arc32_json
 from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import (
     AWST,
-    Subroutine as AWSTSubroutine,
 )
 from puya.awst.serialize import awst_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
@@ -53,7 +52,6 @@ def awst_to_teal(
     log_ctx: LoggingContext,
     context: CompileContext,
     awst: AWST,
-    embedded_funcs: Sequence[AWSTSubroutine],
 ) -> list[CompilationArtifact]:
     log_ctx.exit_if_errors()
     if context.options.output_awst:

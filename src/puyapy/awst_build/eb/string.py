@@ -168,7 +168,7 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         item = expect.argument_of_type_else_dummy(item, pytypes.StringType, resolve_literal=True)
         is_substring_expr = SubroutineCallExpression(
-            target=SubroutineID("algopy_lib_bytes.is_substring"),  # TODO: extract constant
+            target=SubroutineID("_puya_lib.bytes_.is_substring"),  # TODO: extract constant
             args=[
                 CallArg(value=item.to_bytes(item.source_location), name="item"),
                 CallArg(value=self.to_bytes(self.source_location), name="sequence"),

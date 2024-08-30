@@ -420,7 +420,7 @@ def concat_values(
                 context,
                 method_name="dynamic_array_concat_bits",
                 source_location=source_location,
-                module_name="algopy_lib_arc4",
+                module_name="_puya_lib.arc4",
                 args=[
                     left,
                     r_data,
@@ -449,7 +449,7 @@ def concat_values(
                 context,
                 method_name="dynamic_array_concat_byte_length_head",
                 source_location=source_location,
-                module_name="algopy_lib_arc4",
+                module_name="_puya_lib.arc4",
                 args=[
                     left,
                     r_data,
@@ -486,7 +486,7 @@ def concat_values(
                 context,
                 method_name="dynamic_array_concat_dynamic_element",
                 source_location=source_location,
-                module_name="algopy_lib_arc4",
+                module_name="_puya_lib.arc4",
                 args=list(args),
             ),
             "concat_result",
@@ -522,7 +522,7 @@ def pop_arc4_array(
         targets=[popped, data],
         source=invoke_puya_lib_subroutine(
             context,
-            module_name="algopy_lib_arc4",
+            module_name="_puya_lib.arc4",
             method_name=method_name,
             args=args,
             source_location=source_location,
@@ -1069,7 +1069,7 @@ def _arc4_replace_array_item(
     def updated_result(method_name: str, args: list[Value | int | bytes]) -> Register:
         invoke = invoke_puya_lib_subroutine(
             context,
-            module_name="algopy_lib_arc4",
+            module_name="_puya_lib.arc4",
             method_name=method_name,
             args=args,
             source_location=source_location,

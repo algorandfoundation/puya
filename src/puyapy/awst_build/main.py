@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from puya import log
-from puya.awst.nodes import RootNode, Subroutine
+from puya.awst.nodes import RootNode
 from puya.models import ContractReference
 from puya.parse import SourceLocation
 from puya.utils import StableSet, make_path_relative_to_cwd
@@ -10,17 +10,14 @@ from puya.utils import StableSet, make_path_relative_to_cwd
 from puyapy.awst_build import constants
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
-from puyapy.parse import EMBEDDED_MODULES, TYPESHED_PATH
+from puyapy.parse import TYPESHED_PATH
 
 logger = log.get_logger(__name__)
 
 
-def transform_ast(
-    ctx: ASTConversionContext,
-) -> tuple[Sequence[RootNode], Sequence[Subroutine]]:
+def transform_ast(ctx: ASTConversionContext) -> Sequence[RootNode]:
     user_modules = []
     result = [*_algopy_arc4_module(ctx)]
-    embedded_funcs = []
     for module in ctx.parse_result.ordered_modules:
         module_name = module.fullname
         module_rel_path = make_path_relative_to_cwd(module.path)
@@ -33,12 +30,6 @@ def transform_ast(
                 logger.debug(f"Skipping typeshed stub {module_rel_path}")
             else:
                 logger.warning(f"Skipping stub: {module_rel_path}")
-        elif module_name in EMBEDDED_MODULES:
-            logger.debug(f"Building AWST for embedded algopy lib at {module_rel_path}")
-            embedded_nodes = ModuleASTConverter(ctx, module).convert()
-            for en in embedded_nodes:
-                assert isinstance(en, Subroutine)
-                embedded_funcs.append(en)
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
             user_modules.append(ModuleASTConverter(ctx, module))
@@ -47,7 +38,7 @@ def transform_ast(
         logger.debug(f"Building AWST for module {converter.module_name}")
         module_awst = converter.convert()
         result.extend(module_awst)
-    return result, embedded_funcs
+    return result
 
 
 def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
