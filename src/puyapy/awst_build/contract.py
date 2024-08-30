@@ -177,31 +177,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         clear_program = sub
                     case None:
                         subroutines.append(sub)
-                    case invalid:
-                        typing.assert_never(invalid)
-
-        if self.is_arc4 and not self.is_abstract:
-            # TODO: yoink this and replace with base method once MRO solved
-            approval_program = awst_nodes.ContractMethod(
-                cref=cref,
-                source_location=self.source_location,
-                synthetic=True,
-                inheritable=False,
-                arc4_method_config=None,
-                args=[],
-                return_type=wtypes.bool_wtype,
-                documentation=awst_nodes.MethodDocumentation(),
-                member_name=constants.APPROVAL_METHOD,
-                body=awst_nodes.Block(
-                    source_location=self.source_location,
-                    body=[
-                        awst_nodes.ReturnStatement(
-                            value=awst_nodes.ARC4Router(source_location=self.source_location),
-                            source_location=self.source_location,
-                        )
-                    ],
-                ),
-            )
+                    case unexpected:
+                        typing.assert_never(unexpected)
 
         app_state = {
             name: state_decl.definition

@@ -17,9 +17,9 @@ def program_ir_to_mir(
     ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
 
     result = models.Program(
-        main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True),
+        main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True, name=program_ir.id),
         subroutines=[
-            _lower_subroutine_to_mir(ctx, ir_sub, is_main=False)
+            _lower_subroutine_to_mir(ctx, ir_sub, is_main=False, name=ir_sub.full_name)
             for ir_sub in program_ir.subroutines
         ],
     )
@@ -33,7 +33,7 @@ def program_ir_to_mir(
 
 
 def _lower_subroutine_to_mir(
-    context: ProgramMIRContext, subroutine: ir.Subroutine, *, is_main: bool
+    context: ProgramMIRContext, subroutine: ir.Subroutine, *, is_main: bool, name: str
 ) -> models.MemorySubroutine:
     builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
     body = [
@@ -57,7 +57,7 @@ def _lower_subroutine_to_mir(
         )
     return models.MemorySubroutine(
         signature=models.Signature(
-            name=subroutine.full_name,
+            name=name,
             parameters=[
                 models.Parameter(name=p.name, local_id=p.local_id, atype=p.atype)
                 for p in subroutine.parameters

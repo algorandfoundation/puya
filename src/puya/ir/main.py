@@ -244,12 +244,14 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
         ctx,
         folded.approval_program,
         StableSet(*approval_subs_srefs, *ctx.embedded_funcs),
+        program_id=".".join((contract.id, folded.approval_program.short_name)),
         on_create=folded.init,
     )
     clear_state_ir = _make_program(
         ctx,
         folded.clear_program,
         StableSet(*clear_subs_srefs, *ctx.embedded_funcs),
+        program_id=".".join((contract.id, folded.clear_program.short_name)),
         on_create=None,
     )
     result = Contract(
@@ -291,6 +293,7 @@ def _build_logic_sig_ir(
         ctx,
         logic_sig.program,
         StableSet(*program_sub_refs, *ctx.embedded_funcs),
+        program_id=logic_sig.id,
         on_create=None,
     )
     result = LogicSignature(
@@ -374,6 +377,8 @@ def _make_program(
     ctx: IRBuildContext,
     main: awst_nodes.Function,
     references: Iterable[awst_nodes.Function],
+    *,
+    program_id: str,
     on_create: awst_nodes.Function | None,
 ) -> Program:
     if main.args:
@@ -394,6 +399,7 @@ def _make_program(
         on_create_sub = ctx.subroutines[on_create]
     FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub, on_create=on_create_sub)
     return Program(
+        id=program_id,
         main=main_sub,
         subroutines=[ctx.subroutines[ref] for ref in references],
     )
