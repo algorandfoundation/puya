@@ -53,7 +53,7 @@ def transform_ast(
 def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
     from puya.awst import wtypes
     from puya.awst.nodes import (
-        # ARC4Router,
+        ARC4Router,
         Block,
         BoolConstant,
         ContractFragment,
@@ -72,28 +72,25 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
         is_abstract=True,
         bases=[],
         init=None,
-        approval_program=None,
-        # TODO: use the below once MRO is solved?
-        # approval_program=ContractMethod(
-        #     module_name=module_name,
-        #     class_name=class_name,
-        #     source_location=location,
-        #     synthetic=True,
-        #     arc4_method_config=None,
-        #     args=[],
-        #     return_type=wtypes.bool_wtype,
-        #     documentation=MethodDocumentation(),
-        #     name=constants.APPROVAL_METHOD,
-        #     body=Block(
-        #         source_location=location,
-        #         body=[
-        #             ReturnStatement(
-        #                 value=ARC4Router(source_location=location),
-        #                 source_location=location,
-        #             )
-        #         ],
-        #     ),
-        # ),
+        approval_program=ContractMethod(
+            cref=cref,
+            source_location=location,
+            synthetic=True,
+            arc4_method_config=None,
+            args=[],
+            return_type=wtypes.bool_wtype,
+            documentation=MethodDocumentation(),
+            member_name=constants.APPROVAL_METHOD,
+            body=Block(
+                source_location=location,
+                body=[
+                    ReturnStatement(
+                        value=ARC4Router(source_location=location),
+                        source_location=location,
+                    )
+                ],
+            ),
+        ),
         clear_program=ContractMethod(
             cref=cref,
             source_location=location,

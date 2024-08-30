@@ -934,6 +934,7 @@ class Program(Context):
     # return
     #
     # ie, just omit the subroutine header, and replace any&all retsub ops with a return instead
+    id: str
     main: Subroutine
     subroutines: Sequence[Subroutine]
     source_location: SourceLocation | None = None
