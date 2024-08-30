@@ -372,6 +372,15 @@ class StringConstant(Expression):
 
 
 @attrs.frozen
+class VoidConstant(Expression):
+    # useful as a "no-op"
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_void_constant(self)
+
+
+@attrs.frozen
 class TemplateVar(Expression):
     wtype: WType
     name: str

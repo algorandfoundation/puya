@@ -405,6 +405,10 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
+    @typing.override
+    def visit_void_constant(self, expr: awst_nodes.VoidConstant) -> TExpression:
+        return None
+
     def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> TExpression:
         if not utils.valid_address(expr.value):
             # TODO: should this be here, or on IR model? there's pros and cons to each

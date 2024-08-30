@@ -60,7 +60,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
 }
 
 PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] = {
-    pytypes.NoneType: none.NoneTypeExpressionBuilder,
+    pytypes.NoneType: none.NoneTypeBuilder,
     pytypes.BoolType: bool_.BoolTypeBuilder,
     pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
     pytypes.reversedGenericType: unsigned_builtins.ReversedFunctionExpressionBuilder,

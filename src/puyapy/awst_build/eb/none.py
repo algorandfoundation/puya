@@ -2,17 +2,18 @@ import typing
 from collections.abc import Sequence
 
 import mypy.nodes
-from puya.awst.nodes import Expression
+from puya.awst.nodes import Expression, VoidConstant
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 
 
-class NoneTypeExpressionBuilder(TypeBuilder):
+class NoneTypeBuilder(TypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.NoneType, location)
 
@@ -23,9 +24,9 @@ class NoneTypeExpressionBuilder(TypeBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> typing.Never:
-        # shouldn't even be able to get here really
-        raise CodeError("None is not usable as a value", location)
+    ) -> InstanceBuilder:
+        expect.no_args(args, location)
+        return NoneExpressionBuilder(VoidConstant(location))
 
 
 class NoneExpressionBuilder(NotIterableInstanceExpressionBuilder):
