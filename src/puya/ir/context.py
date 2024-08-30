@@ -66,32 +66,28 @@ class IRBuildContext(CompileContext):
         source_location: SourceLocation,
         caller: awst_nodes.Function,
     ) -> awst_nodes.Function:
-        try:
-            match target:
-                case awst_nodes.SubroutineID(sub_id):
-                    func: awst_nodes.Node = self._awst_lookup[sub_id]
-                case awst_nodes.InstanceMethodTarget(member_name=member_name):
-                    func = self._resolve_contract_attribute(member_name, source_location)
-                case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
-                    func = self._resolve_contract_attribute(
-                        member_name, source_location, start=start_at
+        match target:
+            case awst_nodes.SubroutineID(sub_id):
+                func: awst_nodes.Node | None = self._awst_lookup.get(sub_id)
+            case awst_nodes.InstanceMethodTarget(member_name=member_name):
+                func = self._resolve_contract_attribute(member_name, source_location)
+            case awst_nodes.ContractMethodTarget(cref=start_at, member_name=member_name):
+                func = self._resolve_contract_attribute(
+                    member_name, source_location, start=start_at
+                )
+            case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
+                if not isinstance(caller, awst_nodes.ContractMethod):
+                    raise CodeError(
+                        "call to contract method from outside of contract class",
+                        source_location,
                     )
-                case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
-                    if not isinstance(caller, awst_nodes.ContractMethod):
-                        raise CodeError(
-                            "call to contract method from outside of contract class",
-                            source_location,
-                        )
-                    func = self._resolve_contract_attribute(
-                        member_name, source_location, start=caller.cref, skip=True
-                    )
-
-                case unhandled:
-                    typing.assert_never(unhandled)
-        except KeyError as ex:
-            raise CodeError(
-                f"unable to resolve function reference {target}", source_location
-            ) from ex
+                func = self._resolve_contract_attribute(
+                    member_name, source_location, start=caller.cref, skip=True
+                )
+            case unexpected:
+                typing.assert_never(unexpected)
+        if func is None:
+            raise CodeError(f"unable to resolve function reference {target}", source_location)
         if not isinstance(func, awst_nodes.Function):
             raise CodeError(
                 f"function reference {target} resolved to non-function {func}", source_location
@@ -120,11 +116,11 @@ class IRBuildContext(CompileContext):
         *,
         start: puya.models.ContractReference | None = None,
         skip: bool = False,
-    ) -> awst_nodes.ContractMethod:
+    ) -> awst_nodes.ContractMethod | None:
         root = self.root
         if not isinstance(root, awst_nodes.ContractFragment):
             raise InternalError(
-                f"Cannot resolve contract member {name} as there is no current contract",
+                f"cannot resolve contract member {name} as there is no current contract",
                 source_location,
             )
         mro = [root.id, *root.bases]
@@ -142,7 +138,7 @@ class IRBuildContext(CompileContext):
             contract = self.resolve_contract_reference(cref)
             with contextlib.suppress(KeyError):
                 return contract.methods[name]
-        raise CodeError(f"unable to resolve contract method '{name}'", source_location)
+        return None
 
     @property
     def default_fallback(self) -> SourceLocation | None:
@@ -184,12 +180,14 @@ class IRFunctionBuildContext(IRBuildContext):
     def default_fallback(self) -> SourceLocation | None:
         return self.function.source_location
 
-    def resolve_function_reference(
+    def resolve_subroutine(
         self,
         target: awst_nodes.SubroutineTarget,
         source_location: SourceLocation,
+        *,
         caller: awst_nodes.Function | None = None,
-    ) -> awst_nodes.Function:
-        return super().resolve_function_reference(
-            target, source_location, caller=caller or self.function
+    ) -> Subroutine:
+        func = self.resolve_function_reference(
+            target=target, source_location=source_location, caller=caller or self.function
         )
+        return self.subroutines[func]

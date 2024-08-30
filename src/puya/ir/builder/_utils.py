@@ -144,11 +144,7 @@ def invoke_puya_lib_subroutine(  # TODO: gotta keep em seperated
     source_location: SourceLocation,
 ) -> InvokeSubroutine:
     target = awst_nodes.SubroutineID(".".join((module_name, method_name)))
-    func = context.resolve_function_reference(target, source_location)
-    try:
-        sub = context.subroutines[func]
-    except KeyError as ex:
-        raise InternalError(f"Could not find subroutine for {target}", source_location) from ex
+    sub = context.resolve_subroutine(target, source_location)
     return InvokeSubroutine(
         source_location=source_location,
         target=sub,

@@ -23,14 +23,7 @@ from puya.ir.arc4_router import extract_arc4_methods
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
-from puya.ir.models import (
-    Contract,
-    LogicSignature,
-    ModuleArtifact,
-    Parameter,
-    Program,
-    Subroutine,
-)
+from puya.ir.models import Contract, LogicSignature, ModuleArtifact, Parameter, Program, Subroutine
 from puya.ir.optimize.context import IROptimizeContext
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir

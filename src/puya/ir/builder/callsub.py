@@ -15,8 +15,7 @@ from puya.ir.utils import format_tuple_index
 def visit_subroutine_call_expression(
     context: IRFunctionBuildContext, expr: awst_nodes.SubroutineCallExpression
 ) -> ValueProvider | None:
-    sref = context.resolve_function_reference(expr.target, expr.source_location)
-    target = context.subroutines[sref]
+    target = context.resolve_subroutine(expr.target, expr.source_location)
 
     arg_lookup = _build_arg_lookup(context, expr.args)
 
