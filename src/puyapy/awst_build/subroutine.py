@@ -176,7 +176,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         documentation = parse_docstring(func_def.docstring)
         if self.contract_method_info is None:
             self.result = Subroutine(
-                id=SubroutineID(func_def.fullname),
+                id=func_def.fullname,
                 name=func_def.name,
                 source_location=source_location,
                 args=args,

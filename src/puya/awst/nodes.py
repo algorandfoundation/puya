@@ -33,8 +33,9 @@ T = typing.TypeVar("T")
 ConstantValue: typing.TypeAlias = int | str | bytes | bool
 
 
-class SubroutineID(str):  # can't use typing.NewType with pattern matching
-    __slots__ = ()
+@attrs.frozen
+class SubroutineID:
+    target: str
 
 
 @attrs.frozen
@@ -56,12 +57,14 @@ class Expression(Node, ABC):
     def accept(self, visitor: ExpressionVisitor[T]) -> T: ...
 
 
-@attrs.frozen(init=False)
+@attrs.frozen
 class ExpressionStatement(Statement):
     expr: Expression
+    source_location: SourceLocation = attrs.field(init=False)
 
-    def __init__(self, expr: Expression):
-        self.__attrs_init__(expr=expr, source_location=expr.source_location)
+    @source_location.default
+    def _source_location(self) -> SourceLocation:
+        return self.expr.source_location
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_expression_statement(self)
@@ -562,29 +565,30 @@ class GroupTransactionReference(Expression):
         return visitor.visit_group_transaction_reference(self)
 
 
-@attrs.define(init=False)
+@attrs.define
 class CheckedMaybe(Expression):
     """Allows evaluating a maybe type i.e. tuple[_T, bool] as _T, but with the assertion that
     the 2nd bool element is true"""
 
     expr: Expression
     comment: str
+    wtype: wtypes.WType = attrs.field(init=False)
+    source_location: SourceLocation = attrs.field(init=False)
 
-    def __init__(self, expr: Expression, comment: str) -> None:
-        match expr.wtype:
+    @source_location.default
+    def _source_location(self) -> SourceLocation:
+        return self.expr.source_location
+
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        match self.expr.wtype:
             case wtypes.WTuple(types=(wtype, wtypes.bool_wtype)):
-                pass
+                return wtype
             case _:
                 raise InternalError(
-                    f"{type(self).__name__}.expr: expression of WType {expr.wtype} received,"
+                    f"{type(self).__name__}.expr: expression of WType {self.expr.wtype} received,"
                     f" expected tuple[_T, bool]"
                 )
-        self.__attrs_init__(
-            source_location=expr.source_location,
-            expr=expr,
-            comment=comment,
-            wtype=wtype,
-        )
 
     @classmethod
     def from_tuple_items(
@@ -627,7 +631,7 @@ class TupleExpression(Expression):
         return visitor.visit_tuple_expression(self)
 
 
-@attrs.frozen(init=False)
+@attrs.frozen
 class TupleItemExpression(Expression):
     """Represents tuple element access.
 
@@ -638,24 +642,21 @@ class TupleItemExpression(Expression):
 
     base: Expression
     index: int
+    wtype: wtypes.WType = attrs.field(init=False)
 
-    def __init__(self, base: Expression, index: int, source_location: SourceLocation) -> None:
-        base_wtype = base.wtype
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        base_wtype = self.base.wtype
         if not isinstance(base_wtype, wtypes.WTuple | wtypes.ARC4Tuple):
             raise InternalError(
                 f"Tuple item expression should be for a tuple type, got {base_wtype}",
-                source_location,
+                self.source_location,
             )
         try:
-            wtype = base_wtype.types[index]
+            wtype = base_wtype.types[self.index]
         except IndexError as ex:
-            raise CodeError("invalid index into tuple expression", source_location) from ex
-        self.__attrs_init__(
-            source_location=source_location,
-            base=base,
-            index=index,
-            wtype=wtype,
-        )
+            raise CodeError("invalid index into tuple expression", self.source_location) from ex
+        return wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_tuple_item_expression(self)
@@ -696,27 +697,22 @@ class InnerTransactionField(Expression):
 
 @attrs.define
 class SubmitInnerTransaction(Expression):
-    group: Expression | tuple[Expression, ...] = attrs.field()
+    itxns: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
     def _wtype(self) -> wtypes.WType:
-        if isinstance(self.group, tuple):
-            txn_types = []
-            for expr in self.group:
-                if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
-                    raise CodeError("invalid expression type for submit", expr.source_location)
-                txn_types.append(wtypes.WInnerTransaction.from_type(expr.wtype.transaction_type))
+        txn_types = []
+        for expr in self.itxns:
+            if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
+                raise CodeError("invalid expression type for submit", expr.source_location)
+            txn_types.append(wtypes.WInnerTransaction.from_type(expr.wtype.transaction_type))
+        try:
+            (single_txn,) = txn_types
+        except ValueError:
             return wtypes.WTuple(txn_types, self.source_location)
-        if not isinstance(self.group.wtype, wtypes.WInnerTransactionFields):
-            raise CodeError("invalid expression type for submit", self.group.source_location)
-        return wtypes.WInnerTransaction.from_type(self.group.wtype.transaction_type)
-
-    @property
-    def itxns(self) -> tuple[Expression, ...]:
-        if isinstance(self.group, tuple):
-            return self.group
-        return (self.group,)
+        else:
+            return single_txn
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_submit_inner_transaction(self)
@@ -947,7 +943,7 @@ class AssignmentStatement(Statement):
         return visitor.visit_assignment_statement(self)
 
 
-@attrs.frozen(init=False)
+@attrs.frozen
 class AssignmentExpression(Expression):
     """
     This both assigns value to target and returns the target as the result of the expression.
@@ -958,28 +954,31 @@ class AssignmentExpression(Expression):
     as an l-value.
     """
 
-    target: Lvalue  # annoyingly, we can't do Lvalue "minus" TupleExpression
-    value: Expression
+    target: Lvalue = attrs.field()  # annoyingly, we can't do Lvalue "minus" TupleExpression
+    value: Expression = attrs.field()
+    wtype: wtypes.WType = attrs.field(init=False)
 
-    def __init__(self, value: Expression, target: Lvalue, source_location: SourceLocation):
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        return self.target.wtype
+
+    @target.validator
+    def _target_validator(self, _attribute: object, target: Lvalue) -> None:
         if isinstance(target, TupleExpression):
             raise CodeError(
                 "tuple unpacking in assignment expressions is not supported",
                 target.source_location,
             )
-        if value.wtype != target.wtype:
+
+    @value.validator
+    def _value_validator(self, _attribute: object, value: Expression) -> None:
+        if value.wtype != self.target.wtype:
             raise CodeError(
                 "assignment target type differs from expression value type",
-                source_location,
+                self.source_location,
             )
         if value.wtype == wtypes.void_wtype:
-            raise CodeError("void type cannot be assigned", source_location)
-        self.__attrs_init__(
-            source_location=source_location,
-            target=target,
-            value=value,
-            wtype=target.wtype,
-        )
+            raise CodeError("void type cannot be assigned", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_assignment_expression(self)
@@ -1498,7 +1497,7 @@ class Function(Node, ABC):
 
 @attrs.frozen
 class Subroutine(Function, RootNode):
-    id: SubroutineID
+    id: str
     name: str
 
     @property
