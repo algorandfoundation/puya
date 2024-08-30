@@ -487,11 +487,8 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_submit_inner_transaction(self, call: nodes.SubmitInnerTransaction) -> str:
-        if isinstance(call.group, tuple):
-            group = f'{", ".join(itxn.accept(self) for itxn in call.itxns)}'
-        else:
-            group = call.group.accept(self)
-        return f"submit_txn({group})"
+        itxns = f'{", ".join(itxn.accept(self) for itxn in call.itxns)}'
+        return f"submit_txn({itxns})"
 
     @typing.override
     def visit_inner_transaction_field(self, itxn_field: nodes.InnerTransactionField) -> str:
