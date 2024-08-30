@@ -14,6 +14,35 @@ contract MinimumARC4 extends (algopy.arc4.ARC4Contract)
   }
 }
 
+contract CustomApproval extends (algopy.arc4.ARC4Contract)
+{
+  constructor()
+  {
+    assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
+  }
+  
+  approval_program(): bool
+  {
+    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
+      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
+    }
+    result: bool = super::approval_program()
+    if (!(result)) {
+      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+    }
+    return result
+  }
+  
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod add_one(x: uint64): uint64
+  {
+    return x + 1u
+  }
+}
+
 contract Reference extends (algopy.arc4.ARC4Contract)
 {
   globals {

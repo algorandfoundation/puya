@@ -165,7 +165,7 @@ def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.Ty
     for base_type in type_info.mro[1:]:
         base_class_fullname = base_type.fullname
         if base_class_fullname in (
-            *constants.CONTRACT_STUB_TYPES,
+            constants.CONTRACT_BASE,
             "builtins.object",
             "abc.ABC",
         ):
