@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Collection, Iterable, Iterator, Sequence
+from collections.abc import Collection, Iterable, Iterator
 from pathlib import Path
 
 import attrs
@@ -16,6 +16,7 @@ from puya.awst import (
 )
 from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
+from puya.awst.serialize import awst_from_json
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import arc4_router
@@ -46,6 +47,7 @@ logger = log.get_logger(__name__)
 
 
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]
+_EMBEDDED_LIB = Path(__file__).parent / "_puya_lib.awst.json"
 
 
 class CompilationSetCollector(AWSTTraverser):
@@ -133,11 +135,13 @@ class CompilationSetCollector(AWSTTraverser):
         return collector.compilation_set.values()
 
 
-def awst_to_ir(
-    context: CompileContext, awst: awst_nodes.AWST, embedded_funcs: Sequence[awst_nodes.Subroutine]
-) -> list[ModuleArtifact]:
+def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArtifact]:
     build_context: IRBuildContext = attrs_extend(
-        IRBuildContext, context, subroutines={}, awst=awst, embedded_funcs=embedded_funcs
+        IRBuildContext,
+        context,
+        subroutines={},
+        awst=awst,
+        embedded_funcs=awst_from_json(_EMBEDDED_LIB.read_text()),
     )
     _build_embedded_ir(build_context)
 

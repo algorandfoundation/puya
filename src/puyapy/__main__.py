@@ -63,7 +63,13 @@ def main() -> None:
         "--output-awst",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Output parsed result of AST",
+        help="Output parsed result of AWST",
+    )
+    parser.add_argument(
+        "--output-awst-json",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Output parsed result of AWST as JSON",
     )
     parser.add_argument(
         "--output-ssa-ir",

@@ -4,10 +4,7 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import attrs
-from puya.awst.nodes import (
-    AWST,
-    Subroutine as AWSTSubroutine,
-)
+from puya.awst.nodes import AWST
 from puya.compile import awst_to_teal, write_artifacts
 from puya.context import CompileContext
 from puya.errors import CodeError
@@ -50,7 +47,6 @@ class _CompileCache(typing.NamedTuple):
     context: CompileContext
     parse_result: ParseResult
     module_awst: AWST
-    embedded_funcs: Sequence[AWSTSubroutine]
     logs: list[Log]
 
 
@@ -61,8 +57,8 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
         context = parse_with_mypy(PuyaOptions(paths=[root_dir]))
-        awst, embedded_funcs = transform_ast(context)
-    return _CompileCache(context, context.parse_result, awst, embedded_funcs, log_ctx.logs)
+        awst = transform_ast(context)
+    return _CompileCache(context, context.parse_result, awst, log_ctx.logs)
 
 
 @attrs.frozen(kw_only=True)
@@ -137,7 +133,7 @@ def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> Com
 def compile_src_from_options(options: PuyaOptions) -> CompilationResult:
     (src_path,) = options.paths
     root_dir = _get_root_dir(src_path)
-    context, parse_result, awst, embedded_funcs, awst_logs = get_awst_cache(root_dir)
+    context, parse_result, awst, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
 
     awst_errors = _get_log_errors(awst_logs)
@@ -153,7 +149,7 @@ def compile_src_from_options(options: PuyaOptions) -> CompilationResult:
 
         with pushd(root_dir):
             try:
-                teal = awst_to_teal(log_ctx, context, awst, embedded_funcs)
+                teal = awst_to_teal(log_ctx, context, awst)
             except SystemExit as ex:
                 raise CodeError(_get_log_errors(log_ctx.logs)) from ex
 
