@@ -348,39 +348,22 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             # since we checked we're only handling instance methods, should be at least one
             # argument to function - ie self
             self._error(f"{func_def.name} should take a self parameter", func_loc)
-        match func_def.abstract_status:
-            case mypy.nodes.NOT_ABSTRACT:
-                if arc4_method_data is not None:
-                    self.context.add_arc4_method_data(self.cref, func_def.name, arc4_method_data)
-                return lambda ctx: FunctionASTConverter.convert(
-                    ctx,
-                    func_def=func_def,
-                    source_location=source_location,
-                    contract_method_info=ContractMethodInfo(
-                        contract_type=self.typ,
-                        type_info=self.class_def.info,
-                        arc4_method_data=arc4_method_data,
-                        cref=self.cref,
-                    ),
-                )
-            case mypy.nodes.IMPLICITLY_ABSTRACT:
-                # TODO: should we have a placeholder item instead? need to handle via super() if so
-                self.context.info(
-                    f"Skipping (implicitly) abstract method {func_def.name}",
-                    func_loc,
-                )
-                return None
-            case mypy.nodes.IS_ABSTRACT:
-                # TODO: should we have a placeholder item instead? need to handle via super() if so
-                self.context.info(
-                    f"Skipping abstract method {func_def.name}",
-                    func_loc,
-                )
-                return None
-            case _ as unknown_value:
-                raise InternalError(
-                    f"Unknown value for abstract_status: {unknown_value}", func_loc
-                )
+        if func_def.is_trivial_body:
+            logger.debug(f"skipping trivial method {func_def.name}", location=func_loc)
+            return None
+        if arc4_method_data is not None:
+            self.context.add_arc4_method_data(self.cref, func_def.name, arc4_method_data)
+        return lambda ctx: FunctionASTConverter.convert(
+            ctx,
+            func_def=func_def,
+            source_location=source_location,
+            contract_method_info=ContractMethodInfo(
+                contract_type=self.typ,
+                type_info=self.class_def.info,
+                arc4_method_data=arc4_method_data,
+                cref=self.cref,
+            ),
+        )
 
     def visit_block(self, o: mypy.nodes.Block) -> None:
         raise InternalError("shouldn't get here", self._location(o))
