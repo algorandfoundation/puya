@@ -401,6 +401,10 @@ class ToCodeVisitor(
         return repr(expr.value)
 
     @typing.override
+    def visit_void_constant(self, expr: nodes.VoidConstant) -> str:
+        return "void"
+
+    @typing.override
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
         return f'Method("{expr.value}")'
 

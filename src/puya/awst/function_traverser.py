@@ -62,6 +62,10 @@ class FunctionTraverser(
         pass
 
     @typing.override
+    def visit_void_constant(self, expr: awst_nodes.VoidConstant) -> None:
+        pass
+
+    @typing.override
     def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> None:
         for value in expr.template_variables.values():
             value.accept(self)

@@ -109,6 +109,9 @@ class ExpressionVisitor[T](ABC):
     def visit_string_constant(self, expr: puya.awst.nodes.StringConstant) -> T: ...
 
     @abstractmethod
+    def visit_void_constant(self, expr: puya.awst.nodes.VoidConstant) -> T: ...
+
+    @abstractmethod
     def visit_address_constant(self, expr: puya.awst.nodes.AddressConstant) -> T: ...
 
     @abstractmethod
