@@ -1,16 +1,9 @@
 import sys
-from collections.abc import Sequence
 from pathlib import Path
 
 import attrs
 
 from puya.utils import make_path_relative_to_cwd
-
-
-@attrs.frozen
-class CompileSource:
-    path: Path
-    lines: Sequence[str] | None
 
 
 def _resolved_path(p: Path | str) -> Path:

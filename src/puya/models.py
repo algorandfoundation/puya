@@ -184,6 +184,11 @@ class CompiledContract(abc.ABC):
     @abc.abstractmethod
     def metadata(self) -> ContractMetaData: ...
 
+    @typing.final
+    @property
+    def id(self) -> ContractReference:
+        return self.metadata.ref
+
 
 class CompiledLogicSig(abc.ABC):
     @property
@@ -196,6 +201,11 @@ class CompiledLogicSig(abc.ABC):
     @property
     @abc.abstractmethod
     def metadata(self) -> LogicSignatureMetaData: ...
+
+    @typing.final
+    @property
+    def id(self) -> LogicSigReference:
+        return self.metadata.ref
 
 
 CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSig

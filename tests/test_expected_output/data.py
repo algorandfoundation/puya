@@ -10,12 +10,15 @@ import attrs
 import pytest
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal
+from puya.context import CompileContext
 from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
-from puya.options import PuyaOptions
 from puya.utils import coalesce
+from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import parse_with_mypy
+from puyapy.options import PuyaPyOptions
+from puyapy.utils import determine_out_dir
 
 from tests.utils import narrow_sources
 
@@ -292,13 +295,12 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 tmp_src.write_text("\n".join(file.body))
                 srcs.append(tmp_src)
                 file.src_path = tmp_src
-        context = parse_with_mypy(
-            PuyaOptions(
-                paths=srcs,
-                output_bytecode=True,
-            )
+        puyapy_options = PuyaPyOptions(
+            paths=srcs,
+            output_bytecode=True,
         )
-        awst = transform_ast(context)
+        parse_result = parse_with_mypy(puyapy_options.paths)
+        awst = transform_ast(ASTConversionContext(parse_result=parse_result))
         # lower each case further if possible and process
         for case in cases:
             if case_has_awst_errors(awst_log_ctx.logs, case):
@@ -308,13 +310,20 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 # from lower layers
                 # this needs a new logging context so AWST errors from other cases
                 # are not seen
-                case_context = attrs.evolve(
-                    context,
+                narrowed_sources_by_path = narrow_sources(parse_result, case_path[case])
+                case_context = CompileContext(
                     options=attrs.evolve(
-                        context.options,
+                        puyapy_options,
                         cli_template_definitions=case.template_vars,
                     ),
-                    sources=narrow_sources(context.sources, case_path[case]),
+                    compilation_set={
+                        node.id: determine_out_dir(
+                            node.source_location.file.parent, puyapy_options
+                        )
+                        for node in awst
+                        if node.source_location.file in narrowed_sources_by_path
+                    },
+                    sources_by_path=narrowed_sources_by_path,
                 )
                 with (
                     contextlib.suppress(SystemExit),

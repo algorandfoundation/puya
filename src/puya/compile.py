@@ -5,8 +5,6 @@ from pathlib import Path
 
 import attrs
 from immutabledict import immutabledict
-from puyapy.awst_build.arc32_client_gen import write_arc32_client
-from puyapy.client_gen import parse_app_spec_methods
 
 from puya import log
 from puya.arc32 import create_arc32_json
@@ -14,8 +12,6 @@ from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
 from puya.awst.nodes import (
     AWST,
 )
-from puya.awst.serialize import awst_to_json
-from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
@@ -43,40 +39,28 @@ from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram, TealSubroutine
 from puya.teal.output import emit_teal
 from puya.ussemble.main import assemble_program
-from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
+from puya.utils import attrs_extend, make_path_relative_to_cwd
 
 logger = log.get_logger(__name__)
 
 
 def awst_to_teal(
-    log_ctx: LoggingContext,
-    context: CompileContext,
-    awst: AWST,
+    log_ctx: LoggingContext, context: CompileContext, awst: AWST
 ) -> list[CompilationArtifact]:
     log_ctx.exit_if_errors()
-    if context.options.output_awst:
-        _output_awst(context, awst)
-    if context.options.output_awst_json:
-        _output_awst_json(context, awst)
     ir = awst_to_ir(context, awst)
     log_ctx.exit_if_errors()
-    teal = ir_to_teal(log_ctx, context, ir)
+    teal = _ir_to_teal(log_ctx, context, ir)
     log_ctx.exit_if_errors()
-    filtered_teal = [
-        t
-        for t in teal
-        # TODO: hmmm
-        if (t.source_location and t.source_location.file in context.sources_by_path)
-    ]
+    filtered_teal = [t for t in teal if t.id in context.compilation_set]
     return filtered_teal
 
 
-def ir_to_teal(
+def _ir_to_teal(
     log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ModuleArtifact]
 ) -> list[CompilationArtifact]:
     result = list[CompilationArtifact]()
 
-    artifact_refs = [artifact.metadata.ref for artifact in all_ir]
     compiled_artifacts = dict[
         ContractReference | LogicSigReference, _CompiledContract | _CompiledLogicSig
     ]()
@@ -109,16 +93,20 @@ def ir_to_teal(
         context,
         get_program_bytecode=get_program_bytecode,
         state_totals={
-            artifact.ir.metadata.ref: artifact.ir.metadata.state_totals
+            artifact.id: artifact.ir.metadata.state_totals
             for artifact in all_artifact_irs.values()
             if isinstance(artifact.ir, ContractIR)
         },
     )
-
+    artifact_refs = [artifact.metadata.ref for artifact in all_ir]
     for artifact in ArtifactCompilationSorter.sort(artifact_refs, all_artifact_irs):
-        out_dir = determine_out_dir(artifact.path.parent, context.options)
         name = artifact.ir.metadata.name
-        artifact_ir_base_path = out_dir / name
+        try:
+            out_dir = context.compilation_set[artifact.id]
+        except KeyError:
+            artifact_ir_base_path = None
+        else:
+            artifact_ir_base_path = out_dir / name
 
         num_errors_before_optimization = log_ctx.num_errors
         artifact_ir = optimize_and_destructure_ir(
@@ -128,13 +116,18 @@ def ir_to_teal(
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
         # and report any errors they encounter
         errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
-        # used to check for conflicts that would occur on output
-        artifacts_by_output_base = dict[Path, ModuleArtifact]()
-        if existing := artifacts_by_output_base.get(artifact_ir_base_path):
-            logger.error(f"Duplicate contract name {name}", location=artifact_ir.source_location)
-            logger.info(f"Contract name {name} first seen here", location=existing.source_location)
-        else:
-            artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
+        if artifact_ir_base_path:
+            # used to check for conflicts that would occur on output
+            artifacts_by_output_base = dict[Path, ModuleArtifact]()
+            if existing := artifacts_by_output_base.get(artifact_ir_base_path):
+                logger.error(
+                    f"Duplicate contract name {name}", location=artifact_ir.source_location
+                )
+                logger.info(
+                    f"Contract name {name} first seen here", location=existing.source_location
+                )
+            else:
+                artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
 
         compiled: _CompiledContract | _CompiledLogicSig
         match artifact_ir:
@@ -169,7 +162,7 @@ def ir_to_teal(
             case _:
                 typing.assert_never(artifact_ir)
 
-        compiled_artifacts[artifact_ir.metadata.ref] = compiled
+        compiled_artifacts[artifact.id] = compiled
         result.append(compiled)
     return result
 
@@ -209,13 +202,17 @@ def _dummy_program() -> _CompiledProgram:
 def _contract_ir_to_teal(
     context: CompileContext,
     contract_ir: ContractIR,
-    contract_ir_base_path: Path,
+    contract_ir_base_path: Path | None,
 ) -> _CompiledContract:
     approval_mir = program_ir_to_mir(
-        context, contract_ir.approval_program, contract_ir_base_path.with_suffix(".approval.mir")
+        context,
+        contract_ir.approval_program,
+        contract_ir_base_path.with_suffix(".approval.mir") if contract_ir_base_path else None,
     )
     clear_state_mir = program_ir_to_mir(
-        context, contract_ir.clear_program, contract_ir_base_path.with_suffix(".clear.mir")
+        context,
+        contract_ir.clear_program,
+        contract_ir_base_path.with_suffix(".clear.mir") if contract_ir_base_path else None,
     )
     approval = mir_to_teal(context, approval_mir)
     clear_state = mir_to_teal(context, clear_state_mir)
@@ -230,10 +227,12 @@ def _contract_ir_to_teal(
 def _logic_sig_to_teal(
     context: CompileContext,
     logic_sig_ir: LogicSignature,
-    logic_sig_ir_base_path: Path,
+    logic_sig_ir_base_path: Path | None,
 ) -> _CompiledLogicSig:
     program_mir = program_ir_to_mir(
-        context, logic_sig_ir.program, logic_sig_ir_base_path.with_suffix(".mir")
+        context,
+        logic_sig_ir.program,
+        logic_sig_ir_base_path.with_suffix(".mir") if logic_sig_ir_base_path else None,
     )
     program = mir_to_teal(context, program_mir)
     return _CompiledLogicSig(
@@ -266,9 +265,9 @@ def write_artifacts(
         logger.warning("No contracts or logic signatures discovered in any source files")
         return
     for artifact in compiled_artifacts:
-        if artifact.source_location is None:
+        out_dir = context.compilation_set.get(artifact.id)
+        if out_dir is None:
             continue
-        out_dir = determine_out_dir(artifact.source_location.file.parent, context.options)
         teal_file_stem = artifact.metadata.name
         arc32_file_stem = f"{teal_file_stem}.arc32.json"
         artifact_base_path = out_dir / teal_file_stem
@@ -290,12 +289,6 @@ def write_artifacts(
                         arc32_path = out_dir / arc32_file_stem
                         logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
                         arc32_path.write_text(app_spec_json)
-                    if context.options.output_client:
-                        # use round trip of ARC32 -> reparse to ensure consistency
-                        # of client output regardless if generating from ARC32 or
-                        # Puya ARC4Contract
-                        name, methods = parse_app_spec_methods(app_spec_json)
-                        write_arc32_client(name, methods, out_dir)
             case _:
                 typing.assert_never(artifact)
         if context.options.output_teal:
@@ -321,24 +314,3 @@ def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:
         else:
             logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
             output_path.write_bytes(program)
-
-
-def _output_awst(context: CompileContext, awst: AWST) -> None:
-    formatter = ToCodeVisitor()
-    nodes = [n for n in awst if n.source_location.file in context.sources_by_path]  # TODO: hmm
-    awst_module_str = formatter.visit_module(nodes)
-    out_dir = context.options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
-    out_dir.mkdir(exist_ok=True)
-    output_path = out_dir / "module.awst"
-    logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
-    output_path.write_text(awst_module_str, "utf-8")
-
-
-def _output_awst_json(context: CompileContext, awst: AWST) -> None:
-    nodes = [n for n in awst if n.source_location.file in context.sources_by_path]  # TODO: hmm
-    json = awst_to_json(nodes)
-    out_dir = context.options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
-    out_dir.mkdir(exist_ok=True)
-    output_path = out_dir / "module.awst.json"
-    logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
-    output_path.write_text(json, "utf-8")
