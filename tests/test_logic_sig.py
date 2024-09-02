@@ -12,7 +12,7 @@ from algosdk.atomic_transaction_composer import (
 from algosdk.transaction import AssetTransferTxn, LogicSigAccount, LogicSigTransaction, PaymentTxn
 from algosdk.v2client.algod import AlgodClient
 from puya.models import CompiledLogicSig
-from puya.options import PuyaOptions
+from puyapy.options import PuyaPyOptions
 
 from tests import TEST_CASES_DIR
 from tests.utils import compile_src_from_options
@@ -28,7 +28,7 @@ def compile_logic_sig(
     template_variables: list[str] | None = None,
 ) -> bytes:
     result = compile_src_from_options(
-        PuyaOptions(
+        PuyaPyOptions(
             paths=(src_path,),
             optimization_level=optimization_level,
             debug_level=debug_level,

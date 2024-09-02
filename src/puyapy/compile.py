@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sysconfig
+from collections.abc import Callable, Collection, Sequence
 from importlib import metadata
 from pathlib import Path
 
@@ -14,14 +15,23 @@ import mypy.nodes
 import mypy.options
 import mypy.util
 from packaging import version
-from puya import log
+from puya import log, models
+from puya.arc32 import create_arc32_json
+from puya.awst.nodes import AWST
+from puya.awst.serialize import awst_to_json
+from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal, write_artifacts
+from puya.context import CompileContext
 from puya.errors import log_exceptions
-from puya.options import PuyaOptions
+from puya.utils import make_path_relative_to_cwd
 
+from puyapy.awst_build.arc32_client_gen import write_arc32_client
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.main import transform_ast
-from puyapy.parse import TYPESHED_PATH, parse_and_typecheck
+from puyapy.client_gen import parse_app_spec_methods
+from puyapy.options import PuyaPyOptions
+from puyapy.parse import TYPESHED_PATH, ParseResult, parse_and_typecheck
+from puyapy.utils import determine_out_dir
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
@@ -31,38 +41,69 @@ MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.
 logger = log.get_logger(__name__)
 
 
-def compile_to_teal(puya_options: PuyaOptions) -> None:
+def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
-        logger.debug(puya_options)
-        context = parse_with_mypy(puya_options)
-        log_ctx.sources_by_path = context.sources_by_path
+        logger.debug(puyapy_options)
+        parse_result = parse_with_mypy(puyapy_options.paths)
+        context = ASTConversionContext(parse_result=parse_result)
+        log_ctx.sources_by_path = parse_result.sources_by_path
         log_ctx.exit_if_errors()
         awst = transform_ast(context)
         log_ctx.exit_if_errors()
-        artifacts = awst_to_teal(log_ctx, context, awst)
+        awst_out_dir = (
+            puyapy_options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
+        )
+        if puyapy_options.output_awst:
+            output_awst(awst, awst_out_dir, parse_result.sources_by_path)
+        if puyapy_options.output_awst_json:
+            output_awst_json(awst, awst_out_dir, parse_result.sources_by_path)
+        compile_ctx = CompileContext(
+            options=puyapy_options,
+            sources_by_path=parse_result.sources_by_path,
+            compilation_set={
+                node.id: determine_out_dir(node.source_location.file.parent, puyapy_options)
+                for node in awst
+                if node.source_location.file in parse_result.sources_by_path
+            },
+        )
+        artifacts = awst_to_teal(log_ctx, compile_ctx, awst)
         log_ctx.exit_if_errors()
-        write_artifacts(context, artifacts)
+        write_artifacts(compile_ctx, artifacts)
+        if puyapy_options.output_client:
+            write_arc32_clients(compile_ctx, artifacts)
     log_ctx.exit_if_errors()
 
 
-def parse_with_mypy(puya_options: PuyaOptions) -> ASTConversionContext:
+def write_arc32_clients(
+    compile_ctx: CompileContext, artifacts: Sequence[models.CompilationArtifact]
+) -> None:
+    for artifact in artifacts:
+        if isinstance(artifact, models.CompiledContract) and artifact.metadata.is_arc4:
+            contract_out_dir = compile_ctx.compilation_set.get(artifact.id)
+            if contract_out_dir:
+                app_spec_json = create_arc32_json(
+                    artifact.approval_program.teal_src,
+                    artifact.clear_program.teal_src,
+                    artifact.metadata,
+                )
+                # use round trip of ARC32 -> reparse to ensure consistency
+                # of client output regardless if generating from ARC32 or
+                # Puya ARC4Contract
+                name, methods = parse_app_spec_methods(app_spec_json)
+                write_arc32_client(name, methods, contract_out_dir)
+
+
+def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:
     mypy_options = get_mypy_options()
 
     # this generates the ASTs from the build sources, and all imported modules (recursively)
-    parse_result = parse_and_typecheck(puya_options.paths, mypy_options)
+    parse_result = parse_and_typecheck(paths, mypy_options)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     parse_result.manager.errors.set_file("<puya>", module=None, scope=None, options=mypy_options)
 
-    context = ASTConversionContext(
-        options=puya_options,
-        sources=parse_result.sources,
-        module_paths={m.fullname: Path(m.path) for m in parse_result.ordered_modules},
-        parse_result=parse_result,
-    )
-
-    return context
+    return parse_result
 
 
 def get_mypy_options() -> mypy.options.Options:
@@ -183,3 +224,26 @@ def _check_algopy_version(site_packages: Path) -> None:
                 "Please update your algorand-python package to be in the supported range.",
             ],
         )
+
+
+def output_awst(awst: AWST, awst_out_dir: Path, source_set: Collection[Path]) -> None:
+    _output_awst_any(awst, ToCodeVisitor().visit_module, source_set, awst_out_dir, ".awst")
+
+
+def output_awst_json(awst: AWST, awst_out_dir: Path, source_set: Collection[Path]) -> None:
+    _output_awst_any(awst, awst_to_json, source_set, awst_out_dir, ".awst.json")
+
+
+def _output_awst_any(
+    awst: AWST,
+    formatter: Callable[[AWST], str],
+    source_set: Collection[Path],
+    awst_out_dir: Path,
+    suffix: str,
+) -> None:
+    nodes = [n for n in awst if n.source_location.file in source_set]
+    out_text = formatter(nodes)
+    awst_out_dir.mkdir(exist_ok=True)
+    output_path = awst_out_dir / f"module{suffix}"
+    logger.info(f"writing {make_path_relative_to_cwd(output_path)}")
+    output_path.write_text(out_text, "utf-8")

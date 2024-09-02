@@ -11,6 +11,7 @@ from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.options import PuyaOptions
 from puya.teal import models as teal
 from puya.ussemble.main import assemble_program
+from puyapy.options import PuyaPyOptions
 
 from tests.utils import (
     PuyaExample,
@@ -42,7 +43,7 @@ def test_assemble_matches_algod(
 ) -> None:
     prefix, template_vars = load_template_vars(case.template_vars_path)
     compile_result = compile_src_from_options(
-        PuyaOptions(
+        PuyaPyOptions(
             paths=(case.path,),
             optimization_level=optimization_level,
             debug_level=0,
@@ -83,7 +84,7 @@ def test_assemble_matches_algod(
 def test_assemble(case: PuyaExample, optimization_level: int) -> None:
     prefix, template_vars = load_template_vars(case.template_vars_path)
     compile_src_from_options(
-        PuyaOptions(
+        PuyaPyOptions(
             paths=(case.path,),
             optimization_level=optimization_level,
             debug_level=0,
@@ -175,7 +176,8 @@ def test_assemble_last_op_jump() -> None:
     bytecode = assemble_program(
         CompileContext(
             options=PuyaOptions(),
-            sources=[],
+            compilation_set={},
+            sources_by_path={},
         ),
         program=teal.TealProgram(
             target_avm_version=10,

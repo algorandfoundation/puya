@@ -4,9 +4,10 @@ from pathlib import Path
 
 from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION, SUPPORTED_TEAL_LANGUAGE_VERSIONS
 from puya.log import LogLevel, configure_logging
-from puya.options import LocalsCoalescingStrategy, PuyaOptions
+from puya.options import LocalsCoalescingStrategy
 
 from puyapy.compile import compile_to_teal
+from puyapy.options import PuyaPyOptions
 
 
 def main() -> None:
@@ -142,7 +143,7 @@ def main() -> None:
     )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
-    options = PuyaOptions()
+    options = PuyaPyOptions()
     parser.parse_args(namespace=options)
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)

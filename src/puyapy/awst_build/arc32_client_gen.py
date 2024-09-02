@@ -27,7 +27,7 @@ _INDENT = " " * 4
 def write_arc32_client(name: str, methods: Sequence[ARC4Method], out_dir: Path) -> None:
     stub_path = out_dir / f"client_{name}.py"
     if _can_overwrite_auto_generated_file(stub_path):
-        logger.info(f"Writing {make_path_relative_to_cwd(stub_path)}")
+        logger.info(f"writing {make_path_relative_to_cwd(stub_path)}")
         stub_text = _create_arc32_stub(name, methods)
         stub_path.write_text(stub_text)
     else:
