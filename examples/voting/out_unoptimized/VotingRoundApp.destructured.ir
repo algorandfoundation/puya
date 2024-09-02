@@ -305,36 +305,6 @@ contract examples.voting.voting.VotingRoundApp:
                 (app_global_put "nft_asset_id" new_state_value%1#0)
                 return 
         
-        subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
-            block@0: // L11
-                let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
-                goto block@1
-            block@1: // while_top_L19
-                let tmp%0#0: uint64 = (global OpcodeBudget)
-                let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
-                goto tmp%1#0 ? block@2 : block@7
-            block@2: // while_body_L20
-                itxn_begin
-                ((itxn_field TypeEnum) appl)
-                ((itxn_field OnCompletion) DeleteApplication)
-                ((itxn_field ApprovalProgram) 0x068101)
-                ((itxn_field ClearStateProgram) 0x068101)
-                switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5}
-            block@3: // switch_case_0_L27
-                ((itxn_field Fee) 0u)
-                goto block@6
-            block@4: // switch_case_1_L29
-                let tmp%2#0: uint64 = (global MinTxnFee)
-                ((itxn_field Fee) tmp%2#0)
-                goto block@6
-            block@5: // switch_case_default_L25
-                goto block@6
-            block@6: // switch_case_next_L25
-                itxn_submit
-                goto block@1
-            block@7: // after_while_L19
-                return 
-        
         subroutine examples.voting.voting.itoa(i: uint64) -> bytes:
             block@0: // L249
                 let radix#0: uint64 = (len 0x30313233343536373839)
@@ -500,6 +470,36 @@ contract examples.voting.voting.VotingRoundApp:
             block@0: // L50
                 (app_global_put "is_bootstrapped" 0u)
                 (app_global_put "voter_count" 0u)
+                return 
+        
+        subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+            block@0: // L12
+                let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
+                goto block@1
+            block@1: // while_top_L20
+                let tmp%0#0: uint64 = (global OpcodeBudget)
+                let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
+                goto tmp%1#0 ? block@2 : block@7
+            block@2: // while_body_L21
+                itxn_begin
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApprovalProgram) 0x068101)
+                ((itxn_field ClearStateProgram) 0x068101)
+                switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5}
+            block@3: // switch_case_0_L28
+                ((itxn_field Fee) 0u)
+                goto block@6
+            block@4: // switch_case_1_L30
+                let tmp%2#0: uint64 = (global MinTxnFee)
+                ((itxn_field Fee) tmp%2#0)
+                goto block@6
+            block@5: // switch_case_default_L26
+                goto block@6
+            block@6: // switch_case_next_L26
+                itxn_submit
+                goto block@1
+            block@7: // after_while_L20
                 return 
     
     program clear-state:

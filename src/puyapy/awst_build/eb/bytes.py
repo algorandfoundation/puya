@@ -4,7 +4,6 @@ from collections.abc import Sequence
 
 import mypy.nodes
 from puya import algo_constants, log, utils
-from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesAugmentedAssignment,
     BytesBinaryOperation,
@@ -17,9 +16,9 @@ from puya.awst.nodes import (
     Expression,
     IndexExpression,
     IntersectionSliceExpression,
+    PuyaLibCall,
+    PuyaLibFunction,
     Statement,
-    SubroutineCallExpression,
-    SubroutineID,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -238,10 +237,9 @@ class BytesExpressionBuilder(InstanceExpressionBuilder):
         item_expr = expect.argument_of_type_else_dummy(
             item, pytypes.BytesType, resolve_literal=True
         ).resolve()
-        is_substring_expr = SubroutineCallExpression(
-            target=SubroutineID("_puya_lib.bytes_.is_substring"),  # TODO: extract constant
+        is_substring_expr = PuyaLibCall(
+            func=PuyaLibFunction.is_substring,
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
-            wtype=wtypes.bool_wtype,
             source_location=location,
         )
         return BoolExpressionBuilder(is_substring_expr)

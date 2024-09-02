@@ -418,15 +418,9 @@ def concat_values(
         return factory.assign(
             invoke_puya_lib_subroutine(
                 context,
-                method_name="dynamic_array_concat_bits",
+                full_name="_puya_lib.arc4.dynamic_array_concat_bits",
+                args=[left, r_data, r_length, is_packed],
                 source_location=source_location,
-                module_name="_puya_lib.arc4",
-                args=[
-                    left,
-                    r_data,
-                    r_length,
-                    is_packed,
-                ],
             ),
             "concat_result",
         )
@@ -447,14 +441,9 @@ def concat_values(
         return factory.assign(
             invoke_puya_lib_subroutine(
                 context,
-                method_name="dynamic_array_concat_byte_length_head",
+                full_name="_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+                args=[left, r_data, r_length],
                 source_location=source_location,
-                module_name="_puya_lib.arc4",
-                args=[
-                    left,
-                    r_data,
-                    r_length,
-                ],
             ),
             "concat_result",
         )
@@ -484,10 +473,9 @@ def concat_values(
         return factory.assign(
             invoke_puya_lib_subroutine(
                 context,
-                method_name="dynamic_array_concat_dynamic_element",
-                source_location=source_location,
-                module_name="_puya_lib.arc4",
+                full_name="_puya_lib.arc4.dynamic_array_concat_dynamic_element",
                 args=list(args),
+                source_location=source_location,
             ),
             "concat_result",
         )
@@ -522,8 +510,7 @@ def pop_arc4_array(
         targets=[popped, data],
         source=invoke_puya_lib_subroutine(
             context,
-            module_name="_puya_lib.arc4",
-            method_name=method_name,
+            full_name=f"_puya_lib.arc4.{method_name}",
             args=args,
             source_location=source_location,
         ),
@@ -1069,8 +1056,7 @@ def _arc4_replace_array_item(
     def updated_result(method_name: str, args: list[Value | int | bytes]) -> Register:
         invoke = invoke_puya_lib_subroutine(
             context,
-            module_name="_puya_lib.arc4",
-            method_name=method_name,
+            full_name=f"_puya_lib.arc4.{method_name}",
             args=args,
             source_location=source_location,
         )

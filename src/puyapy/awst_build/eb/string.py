@@ -12,10 +12,10 @@ from puya.awst.nodes import (
     CallArg,
     ConditionalExpression,
     Expression,
+    PuyaLibCall,
+    PuyaLibFunction,
     Statement,
     StringConstant,
-    SubroutineCallExpression,
-    SubroutineID,
     UInt64Constant,
 )
 from puya.errors import CodeError
@@ -167,13 +167,12 @@ class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
         item = expect.argument_of_type_else_dummy(item, pytypes.StringType, resolve_literal=True)
-        is_substring_expr = SubroutineCallExpression(
-            target=SubroutineID("_puya_lib.bytes_.is_substring"),  # TODO: extract constant
+        is_substring_expr = PuyaLibCall(
+            func=PuyaLibFunction.is_substring,
             args=[
-                CallArg(value=item.to_bytes(item.source_location), name="item"),
-                CallArg(value=self.to_bytes(self.source_location), name="sequence"),
+                CallArg(value=item.resolve(), name=None),
+                CallArg(value=self.resolve(), name=None),
             ],
-            wtype=wtypes.bool_wtype,
             source_location=location,
         )
         return BoolExpressionBuilder(is_substring_expr)

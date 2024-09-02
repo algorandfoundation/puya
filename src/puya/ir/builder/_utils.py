@@ -135,20 +135,18 @@ def _convert_constants(arg: int | bytes | Value, source_location: SourceLocation
             return arg
 
 
-def invoke_puya_lib_subroutine(  # TODO: gotta keep em seperated
+def invoke_puya_lib_subroutine(
     context: IRFunctionBuildContext,
     *,
-    method_name: str,
-    module_name: str,
+    full_name: str,
     args: Sequence[Value | int | bytes],
     source_location: SourceLocation,
 ) -> InvokeSubroutine:
-    target = awst_nodes.SubroutineID(".".join((module_name, method_name)))
-    sub = context.resolve_subroutine(target, source_location)
+    sub = context.embedded_funcs_lookup[full_name]
     return InvokeSubroutine(
-        source_location=source_location,
         target=sub,
         args=[_convert_constants(arg, source_location) for arg in args],
+        source_location=source_location,
     )
 
 

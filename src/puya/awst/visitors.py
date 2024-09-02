@@ -132,6 +132,9 @@ class ExpressionVisitor[T](ABC):
     def visit_intrinsic_call(self, call: puya.awst.nodes.IntrinsicCall) -> T: ...
 
     @abstractmethod
+    def visit_puya_lib_call(self, call: puya.awst.nodes.PuyaLibCall) -> T: ...
+
+    @abstractmethod
     def visit_group_transaction_reference(
         self, ref: puya.awst.nodes.GroupTransactionReference
     ) -> T: ...
