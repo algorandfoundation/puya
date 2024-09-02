@@ -51,9 +51,11 @@ _EMBEDDED_LIB = Path(__file__).parent / "_puya_lib.awst.json"
 
 
 class CompilationSetCollector(AWSTTraverser):
-    def __init__(self, awst: awst_nodes.AWST, *, source_set: Collection[Path]) -> None:
+    def __init__(
+        self, awst: awst_nodes.AWST, *, explicit_compilation_set: Collection[str]
+    ) -> None:
         super().__init__()
-        self._source_set: typing.Final = source_set
+        self._explicit_compilation_set: typing.Final = explicit_compilation_set
         self.compilation_set: typing.Final = dict[
             str, awst_nodes.ContractFragment | awst_nodes.LogicSignature
         ]()
@@ -104,7 +106,7 @@ class CompilationSetCollector(AWSTTraverser):
     ) -> None:
         if contract.id in self.compilation_set:
             return  # already visited
-        direct = contract.source_location.file in self._source_set  # is this an explicit inclusion
+        direct = contract.id in self._explicit_compilation_set
         if direct or reference:
             if contract.is_abstract:  # we don't lower abstract contracts
                 assert not reference  # caller should check first, to provide better error location
@@ -117,7 +119,7 @@ class CompilationSetCollector(AWSTTraverser):
     ) -> None:
         if lsig.id in self.compilation_set:
             return  # already visited
-        direct = lsig.source_location.file in self._source_set  # is this an explicit inclusion
+        direct = lsig.id in self._explicit_compilation_set
         if direct or reference:
             self.compilation_set[lsig.id] = lsig
             super().visit_logic_signature(lsig)
@@ -126,10 +128,7 @@ class CompilationSetCollector(AWSTTraverser):
     def collect(
         cls, context: CompileContext, awst: awst_nodes.AWST
     ) -> Collection[awst_nodes.ContractFragment | awst_nodes.LogicSignature]:
-        collector = cls(
-            awst,
-            source_set=context.sources_by_path,  # TODO: hmmm
-        )
+        collector = cls(awst, explicit_compilation_set=context.compilation_set)
         for node in awst:
             node.accept(collector)
         return collector.compilation_set.values()
@@ -165,10 +164,10 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArt
 
 
 def optimize_and_destructure_ir(
-    context: IROptimizeContext, artifact_ir: ModuleArtifact, artifact_ir_base_path: Path
+    context: IROptimizeContext, artifact_ir: ModuleArtifact, artifact_ir_base_path: Path | None
 ) -> ModuleArtifact:
     remove_unused_subroutines(context, artifact_ir)
-    if context.options.output_ssa_ir:
+    if artifact_ir_base_path and context.options.output_ssa_ir:
         output_artifact_ir_to_path(artifact_ir, artifact_ir_base_path.with_suffix(".ssa.ir"))
     logger.info(
         f"optimizing {artifact_ir.metadata.ref} at level {context.options.optimization_level}"
@@ -179,7 +178,7 @@ def optimize_and_destructure_ir(
         artifact_ir_base_path if context.options.output_optimization_ir else None,
     )
     artifact_ir = destructure_ssa(context, artifact_ir)
-    if context.options.output_destructured_ir:
+    if artifact_ir_base_path and context.options.output_destructured_ir:
         output_artifact_ir_to_path(
             artifact_ir, artifact_ir_base_path.with_suffix(".destructured.ir")
         )

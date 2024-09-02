@@ -4,6 +4,7 @@ import codecs
 import os
 import re
 import typing
+from functools import cached_property
 from pathlib import Path
 
 import attrs
@@ -18,11 +19,11 @@ import mypy.options
 import mypy.util
 from puya import log
 from puya.awst.nodes import MethodDocumentation
-from puya.parse import CompileSource, SourceLocation
+from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
 logger = log.get_logger(__name__)
 _PUYAPY_SRC_ROOT = Path(__file__).parent
@@ -53,7 +54,9 @@ class EmbeddedSource:
 
 
 @attrs.frozen
-class ParseSource(CompileSource):
+class ParseSource:
+    path: Path
+    lines: Sequence[str] | None
     module_name: str
     is_explicit: bool
     """whether this file was explicitly supplied, otherwise it came from directory"""
@@ -67,6 +70,14 @@ class ParseResult:
     """All discovered modules, topologically sorted by dependencies.
     The sort order is from leaves (nodes without dependencies) to
     roots (nodes on which no other nodes depend)."""
+
+    @cached_property
+    def sources_by_path(self) -> Mapping[Path, Sequence[str] | None]:
+        return {s.path: s.lines for s in self.sources}
+
+    @cached_property
+    def module_paths(self) -> Mapping[str, Path]:
+        return {m.fullname: Path(m.path) for m in self.ordered_modules}
 
 
 def get_parse_sources(

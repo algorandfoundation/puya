@@ -1,4 +1,5 @@
 import graphlib
+import typing
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 
@@ -21,6 +22,11 @@ class Artifact:
     depends_on: dict[ContractReference | LogicSigReference, SourceLocation | None] = attrs.field(
         factory=dict
     )
+
+    @typing.final
+    @property
+    def id(self) -> ContractReference | LogicSigReference:
+        return self.ir.metadata.ref
 
 
 @attrs.define
@@ -56,8 +62,8 @@ class ArtifactCompilationSorter(IRTraverser):
         except graphlib.CycleError as ex:
             artifact_cycle: Sequence[Artifact] = ex.args[1]
             *_, before, last = artifact_cycle
-            cycle_loc = last.depends_on[before.ir.metadata.ref]
-            programs = " -> ".join(a.ir.metadata.ref for a in reversed(artifact_cycle))
+            cycle_loc = last.depends_on[before.id]
+            programs = " -> ".join(a.id for a in reversed(artifact_cycle))
             raise CodeError(f"cyclical program reference: {programs}", cycle_loc) from None
         return result
 

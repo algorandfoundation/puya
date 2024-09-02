@@ -10,7 +10,7 @@ import attrs
 import pytest
 from _pytest.mark import ParameterSet
 from puya import log
-from puya.options import PuyaOptions
+from puyapy.options import PuyaPyOptions
 
 from tests import VCS_ROOT
 from tests.utils import (
@@ -31,15 +31,15 @@ SUFFIX_O1 = ""
 SUFFIX_O2 = "_O2"
 
 
-def _should_output(path: Path, puya_options: PuyaOptions) -> bool:
+def _should_output(path: Path, puyapy_options: PuyaPyOptions) -> bool:
     for pattern, include_in_output in {
-        "*.teal": puya_options.output_teal,
-        "*.arc32.json": puya_options.output_arc32,
-        "*.awst": puya_options.output_awst,
-        "*.ssa.ir": puya_options.output_ssa_ir,
-        "*.ssa.opt_pass_*.ir": puya_options.output_optimization_ir,
-        "*.destructured.ir": puya_options.output_destructured_ir,
-        "*.mir": puya_options.output_memory_ir,
+        "*.teal": puyapy_options.output_teal,
+        "*.arc32.json": puyapy_options.output_arc32,
+        "*.awst": puyapy_options.output_awst,
+        "*.ssa.ir": puyapy_options.output_ssa_ir,
+        "*.ssa.opt_pass_*.ir": puyapy_options.output_optimization_ir,
+        "*.destructured.ir": puyapy_options.output_destructured_ir,
+        "*.mir": puyapy_options.output_memory_ir,
     }.items():
         if include_in_output and fnmatch(path.name, pattern):
             return True
@@ -56,7 +56,7 @@ def compile_test_case(
         dst_out_dir = path.parent / f"{path.stem}_out{suffix}"
 
     prefix, template_vars = load_template_vars(test_case.template_vars_path)
-    puya_options = PuyaOptions(
+    puya_options = PuyaPyOptions(
         paths=(test_case.path,),
         out_dir=dst_out_dir,
         log_level=log.LogLevel.debug,

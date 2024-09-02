@@ -88,7 +88,8 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     )
     ctx = IRBuildContext(
         options=PuyaOptions(),
-        sources=[],
+        compilation_set={},
+        sources_by_path={},
         awst=[],
         subroutines={},
     )

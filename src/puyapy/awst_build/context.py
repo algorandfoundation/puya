@@ -12,7 +12,7 @@ import mypy.nodes
 import mypy.types
 from puya import log
 from puya.awst.nodes import ConstantValue
-from puya.context import CompileContext
+from puya.context import try_get_source
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.models import ContractReference
 from puya.parse import SourceLocation
@@ -30,8 +30,7 @@ logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)
-class ASTConversionContext(CompileContext):
-    module_paths: Mapping[str, Path]
+class ASTConversionContext:
     parse_result: ParseResult
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
@@ -127,16 +126,17 @@ class ASTConversionModuleContext(ASTConversionContext):
         else:
             module_name = module_src.module_name
             try:
-                module_path = self.module_paths[module_name]
+                module_path = self.parse_result.module_paths[module_name]
             except KeyError as ex:
                 raise CodeError(f"Could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
-        src_meta = self.try_get_source(loc)
+        src_meta = try_get_source(self.parse_result.sources_by_path, loc)
         if src_meta is not None:
             lines = src_meta.code
             if loc.line > 1:
-                prior_code_meta = self.try_get_source(
-                    SourceLocation(file=module_path, line=1, end_line=loc.line - 1)
+                prior_code_meta = try_get_source(
+                    self.parse_result.sources_by_path,
+                    SourceLocation(file=module_path, line=1, end_line=loc.line - 1),
                 )
                 prior_code = (prior_code_meta and prior_code_meta.code) or []
                 unchop = 0
