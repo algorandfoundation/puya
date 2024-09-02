@@ -1,6 +1,7 @@
 from algopy import (
     Bytes,
     OnCompleteAction,
+    OpUpFeeSource,
     TransactionType,
     UInt64,
     op,
@@ -9,7 +10,7 @@ from algopy import (
 
 
 @subroutine
-def ensure_budget(required_budget: UInt64, fee_source: UInt64) -> None:
+def ensure_budget(required_budget: UInt64, fee_source: OpUpFeeSource) -> None:
     # A budget buffer is necessary to deal with an edge case of ensure_budget():
     #   if the current budget is equal to or only slightly higher than the
     #   required budget then it's possible for ensure_budget() to return with a
@@ -23,8 +24,10 @@ def ensure_budget(required_budget: UInt64, fee_source: UInt64) -> None:
         op.ITxnCreate.set_approval_program(Bytes.from_hex("068101"))
         op.ITxnCreate.set_clear_state_program(Bytes.from_hex("068101"))
         match fee_source:
-            case UInt64(0):
+            case OpUpFeeSource.GroupCredit:
                 op.ITxnCreate.set_fee(0)
-            case UInt64(1):
+            case OpUpFeeSource.AppAccount:
                 op.ITxnCreate.set_fee(op.Global.min_txn_fee)
+            # case OpUpFeeSource.Any:
+            # any means no fee set
         op.ITxnCreate.submit()

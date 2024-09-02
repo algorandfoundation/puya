@@ -457,48 +457,6 @@ close_after_for@14:
     retsub
 
 
-// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
-ensure_budget:
-    proto 2 0
-    frame_dig -2
-    int 10
-    +
-
-ensure_budget_while_top@1:
-    frame_dig 0
-    global OpcodeBudget
-    >
-    bz ensure_budget_after_while@7
-    itxn_begin
-    int appl
-    itxn_field TypeEnum
-    int DeleteApplication
-    itxn_field OnCompletion
-    byte 0x068101
-    itxn_field ApprovalProgram
-    byte 0x068101
-    itxn_field ClearStateProgram
-    frame_dig -1
-    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
-    b ensure_budget_switch_case_next@6
-
-ensure_budget_switch_case_0@3:
-    int 0
-    itxn_field Fee
-    b ensure_budget_switch_case_next@6
-
-ensure_budget_switch_case_1@4:
-    global MinTxnFee
-    itxn_field Fee
-
-ensure_budget_switch_case_next@6:
-    itxn_submit
-    b ensure_budget_while_top@1
-
-ensure_budget_after_while@7:
-    retsub
-
-
 // examples.voting.voting.itoa(i: uint64) -> bytes:
 itoa:
     proto 1 1
@@ -764,4 +722,46 @@ __init__:
     byte "voter_count"
     int 0
     app_global_put
+    retsub
+
+
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:
+    proto 2 0
+    frame_dig -2
+    int 10
+    +
+
+ensure_budget_while_top@1:
+    frame_dig 0
+    global OpcodeBudget
+    >
+    bz ensure_budget_after_while@7
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x068101
+    itxn_field ApprovalProgram
+    byte 0x068101
+    itxn_field ClearStateProgram
+    frame_dig -1
+    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_0@3:
+    int 0
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_1@4:
+    global MinTxnFee
+    itxn_field Fee
+
+ensure_budget_switch_case_next@6:
+    itxn_submit
+    b ensure_budget_while_top@1
+
+ensure_budget_after_while@7:
     retsub

@@ -464,6 +464,17 @@ class ToCodeVisitor(
         return result
 
     @typing.override
+    def visit_puya_lib_call(self, expr: nodes.PuyaLibCall) -> str:
+        result = expr.func.value.id
+        result += "("
+        if expr.args:
+            result += ", ".join(
+                [(f"{a.name}=" if a.name else "") + a.value.accept(self) for a in expr.args]
+            )
+        result += ")"
+        return result
+
+    @typing.override
     def visit_group_transaction_reference(self, ref: nodes.GroupTransactionReference) -> str:
         if ref.wtype.transaction_type is None:
             type_ = "any"

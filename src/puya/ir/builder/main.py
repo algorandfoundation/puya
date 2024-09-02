@@ -30,7 +30,10 @@ from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
     visit_bytes_slice_expression,
 )
-from puya.ir.builder.callsub import visit_subroutine_call_expression
+from puya.ir.builder.callsub import (
+    visit_puya_lib_call_expression,
+    visit_subroutine_call_expression,
+)
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
@@ -803,6 +806,9 @@ class FunctionIRBuilder(
         self, expr: awst_nodes.SubroutineCallExpression
     ) -> TExpression:
         return visit_subroutine_call_expression(self.context, expr)
+
+    def visit_puya_lib_call(self, call: awst_nodes.PuyaLibCall) -> TExpression:
+        return visit_puya_lib_call_expression(self.context, call)
 
     def visit_bytes_binary_operation(self, expr: awst_nodes.BytesBinaryOperation) -> TExpression:
         left = self.visit_and_materialise_single(expr.left)

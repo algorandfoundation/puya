@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import Counter, defaultdict
-from collections.abc import Collection, Iterable, Iterator
+from collections.abc import Collection, Iterable, Iterator, Mapping
 from pathlib import Path
 
 import attrs
@@ -136,14 +136,14 @@ class CompilationSetCollector(AWSTTraverser):
 
 
 def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArtifact]:
+    embedded_funcs_lookup = _build_embedded_ir(context)
     build_context: IRBuildContext = attrs_extend(
         IRBuildContext,
         context,
         subroutines={},
         awst=awst,
-        embedded_funcs=awst_from_json(_EMBEDDED_LIB.read_text()),
+        embedded_funcs_lookup=embedded_funcs_lookup,
     )
-    _build_embedded_ir(build_context)
 
     compilation_set = CompilationSetCollector.collect(context, awst)
     result = list[ModuleArtifact]()
@@ -190,13 +190,28 @@ def optimize_and_destructure_ir(
     return artifact_ir
 
 
-def _build_embedded_ir(ctx: IRBuildContext) -> None:
-    for func in ctx.embedded_funcs:
-        ctx.subroutines[func] = _make_subroutine(func, allow_implicits=False)
+def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
+    embedded_funcs = [
+        n
+        for n in awst_from_json(_EMBEDDED_LIB.read_text())
+        if isinstance(n, awst_nodes.Subroutine)
+    ]
+    embedded_funcs_lookup = dict[str, Subroutine]()
+    embedded_ctx: IRBuildContext = attrs_extend(
+        IRBuildContext,
+        ctx,
+        subroutines={},
+        awst=embedded_funcs,
+    )
+    for func in embedded_funcs:
+        sub = _make_subroutine(func, allow_implicits=False)
+        embedded_ctx.subroutines[func] = sub
+        embedded_funcs_lookup[func.id] = sub
 
-    for func in ctx.embedded_funcs:
-        sub = ctx.subroutines[func]
-        FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
+    for func in embedded_funcs:
+        sub = embedded_ctx.subroutines[func]
+        FunctionIRBuilder.build_body(embedded_ctx, function=func, subroutine=sub, on_create=None)
+    return embedded_funcs_lookup
 
 
 def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Contract:
@@ -247,14 +262,20 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
     approval_ir = _make_program(
         ctx,
         folded.approval_program,
-        StableSet(*approval_subs_srefs, *ctx.embedded_funcs),
+        StableSet(
+            *(ctx.subroutines[ref] for ref in approval_subs_srefs),
+            *ctx.embedded_funcs_lookup.values(),
+        ),
         program_id=".".join((contract.id, folded.approval_program.short_name)),
         on_create=folded.init,
     )
     clear_state_ir = _make_program(
         ctx,
         folded.clear_program,
-        StableSet(*clear_subs_srefs, *ctx.embedded_funcs),
+        StableSet(
+            *(ctx.subroutines[ref] for ref in clear_subs_srefs),
+            *ctx.embedded_funcs_lookup.values(),
+        ),
         program_id=".".join((contract.id, folded.clear_program.short_name)),
         on_create=None,
     )
@@ -296,7 +317,10 @@ def _build_logic_sig_ir(
     sig_ir = _make_program(
         ctx,
         logic_sig.program,
-        StableSet(*program_sub_refs, *ctx.embedded_funcs),
+        StableSet(
+            *(ctx.subroutines[ref] for ref in program_sub_refs),
+            *ctx.embedded_funcs_lookup.values(),
+        ),
         program_id=logic_sig.id,
         on_create=None,
     )
@@ -380,7 +404,7 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
 def _make_program(
     ctx: IRBuildContext,
     main: awst_nodes.Function,
-    references: Iterable[awst_nodes.Function],
+    references: Iterable[Subroutine],
     *,
     program_id: str,
     on_create: awst_nodes.Function | None,
@@ -405,7 +429,7 @@ def _make_program(
     return Program(
         id=program_id,
         main=main_sub,
-        subroutines=[ctx.subroutines[ref] for ref in references],
+        subroutines=tuple(references),
     )
 
 

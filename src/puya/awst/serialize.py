@@ -30,8 +30,8 @@ def _get_converter() -> cattrs.preconf.json.JsonConverter:
         cattrs.converters.is_literal_containing_enums, lambda _: _unstructure_optional_enum_literal
     )
 
-    # TxnField as name
-    for enum_type in (txn_fields.TxnField,):
+    # TxnField and PuyaLibFunction as name
+    for enum_type in (txn_fields.TxnField, nodes.PuyaLibFunction):
         converter.register_unstructure_hook(enum_type, lambda v: v.name)
         converter.register_structure_hook(enum_type, lambda v, t: t[v])
 
