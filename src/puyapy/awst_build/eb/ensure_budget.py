@@ -3,12 +3,11 @@ from collections.abc import Sequence
 
 import mypy.nodes
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     CallArg,
     Expression,
-    SubroutineCallExpression,
-    SubroutineID,
+    PuyaLibCall,
+    PuyaLibFunction,
     UInt64Constant,
 )
 from puya.parse import SourceLocation
@@ -69,10 +68,9 @@ class EnsureBudgetBuilder(FunctionBuilder):
                 value=fee_source_expr,
             ),
         ]
-        call_expr = SubroutineCallExpression(
-            target=SubroutineID("_puya_lib.util.ensure_budget"),
+        call_expr = PuyaLibCall(
+            func=PuyaLibFunction.ensure_budget,
             args=call_args,
-            wtype=wtypes.void_wtype,
             source_location=location,
         )
         return NoneExpressionBuilder(call_expr)

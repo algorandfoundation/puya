@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping
 from functools import cached_property
 
 import attrs
@@ -27,13 +27,13 @@ TMP_VAR_INDICATOR = "%"
 class IRBuildContext(CompileContext):
     awst: awst_nodes.AWST
     subroutines: dict[awst_nodes.Function, Subroutine]
-    embedded_funcs: Sequence[awst_nodes.Subroutine] = attrs.field()
+    embedded_funcs_lookup: Mapping[str, Subroutine] = attrs.field(default=dict)
     root: awst_nodes.ContractFragment | awst_nodes.LogicSignature | None = None
     routers: dict[puya.models.ContractReference, Subroutine] = attrs.field(factory=dict)
 
     @cached_property
     def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:
-        return {node.id: node for node in (*self.awst, *self.embedded_funcs)}
+        return {node.id: node for node in self.awst}
 
     def for_root(
         self, root: awst_nodes.ContractFragment | awst_nodes.LogicSignature

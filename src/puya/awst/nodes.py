@@ -1100,6 +1100,47 @@ class SubroutineCallExpression(Expression):
         return visitor.visit_subroutine_call_expression(self)
 
 
+@attrs.frozen
+class PuyaLibData:
+    id: str
+    params: Mapping[str, wtypes.WType]
+    wtype: wtypes.WType
+
+
+class PuyaLibFunction(enum.Enum):
+    ensure_budget = PuyaLibData(
+        id="_puya_lib.util.ensure_budget",
+        params={"required_budget": wtypes.uint64_wtype, "fee_source": wtypes.uint64_wtype},
+        wtype=wtypes.void_wtype,
+    )
+    is_substring = PuyaLibData(
+        id="_puya_lib.bytes_.is_substring",
+        params={"item": wtypes.bytes_wtype, "sequence": wtypes.bytes_wtype},
+        wtype=wtypes.bool_wtype,
+    )
+
+
+@attrs.define
+class PuyaLibCall(Expression):
+    func: PuyaLibFunction
+    args: Sequence[CallArg] = attrs.field(default=(), converter=tuple[CallArg, ...])
+    wtype: wtypes.WType = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype(self) -> wtypes.WType:
+        return self.func.value.wtype
+
+    @args.validator
+    def _args_validator(self, _: object, args: Sequence[CallArg]) -> None:
+        if len(self.func.value.params) != len(args):
+            raise CodeError(
+                f"provided args does not match arity for {self.func.name}", self.source_location
+            )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_puya_lib_call(self)
+
+
 @enum.unique
 class UInt64BinaryOperator(enum.StrEnum):
     add = "+"

@@ -126,6 +126,11 @@ class FunctionTraverser(
             arg.accept(self)
 
     @typing.override
+    def visit_puya_lib_call(self, call: awst_nodes.PuyaLibCall) -> None:
+        for arg in call.args:
+            arg.value.accept(self)
+
+    @typing.override
     def visit_group_transaction_reference(self, ref: awst_nodes.GroupTransactionReference) -> None:
         ref.index.accept(self)
 

@@ -91,7 +91,6 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
         sources=[],
         awst=[],
         subroutines={},
-        embedded_funcs=[],
     )
     subroutine = ir.Subroutine(
         source_location=_location,
