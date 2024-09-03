@@ -8,8 +8,7 @@ from puya.awst import (
     nodes as awst_nodes,
     serialize,
 )
-from puya.compile import compile_and_write
-from puya.context import CompileContext
+from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.models import ContractReference, LogicSigReference
 from puya.options import PuyaOptions
@@ -50,10 +49,4 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
                     logger.error(f"compilation target {target_id!r} not found in AWST")
                 case other:
                     logger.error(f"unexpected compilation target type: {type(other).__name__}")
-
-        compile_context = CompileContext(
-            options=options,
-            compilation_set=compilation_set,
-            sources_by_path=sources_by_path,
-        )
-        compile_and_write(log_ctx, compile_context, awst)
+        awst_to_teal(log_ctx, options, compilation_set, sources_by_path, awst)

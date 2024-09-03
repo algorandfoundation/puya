@@ -307,19 +307,29 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 # from lower layers
                 # this needs a new logging context so AWST errors from other cases
                 # are not seen
-                case_context = narrowed_compile_context(
+                case_options = attrs.evolve(
+                    puyapy_options, cli_template_definitions=case.template_vars
+                )
+                case_sources_by_path, case_compilation_set = narrowed_compile_context(
                     parse_result,
                     case_path[case],
                     awst,
                     compilation_set,
-                    attrs.evolve(puyapy_options, cli_template_definitions=case.template_vars),
+                    case_options,
                 )
                 with (
                     contextlib.suppress(SystemExit),
                     logging_context() as case_log_ctx,
                     log_exceptions(),
                 ):
-                    awst_to_teal(case_log_ctx, case_context, awst)
+                    awst_to_teal(
+                        case_log_ctx,
+                        case_options,
+                        case_compilation_set,
+                        case_sources_by_path,
+                        awst,
+                        write=False,
+                    )
                 case_logs = case_log_ctx.logs
             process_test_case(case, awst_log_ctx.logs + case_logs, awst)
 
