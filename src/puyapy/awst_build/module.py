@@ -34,7 +34,7 @@ logger = log.get_logger(__name__)
 
 DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode]
 
-StatementResult: typing.TypeAlias = list[RootNode | DeferredRootNode]
+StatementResult: typing.TypeAlias = list[DeferredRootNode]
 
 
 @attrs.frozen(kw_only=True)
@@ -61,16 +61,14 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 self._pre_parse_result.append((node, items))
 
     def convert(self) -> AWST:
-        statements = []
-        for node, items in self._pre_parse_result:
-            with self.context.log_exceptions(fallback_location=node):
-                for stmt_or_deferred in items:
-                    if isinstance(stmt_or_deferred, RootNode):
-                        statements.append(stmt_or_deferred)
-                    else:
-                        statements.append(stmt_or_deferred(self.context))
-        validate_awst(statements)
-        return statements
+        awst = []
+        for location, deferrals in self._pre_parse_result:
+            with self.context.log_exceptions(fallback_location=location):
+                for deferred in deferrals:
+                    awst_node = deferred(self.context)
+                    awst.append(awst_node)
+        validate_awst(awst)  # TODO: move/split this to/with puya core
+        return awst
 
     # Supported Statements
 
@@ -476,7 +474,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     def _evaluate_compile_time_constant_condition(self, expr: mypy.nodes.Expression) -> bool:
         from mypy import reachability
 
-        kind = reachability.infer_condition_value(expr, self.context.parse_result.manager.options)
+        kind = reachability.infer_condition_value(expr, self.context.mypy_options)
         if kind == reachability.TRUTH_VALUE_UNKNOWN:
             try:
                 result = expr.accept(self)

@@ -18,7 +18,7 @@ from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.serialize import awst_from_json
 from puya.context import CompileContext
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods
 from puya.ir.builder.main import FunctionIRBuilder
@@ -41,7 +41,7 @@ from puya.models import (
     StateTotals,
 )
 from puya.parse import SourceLocation
-from puya.utils import StableSet, attrs_extend
+from puya.utils import StableSet, attrs_extend, set_remove
 
 logger = log.get_logger(__name__)
 
@@ -51,11 +51,9 @@ _EMBEDDED_LIB = Path(__file__).parent / "_puya_lib.awst.json"
 
 
 class CompilationSetCollector(AWSTTraverser):
-    def __init__(
-        self, awst: awst_nodes.AWST, *, explicit_compilation_set: Collection[str]
-    ) -> None:
+    def __init__(self, awst: awst_nodes.AWST, *, explicit_compilation_set: StableSet[str]) -> None:
         super().__init__()
-        self._explicit_compilation_set: typing.Final = explicit_compilation_set
+        self._remaining_explicit_set: typing.Final = explicit_compilation_set
         self.compilation_set: typing.Final = dict[
             str, awst_nodes.ContractFragment | awst_nodes.LogicSignature
         ]()
@@ -63,18 +61,16 @@ class CompilationSetCollector(AWSTTraverser):
             {n.id: n for n in awst}
         )
 
+    @property
+    def unresolved_explict_ids(self) -> Collection[str]:
+        return self._remaining_explicit_set
+
     def visit_compiled_contract(self, compiled_contract: awst_nodes.CompiledContract) -> None:
         super().visit_compiled_contract(compiled_contract)
         node = self._nodes_by_id.get(compiled_contract.contract)
         match node:
             case awst_nodes.ContractFragment() as contract:
-                if contract.is_abstract:
-                    logger.error(
-                        "cannot compile abstract contract",
-                        location=compiled_contract.source_location,
-                    )
-                else:
-                    self.visit_contract_fragment(contract, reference=True)
+                self._visit_contract_or_lsig(contract, reference=True)
             case None:
                 logger.error(
                     "unable to resolve contract reference",
@@ -90,7 +86,7 @@ class CompilationSetCollector(AWSTTraverser):
         node = self._nodes_by_id.get(compiled_lsig.logic_sig)
         match node:
             case awst_nodes.LogicSignature() as lsig:
-                self.visit_logic_signature(lsig, reference=True)
+                self._visit_contract_or_lsig(lsig, reference=True)
             case None:
                 logger.error(
                     "unable to resolve logic signature reference",
@@ -101,36 +97,42 @@ class CompilationSetCollector(AWSTTraverser):
                     "reference is not a logic signature", location=compiled_lsig.source_location
                 )
 
-    def visit_contract_fragment(
-        self, contract: awst_nodes.ContractFragment, *, reference: bool = False
-    ) -> None:
-        if contract.id in self.compilation_set:
-            return  # already visited
-        direct = contract.id in self._explicit_compilation_set
-        if direct or reference:
-            if contract.is_abstract:  # we don't lower abstract contracts
-                assert not reference  # caller should check first, to provide better error location
-            else:
-                self.compilation_set[contract.id] = contract
-                super().visit_contract_fragment(contract)
+    def visit_contract_fragment(self, contract: awst_nodes.ContractFragment) -> None:
+        return self._visit_contract_or_lsig(contract)
 
-    def visit_logic_signature(
-        self, lsig: awst_nodes.LogicSignature, *, reference: bool = False
+    def visit_logic_signature(self, lsig: awst_nodes.LogicSignature) -> None:
+        return self._visit_contract_or_lsig(lsig)
+
+    def _visit_contract_or_lsig(
+        self,
+        node: awst_nodes.ContractFragment | awst_nodes.LogicSignature,
+        *,
+        reference: bool = False,
     ) -> None:
-        if lsig.id in self.compilation_set:
+        if node.id in self.compilation_set:
             return  # already visited
-        direct = lsig.id in self._explicit_compilation_set
+        direct = set_remove(self._remaining_explicit_set, node.id)
         if direct or reference:
-            self.compilation_set[lsig.id] = lsig
-            super().visit_logic_signature(lsig)
+            self.compilation_set[node.id] = node
+            match node:
+                case awst_nodes.ContractFragment():
+                    super().visit_contract_fragment(node)
+                case awst_nodes.LogicSignature():
+                    super().visit_logic_signature(node)
+                case unexpected:
+                    typing.assert_never(unexpected)
 
     @classmethod
     def collect(
         cls, context: CompileContext, awst: awst_nodes.AWST
     ) -> Collection[awst_nodes.ContractFragment | awst_nodes.LogicSignature]:
-        collector = cls(awst, explicit_compilation_set=context.compilation_set)
+        collector = cls(
+            awst, explicit_compilation_set=StableSet.from_iter(context.compilation_set)
+        )
         for node in awst:
             node.accept(collector)
+        for unresolved_id in collector.unresolved_explict_ids:
+            logger.error(f"unable to resolve compilation artifact '{unresolved_id}'")
         return collector.compilation_set.values()
 
 
@@ -214,13 +216,10 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 
 
 def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Contract:
-    if contract.is_abstract:
-        raise InternalError("attempted to compile abstract contract")
     folded, arc4_method_data = _fold_state_and_special_methods(ctx, contract)
     if not (folded.approval_program and folded.clear_program):
-        raise InternalError(
-            "contract is non abstract but doesn't have approval and clear programs in hierarchy",
-            contract.source_location,
+        raise CodeError(
+            "approval and clear-state programs must be implemented", contract.source_location
         )
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(

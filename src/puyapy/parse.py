@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import codecs
+import enum
 import os
 import re
 import typing
@@ -23,7 +24,7 @@ from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Mapping, Sequence, Set
 
 logger = log.get_logger(__name__)
 _PUYAPY_SRC_ROOT = Path(__file__).parent
@@ -53,65 +54,47 @@ class EmbeddedSource:
         )
 
 
+class SourceDiscoveryMechanism(enum.Enum):
+    explicit_file = enum.auto()
+    explicit_directory_walk = enum.auto()
+    dependency = enum.auto()
+
+
 @attrs.frozen
-class ParseSource:
+class SourceModule:
+    name: str
+    node: mypy.nodes.MypyFile
     path: Path
     lines: Sequence[str] | None
-    module_name: str
-    is_explicit: bool
-    """whether this file was explicitly supplied, otherwise it came from directory"""
+    discovery_mechanism: SourceDiscoveryMechanism
 
 
 @attrs.frozen
 class ParseResult:
-    sources: Sequence[ParseSource]
     manager: mypy.build.BuildManager
-    ordered_modules: Sequence[mypy.nodes.MypyFile]
+    ordered_modules: Mapping[str, SourceModule]
     """All discovered modules, topologically sorted by dependencies.
     The sort order is from leaves (nodes without dependencies) to
     roots (nodes on which no other nodes depend)."""
 
     @cached_property
     def sources_by_path(self) -> Mapping[Path, Sequence[str] | None]:
-        return {s.path: s.lines for s in self.sources}
+        return {s.path: s.lines for s in self.ordered_modules.values()}
 
     @cached_property
     def module_paths(self) -> Mapping[str, Path]:
-        return {m.fullname: Path(m.path) for m in self.ordered_modules}
+        return {name: sm.path for name, sm in self.ordered_modules.items()}
 
-
-def get_parse_sources(
-    paths: Sequence[Path],
-    mypy_fscache: mypy.fscache.FileSystemCache,
-    mypy_options: mypy.options.Options,
-) -> list[ParseSource]:
-    resolved_input_paths = {p.resolve(): None for p in paths}
-    mypy_build_sources = mypy.find_sources.create_source_list(
-        paths=[str(p) for p in resolved_input_paths],
-        options=mypy_options,
-        fscache=mypy_fscache,
-    )
-    sources: list[ParseSource] = []
-    for src in mypy_build_sources:
-        if not src.path:
-            # all build sources should have a path value
-            raise ValueError("Unexpected empty source path")
-        src_path = Path(src.path).resolve()
-        lines = mypy.util.read_py_file(str(src_path), _MYPY_FSCACHE.read)
-        sources.append(
-            ParseSource(
-                path=src_path,
-                module_name=src.module,
-                is_explicit=src_path in resolved_input_paths,
-                lines=lines,
-            )
-        )
-    return sources
+    @cached_property
+    def explicit_source_paths(self) -> Set[Path]:
+        return {
+            sm.path
+            for sm in self.ordered_modules.values()
+            if sm.discovery_mechanism != SourceDiscoveryMechanism.dependency
+        }
 
 
 def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
-    from puya.errors import InternalError
-
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
     # creates a list of BuildSource objects from the contract Paths
@@ -120,42 +103,48 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         options=mypy_options,
         fscache=_MYPY_FSCACHE,
     )
-    sources = get_parse_sources(paths, _MYPY_FSCACHE, mypy_options)
-
+    build_source_paths = {
+        Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
+    }
     result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
-    missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()
-    if missing_module_names:
-        # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
-        raise InternalError(
-            f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
-        )
+    missing_module_names = {s.module for s in mypy_build_sources} - result.manager.modules.keys()
+    # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
+    assert (
+        not missing_module_names
+    ), f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
 
     # order modules by dependency, and also sanity check the contents
-    ordered_modules = []
+    ordered_modules = {}
     for scc_module_names in mypy.build.sorted_components(result.graph):
         for module_name in scc_module_names:
-            module = result.manager.modules.get(module_name)
-            if module is None:
-                raise InternalError(f"mypy failed to parse: {module_name}")
-            if module_name != module.fullname:
-                raise InternalError(
-                    f"mypy parsed wrong module, expected '{module_name}': {module.fullname}"
-                )
-            if not module.path:
-                raise InternalError(f"No path for module: {module_name}")
-
-            module_path = Path(module.path)
-
+            module = result.manager.modules[module_name]
+            assert (
+                module_name == module.fullname
+            ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
+            assert module.path, f"no path for mypy module: {module_name}"
+            module_path = Path(module.path).resolve()
             if module_path.is_dir():
                 # this module is a module directory with no __init__.py, ie it contains
                 # nothing and is only in the graph as a reference
                 pass
             else:
                 _check_encoding(_MYPY_FSCACHE, module_path)
-                ordered_modules.append(module)
+                lines = mypy.util.read_py_file(str(module_path), _MYPY_FSCACHE.read)
+                if module_path in resolved_input_paths:
+                    discovery_mechanism = SourceDiscoveryMechanism.explicit_file
+                elif module_path in build_source_paths:
+                    discovery_mechanism = SourceDiscoveryMechanism.explicit_directory_walk
+                else:
+                    discovery_mechanism = SourceDiscoveryMechanism.dependency
+                ordered_modules[module_name] = SourceModule(
+                    name=module_name,
+                    node=module,
+                    path=module_path,
+                    lines=lines,
+                    discovery_mechanism=discovery_mechanism,
+                )
 
     return ParseResult(
-        sources=sources,
         manager=result.manager,
         ordered_modules=ordered_modules,
     )

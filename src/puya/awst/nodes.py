@@ -1710,7 +1710,6 @@ class ContractFragment(RootNode):
     #       assuming it's not abstract (in which case it should remain a fragment?)
     id: ContractReference
     name: str
-    is_abstract: bool
     bases: Sequence[ContractReference] = attrs.field(converter=tuple[ContractReference, ...])
     init: ContractMethod | None = attrs.field()
     approval_program: ContractMethod | None = attrs.field()

@@ -4,6 +4,7 @@ from pathlib import Path
 import attrs
 
 from puya import log
+from puya.models import ContractReference, LogicSigReference
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 
@@ -19,7 +20,7 @@ class SourceMeta:
 @attrs.define(kw_only=True)
 class CompileContext:
     options: PuyaOptions
-    compilation_set: Mapping[str, Path]
+    compilation_set: Mapping[ContractReference | LogicSigReference, Path]
     sources_by_path: Mapping[Path, Sequence[str] | None]
 
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta | None:
