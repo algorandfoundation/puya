@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 import sysconfig
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from importlib import metadata
 from pathlib import Path
 
@@ -20,8 +20,7 @@ from puya.arc32 import create_arc32_json
 from puya.awst.nodes import AWST
 from puya.awst.serialize import awst_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
-from puya.compile import compile_and_write
-from puya.context import CompileContext
+from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.utils import make_path_relative_to_cwd
 
@@ -61,29 +60,28 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             if puyapy_options.output_awst_json:
                 output_awst_json(nodes, awst_out_dir)
         awst_lookup = {n.id: n for n in awst}
-        compile_ctx = CompileContext(
-            options=puyapy_options,
-            sources_by_path=parse_result.sources_by_path,
-            compilation_set={
-                target_id: determine_out_dir(
-                    awst_lookup[target_id].source_location.file.parent, puyapy_options
-                )
-                for target_id in compilation_targets
-            },
+        compilation_set = {
+            target_id: determine_out_dir(
+                awst_lookup[target_id].source_location.file.parent, puyapy_options
+            )
+            for target_id in compilation_targets
+        }
+        teal = awst_to_teal(
+            log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
         )
-        artifacts = compile_and_write(log_ctx, compile_ctx, awst)
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:
-            write_arc32_clients(compile_ctx, artifacts)
-    log_ctx.exit_if_errors()
+            write_arc32_clients(compilation_set, teal)
+        log_ctx.exit_if_errors()
 
 
 def write_arc32_clients(
-    compile_ctx: CompileContext, artifacts: Sequence[models.CompilationArtifact]
+    compilation_set: Mapping[models.ContractReference | models.LogicSigReference, Path],
+    artifacts: Sequence[models.CompilationArtifact],
 ) -> None:
     for artifact in artifacts:
         if isinstance(artifact, models.CompiledContract) and artifact.metadata.is_arc4:
-            contract_out_dir = compile_ctx.compilation_set.get(artifact.id)
+            contract_out_dir = compilation_set.get(artifact.id)
             if contract_out_dir:
                 app_spec_json = create_arc32_json(
                     artifact.approval_program.teal_src,

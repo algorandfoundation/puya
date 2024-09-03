@@ -1,7 +1,6 @@
 import graphlib
 import typing
-from collections.abc import Collection, Iterable, Mapping, Sequence
-from pathlib import Path
+from collections.abc import Iterable, Mapping, Sequence
 
 import attrs
 
@@ -18,7 +17,6 @@ logger = log.get_logger(__name__)
 @attrs.frozen(eq=False)
 class Artifact:
     ir: ModuleArtifact
-    path: Path
     depends_on: dict[ContractReference | LogicSigReference, SourceLocation | None] = attrs.field(
         factory=dict
     )
@@ -42,10 +40,10 @@ class ArtifactCompilationSorter(IRTraverser):
     @classmethod
     def sort(
         cls,
-        explicit_artifact_refs: Collection[ContractReference | LogicSigReference],
-        all_artifacts: Mapping[ContractReference | LogicSigReference, Artifact],
+        all_ir: Sequence[ModuleArtifact],
     ) -> Iterable[Artifact]:
-        artifacts = [all_artifacts[ref] for ref in explicit_artifact_refs]
+        all_artifacts = {artifact.metadata.ref: Artifact(ir=artifact) for artifact in all_ir}
+        artifacts = list(all_artifacts.values())
         for artifact in artifacts:
             reference_collector = cls(
                 artifacts=all_artifacts,

@@ -5,8 +5,7 @@ from pathlib import Path
 
 import attrs
 from puya.awst import nodes as awst_nodes
-from puya.compile import compile_and_write
-from puya.context import CompileContext
+from puya.compile import awst_to_teal
 from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
 from puya.models import CompilationArtifact, ContractReference, LogicSigReference
@@ -64,7 +63,6 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
 
 @attrs.frozen(kw_only=True)
 class CompilationResult:
-    context: CompileContext
     module_awst: awst_nodes.AWST
     logs: list[Log]
     teal: list[CompilationArtifact]
@@ -74,37 +72,30 @@ class CompilationResult:
     """examples or test_cases path"""
 
 
-def narrow_sources(
-    parse_result: ParseResult, src_path: Path
-) -> Mapping[Path, Sequence[str] | None]:
-    return {
-        sm.path: sm.lines
-        for sm in parse_result.ordered_modules.values()
-        if sm.path.resolve().is_relative_to(src_path.resolve())
-        and sm.discovery_mechanism != SourceDiscoveryMechanism.dependency
-    }
-
-
 def narrowed_compile_context(
     parse_result: ParseResult,
     src_path: Path,
     awst: awst_nodes.AWST,
     compilation_set: Collection[ContractReference | LogicSigReference],
     puyapy_options: PuyaPyOptions,
-) -> CompileContext:
-    narrowed_sources_by_path = narrow_sources(parse_result, src_path)
+) -> tuple[
+    Mapping[Path, Sequence[str] | None], Mapping[ContractReference | LogicSigReference, Path]
+]:
+    narrowed_sources_by_path = {
+        sm.path: sm.lines
+        for sm in parse_result.ordered_modules.values()
+        if sm.path.resolve().is_relative_to(src_path.resolve())
+        and sm.discovery_mechanism != SourceDiscoveryMechanism.dependency
+    }
     awst_lookup = {n.id: n for n in awst}
-    return CompileContext(
-        options=puyapy_options,
-        compilation_set={
-            target_id: determine_out_dir(
-                awst_lookup[target_id].source_location.file.parent, puyapy_options
-            )
-            for target_id in compilation_set
-            if awst_lookup[target_id].source_location.file in narrowed_sources_by_path
-        },
-        sources_by_path=narrowed_sources_by_path,
-    )
+    compilation_set = {
+        target_id: determine_out_dir(
+            awst_lookup[target_id].source_location.file.parent, puyapy_options
+        )
+        for target_id in compilation_set
+        if awst_lookup[target_id].source_location.file in narrowed_sources_by_path
+    }
+    return narrowed_sources_by_path, compilation_set
 
 
 def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
@@ -167,27 +158,32 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
         raise CodeError(awst_errors)
     # create a new context from cache and specified src
     with logging_context() as log_ctx:
-        context = narrowed_compile_context(parse_result, src_path, awst, compilation_set, options)
+        narrow_sources_by_path, narrow_compilation_set = narrowed_compile_context(
+            parse_result, src_path, awst, compilation_set, options
+        )
 
         with pushd(root_dir):
             if options.output_awst and options.out_dir:
                 # this should be correct and exhaustive but relies on independence of examples
-                nodes = [n for n in awst if n.source_location.file in context.sources_by_path]
+                nodes = [n for n in awst if n.source_location.file in narrow_sources_by_path]
                 output_awst(nodes, options.out_dir)
 
             try:
-                teal = compile_and_write(log_ctx, context, awst)
+                teal = awst_to_teal(
+                    log_ctx, options, narrow_compilation_set, narrow_sources_by_path, awst
+                )
             except SystemExit as ex:
                 raise CodeError(_get_log_errors(log_ctx.logs)) from ex
 
+            filtered_teal = [t for t in teal if t.id in narrow_compilation_set]
+
             if options.output_client:
-                write_arc32_clients(context, teal)
+                write_arc32_clients(narrow_compilation_set, filtered_teal)
 
         return CompilationResult(
-            context=context,
             module_awst=awst,
             logs=awst_logs + log_ctx.logs,
-            teal=teal,
+            teal=filtered_teal,
             root_dir=root_dir,
             src_path=src_path,
         )

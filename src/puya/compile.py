@@ -1,6 +1,6 @@
 import functools
 import typing
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -8,10 +8,8 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.arc32 import create_arc32_json
-from puya.artifact_sorter import Artifact, ArtifactCompilationSorter
-from puya.awst.nodes import (
-    AWST,
-)
+from puya.artifact_sorter import ArtifactCompilationSorter
+from puya.awst.nodes import AWST
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
@@ -34,6 +32,7 @@ from puya.models import (
     LogicSigReference,
     TemplateValue,
 )
+from puya.options import PuyaOptions
 from puya.parse import SourceLocation
 from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram, TealSubroutine
@@ -44,33 +43,33 @@ from puya.utils import attrs_extend, make_path_relative_to_cwd
 logger = log.get_logger(__name__)
 
 
-def compile_and_write(
-    log_ctx: LoggingContext, context: CompileContext, awst: AWST
-) -> list[CompilationArtifact]:
-    log_ctx.exit_if_errors()
-    artifacts = awst_to_teal(log_ctx, context, awst)
-    log_ctx.exit_if_errors()
-    write_artifacts(context, artifacts)
-    log_ctx.exit_if_errors()
-    return artifacts
-
-
 def awst_to_teal(
-    log_ctx: LoggingContext, context: CompileContext, awst: AWST
+    log_ctx: LoggingContext,
+    options: PuyaOptions,
+    compilation_set: Mapping[ContractReference | LogicSigReference, Path],
+    sources_by_path: Mapping[Path, Sequence[str] | None],
+    awst: AWST,
+    *,
+    write: bool = True,
 ) -> list[CompilationArtifact]:
+    context = CompileContext(
+        options=options,
+        compilation_set=compilation_set,
+        sources_by_path=sources_by_path,
+    )
     log_ctx.exit_if_errors()
     ir = awst_to_ir(context, awst)
     log_ctx.exit_if_errors()
     teal = _ir_to_teal(log_ctx, context, ir)
     log_ctx.exit_if_errors()
-    filtered_teal = [t for t in teal if t.id in context.compilation_set]
-    return filtered_teal
+    if write:
+        _write_artifacts(context, teal)
+    return teal
 
 
 def _ir_to_teal(
     log_ctx: LoggingContext, context: CompileContext, all_ir: Sequence[ModuleArtifact]
 ) -> list[CompilationArtifact]:
-    result = list[CompilationArtifact]()
 
     compiled_artifacts = dict[
         ContractReference | LogicSigReference, _CompiledContract | _CompiledLogicSig
@@ -94,23 +93,20 @@ def _ir_to_teal(
         else:
             raise InternalError(f"invalid kind: {kind}, {type(comp_ref)}")
 
-    all_artifact_irs = {
-        artifact.metadata.ref: Artifact(path=artifact.source_location.file, ir=artifact)
-        for artifact in all_ir
-    }
-
     optimize_context = attrs_extend(
         IROptimizeContext,
         context,
         get_program_bytecode=get_program_bytecode,
         state_totals={
-            artifact.id: artifact.ir.metadata.state_totals
-            for artifact in all_artifact_irs.values()
-            if isinstance(artifact.ir, ContractIR)
+            ir.metadata.ref: ir.metadata.state_totals
+            for ir in all_ir
+            if isinstance(ir, ContractIR)
         },
     )
-    artifact_refs = [artifact.metadata.ref for artifact in all_ir]
-    for artifact in ArtifactCompilationSorter.sort(artifact_refs, all_artifact_irs):
+    # used to check for conflicts that would occur on output
+    artifacts_by_output_base = dict[Path, ModuleArtifact]()
+    result = list[CompilationArtifact]()
+    for artifact in ArtifactCompilationSorter.sort(all_ir):
         name = artifact.ir.metadata.name
         try:
             out_dir = context.compilation_set[artifact.id]
@@ -128,50 +124,36 @@ def _ir_to_teal(
         # and report any errors they encounter
         errors_in_optimization = log_ctx.num_errors > num_errors_before_optimization
         if artifact_ir_base_path:
-            # used to check for conflicts that would occur on output
-            artifacts_by_output_base = dict[Path, ModuleArtifact]()
-            if existing := artifacts_by_output_base.get(artifact_ir_base_path):
+            first_seen = artifacts_by_output_base.setdefault(artifact_ir_base_path, artifact_ir)
+            if artifact_ir is not first_seen:
                 logger.error(
-                    f"Duplicate contract name {name}", location=artifact_ir.source_location
+                    f"duplicate contract name {name}", location=artifact_ir.source_location
                 )
                 logger.info(
-                    f"Contract name {name} first seen here", location=existing.source_location
+                    f"contract name {name} first seen here", location=first_seen.source_location
                 )
-            else:
-                artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
 
         compiled: _CompiledContract | _CompiledLogicSig
         match artifact_ir:
             case ContractIR() as contract:
-                if errors_in_optimization:
+                if not errors_in_optimization:
+                    compiled = _contract_ir_to_teal(context, contract, artifact_ir_base_path)
+                else:
                     compiled = _CompiledContract(
                         approval_program=_dummy_program(),
                         clear_program=_dummy_program(),
                         metadata=contract.metadata,
                         source_location=None,
                     )
-                else:
-                    compiled = _contract_ir_to_teal(
-                        context,
-                        contract,
-                        artifact_ir_base_path,
-                    )
-
             case LogicSignature() as logic_sig:
-                if errors_in_optimization:
-                    compiled = _CompiledLogicSig(
-                        program=_dummy_program(),
-                        metadata=logic_sig.metadata,
-                        source_location=None,
-                    )
+                if not errors_in_optimization:
+                    compiled = _logic_sig_to_teal(context, logic_sig, artifact_ir_base_path)
                 else:
-                    compiled = _logic_sig_to_teal(
-                        context,
-                        logic_sig,
-                        artifact_ir_base_path,
+                    compiled = _CompiledLogicSig(
+                        program=_dummy_program(), metadata=logic_sig.metadata, source_location=None
                     )
-            case _:
-                typing.assert_never(artifact_ir)
+            case unexpected:
+                typing.assert_never(unexpected)
 
         compiled_artifacts[artifact.id] = compiled
         result.append(compiled)
@@ -269,7 +251,7 @@ def _compile_program(context: CompileContext, program: TealProgram) -> _Compiled
     )
 
 
-def write_artifacts(
+def _write_artifacts(
     context: CompileContext, compiled_artifacts: list[CompilationArtifact]
 ) -> None:
     if not compiled_artifacts:
