@@ -5,6 +5,7 @@ from pathlib import Path
 import attrs
 
 from puya.log import LogLevel, configure_logging
+from puya.main import main
 
 
 @attrs.define(kw_only=True)
@@ -15,7 +16,7 @@ class _PuyaCLIArgs:
     log_level: LogLevel = LogLevel.info
 
 
-def main() -> None:
+def cli() -> None:
     parser = argparse.ArgumentParser(
         prog="puya", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -31,6 +32,15 @@ def main() -> None:
     parser.parse_args(namespace=parsed_args)
     configure_logging(min_log_level=parsed_args.log_level)
 
-
-if __name__ == "__main__":
-    main()
+    assert parsed_args.options
+    options_json = parsed_args.options.read_text("utf8")
+    assert parsed_args.awst
+    awst_json = parsed_args.awst.read_text("utf8")
+    source_annotations_json = None
+    if parsed_args.source_annotations:
+        source_annotations_json = parsed_args.source_annotations.read_text("utf8")
+    main(
+        options_json=options_json,
+        awst_json=awst_json,
+        source_annotations_json=source_annotations_json,
+    )

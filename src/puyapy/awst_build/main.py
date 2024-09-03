@@ -33,7 +33,8 @@ def transform_ast(
                 logger.warning(f"Skipping stub: {module_rel_path}")
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
-            user_modules.append((src, ModuleASTConverter(ctx, src.node)))
+            module_ctx = ctx.for_module(src.path)
+            user_modules.append((src, ModuleASTConverter(module_ctx, src.node)))
 
     compilation_set = list[ContractReference | LogicSigReference]()
     awst = [*_algopy_arc4_module(ctx)]

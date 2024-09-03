@@ -44,6 +44,17 @@ from puya.utils import attrs_extend, make_path_relative_to_cwd
 logger = log.get_logger(__name__)
 
 
+def compile_and_write(
+    log_ctx: LoggingContext, context: CompileContext, awst: AWST
+) -> list[CompilationArtifact]:
+    log_ctx.exit_if_errors()
+    artifacts = awst_to_teal(log_ctx, context, awst)
+    log_ctx.exit_if_errors()
+    write_artifacts(context, artifacts)
+    log_ctx.exit_if_errors()
+    return artifacts
+
+
 def awst_to_teal(
     log_ctx: LoggingContext, context: CompileContext, awst: AWST
 ) -> list[CompilationArtifact]:

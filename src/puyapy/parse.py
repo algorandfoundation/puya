@@ -82,10 +82,6 @@ class ParseResult:
         return {s.path: s.lines for s in self.ordered_modules.values()}
 
     @cached_property
-    def module_paths(self) -> Mapping[str, Path]:
-        return {name: sm.path for name, sm in self.ordered_modules.items()}
-
-    @cached_property
     def explicit_source_paths(self) -> Set[Path]:
         return {
             sm.path
