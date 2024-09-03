@@ -20,7 +20,7 @@ from puya.arc32 import create_arc32_json
 from puya.awst.nodes import AWST
 from puya.awst.serialize import awst_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
-from puya.compile import awst_to_teal, write_artifacts
+from puya.compile import compile_and_write
 from puya.context import CompileContext
 from puya.errors import log_exceptions
 from puya.utils import make_path_relative_to_cwd
@@ -71,9 +71,8 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
                 for target_id in compilation_targets
             },
         )
-        artifacts = awst_to_teal(log_ctx, compile_ctx, awst)
+        artifacts = compile_and_write(log_ctx, compile_ctx, awst)
         log_ctx.exit_if_errors()
-        write_artifacts(compile_ctx, artifacts)
         if puyapy_options.output_client:
             write_arc32_clients(compile_ctx, artifacts)
     log_ctx.exit_if_errors()

@@ -47,8 +47,8 @@ class ASTConversionContext:
     def mypy_options(self) -> mypy.options.Options:
         return self._parse_result.manager.options
 
-    def for_module(self, current_module: mypy.nodes.MypyFile) -> ASTConversionModuleContext:
-        return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
+    def for_module(self, module_path: Path) -> ASTConversionModuleContext:
+        return attrs_extend(ASTConversionModuleContext, self, module_path=module_path)
 
     def state_defs(self, cref: ContractReference) -> Mapping[str, AppStorageDeclaration]:
         return self._state_defs[cref]
@@ -112,15 +112,7 @@ class ASTConversionContext:
 
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):
-    current_module: mypy.nodes.MypyFile
-
-    @property
-    def module_name(self) -> str:
-        return self.current_module.fullname
-
-    @property
-    def module_path(self) -> Path:
-        return Path(self.current_module.path)
+    module_path: Path
 
     def node_location(
         self,
@@ -132,7 +124,7 @@ class ASTConversionModuleContext(ASTConversionContext):
         else:
             module_name = module_src.module_name
             try:
-                module_path = self._parse_result.module_paths[module_name]
+                module_path = self._parse_result.ordered_modules[module_name].path
             except KeyError as ex:
                 raise CodeError(f"Could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
