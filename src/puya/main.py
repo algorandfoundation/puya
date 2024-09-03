@@ -29,8 +29,14 @@ class _SourceAnnotationsFile:
 
 def main(*, options_json: str, awst_json: str, source_annotations_json: str | None) -> None:
     with log.logging_context() as log_ctx, log_exceptions():
-        awst = serialize.awst_from_json(awst_json)
         json_converter = cattrs.preconf.json.make_converter()
+        sources_by_path = {}
+        if source_annotations_json:
+            sources_by_path = json_converter.loads(
+                source_annotations_json, dict[Path, list[str] | None]
+            )
+        log_ctx.sources_by_path = sources_by_path
+        awst = serialize.awst_from_json(awst_json)
         options = json_converter.loads(options_json, _PuyaOptionsWithCompilationSet)
         compilation_set = dict[ContractReference | LogicSigReference, Path]()
         awst_lookup = {n.id: n for n in awst}
@@ -44,11 +50,6 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
                     logger.error(f"compilation target {target_id!r} not found in AWST")
                 case other:
                     logger.error(f"unexpected compilation target type: {type(other).__name__}")
-        sources_by_path = {}
-        if source_annotations_json:
-            sources_by_path = json_converter.loads(
-                source_annotations_json, dict[Path, list[str] | None]
-            )
 
         compile_context = CompileContext(
             options=options,
