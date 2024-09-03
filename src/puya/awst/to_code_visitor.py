@@ -246,9 +246,6 @@ class ToCodeVisitor(
             body = body[1:]
 
         header = ["contract", c.name]
-        if c.is_abstract:
-            header.insert(0, "abstract")
-
         if c.bases:
             header.append("extends")
             header.append("(" + ", ".join(c.bases) + ")")

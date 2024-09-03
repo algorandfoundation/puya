@@ -61,6 +61,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self.cref = cref = typ.name
         self.is_arc4 = pytypes.ARC4ContractBaseType in typ.mro
         self.is_abstract = _check_class_abstractness(context, class_def)
+        if self.is_abstract:
+            context.abstract_contracts.add(cref)
         self._methods = list[tuple[DeferredContractMethod, SourceLocation, SpecialMethod | None]]()
         self.class_options: typing.Final = class_options
         self.source_location: typing.Final = self._location(class_def)
@@ -186,11 +188,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             if state_decl.defined_in == cref
         }
         class_options = self.class_options
-
-        result = awst_nodes.ContractFragment(
+        return awst_nodes.ContractFragment(
             id=cref,
             name=class_options.name_override or class_def.name,
-            is_abstract=self.is_abstract,
             bases=self.bases,
             init=init_method,
             approval_program=approval_program,
@@ -202,7 +202,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             reserved_scratch_space=class_options.scratch_slot_reservations,
             state_totals=class_options.state_totals,
         )
-        return result
 
     def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
         return None

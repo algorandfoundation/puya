@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 import sysconfig
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Sequence
 from importlib import metadata
 from pathlib import Path
 
@@ -26,7 +26,6 @@ from puya.errors import log_exceptions
 from puya.utils import make_path_relative_to_cwd
 
 from puyapy.awst_build.arc32_client_gen import write_arc32_client
-from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.main import transform_ast
 from puyapy.client_gen import parse_app_spec_methods
 from puyapy.options import PuyaPyOptions
@@ -46,25 +45,30 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puyapy_options)
         parse_result = parse_with_mypy(puyapy_options.paths)
-        context = ASTConversionContext(parse_result=parse_result)
         log_ctx.sources_by_path = parse_result.sources_by_path
         log_ctx.exit_if_errors()
-        awst = transform_ast(context)
+        awst, compilation_targets = transform_ast(parse_result)
         log_ctx.exit_if_errors()
-        awst_out_dir = (
-            puyapy_options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
-        )
-        if puyapy_options.output_awst:
-            output_awst(awst, awst_out_dir, parse_result.sources_by_path)
-        if puyapy_options.output_awst_json:
-            output_awst_json(awst, awst_out_dir, parse_result.sources_by_path)
+        if puyapy_options.output_awst or puyapy_options.output_awst_json:
+            awst_out_dir = (
+                puyapy_options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
+            )
+            nodes = [
+                n for n in awst if n.source_location.file in parse_result.explicit_source_paths
+            ]
+            if puyapy_options.output_awst:
+                output_awst(nodes, awst_out_dir)
+            if puyapy_options.output_awst_json:
+                output_awst_json(nodes, awst_out_dir)
+        awst_lookup = {n.id: n for n in awst}
         compile_ctx = CompileContext(
             options=puyapy_options,
             sources_by_path=parse_result.sources_by_path,
             compilation_set={
-                node.id: determine_out_dir(node.source_location.file.parent, puyapy_options)
-                for node in awst
-                if node.source_location.file in parse_result.sources_by_path
+                target_id: determine_out_dir(
+                    awst_lookup[target_id].source_location.file.parent, puyapy_options
+                )
+                for target_id in compilation_targets
             },
         )
         artifacts = awst_to_teal(log_ctx, compile_ctx, awst)
@@ -101,7 +105,7 @@ def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:
     parse_result = parse_and_typecheck(paths, mypy_options)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
-    parse_result.manager.errors.set_file("<puya>", module=None, scope=None, options=mypy_options)
+    parse_result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
 
     return parse_result
 
@@ -226,23 +230,18 @@ def _check_algopy_version(site_packages: Path) -> None:
         )
 
 
-def output_awst(awst: AWST, awst_out_dir: Path, source_set: Collection[Path]) -> None:
-    _output_awst_any(awst, ToCodeVisitor().visit_module, source_set, awst_out_dir, ".awst")
+def output_awst(awst: AWST, awst_out_dir: Path) -> None:
+    _output_awst_any(awst, ToCodeVisitor().visit_module, awst_out_dir, ".awst")
 
 
-def output_awst_json(awst: AWST, awst_out_dir: Path, source_set: Collection[Path]) -> None:
-    _output_awst_any(awst, awst_to_json, source_set, awst_out_dir, ".awst.json")
+def output_awst_json(awst: AWST, awst_out_dir: Path) -> None:
+    _output_awst_any(awst, awst_to_json, awst_out_dir, ".awst.json")
 
 
 def _output_awst_any(
-    awst: AWST,
-    formatter: Callable[[AWST], str],
-    source_set: Collection[Path],
-    awst_out_dir: Path,
-    suffix: str,
+    awst: AWST, formatter: Callable[[AWST], str], awst_out_dir: Path, suffix: str
 ) -> None:
-    nodes = [n for n in awst if n.source_location.file in source_set]
-    out_text = formatter(nodes)
+    out_text = formatter(awst)
     awst_out_dir.mkdir(exist_ok=True)
     output_path = awst_out_dir / f"module{suffix}"
     logger.info(f"writing {make_path_relative_to_cwd(output_path)}")

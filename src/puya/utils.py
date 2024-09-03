@@ -18,8 +18,6 @@ from puya.algo_constants import (
     PUBLIC_KEY_HASH_LENGTH,
 )
 
-T_A = typing.TypeVar("T_A", bound=attrs.AttrsInstance)
-
 
 @attrs.frozen
 class Address:
@@ -121,9 +119,9 @@ def method_selector_hash(method_signature: str) -> bytes:
     return sha512_256_hash(method_signature.encode("utf8"))[:4]
 
 
-def attrs_extend(
-    new_type: type[T_A], base_instance: typing.Any, **changes: typing.Any  # noqa: ANN401
-) -> T_A:
+def attrs_extend[
+    T: attrs.AttrsInstance
+](new_type: type[T], base_instance: typing.Any, **changes: typing.Any) -> T:  # noqa: ANN401
     """Like attrs.evolve but allows creating a related type"""
     base_type = type(base_instance)
     old_type_fields = attrs.fields_dict(base_type)
@@ -139,14 +137,11 @@ def attrs_extend(
     return new_type(**changes)
 
 
-T = typing.TypeVar("T")
-
-
-def no_none_in_list(lst: list[T | None]) -> typing.TypeGuard[list[T]]:
+def no_none_in_list[T](lst: list[T | None]) -> typing.TypeGuard[list[T]]:
     return None not in lst
 
 
-def no_none_in_tuple(tup: tuple[T | None, ...]) -> typing.TypeGuard[tuple[T, ...]]:
+def no_none_in_tuple[T](tup: tuple[T | None, ...]) -> typing.TypeGuard[tuple[T, ...]]:
     return None not in tup
 
 
@@ -161,11 +156,11 @@ def make_path_relative_to_cwd(path: str | Path) -> str:
     return make_path_relative(to=Path.cwd(), path=str(path))
 
 
-def unique(items: Iterable[T]) -> list[T]:
+def unique[T](items: Iterable[T]) -> list[T]:
     return list(dict.fromkeys(items))
 
 
-class StableSet(MutableSet[T]):
+class StableSet[T](MutableSet[T]):
     __slots__ = ("_data",)
 
     def __init__(self, *items: T) -> None:
@@ -239,10 +234,7 @@ class StableSet(MutableSet[T]):
         return type(self).__name__ + "(" + ", ".join(map(repr, self._data)) + ")"
 
 
-U = typing.TypeVar("U")
-
-
-def lazy_setdefault(m: MutableMapping[T, U], /, key: T, default: Callable[[T], U]) -> U:
+def lazy_setdefault[T, U](m: MutableMapping[T, U], /, key: T, default: Callable[[T], U]) -> U:
     """dict.setdefault, but with a callable"""
     try:
         return m[key]
@@ -303,18 +295,18 @@ def calculate_extra_program_pages(approval_program_length: int, clear_program_le
 
 
 @typing.overload
-def coalesce(arg1: T | None, arg2: T, /) -> T: ...
+def coalesce[T](arg1: T | None, arg2: T, /) -> T: ...
 
 
 @typing.overload
-def coalesce(arg1: T | None, arg2: T | None, arg3: T, /) -> T: ...
+def coalesce[T](arg1: T | None, arg2: T | None, arg3: T, /) -> T: ...
 
 
 @typing.overload
-def coalesce(*args: T | None) -> T | None: ...
+def coalesce[T](*args: T | None) -> T | None: ...
 
 
-def coalesce(*args: T | None) -> T | None:
+def coalesce[T](*args: T | None) -> T | None:
     """Shorthand for `a if a is not None else b`, with eager evaluation as a tradeoff"""
     # REFACTOR: if there's a better way to do the above overloads, we should.
     #           the problem is you can't have a positional argument after *args,
@@ -325,12 +317,18 @@ def coalesce(*args: T | None) -> T | None:
     return None
 
 
-def positive_index(idx: int, seq: Sequence[T]) -> int:
+def positive_index[T](idx: int, seq: Sequence[T]) -> int:
     return idx if idx >= 0 else len(seq) + idx
 
 
-def set_add(set_: MutableSet[T], value: T) -> bool:
+def set_add[T](set_: MutableSet[T], value: T) -> bool:
     """ensure item exists in a set, returning if it was added or not"""
     added = value not in set_
     set_.add(value)
     return added
+
+
+def set_remove[T](set_: MutableSet[T], value: T) -> bool:
+    removed = value in set_
+    set_.discard(value)
+    return removed
