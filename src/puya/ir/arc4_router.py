@@ -1,8 +1,6 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence
 
-from puyapy.awst_build import intrinsic_factory
-
 from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -42,6 +40,49 @@ ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS = {
 }
 
 
+def _assert(
+    *, condition: awst_nodes.Expression, comment: str | None, source_location: SourceLocation
+) -> awst_nodes.IntrinsicCall:
+    return awst_nodes.IntrinsicCall(
+        wtype=wtypes.void_wtype,
+        stack_args=[condition],
+        op_code="assert",
+        source_location=source_location,
+        comment=comment,
+    )
+
+
+def _btoi(
+    bytes_arg: awst_nodes.Expression, location: SourceLocation | None = None
+) -> awst_nodes.IntrinsicCall:
+    return awst_nodes.IntrinsicCall(
+        op_code="btoi",
+        stack_args=[bytes_arg],
+        wtype=wtypes.uint64_wtype,
+        source_location=location or bytes_arg.source_location,
+    )
+
+
+def _txn(
+    immediate: str, wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.IntrinsicCall:
+    return awst_nodes.IntrinsicCall(
+        op_code="txn",
+        immediates=[immediate],
+        wtype=wtype,
+        source_location=location,
+    )
+
+
+def _txn_app_args(index: int, loc: SourceLocation) -> awst_nodes.IntrinsicCall:
+    return awst_nodes.IntrinsicCall(
+        op_code="txna",
+        immediates=["ApplicationArgs", index],
+        source_location=loc,
+        wtype=wtypes.bytes_wtype,
+    )
+
+
 def create_block(
     location: SourceLocation, comment: str | None, *stmts: awst_nodes.Statement
 ) -> awst_nodes.Block:
@@ -64,7 +105,7 @@ def app_arg(
     wtype: wtypes.WType,
     location: SourceLocation,
 ) -> awst_nodes.Expression:
-    value = intrinsic_factory.txn_app_args(index, location)
+    value = _txn_app_args(index, location)
     if wtype == wtypes.bytes_wtype:
         return value
     return awst_nodes.ReinterpretCast(
@@ -110,7 +151,7 @@ def approve(location: SourceLocation) -> awst_nodes.ReturnStatement:
 
 
 def on_completion(location: SourceLocation) -> awst_nodes.Expression:
-    return intrinsic_factory.txn("OnCompletion", wtypes.uint64_wtype, location)
+    return _txn("OnCompletion", wtypes.uint64_wtype, location)
 
 
 def route_bare_methods(
@@ -162,13 +203,19 @@ def log_arc4_result(
             source_location=result_expression.source_location,
         ),
     )
-    return awst_nodes.ExpressionStatement(intrinsic_factory.log(abi_log, location))
+    log_op = awst_nodes.IntrinsicCall(
+        op_code="log",
+        stack_args=[abi_log],
+        wtype=wtypes.void_wtype,
+        source_location=location,
+    )
+    return awst_nodes.ExpressionStatement(log_op)
 
 
 def assert_create_state(
     config: ARC4MethodConfig, location: SourceLocation
 ) -> Sequence[awst_nodes.Statement]:
-    app_id = intrinsic_factory.txn("ApplicationID", wtypes.uint64_wtype, location)
+    app_id = _txn("ApplicationID", wtypes.uint64_wtype, location)
     match config.create:
         case ARC4CreateOption.allow:
             # if create is allowed but not required, we don't need to check anything
@@ -183,9 +230,7 @@ def assert_create_state(
             typing.assert_never(invalid)
     return [
         awst_nodes.ExpressionStatement(
-            expr=intrinsic_factory.assert_(
-                condition=condition, comment=comment, source_location=location
-            )
+            expr=_assert(condition=condition, comment=comment, source_location=location)
         )
     ]
 
@@ -280,7 +325,7 @@ def check_allowed_oca(
         oca_desc = f"one of {oca_desc}"
     return (
         awst_nodes.ExpressionStatement(
-            expr=intrinsic_factory.assert_(
+            expr=_assert(
                 condition=condition,
                 comment=f"OnCompletion is {oca_desc}",
                 source_location=location,
@@ -333,7 +378,7 @@ def _map_abi_args(
     for arg in arg_types:
         if isinstance(arg, wtypes.WGroupTransaction):
             transaction_index = uint64_sub(
-                intrinsic_factory.txn("GroupIndex", wtypes.uint64_wtype, location),
+                _txn("GroupIndex", wtypes.uint64_wtype, location),
                 constant(transaction_arg_offset, location),
                 location,
             )
@@ -344,7 +389,7 @@ def _map_abi_args(
         else:
             abi_arg = abi_args.pop()
             if (ref_array := _reference_type_array(arg)) is not None:
-                uint64_index = intrinsic_factory.btoi(abi_arg, location)
+                uint64_index = _btoi(abi_arg, location)
                 yield awst_nodes.IntrinsicCall(
                     op_code="txnas",
                     immediates=[ref_array],
@@ -401,7 +446,7 @@ def route_abi_methods(
     return create_block(
         location,
         "abi_routing",
-        *_maybe_switch(intrinsic_factory.txn_app_args(0, location), method_routing_cases),
+        *_maybe_switch(_txn_app_args(0, location), method_routing_cases),
     )
 
 
@@ -601,7 +646,7 @@ def create_abi_router(
 
     abi_routing = route_abi_methods(router_location, abi_methods)
     bare_routing = route_bare_methods(router_location, bare_methods)
-    num_app_args = intrinsic_factory.txn("NumAppArgs", wtypes.uint64_wtype, router_location)
+    num_app_args = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
     router = [
         awst_nodes.IfElse(
             condition=_non_zero(num_app_args),
