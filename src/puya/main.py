@@ -21,11 +21,6 @@ class _PuyaOptionsWithCompilationSet(PuyaOptions):
     compilation_set: dict[str, Path]
 
 
-@attrs.frozen(kw_only=True)
-class _SourceAnnotationsFile:
-    sources_by_path: dict[Path, list[str] | None]
-
-
 def main(*, options_json: str, awst_json: str, source_annotations_json: str | None) -> None:
     with log.logging_context() as log_ctx, log_exceptions():
         json_converter = cattrs.preconf.json.make_converter()
