@@ -42,41 +42,31 @@ def test_assemble_matches_algod(
     algod_client: AlgodClient, case: PuyaExample, optimization_level: int
 ) -> None:
     prefix, template_vars = load_template_vars(case.template_vars_path)
-    compile_result = compile_src_from_options(
-        PuyaPyOptions(
-            paths=(case.path,),
-            optimization_level=optimization_level,
-            debug_level=0,
-            output_teal=False,
-            output_arc32=False,
-            output_bytecode=True,
-            match_algod_bytecode=True,
-            out_dir=Path("out"),
-            template_vars_prefix=prefix,
-            cli_template_definitions=template_vars,
-        )
+    options = PuyaPyOptions(
+        paths=(case.path,),
+        optimization_level=optimization_level,
+        debug_level=0,
+        output_teal=False,
+        output_arc32=False,
+        output_bytecode=True,
+        match_algod_bytecode=True,
+        out_dir=Path("out"),
+        template_vars_prefix=prefix,
+        cli_template_definitions=template_vars,
     )
+    compile_result = compile_src_from_options(options)
     for artifact in compile_result.teal:
         match artifact:
             case CompiledContract(approval_program=approval, clear_program=clear):
                 assemble_and_compare_program(
-                    compile_result.context,
-                    algod_client,
-                    approval,
-                    f"{artifact.metadata.ref}-approval",
+                    options, algod_client, approval, f"{artifact.metadata.ref}-approval"
                 )
                 assemble_and_compare_program(
-                    compile_result.context,
-                    algod_client,
-                    clear,
-                    f"{artifact.metadata.ref}-clear",
+                    options, algod_client, clear, f"{artifact.metadata.ref}-clear"
                 )
             case CompiledLogicSig(program=logic_sig):
                 assemble_and_compare_program(
-                    compile_result.context,
-                    algod_client,
-                    logic_sig,
-                    f"{artifact.metadata.ref}-logicsig",
+                    options, algod_client, logic_sig, f"{artifact.metadata.ref}-logicsig"
                 )
 
 
@@ -109,16 +99,14 @@ def _value_as_tmpl_str(value: int | bytes | str) -> str:
 
 
 def assemble_and_compare_program(
-    context: CompileContext,
+    options: PuyaOptions,
     algod_client: AlgodClient,
     compiled_program: CompiledProgram,
     name: str,
 ) -> None:
     puya_program = compiled_program.bytecode
     assert puya_program is not None
-    template_values = {
-        k: _template_value_as_str(v) for k, v in context.options.template_variables.items()
-    }
+    template_values = {k: _template_value_as_str(v) for k, v in options.template_variables.items()}
     teal_src = "\n".join(
         _replace_template_variables(line, template_values)
         for line in compiled_program.teal_src.splitlines()
