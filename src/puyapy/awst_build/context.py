@@ -9,6 +9,7 @@ from pathlib import Path
 
 import attrs
 import mypy.nodes
+import mypy.options
 import mypy.types
 from puya import log
 from puya.awst.nodes import ConstantValue
@@ -31,7 +32,7 @@ logger = log.get_logger(__name__)
 
 @attrs.frozen(kw_only=True)
 class ASTConversionContext:
-    parse_result: ParseResult
+    _parse_result: ParseResult
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     _state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
@@ -40,6 +41,11 @@ class ASTConversionContext:
     _arc4_method_data: dict[ContractReference, dict[str, ARC4MethodData]] = attrs.field(
         factory=dict
     )
+    abstract_contracts: set[ContractReference] = attrs.field(factory=set)
+
+    @property
+    def mypy_options(self) -> mypy.options.Options:
+        return self._parse_result.manager.options
 
     def for_module(self, current_module: mypy.nodes.MypyFile) -> ASTConversionModuleContext:
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
@@ -126,16 +132,16 @@ class ASTConversionModuleContext(ASTConversionContext):
         else:
             module_name = module_src.module_name
             try:
-                module_path = self.parse_result.module_paths[module_name]
+                module_path = self._parse_result.module_paths[module_name]
             except KeyError as ex:
                 raise CodeError(f"Could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
-        src_meta = try_get_source(self.parse_result.sources_by_path, loc)
+        src_meta = try_get_source(self._parse_result.sources_by_path, loc)
         if src_meta is not None:
             lines = src_meta.code
             if loc.line > 1:
                 prior_code_meta = try_get_source(
-                    self.parse_result.sources_by_path,
+                    self._parse_result.sources_by_path,
                     SourceLocation(file=module_path, line=1, end_line=loc.line - 1),
                 )
                 prior_code = (prior_code_meta and prior_code_meta.code) or []

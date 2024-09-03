@@ -1,22 +1,21 @@
 import functools
 import typing
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
-from puya.awst.nodes import AWST
+from puya.awst import nodes as awst_nodes
 from puya.compile import awst_to_teal, write_artifacts
 from puya.context import CompileContext
 from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
-from puya.models import CompilationArtifact
+from puya.models import CompilationArtifact, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 from puya.utils import pushd
-from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import output_awst, parse_with_mypy, write_arc32_clients
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import ParseResult
+from puyapy.parse import ParseResult, SourceDiscoveryMechanism
 from puyapy.utils import determine_out_dir
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
@@ -47,7 +46,8 @@ def _get_root_dir(path: Path) -> Path:
 
 class _CompileCache(typing.NamedTuple):
     parse_result: ParseResult
-    module_awst: AWST
+    module_awst: awst_nodes.AWST
+    compilation_set: Sequence[ContractReference | LogicSigReference]
     logs: list[Log]
 
 
@@ -58,14 +58,14 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
         parse_result = parse_with_mypy([root_dir])
-        awst = transform_ast(ASTConversionContext(parse_result=parse_result))
-    return _CompileCache(parse_result, awst, log_ctx.logs)
+        awst, compilation_set = transform_ast(parse_result)
+    return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
 
 
 @attrs.frozen(kw_only=True)
 class CompilationResult:
     context: CompileContext
-    module_awst: AWST
+    module_awst: awst_nodes.AWST
     logs: list[Log]
     teal: list[CompilationArtifact]
     src_path: Path
@@ -78,10 +78,33 @@ def narrow_sources(
     parse_result: ParseResult, src_path: Path
 ) -> Mapping[Path, Sequence[str] | None]:
     return {
-        src: lines
-        for src, lines in parse_result.sources_by_path.items()
-        if src.resolve().is_relative_to(src_path.resolve())
+        sm.path: sm.lines
+        for sm in parse_result.ordered_modules.values()
+        if sm.path.resolve().is_relative_to(src_path.resolve())
+        and sm.discovery_mechanism != SourceDiscoveryMechanism.dependency
     }
+
+
+def narrowed_compile_context(
+    parse_result: ParseResult,
+    src_path: Path,
+    awst: awst_nodes.AWST,
+    compilation_set: Collection[ContractReference | LogicSigReference],
+    puyapy_options: PuyaPyOptions,
+) -> CompileContext:
+    narrowed_sources_by_path = narrow_sources(parse_result, src_path)
+    awst_lookup = {n.id: n for n in awst}
+    return CompileContext(
+        options=puyapy_options,
+        compilation_set={
+            target_id: determine_out_dir(
+                awst_lookup[target_id].source_location.file.parent, puyapy_options
+            )
+            for target_id in compilation_set
+            if awst_lookup[target_id].source_location.file in narrowed_sources_by_path
+        },
+        sources_by_path=narrowed_sources_by_path,
+    )
 
 
 def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
@@ -136,7 +159,7 @@ def compile_src(path: Path, *, optimization_level: int, debug_level: int) -> Com
 def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
     (src_path,) = options.paths
     root_dir = _get_root_dir(src_path)
-    parse_result, awst, awst_logs = get_awst_cache(root_dir)
+    parse_result, awst, compilation_set, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
 
     awst_errors = _get_log_errors(awst_logs)
@@ -144,20 +167,13 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
         raise CodeError(awst_errors)
     # create a new context from cache and specified src
     with logging_context() as log_ctx:
-        narrowed_sources_by_path = narrow_sources(parse_result, src_path)
-        context = CompileContext(
-            options=options,
-            compilation_set={
-                node.id: determine_out_dir(node.source_location.file.parent, options)
-                for node in awst
-                if node.source_location.file in narrowed_sources_by_path
-            },
-            sources_by_path=narrowed_sources_by_path,
-        )
+        context = narrowed_compile_context(parse_result, src_path, awst, compilation_set, options)
 
         with pushd(root_dir):
             if options.output_awst and options.out_dir:
-                output_awst(awst, options.out_dir, narrowed_sources_by_path)
+                # this should be correct and exhaustive but relies on independence of examples
+                nodes = [n for n in awst if n.source_location.file in context.sources_by_path]
+                output_awst(nodes, options.out_dir)
 
             try:
                 teal = awst_to_teal(log_ctx, context, awst)

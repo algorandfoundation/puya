@@ -10,17 +10,14 @@ import attrs
 import pytest
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal
-from puya.context import CompileContext
 from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.utils import coalesce
-from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import parse_with_mypy
 from puyapy.options import PuyaPyOptions
-from puyapy.utils import determine_out_dir
 
-from tests.utils import narrow_sources
+from tests.utils import narrowed_compile_context
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -300,7 +297,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
             output_bytecode=True,
         )
         parse_result = parse_with_mypy(puyapy_options.paths)
-        awst = transform_ast(ASTConversionContext(parse_result=parse_result))
+        awst, compilation_set = transform_ast(parse_result)
         # lower each case further if possible and process
         for case in cases:
             if case_has_awst_errors(awst_log_ctx.logs, case):
@@ -310,20 +307,12 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 # from lower layers
                 # this needs a new logging context so AWST errors from other cases
                 # are not seen
-                narrowed_sources_by_path = narrow_sources(parse_result, case_path[case])
-                case_context = CompileContext(
-                    options=attrs.evolve(
-                        puyapy_options,
-                        cli_template_definitions=case.template_vars,
-                    ),
-                    compilation_set={
-                        node.id: determine_out_dir(
-                            node.source_location.file.parent, puyapy_options
-                        )
-                        for node in awst
-                        if node.source_location.file in narrowed_sources_by_path
-                    },
-                    sources_by_path=narrowed_sources_by_path,
+                case_context = narrowed_compile_context(
+                    parse_result,
+                    case_path[case],
+                    awst,
+                    compilation_set,
+                    attrs.evolve(puyapy_options, cli_template_definitions=case.template_vars),
                 )
                 with (
                     contextlib.suppress(SystemExit),
