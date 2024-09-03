@@ -15,7 +15,7 @@ from puya.utils import StableSet, coalesce
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
-from puyapy.awst_build.context import ASTConversionContext, ASTConversionModuleContext
+from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
 from puyapy.awst_build.contract_data import ContractClassOptions
 from puyapy.awst_build.exceptions import UnsupportedASTError
@@ -51,8 +51,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     """This does basic validation, and traversal of valid module scope elements, collecting
     and folding constants."""
 
-    def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
-        super().__init__(context=context.for_module(module))
+    def __init__(self, context: ASTConversionModuleContext, module: mypy.nodes.MypyFile):
+        super().__init__(context)
         self.module_name: typing.Final = module.fullname
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
         for node in module.defs:
@@ -334,7 +334,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     if len(lvalues) > 1:
                         self._error("Multi-assignment with __all__ not supported", lvalue)
                     break
-                fullname = ".".join((self.context.module_name, lvalue.name))
+                fullname = ".".join((self.module_name, lvalue.name))
                 # fullname might be unset if this is in
                 # a conditional branch that's !TYPE_CHECKING
                 if lvalue.fullname:

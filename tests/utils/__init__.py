@@ -5,7 +5,7 @@ from pathlib import Path
 
 import attrs
 from puya.awst import nodes as awst_nodes
-from puya.compile import awst_to_teal, write_artifacts
+from puya.compile import compile_and_write
 from puya.context import CompileContext
 from puya.errors import CodeError
 from puya.log import Log, LogLevel, logging_context
@@ -176,11 +176,9 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
                 output_awst(nodes, options.out_dir)
 
             try:
-                teal = awst_to_teal(log_ctx, context, awst)
+                teal = compile_and_write(log_ctx, context, awst)
             except SystemExit as ex:
                 raise CodeError(_get_log_errors(log_ctx.logs)) from ex
-
-            write_artifacts(context, teal)
 
             if options.output_client:
                 write_arc32_clients(context, teal)
