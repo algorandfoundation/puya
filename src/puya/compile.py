@@ -167,7 +167,8 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
-    bytecode: bytes | None
+    bytecode: bytes | None = None
+    debug_info: bytes | None = None
 
 
 @attrs.frozen
@@ -186,12 +187,24 @@ class _CompiledLogicSig(CompiledLogicSig):
 
 
 def _dummy_program() -> _CompiledProgram:
+    from puya.mir.models import Signature
+
     return _CompiledProgram(
         teal=TealProgram(
-            target_avm_version=0, main=TealSubroutine(signature="", blocks=[]), subroutines=[]
+            id="",
+            target_avm_version=0,
+            main=TealSubroutine(
+                is_main=True,
+                signature=Signature(
+                    name="",
+                    parameters=(),
+                    returns=(),
+                ),
+                blocks=[],
+            ),
+            subroutines=[],
         ),
         teal_src="",
-        bytecode=b"",
     )
 
 
@@ -239,18 +252,22 @@ def _logic_sig_to_teal(
 
 
 def _compile_program(context: CompileContext, program: TealProgram) -> _CompiledProgram:
+    if context.options.output_bytecode:
+        assembled = assemble_program(
+            context,
+            program,
+            {k: (v, None) for k, v in context.options.template_variables.items()},
+        )
+        bytecode = assembled.bytecode
+        source_map = assembled.debug_info
+    else:
+        bytecode = None
+        source_map = None
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),
-        bytecode=(
-            assemble_program(
-                context,
-                program,
-                {k: (v, None) for k, v in context.options.template_variables.items()},
-            ).bytecode
-            if context.options.output_bytecode
-            else None
-        ),
+        bytecode=bytecode,
+        debug_info=source_map,
     )
 
 
@@ -299,6 +316,10 @@ def _write_artifacts(
             _write_output(
                 artifact_base_path,
                 {f"{suffix}.bin": program.bytecode for suffix, program in programs.items()},
+            )
+            _write_output(
+                artifact_base_path,
+                {f"{suffix}.puya.map": program.debug_info for suffix, program in programs.items()},
             )
 
 

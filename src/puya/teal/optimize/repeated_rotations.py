@@ -1,9 +1,12 @@
+from collections.abc import Sequence
+
 from puya.teal import models
+from puya.teal._util import preserve_stack_manipulations_window
 
 
 def _simplify_repeated_rotation_ops(
     maybe_simplify: list[models.Cover | models.Uncover],
-) -> tuple[list[models.Cover | models.Uncover], bool]:
+) -> tuple[Sequence[models.Cover | models.Uncover], bool]:
     first = maybe_simplify[0]
     is_cover = isinstance(first, models.Cover)
     n = first.n
@@ -18,14 +21,17 @@ def _simplify_repeated_rotation_ops(
         if is_cover
         else models.Cover(n=n, source_location=first.source_location)
     )
-    return [inverse_op] * number_of_inverse, True
+    simplified = [inverse_op] * number_of_inverse
+    return simplified, True
 
 
 def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
-    result = list[models.TealOp]()
+    result = block.ops.copy()
     maybe_simplify = list[models.Cover | models.Uncover]()
     modified = False
-    for op in block.ops:
+    end_idx = 0
+    while end_idx < len(result):
+        op = result[end_idx]
         if isinstance(op, models.Cover | models.Uncover) and (
             not maybe_simplify or op == maybe_simplify[0]
         ):
@@ -34,14 +40,21 @@ def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
             if maybe_simplify:
                 maybe_simplified, modified_ = _simplify_repeated_rotation_ops(maybe_simplify)
                 modified = modified or modified_
-                result.extend(maybe_simplified)
+                preserve_stack_manipulations_window(
+                    result, slice(end_idx - len(maybe_simplify), end_idx), maybe_simplified
+                )
+                end_idx += len(maybe_simplified) - len(maybe_simplify)
                 maybe_simplify = []
             if isinstance(op, models.Cover | models.Uncover):
                 maybe_simplify.append(op)
-            else:
-                result.append(op)
+        end_idx += 1
     if maybe_simplify:
-        result.extend(maybe_simplify)
+        maybe_simplified, modified_ = _simplify_repeated_rotation_ops(maybe_simplify)
+        modified = modified or modified_
+        idx = len(result)
+        preserve_stack_manipulations_window(
+            result, slice(idx - len(maybe_simplify), idx), maybe_simplified
+        )
     block.ops = result
     return modified
 
@@ -52,7 +65,11 @@ def simplify_swap_ops(block: models.TealBlock) -> bool:
     for op in block.ops:
         if isinstance(op, models.Cover | models.Uncover) and (op.n == 1):
             modified = True
-            result.append(models.Swap(source_location=op.source_location))
+            result.append(
+                models.Swap(
+                    source_location=op.source_location, stack_manipulations=op.stack_manipulations
+                )
+            )
         else:
             result.append(op)
     block.ops = result

@@ -1,0 +1,394 @@
+#pragma version 10
+
+test_cases.debug.contract.DebugContract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.debug.contract.DebugContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@5
+    method "test(uint64,uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___test_route@2
+    int 0
+    retsub
+
+__puya_arc4_router___test_route@2:
+    // debug/contract.py:5
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    // debug/contract.py:5
+    // @arc4.abimethod
+    callsub test
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@5:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@9
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    int 0
+    retsub
+
+
+// test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
+test:
+    // debug/contract.py:5-6
+    // @arc4.abimethod
+    // def test(self, x: UInt64, y: UInt64, z: UInt64) -> UInt64:
+    proto 3 1
+    int 0
+    dup
+    byte ""
+    dup
+    // debug/contract.py:8
+    // a = x * TemplateVar[UInt64]("A_MULT")
+    frame_dig -3
+    int TMPL_A_MULT
+    *
+    // debug/contract.py:9
+    // b = x + y
+    frame_dig -3
+    frame_dig -2
+    +
+    dupn 2
+    // debug/contract.py:10
+    // c = b * z
+    frame_dig -1
+    *
+    dup
+    cover 2
+    // debug/contract.py:11
+    // if b < c:
+    <
+    bz test_else_body@2
+    // debug/contract.py:12
+    // a = a + y
+    frame_dig 4
+    frame_dig -2
+    +
+    frame_bury 4
+    b test_after_if_else@11
+
+test_else_body@2:
+    // debug/contract.py:13
+    // elif a < c:
+    frame_dig 4
+    frame_dig 6
+    <
+    bz test_else_body@4
+    // debug/contract.py:14
+    // a = a + z
+    frame_dig 4
+    frame_dig -1
+    +
+    frame_bury 4
+    b test_after_if_else@10
+
+test_else_body@4:
+    // debug/contract.py:15
+    // elif b < a:
+    frame_dig 5
+    frame_dig 4
+    <
+    bz test_else_body@6
+    // debug/contract.py:16
+    // a = a * 3
+    frame_dig 4
+    int 3
+    *
+    frame_bury 4
+    b test_after_if_else@10
+
+test_else_body@6:
+    // debug/contract.py:17
+    // elif b > a:
+    frame_dig 5
+    dup
+    frame_dig 4
+    >
+    swap
+    frame_bury 3
+    bz test_after_if_else@8
+    // debug/contract.py:18
+    // b = b + a
+    frame_dig 5
+    frame_dig 4
+    +
+    frame_bury 3
+
+test_after_if_else@8:
+    frame_dig 3
+    frame_bury 5
+
+test_after_if_else@10:
+
+test_after_if_else@11:
+    // debug/contract.py:20
+    // if a + b < c:
+    frame_dig 4
+    frame_dig 5
+    +
+    frame_dig 6
+    <
+    bz test_else_body@13
+    // debug/contract.py:21
+    // a *= some_func(a, y)
+    frame_dig 4
+    dup
+    frame_dig -2
+    callsub some_func
+    *
+    frame_bury 4
+    b test_after_if_else@14
+
+test_else_body@13:
+    // debug/contract.py:23
+    // b *= some_func(b, z)
+    frame_dig 5
+    dup
+    frame_dig -1
+    callsub some_func
+    *
+    frame_bury 5
+
+test_after_if_else@14:
+    // debug/contract.py:25
+    // bee = itoa(b)
+    frame_dig 5
+    dup
+    callsub itoa
+    frame_bury 0
+    // debug/contract.py:26
+    // c = a + b
+    frame_dig 4
+    dup
+    uncover 2
+    +
+    dup
+    frame_bury 6
+    // debug/contract.py:27
+    // cea = itoa(c)
+    dup
+    callsub itoa
+    frame_bury 1
+    // debug/contract.py:29
+    // if a < c:
+    dig 1
+    >
+    swap
+    frame_bury 2
+    bz test_after_if_else@16
+    // debug/contract.py:30
+    // a += c
+    frame_dig 4
+    frame_dig 6
+    +
+    frame_bury 2
+
+test_after_if_else@16:
+    frame_dig 2
+    dup
+    frame_bury 4
+    // debug/contract.py:31
+    // if a < b:
+    dup
+    frame_dig 5
+    <
+    swap
+    frame_bury 2
+    bz test_after_if_else@18
+    // debug/contract.py:32
+    // a += b
+    frame_dig 4
+    frame_dig 5
+    +
+    frame_bury 2
+
+test_after_if_else@18:
+    frame_dig 2
+    dup
+    frame_bury 4
+    // debug/contract.py:33
+    // if a < b + c:
+    frame_dig 5
+    frame_dig 6
+    +
+    dig 1
+    >
+    swap
+    frame_bury 2
+    bz test_after_if_else@20
+    // debug/contract.py:34
+    // a = a * z
+    frame_dig 4
+    frame_dig -1
+    *
+    frame_bury 2
+
+test_after_if_else@20:
+    frame_dig 2
+    // debug/contract.py:36
+    // aye = itoa(a)
+    dup
+    callsub itoa
+    // debug/contract.py:37
+    // log(aye, bee, cea, sep=" ")
+    byte " "
+    concat
+    frame_dig 0
+    concat
+    byte " "
+    concat
+    frame_dig 1
+    concat
+    log
+    // debug/contract.py:39
+    // return a
+    frame_bury 0
+    retsub
+
+
+// test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
+some_func:
+    // debug/contract.py:42-43
+    // @subroutine
+    // def some_func(a: UInt64, b: UInt64) -> UInt64:
+    proto 2 1
+    // debug/contract.py:44
+    // a += b
+    frame_dig -2
+    frame_dig -1
+    +
+    frame_bury -2
+    // debug/contract.py:45
+    // b *= a
+    frame_dig -1
+    frame_dig -2
+    *
+    frame_bury -1
+    // debug/contract.py:46
+    // a += b
+    frame_dig -2
+    frame_dig -1
+    +
+    dup
+    frame_bury -2
+    // debug/contract.py:47
+    // a *= 2
+    int 2
+    *
+    dup
+    frame_bury -2
+    // debug/contract.py:48
+    // x = a + b
+    frame_dig -1
+    +
+    // debug/contract.py:49
+    // y = a * b
+    frame_dig -2
+    frame_dig -1
+    *
+    // debug/contract.py:50
+    // return x if x < y else y
+    dup2
+    <
+    swap
+    cover 2
+    select
+    retsub
+
+
+// test_cases.debug.contract.itoa(i: uint64) -> bytes:
+itoa:
+    // debug/contract.py:53-54
+    // @subroutine
+    // def itoa(i: UInt64) -> Bytes:
+    proto 1 1
+    // debug/contract.py:57
+    // if i < radix:
+    frame_dig -1
+    // debug/contract.py:56
+    // radix = digits.length
+    int 10
+    // debug/contract.py:57
+    // if i < radix:
+    <
+    bz itoa_after_if_else@2
+    // debug/contract.py:58
+    // return digits[i]
+    frame_dig -1
+    int 1
+    +
+    // debug/contract.py:55
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839
+    // debug/contract.py:58
+    // return digits[i]
+    frame_dig -1
+    uncover 2
+    substring3
+    retsub
+
+itoa_after_if_else@2:
+    // debug/contract.py:59
+    // return itoa(i // radix) + digits[i % radix]
+    frame_dig -1
+    // debug/contract.py:56
+    // radix = digits.length
+    int 10
+    // debug/contract.py:59
+    // return itoa(i // radix) + digits[i % radix]
+    /
+    callsub itoa
+    frame_dig -1
+    // debug/contract.py:56
+    // radix = digits.length
+    int 10
+    // debug/contract.py:59
+    // return itoa(i // radix) + digits[i % radix]
+    %
+    dup
+    int 1
+    +
+    // debug/contract.py:55
+    // digits = Bytes(b"0123456789")
+    byte 0x30313233343536373839
+    // debug/contract.py:59
+    // return itoa(i // radix) + digits[i % radix]
+    cover 2
+    substring3
+    concat
+    retsub

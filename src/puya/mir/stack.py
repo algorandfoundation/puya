@@ -1,6 +1,6 @@
 import contextlib
 import typing
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 
 import attrs
 
@@ -18,21 +18,33 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
     allow_virtual: bool = True
     use_frame: bool = False
     parameters: list[str] = attrs.field(factory=list)
-    f_stack: list[str] = attrs.field(factory=list)
+    _f_stack: list[str] = attrs.field(factory=list)
     """f-stack holds variables above the current frame"""
-    x_stack: list[str] = attrs.field(factory=list)
+    _x_stack: list[str] = attrs.field(factory=list)
     """x-stack holds variable that are carried between blocks"""
-    l_stack: list[str] = attrs.field(factory=list)
+    _l_stack: list[str] = attrs.field(factory=list)
     """l-stack holds variables that are used within a block"""
+
+    @property
+    def f_stack(self) -> Sequence[str]:
+        return self._f_stack
+
+    @property
+    def x_stack(self) -> Sequence[str]:
+        return self._x_stack
+
+    @property
+    def l_stack(self) -> Sequence[str]:
+        return self._l_stack
 
     def copy(self) -> "Stack":
         return Stack(
             allow_virtual=self.allow_virtual,
             use_frame=self.use_frame,
             parameters=self.parameters.copy(),
-            f_stack=self.f_stack.copy(),
-            x_stack=self.x_stack.copy(),
-            l_stack=self.l_stack.copy(),
+            f_stack=list(self.f_stack),
+            x_stack=list(self.x_stack),
+            l_stack=list(self.l_stack),
         )
 
     @classmethod
@@ -47,9 +59,9 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         self, subroutine: models.MemorySubroutine, block: models.MemoryBasicBlock
     ) -> None:
         self.parameters = [p.local_id for p in subroutine.signature.parameters]
-        self.f_stack = list(block.f_stack_in)
-        self.x_stack = list(block.x_stack_in or ())  # x-stack might not be assigned yet
-        self.l_stack = []
+        self._f_stack = list(block.f_stack_in)
+        self._x_stack = list(block.x_stack_in or ())  # x-stack might not be assigned yet
+        self._l_stack = []
         self.use_frame = not subroutine.is_main
 
     @property
@@ -67,11 +79,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
     def _stack_error(self, msg: str) -> typing.Never:
         raise InternalError(f"{msg}: {self.full_stack_desc}")
 
-    def _l_stack_assign_name(self, value: str) -> None:
-        if not self.l_stack:
-            self._stack_error(f"l-stack too small to assign name {value}")
-        self.l_stack[-1] = value
-
     def _get_f_stack_dig_bury(self, value: str) -> int:
         return (
             len(self.f_stack)
@@ -81,31 +88,90 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             - 1
         )
 
+    def _f_stack_append(self, local_id: str, *, defined: bool) -> teal.StackManipulation:
+        self._f_stack.append(local_id)
+        return teal.StackManipulation(
+            stack="f",
+            manipulation="insert",
+            index=len(self.f_stack) - 1,
+            local_id=local_id,
+            defined=defined,
+        )
+
+    def _x_stack_insert(self, local_id: str) -> teal.StackManipulation:
+        self._x_stack.insert(0, local_id)
+        return teal.StackManipulation(stack="x", manipulation="insert", index=0, local_id=local_id)
+
+    def _x_stack_pop(self, index: int = -1) -> teal.StackManipulation:
+        local_id = self._x_stack.pop(index)
+        return teal.StackManipulation(
+            stack="x", manipulation="pop", index=index, local_id=local_id
+        )
+
+    def _l_stack_pop(self, index: int = -1) -> teal.StackManipulation:
+        removed = self._l_stack.pop(index)
+        return teal.StackManipulation(stack="l", manipulation="pop", index=index, local_id=removed)
+
+    def _l_stack_insert(self, index: int, local_id: str) -> teal.StackManipulation:
+        self._l_stack.insert(index, local_id)
+        return teal.StackManipulation(
+            stack="l", manipulation="insert", index=index, local_id=local_id
+        )
+
+    def _l_stack_append(self, local_id: str) -> teal.StackManipulation:
+        self._l_stack.append(local_id)
+        return teal.StackManipulation(
+            stack="l", manipulation="insert", index=len(self._l_stack) - 1, local_id=local_id
+        )
+
+    def _l_stack_copy(self, local_id: str) -> teal.StackManipulation:
+        return self._l_stack_append(f"{local_id} (copy)")
+
     def visit_int(self, push: models.Int) -> list[teal.TealOp]:
-        self.l_stack.append(str(push.value))
-        return [teal.Int(push.value, source_location=push.source_location)]
+        append = self._l_stack_append(str(push.value))
+        return [
+            teal.Int(
+                push.value, stack_manipulations=[append], source_location=push.source_location
+            )
+        ]
 
     def visit_byte(self, push: models.Byte) -> list[teal.TealOp]:
-        self.l_stack.append(format_bytes(push.value, push.encoding))
-        return [teal.Byte(push.value, push.encoding, source_location=push.source_location)]
+        append = self._l_stack_append(format_bytes(push.value, push.encoding))
+        return [
+            teal.Byte(
+                push.value,
+                push.encoding,
+                stack_manipulations=[append],
+                source_location=push.source_location,
+            )
+        ]
 
     def visit_template_var(self, deploy_var: models.TemplateVar) -> list[teal.TealOp]:
-        self.l_stack.append(deploy_var.name)
+        append = self._l_stack_append(deploy_var.name)
         return [
             teal.TemplateVar(
                 name=deploy_var.name,
                 op_code=deploy_var.op_code,
+                stack_manipulations=[append],
                 source_location=deploy_var.source_location,
             )
         ]
 
     def visit_address(self, addr: models.Address) -> list[teal.TealOp]:
-        self.l_stack.append(addr.value)
-        return [teal.Address(addr.value, source_location=addr.source_location)]
+        append = self._l_stack_append(addr.value)
+        return [
+            teal.Address(
+                addr.value, stack_manipulations=[append], source_location=addr.source_location
+            )
+        ]
 
     def visit_method(self, method: models.Method) -> list[teal.TealOp]:
-        self.l_stack.append(f'method<"{method.value}">')
-        return [teal.Method(method.value, source_location=method.source_location)]
+        append = self._l_stack_append(f'method<"{method.value}">')
+        return [
+            teal.Method(
+                method.value, stack_manipulations=[append], source_location=method.source_location
+            )
+        ]
 
     def visit_comment(self, _comment: models.Comment) -> list[teal.TealOp]:
         return []
@@ -117,7 +183,7 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             )
         if not self.l_stack:
             self._stack_error(f"l-stack too small to store {store.local_id}")
-        self.l_stack.pop()
+        self._l_stack_pop()
         return []
 
     def visit_load_virtual(self, load: models.LoadVirtual) -> list[teal.TealOp]:
@@ -125,32 +191,45 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             raise InternalError(
                 "LoadVirtual op encountered during TEAL generation", load.source_location
             )
-        self.l_stack.append(load.local_id)
+        self._l_stack_copy(load.local_id)
         return []
 
     def _store_f_stack(
-        self, value: str, source_location: SourceLocation | None
+        self, local_id: str, source_location: SourceLocation | None
     ) -> teal.Cover | teal.FrameBury | teal.Bury:
-        if value not in self.f_stack:
-            self._stack_error(f"{value} not found in f-stack")
+        if local_id not in self.f_stack:
+            self._stack_error(f"{local_id} not found in f-stack")
 
-        frame_bury = self.f_stack.index(value)
-        bury = self._get_f_stack_dig_bury(value)
-        self.l_stack.pop()
+        # must calculate bury offsets BEFORE modifying l-stack
+        frame_bury = self.f_stack.index(local_id)
+        bury = self._get_f_stack_dig_bury(local_id)
+        pop = self._l_stack_pop()
+        store = teal.StackManipulation(
+            stack="f", manipulation="define", index=0, local_id=local_id
+        )
         if self.use_frame:
-            return teal.FrameBury(frame_bury, source_location=source_location)
-        return teal.Bury(bury, source_location=source_location)
+            return teal.FrameBury(
+                frame_bury, stack_manipulations=[pop, store], source_location=source_location
+            )
+        else:
+            return teal.Bury(
+                bury, stack_manipulations=[pop, store], source_location=source_location
+            )
 
-    def _insert_f_stack(self, value: str, source_location: SourceLocation | None) -> teal.Cover:
-        if value in self.f_stack:
-            raise self._stack_error(f"Could not insert {value} as it is already in f-stack")
+    def _insert_f_stack(self, local_id: str, source_location: SourceLocation | None) -> teal.Cover:
+        if local_id in self.f_stack:
+            raise self._stack_error(f"Could not insert {local_id} as it is already in f-stack")
 
         # inserting something at the top of the f-stack
         # is equivalent to inserting at the bottom of the x-stack
         cover = len(self.x_stack) + len(self.l_stack) - 1
-        self.l_stack.pop()
-        self.f_stack.append(value)
-        return teal.Cover(cover, source_location=source_location)
+        pop = self._l_stack_pop()
+        append = self._f_stack_append(local_id, defined=True)
+        return teal.Cover(
+            cover,
+            stack_manipulations=[pop, append],
+            source_location=source_location,
+        )
 
     def visit_store_f_stack(self, store: models.StoreFStack) -> list[teal.TealOp]:
         if not self.l_stack:
@@ -167,28 +246,30 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             self._stack_error(f"{local_id} not found in f-stack")
         frame_dig = self.f_stack.index(local_id)
         dig = self._get_f_stack_dig_bury(local_id)
-        self.l_stack.append(local_id)
+        append = self._l_stack_copy(local_id)
         if self.use_frame:
-            return [teal.FrameDig(frame_dig, source_location=load.source_location)]
-        return [
-            (
-                teal.Dig(dig, source_location=load.source_location)
-                if dig
-                else teal.Dup(source_location=load.source_location)
-            )
-        ]
+            return [
+                teal.FrameDig(
+                    frame_dig, stack_manipulations=[append], source_location=load.source_location
+                )
+            ]
+        return [teal.Dig(dig, stack_manipulations=[append], source_location=load.source_location)]
 
     def visit_store_x_stack(self, store: models.StoreXStack) -> list[teal.TealOp]:
         local_id = store.local_id
         if not self.l_stack:
             self._stack_error(f"l-stack too small to store {local_id} to x-stack")
-        # re-alias top of l-stack
-        self._l_stack_assign_name(local_id)
 
         cover = len(self.x_stack) + len(self.l_stack) - 1
-        var = self.l_stack.pop()
-        self.x_stack.insert(0, var)
-        return [teal.Cover(cover, source_location=store.source_location)]
+        pop = self._l_stack_pop()
+        insert = self._x_stack_insert(local_id)
+        return [
+            teal.Cover(
+                cover,
+                stack_manipulations=[pop, insert],
+                source_location=store.source_location,
+            )
+        ]
 
     def visit_load_x_stack(self, load: models.LoadXStack) -> list[teal.TealOp]:
         local_id = load.local_id
@@ -196,102 +277,134 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             self._stack_error(f"{local_id} not found in x-stack")
         index = self.x_stack.index(local_id)
         uncover = len(self.l_stack) + (len(self.x_stack) - index - 1)
-        self.x_stack.pop(index)
-        self.l_stack.append(local_id)
-        return [teal.Uncover(uncover, source_location=load.source_location)]
+        pop = self._x_stack_pop(index)
+        append = self._l_stack_copy(load.local_id)
+        return [
+            teal.Uncover(
+                uncover,
+                stack_manipulations=[
+                    pop,
+                    append,
+                ],
+                source_location=load.source_location,
+            )
+        ]
 
     def visit_store_l_stack(self, store: models.StoreLStack) -> list[teal.TealOp]:
         cover = store.cover
+        local_id = store.local_id
         if cover >= len(self.l_stack):
             self._stack_error(
                 f"l-stack too small to store (cover {cover}) {store.local_id} to l-stack"
             )
-        # re-alias top of l-stack
-        self._l_stack_assign_name(store.local_id)
-
         index = len(self.l_stack) - cover - 1
-        var = self.l_stack[-1] if store.copy else self.l_stack.pop()
-        self.l_stack.insert(index, var)
+        pop = self._l_stack_pop()
+        insert = self._l_stack_insert(index, local_id)
+        ops = list[teal.TealOp]()
         if store.copy:
-            result: list[teal.TealOp] = [teal.Dup(source_location=store.source_location)]
-            if cover > 0:
-                result.append(teal.Cover(cover + 1, source_location=store.source_location))
-            return result
-        return [teal.Cover(cover, source_location=store.source_location)]
+            append = self._l_stack_copy(local_id)
+            ops.append(
+                teal.Dup(stack_manipulations=[append], source_location=store.source_location),
+            )
+        ops.append(
+            teal.Cover(
+                cover + 1 if store.copy else cover,
+                stack_manipulations=[pop, insert],
+                source_location=store.source_location,
+            )
+        )
+        return ops
 
     def visit_load_l_stack(self, load: models.LoadLStack) -> list[teal.TealOp]:
         local_id = load.local_id
-        if local_id not in self.l_stack:
+        try:
+            index = self.l_stack.index(local_id)
+        except ValueError:
             self._stack_error(f"{local_id} not found in l-stack")
-        index = self.l_stack.index(local_id)
         uncover = len(self.l_stack) - index - 1
 
         if load.copy:
-            self.l_stack.append(local_id)
+            copy = self._l_stack_copy(local_id)
             return [
-                (
-                    teal.Dup(source_location=load.source_location)
-                    if uncover == 0
-                    else teal.Dig(uncover, source_location=load.source_location)
+                teal.Dig(
+                    uncover,
+                    stack_manipulations=[copy],
+                    source_location=load.source_location,
                 )
             ]
         else:
-            self.l_stack.pop(index)
-            self.l_stack.append(local_id)
-            return [teal.Uncover(uncover, source_location=load.source_location)]
+            pop = self._l_stack_pop(index)
+            append = self._l_stack_append(local_id)
+            return [
+                teal.Uncover(
+                    uncover,
+                    stack_manipulations=[pop, append],
+                    source_location=load.source_location,
+                )
+            ]
 
     def visit_load_param(self, load: models.LoadParam) -> list[teal.TealOp]:
         if load.local_id not in self.parameters:
             self._stack_error(f"{load.local_id} is not a parameter")
-        self.l_stack.append(load.local_id)
-        return [teal.FrameDig(load.index, source_location=load.source_location)]
+        append = self._l_stack_copy(load.local_id)
+        return [
+            teal.FrameDig(
+                load.index,
+                source_location=load.source_location,
+                stack_manipulations=[append],
+            )
+        ]
 
     def visit_store_param(self, store: models.StoreParam) -> list[teal.TealOp]:
         if not self.l_stack:
             self._stack_error(f"l-stack too small to store param {store.local_id}")
         if store.local_id not in self.parameters:
             self._stack_error(f"{store.local_id} is not a parameter")
-        self._l_stack_assign_name(store.local_id)
-        self.l_stack.pop()
-        return [teal.FrameBury(store.index, source_location=store.source_location)]
+
+        pop = self._l_stack_pop()
+        return [
+            teal.FrameBury(
+                store.index, stack_manipulations=[pop], source_location=store.source_location
+            )
+        ]
 
     def visit_proto(self, proto: models.Proto) -> list[teal.TealOp]:
         return [teal.Proto(proto.parameters, proto.returns, source_location=proto.source_location)]
 
     def visit_allocate(self, allocate: models.Allocate) -> list[teal.TealOp]:
-        self.f_stack.extend(allocate.allocate_on_entry)
+        def with_stack_manipulation(bad_value: teal.TealOp, local_id: str) -> teal.TealOp:
+            return attrs.evolve(
+                bad_value,
+                stack_manipulations=[self._f_stack_append(local_id, defined=False)],
+            )
 
-        def push_n(value_op: teal.TealOp, n: int) -> list[teal.TealOp]:
-            match n:
-                case 0:
-                    return []
-                case 1:
-                    return [value_op]
-                case 2:
-                    return [value_op, teal.Dup(source_location=allocate.source_location)]
-                case _:
-                    return [value_op, teal.DupN(n=n - 1, source_location=allocate.source_location)]
-
-        bad_bytes_value = teal.Int(0, source_location=allocate.source_location)
-        bad_uint_value = teal.Byte(
-            value=b"", encoding=AVMBytesEncoding.utf8, source_location=allocate.source_location
+        bad_bytes_value = teal.Int(
+            0,
+            source_location=allocate.source_location,
         )
+        bad_uint_value = teal.Byte(
+            value=b"",
+            encoding=AVMBytesEncoding.utf8,
+            source_location=allocate.source_location,
+        )
+
         return [
-            *push_n(bad_bytes_value, allocate.num_bytes),
-            *push_n(bad_uint_value, allocate.num_uints),
+            with_stack_manipulation(
+                bad_bytes_value if idx < allocate.num_bytes else bad_uint_value,
+                local_id,
+            )
+            for idx, local_id in enumerate(allocate.allocate_on_entry)
         ]
 
     def visit_pop(self, pop: models.Pop) -> list[teal.TealOp]:
         if len(self.l_stack) < pop.n:
             self._stack_error(f"l-stack too small to pop {pop.n}")
-        for _ in range(pop.n):
-            self.l_stack.pop()
         return [
-            (
-                teal.PopN(pop.n, source_location=pop.source_location)
-                if pop.n > 1
-                else teal.Pop(source_location=pop.source_location)
+            teal.Pop(
+                stack_manipulations=[self._l_stack_pop()],
+                source_location=pop.source_location,
             )
+            for _ in range(pop.n)
         ]
 
     def visit_callsub(self, callsub: models.CallSub) -> list[teal.TealOp]:
@@ -305,15 +418,15 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         else:
             produces = []
 
-        for _ in range(callsub.parameters):
-            self.l_stack.pop()
-        self.l_stack.extend(produces)
+        stack_manipulations = [self._l_stack_pop() for _ in range(callsub.parameters)]
+        stack_manipulations.extend(self._l_stack_append(prod) for prod in produces)
 
         return [
             teal.CallSub(
                 target=callsub.target,
                 consumes=callsub.parameters,
                 produces=callsub.returns,
+                stack_manipulations=stack_manipulations,
                 source_location=callsub.source_location,
             )
         ]
@@ -325,6 +438,7 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
                 f"actual {len(self.l_stack)}"
             )
 
+        # TODO: do we need stack manipulations? Probably won't be used since this ends a call frame
         sub_l_stack_height = len(self.f_stack) + len(self.x_stack)
         if retsub.returns < sub_l_stack_height:
             # move returns to base of frame in order
@@ -346,8 +460,8 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         # represent this in the virtual stack with a new stack state with only the current
         # l-stack (i.e. discard all values in parameters, f-stack and x-stack)
         self.parameters = []
-        self.f_stack = []
-        self.x_stack = []
+        self._f_stack = []
+        self._x_stack = []
         return ret_ops
 
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> list[teal.TealOp]:
@@ -365,9 +479,8 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         else:
             produces = []
 
-        for _ in range(intrinsic.consumes):
-            self.l_stack.pop()
-        self.l_stack.extend(produces)
+        stack_manipulations = [self._l_stack_pop() for _ in range(intrinsic.consumes)]
+        stack_manipulations.extend(self._l_stack_append(prod) for prod in produces)
 
         return [
             teal.Intrinsic(
@@ -376,6 +489,7 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
                 comment=intrinsic.comment,
                 consumes=intrinsic.consumes,
                 produces=len(produces),
+                stack_manipulations=stack_manipulations,
                 source_location=intrinsic.source_location,
             )
         ]

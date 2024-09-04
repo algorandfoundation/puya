@@ -1,0 +1,281 @@
+#pragma version 10
+
+test_cases.debug.contract.DebugContract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.debug.contract.DebugContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@5
+    method "test(uint64,uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___test_route@2
+    int 0
+    retsub
+
+__puya_arc4_router___test_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    callsub test
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@5:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@9
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    int 0
+    retsub
+
+
+// test_cases.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
+test:
+    proto 3 1
+    int 0
+    dup
+    byte ""
+    dup
+    frame_dig -3
+    int TMPL_A_MULT
+    *
+    frame_dig -3
+    frame_dig -2
+    +
+    dupn 2
+    frame_dig -1
+    *
+    dup
+    cover 2
+    <
+    bz test_else_body@2
+    frame_dig 4
+    frame_dig -2
+    +
+    frame_bury 4
+    b test_after_if_else@11
+
+test_else_body@2:
+    frame_dig 4
+    frame_dig 6
+    <
+    bz test_else_body@4
+    frame_dig 4
+    frame_dig -1
+    +
+    frame_bury 4
+    b test_after_if_else@10
+
+test_else_body@4:
+    frame_dig 5
+    frame_dig 4
+    <
+    bz test_else_body@6
+    frame_dig 4
+    int 3
+    *
+    frame_bury 4
+    b test_after_if_else@10
+
+test_else_body@6:
+    frame_dig 5
+    dup
+    frame_dig 4
+    >
+    swap
+    frame_bury 3
+    bz test_after_if_else@8
+    frame_dig 5
+    frame_dig 4
+    +
+    frame_bury 3
+
+test_after_if_else@8:
+    frame_dig 3
+    frame_bury 5
+
+test_after_if_else@10:
+
+test_after_if_else@11:
+    frame_dig 4
+    frame_dig 5
+    +
+    frame_dig 6
+    <
+    bz test_else_body@13
+    frame_dig 4
+    dup
+    frame_dig -2
+    callsub some_func
+    *
+    frame_bury 4
+    b test_after_if_else@14
+
+test_else_body@13:
+    frame_dig 5
+    dup
+    frame_dig -1
+    callsub some_func
+    *
+    frame_bury 5
+
+test_after_if_else@14:
+    frame_dig 5
+    dup
+    callsub itoa
+    frame_bury 0
+    frame_dig 4
+    dup
+    uncover 2
+    +
+    dup
+    frame_bury 6
+    dup
+    callsub itoa
+    frame_bury 1
+    dig 1
+    >
+    swap
+    frame_bury 2
+    bz test_after_if_else@16
+    frame_dig 4
+    frame_dig 6
+    +
+    frame_bury 2
+
+test_after_if_else@16:
+    frame_dig 2
+    dup
+    frame_bury 4
+    dup
+    frame_dig 5
+    <
+    swap
+    frame_bury 2
+    bz test_after_if_else@18
+    frame_dig 4
+    frame_dig 5
+    +
+    frame_bury 2
+
+test_after_if_else@18:
+    frame_dig 2
+    dup
+    frame_bury 4
+    frame_dig 5
+    frame_dig 6
+    +
+    dig 1
+    >
+    swap
+    frame_bury 2
+    bz test_after_if_else@20
+    frame_dig 4
+    frame_dig -1
+    *
+    frame_bury 2
+
+test_after_if_else@20:
+    frame_dig 2
+    dup
+    callsub itoa
+    byte " "
+    concat
+    frame_dig 0
+    concat
+    byte " "
+    concat
+    frame_dig 1
+    concat
+    log
+    frame_bury 0
+    retsub
+
+
+// test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
+some_func:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    +
+    frame_bury -2
+    frame_dig -1
+    frame_dig -2
+    *
+    frame_bury -1
+    frame_dig -2
+    frame_dig -1
+    +
+    dup
+    frame_bury -2
+    int 2
+    *
+    dup
+    frame_bury -2
+    frame_dig -1
+    +
+    frame_dig -2
+    frame_dig -1
+    *
+    dup2
+    <
+    swap
+    cover 2
+    select
+    retsub
+
+
+// test_cases.debug.contract.itoa(i: uint64) -> bytes:
+itoa:
+    proto 1 1
+    frame_dig -1
+    int 10
+    <
+    bz itoa_after_if_else@2
+    frame_dig -1
+    int 1
+    +
+    byte 0x30313233343536373839
+    frame_dig -1
+    uncover 2
+    substring3
+    retsub
+
+itoa_after_if_else@2:
+    frame_dig -1
+    int 10
+    /
+    callsub itoa
+    frame_dig -1
+    int 10
+    %
+    dup
+    int 1
+    +
+    byte 0x30313233343536373839
+    cover 2
+    substring3
+    concat
+    retsub

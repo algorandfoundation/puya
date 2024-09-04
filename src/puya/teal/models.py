@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Iterable, Sequence
 
 import attrs
@@ -5,7 +6,25 @@ import attrs
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes
+from puya.mir.models import Signature
 from puya.parse import SourceLocation
+
+
+@attrs.frozen
+class StackManipulation:
+    manipulation: typing.Literal["insert", "pop", "define"]
+    stack: typing.Literal["f", "x", "l"]
+    local_id: str
+    index: int
+    defined: bool = True
+
+    def __str__(self) -> str:
+        if self.manipulation == "insert":
+            return f"{self.stack}.insert({self.index}, {self.local_id!r})"
+        elif self.manipulation == "pop":
+            return f"{self.stack}.pop({self.index}) == {self.local_id!r}"
+        else:
+            return f"{self.stack}.define({self.local_id!r}, {self.defined})"
 
 
 @attrs.frozen(kw_only=True)
@@ -17,6 +36,11 @@ class TealOp:
     comment: str | None = None
     """A comment that is always emitted, should only be used for user comments related to an
     op such as assert or err"""
+    stack_manipulations: Sequence[StackManipulation] = attrs.field(
+        default=(),
+        converter=tuple[StackManipulation, ...],
+        eq=False,
+    )
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -281,10 +305,15 @@ class CallSub(TealOp):
 class TealBlock:
     label: str
     ops: list[TealOp]
+    x_stack: Sequence[str]
     entry_stack_height: int
     exit_stack_height: int
 
-    def validate_stack_height(self) -> None:
+    def validate(self) -> None:
+        self._validate_stack_height()
+        self._validate_stack_manipulations()
+
+    def _validate_stack_height(self) -> None:
         stack_height = self.entry_stack_height
         for op in self.ops:
             stack_height -= op.consumes
@@ -301,15 +330,44 @@ class TealBlock:
                 self.ops[-1].source_location,
             )
 
+    def _validate_stack_manipulations(self) -> None:
+        x_stack = list(self.x_stack)
+        l_stack = list[str]()
+        for op in self.ops:
+            for sm in op.stack_manipulations:
+                if sm.stack == "l":
+                    stack = l_stack
+                elif sm.stack == "x":
+                    stack = x_stack
+                else:
+                    continue
+                if sm.manipulation == "insert":
+                    try:
+                        stack.insert(sm.index, sm.local_id)
+                    except ValueError:
+                        stack_desc = ",".join(stack)
+                        raise InternalError(f"invalid index {sm.index} for {stack_desc}") from None
+                elif sm.manipulation == "pop":
+                    try:
+                        stack.pop(sm.index)
+                    except IndexError:
+                        stack_desc = ",".join(stack)
+                        raise InternalError(
+                            f"could not find {sm.local_id!r} in {sm.stack!r} stack: {stack_desc}"
+                        ) from None
+                # TODO: check define too?
+
 
 @attrs.define
 class TealSubroutine:
-    signature: str
+    is_main: bool
+    signature: Signature
     blocks: list[TealBlock] = attrs.field(factory=list)
 
 
 @attrs.define
 class TealProgram:
+    id: str
     target_avm_version: int
     main: TealSubroutine
     subroutines: list[TealSubroutine]
