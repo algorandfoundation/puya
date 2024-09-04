@@ -2,11 +2,13 @@ import struct
 import typing
 from collections.abc import Collection
 
+import attrs
+
 from puya.errors import InternalError
-from puya.parse import SourceLocation
 from puya.ussemble import models, visitor
 from puya.ussemble._utils import get_label_indexes
 from puya.ussemble.context import AssembleContext
+from puya.ussemble.debug import Event
 from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind
 
@@ -19,7 +21,8 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
         self._label_indexes = get_label_indexes(ops)
         self._op_pc = dict[int, int]()
         self._op_index = 0
-        self.source_map = dict[int, SourceLocation]()
+        self.source_map = dict[int, models.Node]()
+        self.events = dict[int, Event]()
         self._bytecode = self._assemble()
 
     @property
@@ -44,8 +47,25 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
         for op_index, op in enumerate(self._ops):
             self._op_index = op_index
             pc = self._op_pc[op_index]
-            if op.source_location:
-                self.source_map[pc] = op.source_location
+            self.source_map[pc] = op
+            if event := self._ctx.events.get(op_index):
+                try:
+                    existing_event = self.events[pc]
+                except KeyError:
+                    pass
+                else:
+                    event = Event(
+                        **{
+                            k: v
+                            for k, v in (
+                                *attrs.asdict(existing_event).items(),
+                                *attrs.asdict(event).items(),
+                            )
+                            if v is not None
+                        }
+                    )
+                self.events[pc] = event
+
             bytecode.append(op.accept(self))
 
         return bytecode

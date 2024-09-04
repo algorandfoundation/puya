@@ -166,6 +166,10 @@ class CompiledProgram(abc.ABC):
         provided, for this reason bytecode is only provided if output_bytecode is True
         """
 
+    @property
+    @abc.abstractmethod
+    def debug_info(self) -> bytes | None: ...
+
 
 class CompiledContract(abc.ABC):
     @property

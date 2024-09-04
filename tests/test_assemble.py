@@ -7,6 +7,7 @@ from _pytest.mark import ParameterSet
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
 from puya.context import CompileContext
+from puya.mir.models import Signature
 from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.options import PuyaOptions
 from puya.teal import models as teal
@@ -156,6 +157,7 @@ def test_assemble_last_op_jump() -> None:
                 source_location=None,
             )
         ],
+        x_stack=(),
         entry_stack_height=0,
         exit_stack_height=0,
     )
@@ -168,9 +170,11 @@ def test_assemble_last_op_jump() -> None:
             sources_by_path={},
         ),
         program=teal.TealProgram(
+            id="",
             target_avm_version=10,
             main=teal.TealSubroutine(
-                signature="",
+                is_main=True,
+                signature=Signature(name="", parameters=(), returns=()),
                 blocks=[looping_block],
             ),
             subroutines=[],
