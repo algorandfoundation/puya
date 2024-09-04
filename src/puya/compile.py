@@ -164,7 +164,8 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
-    bytecode: bytes | None
+    bytecode: bytes | None = None
+    source_map: bytes | None = None
 
 
 @attrs.frozen
@@ -188,7 +189,6 @@ def _dummy_program() -> _CompiledProgram:
             target_avm_version=0, main=TealSubroutine(signature="", blocks=[]), subroutines=[]
         ),
         teal_src="",
-        bytecode=b"",
     )
 
 
@@ -236,18 +236,22 @@ def _logic_sig_to_teal(
 
 
 def _compile_program(context: CompileContext, program: TealProgram) -> _CompiledProgram:
+    if context.options.output_bytecode:
+        assembled = assemble_program(
+            context,
+            program,
+            {k: (v, None) for k, v in context.options.template_variables.items()},
+        )
+        bytecode = assembled.bytecode
+        source_map = assembled.source_map
+    else:
+        bytecode = None
+        source_map = None
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),
-        bytecode=(
-            assemble_program(
-                context,
-                program,
-                {k: (v, None) for k, v in context.options.template_variables.items()},
-            ).bytecode
-            if context.options.output_bytecode
-            else None
-        ),
+        bytecode=bytecode,
+        source_map=source_map,
     )
 
 
@@ -296,6 +300,10 @@ def _write_artifacts(
             _write_output(
                 artifact_base_path,
                 {f"{suffix}.bin": program.bytecode for suffix, program in programs.items()},
+            )
+            _write_output(
+                artifact_base_path,
+                {f"{suffix}.bin.map": program.source_map for suffix, program in programs.items()},
             )
 
 

@@ -1,0 +1,227 @@
+#pragma version 10
+
+examples.debug.contract.DebugContract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// examples.debug.contract.DebugContract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@5
+    method "test(uint64,uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___test_route@2
+    int 0
+    retsub
+
+__puya_arc4_router___test_route@2:
+    // debug/contract.py:5
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    // debug/contract.py:5
+    // @arc4.abimethod
+    callsub test
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@5:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@9
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@9:
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
+    int 0
+    retsub
+
+
+// examples.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
+test:
+    // debug/contract.py:5-6
+    // @arc4.abimethod
+    // def test(self, x: UInt64, y: UInt64, z: UInt64) -> UInt64:
+    proto 3 1
+    byte ""
+    dup
+    // debug/contract.py:10
+    // if x < y:
+    frame_dig -3
+    frame_dig -2
+    <
+    bz test_else_body@2
+    // debug/contract.py:11
+    // a = a + y
+    frame_dig -3
+    frame_dig -2
+    +
+    frame_bury 0
+    b test_after_if_else@5
+
+test_else_body@2:
+    // debug/contract.py:12
+    // elif x < z:
+    frame_dig -3
+    frame_dig -1
+    <
+    frame_dig -3
+    frame_bury 0
+    bz test_after_if_else@5
+    // debug/contract.py:13
+    // a = a + z
+    frame_dig -3
+    frame_dig -1
+    +
+    frame_bury 0
+
+test_after_if_else@5:
+    // debug/contract.py:15
+    // if y < z:
+    frame_dig -2
+    frame_dig -1
+    <
+    bz test_else_body@7
+    // debug/contract.py:16
+    // a *= some_func(a, y)
+    frame_dig 0
+    dup
+    frame_dig -2
+    callsub some_func
+    *
+    frame_bury 0
+    b test_after_if_else@8
+
+test_else_body@7:
+    // debug/contract.py:18
+    // a *= some_func(a, z)
+    frame_dig 0
+    dup
+    frame_dig -1
+    callsub some_func
+    *
+    frame_bury 0
+
+test_after_if_else@8:
+    // debug/contract.py:20
+    // if a < x:
+    frame_dig 0
+    dup
+    frame_dig -3
+    <
+    swap
+    frame_bury 1
+    bz test_after_if_else@10
+    // debug/contract.py:21
+    // a += x
+    frame_dig 0
+    frame_dig -3
+    +
+    frame_bury 1
+
+test_after_if_else@10:
+    frame_dig 1
+    dup
+    frame_bury 0
+    // debug/contract.py:22
+    // if a < y:
+    dup
+    frame_dig -2
+    <
+    swap
+    frame_bury 1
+    bz test_after_if_else@12
+    // debug/contract.py:23
+    // a += y
+    frame_dig 0
+    frame_dig -2
+    +
+    frame_bury 1
+
+test_after_if_else@12:
+    frame_dig 1
+    dup
+    frame_bury 0
+    // debug/contract.py:24
+    // if a < z:
+    dup
+    frame_dig -1
+    <
+    swap
+    frame_bury 1
+    bz test_after_if_else@14
+    // debug/contract.py:25
+    // a += z
+    frame_dig 0
+    frame_dig -1
+    +
+    frame_bury 1
+
+test_after_if_else@14:
+    frame_dig 1
+    // debug/contract.py:27
+    // return a
+    frame_bury 0
+    retsub
+
+
+// examples.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
+some_func:
+    // debug/contract.py:30-31
+    // @subroutine
+    // def some_func(a: UInt64, b: UInt64) -> UInt64:
+    proto 2 1
+    // debug/contract.py:32
+    // a += b
+    frame_dig -2
+    frame_dig -1
+    +
+    frame_bury -2
+    // debug/contract.py:33
+    // b *= a
+    frame_dig -1
+    frame_dig -2
+    *
+    frame_bury -1
+    // debug/contract.py:34
+    // a += b
+    frame_dig -2
+    frame_dig -1
+    +
+    dup
+    frame_bury -2
+    // debug/contract.py:35
+    // a *= 2
+    int 2
+    *
+    dup
+    frame_bury -2
+    // debug/contract.py:36
+    // return a
+    retsub

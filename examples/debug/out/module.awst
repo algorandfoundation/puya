@@ -1,0 +1,42 @@
+contract DebugContract extends (algopy.arc4.ARC4Contract)
+{
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod test(x: uint64, y: uint64, z: uint64): uint64
+  {
+    a: uint64 = x
+    if (x < y) {
+      a: uint64 = a + y
+    } else {
+      if (x < z) {
+        a: uint64 = a + z
+      }
+    }
+    if (y < z) {
+      a *= examples.debug.contract.some_func(a, y)
+    } else {
+      a *= examples.debug.contract.some_func(a, z)
+    }
+    if (a < x) {
+      a += x
+    }
+    if (a < y) {
+      a += y
+    }
+    if (a < z) {
+      a += z
+    }
+    return a
+  }
+}
+
+subroutine some_func(a: uint64, b: uint64): uint64
+{
+  a += b
+  b *= a
+  a += b
+  a *= 2u
+  return a
+}

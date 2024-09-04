@@ -3,7 +3,6 @@ import typing
 from collections.abc import Collection
 
 from puya.errors import InternalError
-from puya.parse import SourceLocation
 from puya.ussemble import models, visitor
 from puya.ussemble._utils import get_label_indexes
 from puya.ussemble.context import AssembleContext
@@ -19,7 +18,7 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
         self._label_indexes = get_label_indexes(ops)
         self._op_pc = dict[int, int]()
         self._op_index = 0
-        self.source_map = dict[int, SourceLocation]()
+        self.source_map = dict[int, models.Node]()
         self._bytecode = self._assemble()
 
     @property
@@ -44,8 +43,7 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
         for op_index, op in enumerate(self._ops):
             self._op_index = op_index
             pc = self._op_pc[op_index]
-            if op.source_location:
-                self.source_map[pc] = op.source_location
+            self.source_map[pc] = op
             bytecode.append(op.accept(self))
 
         return bytecode
