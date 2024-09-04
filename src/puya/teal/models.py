@@ -5,6 +5,7 @@ import attrs
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes
+from puya.mir.models import Signature
 from puya.parse import SourceLocation
 
 
@@ -281,6 +282,7 @@ class CallSub(TealOp):
 class TealBlock:
     label: str
     ops: list[TealOp]
+    x_stack: Sequence[str]
     entry_stack_height: int
     exit_stack_height: int
 
@@ -304,12 +306,15 @@ class TealBlock:
 
 @attrs.define
 class TealSubroutine:
-    signature: str
+    is_main: bool
+    signature: Signature
+    frame_stack: Sequence[str]
     blocks: list[TealBlock] = attrs.field(factory=list)
 
 
 @attrs.define
 class TealProgram:
+    id: str
     target_avm_version: int
     main: TealSubroutine
     subroutines: list[TealSubroutine]

@@ -15,8 +15,8 @@ def program_ir_to_mir(
     context: CompileContext, program_ir: ir.Program, mir_output_path: Path | None
 ) -> models.Program:
     ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
-
     result = models.Program(
+        id=program_ir.id,
         main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True, name=program_ir.id),
         subroutines=[
             _lower_subroutine_to_mir(ctx, ir_sub, is_main=False, name=ir_sub.full_name)
@@ -29,6 +29,7 @@ def program_ir_to_mir(
 
     if context.options.output_memory_ir and mir_output_path:
         output_memory_ir(context, program_ir, result, mir_output_path)
+
     return result
 
 
@@ -56,6 +57,7 @@ def _lower_subroutine_to_mir(
             )
         )
     return models.MemorySubroutine(
+        id=subroutine.full_name,
         signature=models.Signature(
             name=name,
             parameters=[

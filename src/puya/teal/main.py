@@ -17,6 +17,7 @@ def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_model
 
 def _build_teal(context: CompileContext, mir_program: mir.Program) -> teal_models.TealProgram:
     program = teal_models.TealProgram(
+        id=mir_program.id,
         target_avm_version=context.options.target_avm_version,
         main=_lower_sub(mir_program.main),
         subroutines=[_lower_sub(mir_sub) for mir_sub in mir_program.subroutines],
@@ -31,7 +32,9 @@ def _build_teal(context: CompileContext, mir_program: mir.Program) -> teal_model
 def _lower_sub(mir_sub: mir.MemorySubroutine) -> teal_models.TealSubroutine:
     stack = Stack(allow_virtual=False)
     sub = teal_models.TealSubroutine(
-        signature=str(mir_sub.signature) if not mir_sub.is_main else ""
+        is_main=mir_sub.is_main,
+        signature=mir_sub.signature,
+        frame_stack=mir_sub.preamble.f_stack_out,
     )
     referenced_labels = _get_referenced_labels(mir_sub)
     for block_idx, mir_block in enumerate(mir_sub.all_blocks):
@@ -45,13 +48,16 @@ def _lower_sub(mir_sub: mir.MemorySubroutine) -> teal_models.TealSubroutine:
                         else mir_sub.signature.name
                     ),
                     ops=[],
+                    x_stack=mir_block.x_stack_in or (),
                     entry_stack_height=mir_block.entry_stack_height,
                     exit_stack_height=-1,
                 )
             )
-        sub.blocks[-1].exit_stack_height = mir_block.exit_stack_height
+        last_block = sub.blocks[-1]
+        last_block.exit_stack_height = mir_block.exit_stack_height
+        last_block.x_stack = mir_block.x_stack_in or ()
 
-        sub.blocks[-1].ops.extend(
+        last_block.ops.extend(
             teal_op for mir_op in mir_block.ops for teal_op in mir_op.accept(stack)
         )
     return sub

@@ -1,11 +1,14 @@
 import typing
 
+import attrs
+
 from puya import algo_constants, log
 from puya.errors import CodeError, InternalError
 from puya.models import OnCompletionAction, TransactionType
 from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
+from puya.ussemble.debug import Event, OpDescription
 from puya.utils import Address, method_selector_hash
 
 logger = log.get_logger(__name__)
@@ -18,11 +21,38 @@ TEAL_ALIASES = {
 
 def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.Node]:
     avm_ops = list[models.Node]()
+    events = ctx.events
+    function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
+
+    def update_event(**params: typing.Any) -> None:
+        op_index = len(avm_ops)
+        event = events.get(op_index, Event())
+        events[op_index] = attrs.evolve(
+            event,
+            **params,
+        )
+
     for subroutine in program.all_subroutines:
+        update_event(
+            subroutine=subroutine.signature.name,
+            params={p.local_id: p.atype.name or "" for p in subroutine.signature.parameters},
+            frame_stack=subroutine.frame_stack,
+        )
         for block in subroutine.blocks:
+            update_event(
+                block=block.label,
+                x_stack=block.x_stack,
+            )
             avm_ops.append(models.Label(name=block.label))
             for op in block.ops:
+                # TODO: l-stack and live
                 avm_op = lower_op(ctx, op)
+                match avm_op:
+                    case models.Jump(op_code="callsub", label=models.Label(name=func_block)):
+                        update_event(callsub=function_block_ids[func_block])
+                    case models.Intrinsic(op_code="retsub"):
+                        update_event(retsub=True)
+                update_event(op=avm_op.accept(OpDescription()))
                 avm_ops.append(avm_op)
     return avm_ops
 

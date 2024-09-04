@@ -159,13 +159,10 @@ def _optimize_triplet(
             (b.op_code == "frame_bury" and int(b.immediates[0]) >= height_below_swap)
             or (c.op_code == "frame_bury" and int(c.immediates[0]) >= height_below_swap)
             or (
-                b.op_code == "frame_bury"
-                and c.op_code == "frame_bury"
-                and b.immediates == c.immediates
-            )
-            or (  # can't swap itxn_field if they refer to the same field e.g. ApplicationArgs
-                b.op_code == "itxn_field"
-                and c.op_code == "itxn_field"
+                # can't swap ops if store order is important
+                # e.g. itxn_field ApplicationArgs or frame_bury -1
+                b.op_code in ("frame_bury", "itxn_field")
+                and b.op_code == c.op_code
                 and b.immediates == c.immediates
             )
         ):
