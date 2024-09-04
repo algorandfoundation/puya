@@ -459,6 +459,8 @@ class MemoryBasicBlock:
     x_stack_out: Sequence[str] | None = None
     f_stack_in: Sequence[str] = attrs.field(factory=list)
     f_stack_out: Sequence[str] = attrs.field(factory=list)
+    # f_stack is also used in debug maps, the assumption is lower levels won't change the order
+    # of the f-stack
 
     def __repr__(self) -> str:
         return self.block_name
@@ -495,6 +497,7 @@ class Signature:
 class MemorySubroutine:
     """A lower form of IR that is concerned with memory assignment (both stack and scratch)"""
 
+    id: str
     is_main: bool
     signature: Signature
     preamble: MemoryBasicBlock
@@ -515,6 +518,7 @@ class MemorySubroutine:
 
 @attrs.define
 class Program:
+    id: str
     main: MemorySubroutine
     subroutines: list[MemorySubroutine]
 
