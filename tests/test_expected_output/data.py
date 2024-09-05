@@ -1,13 +1,14 @@
-from __future__ import annotations
-
 import contextlib
 import difflib
 import tempfile
 import typing as t
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 
+import _pytest._code.code
 import attrs
 import pytest
+from puya.awst.nodes import AWST
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compile import awst_to_teal
 from puya.errors import PuyaError, log_exceptions
@@ -18,12 +19,6 @@ from puyapy.compile import parse_with_mypy
 from puyapy.options import PuyaPyOptions
 
 from tests.utils import narrowed_compile_context
-
-if t.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    import _pytest._code.code
-    from puya.awst.nodes import AWST
 
 THIS_DIR = Path(__file__).parent
 REPO_DIR = THIS_DIR.parent.parent
@@ -300,49 +295,52 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
         awst, compilation_set = transform_ast(parse_result)
         # lower each case further if possible and process
         for case in cases:
-            if case_has_awst_errors(awst_log_ctx.logs, case):
-                case_logs = []
-            else:
-                # lower awst for each case individually to order to get any output
-                # from lower layers
-                # this needs a new logging context so AWST errors from other cases
-                # are not seen
-                case_options = attrs.evolve(
-                    puyapy_options, cli_template_definitions=case.template_vars
-                )
-                case_sources_by_path, case_compilation_set = narrowed_compile_context(
-                    parse_result,
-                    case_path[case],
-                    awst,
-                    compilation_set,
+            case_awst = [
+                n
+                for n in awst
+                if n.source_location.file == case_path[case]
+                # hacky way to keep "framework" sources included, good enough for now
+                # the real solution here is to remove mypy, so we don't need to do this special
+                # combine+split of sources to achieve decent mypy parsing speed
+                or n.source_location.line < 0
+            ]
+            # lower awst for each case individually to order to get any output
+            # from lower layers
+            # this needs a new logging context so AWST errors from other cases
+            # are not seen
+            case_options = attrs.evolve(
+                puyapy_options, cli_template_definitions=case.template_vars
+            )
+            case_sources_by_path, case_compilation_set = narrowed_compile_context(
+                parse_result,
+                case_path[case],
+                awst,
+                compilation_set,
+                case_options,
+            )
+            with (
+                contextlib.suppress(SystemExit),
+                logging_context() as case_log_ctx,
+                log_exceptions(),
+            ):
+                case_log_ctx.logs.extend(filter_logs(awst_log_ctx.logs, case))
+                awst_to_teal(
+                    case_log_ctx,
                     case_options,
+                    case_compilation_set,
+                    case_sources_by_path,
+                    case_awst,
+                    write=False,
                 )
-                with (
-                    contextlib.suppress(SystemExit),
-                    logging_context() as case_log_ctx,
-                    log_exceptions(),
-                ):
-                    awst_to_teal(
-                        case_log_ctx,
-                        case_options,
-                        case_compilation_set,
-                        case_sources_by_path,
-                        awst,
-                        write=False,
-                    )
-                case_logs = case_log_ctx.logs
-            process_test_case(case, awst_log_ctx.logs + case_logs, awst)
+            process_test_case(case, case_log_ctx.logs, case_awst)
 
 
-def case_has_awst_errors(captured_logs: list[Log], case: TestCase) -> bool:
+def filter_logs(captured_logs: list[Log], case: TestCase) -> Iterator[Log]:
     for file in case.files:
         path = file.src_path
         assert path is not None
         abs_path = path.resolve()
-        path_records = [record for record in captured_logs if record.file == abs_path]
-        if any(r.level == LogLevel.error and r.line is not None for r in path_records):
-            return True
-    return False
+        yield from (record for record in captured_logs if record.file == abs_path)
 
 
 def get_python_file_name(name: str) -> str:
@@ -369,13 +367,11 @@ def process_test_case(case: TestCase, captured_logs: Sequence[Log], awst: AWST) 
     for file in case.files:
         path = file.src_path
         assert path is not None
-        abs_path = path.resolve()
         expected_output = {
             (line, message)
             for line, messages in file.expected_output.items()
             for message in messages
         }
-        path_records = [record for record in captured_logs if record.file == abs_path]
         seen_output = {
             (
                 record.line,
@@ -384,7 +380,7 @@ def process_test_case(case: TestCase, captured_logs: Sequence[Log], awst: AWST) 
                     output=record.message.strip(),
                 ),
             )
-            for record in path_records
+            for record in captured_logs
             if record.line is not None and record.level >= MIN_LEVEL_TO_REPORT
         }
         file_missing_output = expected_output - seen_output

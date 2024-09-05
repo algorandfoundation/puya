@@ -10,6 +10,7 @@ from puya import log
 from puya.arc32 import create_arc32_json
 from puya.artifact_sorter import ArtifactCompilationSorter
 from puya.awst.nodes import AWST
+from puya.awst.validation.main import validate_awst
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.main import awst_to_ir, optimize_and_destructure_ir
@@ -52,6 +53,8 @@ def awst_to_teal(
     *,
     write: bool = True,
 ) -> list[CompilationArtifact]:
+    validate_awst(awst)
+    log_ctx.exit_if_errors()
     context = CompileContext(
         options=options,
         compilation_set=compilation_set,

@@ -27,7 +27,6 @@ from puyapy.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
-from puyapy.awst_build.validation.main import validate_awst
 
 logger = log.get_logger(__name__)
 
@@ -67,7 +66,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 for deferred in deferrals:
                     awst_node = deferred(self.context)
                     awst.append(awst_node)
-        validate_awst(awst)  # TODO: move/split this to/with puya core
         return awst
 
     # Supported Statements
