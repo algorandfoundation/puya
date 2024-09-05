@@ -1,6 +1,7 @@
 from collections.abc import Iterator
 
 import attrs
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,

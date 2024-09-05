@@ -1,15 +1,14 @@
 from puya.awst import nodes as awst_nodes
-
-from puyapy.awst_build.validation.arc4_copy import ARC4CopyValidator
-from puyapy.awst_build.validation.base_invoker import BaseInvokerValidator
-from puyapy.awst_build.validation.inner_transactions import (
+from puya.awst.validation.arc4_copy import ARC4CopyValidator
+from puya.awst.validation.base_invoker import BaseInvokerValidator
+from puya.awst.validation.inner_transactions import (
     InnerTransactionsValidator,
     InnerTransactionUsedInALoopValidator,
     StaleInnerTransactionsValidator,
 )
-from puyapy.awst_build.validation.labels import LabelsValidator
-from puyapy.awst_build.validation.scratch_slots import ScratchSlotReservationValidator
-from puyapy.awst_build.validation.storage import StorageTypesValidator
+from puya.awst.validation.labels import LabelsValidator
+from puya.awst.validation.scratch_slots import ScratchSlotReservationValidator
+from puya.awst.validation.storage import StorageTypesValidator
 
 
 def validate_awst(module: awst_nodes.AWST) -> None:
