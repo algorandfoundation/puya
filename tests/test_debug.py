@@ -11,7 +11,7 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from puya.arc32 import create_arc32_json
 from puya.models import CompiledContract
-from puya.options import PuyaOptions
+from puyapy.options import PuyaPyOptions
 
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import compile_src_from_options
@@ -22,7 +22,7 @@ pytestmark = pytest.mark.localnet
 def test_debug(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     contract_src = EXAMPLES_DIR / "debug" / "contract.py"
     result = compile_src_from_options(
-        PuyaOptions(
+        PuyaPyOptions(
             paths=(contract_src,),
             optimization_level=1,
             debug_level=2,
@@ -65,10 +65,8 @@ def test_debug(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
     # contract
     shutil.copy(contract_src, dest / "contract.py")
     # source map
-    source_map = "DebugContract.approval.bin.map"
-    (dest / "DebugContract.approval.bin.map").write_bytes(
-        contract.approval_program.source_map or b""
-    )
+    source_map = "DebugContract.approval.bin.dbg"
+    (dest / source_map).write_bytes(contract.approval_program.debug_info or b"")
     # trace
     (dest / "contract.simulate.json").write_text(json.dumps(response.simulate_response))
 

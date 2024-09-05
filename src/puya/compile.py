@@ -165,7 +165,7 @@ class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
     bytecode: bytes | None = None
-    source_map: bytes | None = None
+    debug_info: bytes | None = None
 
 
 @attrs.frozen
@@ -243,7 +243,7 @@ def _compile_program(context: CompileContext, program: TealProgram) -> _Compiled
             {k: (v, None) for k, v in context.options.template_variables.items()},
         )
         bytecode = assembled.bytecode
-        source_map = assembled.source_map
+        source_map = assembled.debug_info
     else:
         bytecode = None
         source_map = None
@@ -251,7 +251,7 @@ def _compile_program(context: CompileContext, program: TealProgram) -> _Compiled
         teal=program,
         teal_src=emit_teal(context, program),
         bytecode=bytecode,
-        source_map=source_map,
+        debug_info=source_map,
     )
 
 
@@ -303,7 +303,7 @@ def _write_artifacts(
             )
             _write_output(
                 artifact_base_path,
-                {f"{suffix}.bin.map": program.source_map for suffix, program in programs.items()},
+                {f"{suffix}.bin.dbg": program.debug_info for suffix, program in programs.items()},
             )
 
 

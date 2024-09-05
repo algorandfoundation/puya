@@ -168,7 +168,7 @@ class CompiledProgram(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def source_map(self) -> bytes | None: ...
+    def debug_info(self) -> bytes | None: ...
 
 
 class CompiledContract(abc.ABC):
