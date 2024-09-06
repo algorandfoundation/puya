@@ -5,11 +5,13 @@ import typing
 from collections.abc import Mapping
 
 import cattrs
+from cattrs import transform_error, IterableValidationError, ClassValidationError
 from cattrs.preconf.json import make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses
 from immutabledict import immutabledict
 
 from puya.awst import nodes, txn_fields, wtypes
+from puya.errors import InternalError
 from puya.utils import StableSet
 
 
@@ -86,4 +88,7 @@ def awst_to_json(awst: nodes.AWST) -> str:
 
 
 def awst_from_json(json: str) -> nodes.AWST:
-    return _get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+    try:
+        return _get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+    except (ClassValidationError, IterableValidationError, BaseException) as err:
+        raise InternalError("Deserialization error: \n" + "\n".join(transform_error(err))) from err
