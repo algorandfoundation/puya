@@ -32,7 +32,10 @@ def try_get_source(
 ) -> SourceMeta | None:
     if location is None or location.line < 0:
         return None
-    source_lines = sources_by_path.get(location.file)
+    try:
+        source_lines = sources_by_path[location.file]
+    except KeyError:
+        return None
     if not source_lines:
         src_content = list[str]()
     else:
