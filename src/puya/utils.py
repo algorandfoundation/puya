@@ -137,14 +137,6 @@ def attrs_extend[
     return new_type(**changes)
 
 
-def no_none_in_list[T](lst: list[T | None]) -> typing.TypeGuard[list[T]]:
-    return None not in lst
-
-
-def no_none_in_tuple[T](tup: tuple[T | None, ...]) -> typing.TypeGuard[tuple[T, ...]]:
-    return None not in tup
-
-
 @functools.cache
 def make_path_relative(*, to: Path, path: str) -> str:
     with contextlib.suppress(ValueError):
