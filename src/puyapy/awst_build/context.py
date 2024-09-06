@@ -126,7 +126,7 @@ class ASTConversionModuleContext(ASTConversionContext):
             try:
                 module_path = self._parse_result.ordered_modules[module_name].path
             except KeyError as ex:
-                raise CodeError(f"Could not find module '{module_name}'") from ex
+                raise CodeError(f"could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
         src_meta = try_get_source(self._parse_result.sources_by_path, loc)
         if src_meta is not None:

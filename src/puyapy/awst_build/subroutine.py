@@ -27,7 +27,6 @@ from puya.awst.nodes import (
     LoopContinue,
     LoopExit,
     Lvalue,
-    Not,
     ReturnStatement,
     Statement,
     Subroutine,
@@ -1137,7 +1136,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         operands[1:-1] = [operand.single_eval() for operand in list(operands)[1:-1]]
 
         comparisons = [
-            self._build_compare(operator=operator, lhs=lhs, rhs=rhs)
+            self._build_compare(operator=operator, lhs=lhs, rhs=rhs).resolve()
             for operator, lhs, rhs in zip(expr.operators, operands, operands[1:], strict=False)
         ]
 
@@ -1152,17 +1151,16 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             prev = curr
         return BoolExpressionBuilder(result)
 
+    @staticmethod
     def _build_compare(
-        self, operator: str, lhs: InstanceBuilder, rhs: InstanceBuilder
-    ) -> Expression:
+        operator: str, lhs: InstanceBuilder, rhs: InstanceBuilder
+    ) -> InstanceBuilder:
         cmp_loc = lhs.source_location + rhs.source_location
         match operator:
             case "not in":
-                is_in_expr = self._build_compare("in", lhs=lhs, rhs=rhs)
-                return Not(expr=is_in_expr, source_location=is_in_expr.source_location)
+                return rhs.contains(lhs, cmp_loc).bool_eval(cmp_loc, negate=True)
             case "in":
-                contains_builder = rhs.contains(lhs, cmp_loc)
-                return contains_builder.resolve()
+                return rhs.contains(lhs, cmp_loc)
 
         result: InstanceBuilder = NotImplemented
         op = BuilderComparisonOp(operator)
@@ -1171,8 +1169,8 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if result is NotImplemented and isinstance(rhs, NodeBuilder):
             result = rhs.compare(other=lhs, op=op.reversed(), location=cmp_loc)
         if result is NotImplemented:
-            raise CodeError(f"Unsupported comparison {operator!r} between types", cmp_loc)
-        return result.resolve()
+            raise CodeError(f"unsupported comparison {operator!r} between types", cmp_loc)
+        return result
 
     def visit_int_expr(self, expr: mypy.nodes.IntExpr) -> LiteralBuilder:
         return LiteralBuilderImpl(value=expr.value, source_location=self._location(expr))
