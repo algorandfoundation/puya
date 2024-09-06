@@ -7,6 +7,7 @@ from puya.context import CompileContext
 from puya.ir import models as ir
 from puya.mir import annotaters, models
 from puya.mir.context import ProgramMIRContext
+from puya.mir.stack import Stack
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
@@ -99,3 +100,43 @@ def output_memory_ir(
     )
     mir_output = emit_memory_ir(cg_context, mir_program)
     output_path.write_text("\n".join(mir_output), "utf8")
+
+
+def output_variable_debug(
+    context: CompileContext, program: models.Program, output_path: Path
+) -> None:
+    output = []
+
+    stack_state = {}
+
+    def add(file: Path | None, line: int | None, state: str) -> None:
+        if file is not None and line is not None:
+            stack_state[(file, line)] = state
+
+    stack = Stack(allow_virtual=False)
+    for subroutine in program.all_subroutines:
+        for block in subroutine.all_blocks:
+            output.append(f"{block.block_name}:")
+            stack.begin_block(subroutine, block)
+            last_file: Path | None = None
+            last_line: int | None = None
+            for op in block.ops:
+                file = last_file
+                line = last_line
+                if op.source_location:
+                    file = op.source_location.file
+                    line = op.source_location.line
+                if last_file != file or last_line != line:
+                    add(last_file, last_line, stack.full_stack_desc)
+                    output.append(f"# stack: {stack.full_stack_desc}")
+                last_file = file
+                last_line = line
+                op.accept(stack)
+                op_desc = str(op)
+                if not op_desc.startswith("virtual"):
+                    output.append(f"    {op_desc}")
+            add(last_file, last_line, stack.full_stack_desc)
+            output.append(f"# stack: {stack.full_stack_desc}")
+            output.append("")
+        output.append("")
+    output_path.write_text("\n".join([stack_state[i] for i in sorted(stack_state)]), "utf8")

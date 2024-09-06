@@ -186,7 +186,10 @@ class _CompiledLogicSig(CompiledLogicSig):
 def _dummy_program() -> _CompiledProgram:
     return _CompiledProgram(
         teal=TealProgram(
-            target_avm_version=0, main=TealSubroutine(signature="", blocks=[]), subroutines=[]
+            id="",
+            target_avm_version=0,
+            main=TealSubroutine(signature="", blocks=[]),
+            subroutines=[],
         ),
         teal_src="",
     )

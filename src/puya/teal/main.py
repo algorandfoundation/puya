@@ -17,6 +17,7 @@ def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_model
 
 def _build_teal(context: CompileContext, mir_program: mir.Program) -> teal_models.TealProgram:
     program = teal_models.TealProgram(
+        id=mir_program.id,
         target_avm_version=context.options.target_avm_version,
         main=_lower_sub(mir_program.main),
         subroutines=[_lower_sub(mir_sub) for mir_sub in mir_program.subroutines],

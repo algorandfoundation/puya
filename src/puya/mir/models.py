@@ -520,6 +520,7 @@ class MemorySubroutine:
 
 @attrs.define
 class Program:
+    id: str
     main: MemorySubroutine
     subroutines: list[MemorySubroutine]
 

@@ -1,10 +1,39 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import attrs
 from cattrs.preconf.json import make_converter
+from cattrs.strategies import configure_tagged_union
 
 from puya.ussemble import models
+from puya.ussemble.context import AssembleContext
 from puya.ussemble.visitor import AVMVisitor
+
+
+@attrs.frozen
+class EnterFunction:
+    name: str
+    params: Mapping[str, str]
+    returns: Sequence[str]
+
+
+@attrs.frozen
+class ExitFunction:
+    pass
+
+
+@attrs.frozen
+class AddToStack:
+    add: list[str] = attrs.field(factory=list)
+    """names of variables added to stack"""
+
+
+@attrs.frozen
+class RemoveFromStack:
+    remove: int = 0
+    """number of variables removed from stack"""
+
+
+Event = EnterFunction | ExitFunction | AddToStack | RemoveFromStack
 
 
 @attrs.frozen
@@ -13,18 +42,62 @@ class DebugOutput:
     sources: list[str]
     names: list[str]
     mappings: str
+    pc_events: Mapping[int, Event]
 
 
 _converter = make_converter()
+configure_tagged_union(Event, _converter)
 
 
-def build_debug_info(source_map: Mapping[int, models.Node]) -> bytes:
-    mappings = []
-
+def build_debug_info(
+    context: AssembleContext, program_id: str, source_map: Mapping[int, models.Node]
+) -> bytes:
     names = sorted(set(map(_get_op_desc, source_map.values())))
     files = sorted(
         map(str, {s.source_location.file for s in source_map.values() if s.source_location})
     )
+    mappings = _get_src_mappings(source_map, files, names)
+    events = _get_pc_events(context, program_id, source_map)
+
+    debug = DebugOutput(
+        version=3,
+        sources=files,
+        names=names,
+        mappings=";".join(mappings),
+        pc_events=events,
+    )
+    json = _converter.dumps(debug, DebugOutput, indent=2)
+    return json.encode("utf-8")
+
+
+def _get_pc_events(
+    context: AssembleContext, program_id: str, source_map: Mapping[int, models.Node]
+) -> Mapping[int, Event]:
+    events = {}
+
+    for pc, node in source_map.items():
+        event: Event
+        match node:
+            case models.Jump(op_code="callsub", label=models.Label(name=func)):
+                func_debug = context.debug.function_debug[(program_id, func)]
+                event = EnterFunction(
+                    name=str(func_debug.full_name),
+                    params=func_debug.params,
+                    returns=func_debug.returns,
+                )
+            case models.Intrinsic(op_code="retsub"):
+                event = ExitFunction()
+            case _:
+                continue
+        events[pc] = event
+    return events
+
+
+def _get_src_mappings(
+    source_map: Mapping[int, models.Node], files: Sequence[str], names: Sequence[str]
+) -> list[str]:
+    mappings = []
+
     source_index = 0
     line = 0
     column = 0
@@ -58,15 +131,7 @@ def build_debug_info(source_map: Mapping[int, models.Node]) -> bytes:
         previous_line = line
         previous_column = column
         previous_name_index = name_index
-
-    debug = DebugOutput(
-        version=3,
-        sources=files,
-        names=names,
-        mappings=";".join(mappings),
-    )
-    json = _converter.dumps(debug, DebugOutput)
-    return json.encode("utf-8")
+    return mappings
 
 
 def _get_op_desc(op: models.Node) -> str:

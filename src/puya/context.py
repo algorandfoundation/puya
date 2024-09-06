@@ -4,6 +4,7 @@ from pathlib import Path
 import attrs
 
 from puya import log
+from puya.debug import DebugInfo
 from puya.models import ContractReference, LogicSigReference
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
@@ -22,6 +23,7 @@ class CompileContext:
     options: PuyaOptions
     compilation_set: Mapping[ContractReference | LogicSigReference, Path]
     sources_by_path: Mapping[Path, Sequence[str] | None]
+    debug: DebugInfo = attrs.field(factory=DebugInfo)
 
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta | None:
         return try_get_source(self.sources_by_path, location)

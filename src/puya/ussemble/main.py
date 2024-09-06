@@ -35,5 +35,5 @@ def assemble_program(
     assembled = AssembleVisitor.assemble(assemble_ctx, avm_ops)
     return AssembledProgram(
         bytecode=assembled.bytecode,
-        debug_info=build_debug_info(assembled.source_map),
+        debug_info=build_debug_info(assemble_ctx, program.id, assembled.source_map),
     )
