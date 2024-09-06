@@ -5,12 +5,16 @@ import typing
 from collections.abc import Mapping
 
 import cattrs
+from cattrs import ClassValidationError, IterableValidationError, transform_error
 from cattrs.preconf.json import make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses
 from immutabledict import immutabledict
 
+from puya import log
 from puya.awst import nodes, txn_fields, wtypes
 from puya.utils import StableSet
+
+logger = log.get_logger(__name__)
 
 
 def _unstructure_optional_enum_literal(value: object) -> object:
@@ -86,4 +90,10 @@ def awst_to_json(awst: nodes.AWST) -> str:
 
 
 def awst_from_json(json: str) -> nodes.AWST:
-    return _get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+    try:
+        return _get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+    except (ClassValidationError, IterableValidationError) as err:
+        logger.debug("Deserialization error: \n" + "\n".join(transform_error(err)))
+        raise ValueError(
+            "Error during deserialization of AWST json. See debug log for details"
+        ) from err
