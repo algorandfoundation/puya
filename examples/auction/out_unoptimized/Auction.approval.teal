@@ -214,23 +214,16 @@ opt_into_asset:
     // # Verify a ASA hasn't already been opted into
     // assert self.asa.id == 0, "ASA already opted in"
     int 0
-    // auction/contract.py:21
-    // self.asa = Asset()
     byte "asa"
-    // auction/contract.py:29-30
-    // # Verify a ASA hasn't already been opted into
-    // assert self.asa.id == 0, "ASA already opted in"
     app_global_get_ex
     assert // check self.asa exists
     int 0
     ==
     assert // ASA already opted in
-    // auction/contract.py:21
-    // self.asa = Asset()
-    byte "asa"
     // auction/contract.py:31-32
     // # Save ASA ID in global state
     // self.asa = asset
+    byte "asa"
     frame_dig -1
     app_global_put
     // auction/contract.py:34-38
@@ -286,12 +279,7 @@ start_auction:
     // # Ensure the auction hasn't already been started
     // assert self.auction_end == 0, "auction already started"
     int 0
-    // auction/contract.py:18
-    // self.auction_end = UInt64(0)
     byte "auction_end"
-    // auction/contract.py:49-50
-    // # Ensure the auction hasn't already been started
-    // assert self.auction_end == 0, "auction already started"
     app_global_get_ex
     assert // check self.auction_end exists
     int 0
@@ -314,12 +302,7 @@ start_auction:
     // self.asa_amount = axfer.asset_amount
     frame_dig -1
     gtxns AssetAmount
-    // auction/contract.py:20
-    // self.asa_amount = UInt64(0)
     byte "asa_amount"
-    // auction/contract.py:57-58
-    // # Set global state
-    // self.asa_amount = axfer.asset_amount
     uncover 1
     app_global_put
     // auction/contract.py:59
@@ -327,18 +310,12 @@ start_auction:
     global LatestTimestamp
     frame_dig -2
     +
-    // auction/contract.py:18
-    // self.auction_end = UInt64(0)
     byte "auction_end"
-    // auction/contract.py:59
-    // self.auction_end = Global.latest_timestamp + length
     uncover 1
     app_global_put
-    // auction/contract.py:19
-    // self.previous_bid = UInt64(0)
-    byte "previous_bid"
     // auction/contract.py:60
     // self.previous_bid = starting_price
+    byte "previous_bid"
     frame_dig -3
     app_global_put
     retsub
@@ -364,12 +341,7 @@ bid:
     // assert Global.latest_timestamp < self.auction_end, "auction has ended"
     global LatestTimestamp
     int 0
-    // auction/contract.py:18
-    // self.auction_end = UInt64(0)
     byte "auction_end"
-    // auction/contract.py:68-69
-    // # Ensure auction hasn't ended
-    // assert Global.latest_timestamp < self.auction_end, "auction has ended"
     app_global_get_ex
     assert // check self.auction_end exists
     <
@@ -387,11 +359,7 @@ bid:
     frame_dig -1
     gtxns Amount
     int 0
-    // auction/contract.py:19
-    // self.previous_bid = UInt64(0)
     byte "previous_bid"
-    // auction/contract.py:73
-    // assert pay.amount > self.previous_bid, "Bid must be higher than previous bid"
     app_global_get_ex
     assert // check self.previous_bid exists
     >
@@ -401,23 +369,14 @@ bid:
     // self.previous_bid = pay.amount
     frame_dig -1
     gtxns Amount
-    // auction/contract.py:19
-    // self.previous_bid = UInt64(0)
     byte "previous_bid"
-    // auction/contract.py:75-76
-    // # set global state
-    // self.previous_bid = pay.amount
     uncover 1
     app_global_put
     // auction/contract.py:77
     // self.previous_bidder = pay.sender
     frame_dig -1
     gtxns Sender
-    // auction/contract.py:22
-    // self.previous_bidder = Account()
     byte "previous_bidder"
-    // auction/contract.py:77
-    // self.previous_bidder = pay.sender
     uncover 1
     app_global_put
     // auction/contract.py:79-80
@@ -427,12 +386,7 @@ bid:
     frame_dig -1
     gtxns Amount
     uncover 1
-    // auction/contract.py:23
-    // self.claimable_amount = LocalState(UInt64, key="claim", description="The claimable amount")
     byte "claim"
-    // auction/contract.py:79-80
-    // # Update claimable amount
-    // self.claimable_amount[Txn.sender] = pay.amount
     uncover 2
     app_local_put
     retsub
@@ -448,11 +402,7 @@ claim_bids:
     // amount = original_amount = self.claimable_amount[Txn.sender]
     txn Sender
     int 0
-    // auction/contract.py:23
-    // self.claimable_amount = LocalState(UInt64, key="claim", description="The claimable amount")
     byte "claim"
-    // auction/contract.py:84
-    // amount = original_amount = self.claimable_amount[Txn.sender]
     app_local_get_ex
     assert // check self.claimable_amount exists for account
     dup
@@ -464,12 +414,7 @@ claim_bids:
     // if Txn.sender == self.previous_bidder:
     txn Sender
     int 0
-    // auction/contract.py:22
-    // self.previous_bidder = Account()
     byte "previous_bidder"
-    // auction/contract.py:86-87
-    // # subtract previous bid if sender is previous bidder
-    // if Txn.sender == self.previous_bidder:
     app_global_get_ex
     assert // check self.previous_bidder exists
     ==
@@ -477,11 +422,7 @@ claim_bids:
     // auction/contract.py:88
     // amount -= self.previous_bid
     int 0
-    // auction/contract.py:19
-    // self.previous_bid = UInt64(0)
     byte "previous_bid"
-    // auction/contract.py:88
-    // amount -= self.previous_bid
     app_global_get_ex
     assert // check self.previous_bid exists
     frame_dig 1
@@ -523,11 +464,7 @@ claim_bids_after_if_else@2:
     frame_dig 1
     -
     uncover 1
-    // auction/contract.py:23
-    // self.claimable_amount = LocalState(UInt64, key="claim", description="The claimable amount")
     byte "claim"
-    // auction/contract.py:95
-    // self.claimable_amount[Txn.sender] = original_amount - amount
     uncover 2
     app_local_put
     retsub
@@ -543,11 +480,7 @@ claim_asset:
     // assert Global.latest_timestamp > self.auction_end, "auction has not ended"
     global LatestTimestamp
     int 0
-    // auction/contract.py:18
-    // self.auction_end = UInt64(0)
     byte "auction_end"
-    // auction/contract.py:99
-    // assert Global.latest_timestamp > self.auction_end, "auction has not ended"
     app_global_get_ex
     assert // check self.auction_end exists
     >
@@ -567,31 +500,19 @@ claim_asset:
     // auction/contract.py:103
     // asset_close_to=self.previous_bidder,
     int 0
-    // auction/contract.py:22
-    // self.previous_bidder = Account()
     byte "previous_bidder"
-    // auction/contract.py:103
-    // asset_close_to=self.previous_bidder,
     app_global_get_ex
     assert // check self.previous_bidder exists
     // auction/contract.py:104
     // asset_receiver=self.previous_bidder,
     int 0
-    // auction/contract.py:22
-    // self.previous_bidder = Account()
     byte "previous_bidder"
-    // auction/contract.py:104
-    // asset_receiver=self.previous_bidder,
     app_global_get_ex
     assert // check self.previous_bidder exists
     // auction/contract.py:105
     // asset_amount=self.asa_amount,
     int 0
-    // auction/contract.py:20
-    // self.asa_amount = UInt64(0)
     byte "asa_amount"
-    // auction/contract.py:105
-    // asset_amount=self.asa_amount,
     app_global_get_ex
     assert // check self.asa_amount exists
     itxn_field AssetAmount
