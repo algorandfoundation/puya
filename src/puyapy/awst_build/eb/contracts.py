@@ -129,30 +129,23 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
 def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> NodeBuilder:
+    key = attrs.evolve(storage_decl.key, source_location=location)
     match storage_decl.typ:
         case pytypes.PyType(generic=pytypes.GenericLocalStateType):
-            return LocalStateExpressionBuilder(
-                storage_decl.key, storage_decl.typ, storage_decl.member_name
-            )
+            return LocalStateExpressionBuilder(key, storage_decl.typ, storage_decl.member_name)
         case pytypes.PyType(generic=pytypes.GenericGlobalStateType):
-            return GlobalStateExpressionBuilder(
-                storage_decl.key, storage_decl.typ, storage_decl.member_name
-            )
+            return GlobalStateExpressionBuilder(key, storage_decl.typ, storage_decl.member_name)
         case pytypes.BoxRefType:
-            return BoxRefProxyExpressionBuilder(storage_decl.key, storage_decl.member_name)
+            return BoxRefProxyExpressionBuilder(key, storage_decl.member_name)
         case pytypes.PyType(generic=pytypes.GenericBoxType):
-            return BoxProxyExpressionBuilder(
-                storage_decl.key, storage_decl.typ, storage_decl.member_name
-            )
+            return BoxProxyExpressionBuilder(key, storage_decl.typ, storage_decl.member_name)
         case pytypes.PyType(generic=pytypes.GenericBoxMapType):
-            return BoxMapProxyExpressionBuilder(
-                storage_decl.key, storage_decl.typ, storage_decl.member_name
-            )
+            return BoxMapProxyExpressionBuilder(key, storage_decl.typ, storage_decl.member_name)
         case content_type:
             return builder_for_instance(
                 content_type,
                 AppStateExpression(
-                    key=storage_decl.key,
+                    key=key,
                     wtype=content_type.wtype,
                     exists_assertion_message=f"check self.{storage_decl.member_name} exists",
                     source_location=location,
