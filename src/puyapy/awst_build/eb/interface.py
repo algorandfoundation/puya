@@ -61,7 +61,7 @@ class BuilderBinaryOp(enum.StrEnum):
 
 class NodeBuilder(abc.ABC):
     def __init__(self, location: SourceLocation):
-        self.source_location = location
+        self.source_location: typing.Final = location
 
     @property
     @abc.abstractmethod
