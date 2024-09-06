@@ -381,10 +381,6 @@ def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> 
     ]
 
 
-def get_num_errors() -> int:
-    return _current_ctx.get().num_errors
-
-
 def get_logger(name: str, **initial_values: typing.Any) -> _Logger:
     return _Logger(name, initial_values)
 
