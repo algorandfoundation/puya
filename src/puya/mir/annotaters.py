@@ -215,7 +215,7 @@ class SourceAnnotation(MIRAnnotater):
             if len(code) > self.max_width:
                 code = code[: self.max_width - 3] + "..."
             writer.append(code)
-            writer.append((src and src.location) or "")
+            writer.append(str(op.source_location) if op.source_location else "")
 
         return SimpleOpAnnotater(annotater)
 
