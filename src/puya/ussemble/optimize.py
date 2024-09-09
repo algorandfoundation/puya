@@ -1,8 +1,7 @@
-import operator
 import typing
 from collections import Counter
-from functools import reduce
 
+from puya.parse import sequential_source_locations_merge
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 
@@ -89,7 +88,7 @@ def _combine_ops(consecutive: list[models.PushInt | models.PushBytes]) -> models
     if len(consecutive) == 1:
         return consecutive[0]
     values = [op.value for op in consecutive]
-    loc = reduce(operator.add, filter(None, (op.source_location for op in consecutive)))
+    loc = sequential_source_locations_merge(op.source_location for op in consecutive)
     if isinstance(values[0], int):
         int_values = [int(v) for v in values]
         return models.PushInts(values=int_values, source_location=loc)
