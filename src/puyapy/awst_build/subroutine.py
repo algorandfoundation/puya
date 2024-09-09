@@ -1143,10 +1143,10 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         result = prev = comparisons[0]
         for curr in comparisons[1:]:
             result = BooleanBinaryOperation(
-                source_location=prev.source_location + curr.source_location,
                 left=result,
                 op=BinaryBooleanOperator.and_,
                 right=curr,
+                source_location=prev.source_location.try_merge(curr.source_location),
             )
             prev = curr
         return BoolExpressionBuilder(result)
@@ -1155,7 +1155,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     def _build_compare(
         operator: str, lhs: InstanceBuilder, rhs: InstanceBuilder
     ) -> InstanceBuilder:
-        cmp_loc = lhs.source_location + rhs.source_location
+        cmp_loc = lhs.source_location.try_merge(rhs.source_location)
         match operator:
             case "not in":
                 return rhs.contains(lhs, cmp_loc).bool_eval(cmp_loc, negate=True)

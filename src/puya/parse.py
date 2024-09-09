@@ -1,3 +1,6 @@
+import functools
+import typing
+from collections.abc import Iterable
 from pathlib import Path
 
 import attrs
@@ -75,43 +78,93 @@ class SourceLocation:
             comment_lines=0,
         )
 
-    def __add__(self, other: "SourceLocation | None") -> "SourceLocation":
-        if other is None:
+    def try_merge(self, other: "SourceLocation | None") -> "SourceLocation":
+        """Attempt to merge this source location with another, if they are either adjacent
+        or overlapping in lines. If not, the source location is returned unmodified."""
+        if other is None or other.file != self.file:
             return self
-
-        assert self.file == other.file
+        file = self.file
+        # if they both start at the same line, not only is there overlap,
+        # but things are also much simpler
         if self.line == other.line:
-            start_line = self.line
-            start_column = min(
-                [c for c in (self.column, other.column) if c is not None], default=None
-            )
-            # in theory, these should be the same, but no harm in taking the max here
+            line = self.line
+            # expand to the largest end_line
+            end_line = max(self.end_line, other.end_line)
+            # in theory this should be the same value, but just in case, we can take the max
             comment_lines = max(self.comment_lines, other.comment_lines)
-        elif self.line < other.line:
-            start_line = self.line
-            start_column = self.column
-            comment_lines = self.comment_lines
+            # if either location is not column-bounded, then the result shouldn't be either
+            # otherwise take the minimum of the columns, since the line numbers are the same
+            if self.column is None or other.column is None:
+                column = None
+            else:
+                column = min(self.column, other.column)
         else:
-            start_line = other.line
-            start_column = other.column
-            comment_lines = other.comment_lines
-
+            # if they don't start on the same line, one must start first
+            first, second = (self, other) if self.line < other.line else (other, self)
+            line_after_first = first.end_line + 1
+            # TODO: maybe consider fetching the source to exclude blank lines?
+            if line_after_first < second.line:
+                return self
+            # first starts first, so... that's where we start
+            line = first.line
+            # whilst we know first starts before second,
+            # it's also possible that first ends after second
+            end_line = max(second.end_line, first.end_line)
+            # naturally, comment line count needs to come from the first location
+            comment_lines = first.comment_lines
+            # same first starting column
+            column = first.column
+        # the logic for computing the end_column is the same regardless of whether
+        # they start on the same line or not
         if self.end_line == other.end_line:
-            end_line = self.end_line
-            end_column = max(
-                [c for c in (self.end_column, other.end_column) if c is not None], default=None
-            )
+            # if either location is not end_column-bounded, then the result shouldn't be either
+            # otherwise take the maximum of the end_columns, since the line numbers are the same
+            if self.end_column is None or other.end_column is None:
+                end_column = None
+            else:
+                end_column = max(self.end_column, other.end_column)
         elif self.end_line > other.end_line:
-            end_line = self.end_line
+            # if self ends last, take it's end column
             end_column = self.end_column
         else:
-            end_line = other.end_line
+            # otherwise other ends last, so take it's end column
             end_column = other.end_column
+
         return SourceLocation(
-            file=self.file,
-            line=start_line,
+            file=file,
+            line=line,
             end_line=end_line,
-            column=start_column,
-            end_column=end_column,
             comment_lines=comment_lines,
+            column=column,
+            end_column=end_column,
         )
+
+
+@typing.overload
+def sequential_source_locations_merge(sources: Iterable[SourceLocation]) -> SourceLocation: ...
+
+
+@typing.overload
+def sequential_source_locations_merge(
+    sources: Iterable[SourceLocation | None],
+) -> SourceLocation | None: ...
+
+
+def sequential_source_locations_merge(
+    sources: Iterable[SourceLocation | None],
+) -> SourceLocation | None:
+    """Given a sequence of SourceLocations, try merging them one at a one in order.
+
+    If all sources are None, then None is returned.
+
+    If there are no sources, then a TypeError will be raised.
+    """
+    return functools.reduce(_try_merge_source_locations, sources)
+
+
+def _try_merge_source_locations(
+    source: SourceLocation | None, merge: SourceLocation | None
+) -> SourceLocation | None:
+    if source is None:
+        return merge
+    return source.try_merge(merge)
