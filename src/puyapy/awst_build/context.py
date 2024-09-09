@@ -128,17 +128,15 @@ class ASTConversionModuleContext(ASTConversionContext):
             except KeyError as ex:
                 raise CodeError(f"could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
-        src_meta = try_get_source(self._parse_result.sources_by_path, loc)
-        if src_meta is not None:
-            lines = src_meta.code
+        lines = try_get_source(self._parse_result.sources_by_path, loc)
+        if lines is not None:
             if loc.line > 1:
-                prior_code_meta = try_get_source(
+                prior_code = try_get_source(
                     self._parse_result.sources_by_path,
                     SourceLocation(file=module_path, line=1, end_line=loc.line - 1),
                 )
-                prior_code = (prior_code_meta and prior_code_meta.code) or []
                 unchop = 0
-                for line in reversed(prior_code):
+                for line in reversed(prior_code or []):
                     if not line.strip().startswith("#"):
                         break
                     unchop += 1
@@ -146,7 +144,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                     loc = attrs.evolve(loc, line=loc.line - unchop)
             if loc.end_line is not None and loc.end_line != loc.line:
                 chop = 0
-                for line in reversed(lines or ()):
+                for line in reversed(lines):
                     l_stripped = line.lstrip()
                     if l_stripped and not l_stripped.startswith("#"):
                         break
