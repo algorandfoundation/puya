@@ -353,7 +353,7 @@ def _add_source_context(kwargs: dict[str, typing.Any], location: SourceLocation 
 
 def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> Sequence[str]:
     start_line_idx = location.line - 1
-    end_line_idx = (location.end_line or location.line) - 1
+    end_line_idx = location.end_line
     # find first line that isn't a comment
     for source_line_idx in range(start_line_idx, end_line_idx + 1):
         if not file_source[source_line_idx].lstrip().startswith("#"):
@@ -366,7 +366,7 @@ def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> 
     source_line = file_source[source_line_idx]
     column = location.column
     end_column = len(source_line)
-    if (location.end_line is None or location.end_line == location.line) and location.end_column:
+    if location.end_line == location.line and location.end_column:
         end_column = location.end_column
     # Shifts column after tab expansion
     column = len(source_line[:column].expandtabs())

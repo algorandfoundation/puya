@@ -347,18 +347,20 @@ def source_location_from_mypy(file: Path, node: mypy.nodes.Context) -> SourceLoc
             if body_start is None:
                 # this shouldn't happen, there should be at least one body in one branch,
                 # but this serves okay as a fallback
-                end_line2 = node.end_line
+                end_line = node.end_line or node.line
             else:
-                end_line2 = body_start - 1
+                end_line = body_start - 1
             return SourceLocation(
                 file=file,
                 line=node.line,
-                end_line=end_line2,
+                end_line=end_line,
             )
     return SourceLocation(
         file=file,
         line=node.line,
-        end_line=node.end_line if (node.end_line is not None and node.end_line >= 1) else None,
+        end_line=(
+            node.end_line if (node.end_line is not None and node.end_line >= 1) else node.line
+        ),
         column=node.column if (node.column is not None and node.column >= 0) else 0,
         end_column=(
             node.end_column if (node.end_column is not None and node.end_column >= 0) else None
