@@ -205,7 +205,11 @@ class SourceAnnotation(MIRAnnotater):
 
     def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
         def annotater(writer: AlignedWriter, op: models.BaseOp) -> None:
-            code_lines = context.try_get_source(op.source_location) or []
+            op_loc = op.source_location
+            # TODO: remove .with_comments(), added temporarily to reduce diff
+            if op_loc is not None:
+                op_loc = op_loc.with_comments()
+            code_lines = context.try_get_source(op_loc) or []
             # at lower debug levels only include first line of source
             if context.options.debug_level < 2:
                 code_lines = code_lines[:1]
@@ -214,7 +218,7 @@ class SourceAnnotation(MIRAnnotater):
             if len(code) > self.max_width:
                 code = code[: self.max_width - 3] + "..."
             writer.append(code)
-            writer.append(str(op.source_location) if op.source_location else "")
+            writer.append(str(op_loc) if op_loc else "")
 
         return SimpleOpAnnotater(annotater)
 

@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 
 import attrs
@@ -17,6 +16,8 @@ class SourceLocation:
     file: Path = attrs.field(converter=_resolved_path)
     line: int = attrs.field(validator=attrs.validators.ge(1))
     end_line: int = attrs.field()
+    comment_lines: int = attrs.field(default=0, validator=attrs.validators.ge(0))
+    """the number of lines preceding `line` to take as a comment"""
     column: int | None = attrs.field(
         default=None, validator=attrs.validators.optional(attrs.validators.ge(0))
     )
@@ -50,6 +51,10 @@ class SourceLocation:
         return self.end_line - self.line + 1
 
     def __str__(self) -> str:
+        # TODO: remove .with_comments(), added temporarily to reduce diff
+        if self.comment_lines:
+            return str(self.with_comments())
+
         relative_path = make_path_relative_to_cwd(self.file)
         result = f"{relative_path}:{self.line}"
         if self.end_line != self.line:
@@ -57,6 +62,10 @@ class SourceLocation:
         return result
 
     def __repr__(self) -> str:
+        # TODO: remove .with_comments(), added temporarily to reduce diff
+        if self.comment_lines:
+            return repr(self.with_comments())
+
         result = str(self)
         if self.column is not None:
             result += f":{self.column}"
@@ -64,32 +73,53 @@ class SourceLocation:
                 result += f"-{self.end_column}"
         return result
 
+    def with_comments(self) -> "SourceLocation":
+        if self.comment_lines == 0:
+            return self
+        return attrs.evolve(
+            self,
+            line=self.line - self.comment_lines,
+            column=None,
+            comment_lines=0,
+        )
+
     def __add__(self, other: "SourceLocation | None") -> "SourceLocation":
         if other is None:
             return self
 
         assert self.file == other.file
-        lines = [self.line, other.line, self.end_line, other.end_line]
-        start_line = min(lines)
-        end_line = max(lines)
-        columns = [
-            (self.line, self.column),
-            (self.end_line, self.end_column),
-            (other.line, other.column),
-            (other.end_line, other.end_column),
-        ]
-        start_column = sys.maxsize
-        end_column = -1
-        for line, column in columns:
-            if column is not None:
-                if line == start_line:
-                    start_column = min(start_column, column)
-                if line == end_line:
-                    end_column = max(end_column, column)
+        if self.line == other.line:
+            start_line = self.line
+            start_column = min(
+                [c for c in (self.column, other.column) if c is not None], default=None
+            )
+            # in theory, these should be the same, but no harm in taking the max here
+            comment_lines = max(self.comment_lines, other.comment_lines)
+        elif self.line < other.line:
+            start_line = self.line
+            start_column = self.column
+            comment_lines = self.comment_lines
+        else:
+            start_line = other.line
+            start_column = other.column
+            comment_lines = other.comment_lines
+
+        if self.end_line == other.end_line:
+            end_line = self.end_line
+            end_column = max(
+                [c for c in (self.end_column, other.end_column) if c is not None], default=None
+            )
+        elif self.end_line > other.end_line:
+            end_line = self.end_line
+            end_column = self.end_column
+        else:
+            end_line = other.end_line
+            end_column = other.end_column
         return SourceLocation(
             file=self.file,
             line=start_line,
             end_line=end_line,
-            column=None if start_column == sys.maxsize else start_column,
-            end_column=None if end_column == -1 else end_column,
+            column=start_column,
+            end_column=end_column,
+            comment_lines=comment_lines,
         )

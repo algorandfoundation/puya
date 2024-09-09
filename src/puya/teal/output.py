@@ -1,7 +1,8 @@
 import textwrap
 
+import attrs
+
 from puya.context import CompileContext
-from puya.parse import SourceLocation
 from puya.teal import models
 
 
@@ -21,11 +22,9 @@ def emit_teal(context: CompileContext, program: models.TealProgram) -> str:
             last_location = None
             result.append(f"{block.label}:")
             for teal_op in block.ops:
-                if context.options.debug_level and teal_op.source_location is not None:
-                    whole_lines_location = SourceLocation(
-                        file=teal_op.source_location.file,
-                        line=teal_op.source_location.line,
-                        end_line=teal_op.source_location.end_line,
+                if context.options.debug_level and (op_loc := teal_op.source_location):
+                    whole_lines_location = attrs.evolve(
+                        op_loc.with_comments(), column=None, end_column=None
                     )
                     if whole_lines_location != last_location:
                         last_location = whole_lines_location
