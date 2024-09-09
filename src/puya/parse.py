@@ -65,7 +65,7 @@ class SourceLocation:
             if column is not None:
                 if line == start_line:
                     start_column = min(start_column, column)
-                elif line == end_line:
+                if line == end_line:
                     end_column = max(end_column, column)
         return SourceLocation(
             file=self.file,
