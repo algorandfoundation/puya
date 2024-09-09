@@ -141,7 +141,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                         break
                     unchop += 1
                 if unchop:
-                    loc = attrs.evolve(loc, line=loc.line - unchop)
+                    loc = attrs.evolve(loc, line=loc.line - unchop, column=None)
             if loc.end_line is not None and loc.end_line != loc.line:
                 chop = 0
                 for line in reversed(lines):
@@ -150,7 +150,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                         break
                     chop += 1
                 if chop:
-                    loc = attrs.evolve(loc, end_line=loc.end_line - chop)
+                    loc = attrs.evolve(loc, end_line=loc.end_line - chop, end_column=None)
         return loc
 
     def _maybe_convert_location(
