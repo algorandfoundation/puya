@@ -31,8 +31,8 @@ def emit_teal(context: CompileContext, program: models.TealProgram) -> str:
                         last_location = whole_lines_location
                         src = context.try_get_source(whole_lines_location)
                         if src is not None:
-                            result.append(f"{indent}// {src.location}")
-                            lines = textwrap.dedent("\n".join(src.code or ())).splitlines()
+                            result.append(f"{indent}// {whole_lines_location}")
+                            lines = textwrap.dedent("\n".join(src)).splitlines()
                             result.extend(f"{indent}// {line.rstrip()}" for line in lines)
 
                 result.append(f"{indent}{teal_op.teal()}")

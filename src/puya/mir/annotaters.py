@@ -205,8 +205,7 @@ class SourceAnnotation(MIRAnnotater):
 
     def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
         def annotater(writer: AlignedWriter, op: models.BaseOp) -> None:
-            src = context.try_get_source(op.source_location)
-            code_lines = (src and src.code) or []
+            code_lines = context.try_get_source(op.source_location) or []
             # at lower debug levels only include first line of source
             if context.options.debug_level < 2:
                 code_lines = code_lines[:1]
