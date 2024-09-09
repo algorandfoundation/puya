@@ -27,8 +27,10 @@ def _emit_op(
                 context.writer.append(f"// {op.comment}")
                 if debug_level < 1:
                     context.writer.ignore_line()
-            case _ if debug_level < VIRTUAL_STACK_DEBUG_LEVEL:
-                context.writer.ignore_line()
+            case _:
+                context.writer.append("")
+                if debug_level < VIRTUAL_STACK_DEBUG_LEVEL:
+                    context.writer.ignore_line()
     for teal_op_idx, teal_op in enumerate(teal_ops):
         context.writer.append(teal_op.teal())
         # omit new line for all but the last op

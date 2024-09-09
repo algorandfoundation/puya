@@ -1,50 +1,50 @@
-// Op                                             //                                                        Op Description                         Stack (out)                      X stack             Source code         Source line
+// Op                                             // Op Description                                            Stack (out)                               Source code         Source line
 
 #pragma version 10
 
 // test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
 main_block@0:
-    int 3                                         //                                                                                               3                                                    UInt64(1) + 2       ssa2/contract.py:8
-    //                                            virtual: store a#0 to f-stack                             (𝕗) a#0 |                                                               a = UInt64(1) + 2   ssa2/contract.py:8
-    int 20                                        //                                                                                               (𝕗) a#0 | 20                                         UInt64(4) * 5       ssa2/contract.py:9
-    //                                            virtual: store b#0 to f-stack                             (𝕗) a#0,b#0 |                                                           b = UInt64(4) * 5   ssa2/contract.py:9
-    int 0                                         //                                                                                               (𝕗) a#0,b#0 | 0                                      urange(5)           ssa2/contract.py:15
-    //                                            virtual: store i#0 to f-stack                             (𝕗) a#0,b#0,i#0 |                                                       i                   ssa2/contract.py:15
-    // Implicit fall through to main_for_header@1 //                                                                                               (𝕗) a#0,b#0,i#0 |
+    int 3                                         //                                                           3                                         UInt64(1) + 2       ssa2/contract.py:8
+                                                  // virtual: store a#0 to f-stack                             (𝕗) a#0 |                                 a = UInt64(1) + 2   ssa2/contract.py:8
+    int 20                                        //                                                           (𝕗) a#0 | 20                              UInt64(4) * 5       ssa2/contract.py:9
+                                                  // virtual: store b#0 to f-stack                             (𝕗) a#0,b#0 |                             b = UInt64(4) * 5   ssa2/contract.py:9
+    int 0                                         //                                                           (𝕗) a#0,b#0 | 0                           urange(5)           ssa2/contract.py:15
+                                                  // virtual: store i#0 to f-stack                             (𝕗) a#0,b#0,i#0 |                         i                   ssa2/contract.py:15
+    // Implicit fall through to main_for_header@1 //                                                           (𝕗) a#0,b#0,i#0 |
 
 main_for_header@1:
-    dup                                           //                                                        load i#0 from f-stack                  (𝕗) a#0,b#0,i#0 | i#0                                urange(5)           ssa2/contract.py:15
-    int 5                                         //                                                                                               (𝕗) a#0,b#0,i#0 | i#0,5                              5                   ssa2/contract.py:15
-    <                                             //                                                                                               (𝕗) a#0,b#0,i#0 | {<}                                urange(5)           ssa2/contract.py:15
-    //                                            virtual: store continue_looping%0#0 to l-stack (no copy)  (𝕗) a#0,b#0,i#0 | continue_looping%0#0                                  urange(5)           ssa2/contract.py:15
-    //                                            virtual: load continue_looping%0#0 from l-stack (no copy) (𝕗) a#0,b#0,i#0 | continue_looping%0#0                                  for i in urange(5): ssa2/contract.py:15
-    bz main_after_for@4                           //                                                                                               (𝕗) a#0,b#0,i#0 |                                    for i in urange(5): ssa2/contract.py:15
-    // Implicit fall through to main_for_body@2   //                                                                                               (𝕗) a#0,b#0,i#0 |                                    for i in urange(5): ssa2/contract.py:15
+    dup                                           // load i#0 from f-stack                                     (𝕗) a#0,b#0,i#0 | i#0                     urange(5)           ssa2/contract.py:15
+    int 5                                         //                                                           (𝕗) a#0,b#0,i#0 | i#0,5                   5                   ssa2/contract.py:15
+    <                                             //                                                           (𝕗) a#0,b#0,i#0 | {<}                     urange(5)           ssa2/contract.py:15
+                                                  // virtual: store continue_looping%0#0 to l-stack (no copy)  (𝕗) a#0,b#0,i#0 | continue_looping%0#0    urange(5)           ssa2/contract.py:15
+                                                  // virtual: load continue_looping%0#0 from l-stack (no copy) (𝕗) a#0,b#0,i#0 | continue_looping%0#0    for i in urange(5): ssa2/contract.py:15
+    bz main_after_for@4                           //                                                           (𝕗) a#0,b#0,i#0 |                         for i in urange(5): ssa2/contract.py:15
+    // Implicit fall through to main_for_body@2   //                                                           (𝕗) a#0,b#0,i#0 |                         for i in urange(5): ssa2/contract.py:15
 
 main_for_body@2:
-    dig 1                                         //                                                        load b#0 from f-stack                  (𝕗) a#0,b#0,i#0 | b#0                                b = b + a           ssa2/contract.py:16
-    dig 3                                         //                                                        load a#0 from f-stack                  (𝕗) a#0,b#0,i#0 | b#0,a#0                            b = b + a           ssa2/contract.py:16
+    dig 1                                         // load b#0 from f-stack                                     (𝕗) a#0,b#0,i#0 | b#0                     b = b + a           ssa2/contract.py:16
+    dig 3                                         // load a#0 from f-stack                                     (𝕗) a#0,b#0,i#0 | b#0,a#0                 b = b + a           ssa2/contract.py:16
     dup
-    cover 2                                       //                                                        store a#0 to l-stack (copy)            (𝕗) a#0,b#0,i#0 | a#0,b#0,a#0                        b = b + a           ssa2/contract.py:16
-    +                                             //                                                                                               (𝕗) a#0,b#0,i#0 | a#0,{+}                            b + a               ssa2/contract.py:16
-    bury 3                                        //                                                        store b#0 to f-stack                   (𝕗) a#0,b#0,i#0 | a#0                                b = b + a           ssa2/contract.py:16
-    //                                            virtual: load a#0 from l-stack (no copy)                  (𝕗) a#0,b#0,i#0 | a#0                                                   a = a + i           ssa2/contract.py:17
-    dig 1                                         //                                                        load i#0 from f-stack                  (𝕗) a#0,b#0,i#0 | a#0,i#0                            a = a + i           ssa2/contract.py:17
+    cover 2                                       // store a#0 to l-stack (copy)                               (𝕗) a#0,b#0,i#0 | a#0,b#0,a#0             b = b + a           ssa2/contract.py:16
+    +                                             //                                                           (𝕗) a#0,b#0,i#0 | a#0,{+}                 b + a               ssa2/contract.py:16
+    bury 3                                        // store b#0 to f-stack                                      (𝕗) a#0,b#0,i#0 | a#0                     b = b + a           ssa2/contract.py:16
+                                                  // virtual: load a#0 from l-stack (no copy)                  (𝕗) a#0,b#0,i#0 | a#0                     a = a + i           ssa2/contract.py:17
+    dig 1                                         // load i#0 from f-stack                                     (𝕗) a#0,b#0,i#0 | a#0,i#0                 a = a + i           ssa2/contract.py:17
     dup
-    cover 2                                       //                                                        store i#0 to l-stack (copy)            (𝕗) a#0,b#0,i#0 | i#0,a#0,i#0                        a = a + i           ssa2/contract.py:17
-    +                                             //                                                                                               (𝕗) a#0,b#0,i#0 | i#0,{+}                            a + i               ssa2/contract.py:17
-    bury 4                                        //                                                        store a#0 to f-stack                   (𝕗) a#0,b#0,i#0 | i#0                                a = a + i           ssa2/contract.py:17
-    //                                            virtual: load i#0 from l-stack (no copy)                  (𝕗) a#0,b#0,i#0 | i#0                                                   urange(5)           ssa2/contract.py:15
-    int 1                                         //                                                                                               (𝕗) a#0,b#0,i#0 | i#0,1                              urange(5)           ssa2/contract.py:15
-    +                                             //                                                                                               (𝕗) a#0,b#0,i#0 | {+}                                urange(5)           ssa2/contract.py:15
-    bury 1                                        //                                                        store i#0 to f-stack                   (𝕗) a#0,b#0,i#0 |                                    urange(5)           ssa2/contract.py:15
-    b main_for_header@1                           //                                                                                               (𝕗) a#0,b#0,i#0 |
+    cover 2                                       // store i#0 to l-stack (copy)                               (𝕗) a#0,b#0,i#0 | i#0,a#0,i#0             a = a + i           ssa2/contract.py:17
+    +                                             //                                                           (𝕗) a#0,b#0,i#0 | i#0,{+}                 a + i               ssa2/contract.py:17
+    bury 4                                        // store a#0 to f-stack                                      (𝕗) a#0,b#0,i#0 | i#0                     a = a + i           ssa2/contract.py:17
+                                                  // virtual: load i#0 from l-stack (no copy)                  (𝕗) a#0,b#0,i#0 | i#0                     urange(5)           ssa2/contract.py:15
+    int 1                                         //                                                           (𝕗) a#0,b#0,i#0 | i#0,1                   urange(5)           ssa2/contract.py:15
+    +                                             //                                                           (𝕗) a#0,b#0,i#0 | {+}                     urange(5)           ssa2/contract.py:15
+    bury 1                                        // store i#0 to f-stack                                      (𝕗) a#0,b#0,i#0 |                         urange(5)           ssa2/contract.py:15
+    b main_for_header@1                           //                                                           (𝕗) a#0,b#0,i#0 |
 
 main_after_for@4:
-    dig 2                                         //                                                        load a#0 from f-stack                  (𝕗) a#0,b#0,i#0 | a#0                                a + b               ssa2/contract.py:18
-    dig 2                                         //                                                        load b#0 from f-stack                  (𝕗) a#0,b#0,i#0 | a#0,b#0                            a + b               ssa2/contract.py:18
-    +                                             //                                                                                               (𝕗) a#0,b#0,i#0 | {+}                                a + b               ssa2/contract.py:18
-    //                                            virtual: store tmp%0#0 to l-stack (no copy)               (𝕗) a#0,b#0,i#0 | tmp%0#0                                               a + b               ssa2/contract.py:18
-    //                                            virtual: load tmp%0#0 from l-stack (no copy)              (𝕗) a#0,b#0,i#0 | tmp%0#0                                               return a + b        ssa2/contract.py:18
-    return                                        //                                                                                               (𝕗) a#0,b#0,i#0 |                                    return a + b        ssa2/contract.py:18
+    dig 2                                         // load a#0 from f-stack                                     (𝕗) a#0,b#0,i#0 | a#0                     a + b               ssa2/contract.py:18
+    dig 2                                         // load b#0 from f-stack                                     (𝕗) a#0,b#0,i#0 | a#0,b#0                 a + b               ssa2/contract.py:18
+    +                                             //                                                           (𝕗) a#0,b#0,i#0 | {+}                     a + b               ssa2/contract.py:18
+                                                  // virtual: store tmp%0#0 to l-stack (no copy)               (𝕗) a#0,b#0,i#0 | tmp%0#0                 a + b               ssa2/contract.py:18
+                                                  // virtual: load tmp%0#0 from l-stack (no copy)              (𝕗) a#0,b#0,i#0 | tmp%0#0                 return a + b        ssa2/contract.py:18
+    return                                        //                                                           (𝕗) a#0,b#0,i#0 |                         return a + b        ssa2/contract.py:18
 
