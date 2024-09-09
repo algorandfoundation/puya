@@ -128,21 +128,23 @@ class ASTConversionModuleContext(ASTConversionContext):
             except KeyError as ex:
                 raise CodeError(f"could not find module '{module_name}'") from ex
         loc = source_location_from_mypy(file=module_path, node=node)
-        lines = try_get_source(self._parse_result.sources_by_path, loc)
-        if lines is not None:
-            if loc.line > 1:
-                prior_code = try_get_source(
-                    self._parse_result.sources_by_path,
-                    SourceLocation(file=module_path, line=1, end_line=loc.line - 1),
-                )
-                unchop = 0
-                for line in reversed(prior_code or []):
-                    if not line.strip().startswith("#"):
-                        break
-                    unchop += 1
-                if unchop:
-                    loc = attrs.evolve(loc, line=loc.line - unchop, column=None)
-            if loc.end_line != loc.line:
+        # if not at start of file, try and expand to preceding comment lines,
+        if loc.line > 1:
+            prior_code = try_get_source(
+                self._parse_result.sources_by_path,
+                SourceLocation(file=module_path, line=1, end_line=loc.line - 1),
+            )
+            comment_lines_count = 0
+            for line in reversed(prior_code or []):
+                if not line.strip().startswith("#"):
+                    break
+                comment_lines_count += 1
+            if comment_lines_count:
+                loc = attrs.evolve(loc, comment_lines=comment_lines_count)
+        # if multi-line, strip trailing blank/comment lines
+        if loc.end_line != loc.line:
+            lines = try_get_source(self._parse_result.sources_by_path, loc)
+            if lines is not None:
                 chop = 0
                 for line in reversed(lines):
                     l_stripped = line.lstrip()
