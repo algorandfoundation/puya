@@ -15,11 +15,14 @@ def _resolved_path(p: Path | str) -> Path:
 @attrs.frozen(kw_only=True, repr=False, str=False)
 class SourceLocation:
     file: Path = attrs.field(converter=_resolved_path)
-    line: int
+    line: int = attrs.field(validator=attrs.validators.ge(1))
     end_line: int = attrs.field()
-    # TODO: much better validation below
-    column: int | None = None
-    end_column: int | None = None
+    column: int | None = attrs.field(
+        default=None, validator=attrs.validators.optional(attrs.validators.ge(0))
+    )
+    end_column: int | None = attrs.field(
+        default=None, validator=attrs.validators.optional(attrs.validators.ge(1))
+    )
 
     @end_line.default
     def _end_line_default(self) -> int:
@@ -29,6 +32,22 @@ class SourceLocation:
     def _end_line_validator(self, _attribute: object, value: int) -> None:
         if value < self.line:
             raise ValueError(f"end_line = {value} is before start line = {self.line}")
+
+    @end_column.validator
+    def _end_column_validator(self, _attribute: object, value: int | None) -> None:
+        if (
+            self.end_line == self.line
+            and value is not None
+            and self.column is not None
+            and value <= self.column
+        ):
+            raise ValueError(
+                f"source location end column = {value} is before start column = {self.column}"
+            )
+
+    @property
+    def line_count(self) -> int:
+        return self.end_line - self.line + 1
 
     def __str__(self) -> str:
         relative_path = make_path_relative_to_cwd(self.file)

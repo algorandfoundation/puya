@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 import contextlib
 import logging
 import os.path
 import sys
 import typing
 from collections import Counter
+from collections.abc import Iterator, Mapping, Sequence
 from contextvars import ContextVar
 from enum import IntEnum
 from io import StringIO
@@ -14,10 +13,7 @@ from pathlib import Path
 import attrs
 import structlog
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 
 class LogLevel(IntEnum):
@@ -32,7 +28,7 @@ class LogLevel(IntEnum):
         return self.name
 
     @staticmethod
-    def from_string(s: str) -> LogLevel:
+    def from_string(s: str) -> "LogLevel":
         try:
             return LogLevel[s]
         except KeyError as err:
@@ -280,7 +276,6 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        _add_source_context(kwargs, location)
         self._report(LogLevel.error, event, *args, location=location, **kwargs)
 
     def exception(
@@ -290,7 +285,6 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        _add_source_context(kwargs, location)
         kwargs.setdefault("exc_info", True)
         self._report(LogLevel.critical, event, *args, location=location, **kwargs)
 
@@ -301,7 +295,6 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        _add_source_context(kwargs, location)
         self._report(LogLevel.critical, event, *args, location=location, **kwargs)
 
     def log(
@@ -322,60 +315,38 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
+        log_ctx = _current_ctx.get(None)
+        if level >= LogLevel.error and location and log_ctx and log_ctx.sources_by_path:
+            file_source = log_ctx.sources_by_path.get(location.file)
+            if file_source is not None:
+                kwargs["related_lines"] = _get_pretty_source(file_source, location)
         self._logger.log(level, event, *args, location=location, **kwargs)
-        try:
-            ctx = _current_ctx.get()
-        except LookupError:
-            return
-        if isinstance(event, str) and args:
-            message = event % args
-        else:
-            message = str(event)
-        ctx.logs.append(Log(level, message, location))
+        if log_ctx:
+            if isinstance(event, str) and args:
+                message = event % args
+            else:
+                message = str(event)
+            log_ctx.logs.append(Log(level, message, location))
 
 
-def _add_source_context(kwargs: dict[str, typing.Any], location: SourceLocation | None) -> None:
-    if location is None or location.line < 0:
-        return
-
+def _get_pretty_source(
+    file_source: Sequence[str], location: SourceLocation
+) -> Sequence[str] | None:
+    lines = file_source[location.line - 1 : location.end_line]
+    if len(lines) != location.line_count:
+        logger = get_logger(__name__)
+        logger.warning(f"source length mismatch for {location}")
+        return None
     try:
-        log_ctx = _current_ctx.get()
-    except LookupError:
-        return
-
-    if not log_ctx.sources_by_path:
-        return
-
-    file_source = log_ctx.sources_by_path[location.file]
-    if file_source and location.line <= len(file_source):
-        kwargs["related_lines"] = _get_pretty_source(file_source, location)
-
-
-def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> Sequence[str]:
-    start_line_idx = location.line - 1
-    end_line_idx = location.end_line
-    # find first line that isn't a comment
-    for source_line_idx in range(start_line_idx, end_line_idx + 1):
-        if not file_source[source_line_idx].lstrip().startswith("#"):
-            break
-    else:
-        source_line_idx = start_line_idx
-    # source line is followed by additional lines, don't bother annotating columns
-    if source_line_idx != end_line_idx:
-        return file_source[start_line_idx : end_line_idx + 1]
-    source_line = file_source[source_line_idx]
-    column = location.column
-    end_column = len(source_line)
-    if location.end_line == location.line and location.end_column:
-        end_column = location.end_column
+        (source_line,) = lines
+    except ValueError:
+        # source line is followed by additional lines, don't bother annotating columns
+        return lines
     # Shifts column after tab expansion
-    column = len(source_line[:column].expandtabs())
-    end_column = len(source_line[:end_column].expandtabs())
-
-    lines_before_source = file_source[start_line_idx:source_line_idx]
+    column = len(source_line[: location.column].expandtabs())
+    end_column = len(source_line[: location.end_column].expandtabs())
 
     return [
-        *lines_before_source,
         source_line.expandtabs(),
         " " * column + f"^{'~' * max(end_column - column - 1, 0)}",
     ]
