@@ -113,6 +113,9 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
             lines.extend(related_errors)
         important: bool = event_dict.pop("important", False)
         location: SourceLocation | None = event_dict.pop("location", None)
+        # TODO: remove .with_comments(), added temporarily to reduce diff
+        if location is not None:
+            location = location.with_comments()
         location_as_link = self._location_as_link(location) if location else ""
         level = event_dict.pop("level", "info")
 
@@ -326,7 +329,10 @@ class _Logger:
                 message = event % args
             else:
                 message = str(event)
-            log_ctx.logs.append(Log(level, message, location))
+            # TODO: remove .with_comments(), added temporarily to reduce diff
+            log_ctx.logs.append(
+                Log(level, message, location.with_comments() if location is not None else location)
+            )
 
 
 def _get_pretty_source(
