@@ -1,5 +1,6 @@
 import attrs
 
+from puya.parse import sequential_source_locations_merge
 from puya.teal import models
 from puya.teal.optimize._data import LOAD_OP_CODES
 
@@ -66,15 +67,11 @@ def _collapse_loads(loads: list[models.TealOp]) -> bool:
     if n < 1:
         return False
 
+    dup_source_location = sequential_source_locations_merge(op.source_location for op in loads[1:])
     if n == 1:
-        dup_op: models.TealOp = models.Dup(source_location=loads[1].source_location)
+        dup_op: models.TealOp = models.Dup(source_location=dup_source_location)
     else:
-        dupn_source_location = None
-        for op in loads[1:]:
-            if op.source_location is not None:
-                # TODO: it'd be better to only merge these if they're adjacent
-                dupn_source_location = op.source_location + dupn_source_location
-        dup_op = models.DupN(n=n, source_location=dupn_source_location)
+        dup_op = models.DupN(n=n, source_location=dup_source_location)
     loads[1:] = [dup_op]
     return True
 

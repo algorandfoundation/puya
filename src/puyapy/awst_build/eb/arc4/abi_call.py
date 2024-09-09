@@ -1,7 +1,5 @@
-import operator
 import typing
 from collections.abc import Iterable, Mapping, Sequence, Set
-from functools import reduce
 
 import attrs
 import mypy.nodes
@@ -31,7 +29,7 @@ from puya.models import (
     OnCompletionAction,
     TransactionType,
 )
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import StableSet
 
 from puyapy.awst_build import constants, pytypes
@@ -631,7 +629,7 @@ def _create_abi_call_expr(
 
 
 def _combine_locs(exprs: Sequence[Expression | NodeBuilder]) -> SourceLocation:
-    return reduce(operator.add, (a.source_location for a in exprs))
+    return sequential_source_locations_merge(a.source_location for a in exprs)
 
 
 def _arc4_tuple_from_items(
