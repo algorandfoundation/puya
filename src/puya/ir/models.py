@@ -588,8 +588,7 @@ class BasicBlock(Context):
         result = f"block@{self.id}: // "
         if self.comment:
             result += f"{self.comment}_"
-        # TODO: remove .with_comments(), added temporarily to reduce diff
-        result += f"L{self.source_location.with_comments().line}"
+        result += f"L{self.source_location.line}"
         return result
 
 
