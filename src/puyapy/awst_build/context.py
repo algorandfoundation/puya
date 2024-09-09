@@ -142,7 +142,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                     unchop += 1
                 if unchop:
                     loc = attrs.evolve(loc, line=loc.line - unchop, column=None)
-            if loc.end_line is not None and loc.end_line != loc.line:
+            if loc.end_line != loc.line:
                 chop = 0
                 for line in reversed(lines):
                     l_stripped = line.lstrip()

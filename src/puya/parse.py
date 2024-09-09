@@ -16,15 +16,24 @@ def _resolved_path(p: Path | str) -> Path:
 class SourceLocation:
     file: Path = attrs.field(converter=_resolved_path)
     line: int
+    end_line: int = attrs.field()
     # TODO: much better validation below
-    end_line: int | None = None
     column: int | None = None
     end_column: int | None = None
+
+    @end_line.default
+    def _end_line_default(self) -> int:
+        return self.line
+
+    @end_line.validator
+    def _end_line_validator(self, _attribute: object, value: int) -> None:
+        if value < self.line:
+            raise ValueError(f"end_line = {value} is before start line = {self.line}")
 
     def __str__(self) -> str:
         relative_path = make_path_relative_to_cwd(self.file)
         result = f"{relative_path}:{self.line}"
-        if self.end_line is not None and self.end_line != self.line:
+        if self.end_line != self.line:
             result += f"-{self.end_line}"
         return result
 
@@ -41,7 +50,7 @@ class SourceLocation:
             return self
 
         assert self.file == other.file
-        lines = list(filter(None, (self.line, other.line, self.end_line, other.end_line)))
+        lines = [self.line, other.line, self.end_line, other.end_line]
         start_line = min(lines)
         end_line = max(lines)
         columns = [
