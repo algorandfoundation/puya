@@ -138,14 +138,14 @@ def attrs_extend[
 
 
 @functools.cache
-def make_path_relative(*, to: Path, path: str) -> str:
+def _make_path_relative(*, to: Path, path: Path) -> str:
     with contextlib.suppress(ValueError):
-        path = str(Path(path).relative_to(to))
-    return path.replace(os.sep, "/")
+        path = path.relative_to(to)
+    return str(path).replace(os.sep, "/")
 
 
-def make_path_relative_to_cwd(path: str | Path) -> str:
-    return make_path_relative(to=Path.cwd(), path=str(path))
+def make_path_relative_to_cwd(path: Path) -> str:
+    return _make_path_relative(to=Path.cwd(), path=path)
 
 
 def unique[T](items: Iterable[T]) -> list[T]:
