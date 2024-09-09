@@ -14,7 +14,7 @@ from puya.compile import awst_to_teal
 from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.utils import coalesce
-from puyapy.awst_build.main import transform_ast
+from puyapy.awst_build.main import FAKE_ARC4_PATH, transform_ast
 from puyapy.compile import parse_with_mypy
 from puyapy.options import PuyaPyOptions
 
@@ -296,13 +296,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
         # lower each case further if possible and process
         for case in cases:
             case_awst = [
-                n
-                for n in awst
-                if n.source_location.file == case_path[case]
-                # hacky way to keep "framework" sources included, good enough for now
-                # the real solution here is to remove mypy, so we don't need to do this special
-                # combine+split of sources to achieve decent mypy parsing speed
-                or n.source_location.line < 0
+                n for n in awst if n.source_location.file in (case_path[case], FAKE_ARC4_PATH)
             ]
             # lower awst for each case individually to order to get any output
             # from lower layers
