@@ -51,10 +51,6 @@ class SourceLocation:
         return self.end_line - self.line + 1
 
     def __str__(self) -> str:
-        # TODO: remove .with_comments(), added temporarily to reduce diff
-        if self.comment_lines:
-            return str(self.with_comments())
-
         relative_path = make_path_relative_to_cwd(self.file)
         result = f"{relative_path}:{self.line}"
         if self.end_line != self.line:
@@ -62,10 +58,6 @@ class SourceLocation:
         return result
 
     def __repr__(self) -> str:
-        # TODO: remove .with_comments(), added temporarily to reduce diff
-        if self.comment_lines:
-            return repr(self.with_comments())
-
         result = str(self)
         if self.column is not None:
             result += f":{self.column}"
