@@ -1,19 +1,11 @@
-from __future__ import annotations
-
 import contextlib
 import enum
 import sys
 import traceback
-import typing
-
-import mypy.errors
+from collections.abc import Iterator
 
 from puya import log
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Iterator
-
-    from puya.parse import SourceLocation
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
@@ -59,9 +51,6 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
         yield
     except CodeError as ex:
         logger.error(ex.msg, location=ex.location or fallback_location)  # noqa: TRY400
-    except mypy.errors.CompileError:
-        # errors related to this should have already been logged
-        sys.exit(ErrorExitCode.code)
     except InternalError as ex:
         logger.critical(ex.msg, location=ex.location or fallback_location)
         sys.exit(ErrorExitCode.internal)

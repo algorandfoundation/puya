@@ -43,10 +43,17 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puyapy_options)
-        parse_result = parse_with_mypy(puyapy_options.paths)
-        log_ctx.sources_by_path = parse_result.sources_by_path
-        log_ctx.exit_if_errors()
-        awst, compilation_targets = transform_ast(parse_result)
+        try:
+            parse_result = parse_with_mypy(puyapy_options.paths)
+            log_ctx.sources_by_path = parse_result.sources_by_path
+            log_ctx.exit_if_errors()
+            awst, compilation_targets = transform_ast(parse_result)
+        except mypy.errors.CompileError:
+            # the placement of this catch is probably overly conservative,
+            # but in parse_with_mypy there is a piece copied from mypyc, around setting
+            # the location duration mypy callbacks in case errors are produced.
+            # also this error should have already been logged
+            assert log_ctx.num_errors > 0, "expected mypy errors to be logged"
         log_ctx.exit_if_errors()
         if puyapy_options.output_awst or puyapy_options.output_awst_json:
             awst_out_dir = (
