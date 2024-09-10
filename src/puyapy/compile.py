@@ -51,7 +51,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         except mypy.errors.CompileError:
             # the placement of this catch is probably overly conservative,
             # but in parse_with_mypy there is a piece copied from mypyc, around setting
-            # the location duration mypy callbacks in case errors are produced.
+            # the location during mypy callbacks in case errors are produced.
             # also this error should have already been logged
             assert log_ctx.num_errors > 0, "expected mypy errors to be logged"
         log_ctx.exit_if_errors()
