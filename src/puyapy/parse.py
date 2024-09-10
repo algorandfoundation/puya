@@ -264,7 +264,7 @@ def _try_parse_log_parts(
             line = int(line_str)
         except ValueError:
             line = 1
-        location = SourceLocation(file=path_str, line=line)
+        location = SourceLocation(file=Path(path_str).resolve(), line=line)
     level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity_str]
     return log.Log(message=msg, level=level, location=location)
 

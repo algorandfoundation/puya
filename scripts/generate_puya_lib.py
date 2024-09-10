@@ -17,7 +17,7 @@ def main() -> None:
     puya_lib_path = VCS_ROOT / "src" / LIB_NAME
     output_path = VCS_ROOT / "src" / "puya" / "ir" / "_puya_lib.awst.json"
     find_str = f'"file": "{puya_lib_path}'
-    replace_str = f'"file": "{LIB_NAME}'
+    replace_str = '"file": "/puya/lib'
     replace_awst = awst_path.read_text().replace(find_str, replace_str)
     output_path.write_text(replace_awst)
     awst_path.unlink(missing_ok=True)

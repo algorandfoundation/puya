@@ -8,15 +8,9 @@ import attrs
 from puya.utils import make_path_relative_to_cwd
 
 
-def _resolved_path(p: Path | str) -> Path:
-    if isinstance(p, str):
-        p = Path(p)
-    return p.resolve()
-
-
 @attrs.frozen(kw_only=True, repr=False, str=False)
 class SourceLocation:
-    file: Path = attrs.field(converter=_resolved_path)
+    file: Path = attrs.field()
     line: int = attrs.field(validator=attrs.validators.ge(1))
     end_line: int = attrs.field()
     comment_lines: int = attrs.field(default=0, validator=attrs.validators.ge(0))
@@ -27,6 +21,14 @@ class SourceLocation:
     end_column: int | None = attrs.field(
         default=None, validator=attrs.validators.optional(attrs.validators.ge(1))
     )
+
+    @file.validator
+    def _file_validator(self, _attribute: object, value: Path) -> None:
+        # this check is simply to make sure relative paths aren't accidentally passed in.
+        # so we use root rather than is_absolute(), because that requires a drive on Windows,
+        # which we naturally don't supply for synthetic paths such as embedded lib.
+        if not value.root:
+            raise ValueError(f"source file locations cannot be relative, got {value}")
 
     @end_line.default
     def _end_line_default(self) -> int:
