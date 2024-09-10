@@ -30,21 +30,6 @@ class CodeError(PuyaError):
     """Base class for all exceptions that indicate a fault in the code being compiled."""
 
 
-def _crash_report() -> None:
-    # Adapted from report_internal_error in mypy
-    tb = traceback.extract_stack()[:-4]
-    # Excise all the traceback from the test runner
-    for i, x in enumerate(tb):
-        if x.name == "pytest_runtest_call":
-            tb = tb[i + 1 :]
-            break
-    *_, tb_type = sys.exc_info()
-    tb2 = traceback.extract_tb(tb_type)[1:]
-    output = ["Traceback (most recent call last):"]
-    output.extend(s.rstrip("\n") for s in traceback.format_list(tb + tb2))
-    logger.debug("\n".join(output))
-
-
 @contextlib.contextmanager
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:
     try:
@@ -52,9 +37,15 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
     except CodeError as ex:
         logger.error(ex.msg, location=ex.location or fallback_location)  # noqa: TRY400
     except InternalError as ex:
+        _log_traceback()
         logger.critical(ex.msg, location=ex.location or fallback_location)
         sys.exit(ErrorExitCode.internal)
     except Exception as ex:
-        _crash_report()
+        _log_traceback()
         logger.critical(f"{type(ex).__name__}: {ex}", location=fallback_location)
         sys.exit(ErrorExitCode.internal)
+
+
+def _log_traceback() -> None:
+    traceback_lines = traceback.format_exc()
+    logger.debug(traceback_lines.rstrip("\n"))

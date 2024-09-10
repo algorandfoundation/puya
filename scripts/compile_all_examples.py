@@ -279,7 +279,13 @@ def main(options: CompileAllOptions) -> None:
         print("Compilation failures:")
         for name, stdout in sorted(failures, key=operator.itemgetter(0)):
             print(f" ~~~ {name} ~~~ ")
-            print("\n".join(ln for ln in stdout.splitlines() if not ln.startswith("debug: ")))
+            print(
+                "\n".join(
+                    ln
+                    for ln in stdout.splitlines()
+                    if (ln.startswith("debug: Traceback ") or not ln.startswith("debug: "))
+                )
+            )
     print("Updating sizes.txt")
     if limit_to:
         existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
