@@ -88,11 +88,11 @@ __puya_arc4_router___start_auction_route@3:
 
 __puya_arc4_router___opt_in_route@4:
     // auction/contract.py:62
-    // @arc4.abimethod
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txn OnCompletion
-    int NoOp
+    int OptIn
     ==
-    assert // OnCompletion is NoOp
+    assert // OnCompletion is OptIn
     txn ApplicationID
     int 0
     !=
@@ -166,16 +166,17 @@ __puya_arc4_router___claim_asset_route@7:
     retsub
 
 __puya_arc4_router___switch_case_default@8:
-    b __puya_arc4_router___after_if_else@14
+    b __puya_arc4_router___after_if_else@15
 
 __puya_arc4_router___bare_routing@10:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txn OnCompletion
     int 0
-    uncover 1
-    match __puya_arc4_router_____algopy_default_create@11
-    b __puya_arc4_router___switch_case_default@12
+    int 5
+    uncover 2
+    match __puya_arc4_router_____algopy_default_create@11 __puya_arc4_router___delete_application@12
+    b __puya_arc4_router___switch_case_default@13
 
 __puya_arc4_router_____algopy_default_create@11:
     // auction/contract.py:16
@@ -188,9 +189,23 @@ __puya_arc4_router_____algopy_default_create@11:
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@12:
+__puya_arc4_router___delete_application@12:
+    // auction/contract.py:108
+    // @arc4.baremethod(allow_actions=[OnCompleteAction.DeleteApplication])
+    txn ApplicationID
+    int 0
+    !=
+    assert // is not creating
+    // auction/contract.py:108-109
+    // @arc4.baremethod(allow_actions=[OnCompleteAction.DeleteApplication])
+    // def delete_application(self) -> None:
+    callsub delete_application
+    int 1
+    retsub
 
-__puya_arc4_router___after_if_else@14:
+__puya_arc4_router___switch_case_default@13:
+
+__puya_arc4_router___after_if_else@15:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     int 0
@@ -324,7 +339,7 @@ start_auction:
 // examples.auction.contract.Auction.opt_in() -> void:
 opt_in:
     // auction/contract.py:62-63
-    // @arc4.abimethod
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     // def opt_in(self) -> None:
     proto 0 0
     retsub
@@ -543,6 +558,41 @@ __algopy_default_create:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     proto 0 0
+    retsub
+
+
+// examples.auction.contract.Auction.delete_application() -> void:
+delete_application:
+    // auction/contract.py:108-109
+    // @arc4.baremethod(allow_actions=[OnCompleteAction.DeleteApplication])
+    // def delete_application(self) -> None:
+    proto 0 0
+    // auction/contract.py:110-113
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     close_remainder_to=Global.creator_address,
+    // ).submit()
+    itxn_begin
+    // auction/contract.py:111
+    // receiver=Global.creator_address,
+    global CreatorAddress
+    // auction/contract.py:112
+    // close_remainder_to=Global.creator_address,
+    global CreatorAddress
+    itxn_field CloseRemainderTo
+    itxn_field Receiver
+    // auction/contract.py:110
+    // itxn.Payment(
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // auction/contract.py:110-113
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     close_remainder_to=Global.creator_address,
+    // ).submit()
+    itxn_submit
     retsub
 
 

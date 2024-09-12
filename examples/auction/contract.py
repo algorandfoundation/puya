@@ -1,15 +1,15 @@
 from algopy import (
-    Account,
     ARC4Contract,
     Asset,
     Global,
     LocalState,
+    OnCompleteAction,
+    TemplateVar,
     Txn,
     UInt64,
     arc4,
     gtxn,
     itxn,
-    subroutine,
 )
 
 
@@ -19,15 +19,23 @@ class Auction(ARC4Contract):
         self.previous_bid = UInt64(0)
         self.asa_amount = UInt64(0)
         self.asa = Asset()
-        self.previous_bidder = Account()
+        self.previous_bidder = Global.creator_address
         self.claimable_amount = LocalState(UInt64, key="claim", description="The claimable amount")
 
-    @arc4.abimethod
+    @arc4.baremethod
+    def create(self) -> None:
+        """Creates the contract without choosing an ASA to auction yet."""
+
+    @arc4.abimethod(create="allow")
     def opt_into_asset(self, asset: Asset) -> None:
-        # Only allow app creator to opt the app account into a ASA
-        assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
-        # Verify a ASA hasn't already been opted into
-        assert self.asa.id == 0, "ASA already opted in"
+        """
+        Sets the ASA to be auctioned, this must be called before starting the auction
+        so that the contract can receive the ASA transfer.
+        This method can be invoked on creation to save a transaction.
+        """
+        assert Txn.sender == Global.creator_address
+        # ensure auction hasn't started
+        assert self.auction_end == 0, "auction already started"
         # Save ASA ID in global state
         self.asa = asset
 
@@ -44,7 +52,7 @@ class Auction(ARC4Contract):
         length: UInt64,
         axfer: gtxn.AssetTransferTransaction,
     ) -> None:
-        assert Txn.sender == Global.creator_address, "auction must be started by creator"
+        assert Txn.sender == Global.creator_address
 
         # Ensure the auction hasn't already been started
         assert self.auction_end == 0, "auction already started"
@@ -53,17 +61,52 @@ class Auction(ARC4Contract):
         assert (
             axfer.asset_receiver == Global.current_application_address
         ), "axfer must transfer to this app"
+        assert axfer.xfer_asset == self.asa
 
         # Set global state
         self.asa_amount = axfer.asset_amount
         self.auction_end = Global.latest_timestamp + length
+        # set the previous bidder to the creator, so that if the auction ends
+        # without a successful bid, the creator can reclaim it
+        self.previous_bidder = Global.creator_address
         self.previous_bid = starting_price
 
-    @arc4.abimethod
+    @arc4.baremethod(allow_actions=[OnCompleteAction.UpdateApplication])
+    def update(self) -> None:
+        """
+        Allow creator to update the application if configured to be updatable at deploy time.
+
+        This is useful during development, but probably should not be enabled in production.
+        """
+        assert Txn.sender == Global.creator_address
+        assert TemplateVar[bool]("UPDATABLE")
+
+    @arc4.abimethod(
+        allow_actions=[OnCompleteAction.DeleteApplication],
+        default_args={"_asset": "asa"},  # TODO: does this work if ASA is zero?
+    )
+    def delete(self, _asset: Asset) -> None:
+        """Allows the creator to delete this contract, provided the auction is not in progress,
+        and the contract no longer holds the asset under auction if there is one."""
+        assert Txn.sender == Global.creator_address
+        if self.auction_end != 0:
+            assert (
+                self.auction_end == 0 or Global.latest_timestamp > self.auction_end
+            ), "auction is in progress"
+            assert (
+                self.asa.balance(Global.current_application_address) == 0
+            ), "ASA has not been claimed"
+        # Allow creator to withdraw all remaining ALGO
+        itxn.Payment(
+            receiver=Global.creator_address,
+            close_remainder_to=Global.creator_address,
+        ).submit()
+
+    @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     def opt_in(self) -> None:
         pass
 
-    @arc4.abimethod
+    @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     def bid(self, pay: gtxn.PaymentTransaction) -> None:
         # Ensure auction hasn't ended
         assert Global.latest_timestamp < self.auction_end, "auction has ended"
@@ -71,6 +114,7 @@ class Auction(ARC4Contract):
         # Verify payment transaction
         assert pay.sender == Txn.sender, "payment sender must match transaction sender"
         assert pay.amount > self.previous_bid, "Bid must be higher than previous bid"
+        assert pay.receiver == Global.current_application_address
 
         # set global state
         self.previous_bid = pay.amount
@@ -94,23 +138,19 @@ class Auction(ARC4Contract):
 
         self.claimable_amount[Txn.sender] = original_amount - amount
 
-    @arc4.abimethod
-    def claim_asset(self, asset: Asset) -> None:
+    @arc4.abimethod(default_args={"_asset": "asa"})
+    def claim_asset(self, _asset: Asset) -> None:
+        """
+        Once the auction is over, this transfers the ASA to the successful bidder,
+        or returns it to the creator if there were no successful bids.
+
+        Note that the recipient must be opted into the asset for this to succeed.
+        """
         assert Global.latest_timestamp > self.auction_end, "auction has not ended"
         # Send ASA to previous bidder
         itxn.AssetTransfer(
-            xfer_asset=asset,
+            xfer_asset=self.asa,
             asset_close_to=self.previous_bidder,
             asset_receiver=self.previous_bidder,
             asset_amount=self.asa_amount,
         ).submit()
-
-    @subroutine
-    def delete_application(self) -> None:
-        itxn.Payment(
-            receiver=Global.creator_address,
-            close_remainder_to=Global.creator_address,
-        ).submit()
-
-    def clear_state_program(self) -> bool:
-        return True

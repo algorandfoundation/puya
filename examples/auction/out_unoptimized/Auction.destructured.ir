@@ -51,8 +51,8 @@ contract examples.auction.contract.Auction:
                 return 1u
             block@4: // opt_in_route_L62
                 let tmp%19#0: uint64 = (txn OnCompletion)
-                let tmp%20#0: bool = (== tmp%19#0 NoOp)
-                (assert tmp%20#0) // OnCompletion is NoOp
+                let tmp%20#0: bool = (== tmp%19#0 OptIn)
+                (assert tmp%20#0) // OnCompletion is OptIn
                 let tmp%21#0: uint64 = (txn ApplicationID)
                 let tmp%22#0: bool = (!= tmp%21#0 0u)
                 (assert tmp%22#0) // is not creating
@@ -96,21 +96,27 @@ contract examples.auction.contract.Auction:
             block@8: // switch_case_default_L16
                 goto block@9
             block@9: // switch_case_next_L16
-                goto block@14
+                goto block@15
             block@10: // bare_routing_L16
                 let tmp%39#0: uint64 = (txn OnCompletion)
-                switch tmp%39#0 {0u => block@11, * => block@12}
+                switch tmp%39#0 {0u => block@11, 5u => block@12, * => block@13}
             block@11: // __algopy_default_create_L16
                 let tmp%40#0: uint64 = (txn ApplicationID)
                 let tmp%41#0: bool = (== tmp%40#0 0u)
                 (assert tmp%41#0) // is creating
                 examples.auction.contract.Auction.__algopy_default_create()
                 return 1u
-            block@12: // switch_case_default_L16
-                goto block@13
-            block@13: // switch_case_next_L16
+            block@12: // delete_application_L108
+                let tmp%42#0: uint64 = (txn ApplicationID)
+                let tmp%43#0: bool = (!= tmp%42#0 0u)
+                (assert tmp%43#0) // is not creating
+                examples.auction.contract.Auction.delete_application()
+                return 1u
+            block@13: // switch_case_default_L16
                 goto block@14
-            block@14: // after_if_else_L16
+            block@14: // switch_case_next_L16
+                goto block@15
+            block@15: // after_if_else_L16
                 return 0u
         
         subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
@@ -256,6 +262,20 @@ contract examples.auction.contract.Auction:
             block@0: // L16
                 return 
         
+        subroutine examples.auction.contract.Auction.delete_application() -> void:
+            block@0: // L108
+                itxn_begin
+                let inner_txn_params%0%%param_Receiver_idx_0#0: bytes = (global CreatorAddress)
+                let inner_txn_params%0%%param_CloseRemainderTo_idx_0#0: bytes = (global CreatorAddress)
+                ((itxn_field CloseRemainderTo) inner_txn_params%0%%param_CloseRemainderTo_idx_0#0)
+                ((itxn_field Receiver) inner_txn_params%0%%param_Receiver_idx_0#0)
+                ((itxn_field TypeEnum) pay)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L110
+                itxn_submit
+                return 
+        
         subroutine examples.auction.contract.Auction.__init__() -> void:
             block@0: // L17
                 (app_global_put "auction_end" 0u)
@@ -267,6 +287,6 @@ contract examples.auction.contract.Auction:
                 return 
     
     program clear-state:
-        subroutine examples.auction.contract.Auction.clear_state_program() -> bool:
-            block@0: // L115
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L1
                 return 1u

@@ -77,10 +77,11 @@ __puya_arc4_router___start_auction_route@3:
 
 __puya_arc4_router___opt_in_route@4:
     // auction/contract.py:62
-    // @arc4.abimethod
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txn OnCompletion
-    !
-    assert // OnCompletion is NoOp
+    int OptIn
+    ==
+    assert // OnCompletion is OptIn
     txn ApplicationID
     assert // is not creating
     int 1
@@ -144,18 +145,32 @@ __puya_arc4_router___claim_asset_route@7:
 __puya_arc4_router___bare_routing@10:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
+    int 0
+    int 5
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@14
+    match __puya_arc4_router_____algopy_default_create@11 __puya_arc4_router___delete_application@12
+    int 0
+    retsub
+
+__puya_arc4_router_____algopy_default_create@11:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@14:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    int 0
+__puya_arc4_router___delete_application@12:
+    // auction/contract.py:108
+    // @arc4.baremethod(allow_actions=[OnCompleteAction.DeleteApplication])
+    txn ApplicationID
+    assert // is not creating
+    // auction/contract.py:108-109
+    // @arc4.baremethod(allow_actions=[OnCompleteAction.DeleteApplication])
+    // def delete_application(self) -> None:
+    callsub delete_application
+    int 1
     retsub
 
 
@@ -472,6 +487,41 @@ claim_asset:
     //     asset_close_to=self.previous_bidder,
     //     asset_receiver=self.previous_bidder,
     //     asset_amount=self.asa_amount,
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// examples.auction.contract.Auction.delete_application() -> void:
+delete_application:
+    // auction/contract.py:108-109
+    // @arc4.baremethod(allow_actions=[OnCompleteAction.DeleteApplication])
+    // def delete_application(self) -> None:
+    proto 0 0
+    // auction/contract.py:110-113
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     close_remainder_to=Global.creator_address,
+    // ).submit()
+    itxn_begin
+    // auction/contract.py:111
+    // receiver=Global.creator_address,
+    global CreatorAddress
+    // auction/contract.py:112
+    // close_remainder_to=Global.creator_address,
+    dup
+    itxn_field CloseRemainderTo
+    itxn_field Receiver
+    // auction/contract.py:110
+    // itxn.Payment(
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // auction/contract.py:110-113
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     close_remainder_to=Global.creator_address,
     // ).submit()
     itxn_submit
     retsub

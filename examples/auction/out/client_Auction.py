@@ -21,7 +21,7 @@ class Auction(algopy.arc4.ARC4Client, typing.Protocol):
         axfer: algopy.gtxn.AssetTransferTransaction,
     ) -> None: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(allow_actions=['OptIn'])
     def opt_in(
         self,
     ) -> None: ...

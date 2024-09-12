@@ -51,8 +51,8 @@ contract examples.auction.contract.Auction:
                 return 1u
             block@4: // opt_in_route_L62
                 let tmp%19#0: uint64 = (txn OnCompletion)
-                let tmp%20#0: bool = (== tmp%19#0 NoOp)
-                (assert tmp%20#0) // OnCompletion is NoOp
+                let tmp%20#0: bool = (== tmp%19#0 OptIn)
+                (assert tmp%20#0) // OnCompletion is OptIn
                 let tmp%21#0: uint64 = (txn ApplicationID)
                 let tmp%22#0: bool = (!= tmp%21#0 0u)
                 (assert tmp%22#0) // is not creating
@@ -96,21 +96,27 @@ contract examples.auction.contract.Auction:
             block@8: // switch_case_default_L16
                 goto block@9
             block@9: // switch_case_next_L16
-                goto block@14
+                goto block@15
             block@10: // bare_routing_L16
                 let tmp%39#0: uint64 = (txn OnCompletion)
-                switch tmp%39#0 {0u => block@11, * => block@12}
+                switch tmp%39#0 {0u => block@11, 5u => block@12, * => block@13}
             block@11: // __algopy_default_create_L16
                 let tmp%40#0: uint64 = (txn ApplicationID)
                 let tmp%41#0: bool = (== tmp%40#0 0u)
                 (assert tmp%41#0) // is creating
                 examples.auction.contract.Auction.__algopy_default_create()
                 return 1u
-            block@12: // switch_case_default_L16
-                goto block@13
-            block@13: // switch_case_next_L16
+            block@12: // delete_application_L108
+                let tmp%42#0: uint64 = (txn ApplicationID)
+                let tmp%43#0: bool = (!= tmp%42#0 0u)
+                (assert tmp%43#0) // is not creating
+                examples.auction.contract.Auction.delete_application()
+                return 1u
+            block@13: // switch_case_default_L16
                 goto block@14
-            block@14: // after_if_else_L16
+            block@14: // switch_case_next_L16
+                goto block@15
+            block@15: // after_if_else_L16
                 return 0u
         
         subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
@@ -416,6 +422,74 @@ contract examples.auction.contract.Auction:
             block@0: // L16
                 return 
         
+        subroutine examples.auction.contract.Auction.delete_application() -> void:
+            block@0: // L108
+                itxn_begin
+                let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = pay
+                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_Receiver_idx_0#0: bytes = (global CreatorAddress)
+                let inner_txn_params%0%%Receiver_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_CloseRemainderTo_idx_0#0: bytes = (global CreatorAddress)
+                let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 1u
+                let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%0%%Note_length#0: uint64 = 0u
+                let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+                let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%0%%Type_length#0: uint64 = 0u
+                let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApplicationID_length#0: uint64 = 0u
+                let inner_txn_params%0%%OnCompletion_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 0u
+                let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 0u
+                ((itxn_field CloseRemainderTo) inner_txn_params%0%%param_CloseRemainderTo_idx_0#0)
+                ((itxn_field Receiver) inner_txn_params%0%%param_Receiver_idx_0#0)
+                ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L110
+                itxn_submit
+                return 
+        
         subroutine examples.auction.contract.Auction.__init__() -> void:
             block@0: // L17
                 (app_global_put "auction_end" 0u)
@@ -427,6 +501,6 @@ contract examples.auction.contract.Auction:
                 return 
     
     program clear-state:
-        subroutine examples.auction.contract.Auction.clear_state_program() -> bool:
-            block@0: // L115
+        subroutine algopy.arc4.ARC4Contract.clear_state_program() -> bool:
+            block@0: // L1
                 return 1u

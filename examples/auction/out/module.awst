@@ -20,11 +20,6 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     GlobalState['previous_bidder']: account = global<ZeroAddress>()
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
   baremethod __algopy_default_create(): void
   {
   }
@@ -78,7 +73,7 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetCloseTo=GlobalState['previous_bidder'], AssetReceiver=GlobalState['previous_bidder'], AssetAmount=GlobalState['asa_amount']))
   }
   
-  subroutine delete_application(): void
+  baremethod delete_application(): void
   {
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=global<CreatorAddress>(), CloseRemainderTo=global<CreatorAddress>()))
   }
