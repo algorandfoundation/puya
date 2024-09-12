@@ -1,4 +1,6 @@
 import argparse
+import typing
+from collections.abc import Sequence
 from importlib.metadata import version
 from pathlib import Path
 
@@ -8,6 +10,7 @@ from puya.options import LocalsCoalescingStrategy
 
 from puyapy.compile import compile_to_teal
 from puyapy.options import PuyaPyOptions
+from puyapy.template import parse_template_key_value
 
 
 def main() -> None:
@@ -113,12 +116,11 @@ def main() -> None:
         "--template-var",
         dest="cli_template_definitions",
         metavar="VAR=VALUE",
-        action="append",
+        action=_ParseAndStoreTemplateVar,
+        nargs="+",
         help="Define template vars for use when assembling via --output-bytecode"
         " should be specified without the prefix (see --template-vars-prefix), e.g."
-        " -T=SOME_INT=1234"
-        " -T=SOME_BYTES=0x1A2B"
-        ' -T=SOME_STR=\\"hello\\"',
+        ' -T SOME_INT=1234 SOME_BYTES=0x1A2B SOME_BOOL=True SOME_STR=\\"hello\\"',
     )
     parser.add_argument(
         "--template-vars-prefix",
@@ -147,6 +149,32 @@ def main() -> None:
     parser.parse_args(namespace=options)
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
+
+
+class _ParseAndStoreTemplateVar(argparse.Action):
+    @typing.override
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[typing.Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        mapping: dict[str, int | bytes] = dict(getattr(namespace, self.dest, {}))
+        lst = []
+        if isinstance(values, str):
+            lst = [values]
+        elif values:
+            for value in values:
+                assert isinstance(value, str)
+                lst.append(value)
+        for kv in lst:
+            try:
+                name, value = parse_template_key_value(kv)
+            except Exception as ex:
+                parser.error(str(ex))
+            mapping[name] = value
+        setattr(namespace, self.dest, mapping)
 
 
 if __name__ == "__main__":
