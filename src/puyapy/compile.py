@@ -79,7 +79,8 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         log_ctx.exit_if_errors()
         if puyapy_options.output_client:
             write_arc32_clients(compilation_set, teal)
-        log_ctx.exit_if_errors()
+    # needs to be outside the with block
+    log_ctx.exit_if_errors()
 
 
 def write_arc32_clients(

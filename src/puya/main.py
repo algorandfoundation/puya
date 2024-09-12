@@ -45,3 +45,5 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
                 case other:
                     logger.error(f"unexpected compilation target type: {type(other).__name__}")
         awst_to_teal(log_ctx, options, compilation_set, sources_by_path, awst)
+    # note: needs to be outside the with block
+    log_ctx.exit_if_errors()
