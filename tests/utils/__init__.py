@@ -15,6 +15,7 @@ from puyapy.awst_build.main import transform_ast
 from puyapy.compile import output_awst, parse_with_mypy, write_arc32_clients
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
+from puyapy.template import parse_template_key_value
 from puyapy.utils import determine_out_dir
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
@@ -217,14 +218,16 @@ def get_all_examples() -> list[PuyaExample]:
     ]
 
 
-def load_template_vars(path: Path | None) -> tuple[str, list[str]]:
-    result = []
+def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:
     prefix = "TMPL_"
+    prefix_prefix = "prefix="
+
+    result = {}
     if path is not None:
         for line in path.read_text("utf8").splitlines():
-            var, value_str = line.split("=", maxsplit=1)
-            if var == "prefix":
-                prefix = value_str
+            if line.startswith(prefix_prefix):
+                prefix = line.removeprefix(prefix_prefix)
             else:
-                result.append(line)
+                key, value = parse_template_key_value(line)
+                result[key] = value
     return prefix, result

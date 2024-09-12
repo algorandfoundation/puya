@@ -17,6 +17,7 @@ from puya.utils import coalesce
 from puyapy.awst_build.main import FAKE_ARC4_PATH, transform_ast
 from puyapy.compile import parse_with_mypy
 from puyapy.options import PuyaPyOptions
+from puyapy.template import parse_template_key_value
 
 from tests.utils import narrowed_compile_context
 
@@ -96,7 +97,7 @@ class TestCase:
     name: str
     src_line: int
     files: list[TestCaseFile] = attrs.field(factory=list)
-    template_vars: list[str] = attrs.field(factory=list)
+    template_vars: dict[str, int | bytes] = attrs.field(factory=dict)
     approved_case_source: list[str] = attrs.field(factory=list)
     """An adjusted test case source that has all the expected output as comments.
     Defaults to original input if test case is not executed"""
@@ -183,7 +184,8 @@ def parse_file(path: Path) -> tuple[list[str], list[TestCase]]:
                     raise ValueError(
                         f"Template encountered before a case is defined {path}:{line_num}"
                     )
-                current_case.template_vars.append(template)
+                template_var_name, template_var_value = parse_template_key_value(template)
+                current_case.template_vars[template_var_name] = template_var_value
             elif maybe_collecting_output_for := line_matches_prefix(line, EXPECTED_PREFIX):
                 if not current_case:
                     raise ValueError(

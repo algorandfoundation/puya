@@ -4,7 +4,6 @@ from functools import cached_property
 
 import attrs
 
-from puya import template
 from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION
 
 
@@ -27,7 +26,7 @@ class PuyaOptions:
     debug_level: int = 1
     optimization_level: int = 1
     target_avm_version: int = MAINNET_TEAL_LANGUAGE_VERSION
-    cli_template_definitions: list[str] = attrs.field(factory=list)
+    cli_template_definitions: Mapping[str, int | bytes] = attrs.field(factory=dict)
     template_vars_prefix: str = "TMPL_"
     # TODO: the below is probably not scalable as a set of optimisation on/off flags,
     #       but it'll do for now
@@ -35,6 +34,4 @@ class PuyaOptions:
 
     @cached_property
     def template_variables(self) -> Mapping[str, int | bytes]:
-        return template.parse_template_vars(
-            self.cli_template_definitions, self.template_vars_prefix
-        )
+        return {self.template_vars_prefix + k: v for k, v in self.cli_template_definitions.items()}
