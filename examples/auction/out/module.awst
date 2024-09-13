@@ -20,11 +20,6 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     GlobalState['previous_bidder']: account = global<ZeroAddress>()
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
   baremethod __algopy_default_create(): void
   {
   }
@@ -37,7 +32,7 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, AssetReceiver=global<CurrentApplicationAddress>(), XferAsset=asset))
   }
   
-  abimethod start_auction(starting_price: uint64, length: uint64, axfer: group_transaction_axfer): void
+  abimethod start_auction(starting_price: uint64, length: uint64, axfer: group_transaction_axfer): uint64
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="auction must be started by creator")
     assert(GlobalState['auction_end'] == 0u, comment="auction already started")
@@ -45,13 +40,14 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     GlobalState['asa_amount']: uint64 = gtxns<AssetAmount>(axfer)
     GlobalState['auction_end']: uint64 = global<LatestTimestamp>() + length
     GlobalState['previous_bid']: uint64 = starting_price
+    return global<LatestTimestamp>()
   }
   
   abimethod opt_in(): void
   {
   }
   
-  abimethod bid(pay: group_transaction_pay): void
+  abimethod bid(pay: group_transaction_pay): uint64
   {
     assert(global<LatestTimestamp>() < GlobalState['auction_end'], comment="auction has ended")
     assert(gtxns<Sender>(pay) == txn<Sender>(), comment="payment sender must match transaction sender")
@@ -59,9 +55,10 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     GlobalState['previous_bid']: uint64 = gtxns<Amount>(pay)
     GlobalState['previous_bidder']: account = gtxns<Sender>(pay)
     LocalState['claim', txn<Sender>()]: uint64 = gtxns<Amount>(pay)
+    return GlobalState['previous_bid']
   }
   
-  abimethod claim_bids(): void
+  abimethod claim_bids(): uint64
   {
     original_amount: uint64 = SINGLE_EVAL(id=0, source=LocalState['claim', txn<Sender>()])
     amount: uint64 = SINGLE_EVAL(id=0)
@@ -70,16 +67,19 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     }
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=amount, Receiver=txn<Sender>()))
     LocalState['claim', txn<Sender>()]: uint64 = original_amount - amount
+    return amount
   }
   
   abimethod claim_asset(asset: asset): void
   {
     assert(global<LatestTimestamp>() > GlobalState['auction_end'], comment="auction has not ended")
+    assert(txn<Sender>() == GlobalState['previous_bidder'], comment="only previous bidder can claim asset")
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetCloseTo=GlobalState['previous_bidder'], AssetReceiver=GlobalState['previous_bidder'], AssetAmount=GlobalState['asa_amount']))
   }
   
-  subroutine delete_application(): void
+  abimethod delete_application(): void
   {
+    assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can delete app")
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=global<CreatorAddress>(), CloseRemainderTo=global<CreatorAddress>()))
   }
 }

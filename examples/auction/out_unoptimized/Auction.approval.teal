@@ -12,26 +12,27 @@ main_entrypoint@2:
 
 // examples.auction.contract.Auction.__puya_arc4_router__() -> uint64:
 __puya_arc4_router__:
-    // auction/contract.py:16
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     proto 0 1
     txn NumAppArgs
     int 0
     !=
-    bz __puya_arc4_router___bare_routing@10
+    bz __puya_arc4_router___bare_routing@11
     txna ApplicationArgs 0
     method "opt_into_asset(asset)void"
-    method "start_auction(uint64,uint64,axfer)void"
+    method "start_auction(uint64,uint64,axfer)uint64"
     method "opt_in()void"
-    method "bid(pay)void"
-    method "claim_bids()void"
+    method "bid(pay)uint64"
+    method "claim_bids()uint64"
     method "claim_asset(asset)void"
-    uncover 6
-    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7
-    b __puya_arc4_router___switch_case_default@8
+    method "delete_application()void"
+    uncover 7
+    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7 __puya_arc4_router___delete_application_route@8
+    b __puya_arc4_router___switch_case_default@9
 
 __puya_arc4_router___opt_into_asset_route@2:
-    // auction/contract.py:25
+    // auction/contract.py:24
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -41,19 +42,19 @@ __puya_arc4_router___opt_into_asset_route@2:
     int 0
     !=
     assert // is not creating
-    // auction/contract.py:16
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txnas Assets
-    // auction/contract.py:25
+    // auction/contract.py:24
     // @arc4.abimethod
     callsub opt_into_asset
     int 1
     retsub
 
 __puya_arc4_router___start_auction_route@3:
-    // auction/contract.py:40
+    // auction/contract.py:39
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -63,7 +64,7 @@ __puya_arc4_router___start_auction_route@3:
     int 0
     !=
     assert // is not creating
-    // auction/contract.py:16
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
     btoi
@@ -77,22 +78,27 @@ __puya_arc4_router___start_auction_route@3:
     int axfer
     ==
     assert // transaction type is axfer
-    // auction/contract.py:40
+    // auction/contract.py:39
     // @arc4.abimethod
     uncover 2
     uncover 2
     uncover 2
     callsub start_auction
+    itob
+    byte 0x151f7c75
+    uncover 1
+    concat
+    log
     int 1
     retsub
 
 __puya_arc4_router___opt_in_route@4:
-    // auction/contract.py:62
-    // @arc4.abimethod
+    // auction/contract.py:63
+    // @arc4.abimethod(allow_actions=["OptIn"])
     txn OnCompletion
-    int NoOp
+    int OptIn
     ==
-    assert // OnCompletion is NoOp
+    assert // OnCompletion is OptIn
     txn ApplicationID
     int 0
     !=
@@ -102,7 +108,7 @@ __puya_arc4_router___opt_in_route@4:
     retsub
 
 __puya_arc4_router___bid_route@5:
-    // auction/contract.py:66
+    // auction/contract.py:67
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -112,7 +118,7 @@ __puya_arc4_router___bid_route@5:
     int 0
     !=
     assert // is not creating
-    // auction/contract.py:16
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     txn GroupIndex
     int 1
@@ -122,14 +128,19 @@ __puya_arc4_router___bid_route@5:
     int pay
     ==
     assert // transaction type is pay
-    // auction/contract.py:66
+    // auction/contract.py:67
     // @arc4.abimethod
     callsub bid
+    itob
+    byte 0x151f7c75
+    uncover 1
+    concat
+    log
     int 1
     retsub
 
 __puya_arc4_router___claim_bids_route@6:
-    // auction/contract.py:82
+    // auction/contract.py:87
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -140,11 +151,16 @@ __puya_arc4_router___claim_bids_route@6:
     !=
     assert // is not creating
     callsub claim_bids
+    itob
+    byte 0x151f7c75
+    uncover 1
+    concat
+    log
     int 1
     retsub
 
 __puya_arc4_router___claim_asset_route@7:
-    // auction/contract.py:97
+    // auction/contract.py:104
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -154,31 +170,46 @@ __puya_arc4_router___claim_asset_route@7:
     int 0
     !=
     assert // is not creating
-    // auction/contract.py:16
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txnas Assets
-    // auction/contract.py:97
+    // auction/contract.py:104
     // @arc4.abimethod
     callsub claim_asset
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@8:
-    b __puya_arc4_router___after_if_else@14
+__puya_arc4_router___delete_application_route@8:
+    // auction/contract.py:117
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    int DeleteApplication
+    ==
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID
+    int 0
+    !=
+    assert // is not creating
+    callsub delete_application
+    int 1
+    retsub
 
-__puya_arc4_router___bare_routing@10:
-    // auction/contract.py:16
+__puya_arc4_router___switch_case_default@9:
+    b __puya_arc4_router___after_if_else@15
+
+__puya_arc4_router___bare_routing@11:
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match __puya_arc4_router_____algopy_default_create@11
-    b __puya_arc4_router___switch_case_default@12
+    match __puya_arc4_router_____algopy_default_create@12
+    b __puya_arc4_router___switch_case_default@13
 
-__puya_arc4_router_____algopy_default_create@11:
-    // auction/contract.py:16
+__puya_arc4_router_____algopy_default_create@12:
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     txn ApplicationID
     int 0
@@ -188,10 +219,10 @@ __puya_arc4_router_____algopy_default_create@11:
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@12:
+__puya_arc4_router___switch_case_default@13:
 
-__puya_arc4_router___after_if_else@14:
-    // auction/contract.py:16
+__puya_arc4_router___after_if_else@15:
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     int 0
     retsub
@@ -199,18 +230,18 @@ __puya_arc4_router___after_if_else@14:
 
 // examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
 opt_into_asset:
-    // auction/contract.py:25-26
+    // auction/contract.py:24-25
     // @arc4.abimethod
     // def opt_into_asset(self, asset: Asset) -> None:
     proto 1 0
-    // auction/contract.py:27-28
+    // auction/contract.py:26-27
     // # Only allow app creator to opt the app account into a ASA
     // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
     txn Sender
     global CreatorAddress
     ==
     assert // Only creator can opt in to ASA
-    // auction/contract.py:29-30
+    // auction/contract.py:28-29
     // # Verify a ASA hasn't already been opted into
     // assert self.asa.id == 0, "ASA already opted in"
     int 0
@@ -220,35 +251,35 @@ opt_into_asset:
     int 0
     ==
     assert // ASA already opted in
-    // auction/contract.py:31-32
+    // auction/contract.py:30-31
     // # Save ASA ID in global state
     // self.asa = asset
     byte "asa"
     frame_dig -1
     app_global_put
-    // auction/contract.py:34-38
+    // auction/contract.py:33-37
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
     //     asset_receiver=Global.current_application_address,
     //     xfer_asset=asset,
     // ).submit()
     itxn_begin
-    // auction/contract.py:36
+    // auction/contract.py:35
     // asset_receiver=Global.current_application_address,
     global CurrentApplicationAddress
-    // auction/contract.py:26
+    // auction/contract.py:25
     // def opt_into_asset(self, asset: Asset) -> None:
     frame_dig -1
     itxn_field XferAsset
     itxn_field AssetReceiver
-    // auction/contract.py:34-35
+    // auction/contract.py:33-34
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
     int 0
     itxn_field Fee
-    // auction/contract.py:34-38
+    // auction/contract.py:33-37
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
     //     asset_receiver=Global.current_application_address,
@@ -258,24 +289,24 @@ opt_into_asset:
     retsub
 
 
-// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
+// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> uint64:
 start_auction:
-    // auction/contract.py:40-46
+    // auction/contract.py:39-45
     // @arc4.abimethod
     // def start_auction(
     //     self,
     //     starting_price: UInt64,
     //     length: UInt64,
     //     axfer: gtxn.AssetTransferTransaction,
-    // ) -> None:
-    proto 3 0
-    // auction/contract.py:47
+    // ) -> UInt64:
+    proto 3 1
+    // auction/contract.py:46
     // assert Txn.sender == Global.creator_address, "auction must be started by creator"
     txn Sender
     global CreatorAddress
     ==
     assert // auction must be started by creator
-    // auction/contract.py:49-50
+    // auction/contract.py:48-49
     // # Ensure the auction hasn't already been started
     // assert self.auction_end == 0, "auction already started"
     int 0
@@ -285,19 +316,19 @@ start_auction:
     int 0
     ==
     assert // auction already started
-    // auction/contract.py:54
+    // auction/contract.py:53
     // axfer.asset_receiver == Global.current_application_address
     frame_dig -1
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
-    // auction/contract.py:52-55
+    // auction/contract.py:51-54
     // # Verify axfer
     // assert (
     //     axfer.asset_receiver == Global.current_application_address
     // ), "axfer must transfer to this app"
     assert // axfer must transfer to this app
-    // auction/contract.py:57-58
+    // auction/contract.py:56-57
     // # Set global state
     // self.asa_amount = axfer.asset_amount
     frame_dig -1
@@ -305,7 +336,7 @@ start_auction:
     byte "asa_amount"
     uncover 1
     app_global_put
-    // auction/contract.py:59
+    // auction/contract.py:58
     // self.auction_end = Global.latest_timestamp + length
     global LatestTimestamp
     frame_dig -2
@@ -313,30 +344,33 @@ start_auction:
     byte "auction_end"
     uncover 1
     app_global_put
-    // auction/contract.py:60
+    // auction/contract.py:59
     // self.previous_bid = starting_price
     byte "previous_bid"
     frame_dig -3
     app_global_put
+    // auction/contract.py:61
+    // return Global.latest_timestamp
+    global LatestTimestamp
     retsub
 
 
 // examples.auction.contract.Auction.opt_in() -> void:
 opt_in:
-    // auction/contract.py:62-63
-    // @arc4.abimethod
+    // auction/contract.py:63-64
+    // @arc4.abimethod(allow_actions=["OptIn"])
     // def opt_in(self) -> None:
     proto 0 0
     retsub
 
 
-// examples.auction.contract.Auction.bid(pay: uint64) -> void:
+// examples.auction.contract.Auction.bid(pay: uint64) -> uint64:
 bid:
-    // auction/contract.py:66-67
+    // auction/contract.py:67-68
     // @arc4.abimethod
-    // def bid(self, pay: gtxn.PaymentTransaction) -> None:
-    proto 1 0
-    // auction/contract.py:68-69
+    // def bid(self, pay: gtxn.PaymentTransaction) -> UInt64:
+    proto 1 1
+    // auction/contract.py:69-70
     // # Ensure auction hasn't ended
     // assert Global.latest_timestamp < self.auction_end, "auction has ended"
     global LatestTimestamp
@@ -346,7 +380,7 @@ bid:
     assert // check self.auction_end exists
     <
     assert // auction has ended
-    // auction/contract.py:71-72
+    // auction/contract.py:72-73
     // # Verify payment transaction
     // assert pay.sender == Txn.sender, "payment sender must match transaction sender"
     frame_dig -1
@@ -354,7 +388,7 @@ bid:
     txn Sender
     ==
     assert // payment sender must match transaction sender
-    // auction/contract.py:73
+    // auction/contract.py:74
     // assert pay.amount > self.previous_bid, "Bid must be higher than previous bid"
     frame_dig -1
     gtxns Amount
@@ -364,7 +398,7 @@ bid:
     assert // check self.previous_bid exists
     >
     assert // Bid must be higher than previous bid
-    // auction/contract.py:75-76
+    // auction/contract.py:76-77
     // # set global state
     // self.previous_bid = pay.amount
     frame_dig -1
@@ -372,33 +406,54 @@ bid:
     byte "previous_bid"
     uncover 1
     app_global_put
-    // auction/contract.py:77
+    // auction/contract.py:78
     // self.previous_bidder = pay.sender
     frame_dig -1
     gtxns Sender
     byte "previous_bidder"
     uncover 1
     app_global_put
-    // auction/contract.py:79-80
+    // auction/contract.py:80-81
     // # Update claimable amount
-    // self.claimable_amount[Txn.sender] = pay.amount
+    // self.claimable_amount[Txn.sender] = (
     txn Sender
+    // auction/contract.py:82
+    // pay.amount
     frame_dig -1
     gtxns Amount
+    // auction/contract.py:80-83
+    // # Update claimable amount
+    // self.claimable_amount[Txn.sender] = (
+    //     pay.amount
+    // )  # will fail if Txn.sender is not opted into the app yet
     uncover 1
+    // auction/contract.py:80-81
+    // # Update claimable amount
+    // self.claimable_amount[Txn.sender] = (
     byte "claim"
+    // auction/contract.py:80-83
+    // # Update claimable amount
+    // self.claimable_amount[Txn.sender] = (
+    //     pay.amount
+    // )  # will fail if Txn.sender is not opted into the app yet
     uncover 2
     app_local_put
+    // auction/contract.py:85
+    // return self.previous_bid  # Return the new highest bid amount
+    int 0
+    byte "previous_bid"
+    app_global_get_ex
+    assert // check self.previous_bid exists
     retsub
 
 
-// examples.auction.contract.Auction.claim_bids() -> void:
+// examples.auction.contract.Auction.claim_bids() -> uint64:
 claim_bids:
-    // auction/contract.py:82-83
+    // auction/contract.py:87-88
     // @arc4.abimethod
-    // def claim_bids(self) -> None:
-    proto 0 0
-    // auction/contract.py:84
+    // def claim_bids(self) -> UInt64:
+    proto 0 1
+    // auction/contract.py:89
     // amount = original_amount = self.claimable_amount[Txn.sender]
     txn Sender
     int 0
@@ -409,7 +464,7 @@ claim_bids:
     cover 1
     dup
     cover 1
-    // auction/contract.py:86-87
+    // auction/contract.py:91-92
     // # subtract previous bid if sender is previous bidder
     // if Txn.sender == self.previous_bidder:
     txn Sender
@@ -419,7 +474,7 @@ claim_bids:
     assert // check self.previous_bidder exists
     ==
     bz claim_bids_after_if_else@2
-    // auction/contract.py:88
+    // auction/contract.py:93
     // amount -= self.previous_bid
     int 0
     byte "previous_bid"
@@ -434,49 +489,54 @@ claim_bids_after_if_else@2:
     frame_dig 2
     dup
     frame_bury 1
-    // auction/contract.py:90-93
+    // auction/contract.py:95-98
     // itxn.Payment(
     //     amount=amount,
     //     receiver=Txn.sender,
     // ).submit()
     itxn_begin
-    // auction/contract.py:92
+    // auction/contract.py:97
     // receiver=Txn.sender,
     txn Sender
     itxn_field Receiver
     itxn_field Amount
-    // auction/contract.py:90
+    // auction/contract.py:95
     // itxn.Payment(
     int pay
     itxn_field TypeEnum
     int 0
     itxn_field Fee
-    // auction/contract.py:90-93
+    // auction/contract.py:95-98
     // itxn.Payment(
     //     amount=amount,
     //     receiver=Txn.sender,
     // ).submit()
     itxn_submit
-    // auction/contract.py:95
+    // auction/contract.py:100
     // self.claimable_amount[Txn.sender] = original_amount - amount
     txn Sender
     frame_dig 0
     frame_dig 1
+    dup
+    cover 3
     -
     uncover 1
     byte "claim"
     uncover 2
     app_local_put
+    // auction/contract.py:102
+    // return amount
+    frame_bury 0
     retsub
 
 
 // examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
 claim_asset:
-    // auction/contract.py:97-98
+    // auction/contract.py:104-105
     // @arc4.abimethod
     // def claim_asset(self, asset: Asset) -> None:
     proto 1 0
-    // auction/contract.py:99
+    // auction/contract.py:106
     // assert Global.latest_timestamp > self.auction_end, "auction has not ended"
     global LatestTimestamp
     int 0
@@ -485,7 +545,16 @@ claim_asset:
     assert // check self.auction_end exists
     >
     assert // auction has not ended
-    // auction/contract.py:100-106
+    // auction/contract.py:107
+    // assert Txn.sender == self.previous_bidder, "only previous bidder can claim asset"
+    txn Sender
+    int 0
+    byte "previous_bidder"
+    app_global_get_ex
+    assert // check self.previous_bidder exists
+    ==
+    assert // only previous bidder can claim asset
+    // auction/contract.py:109-115
     // # Send ASA to previous bidder
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
@@ -494,22 +563,22 @@ claim_asset:
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_begin
-    // auction/contract.py:98
+    // auction/contract.py:105
     // def claim_asset(self, asset: Asset) -> None:
     frame_dig -1
-    // auction/contract.py:103
+    // auction/contract.py:112
     // asset_close_to=self.previous_bidder,
     int 0
     byte "previous_bidder"
     app_global_get_ex
     assert // check self.previous_bidder exists
-    // auction/contract.py:104
+    // auction/contract.py:113
     // asset_receiver=self.previous_bidder,
     int 0
     byte "previous_bidder"
     app_global_get_ex
     assert // check self.previous_bidder exists
-    // auction/contract.py:105
+    // auction/contract.py:114
     // asset_amount=self.asa_amount,
     int 0
     byte "asa_amount"
@@ -519,14 +588,14 @@ claim_asset:
     itxn_field AssetReceiver
     itxn_field AssetCloseTo
     itxn_field XferAsset
-    // auction/contract.py:100-101
+    // auction/contract.py:109-110
     // # Send ASA to previous bidder
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
     int 0
     itxn_field Fee
-    // auction/contract.py:100-106
+    // auction/contract.py:109-115
     // # Send ASA to previous bidder
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
@@ -538,9 +607,50 @@ claim_asset:
     retsub
 
 
+// examples.auction.contract.Auction.delete_application() -> void:
+delete_application:
+    // auction/contract.py:117-118
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // def delete_application(self) -> None:
+    proto 0 0
+    // auction/contract.py:119
+    // assert Txn.sender == Global.creator_address, "Only creator can delete app"
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // Only creator can delete app
+    // auction/contract.py:121-124
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     close_remainder_to=Global.creator_address,
+    // ).submit()
+    itxn_begin
+    // auction/contract.py:122
+    // receiver=Global.creator_address,
+    global CreatorAddress
+    // auction/contract.py:123
+    // close_remainder_to=Global.creator_address,
+    global CreatorAddress
+    itxn_field CloseRemainderTo
+    itxn_field Receiver
+    // auction/contract.py:121
+    // itxn.Payment(
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // auction/contract.py:121-124
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     close_remainder_to=Global.creator_address,
+    // ).submit()
+    itxn_submit
+    retsub
+
+
 // examples.auction.contract.Auction.__algopy_default_create() -> void:
 __algopy_default_create:
-    // auction/contract.py:16
+    // auction/contract.py:15
     // class Auction(ARC4Contract):
     proto 0 0
     retsub
@@ -548,30 +658,30 @@ __algopy_default_create:
 
 // examples.auction.contract.Auction.__init__() -> void:
 __init__:
-    // auction/contract.py:17
+    // auction/contract.py:16
     // def __init__(self) -> None:
     proto 0 0
-    // auction/contract.py:18
+    // auction/contract.py:17
     // self.auction_end = UInt64(0)
     byte "auction_end"
     int 0
     app_global_put
-    // auction/contract.py:19
+    // auction/contract.py:18
     // self.previous_bid = UInt64(0)
     byte "previous_bid"
     int 0
     app_global_put
-    // auction/contract.py:20
+    // auction/contract.py:19
     // self.asa_amount = UInt64(0)
     byte "asa_amount"
     int 0
     app_global_put
-    // auction/contract.py:21
+    // auction/contract.py:20
     // self.asa = Asset()
     byte "asa"
     int 0
     app_global_put
-    // auction/contract.py:22
+    // auction/contract.py:21
     // self.previous_bidder = Account()
     global ZeroAddress
     byte "previous_bidder"

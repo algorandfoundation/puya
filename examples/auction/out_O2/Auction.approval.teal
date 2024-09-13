@@ -14,15 +14,16 @@ main_entrypoint@2:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@10
+    bz __puya_arc4_router___bare_routing@11
     method "opt_into_asset(asset)void"
-    method "start_auction(uint64,uint64,axfer)void"
+    method "start_auction(uint64,uint64,axfer)uint64"
     method "opt_in()void"
-    method "bid(pay)void"
-    method "claim_bids()void"
+    method "bid(pay)uint64"
+    method "claim_bids()uint64"
     method "claim_asset(asset)void"
+    method "delete_application()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7
+    match __puya_arc4_router___opt_into_asset_route@2 __puya_arc4_router___start_auction_route@3 __puya_arc4_router___opt_in_route@4 __puya_arc4_router___bid_route@5 __puya_arc4_router___claim_bids_route@6 __puya_arc4_router___claim_asset_route@7 __puya_arc4_router___delete_application_route@8
     int 0
     retsub
 
@@ -58,13 +59,19 @@ __puya_arc4_router___start_auction_route@3:
     ==
     assert // transaction type is axfer
     callsub start_auction
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
     int 1
     retsub
 
 __puya_arc4_router___opt_in_route@4:
     txn OnCompletion
-    !
-    assert // OnCompletion is NoOp
+    int OptIn
+    ==
+    assert // OnCompletion is OptIn
     txn ApplicationID
     assert // is not creating
     int 1
@@ -85,6 +92,11 @@ __puya_arc4_router___bid_route@5:
     ==
     assert // transaction type is pay
     callsub bid
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
     int 1
     retsub
 
@@ -95,6 +107,11 @@ __puya_arc4_router___claim_bids_route@6:
     txn ApplicationID
     assert // is not creating
     callsub claim_bids
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
     int 1
     retsub
 
@@ -111,16 +128,27 @@ __puya_arc4_router___claim_asset_route@7:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@10:
+__puya_arc4_router___delete_application_route@8:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@14
+    int DeleteApplication
+    ==
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID
+    assert // is not creating
+    callsub delete_application
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@11:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@15
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@14:
+__puya_arc4_router___after_if_else@15:
     int 0
     retsub
 
@@ -154,9 +182,9 @@ opt_into_asset:
     retsub
 
 
-// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
+// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> uint64:
 start_auction:
-    proto 3 0
+    proto 3 1
     txn Sender
     global CreatorAddress
     ==
@@ -186,12 +214,13 @@ start_auction:
     byte "previous_bid"
     frame_dig -3
     app_global_put
+    global LatestTimestamp
     retsub
 
 
-// examples.auction.contract.Auction.bid(pay: uint64) -> void:
+// examples.auction.contract.Auction.bid(pay: uint64) -> uint64:
 bid:
-    proto 1 0
+    proto 1 1
     global LatestTimestamp
     int 0
     byte "auction_end"
@@ -224,12 +253,16 @@ bid:
     byte "claim"
     uncover 2
     app_local_put
+    int 0
+    byte "previous_bid"
+    app_global_get_ex
+    assert // check self.previous_bid exists
     retsub
 
 
-// examples.auction.contract.Auction.claim_bids() -> void:
+// examples.auction.contract.Auction.claim_bids() -> uint64:
 claim_bids:
-    proto 0 0
+    proto 0 1
     txn Sender
     int 0
     byte "claim"
@@ -268,11 +301,12 @@ claim_bids_after_if_else@2:
     itxn_submit
     txn Sender
     frame_dig 0
-    uncover 2
+    dig 2
     -
     byte "claim"
     swap
     app_local_put
+    frame_bury 0
     retsub
 
 
@@ -286,6 +320,13 @@ claim_asset:
     assert // check self.auction_end exists
     >
     assert // auction has not ended
+    txn Sender
+    int 0
+    byte "previous_bidder"
+    app_global_get_ex
+    assert // check self.previous_bidder exists
+    ==
+    assert // only previous bidder can claim asset
     itxn_begin
     int 0
     byte "previous_bidder"
@@ -305,6 +346,26 @@ claim_asset:
     frame_dig -1
     itxn_field XferAsset
     int axfer
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// examples.auction.contract.Auction.delete_application() -> void:
+delete_application:
+    proto 0 0
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // Only creator can delete app
+    itxn_begin
+    global CreatorAddress
+    dup
+    itxn_field CloseRemainderTo
+    itxn_field Receiver
+    int pay
     itxn_field TypeEnum
     int 0
     itxn_field Fee

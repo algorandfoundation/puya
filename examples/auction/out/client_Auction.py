@@ -19,9 +19,9 @@ class Auction(algopy.arc4.ARC4Client, typing.Protocol):
         starting_price: algopy.arc4.UIntN[typing.Literal[64]],
         length: algopy.arc4.UIntN[typing.Literal[64]],
         axfer: algopy.gtxn.AssetTransferTransaction,
-    ) -> None: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(allow_actions=['OptIn'])
     def opt_in(
         self,
     ) -> None: ...
@@ -30,15 +30,20 @@ class Auction(algopy.arc4.ARC4Client, typing.Protocol):
     def bid(
         self,
         pay: algopy.gtxn.PaymentTransaction,
-    ) -> None: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
     def claim_bids(
         self,
-    ) -> None: ...
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
     def claim_asset(
         self,
         asset: algopy.Asset,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod(allow_actions=['DeleteApplication'])
+    def delete_application(
+        self,
     ) -> None: ...
