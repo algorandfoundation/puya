@@ -175,7 +175,10 @@ def _map_call(
                 immediates[immediates_index] = arg_value
         else:
             allowed_pytypes = arg_data
-            if isinstance(arg_in.pytype, pytypes.LiteralOnlyType):
+            if isinstance(arg_in.pytype, pytypes.LiteralOnlyType) or (
+                isinstance(arg_in.pytype, pytypes.UnionType)
+                and any(isinstance(t, pytypes.LiteralOnlyType) for t in arg_in.pytype.types)
+            ):
                 for allowed_type in allowed_pytypes:
                     type_builder = builder_for_type(allowed_type, arg_in.source_location)
                     if isinstance(type_builder, TypeBuilder):

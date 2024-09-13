@@ -37,8 +37,7 @@ def at_most_one_arg_of_type(
         logger.error(f"expected at most 1 argument, got {len(args)}", location=location)
     if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of_any=valid_types):
         return first
-    logger.error("unexpected argument type", location=first.source_location)
-    return None
+    return not_this_type(first, default=default_none)
 
 
 def default_raise(msg: str, location: SourceLocation) -> typing.Never:
@@ -60,12 +59,22 @@ default_none: typing.Final = default_fixed_value(None)
 def default_dummy_value(
     pytype: pytypes.PyType,
 ) -> Callable[[str, SourceLocation], InstanceBuilder]:
-    assert not isinstance(pytype, pytypes.LiteralOnlyType)
 
     def defaulter(msg: str, location: SourceLocation) -> InstanceBuilder:  # noqa: ARG001
         return dummy_value(pytype, location)
 
     return defaulter
+
+
+def not_this_type(node: NodeBuilder, default: Callable[[str, SourceLocation], _T]) -> _T:
+    """Provide consistent error messages for unexpected types."""
+    if isinstance(node.pytype, pytypes.UnionType):
+        msg = "type unions are unsupported at this location"
+    else:
+        msg = "unexpected argument type"
+    result = default(msg, node.source_location)
+    logger.error(msg, location=node.source_location)
+    return result
 
 
 def at_least_one_arg(
@@ -120,10 +129,7 @@ def exactly_one_arg_of_type(
         first = maybe_resolve_literal(first, pytype)
     if isinstance(first, InstanceBuilder) and is_type_or_subtype(first.pytype, of=pytype):
         return first
-    msg = "unexpected argument type"
-    result = default(msg, first.source_location)
-    logger.error(msg, location=first.source_location)
-    return result
+    return not_this_type(first, default=default)
 
 
 def exactly_one_arg_of_type_else_dummy(
@@ -133,8 +139,6 @@ def exactly_one_arg_of_type_else_dummy(
     *,
     resolve_literal: bool = False,
 ) -> InstanceBuilder:
-    assert not isinstance(pytype, pytypes.LiteralOnlyType)
-
     return exactly_one_arg_of_type(
         args,
         pytype,
@@ -152,8 +156,6 @@ def no_args(args: Sequence[NodeBuilder], location: SourceLocation) -> None:
 def exactly_n_args_of_type_else_dummy(
     args: Sequence[NodeBuilder], pytype: pytypes.PyType, location: SourceLocation, num_args: int
 ) -> Sequence[InstanceBuilder]:
-    assert not isinstance(pytype, pytypes.LiteralOnlyType)
-
     if not exactly_n_args(args, location, num_args):
         dummy_args = [dummy_value(pytype, location)] * num_args
         args = [arg or default for arg, default in zip_longest(args, dummy_args)]
@@ -185,10 +187,7 @@ def argument_of_type(
         builder.pytype, of_any=(target_type, *additional_types)
     ):
         return builder
-    msg = "unexpected argument type"
-    result = default(msg, builder.source_location)
-    logger.error(msg, location=builder.source_location)
-    return result
+    return not_this_type(builder, default=default)
 
 
 def argument_of_type_else_dummy(
@@ -218,11 +217,11 @@ def simple_string_literal(
             return value
         case InstanceBuilder(pytype=pytypes.StrLiteralType):
             msg = "argument must be a simple str literal"
-        case _:
-            msg = "unexpected argument type"
-    result = default(msg, builder.source_location)
-    logger.error(msg, location=builder.source_location)
-    return result
+            result = default(msg, builder.source_location)
+            logger.error(msg, location=builder.source_location)
+            return result
+        case other:
+            return not_this_type(other, default=default)
 
 
 def instance_builder(

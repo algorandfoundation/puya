@@ -7,6 +7,7 @@ from puya.awst.nodes import BytesConstant, BytesEncoding, Expression
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import intrinsic_factory, pytypes
+from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
@@ -42,13 +43,13 @@ class LogBuilder(FunctionBuilder):
             ):
                 sep = sep_arg.to_bytes(sep_arg.source_location)
             else:
-                logger.error("unexpected argument type", location=sep_arg.source_location)
+                expect.not_this_type(sep_arg, default=expect.default_none)
                 sep = empty_utf8
 
         bytes_args = []
         for arg in args:
             if not isinstance(arg, InstanceBuilder):
-                logger.error("unexpected argument type", location=arg.source_location)
+                expect.not_this_type(arg, default=expect.default_none)
             else:
                 if arg.pytype == pytypes.IntLiteralType:
                     arg = arg.resolve_literal(UInt64TypeBuilder(arg.source_location))

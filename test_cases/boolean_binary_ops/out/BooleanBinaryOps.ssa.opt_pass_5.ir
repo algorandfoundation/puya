@@ -1,13 +1,16 @@
 contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
     program approval:
         subroutine test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program() -> bool:
-            block@0: // L5
+            block@0: // L6
                 test_cases.boolean_binary_ops.contract.test_boolean_binary_ops(1u, 0u)
                 test_cases.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops()
+                test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops()
+                test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops()
+                test_cases.boolean_binary_ops.contract.test_literal_conditionals(1u, 0u)
                 return 1u
         
         subroutine test_cases.boolean_binary_ops.contract.test_boolean_binary_ops(true: bool, false: bool) -> void:
-            block@0: // L16
+            block@0: // L20
                 let tmp%0#0: bool = (&& true#0 false#0)
                 let tmp%1#0: bool = (! tmp%0#0)
                 (assert tmp%1#0)
@@ -31,17 +34,17 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
                 return 
         
         subroutine test_cases.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops() -> void:
-            block@0: // L34
+            block@0: // L38
                 let loop_counter%0#0: uint64 = 0u
                 let lhs#0: bool = 1u
                 goto block@1
-            block@1: // for_body_L37
+            block@1: // for_body_L41
                 let loop_counter%0#1: uint64 = φ(loop_counter%0#0 <- block@0, loop_counter%0#2 <- block@15)
                 let lhs#6: bool = φ(lhs#0 <- block@0, lhs#7 <- block@15)
                 let loop_counter%1#0: uint64 = 0u
                 let rhs#0: bool = 1u
                 goto block@2
-            block@2: // for_body_L38
+            block@2: // for_body_L42
                 let loop_counter%1#1: uint64 = φ(loop_counter%1#0 <- block@1, loop_counter%1#2 <- block@12)
                 let rhs#1: bool = φ(rhs#0 <- block@1, rhs#6 <- block@12)
                 let tmp%0#0: bytes = test_cases.boolean_binary_ops.contract.bool_to_bytes(lhs#6)
@@ -52,17 +55,17 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
                 let tmp%4#0: bytes = (concat 0x6c6873 and_msg#0)
                 let tmp%5#0: bool = test_cases.boolean_binary_ops.contract.log_and_return(lhs#6, tmp%4#0)
                 goto tmp%5#0 ? block@3 : block@5
-            block@3: // and_contd_L39
+            block@3: // and_contd_L43
                 let tmp%6#0: bytes = (concat 0x726873 and_msg#0)
                 let tmp%7#0: bool = test_cases.boolean_binary_ops.contract.log_and_return(rhs#1, tmp%6#0)
                 goto tmp%7#0 ? block@4 : block@5
-            block@4: // bool_true_L39
+            block@4: // bool_true_L43
                 let and_result%0#0: bool = 1u
                 goto block@6
-            block@5: // bool_false_L39
+            block@5: // bool_false_L43
                 let and_result%0#1: bool = 0u
                 goto block@6
-            block@6: // bool_merge_L39
+            block@6: // bool_merge_L43
                 let and_result#0: bool = φ(and_result%0#0 <- block@4, and_result%0#1 <- block@5)
                 let tmp%8#0: bool = (&& lhs#6 rhs#1)
                 let tmp%9#0: bool = (== and_result#0 tmp%8#0)
@@ -75,46 +78,143 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
                 let tmp%14#0: bytes = (concat 0x6c6873 or_msg#0)
                 let tmp%15#0: bool = test_cases.boolean_binary_ops.contract.log_and_return(lhs#6, tmp%14#0)
                 goto tmp%15#0 ? block@8 : block@7
-            block@7: // or_contd_L44
+            block@7: // or_contd_L48
                 let tmp%16#0: bytes = (concat 0x726873 or_msg#0)
                 let tmp%17#0: bool = test_cases.boolean_binary_ops.contract.log_and_return(rhs#1, tmp%16#0)
                 goto tmp%17#0 ? block@8 : block@9
-            block@8: // bool_true_L44
+            block@8: // bool_true_L48
                 let or_result%0#0: bool = 1u
                 goto block@10
-            block@9: // bool_false_L44
+            block@9: // bool_false_L48
                 let or_result%0#1: bool = 0u
                 goto block@10
-            block@10: // bool_merge_L44
+            block@10: // bool_merge_L48
                 let or_result#0: bool = φ(or_result%0#0 <- block@8, or_result%0#1 <- block@9)
                 let tmp%18#0: bool = (|| lhs#6 rhs#1)
                 let tmp%19#0: bool = (== or_result#0 tmp%18#0)
                 (assert tmp%19#0)
                 goto loop_counter%1#1 ? block@13 : block@12
-            block@12: // for_header_1_L37
+            block@12: // for_header_1_L41
                 let loop_counter%1#2: uint64 = 1u
                 let rhs#6: bool = 0u
                 goto block@2
-            block@13: // after_for_L37
+            block@13: // after_for_L41
                 goto loop_counter%0#1 ? block@16 : block@15
-            block@15: // for_header_1_L36
+            block@15: // for_header_1_L40
                 let loop_counter%0#2: uint64 = 1u
                 let lhs#7: bool = 0u
                 goto block@1
-            block@16: // after_for_L36
+            block@16: // after_for_L40
                 return 
         
         subroutine test_cases.boolean_binary_ops.contract.bool_to_bytes(x: bool) -> bytes:
-            block@0: // L29
+            block@0: // L33
                 let tmp%0#0: bytes = (select 0x66616c7365 0x74727565 x#0)
                 return tmp%0#0
         
         subroutine test_cases.boolean_binary_ops.contract.log_and_return(x: bool, msg: bytes) -> bool:
-            block@0: // L50
+            block@0: // L54
                 (log msg#0)
                 return x#0
+        
+        subroutine test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops() -> void:
+            block@0: // L68
+                let ternary_result%0#1: bool = 1u
+                goto block@32
+            block@32: // ternary_merge_L81
+                (assert ternary_result%0#1)
+                let ternary_result%2#1: bool = 1u
+                goto block@44
+            block@44: // ternary_merge_L82
+                (assert ternary_result%2#1)
+                let item_index_internal%0#0: uint64 = 0u
+                goto block@45
+            block@45: // for_header_L85
+                let idx#0: uint64 = φ(item_index_internal%0#0 <- block@44, index_plus_1%0#0 <- block@46)
+                let continue_looping%0#0: bool = (< idx#0 3u)
+                goto continue_looping%0#0 ? block@46 : block@48
+            block@46: // for_body_L86
+                let b#0: bytes = (extract3 0x616263 idx#0 1u)
+                let index_plus_1%0#0: uint64 = (+ idx#0 1u)
+                let tmp%47#0: bytes = (substring3 0x616263 idx#0 index_plus_1%0#0)
+                let tmp%48#0: bool = (== b#0 tmp%47#0)
+                (assert tmp%48#0)
+                goto block@45
+            block@48: // after_for_L85
+                let tmp%53#0: bool = 1u
+                (assert tmp%53#0)
+                let bounded_index%0#0: uint64 = 0u
+                let bounded_index%1#0: uint64 = 2u
+                let tmp%57#0: bytes = (substring3 0x6c656674 bounded_index%0#0 bounded_index%1#0)
+                let tmp%58#0: bool = (== tmp%57#0 0x6c65)
+                (assert tmp%58#0)
+                let tmp%61#0: bool = _puya_lib.bytes_.is_substring("ight", "right")
+                (assert tmp%61#0)
+                return 
+        
+        subroutine test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops() -> void:
+            block@0: // L95
+                let tmp%13#0: uint64 = (bitlen 4u)
+                let tmp%14#0: bool = (== tmp%13#0 3u)
+                (assert tmp%14#0)
+                let tmp%18#0: uint64 = (bitlen 0x68656c6c6f)
+                (assert tmp%18#0)
+                return 
+        
+        subroutine test_cases.boolean_binary_ops.contract.test_literal_conditionals(true: bool, false: bool) -> void:
+            block@0: // L125
+                let tmp%1#0: bool = (|| false#0 1u)
+                (assert tmp%1#0)
+                goto true#0 ? block@2 : block@3
+            block@2: // bool_true_L128
+                let or_result%0#0: bool = 1u
+                goto block@4
+            block@3: // bool_false_L128
+                let or_result%0#1: bool = 0u
+                goto block@4
+            block@4: // bool_merge_L128
+                let or_result%0#2: bool = φ(or_result%0#0 <- block@2, or_result%0#1 <- block@3)
+                (assert or_result%0#2)
+                let awst_tmp%0#0: uint64 = (* false#0 3u)
+                goto awst_tmp%0#0 ? block@9 : block@10
+            block@9: // ternary_true_L131
+                goto block@11
+            block@10: // ternary_false_L131
+                let ternary_result%0#1: uint64 = 4u
+                goto block@11
+            block@11: // ternary_merge_L131
+                let y#0: uint64 = φ(awst_tmp%0#0 <- block@9, ternary_result%0#1 <- block@10)
+                let tmp%7#0: bool = (== y#0 4u)
+                (assert tmp%7#0)
+                let ternary_result%1#1: uint64 = (* true#0 3u)
+                let tmp%9#0: bool = (== ternary_result%1#1 3u)
+                (assert tmp%9#0)
+                return 
+        
+        subroutine _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> bool:
+            block@0: // L4
+                let start#0: uint64 = 0u
+                goto block@1
+            block@1: // while_top_L11
+                let start#1: uint64 = φ(start#0 <- block@0, start#2 <- block@4)
+                let tmp%0#0: uint64 = (len item#0)
+                let tmp%1#0: uint64 = (+ start#1 tmp%0#0)
+                let tmp%2#0: uint64 = (len sequence#0)
+                let tmp%3#0: bool = (<= tmp%1#0 tmp%2#0)
+                goto tmp%3#0 ? block@2 : block@5
+            block@2: // while_body_L12
+                let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%1#0)
+                let tmp%7#0: bool = (== item#0 tmp%6#0)
+                goto tmp%7#0 ? block@3 : block@4
+            block@3: // if_body_L13
+                return 1u
+            block@4: // after_if_else_L12
+                let start#2: uint64 = (+ start#1 1u)
+                goto block@1
+            block@5: // after_while_L11
+                return 0u
     
     program clear-state:
         subroutine test_cases.boolean_binary_ops.contract.BooleanBinaryOps.clear_state_program() -> bool:
-            block@0: // L11
+            block@0: // L15
                 return 1u

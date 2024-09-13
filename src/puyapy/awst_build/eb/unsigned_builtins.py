@@ -5,6 +5,7 @@ from collections.abc import Sequence
 import mypy.nodes
 from puya import log
 from puya.awst.nodes import (
+    BinaryBooleanOperator,
     Enumeration,
     Expression,
     IntegerConstant,
@@ -191,6 +192,12 @@ class _IterableOnlyBuilder(InstanceBuilder, abc.ABC):
         location: SourceLocation,
         *,
         reverse: bool,
+    ) -> InstanceBuilder:
+        return self._iterable_only(location)
+
+    @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
     ) -> InstanceBuilder:
         return self._iterable_only(location)
 

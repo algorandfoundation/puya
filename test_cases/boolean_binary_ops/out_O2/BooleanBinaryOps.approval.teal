@@ -5,6 +5,11 @@ test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
     int 0
     callsub test_boolean_binary_ops
     callsub test_boolean_shortcircuit_binary_ops
+    callsub test_union_boolean_binary_ops
+    callsub test_literal_boolean_binary_ops
+    int 1
+    int 0
+    callsub test_literal_conditionals
     int 1
     return
 
@@ -184,4 +189,140 @@ log_and_return:
     frame_dig -1
     log
     frame_dig -2
+    retsub
+
+
+// test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops() -> void:
+test_union_boolean_binary_ops:
+    proto 0 0
+    int 0
+
+test_union_boolean_binary_ops_for_header@45:
+    frame_dig 0
+    int 3
+    <
+    bz test_union_boolean_binary_ops_after_for@48
+    byte 0x616263
+    frame_dig 0
+    dup
+    cover 2
+    int 1
+    extract3
+    swap
+    dup
+    int 1
+    +
+    byte 0x616263
+    uncover 2
+    dig 2
+    substring3
+    uncover 2
+    ==
+    assert
+    frame_bury 0
+    b test_union_boolean_binary_ops_for_header@45
+
+test_union_boolean_binary_ops_after_for@48:
+    byte "ight"
+    byte "right"
+    callsub is_substring
+    assert
+    retsub
+
+
+// test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops() -> void:
+test_literal_boolean_binary_ops:
+    proto 0 0
+    int 4
+    bitlen
+    int 3
+    ==
+    assert
+    byte 0x68656c6c6f
+    bitlen
+    assert
+    retsub
+
+
+// test_cases.boolean_binary_ops.contract.test_literal_conditionals(true: uint64, false: uint64) -> void:
+test_literal_conditionals:
+    proto 2 0
+    byte ""
+    frame_dig -1
+    int 1
+    ||
+    assert
+    frame_dig -2
+    bz test_literal_conditionals_bool_false@3
+    int 1
+    b test_literal_conditionals_bool_merge@4
+
+test_literal_conditionals_bool_false@3:
+    int 0
+
+test_literal_conditionals_bool_merge@4:
+    assert
+    frame_dig -1
+    int 3
+    *
+    dup
+    frame_bury 0
+    bz test_literal_conditionals_ternary_false@10
+    frame_dig 0
+    b test_literal_conditionals_ternary_merge@11
+
+test_literal_conditionals_ternary_false@10:
+    int 4
+
+test_literal_conditionals_ternary_merge@11:
+    int 4
+    ==
+    assert
+    frame_dig -2
+    int 3
+    *
+    int 3
+    ==
+    assert
+    retsub
+
+
+// _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
+is_substring:
+    proto 2 1
+    byte ""
+    int 0
+
+is_substring_while_top@1:
+    frame_dig -2
+    len
+    frame_dig 1
+    +
+    dup
+    frame_bury 0
+    frame_dig -1
+    len
+    <=
+    bz is_substring_after_while@5
+    frame_dig -1
+    frame_dig 1
+    frame_dig 0
+    substring3
+    frame_dig -2
+    ==
+    bz is_substring_after_if_else@4
+    int 1
+    frame_bury 0
+    retsub
+
+is_substring_after_if_else@4:
+    frame_dig 1
+    int 1
+    +
+    frame_bury 1
+    b is_substring_while_top@1
+
+is_substring_after_while@5:
+    int 0
+    frame_bury 0
     retsub

@@ -163,12 +163,12 @@ class CompileContractFunctionBuilder(FunctionBuilder):
             case NodeBuilder(pytype=pytypes.TypeType(typ=pytypes.ContractType() as contract_typ)):
                 contract = contract_typ.name
             case invalid_or_none:
-                # if None (=missing), then error message already logged by get_arg_mapping
-                if invalid_or_none is not None:
-                    logger.error(
-                        "unexpected argument type", location=invalid_or_none.source_location
-                    )
-                return dummy_value(result_type, location)
+                if invalid_or_none is None:
+                    # if None (=missing), then error message already logged by get_arg_mapping
+                    return dummy_value(result_type, location)
+                return expect.not_this_type(
+                    invalid_or_none, default=expect.default_dummy_value(result_type)
+                )
 
         return CompiledContractExpressionBuilder(
             CompiledContract(
@@ -207,9 +207,7 @@ class CompileLogicSigFunctionBuilder(FunctionBuilder):
                 logic_sig = LogicSigReference("")  # dummy reference
                 # if None (=missing), then error message already logged by get_arg_mapping
                 if missing_or_invalid is not None:
-                    logger.error(
-                        "unexpected argument type", location=missing_or_invalid.source_location
-                    )
+                    expect.not_this_type(missing_or_invalid, default=expect.default_none)
         prefix, template_vars = _extract_prefix_template_args(arg_map)
         return CompiledLogicSigExpressionBuilder(
             CompiledLogicSig(
@@ -232,7 +230,7 @@ def _extract_prefix_template_args(
         if isinstance(template_vars_node, DictLiteralBuilder):
             template_vars = {k: v.resolve() for k, v in template_vars_node.mapping.items()}
         else:
-            logger.error("unexpected argument type", location=template_vars_node.source_location)
+            expect.not_this_type(template_vars_node, default=expect.default_none)
     if prefix_node := name_args.get("template_vars_prefix"):
         prefix = expect.simple_string_literal(prefix_node, default=expect.default_none)
     return prefix, template_vars

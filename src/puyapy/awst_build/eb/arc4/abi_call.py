@@ -240,8 +240,8 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
                     kind="update" if is_update else "create",
                     location=method_or_type.source_location,
                 )
-            case _:
-                raise CodeError("unexpected argument type", method_or_type.source_location)
+            case other:
+                expect.not_this_type(other, default=expect.default_raise)
         if compiled is None:
             compiled = CompiledContractExpressionBuilder(
                 CompiledContract(

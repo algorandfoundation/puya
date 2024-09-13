@@ -13,7 +13,7 @@ from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.models import ContractReference, TransactionType
 from puya.parse import SourceLocation
-from puya.utils import lazy_setdefault
+from puya.utils import lazy_setdefault, unique
 
 from puyapy.awst_build import constants
 
@@ -207,6 +207,38 @@ class TypingLiteralType(PyType):
         raise CodeError(f"{self} is not usable as a value", self.source_location)
 
 
+def _flatten_nested_unions(types: Sequence[PyType]) -> Sequence[PyType]:
+    result = list[PyType]()
+    for t in types:
+        if isinstance(t, UnionType):
+            result.extend(t.types)
+        else:
+            result.append(t)
+    return unique(result)
+
+
+@typing.final
+@attrs.frozen
+class UnionType(PyType):
+    types: Sequence[PyType] = attrs.field(
+        converter=_flatten_nested_unions, validator=attrs.validators.min_len(2)
+    )
+    name: str = attrs.field(init=False)
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    source_location: SourceLocation
+
+    @name.default
+    def _name(self) -> str:
+        return " | ".join(t.name for t in self.types)
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("type unions are unsupported at this location", self.source_location)
+
+
 class _TupleWTypeFactory(typing.Protocol):
 
     def __call__(
@@ -261,9 +293,7 @@ class StorageMapProxyType(PyType):
 @typing.final
 @attrs.frozen
 class FuncArg:
-    types: Sequence[PyType] = attrs.field(
-        converter=tuple[PyType, ...], validator=attrs.validators.min_len(1)
-    )
+    type: PyType
     name: str | None
     kind: ArgKind
 
@@ -376,6 +406,13 @@ class _SimpleType(PyType):
 @typing.final
 @attrs.frozen
 class LiteralOnlyType(PyType):
+    python_type: type[int | bytes | str]
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name(self) -> str:
+        return ".".join((self.python_type.__module__, self.python_type.__qualname__))
+
     @typing.override
     @property
     def wtype(self) -> typing.Never:
@@ -385,9 +422,9 @@ class LiteralOnlyType(PyType):
 NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
 NeverType: typing.Final[PyType] = _SimpleType(name="typing.Never", wtype=wtypes.void_wtype)
 BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
-IntLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.int"))
-StrLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.str"))
-BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(name="builtins.bytes"))
+IntLiteralType: typing.Final = _register_builtin(LiteralOnlyType(int))
+StrLiteralType: typing.Final = _register_builtin(LiteralOnlyType(str))
+BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(bytes))
 
 UInt64Type: typing.Final[PyType] = _SimpleType(
     name="algopy._primitives.UInt64",

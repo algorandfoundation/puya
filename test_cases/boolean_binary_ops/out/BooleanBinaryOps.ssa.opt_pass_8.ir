@@ -4,7 +4,6 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
             block@0: // L6
                 test_cases.boolean_binary_ops.contract.test_boolean_binary_ops(1u, 0u)
                 test_cases.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops()
-                test_cases.boolean_binary_ops.contract.type_coercion()
                 test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops()
                 test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops()
                 test_cases.boolean_binary_ops.contract.test_literal_conditionals(1u, 0u)
@@ -118,41 +117,13 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
                 (log msg#0)
                 return x#0
         
-        subroutine test_cases.boolean_binary_ops.contract.type_coercion() -> void:
-            block@0: // L60
-                return 
-        
         subroutine test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops() -> void:
             block@0: // L68
-                let tmp%30#0: bool = 0u
-                goto tmp%30#0 ? block@30 : block@31
-            block@30: // ternary_true_L81
-                let ternary_result%0#0: bool = 0u
-                goto block@32
-            block@31: // ternary_false_L81
-                let ternary_result%0#1: bool = 1u
-                goto block@32
-            block@32: // ternary_merge_L81
-                let ternary_result%0#2: bool = φ(ternary_result%0#0 <- block@30, ternary_result%0#1 <- block@31)
-                (assert ternary_result%0#2)
-                let tmp%37#0: bool = 0u
-                goto tmp%37#0 ? block@36 : block@37
-            block@36: // ternary_true_L82
-                let ternary_result%2#0: bool = 0u
-                goto block@44
-            block@37: // ternary_false_L82
-                let tmp%41#0: bytes = "ri"
-                let ternary_result%2#1: bool = (== tmp%41#0 "ri")
-                goto block@44
-            block@44: // ternary_merge_L82
-                let ternary_result%2#2: bool = φ(ternary_result%2#0 <- block@36, ternary_result%2#1 <- block@37)
-                (assert ternary_result%2#2)
-                let bytes_length%0#0: uint64 = 3u
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@45
             block@45: // for_header_L85
-                let idx#0: uint64 = φ(item_index_internal%0#0 <- block@44, index_plus_1%0#0 <- block@46)
-                let continue_looping%0#0: bool = (< idx#0 bytes_length%0#0)
+                let idx#0: uint64 = φ(item_index_internal%0#0 <- block@0, index_plus_1%0#0 <- block@46)
+                let continue_looping%0#0: bool = (< idx#0 3u)
                 goto continue_looping%0#0 ? block@46 : block@48
             block@46: // for_body_L86
                 let b#0: bytes = (extract3 0x616263 idx#0 1u)
@@ -162,22 +133,8 @@ contract test_cases.boolean_binary_ops.contract.BooleanBinaryOps:
                 (assert tmp%48#0)
                 goto block@45
             block@48: // after_for_L85
-                let tmp%52#0: bytes = 0x69
-                let tmp%53#0: bool = (== tmp%52#0 0x69)
-                (assert tmp%53#0)
-                let is_out_of_bounds%0#0: bool = 0u
-                let bounded_index%0#0: uint64 = (* is_out_of_bounds%0#0 4u)
-                let is_out_of_bounds%1#0: bool = 0u
-                let bounded_index%1#0: uint64 = (select 2u 4u is_out_of_bounds%1#0)
-                let tmp%57#0: bytes = (substring3 0x6c656674 bounded_index%0#0 bounded_index%1#0)
-                let tmp%58#0: bool = (== tmp%57#0 0x6c65)
-                (assert tmp%58#0)
                 let tmp%61#0: bool = _puya_lib.bytes_.is_substring("ight", "right")
                 (assert tmp%61#0)
-                let tmp%65#0: bool = 1u
-                (assert tmp%65#0)
-                let tmp%70#0: bool = 1u
-                (assert tmp%70#0)
                 return 
         
         subroutine test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops() -> void:

@@ -86,9 +86,10 @@ class StringTypeBuilder(BytesBackedTypeBuilder):
             case None:
                 str_const = StringConstant(value="", source_location=location)
                 return StringExpressionBuilder(str_const)
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(self.produces(), location)
+            case other:
+                return expect.not_this_type(
+                    other, default=expect.default_dummy_value(self.produces())
+                )
 
 
 class StringExpressionBuilder(BytesBackedInstanceExpressionBuilder):
@@ -277,7 +278,7 @@ class _StringJoin(FunctionBuilder):
         arg = expect.exactly_one_arg(args, location, default=expect.default_none)
         if not isinstance(arg, StaticSizedCollectionBuilder):
             if arg is not None:  # if None, already have an error logged
-                logger.error("unexpected argument type", location=arg.source_location)
+                expect.not_this_type(arg, default=expect.default_none)
             return dummy_value(pytypes.StringType, location)
         items = [
             expect.argument_of_type_else_dummy(

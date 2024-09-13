@@ -96,12 +96,9 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
         # TODO: ideally, we would iterate arg_map, so the order is the same as the call site
         #       need to build map from arg to FuncArg then though to extract expected type(s)
         for arg_map_name, typ_arg in type_arg_map.items():
-            try:
-                (arg_typ,) = typ_arg.types
-            except ValueError:
-                logger.error(  # noqa: TRY400
-                    "union types are not supported in user functions", location=location
-                )
+            arg_typ = typ_arg.type
+            if isinstance(arg_typ, pytypes.UnionType):
+                logger.error("union types are not supported in user functions", location=location)
                 return dummy_value(result_pytyp, location)
             if isinstance(arg_typ, pytypes.LiteralOnlyType):
                 logger.error(
@@ -112,7 +109,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
             arg = arg_map[arg_map_name]
             if pytypes.ContractBaseType in arg_typ.mro:
                 if not is_type_or_subtype(arg.pytype, of=arg_typ):
-                    logger.error("unexpected argument type", location=arg.source_location)
+                    expect.not_this_type(arg, default=expect.default_none)
             else:
                 arg = expect.argument_of_type_else_dummy(arg, arg_typ)
                 passed_name = arg_map_name if arg_map_name in arg_names else None

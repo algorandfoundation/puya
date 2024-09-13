@@ -4,6 +4,7 @@ import typing
 import typing_extensions
 from puya import log
 from puya.awst.nodes import (
+    BinaryBooleanOperator,
     CompileTimeConstantExpression,
     Expression,
     FieldExpression,
@@ -151,6 +152,12 @@ class InstanceExpressionBuilder(
         reverse: bool,
     ) -> InstanceBuilder:
         return NotImplemented
+
+    @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        return super().bool_binary_op(other, op, location)
 
     @typing.override
     def augmented_assignment(

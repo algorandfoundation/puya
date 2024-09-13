@@ -657,7 +657,9 @@ def test_contains_operator(harness: _TestHarness) -> None:
 
 
 def test_boolean_binary_ops(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "boolean_binary_ops")
+    result = harness.deploy(
+        TEST_CASES_DIR / "boolean_binary_ops", request=AppCallRequest(increase_budget=1)
+    )
     logs = set(result.decode_logs("u" * 12))
     assert logs == {
         # AND
@@ -1356,7 +1358,6 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
     assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
 
 
-@pytest.mark.xfail(reason="Known issue, see https://github.com/algorandfoundation/puya/issues/145")
 def test_nested_bool_context(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Bytes, Contract, UInt64, op
@@ -1370,8 +1371,9 @@ def test_nested_bool_context(harness: _TestHarness) -> None:
             def clear_state_program(self) -> bool:
                 return True
 
-    # expected error message here is just an example, update test once a better one is available
-    with pytest.raises(puya.errors.CodeError, match="Invalid use of a type union"):
+    with pytest.raises(
+        puya.errors.CodeError, match="type unions are unsupported at this location"
+    ):
         harness.deploy_from_closure(test)
 
 

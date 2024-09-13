@@ -5,6 +5,9 @@ contract BooleanBinaryOps
     test_cases.boolean_binary_ops.contract.test_boolean_binary_ops(true=true, false=false)
     test_cases.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops()
     test_cases.boolean_binary_ops.contract.type_coercion()
+    test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops()
+    test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops()
+    test_cases.boolean_binary_ops.contract.test_literal_conditionals(true=true, false=false)
     return true
   }
   
@@ -58,4 +61,70 @@ subroutine type_coercion(): void
   assert(b > 0u)
   c: uint64 = (appl != 0u) ? (appl) : ((0u != 0u) ? (0u) : (OptIn))
   assert(c == appl)
+}
+
+subroutine test_union_boolean_binary_ops(): void
+{
+  ok: bool = len(hex<"">) != 0u or 1u != 0u
+  assert(ok)
+  x: uint64 = 0u
+  y: bytes = hex<"79">
+  z: string = 'z'
+  assert(x != 0u or len(y) != 0u or len(y) != 0u or len(z) != 0u)
+  assert(x != 0u or len(y) != 0u and x != 0u or len(y) != 0u)
+  assert(x != 0u or len(y) != 0u or len(z) != 0u)
+  assert(x != 0u or len(y) != 0u or len(z) != 0u)
+  assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0, source='ri'))) > len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2, source=(len(SINGLE_EVAL(id=1, source='left')) == 0u) ? (SINGLE_EVAL(id=1)) : ('right'))))) ? (false) : (extract3(SINGLE_EVAL(id=2), 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0)))) == SINGLE_EVAL(id=0)))
+  assert((len(reinterpret_cast<bytes>((len(SINGLE_EVAL(id=3, source='le')) == 0u) ? (SINGLE_EVAL(id=3)) : (SINGLE_EVAL(id=4, source='ri')))) > len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5, source='right')))) ? (false) : (extract3(SINGLE_EVAL(id=5), 0u, len(reinterpret_cast<bytes>((len(SINGLE_EVAL(id=3)) == 0u) ? (SINGLE_EVAL(id=3)) : (SINGLE_EVAL(id=4))))) == (len(SINGLE_EVAL(id=3)) == 0u) ? (SINGLE_EVAL(id=3)) : (SINGLE_EVAL(id=4))))
+  bytes_to_iterate: bytes = hex<"616263">
+  for (idx, b) in enumerate((len(hex<"6E65766572207365656E">) == 0u) ? (hex<"6E65766572207365656E">) : (bytes_to_iterate)) {
+    assert(b == bytes_to_iterate[idx])
+  }
+  assert((len(hex<"6C656674">) == 0u) ? (hex<"6C656674">) : (hex<"7269676874">)[1u] == hex<"69">)
+  assert((len(hex<"6C656674">) != 0u) ? (hex<"6C656674">) : (hex<"7269676874">)[0:2] == hex<"6C65">)
+  assert(_puya_lib.bytes_.is_substring('ight', (len(SINGLE_EVAL(id=6, source='left')) == 0u) ? (SINGLE_EVAL(id=6)) : ('right')))
+  assert((1u == 0u) ? (1u) : (2u) + 3u == 5u)
+  assert(~((1u != 0u) ? (1u) : (2u)) == ~(1u))
+}
+
+subroutine test_literal_boolean_binary_ops(): void
+{
+  assert(true)
+  assert(true)
+  assert(0u != 0u or true)
+  assert(false or len(hex<"616263">) != 0u)
+  a: bool = true
+  b: bool = true
+  c: bool = 0u != 0u or true
+  d: bool = false or len(hex<"616263">) != 0u
+  assert(a and b and c and d)
+  if (false) {
+    assert(false)
+  }
+  if (false) {
+    assert(false)
+  }
+  if (0u != 0u or false) {
+    assert(false)
+  }
+  if (false or len(hex<"">) != 0u) {
+    assert(false)
+  }
+  assert(2u == 2u)
+  one: uint64 = 1u
+  assert(bitlen((one == 0u) ? (one) : (4u)) == 3u)
+  empty_bytes: bytes = hex<"">
+  assert(bitlen((len(empty_bytes) != 0u) ? (empty_bytes) : (hex<"68656C6C6F">)) > 0u)
+}
+
+subroutine test_literal_conditionals(true: bool, false: bool): void
+{
+  assert((false) ? (true) : (false) or true)
+  assert(false or (true) ? (true) : (false))
+  assert(true or (true) ? (true) : (false))
+  assert((false) ? (true) : (false) or true)
+  y: uint64 = (SINGLE_EVAL(id=7, source=(false) ? (3u) : (0u)) != 0u) ? (SINGLE_EVAL(id=7)) : (4u)
+  assert(y == 4u)
+  z: uint64 = (0u != 0u) ? (0u) : ((true) ? (3u) : (0u))
+  assert(z == 3u)
 }

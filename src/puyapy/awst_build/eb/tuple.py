@@ -39,7 +39,6 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.exceptions import TypeUnionError
 from puyapy.awst_build.utils import determine_base_type
 
 logger = log.get_logger(__name__)
@@ -188,6 +187,12 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
                         raise CodeError("can't multiply sequence by non-int-literal", location)
             case _:
                 return NotImplemented
+
+    @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        return super().bool_binary_op(other, op, location)
 
     @typing.override
     def augmented_assignment(
@@ -507,9 +512,9 @@ def _concat(
 def _iterable_item_type(
     pytype: pytypes.TupleType, source_location: SourceLocation
 ) -> pytypes.PyType:
-    try:
-        return determine_base_type(*pytype.items, location=source_location)
-    except TypeUnionError as ex:
+    base_type = determine_base_type(*pytype.items, location=source_location)
+    if isinstance(base_type, pytypes.UnionType):
         raise CodeError(
             "unable to iterate heterogeneous tuple without common base type", source_location
-        ) from ex
+        )
+    return base_type

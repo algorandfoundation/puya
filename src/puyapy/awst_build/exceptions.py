@@ -1,10 +1,6 @@
-from collections.abc import Sequence
-
 import mypy.nodes
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-
-from puyapy.awst_build import pytypes
 
 
 class UnsupportedASTError(CodeError):
@@ -16,12 +12,3 @@ class UnsupportedASTError(CodeError):
             msg += f": {details}"
         super().__init__(msg, location=location)
         self.details = details
-
-
-class TypeUnionError(CodeError):
-    """Specific instance of CodeError that may be recoverable in some situations"""
-
-    def __init__(self, types: Sequence[pytypes.PyType], location: SourceLocation | None):
-        assert len(types) > 1
-        super().__init__(msg="type unions are unsupported at this location", location=location)
-        self.types = types

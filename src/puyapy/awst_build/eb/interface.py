@@ -7,7 +7,7 @@ import typing
 import mypy.nodes
 import typing_extensions
 from puya import log
-from puya.awst.nodes import ConstantValue, Expression, Lvalue, Statement
+from puya.awst.nodes import BinaryBooleanOperator, ConstantValue, Expression, Lvalue, Statement
 from puya.errors import CodeError
 from puya.models import ContractReference
 from puya.parse import SourceLocation
@@ -152,6 +152,15 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         reverse: bool,
     ) -> InstanceBuilder:
         """Handle self {op} other"""
+
+    @abc.abstractmethod
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        """Handle self and/or other"""
+        from puyapy.awst_build.eb.binary_bool_op import BinaryBoolOpBuilder
+
+        return BinaryBoolOpBuilder(left=self, right=other, op=op, location=location)
 
     @abc.abstractmethod
     def augmented_assignment(

@@ -25,6 +25,10 @@ logger = log.get_logger(__name__)
 
 
 def dummy_value(pytype: pytypes.PyType, location: SourceLocation) -> InstanceBuilder:
+    if isinstance(pytype, pytypes.LiteralOnlyType):
+        from puyapy.awst_build.eb._literals import LiteralBuilderImpl
+
+        return LiteralBuilderImpl(pytype.python_type(), location)
     expr = VarExpression(name="", wtype=pytype.wtype, source_location=location)
     return builder_for_instance(pytype, expr)
 
