@@ -1,4 +1,40 @@
 # CHANGELOG
+## v3.1.0 (2024-09-13)
+
+### Feature
+
+* `algopy.arc4.abi_call`, `algopy.arc4.arc4_create` and `algopy.arc4.arc4_update` now all support txn arguments ([`8133e1d`](https://github.com/algorandfoundation/puya/commit/8133e1db63e6c63990d28f79dc1b6a7b2a422a2e))
+
+* add CLI option to serialize AWST to JSON ([`66bf127`](https://github.com/algorandfoundation/puya/commit/66bf1274b88e5856e4163df8f276f64fff390da5))
+
+* optimize `int 0; return` -&gt; `err` ([`3605cf4`](https://github.com/algorandfoundation/puya/commit/3605cf4aeaeaa3218fb523e6669dcd5254275fc5))
+
+* allow user to implement approval_program in ARC4Contract subclasses ([`004450b`](https://github.com/algorandfoundation/puya/commit/004450b909a5c007ec6f20600fd874b1ed5c59d1))
+
+### Fix
+
+* handle zero values for TemplateVar ([`6087dc2`](https://github.com/algorandfoundation/puya/commit/6087dc21451e5266f7df8b9851dd80a5d12be7d8))
+
+  boolean values are now also allowed as `True` or `False`
+
+  also incorrect values will no longer result in a critical error, but a CLI usage error instead
+
+* when accessing a member of `self`, use the source location of the access ([`2f827ab`](https://github.com/algorandfoundation/puya/commit/2f827aba3cc471f588609156f551130b47f9c5b8))
+
+* when there is exactly 15 arguments to an ABI function, the final argument should not be expected to be automatically tuple-packed ([`04e15df`](https://github.com/algorandfoundation/puya/commit/04e15df084ee99c001fd7df28697f4e569606161))
+
+* calling `algopy.arc4.arc4_create` or `algopy.arc4.arc4_update` with a ARC4Contract type now works for abimethods that have a return type ([`99d6a24`](https://github.com/algorandfoundation/puya/commit/99d6a241e83d46d45780093346e1295d94161f51))
+
+* fix `super()` usage in multiple inheritance scenarios ([`21929cc`](https://github.com/algorandfoundation/puya/commit/21929cc64e0eaf735189158d454904de387a3d8a))
+
+* allow `super().__init__()` calls that resolve to `object.__init__()` as no-ops, this is valid and can be useful in multiple inheritance scenarios ([`267f423`](https://github.com/algorandfoundation/puya/commit/267f4235c0bb1a0b5a40347ddd9a26e2d6cd6532))
+
+* abstract methods can still have implementations, which can be called via super ([`9615467`](https://github.com/algorandfoundation/puya/commit/96154675231c8303941c357f3c6fcab1c21c3413))
+
+* evaluate class bodies at module evaluation time, so that any referenced constants in e.g. decorators receive the correct value if it&#39;s later updated ([`9aea78c`](https://github.com/algorandfoundation/puya/commit/9aea78c638b01863a4ed8004187108d3e315ec1b))
+
+* resolve all base scratch slot reservations, not just direct bases ([`f9521b5`](https://github.com/algorandfoundation/puya/commit/f9521b5cc81c4800a198d6428cc078c26ced8d8b))
+
 ## v3.0.3 (2024-08-28)
 
 ### Fix
