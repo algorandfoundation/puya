@@ -48,8 +48,8 @@ class ARC4TupleGenericTypeBuilder(GenericTypeBuilder):
                     ARC4Encode(value=arg.resolve(), wtype=wtype, source_location=location), typ
                 )
             case _:
-                # don't know expected type
-                raise CodeError("unexpected argument type", arg.source_location)
+                # don't know expected type, so raise
+                expect.not_this_type(arg, default=expect.default_raise)
 
 
 class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.TupleType]):
@@ -91,8 +91,8 @@ class ARC4TupleExpressionBuilder(
                 pass
             case InstanceBuilder(pytype=pytypes.IntLiteralType):
                 raise CodeError("tuple index must be a simple int literal", index.source_location)
-            case _:
-                raise CodeError("unexpected argument type", index.source_location)
+            case other:
+                expect.not_this_type(other, default=expect.default_raise)
         try:
             item_typ = self.pytype.items[index_value]
         except IndexError:

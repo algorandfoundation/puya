@@ -2,6 +2,7 @@ import typing
 
 from puya import log
 from puya.awst.nodes import (
+    BinaryBooleanOperator,
     BoolConstant,
     BytesConstant,
     BytesEncoding,
@@ -119,6 +120,15 @@ class LiteralBuilderImpl(LiteralBuilder):
         if reverse:
             lhs, rhs = rhs, lhs
         folded = fold_binary_expr(location, op.value, lhs, rhs)
+        return LiteralBuilderImpl(value=folded, source_location=location)
+
+    @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        if not isinstance(other, LiteralBuilder):
+            return super().bool_binary_op(other, op, location)
+        folded = fold_binary_expr(location, op.value, self.value, other.value)
         return LiteralBuilderImpl(value=folded, source_location=location)
 
     @typing.override

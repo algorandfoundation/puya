@@ -315,9 +315,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     uncover 11
     cover 4
     uncover 11
-    dup
-    cover 6
-    cover 12
+    cover 5
     uncover 3
     cover 5
     uncover 2
@@ -342,89 +340,64 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     // arc4_types/tuples.py:39
     // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
     byte 0x00
-    ==
-    bz main_ternary_false@2
-    dig 9
-    b main_ternary_merge@15
-
-main_ternary_false@2:
-    // arc4_types/tuples.py:39
-    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
+    !=
+    bz main_bool_false@8
     dig 7
-    byte 0x00
-    ==
-    bz main_ternary_false@4
-    dig 7
-    b main_ternary_merge@14
-
-main_ternary_false@4:
-    // arc4_types/tuples.py:39
-    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
-    dig 6
-    byte 0x00
-    ==
-    bz main_ternary_false@6
-    dig 6
-    b main_ternary_merge@13
-
-main_ternary_false@6:
-    // arc4_types/tuples.py:39
-    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
-    dig 5
-    byte 0x00
-    ==
-    bz main_ternary_false@8
-    dig 5
-    b main_ternary_merge@12
-
-main_ternary_false@8:
-    // arc4_types/tuples.py:39
-    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
-    dig 4
-    byte 0x00
-    ==
-    bz main_ternary_false@10
-    dig 4
-    b main_ternary_merge@11
-
-main_ternary_false@10:
-    // arc4_types/tuples.py:39
-    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
-    dig 2
-    dup
-    byte 0x00
-    ==
-    dig 3
-    uncover 2
-    uncover 2
-    select
-
-main_ternary_merge@11:
-
-main_ternary_merge@12:
-
-main_ternary_merge@13:
-
-main_ternary_merge@14:
-
-main_ternary_merge@15:
-    // arc4_types/tuples.py:39
-    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
     byte 0x00
     !=
+    bz main_bool_false@8
+    dig 6
+    byte 0x00
+    !=
+    bz main_bool_false@8
+    dig 5
+    byte 0x00
+    !=
+    bz main_bool_false@8
+    dig 4
+    byte 0x00
+    !=
+    bz main_bool_false@8
+    dig 2
+    byte 0x00
+    !=
+    bz main_bool_false@8
+    dig 1
+    byte 0x00
+    !=
+    bz main_bool_false@8
+    int 1
+    b main_bool_merge@9
+
+main_bool_false@8:
+    int 0
+
+main_bool_merge@9:
+    // arc4_types/tuples.py:39
+    // assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
     assert // b,d,e,f,g,i,j are true
     // arc4_types/tuples.py:40
     // assert not (c or h), "c and h are false"
     dig 8
-    dup
     byte 0x00
     !=
-    dig 5
-    uncover 2
-    uncover 2
-    select
+    bnz main_bool_true@11
+    dig 3
     byte 0x00
-    ==
+    !=
+    bz main_bool_false@12
+
+main_bool_true@11:
+    int 1
+    b main_bool_merge@13
+
+main_bool_false@12:
+    int 0
+
+main_bool_merge@13:
+    // arc4_types/tuples.py:40
+    // assert not (c or h), "c and h are false"
+    !
     assert // c and h are false
     // arc4_types/tuples.py:41
     // assert k.native == 16, "k is 16"
@@ -435,7 +408,7 @@ main_ternary_merge@15:
     assert // k is 16
     // arc4_types/tuples.py:43
     // assert boolean_packing == TestBooleanPacking(boolean_packing.native)
-    dig 10
+    dig 9
     dup
     int 0
     int 1
@@ -579,7 +552,7 @@ main_ternary_merge@15:
     assert
     // arc4_types/tuples.py:45
     // total, concat = self.test_stuff(my_tuple)
-    dig 11
+    dig 10
     callsub test_stuff
     // arc4_types/tuples.py:46
     // assert concat.native == "hello world"

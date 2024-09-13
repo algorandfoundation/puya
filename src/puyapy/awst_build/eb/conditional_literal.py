@@ -1,6 +1,12 @@
 import typing
 
-from puya.awst.nodes import ConditionalExpression, Expression, Lvalue, Statement
+from puya.awst.nodes import (
+    BinaryBooleanOperator,
+    ConditionalExpression,
+    Expression,
+    Lvalue,
+    Statement,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -144,6 +150,12 @@ class ConditionalLiteralBuilder(InstanceBuilder):
             condition=self._condition,
             location=location,
         )
+
+    @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        return super().bool_binary_op(other, op, location)
 
     @typing.override
     def augmented_assignment(

@@ -17,11 +17,10 @@ from puya.context import try_get_source
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.models import ContractReference
 from puya.parse import SourceLocation
-from puya.utils import attrs_extend
+from puya.utils import attrs_extend, unique
 
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.contract_data import AppStorageDeclaration
-from puyapy.awst_build.exceptions import TypeUnionError
 from puyapy.parse import ParseResult, source_location_from_mypy
 
 if typing.TYPE_CHECKING:
@@ -197,7 +196,7 @@ def type_to_pytype(
     registry: Mapping[str, pytypes.PyType],
     mypy_type: mypy.types.Type,
     *,
-    source_location: SourceLocation | None,
+    source_location: SourceLocation,
     in_type_args: bool = False,
     in_func_sig: bool = False,
 ) -> pytypes.PyType:
@@ -269,13 +268,13 @@ def type_to_pytype(
                 our_literal_value = literal_value
             return pytypes.TypingLiteralType(value=our_literal_value, source_location=loc)
         case mypy.types.UnionType(items=items):
-            types = [recurse(it) for it in items]
+            types = unique(recurse(it) for it in items)
             if not types:
-                raise CodeError("Cannot resolve empty type", loc)
-            if len(types) == 1:
+                return pytypes.NeverType
+            elif len(types) == 1:
                 return types[0]
             else:
-                raise TypeUnionError(types, loc)
+                return pytypes.UnionType(types, loc)
         case mypy.types.NoneType() | mypy.types.PartialType(type=None):
             return pytypes.NoneType
         case mypy.types.UninhabitedType():
@@ -301,19 +300,14 @@ def type_to_pytype(
                 for at, name, kind in zip(
                     func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
                 ):
-                    try:
-                        pt = type_to_pytype(
-                            registry,
-                            at,
-                            source_location=loc,
-                            in_type_args=in_type_args,
-                            in_func_sig=True,
-                        )
-                    except TypeUnionError as union:
-                        pts = union.types
-                    else:
-                        pts = [pt]
-                    func_args.append(pytypes.FuncArg(types=pts, kind=kind, name=name))
+                    arg_pytype = type_to_pytype(
+                        registry,
+                        at,
+                        source_location=loc,
+                        in_type_args=in_type_args,
+                        in_func_sig=True,
+                    )
+                    func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
                 if None in func_like.bound_args:
                     logger.debug(
                         "None contained in bound args for function reference", location=loc
@@ -347,7 +341,7 @@ def _maybe_parameterise_pytype(
     registry: Mapping[str, pytypes.PyType],
     maybe_generic: pytypes.PyType,
     mypy_type_args: Sequence[mypy.types.Type],
-    loc: SourceLocation | None,
+    loc: SourceLocation,
 ) -> pytypes.PyType:
     if not mypy_type_args:
         return maybe_generic
@@ -361,7 +355,7 @@ def _maybe_parameterise_pytype(
     return result
 
 
-def _type_of_any_to_error_message(type_of_any: int, source_location: SourceLocation | None) -> str:
+def _type_of_any_to_error_message(type_of_any: int, source_location: SourceLocation) -> str:
     from mypy.types import TypeOfAny
 
     match type_of_any:

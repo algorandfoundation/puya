@@ -1,7 +1,5 @@
-import contextlib
 import typing
-from collections.abc import Callable, Iterator, Sequence
-from functools import partialmethod
+from collections.abc import Callable, Sequence
 
 import attrs
 import mypy.nodes
@@ -46,8 +44,7 @@ from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
-from puyapy.awst_build.eb.arc4 import ARC4BoolTypeBuilder, ARC4ClientTypeBuilder
-from puyapy.awst_build.eb.bool import BoolTypeBuilder
+from puyapy.awst_build.eb.arc4 import ARC4ClientTypeBuilder
 from puyapy.awst_build.eb.conditional_literal import ConditionalLiteralBuilder
 from puyapy.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
@@ -72,9 +69,7 @@ from puyapy.awst_build.eb.interface import (
 from puyapy.awst_build.eb.logicsig import LogicSigExpressionBuilder
 from puyapy.awst_build.eb.none import NoneTypeBuilder
 from puyapy.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puyapy.awst_build.exceptions import TypeUnionError
 from puyapy.awst_build.utils import (
-    determine_base_type,
     extract_bytes_literal_from_mypy,
     get_unaliased_fullname,
     maybe_resolve_literal,
@@ -106,7 +101,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         super().__init__(context=context)
         func_loc = self._location(func_def)  # TODO: why not source_location ??
         self.contract_method_info = contract_method_info
-        self._is_bool_context = False
         self.func_def = func_def
         self._precondition(
             func_def.abstract_status == mypy.nodes.NOT_ABSTRACT,
@@ -130,6 +124,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         self._return_type = self.context.type_to_pytype(
             type_info.ret_type, source_location=func_loc
         )
+        return_wtype = self._return_type.wtype  # check, to prevent further errors
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
@@ -179,7 +174,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 name=func_def.name,
                 source_location=source_location,
                 args=args,
-                return_type=self._return_type.wtype,
+                return_type=return_wtype,
                 body=translated_body,
                 documentation=documentation,
             )
@@ -192,7 +187,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 member_name=func_def.name,
                 source_location=source_location,
                 args=args,
-                return_type=self._return_type.wtype,
+                return_type=return_wtype,
                 body=translated_body,
                 documentation=documentation,
                 arc4_method_config=arc4_method_config,
@@ -247,18 +242,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             body=translated_body,
         )
 
-    @contextlib.contextmanager
-    def _set_bool_context(self, *, is_bool_context: bool) -> Iterator[None]:
-        was_in_bool_context = self._is_bool_context
-        self._is_bool_context = is_bool_context
-        try:
-            yield
-        finally:
-            self._is_bool_context = was_in_bool_context
-
-    _enter_bool_context = partialmethod(_set_bool_context, is_bool_context=True)
-    _leave_bool_context = partialmethod(_set_bool_context, is_bool_context=False)
-
     def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> ExpressionStatement | None:
         stmt_loc = self._location(stmt)
         if isinstance(stmt.expr, mypy.nodes.StrExpr):
@@ -277,9 +260,9 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         expr_builder = require_instance_builder(stmt.expr.accept(self))
         if expr_builder.pytype != pytypes.NoneType:
             if isinstance(stmt.expr, mypy.nodes.CallExpr) and isinstance(
-                stmt.expr.analyzed, mypy.nodes.RevealExpr
+                stmt.expr.analyzed, mypy.nodes.RevealExpr | mypy.nodes.AssertTypeExpr
             ):
-                # special case to ignore ignoring the result of typing.reveal_type
+                # special case to ignore ignoring the result of typing.reveal_type/assert_type
                 pass
             elif expr_builder.pytype in pytypes.InnerTransactionResultTypes.values() or (
                 isinstance(expr_builder.pytype, pytypes.TupleType)
@@ -486,7 +469,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         )
         (expr,) = stmt.expr
         (if_body,) = stmt.body
-        condition = self._eval_condition(expr)
+        condition = expr.accept(self).bool_eval(self._location(expr))
         if_branch = self.visit_block(if_body)
         else_branch = self.visit_block(stmt.else_body) if stmt.else_body else None
         return IfElse(
@@ -495,12 +478,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             if_branch=if_branch,
             else_branch=else_branch,
         )
-
-    def _eval_condition(self, mypy_expr: mypy.nodes.Expression) -> InstanceBuilder:
-        with self._enter_bool_context():
-            builder = mypy_expr.accept(self)
-        loc = self._location(mypy_expr)
-        return builder.bool_eval(loc)
 
     @typing.overload
     def _build_loop(
@@ -545,7 +522,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         )
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop | Block:
-        condition = self._eval_condition(stmt.expr)
+        condition = stmt.expr.accept(self).bool_eval(self._location(stmt.expr))
         return self._build_loop(
             stmt,
             lambda loop_body, loop_loc: WhileLoop(
@@ -591,7 +568,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                     pass
                 case _:
                     self._error("only literal strings are supported as assertion messages", stmt)
-        condition = self._eval_condition(stmt.expr)
+        condition = stmt.expr.accept(self).bool_eval(self._location(stmt.expr))
         return ExpressionStatement(
             expr=intrinsic_factory.assert_(
                 comment=comment,
@@ -884,12 +861,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if not isinstance(callee, CallableBuilder):
             raise CodeError("not a callable expression", self._location(call.callee))
 
-        if isinstance(callee, BoolTypeBuilder | ARC4BoolTypeBuilder):
-            args_context: typing.Any = self._enter_bool_context
-        else:
-            args_context = contextlib.nullcontext
-        with args_context():
-            args = [arg.accept(self) for arg in call.args]
+        args = [arg.accept(self) for arg in call.args]
         return callee.call(
             args=args,
             arg_kinds=call.arg_kinds,
@@ -943,19 +915,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
         if node.op in BinaryBooleanOperator:
             bool_op = BinaryBooleanOperator(node.op)
-            if isinstance(lhs, LiteralBuilder) and isinstance(rhs, LiteralBuilder):
-                match bool_op:
-                    case BinaryBooleanOperator.and_:
-                        return LiteralBuilderImpl(
-                            value=lhs.value and rhs.value, source_location=node_loc
-                        )
-                    case BinaryBooleanOperator.or_:
-                        return LiteralBuilderImpl(
-                            value=lhs.value or rhs.value, source_location=node_loc
-                        )
-                    case _:
-                        typing.assert_never(bool_op)
-            return self._visit_bool_op_expr(bool_op, lhs=lhs, rhs=rhs, location=node_loc)
+            return lhs.bool_binary_op(rhs, bool_op, node_loc)
 
         try:
             op = BuilderBinaryOp(node.op)
@@ -970,70 +930,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if result is NotImplemented:
             raise CodeError(f"unsupported operation {op.value} between types", node_loc)
         return result
-
-    def _visit_bool_op_expr(
-        self,
-        op: BinaryBooleanOperator,
-        lhs: InstanceBuilder,
-        rhs: InstanceBuilder,
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        # when in a boolean evaluation context, we can side step issues of type unions
-        # and what not, and just assume everything is boolean.
-        # note that this won't solve all potential use cases, and indeed some of them are
-        # unsolvable without a more runtime infrastructure.
-        # for example, this will allow:
-        # a = UInt64(...)
-        # b = Bytes(...)
-        # if a and b:
-        #   ...
-        # but obviously we cannot handle
-        # c = a and b
-        # you wouldn't be able to do anything with c, since in general we can't know at compile
-        # time what the type of c is, and the AVM doesn't provide any type introspection.
-        # even if there was an op that said whether a stack item or a scratch slot etc held
-        # a bytes[] or a uint64, there are differences between logical types and physical types
-        # that need to be accounted for - for example, biguint is a bytes[] but we would need
-        # to use a different equality op b== instead of ==
-        # also note, because we evaluate this to bool here, there will be mismatch between
-        # mypy types and wtype after this, so if you tried, say:
-        # assert (a and b) == a
-        # this would fail to compile, due to (a and b) being wtype of bool.
-        # this is fine and expected, there's no issues of semantic compatibility since we
-        # reject compiling the program altogether.
-        target_pytyp: pytypes.PyType | None
-        try:
-            target_pytyp = determine_base_type(lhs.pytype, rhs.pytype, location=location)
-        except TypeUnionError:
-            target_pytyp = None
-        if target_pytyp is None:
-            if not self._is_bool_context:
-                raise CodeError(
-                    "expression would produce a union type,"
-                    " which isn't supported unless evaluating a boolean condition",
-                    location,
-                )
-            target_pytyp = pytypes.BoolType
-            lhs = lhs.bool_eval(location)
-            rhs = rhs.bool_eval(location)
-
-        if target_pytyp == pytypes.BoolType:
-            expr_result: Expression = BooleanBinaryOperation(
-                source_location=location, left=lhs.resolve(), op=op, right=rhs.resolve()
-            )
-        else:
-            lhs = lhs.single_eval()
-            # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
-            # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
-            condition = lhs.bool_eval(location, negate=op is BinaryBooleanOperator.and_).resolve()
-            expr_result = ConditionalExpression(
-                condition=condition,
-                true_expr=lhs.resolve(),
-                false_expr=rhs.resolve(),
-                wtype=target_pytyp.wtype,
-                source_location=location,
-            )
-        return builder_for_instance(target_pytyp, expr_result)
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> NodeBuilder:
         expr_location = self._location(expr)
@@ -1087,7 +983,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
-        condition = self._eval_condition(expr.cond)
+        condition = expr.cond.accept(self).bool_eval(self._location(expr.cond))
         true_b = require_instance_builder(expr.if_expr.accept(self))
         false_b = require_instance_builder(expr.else_expr.accept(self))
         if true_b.pytype != false_b.pytype:
@@ -1214,8 +1110,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             expr_loc,
         )
         # TODO: test if self. assignment?
-        with self._leave_bool_context():
-            source = require_instance_builder(expr.value.accept(self))
+        source = require_instance_builder(expr.value.accept(self))
         if not self._assign_type(expr.target, source.pytype):
             # typing error, just return the source to continue with
             return source

@@ -16,8 +16,7 @@ SOME_ADDRESS_PADDED = SOME_ADDRESS + "=="
 def typing_interactions() -> None:
     typing.reveal_type(UInt64(1)) ## N: Revealed type is "algopy._primitives.UInt64"
     typing.reveal_type((UInt64(1), Bytes(b""))) ## N: Revealed type is "tuple[algopy._primitives.UInt64, algopy._primitives.Bytes]"
-    typing.assert_type(UInt64(1), UInt64) ## W: use of typing.assert_type has no effect on compilation \
-                                          ## W: expression result is ignored
+    typing.assert_type(UInt64(1), UInt64) ## W: use of typing.assert_type has no effect on compilation
 
     assert typing.cast(Bytes, Account(SOME_ADDRESS)) == Bytes.from_base64(SOME_ADDRESS_PADDED) ## W: use of typing.cast, output may be invalid or insecure TEAL \
                                                                                                ## E: unsupported comparison '==' between types
@@ -360,3 +359,27 @@ def or_with_uint64_subtypes() -> None:
 def uint64_subtype_augmented_assignment() -> None:
     x = OnCompleteAction.NoOp
     x += 1 ## E: Result type of + incompatible in assignment  [misc]
+
+
+## case: type_unions_in_signatures
+from algopy import *
+
+@subroutine
+def user_sub_with_union(x: arc4.UInt16 | arc4.UInt32) -> UInt64: ## E: type unions are unsupported at this location
+    return x.native
+
+@subroutine
+def user_sub_with_union_result() -> arc4.UInt16 | arc4.UInt32: ## E: type unions are unsupported at this location
+    return arc4.UInt16(123)
+
+
+## case: bool_binary_op_errors
+from algopy import *
+
+
+@subroutine
+def unresolveable() -> None:
+    empty = Bytes()
+    one = UInt64(1)
+    assert bool(op.bitlen(empty or one)) ## E: type unions are unsupported at this location
+    bad = empty or one ## E: expression would produce a union type, which isn't supported unless evaluating a boolean condition

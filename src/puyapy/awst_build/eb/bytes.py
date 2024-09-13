@@ -85,9 +85,10 @@ class BytesTypeBuilder(TypeBuilder):
                     value=b"", encoding=BytesEncoding.unknown, source_location=location
                 )
                 return BytesExpressionBuilder(value)
-            case _:
-                logger.error("unexpected argument type", location=arg.source_location)
-                return dummy_value(self.produces(), location)
+            case other:
+                return expect.not_this_type(
+                    other, default=expect.default_dummy_value(self.produces())
+                )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

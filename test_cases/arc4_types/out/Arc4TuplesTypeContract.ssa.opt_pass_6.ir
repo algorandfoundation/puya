@@ -40,53 +40,49 @@ contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
                 let tmp%3#0: uint64 = (btoi a#0)
                 let tmp%4#0: bool = (== tmp%3#0 4u)
                 (assert tmp%4#0) // a is 4
-                let tmp%5#0: bool = (== b#0 0x00)
-                goto tmp%5#0 ? block@1 : block@2
-            block@1: // ternary_true_L39
-                goto block@15
-            block@2: // ternary_false_L39
-                let tmp%6#0: bool = (== d#0 0x00)
-                goto tmp%6#0 ? block@3 : block@4
-            block@3: // ternary_true_L39
-                goto block@14
-            block@4: // ternary_false_L39
-                let tmp%7#0: bool = (== e#0 0x00)
-                goto tmp%7#0 ? block@5 : block@6
-            block@5: // ternary_true_L39
-                goto block@13
-            block@6: // ternary_false_L39
-                let tmp%8#0: bool = (== f#0 0x00)
-                goto tmp%8#0 ? block@7 : block@8
-            block@7: // ternary_true_L39
-                goto block@12
-            block@8: // ternary_false_L39
-                let tmp%9#0: bool = (== g#0 0x00)
-                goto tmp%9#0 ? block@9 : block@10
-            block@9: // ternary_true_L39
-                goto block@11
-            block@10: // ternary_false_L39
-                let tmp%10#0: bool = (== i#0 0x00)
-                let ternary_result%4#1: bytes = (select j#0 i#0 tmp%10#0)
-                goto block@11
-            block@11: // ternary_merge_L39
-                let ternary_result%4#2: bytes = φ(g#0 <- block@9, ternary_result%4#1 <- block@10)
-                goto block@12
-            block@12: // ternary_merge_L39
-                let ternary_result%3#2: bytes = φ(f#0 <- block@7, ternary_result%4#2 <- block@11)
-                goto block@13
-            block@13: // ternary_merge_L39
-                let ternary_result%2#2: bytes = φ(e#0 <- block@5, ternary_result%3#2 <- block@12)
-                goto block@14
-            block@14: // ternary_merge_L39
-                let ternary_result%1#2: bytes = φ(d#0 <- block@3, ternary_result%2#2 <- block@13)
-                goto block@15
-            block@15: // ternary_merge_L39
-                let ternary_result%0#2: bytes = φ(b#0 <- block@1, ternary_result%1#2 <- block@14)
-                let tmp%11#0: bool = (!= ternary_result%0#2 0x00)
-                (assert tmp%11#0) // b,d,e,f,g,i,j are true
+                let tmp%5#0: bool = (!= b#0 0x00)
+                goto tmp%5#0 ? block@1 : block@8
+            block@1: // and_contd_L39
+                let tmp%6#0: bool = (!= d#0 0x00)
+                goto tmp%6#0 ? block@2 : block@8
+            block@2: // and_contd_L39
+                let tmp%7#0: bool = (!= e#0 0x00)
+                goto tmp%7#0 ? block@3 : block@8
+            block@3: // and_contd_L39
+                let tmp%8#0: bool = (!= f#0 0x00)
+                goto tmp%8#0 ? block@4 : block@8
+            block@4: // and_contd_L39
+                let tmp%9#0: bool = (!= g#0 0x00)
+                goto tmp%9#0 ? block@5 : block@8
+            block@5: // and_contd_L39
+                let tmp%10#0: bool = (!= i#0 0x00)
+                goto tmp%10#0 ? block@6 : block@8
+            block@6: // and_contd_L39
+                let tmp%11#0: bool = (!= j#0 0x00)
+                goto tmp%11#0 ? block@7 : block@8
+            block@7: // bool_true_L39
+                let and_result%0#0: bool = 1u
+                goto block@9
+            block@8: // bool_false_L39
+                let and_result%0#1: bool = 0u
+                goto block@9
+            block@9: // bool_merge_L39
+                let and_result%0#2: bool = φ(and_result%0#0 <- block@7, and_result%0#1 <- block@8)
+                (assert and_result%0#2) // b,d,e,f,g,i,j are true
                 let tmp%12#0: bool = (!= c#0 0x00)
-                let tmp%13#0: bytes = (select h#0 c#0 tmp%12#0)
-                let tmp%14#0: bool = (== tmp%13#0 0x00)
+                goto tmp%12#0 ? block@11 : block@10
+            block@10: // or_contd_L40
+                let tmp%13#0: bool = (!= h#0 0x00)
+                goto tmp%13#0 ? block@11 : block@12
+            block@11: // bool_true_L40
+                let or_result%0#0: bool = 1u
+                goto block@13
+            block@12: // bool_false_L40
+                let or_result%0#1: bool = 0u
+                goto block@13
+            block@13: // bool_merge_L40
+                let or_result%0#2: bool = φ(or_result%0#0 <- block@11, or_result%0#1 <- block@12)
+                let tmp%14#0: bool = (! or_result%0#2)
                 (assert tmp%14#0) // c and h are false
                 let tmp%15#0: uint64 = (btoi k#0)
                 let tmp%16#0: bool = (== tmp%15#0 16u)

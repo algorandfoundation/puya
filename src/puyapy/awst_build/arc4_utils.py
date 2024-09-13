@@ -382,19 +382,9 @@ def _get_func_types(
             )
         return arg.name
 
-    def require_single_type(arg: pytypes.FuncArg) -> pytypes.PyType:
-        try:
-            (typ,) = arg.types
-        except ValueError:
-            raise CodeError(
-                "union types are not supported as method arguments", location
-            ) from None
-        else:
-            return typ
-
     if not (
         func_type.args
-        and set(require_single_type(func_type.args[0]).mro).intersection(
+        and set(func_type.args[0].type.mro).intersection(
             (pytypes.ARC4ContractBaseType, pytypes.ARC4ClientBaseType)
         )
     ):
@@ -403,7 +393,7 @@ def _get_func_types(
             f" instance methods of classes derived from {pytypes.ARC4ContractBaseType}",
             location,
         )
-    result = {require_arg_name(arg): require_single_type(arg) for arg in func_type.args[1:]}
+    result = {require_arg_name(arg): arg.type for arg in func_type.args[1:]}
     if "output" in result:
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(

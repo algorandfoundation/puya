@@ -1,11 +1,13 @@
 import json
 from collections.abc import Iterable, Mapping
+from pathlib import Path
 
 import attrs
 import mypy.nodes
 import mypy.types
 import pytest
 from puya.awst.txn_fields import TxnField
+from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
@@ -106,6 +108,9 @@ def test_inner_transaction_members() -> None:
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
 
+_FAKE_SOURCE_LOCATION = SourceLocation(file=Path(__file__).resolve(), line=1)
+
+
 def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
     # collect all fields that are protocol members
     txn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
@@ -133,7 +138,9 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
             func_def = type_info.names[member].node
             assert isinstance(func_def, mypy.nodes.FuncDef)
             assert func_def.type is not None
-            func_type = type_to_pytype(builtins_registry, func_def.type, source_location=None)
+            func_type = type_to_pytype(
+                builtins_registry, func_def.type, source_location=_FAKE_SOURCE_LOCATION
+            )
             assert isinstance(func_type, pytypes.FuncType)
             for arg in func_type.args:
                 assert arg.name is not None
@@ -142,8 +149,11 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
                 seen_fields.add(arg.name)
                 txn_field_param = PYTHON_ITXN_ARGUMENTS[arg.name]
                 txn_field = txn_field_param.field
-                assert set(txn_field_param.literal_overrides.keys()).issubset(arg.types)
-                arg_types = arg.types
+                if isinstance(arg.type, pytypes.UnionType):
+                    arg_types = arg.type.types
+                else:
+                    arg_types = [arg.type]
+                assert set(txn_field_param.literal_overrides.keys()).issubset(arg_types)
                 if txn_field.is_array:
                     arg_types = [
                         vt.items for vt in arg_types if isinstance(vt, pytypes.VariadicTupleType)
@@ -205,6 +215,6 @@ def _member_to_field_type(
         is_array = len(typ.arg_names) > 1
         typ = typ.ret_type
 
-    field_type = type_to_pytype(builtins_registry, typ, source_location=None)
+    field_type = type_to_pytype(builtins_registry, typ, source_location=_FAKE_SOURCE_LOCATION)
 
     return FieldType(is_array=is_array, field_type=field_type)

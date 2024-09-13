@@ -4,7 +4,9 @@ from collections.abc import Sequence
 import mypy.nodes
 from puya import log
 from puya.awst.nodes import (
+    BinaryBooleanOperator,
     BoolConstant,
+    BooleanBinaryOperation,
     Expression,
     Not,
     NumericComparison,
@@ -88,3 +90,17 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
             rhs=other.resolve(),
         )
         return BoolExpressionBuilder(cmp_expr)
+
+    @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        if other.pytype != self.pytype:
+            return super().bool_binary_op(other, op, location)
+        result = BooleanBinaryOperation(
+            left=self.resolve(),
+            op=op,
+            right=other.resolve(),
+            source_location=location,
+        )
+        return BoolExpressionBuilder(result)

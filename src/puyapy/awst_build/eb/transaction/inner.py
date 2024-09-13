@@ -8,6 +8,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -85,8 +86,8 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
                     pytype=pytypes.TransactionRelatedType() as arg_pytype
                 ) if arg_pytype in pytypes.InnerTransactionFieldsetTypes.values():
                     pass
-                case _:
-                    raise CodeError("unexpected argument type", arg.source_location)
+                case other:
+                    expect.not_this_type(other, default=expect.default_raise)
 
             arg_exprs.append(arg.resolve())
             arg_result_type = pytypes.InnerTransactionResultTypes[arg_pytype.transaction_type]

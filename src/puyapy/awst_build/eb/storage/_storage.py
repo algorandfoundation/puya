@@ -4,6 +4,7 @@ import attrs
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    BinaryBooleanOperator,
     BytesConstant,
     BytesEncoding,
     Expression,
@@ -151,6 +152,12 @@ class StorageProxyDefinitionBuilder(StorageProxyConstructorResult):
         return self._assign_first(location)
 
     @typing.override
+    def bool_binary_op(
+        self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
+    ) -> InstanceBuilder:
+        return self._assign_first(location)
+
+    @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
@@ -179,7 +186,7 @@ def extract_key_override(
 ) -> Expression | None:
     if key_arg is None:
         return None
-    if isinstance(key_arg, InstanceBuilder) and key_arg.pytype in (
+    elif isinstance(key_arg, InstanceBuilder) and key_arg.pytype in (
         pytypes.StringType,
         pytypes.StrLiteralType,
         pytypes.BytesType,
@@ -190,13 +197,14 @@ def extract_key_override(
             return attrs.evolve(key_override, wtype=typ)
         else:
             return ReinterpretCast(expr=key_override, wtype=typ, source_location=location)
-    logger.error("unexpected argument type", location=key_arg.source_location)
-    return BytesConstant(
-        value=b"0",
-        wtype=typ,
-        encoding=BytesEncoding.unknown,
-        source_location=key_arg.source_location,
-    )
+    else:
+        expect.not_this_type(key_arg, default=expect.default_none)
+        return BytesConstant(
+            value=b"0",
+            wtype=typ,
+            encoding=BytesEncoding.unknown,
+            source_location=key_arg.source_location,
+        )
 
 
 def extract_description(descr_arg: NodeBuilder | None) -> str | None:

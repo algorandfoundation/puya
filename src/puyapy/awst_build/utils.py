@@ -24,7 +24,6 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.exceptions import TypeUnionError
 
 logger = log.get_logger(__name__)
 
@@ -316,7 +315,7 @@ def determine_base_type(
     for candidate in operands:
         if all(is_type_or_subtype(operand, of=candidate) for operand in operands):
             return candidate
-    raise TypeUnionError(operands, location)
+    return pytypes.UnionType(operands, location)
 
 
 @typing.overload

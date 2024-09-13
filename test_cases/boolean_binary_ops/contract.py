@@ -1,4 +1,5 @@
-from algopy import Bytes, Contract, OnCompleteAction, TransactionType, UInt64, log, subroutine
+# ruff: noqa
+from algopy import *
 
 
 class BooleanBinaryOps(Contract):
@@ -6,10 +7,13 @@ class BooleanBinaryOps(Contract):
         test_boolean_binary_ops(true=True, false=False)
         test_boolean_shortcircuit_binary_ops()
         type_coercion()
+        test_union_boolean_binary_ops()
+        test_literal_boolean_binary_ops()
+        test_literal_conditionals(true=True, false=False)
         return True
 
     def clear_state_program(self) -> bool:
-        assert bool() == False  # noqa: E712, UP018
+        assert bool() == False
         return True
 
 
@@ -59,3 +63,72 @@ def type_coercion() -> None:
     assert b > 0
     c = TransactionType.ApplicationCall or UInt64(0) or OnCompleteAction.OptIn
     assert c == TransactionType.ApplicationCall
+
+
+@subroutine
+def test_union_boolean_binary_ops() -> None:
+    ok = bool(Bytes() or UInt64(1))
+    assert ok
+
+    x = UInt64(0)
+    y = Bytes(b"y")
+    z = String("z")
+    assert (x or y) or (y or z)
+    assert (x or y) and (x or y)
+    assert x or (y or z)
+    assert (x or y) or z
+
+    assert (String("left") and String("right")).startswith("ri")
+    assert String("right").startswith(String("le") and String("ri"))
+
+    bytes_to_iterate = Bytes(b"abc")
+    for idx, b in uenumerate(Bytes(b"never seen") and bytes_to_iterate):
+        assert b == bytes_to_iterate[idx]
+    assert (Bytes(b"left") and Bytes(b"right"))[1] == b"i"
+    assert (Bytes(b"left") or Bytes(b"right"))[0:2] == b"le"
+    assert "ight" in (String("left") and String("right"))
+
+    assert (UInt64(1) and UInt64(2)) + 3 == 5
+    assert ~(UInt64(1) or UInt64(2)) == ~UInt64(1)
+
+
+@subroutine
+def test_literal_boolean_binary_ops() -> None:
+    assert 0 or 1
+    assert "abc" and 1
+    assert UInt64(0) or 1
+    assert False or Bytes(b"abc")
+
+    a = bool(0 or 1)
+    b = bool("abc" and 1)
+    c = bool(UInt64(0) or 1)
+    d = bool(False or Bytes(b"abc"))
+    assert a and b and c and d
+
+    if 0 and 1:
+        assert False
+    if "abc" and 0:
+        assert False
+    if UInt64(0) or 0:
+        assert False
+    if False or Bytes(b""):
+        assert False
+
+    assert UInt64(1 and 2) == 2
+
+    one = UInt64(1)
+    assert op.bitlen(one and 4) == 3
+    empty_bytes = Bytes()
+    assert op.bitlen(empty_bytes or b"hello") > 0
+
+
+@subroutine
+def test_literal_conditionals(*, true: bool, false: bool) -> None:
+    assert (3 if false else 0) or 4
+    assert 0 or (3 if true else 0)
+    assert b"123" or (3 if true else 0)
+    assert (3 if false else 0) or b"123"
+    y = UInt64((3 if false else 0) or 4)
+    assert y == 4
+    z = UInt64(0 or (3 if true else 0))
+    assert z == 3
