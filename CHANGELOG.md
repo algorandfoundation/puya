@@ -1,4 +1,46 @@
 # CHANGELOG
+## v3.1.0 (2024-09-13)
+
+### Feature
+
+* add AWST node PuyaLibCall for calling puya provided subroutines ([`7939dc0`](https://github.com/algorandfoundation/puya/commit/7939dc06bda7f095bf75a1b465d2c5d68e05673b))
+
+* `algopy.arc4.abi_call`, `algopy.arc4.arc4_create` and `algopy.arc4.arc4_update` now all support txn arguments ([`25cef67`](https://github.com/algorandfoundation/puya/commit/25cef67021f33c1676e75cb938e938a0f97b9001))
+
+* move lib_embedded to _puya_lib and load as part of IR build step ([`41c34c5`](https://github.com/algorandfoundation/puya/commit/41c34c550de18144efb8f06f55f8affadde90cf7))
+
+* add CLI option to serialize AWST to JSON ([`d19c2a9`](https://github.com/algorandfoundation/puya/commit/d19c2a9111178fe81d33448cddc22ecc45892f37))
+
+* add functions for serializing AWST to JSON ([`e4874b1`](https://github.com/algorandfoundation/puya/commit/e4874b11fcdbd4dfedeb225974f2af3300f1c85f))
+
+* optimize `int 0; return` -&gt; `err` ([`3605cf4`](https://github.com/algorandfoundation/puya/commit/3605cf4aeaeaa3218fb523e6669dcd5254275fc5))
+
+* allow user to implement approval_program in ARC4Contract subclasses ([`004450b`](https://github.com/algorandfoundation/puya/commit/004450b909a5c007ec6f20600fd874b1ed5c59d1))
+
+### Fix
+
+* handle zero values for TemplateVar ([`8c30ead`](https://github.com/algorandfoundation/puya/commit/8c30ead22687667107a84695d023f7e51ef6b35c))
+
+  boolean values are now also allowed as `True` or `False`
+
+  also incorrect values will no longer result in a critical error, but a CLI usage error instead
+
+* when accessing a member of self, use the source location of the access ([`8aeae74`](https://github.com/algorandfoundation/puya/commit/8aeae747bee0217d191c916decbe8e1f3620fff4))
+
+* when there is exactly 15 arguments to an ABI function, the final argument should not be expected to be automatically tuple-packed ([`ec6b5cd`](https://github.com/algorandfoundation/puya/commit/ec6b5cd1bd8a0e0a2086bf1105f31a9c0b675803))
+
+* calling `algopy.arc4.arc4_create` or `algopy.arc4.arc4_update` with a ARC4Contract type now works for abimethods that have a return type ([`954a82c`](https://github.com/algorandfoundation/puya/commit/954a82c1406bbe7c44f6f72de55fe1b1240a543d))
+
+* fix super() usage in multiple inheritance scenarios ([`0cbc19c`](https://github.com/algorandfoundation/puya/commit/0cbc19cdadd52a73f03f2684eaeb648d53b347fb))
+
+* allow super().__init__() calls that resolve to object.__init__() as no-ops, this is valid and can be useful in multiple inheritance scenarios ([`2e66773`](https://github.com/algorandfoundation/puya/commit/2e66773c7b7045df2619dc6ff2ee76a37992180f))
+
+* abstract methods can still have implementations, which can be called via super ([`9615467`](https://github.com/algorandfoundation/puya/commit/96154675231c8303941c357f3c6fcab1c21c3413))
+
+* evaluate class bodies at module evaluation time, so that any referenced constants in e.g. decorators receive the correct value if it&#39;s later updated ([`9aea78c`](https://github.com/algorandfoundation/puya/commit/9aea78c638b01863a4ed8004187108d3e315ec1b))
+
+* resolve all base scratch slot reservations, not just direct bases ([`f9521b5`](https://github.com/algorandfoundation/puya/commit/f9521b5cc81c4800a198d6428cc078c26ced8d8b))
+
 ## v3.0.3 (2024-08-28)
 
 ### Fix
