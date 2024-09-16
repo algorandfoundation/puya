@@ -71,7 +71,7 @@ class SourceModule:
 
 @attrs.frozen
 class ParseResult:
-    manager: mypy.build.BuildManager
+    mypy_options: mypy.options.Options
     ordered_modules: Mapping[str, SourceModule]
     """All discovered modules, topologically sorted by dependencies.
     The sort order is from leaves (nodes without dependencies) to
@@ -90,7 +90,11 @@ class ParseResult:
         }
 
 
-def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
+def parse_and_typecheck(
+    paths: Sequence[Path], mypy_options: mypy.options.Options
+) -> tuple[mypy.build.BuildManager, dict[str, SourceModule]]:
+    """Generate the ASTs from the build sources, and all imported modules (recursively)"""
+
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
     # creates a list of BuildSource objects from the contract Paths
@@ -103,6 +107,9 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
     }
     result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
+    # Sometimes when we call back into mypy, there might be errors.
+    # We don't want to crash when that happens.
+    result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
     missing_module_names = {s.module for s in mypy_build_sources} - result.manager.modules.keys()
     # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
     assert (
@@ -140,10 +147,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
                     discovery_mechanism=discovery_mechanism,
                 )
 
-    return ParseResult(
-        manager=result.manager,
-        ordered_modules=ordered_modules,
-    )
+    return result.manager, ordered_modules
 
 
 def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Path) -> None:

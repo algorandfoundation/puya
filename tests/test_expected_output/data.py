@@ -14,12 +14,12 @@ from puya.compile import awst_to_teal
 from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.utils import coalesce
-from puyapy.awst_build.main import FAKE_ARC4_PATH, transform_ast
+from puyapy.awst_build.main import transform_ast
 from puyapy.compile import parse_with_mypy
 from puyapy.options import PuyaPyOptions
 from puyapy.template import parse_template_key_value
 
-from tests.utils import narrowed_compile_context
+from tests.utils import narrowed_parse_result
 
 THIS_DIR = Path(__file__).parent
 REPO_DIR = THIS_DIR.parent.parent
@@ -294,12 +294,8 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
             output_bytecode=True,
         )
         parse_result = parse_with_mypy(puyapy_options.paths)
-        awst, compilation_set = transform_ast(parse_result)
         # lower each case further if possible and process
         for case in cases:
-            case_awst = [
-                n for n in awst if n.source_location.file in (case_path[case], FAKE_ARC4_PATH)
-            ]
             # lower awst for each case individually to order to get any output
             # from lower layers
             # this needs a new logging context so AWST errors from other cases
@@ -307,24 +303,19 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
             case_options = attrs.evolve(
                 puyapy_options, cli_template_definitions=case.template_vars
             )
-            case_sources_by_path, case_compilation_set = narrowed_compile_context(
-                parse_result,
-                case_path[case],
-                awst,
-                compilation_set,
-                case_options,
-            )
+            case_parse_result = narrowed_parse_result(parse_result, case_path[case])
             with (
                 contextlib.suppress(SystemExit),
                 logging_context() as case_log_ctx,
                 log_exceptions(),
             ):
+                case_awst, case_compilation_set = transform_ast(case_parse_result)
                 case_log_ctx.logs.extend(filter_logs(awst_log_ctx.logs, case))
                 awst_to_teal(
                     case_log_ctx,
                     case_options,
-                    case_compilation_set,
-                    case_sources_by_path,
+                    {k: Path() for k in case_compilation_set},
+                    case_parse_result.sources_by_path,
                     case_awst,
                     write=False,
                 )
