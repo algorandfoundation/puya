@@ -106,13 +106,11 @@ def write_arc32_clients(
 def parse_with_mypy(paths: Sequence[Path]) -> ParseResult:
     mypy_options = get_mypy_options()
 
-    # this generates the ASTs from the build sources, and all imported modules (recursively)
-    parse_result = parse_and_typecheck(paths, mypy_options)
-    # Sometimes when we call back into mypy, there might be errors.
-    # We don't want to crash when that happens.
-    parse_result.manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-
-    return parse_result
+    _, ordered_modules = parse_and_typecheck(paths, mypy_options)
+    return ParseResult(
+        mypy_options=mypy_options,
+        ordered_modules=ordered_modules,
+    )
 
 
 def get_mypy_options() -> mypy.options.Options:

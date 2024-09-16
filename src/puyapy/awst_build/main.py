@@ -55,9 +55,6 @@ def transform_ast(
     return awst, compilation_set
 
 
-FAKE_ARC4_PATH = Path("/algopy/arc4.py")
-
-
 def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
     from puya.awst import wtypes
     from puya.awst.nodes import (
@@ -70,7 +67,7 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
         ReturnStatement,
     )
 
-    location = SourceLocation(file=FAKE_ARC4_PATH, line=1)
+    location = SourceLocation(file=Path("/algopy/arc4.py"), line=1)
     _, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
     cref = ContractReference(constants.ARC4_CONTRACT_BASE)
     ctx.set_state_defs(cref, {})

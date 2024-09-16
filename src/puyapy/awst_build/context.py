@@ -45,7 +45,7 @@ class ASTConversionContext:
 
     @property
     def mypy_options(self) -> mypy.options.Options:
-        return self._parse_result.manager.options
+        return self._parse_result.mypy_options
 
     def for_module(self, module_path: Path) -> ASTConversionModuleContext:
         return attrs_extend(ASTConversionModuleContext, self, module_path=module_path)

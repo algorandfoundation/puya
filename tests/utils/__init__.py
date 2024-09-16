@@ -73,6 +73,19 @@ class CompilationResult:
     """examples or test_cases path"""
 
 
+def narrowed_parse_result(parse_result: ParseResult, src_path: Path) -> ParseResult:
+    filtered_ordered_modules = {
+        name: sm
+        for name, sm in parse_result.ordered_modules.items()
+        if sm.path.resolve().is_relative_to(src_path.resolve())
+        or sm.discovery_mechanism == SourceDiscoveryMechanism.dependency
+    }
+    return ParseResult(
+        mypy_options=parse_result.mypy_options,
+        ordered_modules=filtered_ordered_modules,
+    )
+
+
 def narrowed_compile_context(
     parse_result: ParseResult,
     src_path: Path,

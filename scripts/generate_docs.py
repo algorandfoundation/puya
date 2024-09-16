@@ -13,7 +13,7 @@ import mypy.build
 import mypy.nodes
 from mypy.visitor import NodeVisitor
 from puyapy.compile import get_mypy_options
-from puyapy.parse import ParseResult, parse_and_typecheck
+from puyapy.parse import parse_and_typecheck
 
 SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent
@@ -31,14 +31,14 @@ class ModuleImports:
 
 
 def main() -> None:
-    parse_result = parse_and_typecheck([STUBS_DIR], get_mypy_options())
-    output_doc_stubs(parse_result)
+    manager, _ = parse_and_typecheck([STUBS_DIR], get_mypy_options())
+    output_doc_stubs(manager)
     run_sphinx()
 
 
-def output_doc_stubs(parse_result: ParseResult) -> None:
+def output_doc_stubs(manager: mypy.build.BuildManager) -> None:
     # parse and output reformatted __init__.pyi
-    stub = DocStub.process_module(parse_result, "algopy")
+    stub = DocStub.process_module(manager, "algopy")
     algopy_direct_imports = stub.collected_imports["algopy"]
     # remove any algopy imports that are now defined in __init__.py itself
     output_combined_stub(stub, STUBS_DOC_DIR / "__init__.pyi")
@@ -46,7 +46,7 @@ def output_doc_stubs(parse_result: ParseResult) -> None:
     # remaining imports from algopy are other public modules
     # parse and output them too
     for other_stub_name in algopy_direct_imports.from_imports:
-        stub = DocStub.process_module(parse_result, f"algopy.{other_stub_name}")
+        stub = DocStub.process_module(manager, f"algopy.{other_stub_name}")
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
 
 
@@ -283,10 +283,10 @@ class DocStub(NodeVisitor[None]):
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
 
     @classmethod
-    def process_module(cls, parse_result: ParseResult, module_id: str) -> typing.Self:
-        read_source = parse_result.manager.errors.read_source
+    def process_module(cls, manager: mypy.build.BuildManager, module_id: str) -> typing.Self:
+        read_source = manager.errors.read_source
         assert read_source
-        modules = parse_result.manager.modules
+        modules = manager.modules
         module: mypy.nodes.MypyFile = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
         module.accept(stub)
