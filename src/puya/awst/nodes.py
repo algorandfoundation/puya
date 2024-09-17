@@ -1709,8 +1709,16 @@ class ContractFragment(RootNode):
     # note: it's a fragment because it needs to be stitched together with bases,
     #       assuming it's not abstract (in which case it should remain a fragment?)
     id: ContractReference
+    """The fully qualified ID, must be unique within a compilation run."""
     name: str
+    """The short / friendly name for the Contract, used in output file naming and in ARC-32"""
     bases: Sequence[ContractReference] = attrs.field(converter=tuple[ContractReference, ...])
+    """
+    All the bases of this contract, and their bases and so on.
+    Front-ends for languages with multiple-inheritance must linearize their hierarchy in the
+    correct order, which is why bases of bases are not resolved, since they may end up in a
+    different order depending on the contract that is ultimately being compiled.
+    """
     init: ContractMethod | None = attrs.field()
     approval_program: ContractMethod | None = attrs.field()
     clear_program: ContractMethod | None = attrs.field()
@@ -1730,12 +1738,11 @@ class ContractFragment(RootNode):
             self.subroutines,
         )
         for sub in all_subs:
-            if sub.member_name in result or sub.member_name in self.app_state:
+            if result.setdefault(sub.member_name, sub) is not sub:
                 raise CodeError(
-                    f"contract already defines member {sub.member_name}",
+                    f"contract already defines method {sub.member_name}",
                     sub.source_location,
                 )
-            result[sub.member_name] = sub
         return result
 
     @init.validator

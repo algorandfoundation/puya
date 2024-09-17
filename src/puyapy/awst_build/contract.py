@@ -183,9 +183,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         typing.assert_never(unexpected)
 
         app_state = {
-            name: state_decl.definition
-            for name, state_decl in context.state_defs(cref).items()
-            if state_decl.defined_in == cref
+            name: state_decl.definition for name, state_decl in context.state_defs(cref).items()
         }
         class_options = self.class_options
         return awst_nodes.ContractFragment(
