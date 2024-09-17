@@ -36,16 +36,52 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
         update_event(
             subroutine=subroutine.signature.name,
             params={p.local_id: p.atype.name or "" for p in subroutine.signature.parameters},
-            frame_stack=subroutine.frame_stack,
         )
+        f_stack = list[str]()
         for block in subroutine.blocks:
             update_event(
                 block=block.label,
                 x_stack=block.x_stack,
             )
+            x_stack = list(block.x_stack)
+            l_stack = list[str]()
             avm_ops.append(models.Label(name=block.label))
             for op in block.ops:
-                # TODO: l-stack and live
+                stacks = {}
+                defined = []
+                for sm in op.stack_manipulations:
+                    match sm.stack:
+                        case "f":
+                            stack = f_stack
+                        case "x":
+                            stack = x_stack
+                        case "l":
+                            stack = l_stack
+                        case _:
+                            typing.assert_never(sm.stack)
+                    stacks[f"{sm.stack}_stack"] = stack
+                    match sm.manipulation:
+                        case "add":
+                            if sm.index is not None:
+                                stack.insert(sm.index, sm.local_id)
+                            else:
+                                stack.append(sm.local_id)
+                            if sm.defined:  # f-stack allocates variables before they are defined
+                                defined.append(sm.local_id)
+                        case "remove":
+                            if sm.index is None:
+                                stack.remove(sm.local_id)
+                            else:
+                                stack.pop(sm.index)
+                        case "defined":
+                            defined.append(sm.local_id)
+                        case _:
+                            typing.assert_never(sm.manipulation)
+                if defined:
+                    available = {*f_stack, *x_stack, *l_stack}
+                    update_event(defined=sorted(set(defined) & available))
+                for name, value in stacks.items():
+                    update_event(**{name: list(value)})
                 avm_op = lower_op(ctx, op)
                 match avm_op:
                     case models.Jump(op_code="callsub", label=models.Label(name=func_block)):

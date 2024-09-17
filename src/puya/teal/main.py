@@ -1,8 +1,10 @@
+
 from puya import log
 from puya.context import CompileContext
 from puya.mir import models as mir
 from puya.mir.stack import Stack
 from puya.teal import models as teal_models
+from puya.teal._util import combine_stack_manipulations
 from puya.teal.optimize.main import optimize_teal_program
 
 logger = log.get_logger(__name__)
@@ -34,7 +36,7 @@ def _lower_sub(mir_sub: mir.MemorySubroutine) -> teal_models.TealSubroutine:
     sub = teal_models.TealSubroutine(
         is_main=mir_sub.is_main,
         signature=mir_sub.signature,
-        frame_stack=mir_sub.preamble.f_stack_out,
+        frame_stack=mir_sub.body[-1].f_stack_out,
     )
     referenced_labels = _get_referenced_labels(mir_sub)
     for block_idx, mir_block in enumerate(mir_sub.all_blocks):
@@ -55,11 +57,16 @@ def _lower_sub(mir_sub: mir.MemorySubroutine) -> teal_models.TealSubroutine:
             )
         last_block = sub.blocks[-1]
         last_block.exit_stack_height = mir_block.exit_stack_height
-        last_block.x_stack = mir_block.x_stack_in or ()
 
-        last_block.ops.extend(
-            teal_op for mir_op in mir_block.ops for teal_op in mir_op.accept(stack)
-        )
+        for mir_op in mir_block.ops:
+            if isinstance(mir_op, mir.VirtualStackOp):
+                # extend last teal op with stack manipulations in virtual op
+                last_block.ops[-1] = combine_stack_manipulations(
+                    last_block.ops[-1], *mir_op.original.accept(stack)
+                )
+            else:
+                teal_ops = mir_op.accept(stack)
+                last_block.ops.extend(teal_ops)
     return sub
 
 

@@ -1,4 +1,5 @@
 from puya.teal import models
+from puya.teal._util import combine_stack_manipulations
 
 
 def _simplify_repeated_rotation_ops(
@@ -18,7 +19,11 @@ def _simplify_repeated_rotation_ops(
         if is_cover
         else models.Cover(n=n, source_location=first.source_location)
     )
-    return [inverse_op] * number_of_inverse, True
+    simplified = [inverse_op] * number_of_inverse
+    # append stack manipulations to final op
+    if simplified:
+        simplified[-1] = combine_stack_manipulations(simplified[-1], *maybe_simplify)
+    return simplified, True
 
 
 def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
@@ -52,7 +57,11 @@ def simplify_swap_ops(block: models.TealBlock) -> bool:
     for op in block.ops:
         if isinstance(op, models.Cover | models.Uncover) and (op.n == 1):
             modified = True
-            result.append(models.Swap(source_location=op.source_location))
+            result.append(
+                models.Swap(
+                    source_location=op.source_location, stack_manipulations=op.stack_manipulations
+                )
+            )
         else:
             result.append(op)
     block.ops = result

@@ -27,7 +27,6 @@ def optimize_block(block: models.TealBlock, *, level: int) -> None:
         # this is a brute-force search which can be slow at times,
         # so it's only done once and only at higher optimisation levels
         block.ops = repeated_rotation_ops_search(block.ops)
-
     # simplifying uncover/cover 1 to swap is easier to do after other rotation optimizations
     simplify_swap_ops(block)
 
@@ -39,5 +38,5 @@ def optimize_teal_program(
     for teal_sub in teal_program.all_subroutines:
         for teal_block in teal_sub.blocks:
             optimize_block(teal_block, level=context.options.optimization_level)
-            teal_block.validate_stack_height()
+            teal_block.validate()
     return teal_program

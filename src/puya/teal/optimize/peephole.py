@@ -1,6 +1,7 @@
 import attrs
 
 from puya.teal import models
+from puya.teal._util import combine_stack_manipulations
 from puya.teal.optimize._data import (
     COMMUTATIVE_OPS,
     LOAD_OP_CODES,
@@ -18,26 +19,23 @@ def peephole(block: models.TealBlock) -> bool:
     result = block.ops.copy()
     while start_idx < len(result) - 1:
         modified = False
-        window_size = -1
+        window: slice | None = None
         if not modified and start_idx < len(result) - 3:
-            window_size = 4
-            new_values, modified = _optimize_quadruplet(
-                *result[start_idx : start_idx + window_size],
-            )
+            window = slice(start_idx, start_idx + 4)
+            new_values, modified = _optimize_quadruplet(*result[window])
         if not modified and start_idx < len(result) - 2:
-            window_size = 3
-            new_values, modified = _optimize_triplet(
-                *result[start_idx : start_idx + window_size],
-                stack_height=stack_height,
-            )
+            window = slice(start_idx, start_idx + 3)
+            new_values, modified = _optimize_triplet(*result[window], stack_height=stack_height)
         if not modified:
-            window_size = 2
-            new_values, modified = _optimize_pair(
-                *result[start_idx : start_idx + window_size],
-            )
+            window = slice(start_idx, start_idx + 2)
+            new_values, modified = _optimize_pair(*result[window])
         if modified:
+            assert window is not None
             any_modified = True
-            result[start_idx : start_idx + window_size] = new_values
+            # copy stack_manipulations from original ops to last replacement op
+            if new_values:
+                new_values[-1] = combine_stack_manipulations(new_values[-1], *result[window])
+            result[window] = new_values
         else:
             stack_height += result[start_idx].stack_height_delta
             start_idx += 1  # go to next

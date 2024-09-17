@@ -2,6 +2,7 @@ import attrs
 
 from puya.parse import sequential_source_locations_merge
 from puya.teal import models
+from puya.teal._util import combine_stack_manipulations
 from puya.teal.optimize._data import LOAD_OP_CODES
 
 
@@ -15,18 +16,38 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
         elif loads and op.op_code in ("dup", "dupn"):
             (n,) = op.immediates or (1,)
             assert isinstance(n, int)
-            loads.extend([attrs.evolve(loads[-1], source_location=op.source_location)] * n)
+            # extend loads with n copies of the last load
+            loads.extend(
+                [
+                    attrs.evolve(
+                        loads[-1],
+                        stack_manipulations=(),
+                        source_location=op.source_location,
+                    )
+                ]
+                * n
+            )
+            # add dup stack manipulations to last load so overall stack manipulations are correct
+            loads[-1] = combine_stack_manipulations(loads[-1], op)
             modified = True
         elif loads:
             match op:
+                case models.Dig(n=n) if n < len(loads):
+                    modified = True
+                    dug = loads[-(n + 1)]
+                    combined = combine_stack_manipulations(dug, op)
+                    loads.append(combined)
                 case models.Uncover(n=n) if n < len(loads):
                     modified = True
                     uncovered = loads.pop(-(n + 1))
-                    loads.append(uncovered)
+                    combined = combine_stack_manipulations(uncovered, op)
+                    loads.append(combined)
                 case models.Cover(n=n) if n < len(loads):
                     modified = True
-                    to_cover = loads.pop()
-                    loads.insert(len(loads) - n, to_cover)
+                    loads.insert(
+                        len(loads) - n,
+                        combine_stack_manipulations(loads.pop(), op),
+                    )
                 case _:
                     result.extend(loads)
                     loads = []
@@ -72,7 +93,7 @@ def _collapse_loads(loads: list[models.TealOp]) -> bool:
         dup_op: models.TealOp = models.Dup(source_location=dup_source_location)
     else:
         dup_op = models.DupN(n=n, source_location=dup_source_location)
-    loads[1:] = [dup_op]
+    loads[1:] = [combine_stack_manipulations(dup_op, *loads[1:])]
     return True
 
 

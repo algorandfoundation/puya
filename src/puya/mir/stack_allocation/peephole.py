@@ -125,6 +125,8 @@ def peephole_optimization_single_pass(
         else:
             break  # all remaining ops are virtual, we're done
 
+        if curr_op_idx == 26:
+            pass
         # find the "next" non-virtual op, if there is one remaining
         next_op_idx = curr_op_idx + 1
         while next_op_idx < len(result) and type(result[next_op_idx]) is mir.VirtualStackOp:
