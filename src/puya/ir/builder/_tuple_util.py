@@ -57,3 +57,12 @@ def build_tuple_registers(
             context, format_tuple_index(base_name, idx), item_type, source_location
         )
     ]
+
+
+def build_tuple_item_names(
+    context: IRFunctionBuildContext,
+    base_name: str,
+    wtype: wtypes.WTuple,
+    source_location: SourceLocation | None,
+) -> list[str]:
+    return [r.name for r in build_tuple_registers(context, base_name, wtype, source_location)]

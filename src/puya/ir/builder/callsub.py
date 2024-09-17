@@ -7,10 +7,10 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError
+from puya.ir.builder._tuple_util import build_tuple_item_names
 from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import InvokeSubroutine, Register, Subroutine, Value, ValueProvider, ValueTuple
-from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 
@@ -116,10 +116,17 @@ def _build_arg_lookup(
             lookup.add(name=expr_arg.name, value=value)
         else:
             values = context.visitor.visit_and_materialise(expr_arg.value)
-            for tup_idx, tup_value in enumerate(values):
-                if expr_arg.name is None:
-                    tup_item_name = None
-                else:
-                    tup_item_name = format_tuple_index(expr_arg.name, tup_idx)
-                lookup.add(name=tup_item_name, value=tup_value)
+            if expr_arg.name is None:
+                for tup_value in values:
+                    lookup.add(name=None, value=tup_value)
+            else:
+                item_names = build_tuple_item_names(
+                    context,
+                    base_name=expr_arg.name,
+                    wtype=expr_arg.value.wtype,
+                    source_location=call_location,
+                )
+                for tup_value, tup_item_name in zip(values, item_names, strict=True):
+                    lookup.add(name=tup_item_name, value=tup_value)
+
     return lookup

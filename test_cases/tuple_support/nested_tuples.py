@@ -16,7 +16,7 @@ class NestedTuples(ARC4Contract):
         _x, z2_1_1 = z2_1
         assert z2_1_1 == "There"
 
-        (a, b, (c, d, (e,))) = test_rearrange(x[0], z, x[1])
+        (a, b, (c, d, (e,))) = test_rearrange(x[0], _b=x[1], args=z)
         assert (a, b) == (String("Hi"), UInt64(0))
         assert (c, d) == (UInt64(2), UInt64(1))
         assert e == String("There")
