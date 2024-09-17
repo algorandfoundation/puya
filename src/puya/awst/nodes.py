@@ -5,6 +5,7 @@ import itertools
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
+from functools import cached_property
 
 import attrs
 from immutabledict import immutabledict
@@ -1727,23 +1728,6 @@ class ContractFragment(RootNode):
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
-    # note: important that this comes last so default factory has access to all other fields
-    methods: Mapping[str, ContractMethod] = attrs.field(init=False)
-
-    @methods.default
-    def _methods_factory(self) -> Mapping[str, ContractMethod]:
-        result: dict[str, ContractMethod] = {}
-        all_subs = itertools.chain(
-            filter(None, (self.init, self.approval_program, self.clear_program)),
-            self.subroutines,
-        )
-        for sub in all_subs:
-            if result.setdefault(sub.member_name, sub) is not sub:
-                raise CodeError(
-                    f"contract already defines method {sub.member_name}",
-                    sub.source_location,
-                )
-        return result
 
     @init.validator
     def check_init(self, _attribute: object, init: ContractMethod | None) -> None:
@@ -1797,6 +1781,21 @@ class ContractFragment(RootNode):
                     "clear-state method should not be marked as an ABI method",
                     clear.source_location,
                 )
+
+    @cached_property
+    def methods(self) -> Mapping[str, ContractMethod]:
+        result: dict[str, ContractMethod] = {}
+        all_subs = itertools.chain(
+            filter(None, (self.init, self.approval_program, self.clear_program)),
+            self.subroutines,
+        )
+        for sub in all_subs:
+            if result.setdefault(sub.member_name, sub) is not sub:
+                raise CodeError(
+                    f"contract already defines method {sub.member_name}",
+                    sub.source_location,
+                )
+        return immutabledict(result)
 
     def accept(self, visitor: RootNodeVisitor[T]) -> T:
         return visitor.visit_contract_fragment(self)
