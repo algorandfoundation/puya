@@ -1085,7 +1085,7 @@ class FunctionIRBuilder(
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root
-        if not isinstance(root, awst_nodes.ContractFragment):
+        if not isinstance(root, awst_nodes.Contract):
             raise CodeError(
                 "cannot create ARC4 router outside of a contract", expr.source_location
             )

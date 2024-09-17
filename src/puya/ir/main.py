@@ -55,7 +55,7 @@ class CompilationSetCollector(AWSTTraverser):
         super().__init__()
         self._remaining_explicit_set: typing.Final = explicit_compilation_set
         self.compilation_set: typing.Final = dict[
-            str, awst_nodes.ContractFragment | awst_nodes.LogicSignature
+            str, awst_nodes.Contract | awst_nodes.LogicSignature
         ]()
         self._nodes_by_id: typing.Final = immutabledict[str, awst_nodes.RootNode](
             {n.id: n for n in awst}
@@ -69,7 +69,7 @@ class CompilationSetCollector(AWSTTraverser):
         super().visit_compiled_contract(compiled_contract)
         node = self._nodes_by_id.get(compiled_contract.contract)
         match node:
-            case awst_nodes.ContractFragment() as contract:
+            case awst_nodes.Contract() as contract:
                 self._visit_contract_or_lsig(contract, reference=True)
             case None:
                 logger.error(
@@ -97,7 +97,7 @@ class CompilationSetCollector(AWSTTraverser):
                     "reference is not a logic signature", location=compiled_lsig.source_location
                 )
 
-    def visit_contract_fragment(self, contract: awst_nodes.ContractFragment) -> None:
+    def visit_contract(self, contract: awst_nodes.Contract) -> None:
         return self._visit_contract_or_lsig(contract)
 
     def visit_logic_signature(self, lsig: awst_nodes.LogicSignature) -> None:
@@ -105,7 +105,7 @@ class CompilationSetCollector(AWSTTraverser):
 
     def _visit_contract_or_lsig(
         self,
-        node: awst_nodes.ContractFragment | awst_nodes.LogicSignature,
+        node: awst_nodes.Contract | awst_nodes.LogicSignature,
         *,
         reference: bool = False,
     ) -> None:
@@ -115,8 +115,8 @@ class CompilationSetCollector(AWSTTraverser):
         if direct or reference:
             self.compilation_set[node.id] = node
             match node:
-                case awst_nodes.ContractFragment():
-                    super().visit_contract_fragment(node)
+                case awst_nodes.Contract():
+                    super().visit_contract(node)
                 case awst_nodes.LogicSignature():
                     super().visit_logic_signature(node)
                 case unexpected:
@@ -125,7 +125,7 @@ class CompilationSetCollector(AWSTTraverser):
     @classmethod
     def collect(
         cls, context: CompileContext, awst: awst_nodes.AWST
-    ) -> Collection[awst_nodes.ContractFragment | awst_nodes.LogicSignature]:
+    ) -> Collection[awst_nodes.Contract | awst_nodes.LogicSignature]:
         collector = cls(
             awst, explicit_compilation_set=StableSet.from_iter(context.compilation_set)
         )
@@ -150,7 +150,7 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> list[ModuleArt
     result = list[ModuleArtifact]()
     for node in compilation_set:
         match node:
-            case awst_nodes.ContractFragment() as contract_node:
+            case awst_nodes.Contract() as contract_node:
                 ctx = build_context.for_root(contract_node)
                 with ctx.log_exceptions():
                     contract_ir = _build_ir(ctx, contract_node)
@@ -215,8 +215,8 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
     return embedded_funcs_lookup
 
 
-def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Contract:
-    folded, arc4_method_data = _fold_state_and_special_methods(ctx, contract)
+def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
+    folded, arc4_method_data = _fold_state_and_special_methods(contract)
     if not (folded.approval_program and folded.clear_program):
         raise CodeError(
             "approval and clear-state programs must be implemented", contract.source_location
@@ -229,10 +229,6 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
     # visit call graph starting at entry point(s) to collect all references for each
     callees = CalleesLookup(set)
     approval_subs_srefs = StableSet[awst_nodes.Function]()
-    if folded.init:
-        approval_subs_srefs.add(folded.init)
-        init_sub_srefs = SubroutineCollector.collect(ctx, start=folded.init, callees=callees)
-        approval_subs_srefs |= init_sub_srefs
     approval_subs_srefs.add(arc4_router_func)
     approval_subs_srefs |= SubroutineCollector.collect(
         ctx, start=arc4_router_func, callees=callees
@@ -258,31 +254,27 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
             FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
 
     approval_ir = _make_program(
-        ctx,
         folded.approval_program,
         StableSet(
             *(ctx.subroutines[ref] for ref in approval_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
         program_id=".".join((contract.id, folded.approval_program.short_name)),
-        on_create=folded.init,
     )
     clear_state_ir = _make_program(
-        ctx,
         folded.clear_program,
         StableSet(
             *(ctx.subroutines[ref] for ref in clear_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
         program_id=".".join((contract.id, folded.clear_program.short_name)),
-        on_create=None,
     )
     result = Contract(
         source_location=contract.source_location,
         approval_program=approval_ir,
         clear_program=clear_state_ir,
         metadata=ContractMetaData(
-            description=contract.docstring,
+            description=contract.description,
             name=contract.name,
             ref=contract.id,
             arc4_methods=folded.arc4_methods,
@@ -313,14 +305,12 @@ def _build_logic_sig_ir(
             FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
 
     sig_ir = _make_program(
-        ctx,
         logic_sig.program,
         StableSet(
             *(ctx.subroutines[ref] for ref in program_sub_refs),
             *ctx.embedded_funcs_lookup.values(),
         ),
         program_id=logic_sig.id,
-        on_create=None,
     )
     result = LogicSignature(
         source_location=logic_sig.source_location,
@@ -400,12 +390,10 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
 
 
 def _make_program(
-    ctx: IRBuildContext,
     main: awst_nodes.Function,
     references: Iterable[Subroutine],
     *,
     program_id: str,
-    on_create: awst_nodes.Function | None,
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
@@ -420,10 +408,6 @@ def _make_program(
         body=[],
         source_location=main.source_location,
     )
-    on_create_sub: Subroutine | None = None
-    if on_create is not None:
-        on_create_sub = ctx.subroutines[on_create]
-    FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub, on_create=on_create_sub)
     return Program(
         id=program_id,
         main=main_sub,
@@ -433,9 +417,8 @@ def _make_program(
 
 @attrs.define(kw_only=True)
 class FoldedContract:
-    init: awst_nodes.ContractMethod | None = None
-    approval_program: awst_nodes.ContractMethod | None = None
-    clear_program: awst_nodes.ContractMethod | None = None
+    approval_program: awst_nodes.ContractProgramMethod
+    clear_program: awst_nodes.ContractProgramMethod
     global_state: dict[str, ContractState] = attrs.field(factory=dict)
     local_state: dict[str, ContractState] = attrs.field(factory=dict)
     arc4_methods: list[ARC4Method] = attrs.field(factory=list)
@@ -482,13 +465,12 @@ class FoldedContract:
 
 
 def _gather_arc4_methods(
-    ctx: IRBuildContext, contract: awst_nodes.ContractFragment
+    contract: awst_nodes.Contract,
 ) -> dict[awst_nodes.ContractMethod, ARC4MethodConfig]:
-    bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
     maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
-    for c in [contract, *bases]:
-        for cm in c.subroutines:
-            if (c is contract) or cm.inheritable:
+    for cref in (contract.id, *contract.method_resolution_order):
+        for cm in contract.methods:
+            if cm.cref == cref:
                 if cm.arc4_method_config:
                     maybe_arc4_method_refs.setdefault(cm.member_name, (cm, cm.arc4_method_config))
                 else:
@@ -498,21 +480,21 @@ def _gather_arc4_methods(
 
 
 def _fold_state_and_special_methods(
-    ctx: IRBuildContext, contract: awst_nodes.ContractFragment
+    contract: awst_nodes.Contract,
 ) -> tuple[FoldedContract, dict[awst_nodes.ContractMethod, ARC4MethodConfig]]:
-    bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
-    if contract.state_totals is None:
-        base_with_defined = next((b for b in bases if b.state_totals is not None), None)
-        if base_with_defined:
-            logger.warning(
-                f"Contract {contract.name} extends base contract {base_with_defined.name} "
-                "with explicit state_totals, but does not define its own state_totals. "
-                "This could result in insufficient reserved state at run time.",
-                location=contract.source_location,
-            )
+    # TODO: pull the below warnings either into PuyaPy or into AWST validation
+    # bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
+    # if contract.state_totals is None:
+    #     base_with_defined = next((b for b in bases if b.state_totals is not None), None)
+    #     if base_with_defined:
+    #         logger.warning(
+    #             f"Contract {contract.name} extends base contract {base_with_defined.name} "
+    #             "with explicit state_totals, but does not define its own state_totals. "
+    #             "This could result in insufficient reserved state at run time.",
+    #             location=contract.source_location,
+    #         )
     result = FoldedContract(
         declared_totals=contract.state_totals,
-        init=contract.init,
         approval_program=contract.approval_program,
         clear_program=contract.clear_program,
     )
@@ -548,18 +530,7 @@ def _fold_state_and_special_methods(
                 pass  # TODO: forward these on
             case _:
                 typing.assert_never(state.kind)
-    for c in [contract, *bases]:
-        if result.init is None:  # noqa: SIM102
-            if c.init and c.init.inheritable:
-                result.init = c.init
-        if result.approval_program is None:  # noqa: SIM102
-            if c.approval_program and c.approval_program.inheritable:
-                result.approval_program = c.approval_program
-        if result.clear_program is None:  # noqa: SIM102
-            if c.clear_program and c.clear_program.inheritable:
-                result.clear_program = c.clear_program
-
-    arc4_method_refs = _gather_arc4_methods(ctx, contract)
+    arc4_method_refs = _gather_arc4_methods(contract)
     if arc4_method_refs:
         result.arc4_methods = extract_arc4_methods(
             arc4_method_refs,

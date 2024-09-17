@@ -13,8 +13,8 @@ class LabelsValidator(FunctionTraverser):
         for module_statement in module:
             if isinstance(module_statement, awst_nodes.Subroutine):
                 cls(module_statement)
-            elif isinstance(module_statement, awst_nodes.ContractFragment):
-                for method in module_statement.methods.values():
+            elif isinstance(module_statement, awst_nodes.Contract):
+                for method in module_statement.all_methods:
                     cls(method)
 
     def __init__(self, function: awst_nodes.Function) -> None:

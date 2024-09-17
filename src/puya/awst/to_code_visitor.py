@@ -190,8 +190,12 @@ class ToCodeVisitor(
         raise InternalError("app storage is converted as part of class")
 
     @typing.override
-    def visit_contract_fragment(self, c: nodes.ContractFragment) -> list[str]:
-        body = list[str]()
+    def visit_contract(self, c: nodes.Contract) -> list[str]:
+        body = [
+            "method_resolution_order: (",
+            *_indent(f"{cref}," for cref in c.method_resolution_order),
+            ")",
+        ]
         if c.app_state:
             state_by_kind = dict[AppStorageKind, list[nodes.AppStorageDefinition]]()
             for state in c.app_state.values():
@@ -230,15 +234,9 @@ class ToCodeVisitor(
                     "}",
                 ]
             )
-        for special_method, formatter in (
-            (c.init, self._visit_contract_init),
-            (c.approval_program, self._visit_approval_main),
-            (c.clear_program, self._visit_clear_state_main),
-        ):
-            if special_method is not None:
-                lines = formatter(special_method)
-                body.extend(lines)
-        for sub in c.subroutines:
+        body.extend(self._visit_approval_main(c.approval_program))
+        body.extend(self._visit_clear_state_main(c.clear_program))
+        for sub in c.methods:
             lines = sub.accept(self)
             body.extend(lines)
 
@@ -246,9 +244,7 @@ class ToCodeVisitor(
             body = body[1:]
 
         header = ["contract", c.name]
-        if c.bases:
-            header.append("extends")
-            header.append("(" + ", ".join(c.bases) + ")")
+
         return [
             "",
             " ".join(header),
@@ -268,17 +264,7 @@ class ToCodeVisitor(
             "}",
         ]
 
-    def _visit_contract_init(self, statement: nodes.ContractMethod) -> list[str]:
-        body = statement.body.accept(self)
-        return [
-            "",
-            "constructor()",
-            "{",
-            *_indent(body),
-            "}",
-        ]
-
-    def _visit_approval_main(self, statement: nodes.ContractMethod) -> list[str]:
+    def _visit_approval_main(self, statement: nodes.ContractProgramMethod) -> list[str]:
         body = statement.body.accept(self)
         return [
             "",
@@ -288,7 +274,7 @@ class ToCodeVisitor(
             "}",
         ]
 
-    def _visit_clear_state_main(self, statement: nodes.ContractMethod) -> list[str]:
+    def _visit_clear_state_main(self, statement: nodes.ContractProgramMethod) -> list[str]:
         body = statement.body.accept(self)
         return [
             "",
@@ -317,7 +303,7 @@ class ToCodeVisitor(
 
         return [
             "",
-            f"{deco} {statement.member_name}({args}): {statement.return_type}",
+            f"{deco} {statement.full_name}({args}): {statement.return_type}",
             "{",
             *_indent(body),
             "}",

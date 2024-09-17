@@ -66,12 +66,12 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._methods = list[tuple[DeferredContractMethod, SourceLocation, SpecialMethod | None]]()
         self.class_options: typing.Final = class_options
         self.source_location: typing.Final = self._location(class_def)
-        self.bases = bases = _gather_bases(typ)
+        self.mro = mro = _build_mro(typ)
         self._synthetic_methods = list[awst_nodes.ContractMethod]()
 
         if self.is_arc4:
             base_arc4_method_info = dict[str, ARC4MethodData]()
-            for base_cref in bases:
+            for base_cref in mro:
                 base_arc4_method_info = {
                     **{
                         name: method_data
@@ -102,7 +102,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         if self.is_arc4 and not self.is_abstract:
             has_create = False
             has_bare_no_op = False
-            for hierarchy_cref in (cref, *bases):
+            for hierarchy_cref in (cref, *mro):
                 for arc4_method_data in context.arc4_method_data(hierarchy_cref).values():
                     if arc4_method_data.is_synthetic_create:
                         pass
@@ -142,8 +142,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         awst_nodes.ContractMethod(
                             cref=cref,
                             member_name=default_create_name,
-                            synthetic=True,
-                            inheritable=False,
+                            # synthetic=True,
+                            # inheritable=False,
                             args=[],
                             return_type=wtypes.void_wtype,
                             body=awst_nodes.Block(
@@ -156,46 +156,46 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         )
                     )
 
-    def build(self, context: ASTConversionModuleContext) -> awst_nodes.ContractFragment:
+    def build(self, context: ASTConversionModuleContext) -> awst_nodes.Contract:
         class_def = self.class_def
         cref = self.cref
-        inherited_and_direct_storage = _gather_app_storage_recursive(
-            context, class_def, self.bases
-        )
+        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def, self.mro)
         context.set_state_defs(cref, inherited_and_direct_storage)
         approval_program: awst_nodes.ContractMethod | None = None
         clear_program: awst_nodes.ContractMethod | None = None
         init_method: awst_nodes.ContractMethod | None = None
-        subroutines = self._synthetic_methods.copy()
+        methods = self._synthetic_methods.copy()
         for method_builder, method_loc, special_kind in self._methods:
             with context.log_exceptions(fallback_location=method_loc):
-                sub = method_builder(context)
+                method = method_builder(context)
+                methods.append(method)
                 match special_kind:
                     case SpecialMethod.init:
-                        init_method = sub
+                        init_method = method
                     case SpecialMethod.approval_program:
-                        approval_program = sub
+                        approval_program = method
                     case SpecialMethod.clear_state_program:
-                        clear_program = sub
+                        clear_program = method
                     case None:
-                        subroutines.append(sub)
+                        pass
                     case unexpected:
                         typing.assert_never(unexpected)
-
+        if init_method:
+            # TODO: fold into approval_program
+            pass
         app_state = {
             name: state_decl.definition for name, state_decl in context.state_defs(cref).items()
         }
         class_options = self.class_options
-        return awst_nodes.ContractFragment(
+        return awst_nodes.Contract(
             id=cref,
             name=class_options.name_override or class_def.name,
-            bases=self.bases,
-            init=init_method,
+            method_resolution_order=self.mro,
             approval_program=approval_program,
             clear_program=clear_program,
-            subroutines=subroutines,
+            methods=methods,
             app_state=app_state,
-            docstring=class_def.docstring,
+            description=class_def.docstring,
             source_location=self.source_location,
             reserved_scratch_space=class_options.scratch_slot_reservations,
             state_totals=class_options.state_totals,
@@ -419,7 +419,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported_stmt("type", stmt)
 
 
-def _gather_bases(contract_type: pytypes.ContractType) -> list[ContractReference]:
+def _build_mro(contract_type: pytypes.ContractType) -> list[ContractReference]:
     class_def_loc = contract_type.source_location
     contract_bases_mro = list[ContractReference]()
     for ancestor in contract_type.mro:

@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from puya import log
-from puya.awst.nodes import ContractFragment, LogicSignature, RootNode
+from puya.awst.nodes import Contract, LogicSignature, RootNode
 from puya.models import ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 from puya.utils import StableSet, make_path_relative_to_cwd
@@ -46,9 +46,7 @@ def transform_ast(
         if src.discovery_mechanism != SourceDiscoveryMechanism.dependency:
             for root_node in root_nodes:
                 match root_node:
-                    case ContractFragment(
-                        id=contract_id
-                    ) if contract_id not in ctx.abstract_contracts:
+                    case Contract(id=contract_id) if contract_id not in ctx.abstract_contracts:
                         compilation_set.append(contract_id)
                     case LogicSignature(id=lsig_id):
                         compilation_set.append(lsig_id)
@@ -61,64 +59,60 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
         ARC4Router,
         Block,
         BoolConstant,
-        ContractFragment,
-        ContractMethod,
+        Contract,
+        ContractProgramMethod,
         MethodDocumentation,
         ReturnStatement,
     )
 
+    # TODO: we don't need this anymore, just insert the relevant methods
     location = SourceLocation(file=Path("/algopy/arc4.py"), line=1)
     _, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
     cref = ContractReference(constants.ARC4_CONTRACT_BASE)
     ctx.set_state_defs(cref, {})
-    arc4_base = ContractFragment(
+    approval_program = ContractProgramMethod(
+        cref=cref,
+        source_location=location,
+        return_type=wtypes.bool_wtype,
+        documentation=MethodDocumentation(),
+        member_name=constants.APPROVAL_METHOD,  # TODO: hmmm
+        body=Block(
+            source_location=location,
+            body=[
+                ReturnStatement(
+                    value=ARC4Router(source_location=location),
+                    source_location=location,
+                )
+            ],
+        ),
+    )
+    clear_program = ContractProgramMethod(
+        cref=cref,
+        source_location=location,
+        return_type=wtypes.bool_wtype,
+        documentation=MethodDocumentation(),
+        member_name=constants.CLEAR_STATE_METHOD,
+        body=Block(
+            source_location=location,
+            body=[
+                ReturnStatement(
+                    value=BoolConstant(value=True, source_location=location),
+                    source_location=location,
+                )
+            ],
+        ),
+    )
+    arc4_base = Contract(
         id=cref,
         name=class_name,
-        bases=[],
-        init=None,
-        approval_program=ContractMethod(
-            cref=cref,
-            source_location=location,
-            synthetic=True,
-            arc4_method_config=None,
-            args=[],
-            return_type=wtypes.bool_wtype,
-            documentation=MethodDocumentation(),
-            member_name=constants.APPROVAL_METHOD,
-            body=Block(
-                source_location=location,
-                body=[
-                    ReturnStatement(
-                        value=ARC4Router(source_location=location),
-                        source_location=location,
-                    )
-                ],
-            ),
-        ),
-        clear_program=ContractMethod(
-            cref=cref,
-            source_location=location,
-            synthetic=True,
-            arc4_method_config=None,
-            args=[],
-            return_type=wtypes.bool_wtype,
-            documentation=MethodDocumentation(),
-            member_name=constants.CLEAR_STATE_METHOD,
-            body=Block(
-                source_location=location,
-                body=[
-                    ReturnStatement(
-                        value=BoolConstant(value=True, source_location=location),
-                        source_location=location,
-                    )
-                ],
-            ),
-        ),
-        subroutines=[],
+        method_resolution_order=[],
+        approval_program=approval_program,
+        clear_program=clear_program,
+        methods=[approval_program, clear_program],
         app_state={},
         reserved_scratch_space=StableSet[int](),
         state_totals=None,
-        docstring=None,
+        description=None,
         source_location=location,
     )
     return [arc4_base]

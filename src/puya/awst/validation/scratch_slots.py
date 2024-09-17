@@ -32,8 +32,8 @@ class ScratchSlotReservationValidator(AWSTTraverser):
             if slot not in self._reserved_slots:
                 yield slot, loc
 
-    def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
-        super().visit_contract_fragment(statement)
+    def visit_contract(self, statement: awst_nodes.Contract) -> None:
+        super().visit_contract(statement)
         # TODO: gather reserved from bases
         self._reserved_slots = statement.reserved_scratch_space
 
