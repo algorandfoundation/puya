@@ -1,15 +1,17 @@
 contract MyOtherContract
 {
+  method_resolution_order: (
+  )
   reserved_scratch_space {
     0
   }
   
-  approval_program(): bool
+  subroutine test_cases.scratch_slots.contract3.MyOtherContract.approval_program(): bool
   {
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.scratch_slots.contract3.MyOtherContract.clear_state_program(): bool
   {
     return true
   }
@@ -17,11 +19,13 @@ contract MyOtherContract
 
 contract MyContract
 {
+  method_resolution_order: (
+  )
   reserved_scratch_space {
     1..19
   }
   
-  approval_program(): bool
+  subroutine test_cases.scratch_slots.contract.MyContract.approval_program(): bool
   {
     stores(1u, (txn<ApplicationID>() == reinterpret_cast<application>(0u)) ? (5u) : (0u))
     hello_world: bytes = hex<"48656C6C6F20576F726C64">
@@ -37,19 +41,43 @@ contract MyContract
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.scratch_slots.contract.MyContract.clear_state_program(): bool
   {
     return true
   }
 }
 
-contract MyContract2 extends (test_cases.scratch_slots.contract.MyContract)
+contract MyContract2
 {
+  method_resolution_order: (
+    test_cases.scratch_slots.contract.MyContract,
+  )
   reserved_scratch_space {
     1..19, 25, 50, 52, 100..104, 110..114
   }
   
-  subroutine my_sub(): void
+  subroutine test_cases.scratch_slots.contract.MyContract.approval_program(): bool
+  {
+    stores(1u, (txn<ApplicationID>() == reinterpret_cast<application>(0u)) ? (5u) : (0u))
+    hello_world: bytes = hex<"48656C6C6F20576F726C64">
+    stores(2u, hello_world)
+    for i in range(3u, 20u, 1u) {
+      stores(i, i)
+    }
+    assert(loads(1u) == 5u)
+    assert(loads(2u) == hex<"48656C6C6F20576F726C64">)
+    assert(loads(5u) == 5u)
+    stores(19u, hex<"6C617374">)
+    assert(loads(19u) == hex<"6C617374">)
+    return true
+  }
+  
+  subroutine test_cases.scratch_slots.contract.MyContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.scratch_slots.contract2.MyContract2.my_sub(): void
   {
     stores(1u, hex<"616263">)
     stores(52u, hex<"3532">)

@@ -20,6 +20,7 @@ def test_cattrs(node: nodes.RootNode) -> None:
     awst = [node]
     json = serialize.awst_to_json(awst)
     cloned = serialize.awst_from_json(json)
+    assert len(cloned) == len(awst) == 1
 
     assert ToCodeVisitor().visit_module(cloned) == ToCodeVisitor().visit_module(awst)
-    assert cloned == awst
+    assert cloned[0] == awst[0]

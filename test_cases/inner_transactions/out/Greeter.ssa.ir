@@ -1,15 +1,15 @@
 contract test_cases.inner_transactions.c2c.Greeter:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine test_cases.inner_transactions.c2c.Greeter.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L7
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.inner_transactions.c2c.Greeter.__init__()
                 goto block@2
-            block@2: // after_if_else_L7
-                let tmp%0#0: bool = test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__()
+                return tmp%1#0
         
         subroutine test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
             block@0: // L7
@@ -53,7 +53,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
             block@6: // bare_routing_L6
                 let tmp%13#0: uint64 = (txn OnCompletion)
                 switch tmp%13#0 {0u => block@7, * => block@8}
-            block@7: // __algopy_default_create_L6
+            block@7: // __algopy_default_create_L1
                 let tmp%14#0: uint64 = (txn ApplicationID)
                 let tmp%15#0: bool = (== tmp%14#0 0u)
                 (assert tmp%15#0) // is creating
@@ -288,7 +288,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 return 
         
         subroutine test_cases.inner_transactions.c2c.Greeter.__algopy_default_create() -> void:
-            block@0: // L6
+            block@0: // L1
                 return 
     
     program clear-state:

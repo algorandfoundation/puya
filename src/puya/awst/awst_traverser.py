@@ -11,10 +11,10 @@ class AWSTTraverser(FunctionTraverser, RootNodeVisitor[None], ContractMemberVisi
         statement.body.accept(self)
 
     @typing.override
-    def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
-        for storage in statement.app_state.values():
+    def visit_contract(self, statement: awst_nodes.Contract) -> None:
+        for storage in statement.app_state:
             storage.accept(self)
-        for method in statement.methods.values():
+        for method in statement.all_methods:
             method.accept(self)
 
     @typing.override

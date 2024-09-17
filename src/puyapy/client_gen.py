@@ -19,6 +19,7 @@ from puya.models import (
     ARC32StructDef,
     OnCompletionAction,
 )
+from puya.parse import SourceLocation
 
 from puyapy.awst_build.arc32_client_gen import write_arc32_client
 
@@ -91,7 +92,7 @@ def parse_app_spec_methods(app_spec_json: str) -> tuple[str, Sequence[ARC4Method
                 args=arc4_method.signature.args,
                 returns=arc4_method.signature.returns,
                 config=ARC4ABIMethodConfig(
-                    source_location=None,
+                    source_location=SourceLocation(file=None, line=1),
                     name=arc4_method.signature.name,
                     create=create_option,
                     readonly=bool(method_hints.get("read_only") or arc4_method.readonly),

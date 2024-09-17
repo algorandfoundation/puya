@@ -1,15 +1,15 @@
 contract test_cases.match.counter.Counter:
     program approval:
         subroutine test_cases.match.counter.Counter.approval_program() -> bool:
-            block@0: // L8
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L5
+            block@0: // L1
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.match.counter.Counter.__init__()
                 goto block@2
-            block@2: // after_if_else_L5
-                let tmp%0#0: uint64 = (txn OnCompletion)
-                goto tmp%0#0 ? block@4 : block@3
+            block@2: // after_if_else_L1
+                let tmp%1#0: uint64 = (txn OnCompletion)
+                goto tmp%1#0 ? block@4 : block@3
             block@3: // switch_case_0_L11
                 test_cases.match.counter.Counter.increment_counter()
                 return 1u

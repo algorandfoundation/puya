@@ -1,5 +1,7 @@
 contract Augmented
 {
+  method_resolution_order: (
+  )
   globals {
     ['global_uint']: uint64
     ['global_bytes']: bytes
@@ -9,14 +11,11 @@ contract Augmented
     ['my_bytes']: bytes
   }
   
-  constructor()
+  subroutine test_cases.augmented_assignment.contract.Augmented.approval_program(): bool
   {
-    GlobalState['global_uint']: uint64 = 0u
-    GlobalState['global_bytes']: bytes = hex<"">
-  }
-  
-  approval_program(): bool
-  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
     me: account = txn<Sender>()
     if (txn<OnCompletion>() == OptIn) {
       LocalState['my_uint', me]: uint64 = 0u
@@ -33,8 +32,32 @@ contract Augmented
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.augmented_assignment.contract.Augmented.clear_state_program(): bool
   {
+    return true
+  }
+  
+  subroutine test_cases.augmented_assignment.contract.Augmented.__init__(): void
+  {
+    GlobalState['global_uint']: uint64 = 0u
+    GlobalState['global_bytes']: bytes = hex<"">
+  }
+  
+  subroutine test_cases.augmented_assignment.contract.Augmented.approval_program(): bool
+  {
+    me: account = txn<Sender>()
+    if (txn<OnCompletion>() == OptIn) {
+      LocalState['my_uint', me]: uint64 = 0u
+      LocalState['my_bytes', me]: bytes = hex<"">
+    }
+    if (reinterpret_cast<bool>(txn<ApplicationID>())) {
+      n: uint64 = txn<NumAppArgs>()
+      bytes_to_add: bytes = reinterpret_cast<bytes>(itob(n))
+      LocalState['my_uint', me] += n
+      LocalState['my_bytes', me] += bytes_to_add
+      GlobalState['global_uint'] += n
+      GlobalState['global_bytes'] += bytes_to_add
+    }
     return true
   }
 }

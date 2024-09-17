@@ -1,6 +1,9 @@
 contract itxn_loop
 {
-  approval_program(): bool
+  method_resolution_order: (
+  )
+  
+  subroutine test_cases.inner_transactions.itxn_loop.MyContract.approval_program(): bool
   {
     note: bytes = hex<"4142434445">
     app_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"0A8101">), ClearStateProgramPages=(hex<"0A8101">), OnCompletion=DeleteApplication, Note=hex<"">)
@@ -24,19 +27,29 @@ contract itxn_loop
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.inner_transactions.itxn_loop.MyContract.clear_state_program(): bool
   {
     return true
   }
 }
 
-contract FieldTupleContract extends (algopy.arc4.ARC4Contract)
+contract FieldTupleContract
 {
-  baremethod __algopy_default_create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
+    return arc4_router()
   }
   
-  abimethod test_assign_tuple(): void
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple(): void
   {
     create_txns: tuple<inner_transaction_fields_appl,inner_transaction_fields_appl> = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"098101">), ClearStateProgramPages=(hex<"098101">), OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3161">, hex<"3261">, hex<"68656C6C6F">, 'world', reinterpret_cast<bytes>('!'), itob(42u), itob(true))), create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"098101">), ClearStateProgramPages=(hex<"098101">), OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3361">, hex<"3461">, hex<"3561">), Note=hex<"646966666572656E7420706172616D20736574">))
     (txn_1, txn_2): tuple<inner_transaction_appl,inner_transaction_appl> = submit_txn(create_txns[0], create_txns[1])
@@ -68,7 +81,7 @@ contract FieldTupleContract extends (algopy.arc4.ARC4Contract)
     assert(txn_tuple[1].ApplicationArgs[2u] == hex<"3563">)
   }
   
-  abimethod test_assign_tuple_mixed(): void
+  abimethod test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed(): void
   {
     tuple_with_txn_fields: tuple<inner_transaction_fields_appl,bytes> = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"098101">), ClearStateProgramPages=(hex<"098101">), OnCompletion=DeleteApplication, ApplicationArgs=(hex<"3161">, hex<"3261">)), hex<"736F6D65206F746865722076616C7565">)
     result_with_txn: tuple<inner_transaction_appl,bytes> = (submit_txn(tuple_with_txn_fields[0]), tuple_with_txn_fields[1])
@@ -76,20 +89,55 @@ contract FieldTupleContract extends (algopy.arc4.ARC4Contract)
     assert(result_with_txn[0].ApplicationArgs[1u] == hex<"3261">)
     assert(result_with_txn[1] == hex<"736F6D65206F746865722076616C7565">)
   }
+  
+  baremethod test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.__algopy_default_create(): void
+  {
+  }
 }
 
 contract MyContract
 {
+  method_resolution_order: (
+  )
   globals {
     ['name']: bytes
   }
   
-  constructor()
+  subroutine test_cases.inner_transactions.contract.MyContract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    if (txn<NumAppArgs>() != 0u) {
+      switch (txna<ApplicationArgs, 0>()) {
+        case hex<"7465737431">: {
+          this::test1()
+        }
+        case hex<"7465737432">: {
+          this::test2()
+        }
+        case hex<"7465737433">: {
+          this::test3()
+        }
+        case hex<"7465737434">: {
+          this::test4()
+        }
+      }
+    }
+    return true
+  }
+  
+  subroutine test_cases.inner_transactions.contract.MyContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.inner_transactions.contract.MyContract.__init__(): void
   {
     GlobalState['name']: bytes = hex<"">
   }
   
-  approval_program(): bool
+  subroutine test_cases.inner_transactions.contract.MyContract.approval_program(): bool
   {
     if (txn<NumAppArgs>() != 0u) {
       switch (txna<ApplicationArgs, 0>()) {
@@ -110,12 +158,7 @@ contract MyContract
     return true
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test1(): void
+  subroutine test_cases.inner_transactions.contract.MyContract.test1(): void
   {
     GlobalState['name']: bytes = hex<"41535431">
     asset_params: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=GlobalState['name'], ConfigAssetUnitName=hex<"756E6974">, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())
@@ -137,7 +180,7 @@ contract MyContract
     submit_txn(app_create_params, asset_params)
   }
   
-  subroutine test2(): void
+  subroutine test_cases.inner_transactions.contract.MyContract.test2(): void
   {
     if (txn<NumAppArgs>() != 0u) {
       args: tuple<bytes,bytes> = (hex<"31">, hex<"32">)
@@ -155,7 +198,7 @@ contract MyContract
     }
   }
   
-  subroutine test3(): void
+  subroutine test_cases.inner_transactions.contract.MyContract.test3(): void
   {
     app_p_1: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"09361A00B08101">), ClearStateProgramPages=(hex<"098101">), OnCompletion=DeleteApplication, ApplicationArgs=(hex<"31">))
     app_p_2: inner_transaction_fields_appl = app_p_1.copy().copy()
@@ -207,7 +250,7 @@ contract MyContract
     assert(app16.Logs[0u] == hex<"3136">)
   }
   
-  subroutine test4(): void
+  subroutine test_cases.inner_transactions.contract.MyContract.test4(): void
   {
     lots_of_bytes: bytes = bzero(2044u)
     approval_1: bytes = hex<"098101">
@@ -228,56 +271,101 @@ subroutine echo(v: bytes): bytes
   return v
 }
 
-contract Greeter extends (algopy.arc4.ARC4Contract)
+contract Greeter
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['hello_app']: application
   }
   
-  constructor()
+  subroutine test_cases.inner_transactions.c2c.Greeter.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.inner_transactions.c2c.Greeter.__init__(): void
   {
     GlobalState['hello_app']: application = reinterpret_cast<application>(0u)
   }
   
-  baremethod __algopy_default_create(): void
-  {
-  }
-  
-  abimethod bootstrap(): uint64
+  abimethod test_cases.inner_transactions.c2c.Greeter.bootstrap(): uint64
   {
     assert(!(reinterpret_cast<bool>(GlobalState['hello_app'])), comment="already bootstrapped")
     GlobalState['hello_app']: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"0A200101311B410026800402BECE11361A008E0100010031191444311844361A018800158004151F7C754C50B02243311914443118144422438A01018BFF570200800748656C6C6F2C204C504915165706004C5089">), ClearStateProgramPages=(hex<"0A8101">))).CreatedApplicationID
     return reinterpret_cast<uint64>(GlobalState['hello_app'])
   }
   
-  abimethod log_greetings(name: arc4.dynamic_array<arc4.uint8>): void
+  abimethod test_cases.inner_transactions.c2c.Greeter.log_greetings(name: arc4.dynamic_array<arc4.uint8>): void
   {
     hello_call: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=GlobalState['hello_app'], ApplicationArgs=(Method("hello(string)string"), reinterpret_cast<bytes>(name))))
     greeting: arc4.dynamic_array<arc4.uint8> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">))
     log(concat(concat('HelloWorld returned: ', ''), reinterpret_cast<bytes>(arc4_decode(greeting, string))))
   }
-}
-
-contract CreateAndTransferContract extends (algopy.arc4.ARC4Contract)
-{
-  baremethod __algopy_default_create(): void
+  
+  baremethod test_cases.inner_transactions.c2c.Greeter.__algopy_default_create(): void
   {
   }
   
-  abimethod create_and_transfer(): void
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract CreateAndTransferContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer(): void
   {
     new_asset: asset = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName='test', ConfigAssetUnitName='TST', ConfigAssetDecimals=0u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetClawback=global<CurrentApplicationAddress>())).CreatedAssetID
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, AssetSender=checked_maybe(asset_params_get<AssetCreator>(new_asset)), AssetReceiver=global<CurrentApplicationAddress>(), AssetAmount=1000u, XferAsset=new_asset))
   }
-}
-
-contract ArrayAccessContract extends (algopy.arc4.ARC4Contract)
-{
-  baremethod __algopy_default_create(): void
+  
+  baremethod test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create(): void
   {
   }
+}
+
+contract ArrayAccessContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   
-  abimethod test_branching_array_call(maybe: arc4.bool): void
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: arc4.bool): void
   {
     if (maybe != hex<"00">) {
       create_app_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"098101">), ClearStateProgramPages=(hex<"098101">), ApplicationArgs=(hex<"31">, hex<"32">)))
@@ -292,5 +380,9 @@ contract ArrayAccessContract extends (algopy.arc4.ARC4Contract)
       assert(create_app_txn.ApplicationArgs[1u] == hex<"34">, comment="correct args used 2")
       assert(create_app_txn.ApplicationArgs[2u] == hex<"35">, comment="correct args used 3")
     }
+  }
+  
+  baremethod test_cases.inner_transactions.array_access.ArrayAccessContract.__algopy_default_create(): void
+  {
   }
 }
