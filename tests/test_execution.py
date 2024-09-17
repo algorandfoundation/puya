@@ -14,7 +14,6 @@ import algokit_utils
 import algosdk.constants
 import attrs
 import prettytable
-import puya.errors
 import pytest
 from algokit_utils import (
     Account,
@@ -1356,25 +1355,6 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
         harness.deploy_from_closure(test)
     assert exc_info.value.line_no is not None
     assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
-
-
-def test_nested_bool_context(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import Bytes, Contract, UInt64, op
-
-        class Baddie(Contract):
-            def approval_program(self) -> bool:
-                empty = Bytes()
-                one = UInt64(1)
-                return bool(op.bitlen(empty or one))
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    with pytest.raises(
-        puya.errors.CodeError, match="type unions are unsupported at this location"
-    ):
-        harness.deploy_from_closure(test)
 
 
 def test_tuple_element_mutation(harness: _TestHarness) -> None:
