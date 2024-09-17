@@ -15,9 +15,3 @@ ALGOPY_OP_PREFIX = "algopy.op."
 URANGE = "algopy._unsigned_builtins.urange"
 CLS_ARC4_STRUCT_META = "algopy.arc4._StructMeta"
 CLS_ARC4_ABI_CALL = "algopy.arc4.abi_call"
-
-KNOWN_METHOD_DECORATORS = [
-    SUBROUTINE_HINT,
-    ABIMETHOD_DECORATOR,
-    BAREMETHOD_DECORATOR,
-]

@@ -1,10 +1,20 @@
-contract TxnContract extends (algopy.arc4.ARC4Contract)
+contract TxnContract
 {
-  baremethod __algopy_default_create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
+    return arc4_router()
   }
   
-  abimethod call_with_txn(a: bytes, acfg: group_transaction, b: bytes): uint64
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: group_transaction, b: bytes): uint64
   {
     assert(a == hex<"61">, comment="a is not a")
     assert(b == hex<"62">, comment="b is not b")
@@ -13,7 +23,7 @@ contract TxnContract extends (algopy.arc4.ARC4Contract)
     return reinterpret_cast<uint64>(gtxns<CreatedAssetID>(acfg))
   }
   
-  abimethod call_with_acfg(a: bytes, acfg: group_transaction_acfg, b: bytes): uint64
+  abimethod test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(a: bytes, acfg: group_transaction_acfg, b: bytes): uint64
   {
     assert(a == hex<"61">, comment="a is not a")
     assert(b == hex<"62">, comment="b is not b")
@@ -21,40 +31,54 @@ contract TxnContract extends (algopy.arc4.ARC4Contract)
     return reinterpret_cast<uint64>(gtxns<CreatedAssetID>(acfg))
   }
   
-  abimethod call_with_acfg_no_return(a: bytes, acfg: group_transaction_acfg, b: bytes): void
+  abimethod test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: group_transaction_acfg, b: bytes): void
   {
     assert(a == hex<"61">, comment="a is not a")
     assert(b == hex<"62">, comment="b is not b")
     assert(reinterpret_cast<uint64>(gtxns<CreatedAssetID>(acfg)) != 0u, comment="expected asset id")
   }
-}
-
-contract Caller extends (algopy.arc4.ARC4Contract)
-{
-  baremethod __algopy_default_create(): void
+  
+  baremethod test_cases.typed_abi_call_txn.txn_contract.TxnContract.__algopy_default_create(): void
   {
   }
+}
+
+contract Caller
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   
-  abimethod test_call_with_txn(a: bytes, b: bytes, app: application): void
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: application): void
   {
     txn: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
     (asset_id, _txn): tuple<uint64,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(txn, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_txn(byte[],txn,byte[])uint64"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app)))[-1]).LastLog)), extract<0, 4>(SINGLE_EVAL(id=2)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=1))
     assert(asset_id != 0u, comment="expected asset id")
   }
   
-  abimethod test_call_with_acfg(a: bytes, b: bytes, app: application): void
+  abimethod test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: application): void
   {
     txn: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
     (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=submit_txn(txn, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg(byte[],acfg,byte[])uint64"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app)))[-1]).LastLog)), extract<0, 4>(SINGLE_EVAL(id=5)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=4))
   }
   
-  abimethod test_call_with_infer(a: bytes, b: bytes, app: application): void
+  abimethod test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer(a: bytes, b: bytes, app: application): void
   {
     txn: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
     (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=8, source=SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(txn, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg(byte[],acfg,byte[])uint64"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app)))[-1]).LastLog)), extract<0, 4>(SINGLE_EVAL(id=8)) == hex<"151F7C75">)), uint64), SINGLE_EVAL(id=7))
   }
   
-  abimethod test_call_with_acfg_no_return(a: bytes, b: bytes, app: application): void
+  abimethod test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(a: bytes, b: bytes, app: application): void
   {
     acfg: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
     txn1: inner_transaction_appl = SINGLE_EVAL(id=9, source=submit_txn(acfg, create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("call_with_acfg_no_return(byte[],acfg,byte[])void"), arc4_encode(a, arc4.dynamic_array<arc4.uint8>), arc4_encode(b, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app, Note=hex<"31">)))[-1]
@@ -63,5 +87,9 @@ contract Caller extends (algopy.arc4.ARC4Contract)
     assert(txn1_copy1.Note == txn1.Note)
     asset_id: asset = gitxn<0, CreatedAssetID>()
     assert(reinterpret_cast<bool>(asset_id), comment="expected asset to be created")
+  }
+  
+  baremethod test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create(): void
+  {
   }
 }

@@ -1,11 +1,11 @@
 // Op                                                                 Stack (out)
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                 app_id%0#0
+    txn ApplicationID                                                 tmp%0#0
     bnz main_after_if_else@2
-    // Implicit fall through to main_on_create@1
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
     // Implicit fall through to main_after_if_else@2
 
@@ -13,7 +13,7 @@ main_after_if_else@2:
     // conditional_execution/contract.py:11
     // self.func_a(True) or self.func_b(True)
     int 1                                                             1
-    callsub func_a                                                    tmp%0#0
+    callsub func_a                                                    tmp%1#0
     bnz main_bool_merge@6
     // Implicit fall through to main_or_contd@3
 
@@ -21,7 +21,7 @@ main_or_contd@3:
     // conditional_execution/contract.py:11
     // self.func_a(True) or self.func_b(True)
     int 1                                                             1
-    callsub func_b                                                    tmp%1#0
+    callsub func_b                                                    tmp%2#0
     pop 1
     // Implicit fall through to main_bool_merge@6
 
@@ -67,7 +67,7 @@ main_bool_merge@10:                                                   (𝕏) and
     // conditional_execution/contract.py:17
     // self.func_a(False) or self.func_b(True)
     int 0                                                             0
-    callsub func_a                                                    tmp%2#0
+    callsub func_a                                                    tmp%3#0
     bnz main_bool_merge@14
     // Implicit fall through to main_or_contd@11
 
@@ -75,7 +75,7 @@ main_or_contd@11:
     // conditional_execution/contract.py:17
     // self.func_a(False) or self.func_b(True)
     int 1                                                             1
-    callsub func_b                                                    tmp%3#0
+    callsub func_b                                                    tmp%4#0
     pop 1
     // Implicit fall through to main_bool_merge@14
 
@@ -121,7 +121,7 @@ main_bool_merge@18:                                                   (𝕏) and
     // conditional_execution/contract.py:23
     // self.func_a(False) and self.func_b(True)
     int 0                                                             0
-    callsub func_a                                                    tmp%4#0
+    callsub func_a                                                    tmp%5#0
     bz main_bool_merge@22
     // Implicit fall through to main_and_contd@19
 
@@ -129,7 +129,7 @@ main_and_contd@19:
     // conditional_execution/contract.py:23
     // self.func_a(False) and self.func_b(True)
     int 1                                                             1
-    callsub func_b                                                    tmp%5#0
+    callsub func_b                                                    tmp%6#0
     pop 1
     // Implicit fall through to main_bool_merge@22
 
@@ -175,7 +175,7 @@ main_bool_merge@26:                                                   (𝕏) and
     // conditional_execution/contract.py:29
     // self.func_a(True) and self.func_b(True)
     int 1                                                             1
-    callsub func_a                                                    tmp%6#0
+    callsub func_a                                                    tmp%7#0
     bz main_bool_merge@30
     // Implicit fall through to main_and_contd@27
 
@@ -183,7 +183,7 @@ main_and_contd@27:
     // conditional_execution/contract.py:29
     // self.func_a(True) and self.func_b(True)
     int 1                                                             1
-    callsub func_b                                                    tmp%7#0
+    callsub func_b                                                    tmp%8#0
     pop 1
     // Implicit fall through to main_bool_merge@30
 
@@ -229,10 +229,10 @@ main_bool_merge@34:                                                   (𝕏) and
     // conditional_execution/contract.py:35
     // (self.func_a(True), self.func_b(True))[0]
     int 1                                                             1
-    callsub func_a                                                    tmp%8#0
+    callsub func_a                                                    tmp%9#0
     pop 1
     int 1                                                             1
-    callsub func_b                                                    tmp%9#0
+    callsub func_b                                                    tmp%10#0
     pop 1
     // conditional_execution/contract.py:37
     // self.did_execute_a and self.did_execute_b,
@@ -275,7 +275,7 @@ main_bool_merge@38:                                                   (𝕏) and
     // conditional_execution/contract.py:41
     // self.func_a(True) if self.func_c(True) else self.func_b(True)
     int 1                                                             1
-    callsub func_c                                                    tmp%10#0
+    callsub func_c                                                    tmp%11#0
     bz main_ternary_false@40
     // Implicit fall through to main_ternary_true@39
 
@@ -337,7 +337,7 @@ main_bool_merge@45:                                                   (𝕏) and
     // conditional_execution/contract.py:47
     // self.func_a(True) if self.func_c(False) else self.func_b(True)
     int 0                                                             0
-    callsub func_c                                                    tmp%11#0
+    callsub func_c                                                    tmp%12#0
     bz main_ternary_false@47
     // Implicit fall through to main_ternary_true@46
 

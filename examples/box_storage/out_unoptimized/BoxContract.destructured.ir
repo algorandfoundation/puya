@@ -1,15 +1,15 @@
 contract examples.box_storage.contract.BoxContract:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine examples.box_storage.contract.BoxContract.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L9
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 examples.box_storage.contract.BoxContract.__init__()
                 goto block@2
-            block@2: // after_if_else_L9
-                let tmp%0#0: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__()
+                return tmp%1#0
         
         subroutine examples.box_storage.contract.BoxContract.__init__() -> void:
             block@0: // L9
@@ -198,7 +198,7 @@ contract examples.box_storage.contract.BoxContract:
             block@17: // bare_routing_L8
                 let tmp%73#0: uint64 = (txn OnCompletion)
                 switch tmp%73#0 {0u => block@18, * => block@19}
-            block@18: // __algopy_default_create_L8
+            block@18: // __algopy_default_create_L1
                 let tmp%74#0: uint64 = (txn ApplicationID)
                 let tmp%75#0: bool = (== tmp%74#0 0u)
                 (assert tmp%75#0) // is creating
@@ -660,7 +660,7 @@ contract examples.box_storage.contract.BoxContract:
                 return maybe_exists%0#0
         
         subroutine examples.box_storage.contract.BoxContract.__algopy_default_create() -> void:
-            block@0: // L8
+            block@0: // L1
                 return 
     
     program clear-state:

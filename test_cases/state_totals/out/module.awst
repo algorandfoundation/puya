@@ -1,5 +1,8 @@
-contract Contract extends (algopy.arc4.ARC4Contract)
+contract Contract
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['global_one']: bytes
   }
@@ -7,11 +10,29 @@ contract Contract extends (algopy.arc4.ARC4Contract)
     ['local_one']: uint64
   }
   
-  constructor()
+  subroutine test_cases.state_totals.contract.Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.state_totals.contract.Contract.__init__(): void
   {
   }
   
-  baremethod create(): void
+  baremethod test_cases.state_totals.contract.Contract.create(): void
   {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }

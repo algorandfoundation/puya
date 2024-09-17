@@ -1,23 +1,3 @@
-contract MyBase
-{
-  globals {
-    ['creator']: account
-  }
-  
-  subroutine remember_creator(): void
-  {
-    GlobalState['creator']: account = txn<Sender>()
-  }
-}
-
-contract MyMiddleBase extends (test_cases.everything.my_base.MyBase)
-{
-  subroutine calculate(a: arc4.uint64, b: arc4.uint64): arc4.uint64
-  {
-    return arc4_encode(arc4_decode(a, uint64) + arc4_decode(b, uint64), arc4.uint64)
-  }
-}
-
 subroutine multiplicative_identity(): uint64
 {
   return 1u
@@ -37,33 +17,47 @@ subroutine add_one(x: uint64): uint64
   return new_value
 }
 
-contract MyContract extends (algopy.arc4.ARC4Contract, test_cases.everything.my_base.MyMiddleBase, test_cases.everything.my_base.MyBase)
+contract MyContract
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    test_cases.everything.my_base.MyMiddleBase,
+    test_cases.everything.my_base.MyBase,
+  )
   globals {
+    ['creator']: account
     ['counter']: uint64
   }
   locals {
     ['name']: arc4.dynamic_array<arc4.uint8>
   }
   
-  constructor()
+  subroutine test_cases.everything.contract.Everything.approval_program(): bool
   {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.everything.contract.Everything.clear_state_program(): bool
   {
     this::_remove_sender()
     return true
   }
   
-  abimethod create(): void
+  subroutine test_cases.everything.contract.Everything.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.everything.contract.Everything.create(): void
   {
     this::_check_ban_list()
     this::remember_creator()
     GlobalState['counter']: uint64 = 0u
   }
   
-  abimethod register(name: arc4.dynamic_array<arc4.uint8>): void
+  abimethod test_cases.everything.contract.Everything.register(name: arc4.dynamic_array<arc4.uint8>): void
   {
     this::_check_ban_list()
     if (txn<OnCompletion>() == OptIn) {
@@ -75,7 +69,7 @@ contract MyContract extends (algopy.arc4.ARC4Contract, test_cases.everything.my_
     LocalState['name', 0u]: arc4.dynamic_array<arc4.uint8> = name
   }
   
-  abimethod say_hello(): arc4.dynamic_array<arc4.uint8>
+  abimethod test_cases.everything.contract.Everything.say_hello(): arc4.dynamic_array<arc4.uint8>
   {
     this::_check_ban_list()
     (name, exists): tuple<arc4.dynamic_array<arc4.uint8>,bool> = STATE_GET_EX(LocalState['name', 0u])
@@ -85,25 +79,45 @@ contract MyContract extends (algopy.arc4.ARC4Contract, test_cases.everything.my_
     return arc4_encode('Hello, ', arc4.dynamic_array<arc4.uint8>) + name + arc4_encode('!', arc4.dynamic_array<arc4.uint8>)
   }
   
-  abimethod calculate(a: arc4.uint64, b: arc4.uint64): arc4.uint64
+  abimethod test_cases.everything.contract.Everything.calculate(a: arc4.uint64, b: arc4.uint64): arc4.uint64
   {
     c: arc4.uint64 = super::calculate(a, b)
     return arc4_encode(arc4_decode(c, uint64) * arc4_decode(b, uint64), arc4.uint64)
   }
   
-  abimethod close_out(): void
+  abimethod test_cases.everything.contract.Everything.close_out(): void
   {
     this::_remove_sender()
   }
   
-  subroutine _check_ban_list(): void
+  subroutine test_cases.everything.contract.Everything._check_ban_list(): void
   {
     assert(txn<Sender>() != test_cases.everything.contract.get_banned(), comment="You are banned, goodbye")
   }
   
-  subroutine _remove_sender(): void
+  subroutine test_cases.everything.contract.Everything._remove_sender(): void
   {
     GlobalState['counter'] -= test_cases.everything.contract.positive_one()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: arc4.uint64, b: arc4.uint64): arc4.uint64
+  {
+    return arc4_encode(arc4_decode(a, uint64) + arc4_decode(b, uint64), arc4.uint64)
+  }
+  
+  subroutine test_cases.everything.my_base.MyBase.remember_creator(): void
+  {
+    GlobalState['creator']: account = txn<Sender>()
   }
 }
 

@@ -1,18 +1,18 @@
 contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
     program approval:
         subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program() -> bool:
-            block@0: // L9
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L5
+            block@0: // L1
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__()
                 goto block@2
-            block@2: // after_if_else_L5
-                let tmp%0#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
-                goto tmp%0#0 ? block@4 : block@3
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                goto tmp%1#0 ? block@4 : block@3
             block@3: // or_contd_L11
-                let tmp%1#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
-                goto tmp%1#0 ? block@4 : block@5
+                let tmp%2#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto tmp%2#0 ? block@4 : block@5
             block@4: // bool_true_L11
                 let or_result%0#0: bool = 1u
                 goto block@6
@@ -36,11 +36,11 @@ contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
             block@10: // bool_merge_L13
                 let and_result%0#2: bool = φ(and_result%0#0 <- block@8, and_result%0#1 <- block@9)
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%0#2)
-                let tmp%2#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(0u)
-                goto tmp%2#0 ? block@12 : block@11
+                let tmp%3#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(0u)
+                goto tmp%3#0 ? block@12 : block@11
             block@11: // or_contd_L17
-                let tmp%3#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
-                goto tmp%3#0 ? block@12 : block@13
+                let tmp%4#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto tmp%4#0 ? block@12 : block@13
             block@12: // bool_true_L17
                 let or_result%1#0: bool = 1u
                 goto block@14
@@ -64,11 +64,11 @@ contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
             block@18: // bool_merge_L19
                 let and_result%1#2: bool = φ(and_result%1#0 <- block@16, and_result%1#1 <- block@17)
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%1#2)
-                let tmp%4#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(0u)
-                goto tmp%4#0 ? block@19 : block@21
+                let tmp%5#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(0u)
+                goto tmp%5#0 ? block@19 : block@21
             block@19: // and_contd_L23
-                let tmp%5#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
-                goto tmp%5#0 ? block@20 : block@21
+                let tmp%6#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto tmp%6#0 ? block@20 : block@21
             block@20: // bool_true_L23
                 let and_result%2#0: bool = 1u
                 goto block@22
@@ -92,11 +92,11 @@ contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
             block@26: // bool_merge_L25
                 let and_result%3#2: bool = φ(and_result%3#0 <- block@24, and_result%3#1 <- block@25)
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%3#2)
-                let tmp%6#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
-                goto tmp%6#0 ? block@27 : block@29
+                let tmp%7#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                goto tmp%7#0 ? block@27 : block@29
             block@27: // and_contd_L29
-                let tmp%7#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
-                goto tmp%7#0 ? block@28 : block@29
+                let tmp%8#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto tmp%8#0 ? block@28 : block@29
             block@28: // bool_true_L29
                 let and_result%4#0: bool = 1u
                 goto block@30
@@ -120,8 +120,8 @@ contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
             block@34: // bool_merge_L31
                 let and_result%5#2: bool = φ(and_result%5#0 <- block@32, and_result%5#1 <- block@33)
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%5#2)
-                let tmp%8#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
-                let tmp%9#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                let tmp%9#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                let tmp%10#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
                 let (maybe_value%8#0: bool, maybe_exists%8#0: bool) = (app_global_get_ex 0u "did_execute_a")
                 (assert maybe_exists%8#0) // check self.did_execute_a exists
                 goto maybe_value%8#0 ? block@35 : block@37
@@ -138,8 +138,8 @@ contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
             block@38: // bool_merge_L37
                 let and_result%6#2: bool = φ(and_result%6#0 <- block@36, and_result%6#1 <- block@37)
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%6#2)
-                let tmp%10#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(1u)
-                goto tmp%10#0 ? block@39 : block@40
+                let tmp%11#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(1u)
+                goto tmp%11#0 ? block@39 : block@40
             block@39: // ternary_true_L41
                 let ternary_result%0#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
                 goto block@41
@@ -163,8 +163,8 @@ contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
             block@45: // bool_merge_L43
                 let and_result%7#2: bool = φ(and_result%7#0 <- block@43, and_result%7#1 <- block@44)
                 test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%7#2)
-                let tmp%11#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(0u)
-                goto tmp%11#0 ? block@46 : block@47
+                let tmp%12#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(0u)
+                goto tmp%12#0 ? block@46 : block@47
             block@46: // ternary_true_L47
                 let ternary_result%1#0: bool = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
                 goto block@48

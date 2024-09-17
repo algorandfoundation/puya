@@ -1,15 +1,15 @@
 contract test_cases.state_mutations.contract.Contract:
     program approval:
-        subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
+        subroutine test_cases.state_mutations.contract.Contract.approval_program() -> bool:
             block@0: // L1
-                let app_id%0#0: uint64 = (txn ApplicationID)
-                goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L23
+                let tmp%0#0: bool = (txn ApplicationID)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // call __init___L1
                 test_cases.state_mutations.contract.Contract.__init__()
                 goto block@2
-            block@2: // after_if_else_L23
-                let tmp%0#0: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__()
-                return tmp%0#0
+            block@2: // after_if_else_L1
+                let tmp%1#0: bool = test_cases.state_mutations.contract.Contract.__puya_arc4_router__()
+                return tmp%1#0
         
         subroutine test_cases.state_mutations.contract.Contract.__init__() -> void:
             block@0: // L23
@@ -58,18 +58,18 @@ contract test_cases.state_mutations.contract.Contract:
                 goto block@12
             block@7: // bare_routing_L22
                 let tmp%17#0: uint64 = (txn OnCompletion)
-                switch tmp%17#0 {0u => block@8, 1u => block@9, * => block@10}
-            block@8: // __algopy_default_create_L22
+                switch tmp%17#0 {1u => block@8, 0u => block@9, * => block@10}
+            block@8: // opt_in_L29
                 let tmp%18#0: uint64 = (txn ApplicationID)
-                let tmp%19#0: bool = (== tmp%18#0 0u)
-                (assert tmp%19#0) // is creating
-                test_cases.state_mutations.contract.Contract.__algopy_default_create()
-                return 1u
-            block@9: // opt_in_L29
-                let tmp%20#0: uint64 = (txn ApplicationID)
-                let tmp%21#0: bool = (!= tmp%20#0 0u)
-                (assert tmp%21#0) // is not creating
+                let tmp%19#0: bool = (!= tmp%18#0 0u)
+                (assert tmp%19#0) // is not creating
                 test_cases.state_mutations.contract.Contract.opt_in()
+                return 1u
+            block@9: // __algopy_default_create_L1
+                let tmp%20#0: uint64 = (txn ApplicationID)
+                let tmp%21#0: bool = (== tmp%20#0 0u)
+                (assert tmp%21#0) // is creating
+                test_cases.state_mutations.contract.Contract.__algopy_default_create()
                 return 1u
             block@10: // switch_case_default_L22
                 goto block@11
@@ -316,10 +316,6 @@ contract test_cases.state_mutations.contract.Contract:
                 (assert tmp%5#0) // expected map == global
                 return a1#0
         
-        subroutine test_cases.state_mutations.contract.Contract.__algopy_default_create() -> void:
-            block@0: // L22
-                return 
-        
         subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
             block@0: // L29
                 let array_data%0#0: bytes = (concat 0x0000 0x)
@@ -335,6 +331,10 @@ contract test_cases.state_mutations.contract.Contract:
                 let tmp%2#0: bytes = (concat "map" tmp%1#0)
                 (box_del tmp%2#0)
                 (box_put tmp%2#0 array_data%3#0)
+                return 
+        
+        subroutine test_cases.state_mutations.contract.Contract.__algopy_default_create() -> void:
+            block@0: // L1
                 return 
         
         subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

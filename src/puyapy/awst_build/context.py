@@ -1,9 +1,6 @@
-from __future__ import annotations
-
 import ast
 import contextlib
 import functools
-import typing
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
 
@@ -20,11 +17,8 @@ from puya.parse import SourceLocation
 from puya.utils import attrs_extend, unique
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
+from puyapy.models import ContractFragmentBase
 from puyapy.parse import ParseResult, source_location_from_mypy
-
-if typing.TYPE_CHECKING:
-    from puyapy.awst_build.arc4_utils import ARC4MethodData
 
 logger = log.get_logger(__name__)
 
@@ -34,58 +28,24 @@ class ASTConversionContext:
     _parse_result: ParseResult
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
-    _state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
-        factory=dict
-    )
-    _arc4_method_data: dict[ContractReference, dict[str, ARC4MethodData]] = attrs.field(
-        factory=dict
-    )
-    abstract_contracts: set[ContractReference] = attrs.field(factory=set)
+    _contract_fragments: dict[ContractReference, ContractFragmentBase] = attrs.field(factory=dict)
 
     @property
     def mypy_options(self) -> mypy.options.Options:
         return self._parse_result.mypy_options
 
-    def for_module(self, module_path: Path) -> ASTConversionModuleContext:
+    @property
+    def contract_fragments(self) -> Mapping[ContractReference, ContractFragmentBase]:
+        return self._contract_fragments
+
+    def add_contract_fragment(self, fragment: ContractFragmentBase) -> None:
+        assert (
+            fragment.id not in self._contract_fragments
+        ), "attempted to add contract fragment twice"
+        self._contract_fragments[fragment.id] = fragment
+
+    def for_module(self, module_path: Path) -> "ASTConversionModuleContext":
         return attrs_extend(ASTConversionModuleContext, self, module_path=module_path)
-
-    def state_defs(self, cref: ContractReference) -> Mapping[str, AppStorageDeclaration]:
-        return self._state_defs[cref]
-
-    def set_state_defs(
-        self, cref: ContractReference, data: dict[str, AppStorageDeclaration]
-    ) -> None:
-        if cref in self._state_defs:
-            raise InternalError(f"tried to reinitialise state defs for {cref}")
-        self._state_defs[cref] = data
-
-    def add_state_def(self, cref: ContractReference, decl: AppStorageDeclaration) -> None:
-        for_contract = self._state_defs.get(cref)
-        if for_contract is None:
-            logger.error(
-                f"failed to look up state definition of {cref}",
-                location=decl.source_location,
-            )
-        else:
-            existing_def = for_contract.get(decl.member_name)
-            if existing_def:
-                logger.info(
-                    f"previous definition of {decl.member_name} was here",
-                    location=existing_def.source_location,
-                )
-                logger.error(
-                    f"redefinition of {decl.member_name}",
-                    location=decl.source_location,
-                )
-            for_contract[decl.member_name] = decl
-
-    def arc4_method_data(self, cref: ContractReference) -> Mapping[str, ARC4MethodData]:
-        return self._arc4_method_data.get(cref) or {}
-
-    def add_arc4_method_data(
-        self, cref: ContractReference, func_name: str, data: ARC4MethodData
-    ) -> None:
-        self._arc4_method_data.setdefault(cref, {})[func_name] = data
 
     def register_pytype(self, typ: pytypes.PyType, *, alias: str | None = None) -> None:
         name = alias or typ.name
@@ -296,7 +256,7 @@ def type_to_pytype(
                 return pytypes.TypeType(cls_typ)
             else:
                 if not isinstance(func_like, mypy.types.CallableType):  # vs Overloaded
-                    raise CodeError("References to overloaded functions are not supported", loc)
+                    raise CodeError("references to overloaded functions are not supported", loc)
                 ret_pytype = recurse(func_like.ret_type)
                 func_args = []
                 for at, name, kind in zip(
@@ -310,30 +270,18 @@ def type_to_pytype(
                         in_func_sig=True,
                     )
                     func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
-                if None in func_like.bound_args:
-                    logger.debug(
-                        "None contained in bound args for function reference", location=loc
-                    )
-                bound_args = [
-                    type_to_pytype(
-                        registry,
-                        ba,
-                        source_location=loc,
-                        in_type_args=in_type_args,
-                        in_func_sig=True,
-                    )
-                    for ba in func_like.bound_args
-                    if ba is not None
-                ]
+                if func_like.bound_args:
+                    logger.error("function type has bound arguments", location=loc)
                 if func_like.definition is not None:
                     name = func_like.definition.fullname
                 else:
                     name = repr(func_like)
+                if "first_arg" in func_like.def_extras:
+                    _self_arg, *func_args = func_args
                 return pytypes.FuncType(
                     name=name,
                     args=func_args,
                     ret_type=ret_pytype,
-                    bound_arg_types=bound_args,
                 )
         case _:
             raise CodeError(f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc)

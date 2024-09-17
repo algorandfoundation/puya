@@ -14,13 +14,13 @@ from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.utils import get_arg_mapping, is_type_or_subtype
+from puyapy.models import ContractFragmentMethod
 
 logger = log.get_logger(__name__)
 
@@ -127,14 +127,12 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
 class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBuilder):
     def __init__(
         self,
-        context: ASTConversionModuleContext,
         cref: ContractReference,
-        member_name: str,
+        method: ContractFragmentMethod,
         func_type: pytypes.FuncType,
         location: SourceLocation,
     ):
-        target = ContractMethodTarget(cref=cref, member_name=member_name)
+        target = ContractMethodTarget(cref=cref, member_name=method.member_name)
         super().__init__(target, func_type, location)
-        self.context: typing.Final = context
         self.cref: typing.Final = cref
-        self.member_name: typing.Final = member_name
+        self.method: typing.Final = method

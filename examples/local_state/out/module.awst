@@ -1,15 +1,16 @@
 contract LocalStateWithOffsets
 {
+  method_resolution_order: (
+  )
   locals {
     ['local']: bytes
   }
   
-  constructor()
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.approval_program(): bool
   {
-  }
-  
-  approval_program(): bool
-  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
     if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
@@ -55,34 +56,85 @@ contract LocalStateWithOffsets
     }
   }
   
-  clear_state_program(): bool
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.clear_state_program(): bool
   {
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: uint64): bytes
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.__init__(): void
+  {
+  }
+  
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.approval_program(): bool
+  {
+    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
+      return true
+    }
+    if (!(SINGLE_EVAL(id=0) == SINGLE_EVAL(id=1)[0] or SINGLE_EVAL(id=0) == SINGLE_EVAL(id=1)[1])) {
+      return false
+    }
+    if (txn<NumAppArgs>() < 1u) {
+      return false
+    }
+    offset: uint64 = btoi(txna<ApplicationArgs, 0>())
+    method: bytes = txna<ApplicationArgs, 1>()
+    if (txn<NumAppArgs>() == 2u) {
+      if (method == hex<"6765745F67756172616E746565645F64617461">) {
+        log(this::get_guaranteed_data(offset))
+      } else {
+        if (method == hex<"6765745F646174615F6F725F617373657274">) {
+          log(this::get_data_or_assert(offset))
+        } else {
+          if (method == hex<"64656C6574655F64617461">) {
+            this::delete_data(offset)
+            log('Deleted')
+          } else {
+            return false
+          }
+        }
+      }
+      return true
+    } else {
+      if (txn<NumAppArgs>() == 3u) {
+        if (method == hex<"7365745F64617461">) {
+          this::set_data(offset, txna<ApplicationArgs, 2>())
+        } else {
+          if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
+            log(this::get_data_with_default(offset, txna<ApplicationArgs, 2>()))
+          } else {
+            return false
+          }
+        }
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+  
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64): bytes
   {
     return LocalState['local', for_account]
   }
   
-  subroutine get_data_with_default(for_account: uint64, default: bytes): bytes
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(for_account: uint64, default: bytes): bytes
   {
     return STATE_GET(LocalState['local', for_account], default=default)
   }
   
-  subroutine get_data_or_assert(for_account: uint64): bytes
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(for_account: uint64): bytes
   {
     (result, exists): tuple<bytes,bool> = STATE_GET_EX(LocalState['local', for_account])
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: uint64, value: bytes): void
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.set_data(for_account: uint64, value: bytes): void
   {
     LocalState['local', for_account]: bytes = value
   }
   
-  subroutine delete_data(for_account: uint64): void
+  subroutine examples.local_state.local_state_with_offsets.LocalStateContract.delete_data(for_account: uint64): void
   {
     STATE_DELETE(LocalState['local', for_account])
   }
@@ -90,17 +142,18 @@ contract LocalStateWithOffsets
 
 contract LocalStateContract
 {
+  method_resolution_order: (
+  )
   locals {
     ['local']: bytes
     ['local_bool']: bool
   }
   
-  constructor()
+  subroutine examples.local_state.local_state_contract.LocalStateContract.approval_program(): bool
   {
-  }
-  
-  approval_program(): bool
-  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
     if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
@@ -145,12 +198,62 @@ contract LocalStateContract
     }
   }
   
-  clear_state_program(): bool
+  subroutine examples.local_state.local_state_contract.LocalStateContract.clear_state_program(): bool
   {
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: account): bytes
+  subroutine examples.local_state.local_state_contract.LocalStateContract.__init__(): void
+  {
+  }
+  
+  subroutine examples.local_state.local_state_contract.LocalStateContract.approval_program(): bool
+  {
+    if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
+      return true
+    }
+    if (!(SINGLE_EVAL(id=2) == SINGLE_EVAL(id=3)[0] or SINGLE_EVAL(id=2) == SINGLE_EVAL(id=3)[1])) {
+      return false
+    }
+    if (txn<NumAppArgs>() == 0u) {
+      return false
+    }
+    method: bytes = txna<ApplicationArgs, 0>()
+    if (txn<NumAppArgs>() == 1u) {
+      if (method == hex<"6765745F67756172616E746565645F64617461">) {
+        log(this::get_guaranteed_data(txn<Sender>()))
+      } else {
+        if (method == hex<"6765745F646174615F6F725F617373657274">) {
+          log(this::get_data_or_assert(txn<Sender>()))
+        } else {
+          if (method == hex<"64656C6574655F64617461">) {
+            this::delete_data(txn<Sender>())
+            log('Deleted')
+          } else {
+            return false
+          }
+        }
+      }
+      return true
+    } else {
+      if (txn<NumAppArgs>() == 2u) {
+        if (method == hex<"7365745F64617461">) {
+          this::set_data(txn<Sender>(), txna<ApplicationArgs, 1>())
+        } else {
+          if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
+            log(this::get_data_with_default(txn<Sender>(), txna<ApplicationArgs, 1>()))
+          } else {
+            return false
+          }
+        }
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+  
+  subroutine examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: account): bytes
   {
     result: bytes = LocalState['local', for_account]
     assert(len(result) == examples.local_state.local_state_contract.get_local_state_length('local', for_account))
@@ -159,24 +262,24 @@ contract LocalStateContract
     return result
   }
   
-  subroutine get_data_with_default(for_account: account, default: bytes): bytes
+  subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: account, default: bytes): bytes
   {
     return STATE_GET(LocalState['local', for_account], default=default)
   }
   
-  subroutine get_data_or_assert(for_account: account): bytes
+  subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: account): bytes
   {
     (result, exists): tuple<bytes,bool> = STATE_GET_EX(LocalState['local', for_account])
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: account, value: bytes): void
+  subroutine examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: account, value: bytes): void
   {
     LocalState['local', for_account]: bytes = value
   }
   
-  subroutine delete_data(for_account: account): void
+  subroutine examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: account): void
   {
     STATE_DELETE(LocalState['local', for_account])
   }

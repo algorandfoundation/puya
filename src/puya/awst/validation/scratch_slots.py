@@ -1,10 +1,9 @@
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator
 
 from puya import log
 from puya.awst import nodes as awst_nodes
 from puya.awst.awst_traverser import AWSTTraverser
 from puya.parse import SourceLocation
-from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
 
@@ -23,7 +22,7 @@ class ScratchSlotReservationValidator(AWSTTraverser):
 
     def __init__(self) -> None:
         super().__init__()
-        self._reserved_slots = StableSet[int]()
+        self._reserved_slots: Collection[int] = ()
         self._used_slots = list[tuple[int, SourceLocation]]()
 
     @property
@@ -32,9 +31,8 @@ class ScratchSlotReservationValidator(AWSTTraverser):
             if slot not in self._reserved_slots:
                 yield slot, loc
 
-    def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
-        super().visit_contract_fragment(statement)
-        # TODO: gather reserved from bases
+    def visit_contract(self, statement: awst_nodes.Contract) -> None:
+        super().visit_contract(statement)
         self._reserved_slots = statement.reserved_scratch_space
 
     def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> None:

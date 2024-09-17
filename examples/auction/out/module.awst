@@ -1,5 +1,8 @@
-contract Auction extends (algopy.arc4.ARC4Contract)
+contract Auction
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
     ['auction_end']: uint64
     ['previous_bid']: uint64
@@ -11,7 +14,20 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     ['claim']: uint64
   }
   
-  constructor()
+  subroutine examples.auction.contract.Auction.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine examples.auction.contract.Auction.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine examples.auction.contract.Auction.__init__(): void
   {
     GlobalState['auction_end']: uint64 = 0u
     GlobalState['previous_bid']: uint64 = 0u
@@ -20,16 +36,7 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     GlobalState['previous_bidder']: account = global<ZeroAddress>()
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
-  baremethod __algopy_default_create(): void
-  {
-  }
-  
-  abimethod opt_into_asset(asset: asset): void
+  abimethod examples.auction.contract.Auction.opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(reinterpret_cast<uint64>(GlobalState['asa']) == 0u, comment="ASA already opted in")
@@ -37,7 +44,7 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, AssetReceiver=global<CurrentApplicationAddress>(), XferAsset=asset))
   }
   
-  abimethod start_auction(starting_price: uint64, length: uint64, axfer: group_transaction_axfer): void
+  abimethod examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: group_transaction_axfer): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="auction must be started by creator")
     assert(GlobalState['auction_end'] == 0u, comment="auction already started")
@@ -47,11 +54,11 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     GlobalState['previous_bid']: uint64 = starting_price
   }
   
-  abimethod opt_in(): void
+  abimethod examples.auction.contract.Auction.opt_in(): void
   {
   }
   
-  abimethod bid(pay: group_transaction_pay): void
+  abimethod examples.auction.contract.Auction.bid(pay: group_transaction_pay): void
   {
     assert(global<LatestTimestamp>() < GlobalState['auction_end'], comment="auction has ended")
     assert(gtxns<Sender>(pay) == txn<Sender>(), comment="payment sender must match transaction sender")
@@ -61,7 +68,7 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     LocalState['claim', txn<Sender>()]: uint64 = gtxns<Amount>(pay)
   }
   
-  abimethod claim_bids(): void
+  abimethod examples.auction.contract.Auction.claim_bids(): void
   {
     original_amount: uint64 = SINGLE_EVAL(id=0, source=LocalState['claim', txn<Sender>()])
     amount: uint64 = SINGLE_EVAL(id=0)
@@ -72,14 +79,28 @@ contract Auction extends (algopy.arc4.ARC4Contract)
     LocalState['claim', txn<Sender>()]: uint64 = original_amount - amount
   }
   
-  abimethod claim_asset(asset: asset): void
+  abimethod examples.auction.contract.Auction.claim_asset(asset: asset): void
   {
     assert(global<LatestTimestamp>() > GlobalState['auction_end'], comment="auction has not ended")
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetCloseTo=GlobalState['previous_bidder'], AssetReceiver=GlobalState['previous_bidder'], AssetAmount=GlobalState['asa_amount']))
   }
   
-  subroutine delete_application(): void
+  subroutine examples.auction.contract.Auction.delete_application(): void
   {
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=global<CreatorAddress>(), CloseRemainderTo=global<CreatorAddress>()))
+  }
+  
+  baremethod examples.auction.contract.Auction.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
   }
 }

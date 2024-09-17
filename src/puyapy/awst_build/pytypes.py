@@ -346,10 +346,12 @@ class FuncArg:
 @typing.final
 @attrs.frozen(kw_only=True)
 class FuncType(PyType):
-    generic: None = None
     ret_type: PyType
     args: tuple[FuncArg, ...] = attrs.field(converter=tuple[FuncArg, ...])
-    bound_arg_types: tuple[PyType, ...] = attrs.field(converter=tuple[PyType, ...])
+    # static data
+    generic: None = None
+    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @typing.override
     @property

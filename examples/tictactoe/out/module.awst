@@ -1,18 +1,34 @@
-contract TicTacToeContract extends (algopy.arc4.ARC4Contract)
+contract TicTacToeContract
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   globals {
+    ['challenger']: account
+    ['winner']: arc4.uint8
     ['host']: account
     ['game']: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3>
     ['turns']: uint64
-    ['challenger']: account
-    ['winner']: arc4.uint8
   }
   
-  constructor()
+  subroutine examples.tictactoe.tictactoe.TicTacToeContract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine examples.tictactoe.tictactoe.TicTacToeContract.__init__(): void
   {
   }
   
-  abimethod new_game(move: tuple<uint64,uint64>): void
+  abimethod examples.tictactoe.tictactoe.TicTacToeContract.new_game(move: tuple<uint64,uint64>): void
   {
     if (reinterpret_cast<bool>(txn<ApplicationID>())) {
       if (STATE_EXISTS(GlobalState['challenger'])) {
@@ -29,19 +45,19 @@ contract TicTacToeContract extends (algopy.arc4.ARC4Contract)
     GlobalState['turns']: uint64 = 0u
   }
   
-  abimethod join_game(move: tuple<uint64,uint64>): void
+  abimethod examples.tictactoe.tictactoe.TicTacToeContract.join_game(move: tuple<uint64,uint64>): void
   {
     assert(!(STATE_EXISTS(GlobalState['challenger'])), comment="Host already has a challenger")
     GlobalState['challenger']: account = txn<Sender>()
     this::make_move(2arc4u8, move)
   }
   
-  abimethod whose_turn(): arc4.uint8
+  abimethod examples.tictactoe.tictactoe.TicTacToeContract.whose_turn(): arc4.uint8
   {
     return (GlobalState['turns'] % 2u != 0u) ? (1arc4u8) : (2arc4u8)
   }
   
-  abimethod play(move: tuple<uint64,uint64>): void
+  abimethod examples.tictactoe.tictactoe.TicTacToeContract.play(move: tuple<uint64,uint64>): void
   {
     assert(!(STATE_EXISTS(GlobalState['winner'])), comment="Game is already finished")
     if (GlobalState['turns'] % 2u != 0u) {
@@ -54,7 +70,7 @@ contract TicTacToeContract extends (algopy.arc4.ARC4Contract)
     this::make_move(player, move)
   }
   
-  subroutine make_move(player: arc4.uint8, move: tuple<uint64,uint64>): void
+  subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: arc4.uint8, move: tuple<uint64,uint64>): void
   {
     (column, row): tuple<uint64,uint64> = move
     assert(column < 3u and row < 3u, comment="Move must be in range")
@@ -70,7 +86,7 @@ contract TicTacToeContract extends (algopy.arc4.ARC4Contract)
     }
   }
   
-  subroutine did_win(player: arc4.uint8, column: uint64, row: uint64): bool
+  subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: arc4.uint8, column: uint64, row: uint64): bool
   {
     g: arc4.static_array<arc4.static_array<arc4.uint8, 3>, 3> = GlobalState['game'].copy()
     if (reinterpret_cast<biguint>(g[row][0u]) == reinterpret_cast<biguint>(SINGLE_EVAL(id=0, source=g[row][1u])) and reinterpret_cast<biguint>(SINGLE_EVAL(id=0)) == reinterpret_cast<biguint>(g[row][2u])) {
@@ -88,5 +104,10 @@ contract TicTacToeContract extends (algopy.arc4.ARC4Contract)
       }
     }
     return false
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }

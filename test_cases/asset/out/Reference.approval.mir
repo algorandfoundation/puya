@@ -1,29 +1,29 @@
 // Op                                                                                 Stack (out)
 // test_cases.asset.contract.Reference.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                                 app_id%0#0
+    txn ApplicationID                                                                 tmp%0#0
     bnz main_after_if_else@2
-    // Implicit fall through to main_on_create@1
+    // Implicit fall through to main_call___init__@1
 
-main_on_create@1:
+main_call___init__@1:
     callsub __init__
     // Implicit fall through to main_after_if_else@2
 
 main_after_if_else@2:
     // asset/contract.py:21
     // if Txn.num_app_args == 1:
-    txn NumAppArgs                                                                    tmp%0#0
-    int 1                                                                             tmp%0#0,1
-    ==                                                                                tmp%1#0
+    txn NumAppArgs                                                                    tmp%1#0
+    int 1                                                                             tmp%1#0,1
+    ==                                                                                tmp%2#0
     bz main_after_if_else@10
     // Implicit fall through to main_if_body@3
 
 main_if_body@3:
     // asset/contract.py:22
     // if Txn.application_args(0) == b"opt_in":
-    txna ApplicationArgs 0                                                            tmp%2#0
-    byte 0x6f70745f696e                                                               tmp%2#0,0x6f70745f696e
-    ==                                                                                tmp%3#0
+    txna ApplicationArgs 0                                                            tmp%3#0
+    byte 0x6f70745f696e                                                               tmp%3#0,0x6f70745f696e
+    ==                                                                                tmp%4#0
     bz main_else_body@5
     // Implicit fall through to main_if_body@4
 
@@ -39,9 +39,9 @@ main_if_body@4:
 main_else_body@5:
     // asset/contract.py:25
     // elif Txn.application_args(0) == b"is_opted_in":
-    txna ApplicationArgs 0                                                            tmp%4#0
-    byte 0x69735f6f707465645f696e                                                     tmp%4#0,0x69735f6f707465645f696e
-    ==                                                                                tmp%5#0
+    txna ApplicationArgs 0                                                            tmp%5#0
+    byte 0x69735f6f707465645f696e                                                     tmp%5#0,0x69735f6f707465645f696e
+    ==                                                                                tmp%6#0
     assert // Expected opt_in or is_opted_in
     // asset/contract.py:26
     // asset = Txn.assets(0)

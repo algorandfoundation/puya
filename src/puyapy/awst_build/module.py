@@ -10,14 +10,13 @@ from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst.nodes import AWST, ConstantValue, LogicSignature, RootNode, StateTotals
 from puya.errors import CodeError, InternalError
 from puya.models import LogicSigReference
-from puya.utils import StableSet, coalesce
+from puya.utils import coalesce
 
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
-from puyapy.awst_build.contract_data import ContractClassOptions
 from puyapy.awst_build.exceptions import UnsupportedASTError
 from puyapy.awst_build.subroutine import FunctionASTConverter
 from puyapy.awst_build.utils import (
@@ -27,11 +26,12 @@ from puyapy.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
+from puyapy.models import ContractClassOptions
 
 logger = log.get_logger(__name__)
 
 
-DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode]
+DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode | None]
 
 StatementResult: typing.TypeAlias = list[DeferredRootNode]
 
@@ -65,7 +65,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             with self.context.log_exceptions(fallback_location=location):
                 for deferred in deferrals:
                     awst_node = deferred(self.context)
-                    awst.append(awst_node)
+                    if awst_node is not None:
+                        awst.append(awst_node)
         return awst
 
     # Supported Statements
@@ -198,9 +199,10 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 return []
 
         if info.is_protocol:
-            self.context.register_pytype(
-                pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
+            protocol_type = pytypes.StaticType(
+                name=cdef.fullname, bases=direct_base_types, mro=mro_types
             )
+            self.context.register_pytype(protocol_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
                 ARC4ClientASTVisitor.visit(self.context, cdef)
             else:
@@ -577,7 +579,7 @@ def _process_contract_class_options(
     cdef: mypy.nodes.ClassDef,
 ) -> ContractClassOptions:
     name_override: str | None = None
-    scratch_slot_reservations = StableSet[int]()
+    scratch_slot_reservations = set[int]()
     state_totals = None
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
@@ -604,7 +606,7 @@ def _process_contract_class_options(
                                 item_expr,
                             )
                         else:
-                            scratch_slot_reservations |= slots
+                            scratch_slot_reservations.update(slots)
                 case "state_totals":
                     if not isinstance(kw_expr, mypy.nodes.CallExpr):
                         context.error("unexpected argument type", kw_expr)
@@ -624,13 +626,6 @@ def _process_contract_class_options(
                     context.error("metaclass option is unsupported", kw_expr)
                 case _:
                     context.error("unrecognised class option", kw_expr)
-    for base in cdef.info.mro[1:]:
-        base_cdef = base.defn
-        if not base_cdef.info.has_base(constants.CONTRACT_BASE):
-            continue
-        base_options = _process_contract_class_options(context, expr_visitor, base_cdef)
-        for reservation in base_options.scratch_slot_reservations:
-            scratch_slot_reservations.add(reservation)
     return ContractClassOptions(
         name_override=name_override,
         scratch_slot_reservations=scratch_slot_reservations,

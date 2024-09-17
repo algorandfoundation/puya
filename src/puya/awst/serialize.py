@@ -12,7 +12,6 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import nodes, txn_fields, wtypes
-from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
 
@@ -42,15 +41,6 @@ def _get_converter() -> cattrs.preconf.json.JsonConverter:
     # decimals as str
     converter.register_unstructure_hook(decimal.Decimal, str)
     converter.register_structure_hook(decimal.Decimal, lambda v, _: decimal.Decimal(v))
-
-    # stable set
-    def is_stableset(typ: type) -> bool:
-        return issubclass(typing.get_origin(typ) or typ, StableSet)
-
-    converter.register_unstructure_hook_factory(is_stableset, converter.gen_unstructure_iterable)
-    converter.register_structure_hook_factory(
-        is_stableset, lambda _: lambda i, _: StableSet.from_iter(i)
-    )
 
     # nodes.Switch has a mapping of Expression -> Block
     # which can't be serialized with that structure as a JSON object

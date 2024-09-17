@@ -8,11 +8,14 @@ import mypy.types
 from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
+    AppStorageDefinition,
     AssignmentExpression,
     AssignmentStatement,
     BinaryBooleanOperator,
     Block,
     BooleanBinaryOperation,
+    BytesConstant,
+    BytesEncoding,
     ConditionalExpression,
     ContractMethod,
     Expression,
@@ -35,11 +38,10 @@ from puya.awst.nodes import (
     WhileLoop,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ContractReference, LogicSigReference
+from puya.models import ARC4MethodConfig, ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
-from puyapy.awst_build.arc4_utils import ARC4MethodData
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
@@ -74,9 +76,8 @@ from puyapy.awst_build.utils import (
     get_unaliased_fullname,
     maybe_resolve_literal,
     require_callable_type,
-    resolve_member_node,
-    symbol_node_is_function,
 )
+from puyapy.models import ContractFragmentBase
 from puyapy.parse import parse_docstring
 
 logger = log.get_logger(__name__)
@@ -84,10 +85,10 @@ logger = log.get_logger(__name__)
 
 @attrs.frozen
 class ContractMethodInfo:
+    fragment: ContractFragmentBase
     contract_type: pytypes.ContractType
-    type_info: mypy.nodes.TypeInfo
-    cref: ContractReference
-    arc4_method_data: ARC4MethodData | None
+    is_abstract: bool
+    arc4_method_config: ARC4MethodConfig | None
 
 
 class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | None, NodeBuilder]):
@@ -179,18 +180,15 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 documentation=documentation,
             )
         else:
-            arc4_method_config = None
-            if self.contract_method_info.arc4_method_data is not None:
-                arc4_method_config = self.contract_method_info.arc4_method_data.config
             self.result = ContractMethod(
-                cref=self.contract_method_info.cref,
+                cref=self.contract_method_info.fragment.id,
                 member_name=func_def.name,
                 source_location=source_location,
                 args=args,
                 return_type=return_wtype,
                 body=translated_body,
                 documentation=documentation,
-                arc4_method_config=arc4_method_config,
+                arc4_method_config=self.contract_method_info.arc4_method_config,
             )
 
     @classmethod
@@ -318,7 +316,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                 ) from None
             if is_self_member(lvalue):
                 return self._handle_proxy_assignment(lvalue, rvalue, stmt_loc)
-            elif rvalue.initial_value is not None:
+            elif rvalue.args.initial_value is not None:
                 raise CodeError(
                     "providing an initial value is only allowed"
                     " when assigning to a member variable",
@@ -405,37 +403,83 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
     ) -> Sequence[Statement]:
         if self.contract_method_info is None:
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
+        pytype = rvalue.pytype
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue.pytype.generic or rvalue.pytype}"
+                f"{pytype.generic or pytype}"
                 " can only be assigned to a member variable in the __init__ method",
                 stmt_loc,
             )
-        cref = self.contract_method_info.cref
-        member_name = lvalue.name
         member_loc = self._location(lvalue)
-        defn = rvalue.build_definition(member_name, cref, rvalue.pytype, member_loc)
-        self.context.add_state_def(cref, defn)
-        if rvalue.initial_value is None:
+        member_name = lvalue.name
+        storage = self.contract_method_info.fragment.resolve_storage(member_name)
+        if storage is None:
+            raise CodeError("unable to resolve class storage member", member_loc)
+        if storage.definition is not None:
+            logger.info(
+                f"previous definition of {member_name} was here",
+                location=storage.definition.source_location,
+            )
+            logger.error(
+                f"redefinition of {member_name}",
+                location=stmt_loc,
+            )
+
+        key = rvalue.args.key
+        if key is None:
+            key = BytesConstant(
+                value=member_name.encode("utf8"),
+                wtype=pytype.wtype,
+                encoding=BytesEncoding.utf8,
+                source_location=member_loc,
+            )
+        elif not isinstance(key, BytesConstant):
+            logger.error(
+                f"assigning {pytype} to a member variable"
+                f" requires a constant value for {rvalue.args.key_arg_name}",
+                location=stmt_loc,
+            )
+            key = BytesConstant(
+                value=b"0",
+                wtype=key.wtype,
+                encoding=BytesEncoding.unknown,
+                source_location=key.source_location,
+            )
+        storage.definition = AppStorageDefinition(
+            source_location=member_loc,
+            member_name=member_name,
+            kind=storage.kind,
+            storage_wtype=pytype.content.wtype,
+            key_wtype=(
+                pytype.key.wtype if isinstance(pytype, pytypes.StorageMapProxyType) else None
+            ),
+            key=key,
+            description=rvalue.args.description,
+        )
+
+        if rvalue.args.initial_value is None:
             return []
-        elif rvalue.pytype.generic != pytypes.GenericGlobalStateType:
-            raise InternalError(
-                f"Don't know how to do initialise-on-declaration for {rvalue.pytype}", stmt_loc
-            )
-        else:
-            global_state_target = AppStateExpression(
-                key=defn.key,
-                exists_assertion_message=None,  # this is a write, not a read
-                wtype=defn.definition.storage_wtype,
-                source_location=defn.source_location,
-            )
-            return [
-                AssignmentStatement(
-                    target=global_state_target,
-                    value=rvalue.initial_value.resolve(),
-                    source_location=stmt_loc,
+        match pytype:
+            case pytypes.StorageProxyType(
+                generic=pytypes.GenericGlobalStateType, content=content_type
+            ):
+                global_state_target = AppStateExpression(
+                    key=key,
+                    exists_assertion_message=None,  # this is a write, not a read
+                    wtype=content_type.wtype,
+                    source_location=member_loc,
                 )
-            ]
+                return [
+                    AssignmentStatement(
+                        target=global_state_target,
+                        value=rvalue.args.initial_value.resolve(),
+                        source_location=stmt_loc,
+                    )
+                ]
+            case unhandled:
+                raise InternalError(
+                    f"Don't know how to do initialise-on-declaration for {unhandled}", stmt_loc
+                )
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
         builder_or_literal = lvalue.accept(self)
@@ -713,13 +757,16 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         if func_builder := try_get_builder_for_func(fullname, expr_loc):
             return func_builder
         match expr:
-            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if py_typ:
+            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo()) if (
+                py_typ
+                and (
+                    fragment := self.context.contract_fragments.get(ContractReference(py_typ.name))
+                )
+            ):
                 if isinstance(py_typ, pytypes.ContractType):
-                    return ContractTypeExpressionBuilder(
-                        self.context, py_typ, typ.defn.info, expr_loc
-                    )
+                    return ContractTypeExpressionBuilder(py_typ, fragment, expr_loc)
                 if pytypes.ARC4ClientBaseType in py_typ.bases:  # provides type info only
-                    return ARC4ClientTypeBuilder(self.context, py_typ, expr_loc, typ.defn.info)
+                    return ARC4ClientTypeBuilder(py_typ, expr_loc, fragment)
             case mypy.nodes.RefExpr() if py_typ == pytypes.LogicSigType:
                 ref = LogicSigReference(fullname)
                 return LogicSigExpressionBuilder(ref, expr_loc)
@@ -729,8 +776,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
                         "variable is inferred as self outside of contract scope", expr_loc
                     )
                 return ContractSelfExpressionBuilder(
-                    context=self.context,
-                    type_info=self.contract_method_info.type_info,
+                    fragment=self.contract_method_info.fragment,
                     pytype=self.contract_method_info.contract_type,
                     location=expr_loc,
                 )
@@ -1124,11 +1170,6 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         super_loc = self._location(super_expr)
         if self.contract_method_info is None:
             raise CodeError("super() expression should not occur outside of class", super_loc)
-        self._precondition(
-            super_expr.info is self.contract_method_info.type_info,
-            "expected super type info to be current class",
-            super_loc,
-        )
         if super_expr.call.args:
             raise CodeError(
                 "only the zero-arguments version of super() is supported",
@@ -1140,50 +1181,33 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
             and super_expr.name != "__init__"
         ):
             raise CodeError("the only dunder method supported for calling is init", super_loc)
-        for base in self.contract_method_info.type_info.mro[1:]:
-            if base.fullname == "builtins.object" and super_expr.name == "__init__":
+        for base in self.contract_method_info.fragment.mro:
+            base_sym_typ = base.symbols.get(super_expr.name)
+            if base_sym_typ is not None:
+                if not isinstance(base_sym_typ, pytypes.FuncType):
+                    raise CodeError("super() is only supported for calling functions", super_loc)
+                func_type = base_sym_typ
+                base_method = base.resolve_method(super_expr.name, include_inherited=False)
+                # the check for class abstractness is because in theory the next method in the MRO
+                # when compiling a derived class could still be non-trivial
+                if (
+                    base_method is not None
+                    and base_method.is_trivial
+                    and not self.contract_method_info.is_abstract
+                ):
+                    raise CodeError("call to trivial method via super()", super_loc)
+                break
+        else:
+            if super_expr.name == "__init__":
                 # support fall through to object __init__, it's the only method from
                 # non-member bases that is callable, and it's a no-op, but it can be useful
                 # in the case of multiple inheritance
                 return NoneTypeBuilder(super_loc)
-            base_member_node = resolve_member_node(
-                base, super_expr.name, super_loc, include_inherited=False
-            )
-            if base_member_node is not None:
-                if symbol_node_is_function(base_member_node):
-                    base_func_node = base_member_node
-                    break
-                raise CodeError("super() is only supported for calling functions", super_loc)
-        else:
             raise CodeError(
                 f"unable to locate method {super_expr.name}"
-                f" in bases of {self.contract_method_info.cref}",
+                f" in bases of {self.contract_method_info.fragment.id}",
                 super_loc,
             )
-
-        if isinstance(base_func_node, mypy.nodes.Decorator):
-            mypy_func = base_func_node.func
-        elif isinstance(base_func_node, mypy.nodes.FuncDef):
-            mypy_func = base_func_node
-        elif isinstance(base_func_node, mypy.nodes.OverloadedFuncDef):
-            raise CodeError("overloaded functions are not supported", super_loc)
-        else:
-            raise InternalError(
-                f"unexpected node type for method: {type(base_func_node).__name__}", super_loc
-            )
-        # the check for class abstractness is because in theory the next method in the MRO
-        # when compiling a derived class could still be non-trivial
-        if mypy_func.is_trivial_body and self.contract_method_info.type_info.is_abstract:
-            raise CodeError("call to trivial method via super()", super_loc)
-
-        func_mypy_type = require_callable_type(base_func_node, super_loc)
-        func_type = self.context.type_to_pytype(func_mypy_type, source_location=super_loc)
-        assert isinstance(func_type, pytypes.FuncType)  # can't have nested classes
-        if not mypy_func.is_static:
-            # remove self from the arguments in the type signature, since it's implicit.
-            # @staticmethod is not supported currently, but this prevents further errors,
-            # there should already be an error at the declaration site.
-            func_type = attrs.evolve(func_type, args=func_type.args[1:])
 
         super_target = InstanceSuperMethodTarget(member_name=super_expr.name)
         return SubroutineInvokerExpressionBuilder(
