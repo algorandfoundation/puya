@@ -201,7 +201,6 @@ def _dummy_program() -> _CompiledProgram:
                     returns=(),
                 ),
                 blocks=[],
-                frame_stack=[],
             ),
             subroutines=[],
         ),

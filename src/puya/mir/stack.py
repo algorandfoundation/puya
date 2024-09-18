@@ -101,11 +101,11 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         self._x_stack.insert(0, local_id)
         return teal.StackManipulation(stack="x", manipulation="add", index=0, local_id=local_id)
 
-    def _x_stack_pop(self, local_id: str) -> teal.StackManipulation:
-        pop = self._x_stack.pop()
-        if pop != local_id:
-            self._stack_error(f"unexpected x-stack {pop!r}, expected: {local_id!r}")
-        return teal.StackManipulation(stack="x", manipulation="remove", local_id=local_id)
+    def _x_stack_pop(self, index: int = -1) -> teal.StackManipulation:
+        local_id = self._x_stack.pop(index)
+        return teal.StackManipulation(
+            stack="x", manipulation="remove", index=index, local_id=local_id
+        )
 
     def _l_stack_pop(self, index: int = -1) -> teal.StackManipulation:
         removed = self._l_stack.pop(index)
@@ -274,7 +274,7 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             self._stack_error(f"{local_id} not found in x-stack")
         index = self.x_stack.index(local_id)
         uncover = len(self.l_stack) + (len(self.x_stack) - index - 1)
-        pop = self._x_stack_pop(local_id)
+        pop = self._x_stack_pop(index)
         appended = self._l_stack_copy(load.local_id)
         return [
             teal.Uncover(
@@ -506,11 +506,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
 
     def visit_virtual_stack(self, virtual: models.VirtualStackOp) -> list[teal.TealOp]:
         with self._enter_virtual_stack():
-            if (
-                isinstance(virtual.original, models.StoreLStack)
-                and virtual.original.local_id == "tmp%12#0"
-            ):
-                pass
             virtual.original.accept(self)
         return []
 

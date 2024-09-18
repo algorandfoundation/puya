@@ -41,7 +41,7 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
         for block in subroutine.blocks:
             update_event(
                 block=block.label,
-                x_stack=block.x_stack,
+                x_stack_in=block.x_stack,
             )
             x_stack = list(block.x_stack)
             l_stack = list[str]()
@@ -59,7 +59,8 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
                             stack = l_stack
                         case _:
                             typing.assert_never(sm.stack)
-                    stacks[f"{sm.stack}_stack"] = stack
+                    if sm.manipulation in ("add", "remove"):
+                        stacks[f"{sm.stack}_stack_out"] = stack
                     match sm.manipulation:
                         case "add":
                             if sm.index is not None:
@@ -79,7 +80,7 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
                             typing.assert_never(sm.manipulation)
                 if defined:
                     available = {*f_stack, *x_stack, *l_stack}
-                    update_event(defined=sorted(set(defined) & available))
+                    update_event(defined_out=sorted(set(defined) & available))
                 for name, value in stacks.items():
                     update_event(**{name: list(value)})
                 avm_op = lower_op(ctx, op)

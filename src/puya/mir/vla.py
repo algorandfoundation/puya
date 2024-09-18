@@ -1,6 +1,6 @@
 import itertools
 import typing
-from collections.abc import Callable, Sequence, Set
+from collections.abc import Sequence, Set
 from functools import cached_property
 
 import attrs
@@ -21,46 +21,12 @@ class _OpLifetime:
     live_out: StableSet[str] = attrs.field(factory=StableSet)
 
 
-def _is_store_virtual(op: models.BaseOp) -> models.StoreOp | None:
-    return op if isinstance(op, models.StoreVirtual) else None
-
-
-def _is_load_virtual(op: models.BaseOp) -> models.LoadOp | None:
-    return op if isinstance(op, models.LoadVirtual) else None
-
-
-def _is_store_stack(op: models.BaseOp) -> models.StoreOp | None:
-    if isinstance(op, models.VirtualStackOp):
-        op = op.original
-    return (
-        op
-        if isinstance(
-            op, models.StoreParam | models.StoreFStack | models.StoreXStack | models.StoreLStack
-        )
-        else None
-    )
-
-
-def _is_load_stack(op: models.BaseOp) -> models.LoadOp | None:
-    if isinstance(op, models.VirtualStackOp):
-        op = op.original
-    return (
-        op
-        if isinstance(
-            op, models.LoadParam | models.LoadFStack | models.LoadXStack | models.LoadLStack
-        )
-        else None
-    )
-
-
 @attrs.define
 class VariableLifetimeAnalysis:
     """Performs VLA analysis for a subroutine, providing a mapping of ops to sets of live local_ids
     see https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf"""
 
     subroutine: models.MemorySubroutine
-    _is_store: Callable[[models.BaseOp], models.StoreOp | None] = _is_store_virtual
-    _is_load: Callable[[models.BaseOp], models.LoadOp | None] = _is_load_virtual
     _op_lifetimes: dict[models.BaseOp, _OpLifetime] = attrs.field(init=False)
 
     @cached_property
@@ -77,10 +43,10 @@ class VariableLifetimeAnalysis:
             for op in block.ops:
                 used = StableSet[str]()
                 defined = StableSet[str]()
-                if store := self._is_store(op):
-                    defined.add(store.local_id)
-                elif load := self._is_load(op):
-                    used.add(load.local_id)
+                if isinstance(op, models.StoreVirtual):
+                    defined.add(op.local_id)
+                elif isinstance(op, models.LoadVirtual):
+                    used.add(op.local_id)
                 result[op] = _OpLifetime(
                     block=block,
                     used=used,
@@ -127,12 +93,6 @@ class VariableLifetimeAnalysis:
     @classmethod
     def analyze(cls, subroutine: models.MemorySubroutine) -> typing.Self:
         analysis = cls(subroutine)
-        analysis._analyze()  # noqa: SLF001
-        return analysis
-
-    @classmethod
-    def analyze_stack(cls, subroutine: models.MemorySubroutine) -> typing.Self:
-        analysis = cls(subroutine, is_store=_is_store_stack, is_load=_is_load_stack)
         analysis._analyze()  # noqa: SLF001
         return analysis
 

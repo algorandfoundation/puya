@@ -7,7 +7,7 @@ import attrs
 
 from puya import log
 from puya.teal import models
-from puya.teal._util import combine_stack_manipulations
+from puya.teal._util import preserve_stack_manipulations_window
 
 TealOpSequence = tuple[models.TealOpN, ...]
 logger = log.get_logger(__name__)
@@ -122,9 +122,7 @@ def _maybe_simplified(
                 f" reducing by {len(maybe_remove_rotations) - len(simplified)} ops by search"
             )
             result_ = maybe_remove_rotations.copy()
-            if simplified:
-                simplified = *simplified[:-1], combine_stack_manipulations(simplified[-1], *window)
-            result_[window_slice] = simplified
+            preserve_stack_manipulations_window(result_, window_slice, simplified)
             assert result_ != maybe_remove_rotations
             return result_
     return maybe_remove_rotations

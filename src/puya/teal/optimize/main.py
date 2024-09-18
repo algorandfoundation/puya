@@ -3,6 +3,7 @@ import copy
 from puya.context import CompileContext
 from puya.teal import models
 from puya.teal.optimize.constant_stack_shuffling import (
+    constant_dup2_insertion,
     constant_dupn_insertion,
     perform_constant_stack_shuffling,
 )
@@ -22,11 +23,12 @@ def optimize_block(block: models.TealBlock, *, level: int) -> None:
     # it's easier to deal with expanded dup/dupn instructions above when looking at
     # stack shuffling etc, but once it's done we save ops / program size by collapsing them
     constant_dupn_insertion(block)
-
+    constant_dup2_insertion(block)
     if level >= 2:
         # this is a brute-force search which can be slow at times,
         # so it's only done once and only at higher optimisation levels
         block.ops = repeated_rotation_ops_search(block.ops)
+
     # simplifying uncover/cover 1 to swap is easier to do after other rotation optimizations
     simplify_swap_ops(block)
 

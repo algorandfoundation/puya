@@ -38,7 +38,11 @@ class TealOp:
     comment: str | None = None
     """A comment that is always emitted, should only be used for user comments related to an
     op such as assert or err"""
-    stack_manipulations: Sequence[StackManipulation] = ()
+    stack_manipulations: Sequence[StackManipulation] = attrs.field(
+        default=(),
+        converter=tuple[StackManipulation, ...],
+        eq=False,
+    )
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -308,10 +312,10 @@ class TealBlock:
     exit_stack_height: int
 
     def validate(self) -> None:
-        self.validate_stack_height()
-        self.validate_stack_manipulations()
+        self._validate_stack_height()
+        self._validate_stack_manipulations()
 
-    def validate_stack_height(self) -> None:
+    def _validate_stack_height(self) -> None:
         stack_height = self.entry_stack_height
         for op in self.ops:
             stack_height -= op.consumes
@@ -328,7 +332,7 @@ class TealBlock:
                 self.ops[-1].source_location,
             )
 
-    def validate_stack_manipulations(self) -> None:
+    def _validate_stack_manipulations(self) -> None:
         x_stack = list(self.x_stack)
         l_stack = list[str]()
         for op in self.ops:
@@ -340,23 +344,26 @@ class TealBlock:
                 else:
                     continue
                 if sm.manipulation == "add":
-                    if sm.index is not None and sm.index > len(stack):
-                        stack_desc = ",".join(stack)
-                        raise InternalError(f"invalid index {sm.index} for {stack_desc}")
                     if sm.index is None:
                         stack.append(sm.local_id)
                     else:
-                        stack.insert(
-                            sm.index,
-                            sm.local_id,
-                        )
+                        try:
+                            stack.insert(
+                                sm.index,
+                                sm.local_id,
+                            )
+                        except ValueError:
+                            stack_desc = ",".join(stack)
+                            raise InternalError(
+                                f"invalid index {sm.index} for {stack_desc}"
+                            ) from None
                 elif sm.manipulation == "remove":
                     try:
                         if sm.index is None:
                             stack.remove(sm.local_id)
                         else:
                             stack.pop(sm.index)
-                    except ValueError:
+                    except (ValueError, IndexError):
                         stack_desc = ",".join(stack)
                         raise InternalError(
                             f"could not find {sm.local_id!r} in {sm.stack!r} stack: {stack_desc}"
@@ -367,7 +374,6 @@ class TealBlock:
 class TealSubroutine:
     is_main: bool
     signature: Signature
-    frame_stack: Sequence[str]
     blocks: list[TealBlock] = attrs.field(factory=list)
 
 
