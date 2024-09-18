@@ -141,12 +141,12 @@ def get_arc4_baremethod_data(
         )
 
     return ARC4BareMethodData(
+        member_name=func_def.name,
         config=ARC4BareMethodConfig(
             allowed_completion_types=allowed_completion_types,
             create=create,
             source_location=dec_loc,
         ),
-        is_synthetic_create=False,
     )
 
 
@@ -213,7 +213,7 @@ def get_arc4_abimethod_data(
         default_args=immutabledict(default_args),
         structs=structs,
     )
-    return ARC4ABIMethodData(config=config, signature=func_types)
+    return ARC4ABIMethodData(member_name=func_def.name, config=config, signature=func_types)
 
 
 class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):

@@ -1585,7 +1585,7 @@ class ContractMethod(Function, ContractMemberNode):
 
 
 @attrs.frozen
-class ContractProgramMethod(ContractMethod):
+class ContractProgramMethod(ContractMethod):  # TODO: yeet me
     return_type: WType = attrs.field(
         validator=wtype_is_one_of(wtypes.uint64_wtype, wtypes.bool_wtype)
     )
@@ -1723,11 +1723,11 @@ class Contract(RootNode):
     correct order, which is why bases of bases are not resolved, since they may end up in a
     different order depending on the contract that is ultimately being compiled.
     """
-    approval_program: ContractProgramMethod
+    approval_program: ContractMethod = attrs.field()
     """
     The entry point to the approval program, can also appear in methods, but this is not required.
     """
-    clear_program: ContractProgramMethod
+    clear_program: ContractMethod = attrs.field()
     """
     The entry point to the clear-state program, can appear in methods, but not required.
     """
@@ -1739,6 +1739,42 @@ class Contract(RootNode):
     """State totals which can override in part or in full those implied by `app_state`."""
     reserved_scratch_space: StableSet[int]  # TODO: change to Collection
     """Scratch slots that the contract is explicitly setting aside for direct/explicit usage."""
+
+    @approval_program.validator
+    def check_approval(self, _attribute: object, approval: ContractMethod) -> None:
+        if approval.args:
+            raise CodeError(
+                "approval method should not take any args (other than self)",
+                approval.source_location,
+            )
+        if approval.return_type not in (wtypes.uint64_wtype, wtypes.bool_wtype):
+            raise CodeError(
+                "Invalid return type for approval method, should be either bool or UInt64.",
+                approval.source_location,
+            )
+        if approval.arc4_method_config:
+            raise CodeError(
+                "approval method should not be marked as an ABI method",
+                approval.source_location,
+            )
+
+    @clear_program.validator
+    def check_clear(self, _attribute: object, clear: ContractMethod) -> None:
+        if clear.args:
+            raise CodeError(
+                "clear-state method should not take any args (other than self)",
+                clear.source_location,
+            )
+        if clear.return_type not in (wtypes.uint64_wtype, wtypes.bool_wtype):
+            raise CodeError(
+                "Invalid return type for clear-state method, should be either bool or UInt64.",
+                clear.source_location,
+            )
+        if clear.arc4_method_config:
+            raise CodeError(
+                "clear-state method should not be marked as an ABI method",
+                clear.source_location,
+            )
 
     @cached_property
     def all_methods(self) -> Sequence[ContractMethod]:

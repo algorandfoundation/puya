@@ -199,11 +199,12 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 return []
 
         if info.is_protocol:
-            self.context.register_pytype(
-                pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
+            protocol_type = pytypes.StaticType(
+                name=cdef.fullname, bases=direct_base_types, mro=mro_types
             )
+            self.context.register_pytype(protocol_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
-                ARC4ClientASTVisitor.visit(self.context, cdef)
+                ARC4ClientASTVisitor.visit(self.context, protocol_type, cdef)
             else:
                 logger.debug(
                     f"Skipping further processing of protocol class {cdef.fullname}",

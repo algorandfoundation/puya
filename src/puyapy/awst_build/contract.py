@@ -1,4 +1,3 @@
-import enum
 import typing
 from collections.abc import Callable, Iterator, Mapping, Sequence
 
@@ -40,16 +39,11 @@ from puyapy.models import (
 
 logger = log.get_logger(__name__)
 
+_INIT_METHOD = "__init__"
 
 DeferredContractMethod: typing.TypeAlias = Callable[
     [ASTConversionModuleContext], awst_nodes.ContractMethod
 ]
-
-
-class SpecialMethod(enum.Enum):
-    init = enum.auto()
-    approval_program = enum.auto()
-    clear_state_program = enum.auto()
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):
@@ -61,35 +55,35 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         typ: pytypes.ContractType,
     ):
         super().__init__(context=context)
+        is_arc4 = pytypes.ARC4ContractBaseType in typ.mro
+        self.fragment: typing.Final = ContractFragment(
+            id=typ.name,
+            source_location=self._location(class_def),
+            pytype=typ,
+            mro=_build_resolved_mro(context, typ),
+            is_abstract=_check_class_abstractness(context, class_def),
+            root=(
+                ContractFragmentRoot.arc4_contract if is_arc4 else ContractFragmentRoot.contract
+            ),
+        )
+        if is_arc4:
+            _add_arc4_contract_methods(self.fragment)
+
+        context.add_contract_fragment(self.fragment)
+        for defn in _gather_global_direct_storages(context, class_def.info):
+            self.fragment.add_state_def(defn)
+
         self.class_def = class_def
         self.typ = typ
-        self.cref = cref = typ.name
-        self.is_arc4 = pytypes.ARC4ContractBaseType in typ.mro
-        self.is_abstract = is_abstract = _check_class_abstractness(context, class_def)
-        self.mro = mro = _build_mro(typ)
 
-        self._methods = list[tuple[DeferredContractMethod, SourceLocation, SpecialMethod | None]]()
+        self._deferred_methods = list[
+            tuple[DeferredContractMethod, SourceLocation, ARC4MethodData | None]
+        ]()
         self.class_options: typing.Final = class_options
-        self.source_location: typing.Final = self._location(class_def)
-        self._synthetic_methods = list[awst_nodes.ContractMethod]()
-
-        self._arc_methods = dict[str, ARC4MethodData]()
-        if self.is_arc4:
-            for base_cref in mro:
-                self._arc_methods = {
-                    **{
-                        name: method_data
-                        for name, method_data in context.contract_fragments[
-                            base_cref
-                        ].arc4_methods.items()
-                        if not method_data.is_synthetic_create
-                    },
-                    **self._arc_methods,
-                }
 
         # if the class has an __init__ method, we need to visit it first, so any storage
         # fields cane be resolved to a (static) key
-        match class_def.info.names.get("__init__"):
+        match class_def.info.names.get(_INIT_METHOD):
             case mypy.nodes.SymbolTableNode(node=mypy.nodes.Statement() as init_node):
                 stmts = unique((init_node, *class_def.defs.body))
             case _:
@@ -103,16 +97,28 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 stmt.accept(self)
         # TODO: validation for state proxies being non-conditional
 
-        if self.is_arc4 and not self.is_abstract:
+    @property
+    def source_location(self) -> SourceLocation:
+        return self.fragment.source_location
+
+    def build(self, context: ASTConversionModuleContext) -> awst_nodes.Contract | None:
+        default_create_name = "__algopy_default_create"  # TODO: ensure this is unique
+
+        for method_builder, method_loc, arc4_method_data in self._deferred_methods:
+            with context.log_exceptions(fallback_location=method_loc):
+                method = method_builder(context)
+                self.fragment.add_method(method, arc4_method_data)
+
+        if (
+            self.fragment.root is ContractFragmentRoot.arc4_contract
+            and not self.fragment.is_abstract
+        ):
+
             has_create = False
             has_bare_no_op = False
-            for hierarchy_cref in (cref, *mro):
-                for arc4_method_data in context.contract_fragments[
-                    hierarchy_cref
-                ].arc4_methods.values():
-                    if arc4_method_data.is_synthetic_create:
-                        pass
-                    elif arc4_method_data.config.create in (
+            for fragment in (self.fragment, *self.fragment.mro):
+                for arc4_method_data in fragment._arc4_methods.values():
+                    if arc4_method_data.config.create in (
                         ARC4CreateOption.allow,
                         ARC4CreateOption.require,
                     ):
@@ -138,16 +144,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         create=ARC4CreateOption.require,
                         source_location=self.source_location,
                     )
-                    default_create_name = "__algopy_default_create"  # TODO: ensure this is unique
-                    self._arc_methods[default_create_name] = ARC4BareMethodData(
-                        config=default_create_config, is_synthetic_create=True
-                    )
-                    self._synthetic_methods.append(
+                    self.fragment.add_method(
                         awst_nodes.ContractMethod(
-                            cref=cref,
+                            cref=self.fragment.id,
                             member_name=default_create_name,
-                            # synthetic=True,
-                            # inheritable=False,
                             args=[],
                             return_type=wtypes.void_wtype,
                             body=awst_nodes.Block(
@@ -157,65 +157,54 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                             documentation=awst_nodes.MethodDocumentation(),
                             arc4_method_config=default_create_config,
                             source_location=self.source_location,
-                        )
+                        ),
+                        ARC4BareMethodData(
+                            member_name=default_create_name, config=default_create_config
+                        ),
+                        is_inheritable=False,
                     )
-        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def, mro)
-        self.fragment = ContractFragment(
-            id=cref,
-            mro=mro,
-            is_abstract=is_abstract,
-            arc4_methods=self._arc_methods,
-            state_defs=inherited_and_direct_storage,
-            root=(
-                ContractFragmentRoot.arc4_contract
-                if self.is_arc4
-                else ContractFragmentRoot.contract
-            ),
-        )
-        context.add_contract_fragment(self.fragment)
-
-    def build(self, context: ASTConversionModuleContext) -> awst_nodes.Contract | None:
-        class_def = self.class_def
-        cref = self.cref
-        approval_program: awst_nodes.ContractMethod | None = None
-        clear_program: awst_nodes.ContractMethod | None = None
-        init_method: awst_nodes.ContractMethod | None = None
-        methods = self._synthetic_methods.copy()
-        for method_builder, method_loc, special_kind in self._methods:
-            with context.log_exceptions(fallback_location=method_loc):
-                method = method_builder(context)
-                methods.append(method)
-                match special_kind:
-                    case SpecialMethod.init:
-                        init_method = method
-                    case SpecialMethod.approval_program:
-                        approval_program = method
-                    case SpecialMethod.clear_state_program:
-                        clear_program = method
-                    case None:
-                        pass
-                    case unexpected:
-                        typing.assert_never(unexpected)
         self.fragment.finalize()
-        if init_method:
-            # TODO: fold into approval_program
-            pass
-        app_state = [
-            state_decl.definition for name, state_decl in self.fragment.state_defs.items()
-        ]
-        class_options = self.class_options
+        if self.fragment.is_abstract:
+            return None
+        approval_method = self.fragment.get_contract_method(constants.APPROVAL_METHOD)
+        if approval_method is None:
+            logger.error(
+                "non-abstract contract class missing approval program",
+                location=self.source_location,
+            )
+            approval_program = None
+        else:
+            init_method = self.fragment.get_contract_method(_INIT_METHOD)
+            if init_method is None:
+                approval_program = approval_method
+            else:
+                # TODO: fold into approval_program
+                raise NotImplementedError
+
+        clear_program = self.fragment.get_contract_method(constants.CLEAR_STATE_METHOD)
+        if clear_program is None:
+            logger.error(
+                "non-abstract contract class missing clear-state program",
+                location=self.source_location,
+            )
+
+        if approval_program is None or clear_program is None:
+            return None
+
         return awst_nodes.Contract(
-            id=cref,
-            name=class_options.name_override or class_def.name,
-            method_resolution_order=self.mro,
+            id=self.fragment.id,
+            name=self.class_options.name_override or self.class_def.name,
+            method_resolution_order=[ancestor.id for ancestor in self.fragment.mro],
             approval_program=approval_program,
             clear_program=clear_program,
-            methods=methods,
-            app_state=app_state,
-            description=class_def.docstring,
+            methods=tuple(self.fragment.contract_methods.values()),
+            app_state=tuple(
+                state_decl.definition for state_decl in self.fragment.state_defs.values()
+            ),
+            description=self.class_def.docstring,
             source_location=self.source_location,
-            reserved_scratch_space=class_options.scratch_slot_reservations,
-            state_totals=class_options.state_totals,
+            reserved_scratch_space=self.class_options.scratch_slot_reservations,
+            state_totals=self.class_options.state_totals,
         )
 
     def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
@@ -228,7 +217,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
     ) -> None:
         func_loc = self._location(func_def)
         self._precondition(
-            self.is_abstract or func_def.abstract_status == mypy.nodes.NOT_ABSTRACT,
+            self.fragment.is_abstract or func_def.abstract_status == mypy.nodes.NOT_ABSTRACT,
             "class abstract method(s) but was not detected as abstract by mypy",
             func_loc,
         )
@@ -254,9 +243,14 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             self._error(f'Unsupported decorator "{unknown_dec_fullname}"', dec)
 
         if not keep_going:
-            pass  # unrecoverable error in prior validation,
+            return  # unrecoverable error in prior validation,
         # TODO: handle difference of subroutine vs abimethod and overrides???
-        elif func_def.name == "__init__":
+        method_name = func_def.name
+        if method_name in (
+            _INIT_METHOD,
+            constants.APPROVAL_METHOD,
+            constants.CLEAR_STATE_METHOD,
+        ):
             sub = self._handle_method(
                 func_def,
                 extra_decorators=dec_by_fullname,
@@ -264,8 +258,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 source_location=source_location,
             )
             if sub is not None:
-                self._methods.append((sub, source_location, SpecialMethod.init))
-        elif func_def.name.startswith("__") and func_def.name.endswith("__"):
+                self._deferred_methods.append((sub, source_location, None))
+        elif method_name.startswith("__") and method_name.endswith("__"):
             self._error(
                 "methods starting and ending with a double underscore"
                 ' (aka "dunder" methods) are reserved for the Python data model'
@@ -273,23 +267,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 " Of these methods, only __init__ is supported in contract classes",
                 func_loc,
             )
-        elif (
-            is_approval := func_def.name == constants.APPROVAL_METHOD
-        ) or func_def.name == constants.CLEAR_STATE_METHOD:
-            sub = self._handle_method(
-                func_def,
-                extra_decorators=dec_by_fullname,
-                arc4_method_data=None,
-                source_location=source_location,
-            )
-            if sub is not None:
-                kind = (
-                    SpecialMethod.approval_program
-                    if is_approval
-                    else SpecialMethod.clear_state_program
-                )
-                self._methods.append((sub, source_location, kind))
-        elif not self.is_arc4:
+        elif self.fragment.root is not ContractFragmentRoot.arc4_contract:
             for arc4_only_dec_name in (
                 constants.ABIMETHOD_DECORATOR,
                 constants.BAREMETHOD_DECORATOR,
@@ -309,7 +287,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 source_location=source_location,
             )
             if sub is not None:
-                self._methods.append((sub, source_location, None))
+                self._deferred_methods.append((sub, source_location, None))
         else:
             subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
             abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
@@ -341,7 +319,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 source_location=source_location,
             )
             if sub is not None:
-                self._methods.append((sub, source_location, None))
+                self._deferred_methods.append((sub, source_location, arc4_method_data))
 
     def _handle_method(
         self,
@@ -365,8 +343,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         if func_def.is_trivial_body:
             logger.debug(f"skipping trivial method {func_def.name}", location=func_loc)
             return None
-        if arc4_method_data is not None:
-            self._arc_methods[func_def.name] = arc4_method_data
         return lambda ctx: FunctionASTConverter.convert(
             ctx,
             func_def=func_def,
@@ -375,7 +351,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 contract_type=self.typ,
                 type_info=self.class_def.info,
                 arc4_method_data=arc4_method_data,
-                cref=self.cref,
+                cref=self.fragment.id,
             ),
         )
 
@@ -436,19 +412,18 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported_stmt("type", stmt)
 
 
-def _build_mro(contract_type: pytypes.ContractType) -> list[ContractReference]:
+def _build_resolved_mro(
+    context: ASTConversionModuleContext, contract_type: pytypes.ContractType
+) -> list[ContractFragment]:
     class_def_loc = contract_type.source_location
-    contract_bases_mro = list[ContractReference]()
+    contract_bases_mro = list[ContractFragment]()
     for ancestor in contract_type.mro:
-        if ancestor is pytypes.ContractBaseType:
+        if ancestor in (pytypes.ContractBaseType, pytypes.ARC4ContractBaseType):
             pass
-        elif ancestor is pytypes.ARC4ContractBaseType:  # TODO: merge branches?
-            contract_bases_mro.append(ContractReference(ancestor.name))
         elif isinstance(ancestor, pytypes.ContractType):
-            contract_bases_mro.append(ancestor.name)
+            contract_bases_mro.append(context.contract_fragments[ancestor.name])
         else:
             raise CodeError(f"base class {ancestor} is not a contract subclass", class_def_loc)
-
     return contract_bases_mro
 
 
@@ -506,7 +481,9 @@ def _gather_global_direct_storages(
                 continue
 
             if pytyp is pytypes.NoneType:
-                context.error("None is not supported as a value, only a return type", var_loc)
+                logger.error(
+                    "None is not supported as a value, only a return type", location=var_loc
+                )
             yield AppStorageDeclaration(
                 member_name=name,
                 typ=pytyp,
@@ -528,3 +505,53 @@ def _check_class_abstractness(
     ):
         context.warning(f"Class {class_def.fullname} is implicitly abstract", class_def)
     return is_abstract
+
+
+def _add_arc4_contract_methods(fragment: ContractFragment) -> None:
+    from puya.awst import wtypes
+    from puya.awst.nodes import (
+        ARC4Router,
+        Block,
+        BoolConstant,
+        ContractProgramMethod,
+        MethodDocumentation,
+        ReturnStatement,
+    )
+
+    location = fragment.source_location
+    _, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
+    cref = ContractReference(constants.ARC4_CONTRACT_BASE)
+    approval_program = ContractProgramMethod(
+        cref=cref,
+        source_location=location,
+        return_type=wtypes.bool_wtype,
+        documentation=MethodDocumentation(),
+        member_name=constants.APPROVAL_METHOD,
+        body=Block(
+            source_location=location,
+            body=[
+                ReturnStatement(
+                    value=ARC4Router(source_location=location),
+                    source_location=location,
+                )
+            ],
+        ),
+    )
+    clear_program = ContractProgramMethod(
+        cref=cref,
+        source_location=location,
+        return_type=wtypes.bool_wtype,
+        documentation=MethodDocumentation(),
+        member_name=constants.CLEAR_STATE_METHOD,
+        body=Block(
+            source_location=location,
+            body=[
+                ReturnStatement(
+                    value=BoolConstant(value=True, source_location=location),
+                    source_location=location,
+                )
+            ],
+        ),
+    )
+    fragment.add_method(approval_program, None)
+    fragment.add_method(clear_program, None)

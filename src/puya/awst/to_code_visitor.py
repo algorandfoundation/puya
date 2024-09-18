@@ -234,9 +234,7 @@ class ToCodeVisitor(
                     "}",
                 ]
             )
-        body.extend(self._visit_approval_main(c.approval_program))
-        body.extend(self._visit_clear_state_main(c.clear_program))
-        for sub in c.methods:
+        for sub in c.all_methods:
             lines = sub.accept(self)
             body.extend(lines)
 
@@ -259,26 +257,6 @@ class ToCodeVisitor(
         return [
             "",
             f"logicsig {statement.id}",
-            "{",
-            *_indent(body),
-            "}",
-        ]
-
-    def _visit_approval_main(self, statement: nodes.ContractProgramMethod) -> list[str]:
-        body = statement.body.accept(self)
-        return [
-            "",
-            f"approval_program(): {statement.return_type}",
-            "{",
-            *_indent(body),
-            "}",
-        ]
-
-    def _visit_clear_state_main(self, statement: nodes.ContractProgramMethod) -> list[str]:
-        body = statement.body.accept(self)
-        return [
-            "",
-            f"clear_state_program(): {statement.return_type}",
             "{",
             *_indent(body),
             "}",

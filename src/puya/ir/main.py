@@ -18,7 +18,7 @@ from puya.awst.awst_traverser import AWSTTraverser
 from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.serialize import awst_from_json
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir import arc4_router
 from puya.ir.arc4_router import extract_arc4_methods
 from puya.ir.builder.main import FunctionIRBuilder
@@ -217,10 +217,6 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 
 def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     folded, arc4_method_data = _fold_state_and_special_methods(contract)
-    if not (folded.approval_program and folded.clear_program):
-        raise CodeError(
-            "approval and clear-state programs must be implemented", contract.source_location
-        )
     arc4_router_func = arc4_router.create_abi_router(contract, arc4_method_data)
     ctx.subroutines[arc4_router_func] = ctx.routers[contract.id] = _make_subroutine(
         arc4_router_func, allow_implicits=False
@@ -417,8 +413,8 @@ def _make_program(
 
 @attrs.define(kw_only=True)
 class FoldedContract:
-    approval_program: awst_nodes.ContractProgramMethod
-    clear_program: awst_nodes.ContractProgramMethod
+    approval_program: awst_nodes.ContractMethod
+    clear_program: awst_nodes.ContractMethod
     global_state: dict[str, ContractState] = attrs.field(factory=dict)
     local_state: dict[str, ContractState] = attrs.field(factory=dict)
     arc4_methods: list[ARC4Method] = attrs.field(factory=list)
