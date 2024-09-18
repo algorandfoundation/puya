@@ -109,11 +109,12 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 method = method_builder(context)
                 self.fragment.add_method(method, arc4_method_data)
 
+        mro = [ancestor.id for ancestor in self.fragment.mro]
         if (
             self.fragment.root is ContractFragmentRoot.arc4_contract
             and not self.fragment.is_abstract
         ):
-
+            mro.append(_ARC4_CONTRACT_BASE_CREF)
             has_create = False
             has_bare_no_op = False
             for fragment in (self.fragment, *self.fragment.mro):
@@ -194,7 +195,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         return awst_nodes.Contract(
             id=self.fragment.id,
             name=self.class_options.name_override or self.class_def.name,
-            method_resolution_order=[ancestor.id for ancestor in self.fragment.mro],
+            method_resolution_order=mro,
             approval_program=approval_program,
             clear_program=clear_program,
             methods=tuple(self.fragment.contract_methods.values()),
@@ -507,6 +508,9 @@ def _check_class_abstractness(
     return is_abstract
 
 
+_ARC4_CONTRACT_BASE_CREF = ContractReference(constants.ARC4_CONTRACT_BASE)
+
+
 def _add_arc4_contract_methods(fragment: ContractFragment) -> None:
     from puya.awst import wtypes
     from puya.awst.nodes import (
@@ -519,10 +523,8 @@ def _add_arc4_contract_methods(fragment: ContractFragment) -> None:
     )
 
     location = fragment.source_location
-    _, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
-    cref = ContractReference(constants.ARC4_CONTRACT_BASE)
     approval_program = ContractProgramMethod(
-        cref=cref,
+        cref=_ARC4_CONTRACT_BASE_CREF,
         source_location=location,
         return_type=wtypes.bool_wtype,
         documentation=MethodDocumentation(),
@@ -538,7 +540,7 @@ def _add_arc4_contract_methods(fragment: ContractFragment) -> None:
         ),
     )
     clear_program = ContractProgramMethod(
-        cref=cref,
+        cref=_ARC4_CONTRACT_BASE_CREF,
         source_location=location,
         return_type=wtypes.bool_wtype,
         documentation=MethodDocumentation(),

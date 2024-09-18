@@ -211,7 +211,7 @@ def _build_embedded_ir(ctx: CompileContext) -> Mapping[str, Subroutine]:
 
     for func in embedded_funcs:
         sub = embedded_ctx.subroutines[func]
-        FunctionIRBuilder.build_body(embedded_ctx, function=func, subroutine=sub, on_create=None)
+        FunctionIRBuilder.build_body(embedded_ctx, function=func, subroutine=sub)
     return embedded_funcs_lookup
 
 
@@ -230,10 +230,10 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
         ctx, start=arc4_router_func, callees=callees
     )
     approval_subs_srefs |= SubroutineCollector.collect(
-        ctx, start=folded.approval_program, callees=callees
+        ctx, start=contract.approval_program, callees=callees
     )
     clear_subs_srefs = SubroutineCollector.collect(
-        ctx, start=folded.clear_program, callees=callees
+        ctx, start=contract.clear_program, callees=callees
     )
     # construct unique Subroutine objects for each function
     # that was referenced through either entry point
@@ -247,23 +247,25 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
-            FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
+            FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub)
 
     approval_ir = _make_program(
-        folded.approval_program,
+        ctx,
+        contract.approval_program,
         StableSet(
             *(ctx.subroutines[ref] for ref in approval_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        program_id=".".join((contract.id, folded.approval_program.short_name)),
+        program_id=".".join((contract.id, contract.approval_program.short_name)),
     )
     clear_state_ir = _make_program(
-        folded.clear_program,
+        ctx,
+        contract.clear_program,
         StableSet(
             *(ctx.subroutines[ref] for ref in clear_subs_srefs),
             *ctx.embedded_funcs_lookup.values(),
         ),
-        program_id=".".join((contract.id, folded.clear_program.short_name)),
+        program_id=".".join((contract.id, contract.clear_program.short_name)),
     )
     result = Contract(
         source_location=contract.source_location,
@@ -298,9 +300,10 @@ def _build_logic_sig_ir(
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
-            FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
+            FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub)
 
     sig_ir = _make_program(
+        ctx,
         logic_sig.program,
         StableSet(
             *(ctx.subroutines[ref] for ref in program_sub_refs),
@@ -386,6 +389,7 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
 
 
 def _make_program(
+    ctx: IRBuildContext,
     main: awst_nodes.Function,
     references: Iterable[Subroutine],
     *,
@@ -404,6 +408,7 @@ def _make_program(
         body=[],
         source_location=main.source_location,
     )
+    FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub)
     return Program(
         id=program_id,
         main=main_sub,
@@ -413,8 +418,6 @@ def _make_program(
 
 @attrs.define(kw_only=True)
 class FoldedContract:
-    approval_program: awst_nodes.ContractMethod
-    clear_program: awst_nodes.ContractMethod
     global_state: dict[str, ContractState] = attrs.field(factory=dict)
     local_state: dict[str, ContractState] = attrs.field(factory=dict)
     arc4_methods: list[ARC4Method] = attrs.field(factory=list)
@@ -491,8 +494,6 @@ def _fold_state_and_special_methods(
     #         )
     result = FoldedContract(
         declared_totals=contract.state_totals,
-        approval_program=contract.approval_program,
-        clear_program=contract.clear_program,
     )
     for state in contract.app_state:
         storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
