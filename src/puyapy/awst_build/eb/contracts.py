@@ -10,7 +10,6 @@ from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -30,6 +29,7 @@ from puyapy.awst_build.utils import (
     resolve_member_node,
     symbol_node_is_function,
 )
+from puyapy.models import AppStorageDeclaration
 
 logger = log.get_logger(__name__)
 
@@ -116,7 +116,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
                 location=location,
             )
         else:
-            state_decl = self.context.state_defs(self._pytype.name).get(name)
+            state_decl = self.context.contract_fragments[self._pytype.name].get_state_def(name)
             if state_decl is not None:
                 return _builder_for_storage_access(state_decl, location)
             raise CodeError("cannot resolve state member", location)

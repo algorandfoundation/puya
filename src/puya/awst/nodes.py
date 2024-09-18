@@ -1724,11 +1724,21 @@ class Contract(RootNode):
     different order depending on the contract that is ultimately being compiled.
     """
     approval_program: ContractProgramMethod
+    """
+    The entry point to the approval program, can also appear in methods, but this is not required.
+    """
     clear_program: ContractProgramMethod
-    methods: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
-    app_state: Mapping[str, AppStorageDefinition]
+    """
+    The entry point to the clear-state program, can appear in methods, but not required.
+    """
+    methods: Sequence[ContractMethod]  # TODO: change to Collection
+    """All the methods in this contract and in it's entire hierarchy."""
+    app_state: Sequence[AppStorageDefinition]  # TODO: change to Collection
+    """All the app storage on this contract."""
     state_totals: StateTotals | None
-    reserved_scratch_space: StableSet[int]
+    """State totals which can override in part or in full those implied by `app_state`."""
+    reserved_scratch_space: StableSet[int]  # TODO: change to Collection
+    """Scratch slots that the contract is explicitly setting aside for direct/explicit usage."""
 
     @cached_property
     def all_methods(self) -> Sequence[ContractMethod]:

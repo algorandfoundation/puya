@@ -1,7 +1,6 @@
 import re
 import typing
-from collections.abc import Callable, Mapping, Sequence
-from functools import cached_property
+from collections.abc import Callable
 
 import attrs
 import mypy.nodes
@@ -25,17 +24,16 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
+from puyapy.models import ARC4ABIMethodData, ARC4BareMethodData
 
 __all__ = [
-    "ARC4ABIMethodData",
-    "ARC4BareMethodData",
-    "ARC4MethodData",
     "get_arc4_abimethod_data",
     "get_arc4_baremethod_data",
     "arc4_to_pytype",
     "pytype_to_arc4",
     "pytype_to_arc4_pytype",
 ]
+
 
 logger = log.get_logger(__name__)
 
@@ -61,58 +59,6 @@ def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]
             f" but structure type is {type(typ).__name__!r}"
         )
     return True
-
-
-@attrs.frozen
-class ARC4BareMethodData:
-    config: ARC4BareMethodConfig
-    is_synthetic_create: bool
-    is_bare: bool = attrs.field(default=True, init=False)
-
-
-@attrs.frozen
-class ARC4ABIMethodData:
-    config: ARC4ABIMethodConfig
-    is_synthetic_create: bool = attrs.field(default=False, init=False)
-    is_bare: bool = attrs.field(default=False, init=False)
-    _signature: dict[str, pytypes.PyType]
-    _arc4_signature: Mapping[str, pytypes.PyType] = attrs.field(init=False)
-
-    @_arc4_signature.default
-    def _arc4_signature_default(self) -> Mapping[str, pytypes.PyType]:
-        def on_error(bad_type: pytypes.PyType) -> typing.Never:
-            raise CodeError(
-                f"invalid type for an ARC4 method: {bad_type}", self.config.source_location
-            )
-
-        return {k: pytype_to_arc4_pytype(v, on_error=on_error) for k, v in self._signature.items()}
-
-    @property
-    def signature(self) -> Mapping[str, pytypes.PyType]:
-        return self._signature
-
-    @cached_property
-    def return_type(self) -> pytypes.PyType:
-        return self._signature["output"]
-
-    @cached_property
-    def arc4_return_type(self) -> pytypes.PyType:
-        return self._arc4_signature["output"]
-
-    @cached_property
-    def argument_types(self) -> Sequence[pytypes.PyType]:
-        names, types = zip(*self._signature.items(), strict=True)
-        assert names[-1] == "output"
-        return tuple(types[:-1])
-
-    @cached_property
-    def arc4_argument_types(self) -> Sequence[pytypes.PyType]:
-        names, types = zip(*self._arc4_signature.items(), strict=True)
-        assert names[-1] == "output"
-        return tuple(types[:-1])
-
-
-ARC4MethodData: typing.TypeAlias = ARC4BareMethodData | ARC4ABIMethodData
 
 
 @attrs.frozen

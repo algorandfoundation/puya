@@ -14,7 +14,7 @@ from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
+from puyapy.models import AppStorageDeclaration
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence

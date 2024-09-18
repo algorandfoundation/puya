@@ -48,8 +48,8 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[None]):
                 )
             if abimethod_dec is not None:
                 arc4_method_data = get_arc4_abimethod_data(self.context, abimethod_dec, func_def)
-                return self.context.add_arc4_method_data(
-                    self.cref, func_def.name, arc4_method_data
+                return self.context.contract_fragments[self.cref].add_arc4_method_data(
+                    func_def.name, arc4_method_data
                 )
         logger.error(f"expected an {constants.ABIMETHOD_DECORATOR} decorator", location=func_loc)
 

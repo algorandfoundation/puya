@@ -22,16 +22,20 @@ from puya.utils import unique
 
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_utils import (
-    ARC4BareMethodData,
-    ARC4MethodData,
     get_arc4_abimethod_data,
     get_arc4_baremethod_data,
 )
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
-from puyapy.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puyapy.awst_build.utils import get_decorators_by_fullname
+from puyapy.models import (
+    AppStorageDeclaration,
+    ARC4BareMethodData,
+    ARC4MethodData,
+    ContractClassOptions,
+    ContractFragment,
+)
 
 logger = log.get_logger(__name__)
 
@@ -60,28 +64,27 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self.typ = typ
         self.cref = cref = typ.name
         self.is_arc4 = pytypes.ARC4ContractBaseType in typ.mro
-        self.is_abstract = _check_class_abstractness(context, class_def)
-        if self.is_abstract:
-            context.abstract_contracts.add(cref)
+        self.is_abstract = is_abstract = _check_class_abstractness(context, class_def)
+        self.mro = mro = _build_mro(typ)
+
         self._methods = list[tuple[DeferredContractMethod, SourceLocation, SpecialMethod | None]]()
         self.class_options: typing.Final = class_options
         self.source_location: typing.Final = self._location(class_def)
-        self.mro = mro = _build_mro(typ)
         self._synthetic_methods = list[awst_nodes.ContractMethod]()
 
+        self._arc_methods = dict[str, ARC4MethodData]()
         if self.is_arc4:
-            base_arc4_method_info = dict[str, ARC4MethodData]()
             for base_cref in mro:
-                base_arc4_method_info = {
+                self._arc_methods = {
                     **{
                         name: method_data
-                        for name, method_data in context.arc4_method_data(base_cref).items()
+                        for name, method_data in context.contract_fragments[
+                            base_cref
+                        ].arc4_methods.items()
                         if not method_data.is_synthetic_create
                     },
-                    **base_arc4_method_info,
+                    **self._arc_methods,
                 }
-            for func_name, method_data in base_arc4_method_info.items():
-                context.add_arc4_method_data(cref, func_name, method_data)
 
         # if the class has an __init__ method, we need to visit it first, so any storage
         # fields cane be resolved to a (static) key
@@ -103,7 +106,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             has_create = False
             has_bare_no_op = False
             for hierarchy_cref in (cref, *mro):
-                for arc4_method_data in context.arc4_method_data(hierarchy_cref).values():
+                for arc4_method_data in context.contract_fragments[
+                    hierarchy_cref
+                ].arc4_methods.values():
                     if arc4_method_data.is_synthetic_create:
                         pass
                     elif arc4_method_data.config.create in (
@@ -133,10 +138,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         source_location=self.source_location,
                     )
                     default_create_name = "__algopy_default_create"  # TODO: ensure this is unique
-                    context.add_arc4_method_data(
-                        cref,
-                        default_create_name,
-                        ARC4BareMethodData(config=default_create_config, is_synthetic_create=True),
+                    self._arc_methods[default_create_name] = ARC4BareMethodData(
+                        config=default_create_config, is_synthetic_create=True
                     )
                     self._synthetic_methods.append(
                         awst_nodes.ContractMethod(
@@ -155,12 +158,19 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                             source_location=self.source_location,
                         )
                     )
+        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def, mro)
+        self.fragment = ContractFragment(
+            id=cref,
+            mro=mro,
+            is_abstract=is_abstract,
+            arc4_methods=self._arc_methods,
+            state_defs=inherited_and_direct_storage,
+        )
+        context.add_contract_fragment(self.fragment)
 
     def build(self, context: ASTConversionModuleContext) -> awst_nodes.Contract:
         class_def = self.class_def
         cref = self.cref
-        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def, self.mro)
-        context.set_state_defs(cref, inherited_and_direct_storage)
         approval_program: awst_nodes.ContractMethod | None = None
         clear_program: awst_nodes.ContractMethod | None = None
         init_method: awst_nodes.ContractMethod | None = None
@@ -183,9 +193,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         if init_method:
             # TODO: fold into approval_program
             pass
-        app_state = {
-            name: state_decl.definition for name, state_decl in context.state_defs(cref).items()
-        }
+        app_state = [
+            state_decl.definition for name, state_decl in self.fragment.state_defs.items()
+        ]
         class_options = self.class_options
         return awst_nodes.Contract(
             id=cref,
@@ -349,7 +359,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             logger.debug(f"skipping trivial method {func_def.name}", location=func_loc)
             return None
         if arc4_method_data is not None:
-            self.context.add_arc4_method_data(self.cref, func_def.name, arc4_method_data)
+            self.fragment.add_arc4_method_data(func_def.name, arc4_method_data)
         return lambda ctx: FunctionASTConverter.convert(
             ctx,
             func_def=func_def,
@@ -438,16 +448,16 @@ def _build_mro(contract_type: pytypes.ContractType) -> list[ContractReference]:
 def _gather_app_storage_recursive(
     context: ASTConversionModuleContext,
     class_def: mypy.nodes.ClassDef,
-    bases: Sequence[ContractReference],
+    mro: Sequence[ContractReference],
 ) -> dict[str, AppStorageDeclaration]:
     this_global_directs = {
         defn.member_name: defn for defn in _gather_global_direct_storages(context, class_def.info)
     }
     combined_app_state = this_global_directs.copy()
-    for base_cref in bases:
+    for base_cref in mro:
         base_app_state = {
             name: defn
-            for name, defn in context.state_defs(base_cref).items()
+            for name, defn in context.contract_fragments[base_cref].state_defs.items()
             if defn.defined_in == base_cref
         }
         for redefined_member in combined_app_state.keys() & base_app_state.keys():

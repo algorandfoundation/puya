@@ -21,7 +21,6 @@ from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import intrinsic_factory, pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._utils import resolve_negative_literal_index
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
@@ -33,6 +32,7 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puyapy.models import AppStorageDeclaration
 
 logger = log.get_logger(__name__)
 

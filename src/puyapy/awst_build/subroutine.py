@@ -39,7 +39,6 @@ from puya.models import ContractReference, LogicSigReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
-from puyapy.awst_build.arc4_utils import ARC4MethodData
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
@@ -77,6 +76,7 @@ from puyapy.awst_build.utils import (
     resolve_member_node,
     symbol_node_is_function,
 )
+from puyapy.models import ARC4MethodData
 from puyapy.parse import parse_docstring
 
 logger = log.get_logger(__name__)
@@ -415,7 +415,7 @@ class FunctionASTConverter(BaseMyPyVisitor[Statement | Sequence[Statement] | Non
         member_name = lvalue.name
         member_loc = self._location(lvalue)
         defn = rvalue.build_definition(member_name, cref, rvalue.pytype, member_loc)
-        self.context.add_state_def(cref, defn)
+        self.context.contract_fragments[cref].add_state_def(defn)
         if rvalue.initial_value is None:
             return []
         elif rvalue.pytype.generic != pytypes.GenericGlobalStateType:

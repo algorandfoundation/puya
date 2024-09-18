@@ -23,7 +23,6 @@ from puya.models import ContractReference
 from puya.parse import SourceLocation
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.contract_data import AppStorageDeclaration
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
@@ -44,6 +43,7 @@ from puyapy.awst_build.eb.storage._storage import (
 from puyapy.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
+from puyapy.models import AppStorageDeclaration
 
 logger = log.get_logger(__name__)
 

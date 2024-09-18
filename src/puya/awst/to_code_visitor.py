@@ -198,7 +198,7 @@ class ToCodeVisitor(
         ]
         if c.app_state:
             state_by_kind = dict[AppStorageKind, list[nodes.AppStorageDefinition]]()
-            for state in c.app_state.values():
+            for state in c.app_state:
                 state_by_kind.setdefault(state.kind, []).append(state)
             for kind_name, kind in (
                 ("globals", AppStorageKind.app_global),

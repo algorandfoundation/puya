@@ -33,7 +33,6 @@ from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import StableSet
 
 from puyapy.awst_build import constants, pytypes
-from puyapy.awst_build.arc4_utils import ARC4ABIMethodData, ARC4BareMethodData, ARC4MethodData
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
@@ -62,6 +61,7 @@ from puyapy.awst_build.utils import (
     resolve_member_node,
     symbol_node_is_function,
 )
+from puyapy.models import ARC4ABIMethodData, ARC4BareMethodData, ARC4MethodData
 
 logger = log.get_logger(__name__)
 
@@ -423,7 +423,7 @@ def _get_arc4_method_call(
     abi_args: Sequence[NodeBuilder],
     location: SourceLocation,
 ) -> _ARC4MethodCall:
-    data = context.arc4_method_data(contract).get(func_name)
+    data = context.contract_fragments[contract].get_arc4_method(func_name)
     if data is None:
         raise CodeError("not a valid ARC4 method", location)
     return _map_arc4_method_data_to_call(data, abi_args, location)
@@ -468,7 +468,7 @@ def _get_lifecycle_method_call(
 ) -> _ARC4MethodCall:
     possible_methods = {
         func_name: data
-        for func_name, data in context.arc4_method_data(contract).items()
+        for func_name, data in context.contract_fragments[contract].arc4_methods.items()
         if (kind == "create" and data.config.create != ARC4CreateOption.disallow)
         or (
             kind == "update"

@@ -17,7 +17,6 @@ from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.contract import ContractASTConverter
-from puyapy.awst_build.contract_data import ContractClassOptions
 from puyapy.awst_build.exceptions import UnsupportedASTError
 from puyapy.awst_build.subroutine import FunctionASTConverter
 from puyapy.awst_build.utils import (
@@ -27,6 +26,7 @@ from puyapy.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
+from puyapy.models import ContractClassOptions
 
 logger = log.get_logger(__name__)
 

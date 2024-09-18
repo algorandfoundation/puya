@@ -45,11 +45,8 @@ def transform_ast(
         awst.extend(root_nodes)
         if src.discovery_mechanism != SourceDiscoveryMechanism.dependency:
             for root_node in root_nodes:
-                match root_node:
-                    case Contract(id=contract_id) if contract_id not in ctx.abstract_contracts:
-                        compilation_set.append(contract_id)
-                    case LogicSignature(id=lsig_id):
-                        compilation_set.append(lsig_id)
+                if isinstance(root_node, Contract | LogicSignature):
+                    compilation_set.append(root_node.id)
     return awst, compilation_set
 
 
@@ -109,7 +106,7 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
         approval_program=approval_program,
         clear_program=clear_program,
         methods=[approval_program, clear_program],
-        app_state={},
+        app_state=[],
         reserved_scratch_space=StableSet[int](),
         state_totals=None,
         description=None,

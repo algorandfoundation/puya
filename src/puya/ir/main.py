@@ -498,16 +498,13 @@ def _fold_state_and_special_methods(
         approval_program=contract.approval_program,
         clear_program=contract.clear_program,
     )
-    for state_name, state in contract.app_state.items():
-        assert (
-            state.member_name == state_name
-        ), f"expected {state.member_name=!r} to match key {state_name!r}"
+    for state in contract.app_state:
         storage_type = wtypes.persistable_stack_type(state.storage_wtype, state.source_location)
         key_type = None
         if state.key_wtype is not None:
             key_type = wtypes.persistable_stack_type(state.key_wtype, state.source_location)
         translated = ContractState(
-            name=state_name,
+            name=state.member_name,
             source_location=state.source_location,
             key=state.key.value,  # TODO: pass encoding?
             storage_type=storage_type,
@@ -519,13 +516,13 @@ def _fold_state_and_special_methods(
                     raise InternalError(
                         f"maps of {state.kind} are not supported yet", state.source_location
                     )
-                result.global_state[state_name] = translated
+                result.global_state[state.member_name] = translated
             case awst_nodes.AppStorageKind.account_local:
                 if key_type is not None:
                     raise InternalError(
                         f"maps of {state.kind} are not supported yet", state.source_location
                     )
-                result.local_state[state_name] = translated
+                result.local_state[state.member_name] = translated
             case awst_nodes.AppStorageKind.box:
                 pass  # TODO: forward these on
             case _:
