@@ -31,7 +31,7 @@ from puyapy.models import ContractClassOptions
 logger = log.get_logger(__name__)
 
 
-DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode]
+DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode | None]
 
 StatementResult: typing.TypeAlias = list[DeferredRootNode]
 
@@ -65,7 +65,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             with self.context.log_exceptions(fallback_location=location):
                 for deferred in deferrals:
                     awst_node = deferred(self.context)
-                    awst.append(awst_node)
+                    if awst_node is not None:
+                        awst.append(awst_node)
         return awst
 
     # Supported Statements

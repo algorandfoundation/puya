@@ -1,3 +1,4 @@
+import enum
 import typing
 from collections.abc import Mapping, Sequence
 from functools import cached_property
@@ -10,6 +11,7 @@ from puya.awst.nodes import (
     AppStorageKind,
     BytesConstant,
     BytesEncoding,
+    ContractMethod,
     StateTotals,
 )
 from puya.errors import CodeError
@@ -150,15 +152,31 @@ class ARC4ABIMethodData:
 ARC4MethodData: typing.TypeAlias = ARC4BareMethodData | ARC4ABIMethodData
 
 
+class ContractFragmentRoot(enum.Enum):
+    contract = enum.auto()
+    arc4_contract = enum.auto()
+    arc4_client = enum.auto()
+
+
 @attrs.define(kw_only=True)
 class ContractFragment:
-    id: ContractReference
-    mro: list[ContractReference] = attrs.field(factory=list)
-    is_abstract: bool
-    _arc4_methods: dict[str, ARC4MethodData] = attrs.field(factory=dict)
-    _state_defs: dict[str, AppStorageDeclaration] = attrs.field(factory=dict)
+    # constant data
+    id: ContractReference = attrs.field(on_setattr=attrs.setters.frozen)
+    mro: list[ContractReference] = attrs.field(on_setattr=attrs.setters.frozen)
+    is_abstract: bool = attrs.field(on_setattr=attrs.setters.frozen)
+    root: ContractFragmentRoot = attrs.field(on_setattr=attrs.setters.frozen)
+    # constant references
+    _methods: dict[str, ContractMethod] = attrs.field(
+        factory=dict, on_setattr=attrs.setters.frozen
+    )
+    _arc4_methods: dict[str, ARC4MethodData] = attrs.field(
+        factory=dict, on_setattr=attrs.setters.frozen
+    )
+    _state_defs: dict[str, AppStorageDeclaration] = attrs.field(
+        factory=dict, on_setattr=attrs.setters.frozen
+    )
+    # mutable data
     _finalized: bool = False
-    _is_arc4_client: bool = False
 
     @property
     def is_finalized(self) -> bool:
@@ -167,6 +185,21 @@ class ContractFragment:
     def finalize(self) -> None:
         assert not self._finalized, "attempted to finalize contract fragment twice"
         self._finalized = True
+
+    def get_contract_method(
+        self, name: str, *, default: ContractMethod | None = None
+    ) -> ContractMethod | None:
+        # assert self._finalized, "attempted to retrieve method data before finalization"
+        return self._methods.get(name, default)
+
+    @property
+    def contract_methods(self) -> Mapping[str, ContractMethod]:
+        assert self._finalized, "attempted to enumerate method data before finalization"
+        return self._methods
+
+    def add_contract_method(self, method: ContractMethod) -> None:
+        assert not self._finalized, "attempted to add method data to finalized contract fragment"
+        self._methods[method.member_name] = method
 
     def get_arc4_method(
         self, name: str, *, default: ARC4MethodData | None = None
@@ -195,7 +228,9 @@ class ContractFragment:
         return self._state_defs
 
     def add_state_def(self, decl: AppStorageDeclaration) -> None:
-        assert not self._is_arc4_client, "attempted to add storage data to ARC4Client class"
+        assert (
+            self.root is not ContractFragmentRoot.arc4_client
+        ), "attempted to add storage data to ARC4Client class"
         assert not self._finalized, "attempted to add storage data to finalized contract fragment"
         set_result = self._state_defs.setdefault(decl.member_name, decl)
         if set_result is not decl:

@@ -35,6 +35,7 @@ from puyapy.models import (
     ARC4MethodData,
     ContractClassOptions,
     ContractFragment,
+    ContractFragmentRoot,
 )
 
 logger = log.get_logger(__name__)
@@ -165,10 +166,15 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             is_abstract=is_abstract,
             arc4_methods=self._arc_methods,
             state_defs=inherited_and_direct_storage,
+            root=(
+                ContractFragmentRoot.arc4_contract
+                if self.is_arc4
+                else ContractFragmentRoot.contract
+            ),
         )
         context.add_contract_fragment(self.fragment)
 
-    def build(self, context: ASTConversionModuleContext) -> awst_nodes.Contract:
+    def build(self, context: ASTConversionModuleContext) -> awst_nodes.Contract | None:
         class_def = self.class_def
         cref = self.cref
         approval_program: awst_nodes.ContractMethod | None = None
