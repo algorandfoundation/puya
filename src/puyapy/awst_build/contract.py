@@ -190,6 +190,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         pass
                     case unexpected:
                         typing.assert_never(unexpected)
+        self.fragment.finalize()
         if init_method:
             # TODO: fold into approval_program
             pass
@@ -359,7 +360,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             logger.debug(f"skipping trivial method {func_def.name}", location=func_loc)
             return None
         if arc4_method_data is not None:
-            self.fragment.add_arc4_method_data(func_def.name, arc4_method_data)
+            self._arc_methods[func_def.name] = arc4_method_data
         return lambda ctx: FunctionASTConverter.convert(
             ctx,
             func_def=func_def,

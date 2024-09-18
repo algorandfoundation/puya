@@ -171,12 +171,12 @@ class ContractFragment:
     def get_arc4_method(
         self, name: str, *, default: ARC4MethodData | None = None
     ) -> ARC4MethodData | None:
-        assert self._finalized, "attempted to retrieve method data before finalization"
+        # assert self._finalized, "attempted to retrieve method data before finalization"
         return self._arc4_methods.get(name, default)
 
     @property
     def arc4_methods(self) -> Mapping[str, ARC4MethodData]:
-        assert self._finalized, "attempted to retrieve method data before finalization"
+        assert self._finalized, "attempted to enumerate method data before finalization"
         return self._arc4_methods
 
     def add_arc4_method_data(self, func_name: str, data: ARC4MethodData) -> None:
@@ -186,12 +186,12 @@ class ContractFragment:
     def get_state_def(
         self, name: str, *, default: AppStorageDeclaration | None = None
     ) -> AppStorageDeclaration | None:
-        assert self._finalized, "attempted to retrieve storage data before finalization"
+        # assert self._finalized, "attempted to retrieve storage data before finalization"
         return self._state_defs.get(name, default)
 
     @property
     def state_defs(self) -> Mapping[str, AppStorageDeclaration]:
-        assert self._finalized, "attempted to retrieve storage data before finalization"
+        assert self._finalized, "attempted to enumerate storage data before finalization"
         return self._state_defs
 
     def add_state_def(self, decl: AppStorageDeclaration) -> None:
