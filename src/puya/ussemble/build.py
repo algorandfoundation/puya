@@ -59,22 +59,16 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
                             stack = l_stack
                         case _:
                             typing.assert_never(sm.stack)
-                    if sm.manipulation in ("add", "remove"):
+                    if sm.manipulation in ("insert", "pop"):
                         stacks[f"{sm.stack}_stack_out"] = stack
                     match sm.manipulation:
-                        case "add":
-                            if sm.index is not None:
-                                stack.insert(sm.index, sm.local_id)
-                            else:
-                                stack.append(sm.local_id)
+                        case "insert":
+                            stack.insert(sm.index, sm.local_id)
                             if sm.defined:  # f-stack allocates variables before they are defined
                                 defined.append(sm.local_id)
-                        case "remove":
-                            if sm.index is None:
-                                stack.remove(sm.local_id)
-                            else:
-                                stack.pop(sm.index)
-                        case "defined":
+                        case "pop":
+                            stack.pop(sm.index)
+                        case "define":
                             defined.append(sm.local_id)
                         case _:
                             typing.assert_never(sm.manipulation)

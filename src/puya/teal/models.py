@@ -12,21 +12,19 @@ from puya.parse import SourceLocation
 
 @attrs.frozen
 class StackManipulation:
-    manipulation: typing.Literal["add", "remove", "defined"]
+    manipulation: typing.Literal["insert", "pop", "define"]
     stack: typing.Literal["f", "x", "l"]
     local_id: str
-    index: int | None = None
+    index: int
     defined: bool = True
 
     def __str__(self) -> str:
-        if self.manipulation == "add" and self.index is not None:
+        if self.manipulation == "insert":
             return f"{self.stack}.insert({self.index}, {self.local_id!r})"
-        elif self.manipulation == "add":
-            return f"{self.stack}.append({self.local_id!r})"
-        elif self.manipulation == "remove":
-            return f"{self.stack}.remove({self.local_id!r})"
+        elif self.manipulation == "pop":
+            return f"{self.stack}.pop({self.index}) == {self.local_id!r}"
         else:
-            return f"{self.stack}.defined({self.local_id!r}, {self.defined})"
+            return f"{self.stack}.define({self.local_id!r}, {self.defined})"
 
 
 @attrs.frozen(kw_only=True)
@@ -343,31 +341,21 @@ class TealBlock:
                     stack = x_stack
                 else:
                     continue
-                if sm.manipulation == "add":
-                    if sm.index is None:
-                        stack.append(sm.local_id)
-                    else:
-                        try:
-                            stack.insert(
-                                sm.index,
-                                sm.local_id,
-                            )
-                        except ValueError:
-                            stack_desc = ",".join(stack)
-                            raise InternalError(
-                                f"invalid index {sm.index} for {stack_desc}"
-                            ) from None
-                elif sm.manipulation == "remove":
+                if sm.manipulation == "insert":
                     try:
-                        if sm.index is None:
-                            stack.remove(sm.local_id)
-                        else:
-                            stack.pop(sm.index)
-                    except (ValueError, IndexError):
+                        stack.insert(sm.index, sm.local_id)
+                    except ValueError:
+                        stack_desc = ",".join(stack)
+                        raise InternalError(f"invalid index {sm.index} for {stack_desc}") from None
+                elif sm.manipulation == "pop":
+                    try:
+                        stack.pop(sm.index)
+                    except IndexError:
                         stack_desc = ",".join(stack)
                         raise InternalError(
                             f"could not find {sm.local_id!r} in {sm.stack!r} stack: {stack_desc}"
                         ) from None
+                # TODO: check define too?
 
 
 @attrs.define
