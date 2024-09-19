@@ -1,16 +1,17 @@
 import typing
+from collections.abc import Iterable, Sequence
 
 import attrs
 
-from puya import algo_constants, log
+from puya import log
 from puya.errors import CodeError, InternalError
 from puya.models import OnCompletionAction, TransactionType
+from puya.parse import SourceLocation
 from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 from puya.ussemble.debug import Event
 from puya.ussemble.desc_visitor import OpDescription
-from puya.utils import Address, method_selector_hash
 
 logger = log.get_logger(__name__)
 
@@ -91,50 +92,52 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
 
 def lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
     match op:
-        case teal.Int(value=int(int_value), source_location=loc):
-            return models.PushInt(value=int_value, source_location=loc)
-        case teal.Int(value=str(int_alias), source_location=loc):
+        case teal.TemplateVar():
+            raise InternalError(
+                "template vars should already be in constant block", op.source_location
+            )
+        case teal.IntBlock(constants=constants, source_location=loc):
+            return models.IntBlock(
+                constants=_resolve_template_vars(ctx, int, constants.items()),
+                source_location=loc,
+            )
+        case teal.IntC(index=index, source_location=loc):
+            return models.IntC(
+                index=index,
+                source_location=loc,
+            )
+        case teal.PushInt(value=int(int_value)) | teal.Int(value=int(int_value)):
+            return models.PushInt(value=int_value, source_location=op.source_location)
+        case teal.Int(value=str(int_alias)):
             try:
                 int_value = TEAL_ALIASES[int_alias]
             except KeyError as ex:
                 raise InternalError(f"Unknown teal alias: {int_alias}", op.source_location) from ex
-            return models.PushInt(value=int_value, source_location=loc)
-        case teal.Byte(value=bytes_value, source_location=loc):
-            return models.PushBytes(value=bytes_value, source_location=loc)
-        case teal.Method(value=method_value, source_location=loc):
-            return models.PushBytes(value=method_selector_hash(method_value), source_location=loc)
-        case teal.Address(value=address_value, source_location=loc):
-            address = Address.parse(address_value)
-            if not address.is_valid:
-                raise InternalError(f"Invalid address literal: {address_value}", loc)
-            return models.PushBytes(value=address.public_key, source_location=loc)
-        case teal.TemplateVar(name=name, op_code=op_code, source_location=var_loc):
-            try:
-                value, value_loc = ctx.template_variables[name]
-            except KeyError as ex:
-                raise CodeError(f"template value not defined: {name!r}", var_loc) from ex
-            else:
-                match value, op_code:
-                    case int(int_value), "int":
-                        if int_value < 0 or int_value.bit_length() > 64:
-                            logger.error(
-                                f"template uint64 value out of range: {name!r}", location=value_loc
-                            )
-                            logger.info("affected variable", location=var_loc)
-                        return models.PushInt(value=int_value, source_location=var_loc)
-                    case bytes(byte_value), "byte":
-                        if len(byte_value) > algo_constants.MAX_BYTES_LENGTH:
-                            logger.error(
-                                f"template bytes value too long: {name!r}", location=value_loc
-                            )
-                            logger.info("affected variable", location=var_loc)
-                        return models.PushBytes(value=byte_value, source_location=var_loc)
-                    case _:
-                        expected = "uint64" if op_code == "int" else "bytes"
-                        raise CodeError(
-                            f"invalid template value type for {name!r}, expected {expected}",
-                            value_loc or var_loc,
-                        )
+            return models.PushInt(value=int_value, source_location=op.source_location)
+        case teal.PushInts(values=values, source_location=loc):
+            return models.PushInts(
+                values=values,
+                source_location=loc,
+            )
+        case teal.BytesBlock(constants=constants, source_location=loc):
+            return models.BytesBlock(
+                constants=_resolve_template_vars(
+                    ctx, bytes, [(b, es[1]) for b, es in constants.items()]
+                ),
+                source_location=loc,
+            )
+        case teal.BytesC(index=index, source_location=loc):
+            return models.BytesC(
+                index=index,
+                source_location=loc,
+            )
+        case teal.PushBytes(value=bytes_value) | teal.Byte(value=bytes_value):
+            return models.PushBytes(value=bytes_value, source_location=op.source_location)
+        case teal.PushBytess(values=values, source_location=loc):
+            return models.PushBytess(
+                values=[b for b, _ in values],
+                source_location=loc,
+            )
         case teal.CallSub(target=label_id, op_code=op_code, source_location=loc):
             return models.Jump(
                 op_code=op_code, label=models.Label(name=label_id), source_location=loc
@@ -176,3 +179,27 @@ def lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
             return models.Intrinsic(op_code=op_code, immediates=immediates, source_location=loc)
         case _:
             typing.assert_never()
+
+
+_T = typing.TypeVar("_T")
+
+
+def _resolve_template_vars(
+    ctx: AssembleContext, typ: type[_T], values: Iterable[tuple[_T | str, SourceLocation | None]]
+) -> Sequence[_T]:
+    # TODO: capture template var source locations
+    result = []
+    for value_or_template, var_loc in values:
+        if not isinstance(value_or_template, str):
+            value: _T = value_or_template
+        else:
+            maybe_value, val_loc = ctx.template_variables[value_or_template]
+            if not isinstance(maybe_value, typ):
+                raise CodeError(
+                    f"invalid template value type for {value_or_template!r},"
+                    f" expected {typ.__name__}",
+                    val_loc or var_loc,
+                )
+            value = maybe_value
+        result.append(value)
+    return result

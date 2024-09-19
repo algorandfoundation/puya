@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import typing
 import typing as t
 from functools import cached_property
 
@@ -56,10 +57,10 @@ class Byte(BaseOp):
 class TemplateVar(BaseOp):
     name: str
     atype: AVMType = attrs.field()
-    op_code: str = attrs.field(init=False)
+    op_code: typing.Literal["int", "byte"] = attrs.field(init=False)
 
     @op_code.default
-    def _default_opcode(self) -> str:
+    def _default_opcode(self) -> typing.Literal["int", "byte"]:
         match self.atype:
             case AVMType.bytes:
                 return "byte"
