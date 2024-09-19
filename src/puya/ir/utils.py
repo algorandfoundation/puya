@@ -48,7 +48,7 @@ def format_bytes(b: bytes, encoding: AVMBytesEncoding) -> str:
         case AVMBytesEncoding.utf8:
             return escape_utf8_string(b.decode())
         case AVMBytesEncoding.base32:
-            return base64.b32encode(b).decode("ascii")
+            return base64.b32encode(b).decode("ascii").rstrip("=")
         case AVMBytesEncoding.base64:
             return base64.b64encode(b).decode("ascii")
         case AVMBytesEncoding.base16 | AVMBytesEncoding.unknown:

@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 
 import attrs
 
@@ -7,7 +7,15 @@ from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes
 from puya.mir.models import Signature
+from puya.models import OnCompletionAction, TransactionType
 from puya.parse import SourceLocation
+from puya.utils import valid_bytes, valid_int64
+
+MAX_NUMBER_CONSTANTS = 256
+TEAL_ALIASES = {
+    **{e.name: e.value for e in OnCompletionAction},
+    **{e.name: e.value for e in TransactionType},
+}
 
 
 @attrs.frozen
@@ -164,6 +172,170 @@ class Bury(TealOpN):
         return self.n - 1
 
 
+def _valid_uint64(node: TealOp, _attribute: object, value: int) -> None:
+    if not valid_int64(value):
+        raise InternalError(
+            "Invalid UInt64 value",
+            node.source_location,
+        )
+
+
+def _valid_bytes(node: TealOp, _attribute: object, value: bytes) -> None:
+    if not valid_bytes(value):
+        raise InternalError("Invalid Bytes value", node.source_location)
+
+
+def _valid_ref(node: TealOp, _attribute: object, value: int) -> None:
+    if value < 0 or value >= MAX_NUMBER_CONSTANTS:
+        raise InternalError(
+            "Invalid constant reference",
+            node.source_location,
+        )
+
+
+@attrs.frozen
+class IntBlock(TealOp):
+    op_code: str = attrs.field(default="intcblock", init=False)
+    constants: Mapping[int | str, SourceLocation | None]
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(init=False)
+
+    @produces.default
+    def _produces(self) -> int:
+        return len(self.constants)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return tuple(self.constants)
+
+
+@attrs.frozen
+class IntC(TealOp):
+    index: int = attrs.field(validator=_valid_ref)
+    op_code: str = attrs.field(init=False)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=1, init=False)
+
+    @op_code.default
+    def _op_code(self) -> str:
+        if self.index < 4:
+            return f"intc_{self.index}"
+        else:
+            return "intc"
+
+    @property
+    def immediates(self) -> Sequence[int]:
+        if self.index < 4:
+            return ()
+        else:
+            return (self.index,)
+
+
+@attrs.frozen
+class PushInt(TealOp):
+    op_code: str = attrs.field(default="pushint", init=False)
+    value: int = attrs.field(validator=_valid_uint64)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=1, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (self.value,)
+
+
+@attrs.frozen
+class PushInts(TealOp):
+    op_code: str = attrs.field(default="pushints", init=False)
+    values: list[int] = attrs.field(validator=attrs.validators.deep_iterable(_valid_uint64))
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(init=False)
+
+    @produces.default
+    def _produces(self) -> int:
+        return len(self.values)
+
+    @property
+    def immediates(self) -> Sequence[int]:
+        return self.values
+
+
+@attrs.frozen
+class BytesBlock(TealOp):
+    op_code: str = attrs.field(default="bytecblock", init=False)
+    constants: Mapping[bytes | str, tuple[AVMBytesEncoding, SourceLocation | None]]
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(init=False)
+
+    @produces.default
+    def _produces(self) -> int:
+        return len(self.constants)
+
+    @property
+    def immediates(self) -> Sequence[str]:
+        return tuple(
+            _encoded_bytes(c, es[0]) if isinstance(c, bytes) else c
+            for c, es in self.constants.items()
+        )
+
+
+@attrs.frozen
+class BytesC(TealOp):
+    index: int = attrs.field(validator=_valid_ref)
+    op_code: str = attrs.field(init=False)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=1, init=False)
+
+    @op_code.default
+    def _op_code(self) -> str:
+        if self.index < 4:
+            return f"bytec_{self.index}"
+        else:
+            return "bytec"
+
+    @property
+    def immediates(self) -> Sequence[int]:
+        if self.index < 4:
+            return ()
+        else:
+            return (self.index,)
+
+
+@attrs.frozen
+class PushBytes(TealOp):
+    op_code: str = attrs.field(default="pushbytes", init=False)
+    value: bytes = attrs.field(validator=_valid_bytes)
+    encoding: AVMBytesEncoding
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=1, init=False)
+
+    @property
+    def immediates(self) -> Sequence[str]:
+        return (_encoded_bytes(self.value, self.encoding),)
+
+
+@attrs.frozen
+class PushBytess(TealOp):
+    op_code: str = attrs.field(default="pushbytess", init=False)
+    values: Sequence[tuple[bytes, AVMBytesEncoding]] = attrs.field()
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(init=False)
+
+    @produces.default
+    def _produces(self) -> int:
+        return len(self.values)
+
+    @values.validator
+    def _values_validator(
+        self, _: object, value: Sequence[tuple[bytes, AVMBytesEncoding]]
+    ) -> None:
+        if not all(valid_bytes(b) for b, _ in value):
+            raise InternalError("invalid bytes value", self.source_location)
+
+    @property
+    def immediates(self) -> Sequence[str]:
+        return tuple(_encoded_bytes(c, e) for c, e in self.values)
+
+
 @attrs.frozen
 class FrameDig(TealOpN):
     op_code: str = attrs.field(default="frame_dig", init=False)
@@ -235,25 +407,13 @@ class Byte(TealOp):
 
     @property
     def immediates(self) -> Sequence[int | str]:
-        # not all encodings can handle an empty bytes, so use base16 if bytes is empty
-        encoding = self.encoding
-        if not self.value and encoding in (AVMBytesEncoding.base32, AVMBytesEncoding.base64):
-            encoding = AVMBytesEncoding.base16
-        bytes_str = format_bytes(self.value, encoding)
-        if encoding in (
-            AVMBytesEncoding.utf8,
-            AVMBytesEncoding.base16,
-            AVMBytesEncoding.unknown,
-        ):
-            return (bytes_str,)
-        hint = encoding.name
-        return hint, bytes_str
+        return (_encoded_bytes(self.value, self.encoding),)
 
 
 @attrs.frozen
 class TemplateVar(TealOp):
     name: str
-    op_code: str
+    op_code: typing.Literal["int", "byte"]
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 
@@ -376,3 +536,18 @@ class TealProgram:
     def all_subroutines(self) -> Iterable[TealSubroutine]:
         yield self.main
         yield from self.subroutines
+
+
+def _encoded_bytes(value: bytes, encoding: AVMBytesEncoding) -> str:
+    # not all encodings can handle an empty bytes, so use base16 if bytes is empty
+    if not value and encoding in (AVMBytesEncoding.base32, AVMBytesEncoding.base64):
+        encoding = AVMBytesEncoding.base16
+    bytes_str = format_bytes(value, encoding)
+    if encoding in (
+        AVMBytesEncoding.utf8,
+        AVMBytesEncoding.base16,
+        AVMBytesEncoding.unknown,
+    ):
+        return bytes_str
+    hint = encoding.name
+    return f"{hint}({bytes_str})"

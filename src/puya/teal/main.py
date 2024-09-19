@@ -4,6 +4,8 @@ from puya.mir import models as mir
 from puya.mir.stack import Stack
 from puya.teal import models as teal_models
 from puya.teal._util import preserve_stack_manipulations
+from puya.teal.optimize.combine_pushes import combine_pushes
+from puya.teal.optimize.constant_block import gather_program_constants
 from puya.teal.optimize.main import optimize_teal_program
 
 logger = log.get_logger(__name__)
@@ -11,23 +13,26 @@ logger = log.get_logger(__name__)
 
 def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_models.TealProgram:
     teal = _build_teal(context, program_mir)
+    before = [
+        sm
+        for sub in teal.subroutines
+        for block in sub.blocks
+        for op in block.ops
+        for sm in op.stack_manipulations
+    ]
     if context.options.optimization_level > 0:
-        before = [
-            sm
-            for sub in teal.subroutines
-            for block in sub.blocks
-            for op in block.ops
-            for sm in op.stack_manipulations
-        ]
         teal = optimize_teal_program(context, teal)
-        after = [
-            sm
-            for sub in teal.subroutines
-            for block in sub.blocks
-            for op in block.ops
-            for sm in op.stack_manipulations
-        ]
-        assert before == after, "expected stack manipulations to be preserved after optimization"
+    gather_program_constants(context, teal)
+    if context.options.optimization_level > 0:
+        teal = combine_pushes(teal)
+    after = [
+        sm
+        for sub in teal.subroutines
+        for block in sub.blocks
+        for op in block.ops
+        for sm in op.stack_manipulations
+    ]
+    assert before == after, "expected stack manipulations to be preserved after optimization"
     return teal
 
 

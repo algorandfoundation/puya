@@ -29,9 +29,6 @@ def assemble_program(
     )
     avm_ops = lower_ops(assemble_ctx, program)
     validate_labels(avm_ops)
-    # TODO: move optimization to TEAL
-    # avm_ops = optimize_ops(assemble_ctx, avm_ops)
-
     assembled = AssembleVisitor.assemble(assemble_ctx, avm_ops)
     return AssembledProgram(
         bytecode=assembled.bytecode,
