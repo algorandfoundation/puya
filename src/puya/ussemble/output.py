@@ -114,10 +114,10 @@ class AssembleVisitor(visitor.AVMVisitor[bytes]):
         return self._op_pc[label_index] - self._op_pc[self._op_index + 1]
 
     def visit_bytes_block(self, block: models.BytesBlock) -> bytes:
-        return _encode_opcode("bytecblock") + _encode_bytes_array(block.constants.keys())
+        return _encode_opcode("bytecblock") + _encode_bytes_array(block.constants)
 
     def visit_int_block(self, block: models.IntBlock) -> bytes:
-        return _encode_opcode("intcblock") + _encode_int_array(block.constants.keys())
+        return _encode_opcode("intcblock") + _encode_int_array(block.constants)
 
     def visit_push_bytes(self, load: models.PushBytes) -> bytes:
         return _encode_opcode("pushbytes") + _encode_bytes(load.value)

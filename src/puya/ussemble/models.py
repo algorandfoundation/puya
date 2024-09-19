@@ -1,6 +1,6 @@
 import abc
 import typing
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 
 import attrs
 
@@ -51,7 +51,7 @@ class AVMOp(Node, abc.ABC):
 @attrs.frozen
 class IntBlock(AVMOp):
     op_code: str = attrs.field(default="intcblock", init=False)
-    constants: Mapping[int, int]
+    constants: Sequence[int]
 
     def accept(self, visitor: AVMVisitor[T]) -> T:
         return visitor.visit_int_block(self)
@@ -60,7 +60,7 @@ class IntBlock(AVMOp):
 @attrs.frozen
 class BytesBlock(AVMOp):
     op_code: str = attrs.field(default="bytecblock", init=False)
-    constants: Mapping[bytes, int]
+    constants: Sequence[bytes]
 
     def accept(self, visitor: AVMVisitor[T]) -> T:
         return visitor.visit_bytes_block(self)
