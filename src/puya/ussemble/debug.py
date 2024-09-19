@@ -4,7 +4,6 @@ import attrs
 from cattrs.preconf.json import make_converter
 
 from puya.ussemble import models
-from puya.ussemble.visitor import AVMVisitor
 
 
 @attrs.frozen
@@ -31,7 +30,6 @@ class Event:
 class DebugOutput:
     version: int
     sources: list[str]
-    names: list[str]
     mappings: str
     pc_events: Mapping[int, Event]
 
@@ -43,16 +41,14 @@ def build_debug_info(
     source_map: Mapping[int, models.Node],
     events: Mapping[int, Event],
 ) -> bytes:
-    names = sorted({_get_op_desc(op) for op in source_map.values()})
     files = sorted(
         map(str, {s.source_location.file for s in source_map.values() if s.source_location})
     )
-    mappings = _get_src_mappings(source_map, files, names)
+    mappings = _get_src_mappings(source_map, files)
 
     debug = DebugOutput(
         version=3,
         sources=files,
-        names=names,
         mappings=";".join(mappings),
         pc_events=events,
     )
@@ -63,16 +59,12 @@ def build_debug_info(
 def _get_src_mappings(
     source_map: Mapping[int, models.Node],
     files: Sequence[str],
-    names: Sequence[str],
 ) -> list[str]:
     mappings = []
 
-    # collapse pc, node pairs into a mapping, this only keeps the last node
-    # i.e. labels are lost
     previous_source_index = 0
     previous_line = 0
     previous_column = 0
-    previous_name_index = 0
     for pc in range(max(source_map) + 1):
         try:
             op = source_map[pc]
@@ -81,10 +73,9 @@ def _get_src_mappings(
             continue
         else:
             loc = op.source_location
-            if not loc or not loc.file.exists():
+            if not loc or not loc.file:
                 mappings.append("")
                 continue
-        name_index = names.index(_get_op_desc(op))
         source_index = files.index(str(loc.file))
         line = loc.line - 1  # make 0-indexed
         column = loc.column or 0
@@ -95,18 +86,12 @@ def _get_src_mappings(
                 source_index - previous_source_index,
                 line - previous_line,
                 column - previous_column,
-                name_index - previous_name_index,
             )
         )
         previous_source_index = source_index
         previous_line = line
         previous_column = column
-        previous_name_index = name_index
     return mappings
-
-
-def _get_op_desc(op: models.Node) -> str:
-    return op.accept(OpDescription()).rstrip()
 
 
 def _base64vlq_encode(*values: int) -> str:
@@ -129,44 +114,6 @@ def _base64vlq_encode(*values: int) -> str:
             if not v:
                 break
     return "".join(results)
-
-
-class OpDescription(AVMVisitor[str]):
-    def visit_int_block(self, block: models.IntBlock) -> str:
-        return f"{block.op_code} {' '.join(map(str, block.constants))}"
-
-    def visit_bytes_block(self, block: models.BytesBlock) -> str:
-        return f"{block.op_code} {' '.join(map(_bytes_desc, block.constants))}"
-
-    def visit_intc(self, load: models.IntC) -> str:
-        return f"{load.op_code} {load.index}"
-
-    def visit_bytesc(self, load: models.BytesC) -> str:
-        return f"{load.op_code} {load.index}"
-
-    def visit_push_int(self, load: models.PushInt) -> str:
-        return f"{load.op_code} {load.value}"
-
-    def visit_push_ints(self, load: models.PushInts) -> str:
-        return f"{load.op_code} {' '.join(map(str, load.values))}"
-
-    def visit_push_bytes(self, load: models.PushBytes) -> str:
-        return f"{load.op_code} {_bytes_desc(load.value)}"
-
-    def visit_push_bytess(self, load: models.PushBytess) -> str:
-        return f"{load.op_code} {' '.join(map(_bytes_desc, load.values))}"
-
-    def visit_jump(self, jump: models.Jump) -> str:
-        return f"{jump.op_code} {jump.label.name}"
-
-    def visit_multi_jump(self, jump: models.MultiJump) -> str:
-        return f"{jump.op_code} {' '.join([label.name for label in jump.labels])}"
-
-    def visit_label(self, jump: models.Label) -> str:
-        return f"{jump.name}:"
-
-    def visit_intrinsic(self, intrinsic: models.Intrinsic) -> str:
-        return f"{intrinsic.op_code} {' '.join(map(str, intrinsic.immediates))}".rstrip()
 
 
 def _bytes_desc(value: bytes) -> str:

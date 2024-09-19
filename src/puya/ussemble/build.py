@@ -8,7 +8,8 @@ from puya.models import OnCompletionAction, TransactionType
 from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
-from puya.ussemble.debug import Event, OpDescription
+from puya.ussemble.debug import Event
+from puya.ussemble.desc_visitor import OpDescription
 from puya.utils import Address, method_selector_hash
 
 logger = log.get_logger(__name__)
