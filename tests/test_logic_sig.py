@@ -35,6 +35,7 @@ def compile_logic_sig(
             debug_level=debug_level,
             output_arc32=False,
             output_teal=False,
+            output_source_map=False,
             output_bytecode=True,
             out_dir=Path("out"),
             cli_template_definitions=template_variables or {},

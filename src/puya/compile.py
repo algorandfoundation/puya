@@ -167,8 +167,8 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
+    debug_info: bytes = b""
     bytecode: bytes | None = None
-    debug_info: bytes | None = None
 
 
 @attrs.frozen
@@ -252,22 +252,17 @@ def _logic_sig_to_teal(
 
 
 def _compile_program(context: CompileContext, program: TealProgram) -> _CompiledProgram:
-    if context.options.output_bytecode:
-        assembled = assemble_program(
-            context,
-            program,
-            {k: (v, None) for k, v in context.options.template_variables.items()},
-        )
-        bytecode = assembled.bytecode
-        source_map = assembled.debug_info
-    else:
-        bytecode = None
-        source_map = None
+    assembled = assemble_program(
+        context,
+        program,
+        template_variables={k: (v, None) for k, v in context.options.template_variables.items()},
+        debug_only=not context.options.output_bytecode,
+    )
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),
-        bytecode=bytecode,
-        debug_info=source_map,
+        bytecode=assembled.bytecode if context.options.output_bytecode else None,
+        debug_info=assembled.debug_info,
     )
 
 
@@ -317,6 +312,7 @@ def _write_artifacts(
                 artifact_base_path,
                 {f"{suffix}.bin": program.bytecode for suffix, program in programs.items()},
             )
+        if context.options.output_source_map:
             _write_output(
                 artifact_base_path,
                 {f"{suffix}.puya.map": program.debug_info for suffix, program in programs.items()},
