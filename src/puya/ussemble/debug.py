@@ -41,6 +41,7 @@ def build_debug_info(
     source_map: Mapping[int, models.Node],
     events: Mapping[int, Event],
 ) -> bytes:
+    # TODO: offset PC values based on constant blocks, if template variables are used
     files = sorted(
         map(str, {s.source_location.file for s in source_map.values() if s.source_location})
     )

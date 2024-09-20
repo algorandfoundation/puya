@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import attrs
 
@@ -20,8 +20,19 @@ class AssembledProgram:
 
 
 def assemble_program(
-    ctx: CompileContext, program: teal.TealProgram, template_variables: Mapping[str, TemplateValue]
+    ctx: CompileContext,
+    program: teal.TealProgram,
+    template_variables: Mapping[str, TemplateValue],
+    *,
+    debug_only: bool = False,
 ) -> AssembledProgram:
+    if debug_only:
+        template_variables = {
+            **{t: (0, None) for t in _gather_template_variables(program, teal.IntBlock)},
+            **{t: (b"", None) for t in _gather_template_variables(program, teal.BytesBlock)},
+            **template_variables,
+        }
+
     assemble_ctx = attrs_extend(
         AssembleContext,
         ctx,
@@ -34,3 +45,16 @@ def assemble_program(
         bytecode=assembled.bytecode,
         debug_info=build_debug_info(assembled.source_map, assembled.events),
     )
+
+
+def _gather_template_variables[
+    T: (teal.IntBlock, teal.BytesBlock)
+](program: teal.TealProgram, typ: type[T],) -> Sequence[str]:
+    return [
+        t
+        for sub in program.all_subroutines
+        for block in sub.blocks
+        for op in block.ops
+        for t in (op.constants if isinstance(op, typ) else ())
+        if isinstance(t, str)
+    ]

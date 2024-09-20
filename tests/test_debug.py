@@ -28,22 +28,12 @@ def test_debug(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
             debug_level=2,
             output_arc32=False,
             output_teal=False,
-            output_bytecode=True,
         )
     )
     (contract,) = result.teal
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
-    # TODO: ensure TEAL output matches bytecode + sourcemap
-    #       so the following will work
-    # approval_src = contract.approval_program.teal_src
-    # clear_src = contract.clear_program.teal_src
-
-    approval_bytecode = contract.approval_program.bytecode
-    clear_bytecode = contract.clear_program.bytecode
-    assert approval_bytecode
-    assert clear_bytecode
-    approval_src = algod_client.disassemble(approval_bytecode)["result"]
-    clear_src = algod_client.disassemble(clear_bytecode)["result"]
+    approval_src = contract.approval_program.teal_src
+    clear_src = contract.clear_program.teal_src
     arc32 = create_arc32_json(approval_src, clear_src, contract.metadata)
     app_spec = algokit_utils.ApplicationSpecification.from_json(arc32)
     client = algokit_utils.ApplicationClient(
