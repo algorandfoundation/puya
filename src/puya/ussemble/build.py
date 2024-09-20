@@ -187,13 +187,17 @@ _T = typing.TypeVar("_T")
 def _resolve_template_vars(
     ctx: AssembleContext, typ: type[_T], values: Iterable[tuple[_T | str, SourceLocation | None]]
 ) -> Sequence[_T]:
-    # TODO: capture template var source locations
     result = []
     for value_or_template, var_loc in values:
         if not isinstance(value_or_template, str):
             value: _T = value_or_template
         else:
-            maybe_value, val_loc = ctx.template_variables[value_or_template]
+            try:
+                maybe_value, val_loc = ctx.template_variables[value_or_template]
+            except KeyError:
+                raise CodeError(
+                    f"template variable not defined: {value_or_template}", var_loc
+                ) from None
             if not isinstance(maybe_value, typ):
                 raise CodeError(
                     f"invalid template value type for {value_or_template!r},"
