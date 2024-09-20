@@ -1,11 +1,11 @@
-from algopy import Bytes, UInt64, arc4, log, subroutine
+from algopy import Bytes, TemplateVar, UInt64, arc4, log, subroutine
 
 
 class DebugContract(arc4.ARC4Contract):
     @arc4.abimethod
     def test(self, x: UInt64, y: UInt64, z: UInt64) -> UInt64:
 
-        a = x
+        a = x * TemplateVar[UInt64]("A_MULT")
         b = x + y
         c = b * z
         if b < c:

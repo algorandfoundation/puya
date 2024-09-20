@@ -32,7 +32,9 @@ def test_debug(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
     )
     (contract,) = result.teal
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
-    approval_src = contract.approval_program.teal_src
+    approval_src = algokit_utils.replace_template_variables(
+        contract.approval_program.teal_src, {"A_MULT": 1000}
+    )
     clear_src = contract.clear_program.teal_src
     arc32 = create_arc32_json(approval_src, clear_src, contract.metadata)
     app_spec = algokit_utils.ApplicationSpecification.from_json(arc32)
