@@ -1,10 +1,20 @@
-contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
+contract DynamicArrayContract
 {
-  baremethod __algopy_default_create(): void
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
+    return arc4_router()
   }
   
-  abimethod test_static_elements(): void
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements(): void
   {
     byte_array1: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte1(), test_cases.arc4_dynamic_arrays.contract.get_byte2())
     byte_array2: arc4.static_array<arc4.uint8, 2> = new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte3(), test_cases.arc4_dynamic_arrays.contract.get_byte4())
@@ -19,7 +29,7 @@ contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
     assert(array.pop() == struct1)
   }
   
-  abimethod test_dynamic_elements(): void
+  abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements(): void
   {
     struct1: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
     struct2: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string3(), b=test_cases.arc4_dynamic_arrays.contract.get_string1())
@@ -38,7 +48,7 @@ contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
     log(reinterpret_cast<bytes>(array))
   }
   
-  abimethod test_mixed_single_dynamic_elements(): void
+  abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements(): void
   {
     struct1: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2())
     struct2: test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=test_cases.arc4_dynamic_arrays.contract.get_string2(), c=test_cases.arc4_dynamic_arrays.contract.get_uint1())
@@ -53,7 +63,7 @@ contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
     assert(array.pop() == struct1)
   }
   
-  abimethod test_mixed_multiple_dynamic_elements(): void
+  abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements(): void
   {
     struct1: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=test_cases.arc4_dynamic_arrays.contract.get_string1(), c=test_cases.arc4_dynamic_arrays.contract.get_uint2(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr1(), e=test_cases.arc4_dynamic_arrays.contract.get_uint1())
     struct2: test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct = new test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint2(), b=test_cases.arc4_dynamic_arrays.contract.get_string2(), c=test_cases.arc4_dynamic_arrays.contract.get_uint1(), d=test_cases.arc4_dynamic_arrays.contract.get_u16_arr2(), e=test_cases.arc4_dynamic_arrays.contract.get_uint2())
@@ -66,7 +76,7 @@ contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
     assert(array.pop() == struct1)
   }
   
-  abimethod test_nested_struct_replacement(): void
+  abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement(): void
   {
     one: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte1(), test_cases.arc4_dynamic_arrays.contract.get_byte2()))
     two: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
@@ -79,7 +89,7 @@ contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
     assert(reinterpret_cast<bytes>(struct1) == reinterpret_cast<bytes>(struct2), comment="struct1 does not match struct2")
   }
   
-  abimethod test_nested_tuple_modification(): void
+  abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification(): void
   {
     one: test_cases.arc4_dynamic_arrays.contract.StaticStruct = new test_cases.arc4_dynamic_arrays.contract.StaticStruct(a=test_cases.arc4_dynamic_arrays.contract.get_uint1(), b=new arc4.static_array<arc4.uint8, 2>(test_cases.arc4_dynamic_arrays.contract.get_byte1(), test_cases.arc4_dynamic_arrays.contract.get_byte2()))
     two: test_cases.arc4_dynamic_arrays.contract.DynamicStruct = new test_cases.arc4_dynamic_arrays.contract.DynamicStruct(a=test_cases.arc4_dynamic_arrays.contract.get_string1(), b=test_cases.arc4_dynamic_arrays.contract.get_string2())
@@ -91,6 +101,10 @@ contract DynamicArrayContract extends (algopy.arc4.ARC4Contract)
     tup2: arc4.tuple<test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct,test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct> = arc4_encode((one.copy(), two.copy(), three.copy(), four2.copy(), five.copy()), arc4.tuple<test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct,test_cases.arc4_dynamic_arrays.contract.StaticStruct,test_cases.arc4_dynamic_arrays.contract.MixedMultipleStruct,test_cases.arc4_dynamic_arrays.contract.DynamicStruct>)
     tup2[3].d.pop()
     assert(reinterpret_cast<bytes>(tup1) == reinterpret_cast<bytes>(tup2), comment="tup1 does not match tup2")
+  }
+  
+  baremethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create(): void
+  {
   }
 }
 

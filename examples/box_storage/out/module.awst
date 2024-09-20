@@ -1,5 +1,8 @@
-contract BoxContract extends (algopy.arc4.ARC4Contract)
+contract BoxContract
 {
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
   boxes {
     ['box_a']: uint64
     ['b']: arc4.dynamic_array<arc4.uint8>
@@ -9,15 +12,24 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     ['box_ref']: bytes
   }
   
-  constructor()
+  subroutine examples.box_storage.contract.BoxContract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine examples.box_storage.contract.BoxContract.__init__(): void
   {
   }
   
-  baremethod __algopy_default_create(): void
-  {
-  }
-  
-  abimethod set_boxes(a: uint64, b: arc4.dynamic_array<arc4.uint8>, c: arc4.dynamic_array<arc4.uint8>): void
+  abimethod examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: arc4.dynamic_array<arc4.uint8>, c: arc4.dynamic_array<arc4.uint8>): void
   {
     Box['box_a']: uint64 = a
     Box['b']: arc4.dynamic_array<arc4.uint8> = b.copy()
@@ -41,14 +53,14 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     assert(box_extract('box_d', 0u, select(SINGLE_EVAL(id=4, source=box_len('box_d')[0]), 2u, 2u < SINGLE_EVAL(id=4)) - 0u) == arc4_decode(b, bytes)[:2u])
   }
   
-  abimethod check_keys(): void
+  abimethod examples.box_storage.contract.BoxContract.check_keys(): void
   {
     assert(reinterpret_cast<bytes>('box_a') == hex<"626F785F61">, comment="box a key ok")
     assert(reinterpret_cast<bytes>('b') == hex<"62">, comment="box b key ok")
     assert(reinterpret_cast<bytes>(hex<"424F585F43">) == hex<"424F585F43">, comment="box c key ok")
   }
   
-  abimethod delete_boxes(): void
+  abimethod examples.box_storage.contract.BoxContract.delete_boxes(): void
   {
     STATE_DELETE(Box['box_a'])
     STATE_DELETE(Box['b'])
@@ -61,17 +73,17 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     assert(a == 0u)
   }
   
-  abimethod read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
+  abimethod examples.box_storage.contract.BoxContract.read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>>
   {
     return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">])
   }
   
-  abimethod boxes_exist(): tuple<bool,bool,bool>
+  abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool>
   {
     return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]))
   }
   
-  abimethod slice_box(): void
+  abimethod examples.box_storage.contract.BoxContract.slice_box(): void
   {
     box_0: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('0'))
     Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
@@ -80,7 +92,7 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     assert(box_extract(hex<"424F585F43">, select(SINGLE_EVAL(id=6, source=box_len(hex<"424F585F43">)[0]), 2u, 2u < SINGLE_EVAL(id=6)), select(SINGLE_EVAL(id=6), 10u, 10u < SINGLE_EVAL(id=6)) - select(SINGLE_EVAL(id=6), 2u, 2u < SINGLE_EVAL(id=6))) == hex<"48656C6C6F">)
   }
   
-  abimethod arc4_box(): void
+  abimethod examples.box_storage.contract.BoxContract.arc4_box(): void
   {
     box_d: box_key = hex<"64">
     Box[box_d]: arc4.static_array<arc4.uint8, 4> = new arc4.static_array<arc4.uint8, 4>(0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
@@ -90,7 +102,7 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     assert(reinterpret_cast<biguint>(Box[box_d][3u]) == reinterpret_cast<biguint>(3arc4u8))
   }
   
-  abimethod test_box_ref(): void
+  abimethod examples.box_storage.contract.BoxContract.test_box_ref(): void
   {
     box_ref: box_key = 'blob'
     assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
@@ -126,7 +138,7 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     box_del('box_ref')
   }
   
-  abimethod box_map_test(): void
+  abimethod examples.box_storage.contract.BoxContract.box_map_test(): void
   {
     key_0: uint64 = 0u
     key_1: uint64 = 1u
@@ -145,24 +157,33 @@ contract BoxContract extends (algopy.arc4.ARC4Contract)
     STATE_DELETE(Box[concat(tmp_box_map, itob(key_1))])
   }
   
-  abimethod box_map_set(key: uint64, value: string): void
+  abimethod examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: string): void
   {
     Box[concat('', itob(key))]: string = value
   }
   
-  abimethod box_map_get(key: uint64): string
+  abimethod examples.box_storage.contract.BoxContract.box_map_get(key: uint64): string
   {
     return Box[concat('', itob(key))]
   }
   
-  abimethod box_map_del(key: uint64): void
+  abimethod examples.box_storage.contract.BoxContract.box_map_del(key: uint64): void
   {
     STATE_DELETE(Box[concat('', itob(key))])
   }
   
-  abimethod box_map_exists(key: uint64): bool
+  abimethod examples.box_storage.contract.BoxContract.box_map_exists(key: uint64): bool
   {
     return STATE_EXISTS(Box[concat('', itob(key))])
+  }
+  
+  baremethod examples.box_storage.contract.BoxContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
   }
 }
 

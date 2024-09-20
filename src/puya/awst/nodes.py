@@ -1584,15 +1584,6 @@ class ContractMethod(Function, ContractMemberNode):
         return visitor.visit_contract_method(self)
 
 
-@attrs.frozen
-class ContractProgramMethod(ContractMethod):  # TODO: yeet me
-    return_type: WType = attrs.field(
-        validator=wtype_is_one_of(wtypes.uint64_wtype, wtypes.bool_wtype)
-    )
-    args: Sequence[SubroutineArgument] = attrs.field(default=(), init=False)
-    arc4_method_config: None = attrs.field(default=None, init=False)
-
-
 @enum.unique
 class AppStorageKind(enum.Enum):
     app_global = enum.auto()

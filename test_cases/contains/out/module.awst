@@ -1,6 +1,9 @@
 contract MyContract
 {
-  approval_program(): uint64
+  method_resolution_order: (
+  )
+  
+  subroutine test_cases.contains.contract.MyContract.approval_program(): uint64
   {
     not_ten: uint64 = 15u
     one_true: bool = this::is_in_tuple_1(10u, (10u, not_ten, hex<"66697665">))
@@ -20,27 +23,27 @@ contract MyContract
     return 1u
   }
   
-  clear_state_program(): uint64
+  subroutine test_cases.contains.contract.MyContract.clear_state_program(): uint64
   {
     return 1u
   }
   
-  subroutine is_in_tuple_1(x: uint64, y: tuple<uint64,uint64,bytes>): bool
+  subroutine test_cases.contains.contract.MyContract.is_in_tuple_1(x: uint64, y: tuple<uint64,uint64,bytes>): bool
   {
     return x == y[0] or x == y[1]
   }
   
-  subroutine is_in_tuple_2(x: bytes, y: tuple<bytes,uint64,bytes>): bool
+  subroutine test_cases.contains.contract.MyContract.is_in_tuple_2(x: bytes, y: tuple<bytes,uint64,bytes>): bool
   {
     return x == y[0] or x == y[2]
   }
   
-  subroutine is_in_tuple_3(x: biguint, y: tuple<biguint,biguint>): bool
+  subroutine test_cases.contains.contract.MyContract.is_in_tuple_3(x: biguint, y: tuple<biguint,biguint>): bool
   {
     return x == y[0] or x == y[1]
   }
   
-  subroutine test_string_types(): void
+  subroutine test_cases.contains.contract.MyContract.test_string_types(): void
   {
     assert(SINGLE_EVAL(id=0, source=test_cases.contains.contract.foo_string()) == SINGLE_EVAL(id=1, source=(test_cases.contains.contract.foo_string(), test_cases.contains.contract.baz_string()))[0] or SINGLE_EVAL(id=0) == SINGLE_EVAL(id=1)[1], comment="foo in (foo, baz)")
     assert(!(SINGLE_EVAL(id=2, source=test_cases.contains.contract.foo_string()) == SINGLE_EVAL(id=3, source=(test_cases.contains.contract.bar_string(), test_cases.contains.contract.baz_string()))[0] or SINGLE_EVAL(id=2) == SINGLE_EVAL(id=3)[1]), comment="foo not in (bar, baz)")
@@ -55,7 +58,7 @@ contract MyContract
     assert(!(hex<"666F6F"> == SINGLE_EVAL(id=20, source=(test_cases.contains.contract.foo_string(), test_cases.contains.contract.foo_arc4(), hex<"626172">))[2]), comment="b'foo' not in (foo, foo, b'bar')")
   }
   
-  subroutine test_numeric_types(): void
+  subroutine test_cases.contains.contract.MyContract.test_numeric_types(): void
   {
     assert(SINGLE_EVAL(id=21, source=test_cases.contains.contract.one_u64()) == SINGLE_EVAL(id=22, source=(test_cases.contains.contract.one_u64(), test_cases.contains.contract.two_u64()))[0] or SINGLE_EVAL(id=21) == SINGLE_EVAL(id=22)[1], comment="1 in (1, 2)")
     assert(!(SINGLE_EVAL(id=23, source=test_cases.contains.contract.one_u64()) == SINGLE_EVAL(id=24, source=(3u, test_cases.contains.contract.two_u64()))[0] or SINGLE_EVAL(id=23) == SINGLE_EVAL(id=24)[1]), comment="1 not in (3, 2)")

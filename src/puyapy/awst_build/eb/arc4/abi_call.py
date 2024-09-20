@@ -423,10 +423,10 @@ def _get_arc4_method_call(
     abi_args: Sequence[NodeBuilder],
     location: SourceLocation,
 ) -> _ARC4MethodCall:
-    data = context.contract_fragments[contract].get_arc4_method(func_name)
-    if data is None:
+    data = context.contract_fragments[contract].resolve_method(func_name)
+    if data is None or data.metadata is None:
         raise CodeError("not a valid ARC4 method", location)
-    return _map_arc4_method_data_to_call(data, abi_args, location)
+    return _map_arc4_method_data_to_call(data.metadata, abi_args, location)
 
 
 def _map_arc4_method_data_to_call(
@@ -466,18 +466,19 @@ def _get_lifecycle_method_call(
     kind: typing.Literal["create", "update"],
     location: SourceLocation,
 ) -> _ARC4MethodCall:
-    possible_methods = {
-        func_name: data
-        for func_name, data in context.contract_fragments[contract].arc4_methods.items()
-        if (kind == "create" and data.config.create != ARC4CreateOption.disallow)
-        or (
-            kind == "update"
-            and OnCompletionAction.UpdateApplication in data.config.allowed_completion_types
+    if kind == "create":
+        possible_methods = list(
+            context.contract_fragments[contract].find_arc4_method_metadata(can_create=True)
         )
-    }
+    elif kind == "update":
+        possible_methods = list(
+            context.contract_fragments[contract].find_arc4_method_metadata(
+                oca=OnCompletionAction.UpdateApplication
+            )
+        )
 
     try:
-        single_method, *others = possible_methods.values()
+        single_method, *others = possible_methods
     except ValueError:
         raise CodeError(f"could not find {kind} method on {contract}", location) from None
     if others:

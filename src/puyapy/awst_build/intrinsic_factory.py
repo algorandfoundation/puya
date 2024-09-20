@@ -43,30 +43,12 @@ def itob_as(
     )
 
 
-def btoi(bytes_arg: Expression, location: SourceLocation | None = None) -> IntrinsicCall:
-    return IntrinsicCall(
-        op_code="btoi",
-        stack_args=[bytes_arg],
-        wtype=wtypes.uint64_wtype,
-        source_location=location or bytes_arg.source_location,
-    )
-
-
 def txn(immediate: str, wtype: wtypes.WType, location: SourceLocation) -> IntrinsicCall:
     return IntrinsicCall(
         op_code="txn",
         immediates=[immediate],
         wtype=wtype,
         source_location=location,
-    )
-
-
-def txn_app_args(index: int, loc: SourceLocation) -> IntrinsicCall:
-    return IntrinsicCall(
-        op_code="txna",
-        immediates=["ApplicationArgs", index],
-        source_location=loc,
-        wtype=wtypes.bytes_wtype,
     )
 
 

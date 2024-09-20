@@ -1,17 +1,46 @@
 contract ConditionalExecutionContract
 {
+  method_resolution_order: (
+  )
   globals {
     ['did_execute_a']: bool
     ['did_execute_b']: bool
   }
   
-  constructor()
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    this::func_a(true) or this::func_b(true)
+    this::assert_and_reset(GlobalState['did_execute_a'] and !(GlobalState['did_execute_b']))
+    this::func_a(false) or this::func_b(true)
+    this::assert_and_reset(GlobalState['did_execute_a'] and GlobalState['did_execute_b'])
+    this::func_a(false) and this::func_b(true)
+    this::assert_and_reset(GlobalState['did_execute_a'] and !(GlobalState['did_execute_b']))
+    this::func_a(true) and this::func_b(true)
+    this::assert_and_reset(GlobalState['did_execute_a'] and GlobalState['did_execute_b'])
+    (this::func_a(true), this::func_b(true))[0]
+    this::assert_and_reset(GlobalState['did_execute_a'] and GlobalState['did_execute_b'])
+    (this::func_c(true)) ? (this::func_a(true)) : (this::func_b(true))
+    this::assert_and_reset(GlobalState['did_execute_a'] and !(GlobalState['did_execute_b']))
+    (this::func_c(false)) ? (this::func_a(true)) : (this::func_b(true))
+    this::assert_and_reset(!(GlobalState['did_execute_a']) and GlobalState['did_execute_b'])
+    return true
+  }
+  
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__(): void
   {
     GlobalState['did_execute_a']: bool = false
     GlobalState['did_execute_b']: bool = false
   }
   
-  approval_program(): bool
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program(): bool
   {
     this::func_a(true) or this::func_b(true)
     this::assert_and_reset(GlobalState['did_execute_a'] and !(GlobalState['did_execute_b']))
@@ -30,31 +59,26 @@ contract ConditionalExecutionContract
     return true
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine assert_and_reset(condition: bool): void
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(condition: bool): void
   {
     assert(condition)
     GlobalState['did_execute_b']: bool = false
     GlobalState['did_execute_a']: bool = false
   }
   
-  subroutine func_a(ret_val: bool): bool
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val: bool): bool
   {
     GlobalState['did_execute_a']: bool = true
     return ret_val
   }
   
-  subroutine func_b(ret_val: bool): bool
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(ret_val: bool): bool
   {
     GlobalState['did_execute_b']: bool = true
     return ret_val
   }
   
-  subroutine func_c(ret_val: bool): bool
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(ret_val: bool): bool
   {
     return ret_val
   }

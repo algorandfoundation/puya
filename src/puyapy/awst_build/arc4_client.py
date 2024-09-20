@@ -10,7 +10,7 @@ from puyapy.awst_build.arc4_utils import get_arc4_abimethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.utils import get_decorators_by_fullname
-from puyapy.models import ARC4ABIMethodData, ContractFragment, ContractFragmentRoot
+from puyapy.models import ARC4ABIMethodData, ContractFragment, ContractFragmentMethod
 
 logger = log.get_logger(__name__)
 
@@ -24,19 +24,23 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[ARC4ABIMethodData | None]):
         class_def: mypy.nodes.ClassDef,
     ) -> None:
         visitor = ARC4ClientASTVisitor(context)
-        data = []
+        methods = {}
         for stmt in class_def.defs.body:
-            with context.log_exceptions(fallback_location=stmt):
+            stmt_loc = context.node_location(stmt)
+            with context.log_exceptions(fallback_location=stmt_loc):
                 if (abi_method_data := stmt.accept(visitor)) is not None:
-                    data.append(abi_method_data)
+                    methods[abi_method_data.member_name] = ContractFragmentMethod(
+                        member_name=abi_method_data.member_name,
+                        source_location=stmt_loc,
+                        metadata=abi_method_data,
+                        is_trivial=True,
+                    )
         fragment = ContractFragment(
             id=ContractReference(class_def.info.fullname),
             source_location=context.node_location(class_def),
             pytype=pytype,
             mro=[],
-            is_abstract=True,
-            root=ContractFragmentRoot.arc4_client,
-            arc4_methods={am.member_name: am for am in data},
+            methods=methods,
         )
         context.add_contract_fragment(fragment)
         fragment.finalize()

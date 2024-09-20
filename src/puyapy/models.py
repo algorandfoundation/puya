@@ -1,6 +1,6 @@
-import enum
+import contextlib
 import typing
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -15,9 +15,15 @@ from puya.awst.nodes import (
     StateTotals,
 )
 from puya.errors import CodeError
-from puya.models import ARC4ABIMethodConfig, ARC4BareMethodConfig, ContractReference
+from puya.models import (
+    ARC4ABIMethodConfig,
+    ARC4BareMethodConfig,
+    ARC4CreateOption,
+    ContractReference,
+    OnCompletionAction,
+)
 from puya.parse import SourceLocation
-from puya.utils import StableSet
+from puya.utils import StableSet, set_add
 
 from puyapy.awst_build import pytypes
 
@@ -152,10 +158,22 @@ class ARC4ABIMethodData:
 ARC4MethodData: typing.TypeAlias = ARC4BareMethodData | ARC4ABIMethodData
 
 
-class ContractFragmentRoot(enum.Enum):
-    contract = enum.auto()
-    arc4_contract = enum.auto()
-    arc4_client = enum.auto()
+@attrs.define(kw_only=True)
+class ContractFragmentMethod:
+    member_name: str = attrs.field(on_setattr=attrs.setters.frozen)
+    source_location: SourceLocation = attrs.field(on_setattr=attrs.setters.frozen)
+    metadata: ARC4MethodData | None = attrs.field(on_setattr=attrs.setters.frozen)
+    is_trivial: bool = attrs.field(on_setattr=attrs.setters.frozen)
+    synthetic: bool = attrs.field(default=False, on_setattr=attrs.setters.frozen)
+    inheritable: bool = attrs.field(default=True, on_setattr=attrs.setters.frozen)
+    implementation: ContractMethod | None = attrs.field(default=None)
+
+    @implementation.validator
+    def _implementation_validate(self, _attr: object, value: ContractMethod | None) -> None:
+        if value is None:
+            return
+        assert not self.is_trivial, "trivial methods should not have an implementation"
+        assert value.member_name == self.member_name
 
 
 @attrs.define(kw_only=True)
@@ -163,20 +181,10 @@ class ContractFragment:
     # constant data
     id: ContractReference = attrs.field(on_setattr=attrs.setters.frozen)
     source_location: SourceLocation = attrs.field(on_setattr=attrs.setters.frozen)
-    pytype: pytypes.ContractType | pytypes.StaticType = attrs.field(
-        on_setattr=attrs.setters.frozen
-    )
+    pytype: pytypes.PyType = attrs.field(on_setattr=attrs.setters.frozen)
     mro: list["ContractFragment"] = attrs.field(on_setattr=attrs.setters.frozen)
-    is_abstract: bool = attrs.field(on_setattr=attrs.setters.frozen)
-    root: ContractFragmentRoot = attrs.field(on_setattr=attrs.setters.frozen)
     # constant references
-    _methods: dict[str, ContractMethod] = attrs.field(
-        factory=dict, on_setattr=attrs.setters.frozen
-    )
-    _arc4_methods: dict[str, ARC4MethodData] = attrs.field(
-        factory=dict, on_setattr=attrs.setters.frozen
-    )
-    _synthetic_arc4_methods: dict[str, ARC4MethodData] = attrs.field(
+    _methods: dict[str, ContractFragmentMethod] = attrs.field(
         factory=dict, on_setattr=attrs.setters.frozen
     )
     _state_defs: dict[str, AppStorageDeclaration] = attrs.field(
@@ -186,6 +194,10 @@ class ContractFragment:
     _finalized: bool = False
 
     @property
+    def is_arc4_client(self) -> bool:
+        return pytypes.ARC4ClientBaseType in self.pytype.mro
+
+    @property
     def is_finalized(self) -> bool:
         return self._finalized
 
@@ -193,15 +205,10 @@ class ContractFragment:
         assert not self._finalized, "attempted to finalize contract fragment twice"
         self._finalized = True
 
-    def add_method(
-        self,
-        method: ContractMethod,
-        arc4_method_data: ARC4MethodData | None,
-        *,
-        is_inheritable: bool = True,
-    ) -> None:
+    def add_method(self, method: ContractFragmentMethod) -> None:
         assert not self._finalized, "attempted to add method data to finalized contract fragment"
-        # TODO: non-inheritable methods collection
+        if self.is_arc4_client:
+            assert method.is_trivial, "attempted to add non-trivial method to ARC4Client class"
         set_result = self._methods.setdefault(method.member_name, method)
         if set_result is not method:
             logger.info(
@@ -212,16 +219,59 @@ class ContractFragment:
                 f"redefinition of {method.member_name}",
                 location=method.source_location,
             )
-        elif arc4_method_data is not None:
-            if not is_inheritable:
-                self._synthetic_arc4_methods[method.member_name] = arc4_method_data
-            else:
-                self._arc4_methods[method.member_name] = arc4_method_data
+
+    def resolve_method(self, name: str) -> ContractFragmentMethod | None:
+        with contextlib.suppress(KeyError):
+            return self._methods[name]
+        for fragment in self.mro:
+            with contextlib.suppress(KeyError):
+                method = fragment._methods[name]  # noqa: SLF001
+                if method.inheritable:
+                    return method
+        return None
+
+    def collect_method_implementations(self) -> Iterator[ContractMethod | None]:
+        for method in self._methods.values():
+            # class being built for lowering should not have trivial methods defined
+            yield method.implementation
+        for ancestor in self.mro:
+            for method in ancestor._methods.values():  # noqa: SLF001
+                if method.inheritable and not method.is_trivial:
+                    yield method.implementation
+
+    def find_arc4_method_metadata(
+        self,
+        *,
+        bare: bool | None = None,
+        oca: OnCompletionAction | None = None,
+        can_create: bool | None = None,
+    ) -> Iterator[ARC4MethodData]:
+        seen_names = set[str]()
+        for frag in (self, *self.mro):
+            for method_name, method in frag._methods.items():  # noqa: SLF001
+                if (method.inheritable or frag is self) and set_add(seen_names, method_name):
+                    md = method.metadata
+                    if md is not None:
+                        bare_matches = bare is None or bare == md.is_bare
+                        oca_matches = oca is None or oca in md.config.allowed_completion_types
+                        can_create_matches = can_create is None or (
+                            can_create != (md.config.create == ARC4CreateOption.disallow)
+                        )
+                        if bare_matches and oca_matches and can_create_matches:
+                            yield md
+
+    def resolve_state(self, name: str) -> AppStorageDeclaration | None:
+        if self._finalized:
+            return self.state_defs.get(name)
+        for fragment in (self, *self.mro):
+            try:
+                return fragment._state_defs[name]  # noqa: SLF001
+            except KeyError:
+                pass
+        return None
 
     def add_state_def(self, decl: AppStorageDeclaration) -> None:
-        assert (
-            self.root is not ContractFragmentRoot.arc4_client
-        ), "attempted to add storage data to ARC4Client class"
+        assert not self.is_arc4_client, "attempted to add storage data to ARC4Client class"
         assert not self._finalized, "attempted to add storage data to finalized contract fragment"
         set_result = self._state_defs.setdefault(decl.member_name, decl)
         if set_result is not decl:
@@ -233,61 +283,6 @@ class ContractFragment:
                 f"redefinition of {decl.member_name}",
                 location=decl.source_location,
             )
-
-    def get_contract_method(
-        self, name: str, *, default: ContractMethod | None = None
-    ) -> ContractMethod | None:
-        if self._finalized:
-            return self.contract_methods.get(name, default)
-        for fragment in (self, *self.mro):
-            try:
-                return fragment._methods[name]  # noqa: SLF001
-            except KeyError:
-                pass
-        return default
-
-    @cached_property
-    def contract_methods(self) -> Mapping[str, ContractMethod]:
-        assert self._finalized, "attempted to enumerate method data before finalization"
-        result = self._methods
-        for ancestor in self.mro:
-            result = ancestor._methods | result  # noqa: SLF001
-        return result
-
-    def get_arc4_method(
-        self, name: str, *, default: ARC4MethodData | None = None
-    ) -> ARC4MethodData | None:
-        if self._finalized:
-            return self.arc4_methods.get(name, default)
-        for fragment in (self, *self.mro):
-            try:
-                return fragment._arc4_methods[name]  # noqa: SLF001
-            except KeyError:
-                pass
-        return default
-
-    @cached_property
-    def arc4_methods(self) -> Mapping[str, ARC4MethodData]:
-        assert self._finalized, "attempted to enumerate method data before finalization"
-        result = self._arc4_methods
-        for ancestor in self.mro:
-            result = ancestor._arc4_methods | result  # noqa: SLF001
-        assert not (
-            result.keys() & self._synthetic_arc4_methods.keys()
-        ), "synthetic method already exists"
-        return self._synthetic_arc4_methods | result
-
-    def get_state_def(
-        self, name: str, *, default: AppStorageDeclaration | None = None
-    ) -> AppStorageDeclaration | None:
-        if self._finalized:
-            return self.state_defs.get(name, default)
-        for fragment in (self, *self.mro):
-            try:
-                return fragment._state_defs[name]  # noqa: SLF001
-            except KeyError:
-                pass
-        return default
 
     @cached_property
     def state_defs(self) -> Mapping[str, AppStorageDeclaration]:

@@ -1,15 +1,38 @@
 contract Counter
 {
+  method_resolution_order: (
+  )
   globals {
     ['counter']: uint64
   }
   
-  constructor()
+  subroutine test_cases.match.counter.Counter.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    switch (txn<OnCompletion>()) {
+      case NoOp: {
+        this::increment_counter()
+        return true
+      }
+      case _: {
+        return false
+      }
+    }
+  }
+  
+  subroutine test_cases.match.counter.Counter.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.match.counter.Counter.__init__(): void
   {
     GlobalState['counter']: uint64 = 0u
   }
   
-  approval_program(): bool
+  subroutine test_cases.match.counter.Counter.approval_program(): bool
   {
     switch (txn<OnCompletion>()) {
       case NoOp: {
@@ -22,12 +45,7 @@ contract Counter
     }
   }
   
-  clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine increment_counter(): void
+  subroutine test_cases.match.counter.Counter.increment_counter(): void
   {
     GlobalState['counter'] += 1u
   }
@@ -35,12 +53,14 @@ contract Counter
 
 contract MyContract
 {
+  method_resolution_order: (
+  )
   globals {
     ['case_one']: uint64
     ['case_two']: uint64
   }
   
-  approval_program(): bool
+  subroutine test_cases.match.contract.MyContract.approval_program(): bool
   {
     GlobalState['case_one']: uint64 = 1u
     GlobalState['case_two']: uint64 = 2u
@@ -53,12 +73,12 @@ contract MyContract
     return true
   }
   
-  clear_state_program(): bool
+  subroutine test_cases.match.contract.MyContract.clear_state_program(): bool
   {
     return true
   }
   
-  subroutine match_uint64(): void
+  subroutine test_cases.match.contract.MyContract.match_uint64(): void
   {
     n: uint64 = txn<NumAppArgs>()
     switch (n) {
@@ -73,7 +93,7 @@ contract MyContract
     }
   }
   
-  subroutine match_bytes(): void
+  subroutine test_cases.match.contract.MyContract.match_bytes(): void
   {
     n: bytes = txna<ApplicationArgs, 0>()
     switch (n) {
@@ -88,7 +108,7 @@ contract MyContract
     }
   }
   
-  subroutine match_biguint(): void
+  subroutine test_cases.match.contract.MyContract.match_biguint(): void
   {
     n: biguint = itob(txn<NumAppArgs>()) b* 10n
     switch (n) {
@@ -103,7 +123,7 @@ contract MyContract
     }
   }
   
-  subroutine match_address(): void
+  subroutine test_cases.match.contract.MyContract.match_address(): void
   {
     n: account = txn<Sender>()
     switch (n) {
@@ -118,7 +138,7 @@ contract MyContract
     }
   }
   
-  subroutine match_attributes(): void
+  subroutine test_cases.match.contract.MyContract.match_attributes(): void
   {
     n: uint64 = txn<NumAppArgs>()
     switch (n) {
@@ -137,7 +157,7 @@ contract MyContract
     }
   }
   
-  subroutine match_bools(): void
+  subroutine test_cases.match.contract.MyContract.match_bools(): void
   {
     n: bool = txn<NumAppArgs>() > 0u
     switch (n) {

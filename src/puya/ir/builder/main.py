@@ -944,8 +944,7 @@ class FunctionIRBuilder(
         return_types = [r.ir_type for r in result]
         if return_types != self.context.subroutine.returns:
             raise CodeError(
-                f"invalid return type {return_types} in {self.context.function.full_name},"
-                f" should be {self.context.subroutine.returns}",
+                f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
                 statement.source_location,
             )
         self.context.block_builder.terminate(

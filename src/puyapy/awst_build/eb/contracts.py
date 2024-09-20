@@ -116,7 +116,7 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
                 location=location,
             )
         else:
-            state_decl = self.context.contract_fragments[self._pytype.name].get_state_def(name)
+            state_decl = self.context.contract_fragments[self._pytype.name].resolve_state(name)
             if state_decl is not None:
                 return _builder_for_storage_access(state_decl, location)
             raise CodeError("cannot resolve state member", location)
