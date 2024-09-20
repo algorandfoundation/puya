@@ -34,6 +34,12 @@ def main() -> None:
         help="Output TEAL code",
     )
     parser.add_argument(
+        "--output-source-map",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Output debug source maps",
+    )
+    parser.add_argument(
         "--output-arc32",
         action=argparse.BooleanOptionalAction,
         default=True,

@@ -31,6 +31,7 @@ class DebugOutput:
     version: int
     sources: list[str]
     mappings: str
+    op_pc_offset: int
     pc_events: Mapping[int, Event]
 
 
@@ -40,16 +41,29 @@ _converter = make_converter(omit_if_default=True)
 def build_debug_info(
     source_map: Mapping[int, models.Node],
     events: Mapping[int, Event],
+    *,
+    offset_pc_from_constant_blocks: bool,
 ) -> bytes:
     files = sorted(
         map(str, {s.source_location.file for s in source_map.values() if s.source_location})
     )
+    op_pc_offset = pc_offset = 0
+    if offset_pc_from_constant_blocks:
+        for idx, (pc, node) in enumerate(source_map.items()):
+            # stop at first op that is not a constant block
+            if not isinstance(node, models.IntBlock | models.BytesBlock):
+                op_pc_offset = idx
+                pc_offset = pc
+                break
+    events = {pc - pc_offset: event for pc, event in events.items() if pc >= pc_offset}
+    source_map = {pc - pc_offset: node for pc, node in source_map.items() if pc >= pc_offset}
     mappings = _get_src_mappings(source_map, files)
 
     debug = DebugOutput(
         version=3,
         sources=files,
         mappings=";".join(mappings),
+        op_pc_offset=op_pc_offset,
         pc_events=events,
     )
     json = _converter.dumps(debug, DebugOutput, indent=2)

@@ -49,6 +49,7 @@ def test_assemble_matches_algod(
         debug_level=0,
         output_teal=False,
         output_arc32=False,
+        output_source_map=False,
         output_bytecode=True,
         match_algod_bytecode=True,
         out_dir=Path("out"),
