@@ -312,6 +312,7 @@ def _write_artifacts(
                 artifact_base_path,
                 {f"{suffix}.bin": program.bytecode for suffix, program in programs.items()},
             )
+        if context.options.output_source_map:
             _write_output(
                 artifact_base_path,
                 {f"{suffix}.puya.map": program.debug_info for suffix, program in programs.items()},
