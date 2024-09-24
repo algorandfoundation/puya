@@ -58,8 +58,8 @@ def optimize_pair(
     if isinstance(b, mir.StoreVirtual) and b.local_id not in ctx.vla.get_live_out_variables(b):
         # aka dead store removal
         match a:
-            case mir.StoreLStack(copy=True) | mir.StoreXStack(copy=True) as cover:
-                # this should handle both x-stack and l-stack cases StoreLStack is used to:
+            case mir.StoreLStack(copy=True) as cover:
+                # StoreLStack is used to:
                 #   1.) store a variable for retrieval later via a load
                 #   2.) store a copy at the bottom of the stack for use in a later op
                 # If it is a dead store, then the 1st scenario is no longer needed
@@ -98,7 +98,7 @@ def optimize_pair(
             # can't just remove outer virtuals because inner virtual ops assume "something"
             # loaded a value onto the stack, so need to keep entire sequence around as
             # virtual ops
-            case mir.LoadXStack(), mir.StoreXStack(copy=False):
+            case mir.LoadXStack(), mir.StoreXStack():
                 return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
             case mir.LoadFStack(), mir.StoreFStack():
                 return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)

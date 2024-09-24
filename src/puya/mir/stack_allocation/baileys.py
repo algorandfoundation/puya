@@ -141,7 +141,6 @@ def add_x_stack_ops(record: BlockRecord) -> None:
             # scheduled are on the x-stack
             block.ops[index] = mir.StoreXStack(
                 local_id=op.local_id,
-                copy=False,
                 atype=op.atype,
                 source_location=op.source_location,
             )

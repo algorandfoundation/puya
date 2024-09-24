@@ -186,14 +186,11 @@ class LoadLStack(LoadOp):
 
 @attrs.frozen(eq=False)
 class StoreXStack(StoreOp):
-    copy: bool = True
-
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_x_stack(self)
 
     def __str__(self) -> str:
-        copy = "(copy)" if self.copy else "(no copy)"
-        return f"store {self.local_id} to x-stack {copy}"
+        return f"store {self.local_id} to x-stack"
 
 
 @attrs.frozen(eq=False)
