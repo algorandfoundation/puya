@@ -186,13 +186,8 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         self._l_stack_assign_name(local_id)
 
         cover = len(self.x_stack) + len(self.l_stack) - 1
-        var = self.l_stack[-1] if store.copy else self.l_stack.pop()
+        var = self.l_stack.pop()
         self.x_stack.insert(0, var)
-        if store.copy:
-            return [
-                teal.Dup(source_location=store.source_location),
-                teal.Cover(cover, source_location=store.source_location),
-            ]
         return [teal.Cover(cover, source_location=store.source_location)]
 
     def visit_load_x_stack(self, load: models.LoadXStack) -> list[teal.TealOp]:
