@@ -39,30 +39,21 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
             subroutine=subroutine.signature.name,
             params={p.local_id: p.atype.name or "" for p in subroutine.signature.parameters},
         )
-        f_stack = list[str]()
+        stack = list[str]()
         for block in subroutine.blocks:
+            stack = stack[: block.entry_stack_height - len(block.x_stack)]
+            stack.extend(block.x_stack)
             update_event(
                 block=block.label,
-                x_stack_in=block.x_stack,
+                stack_in=stack.copy(),
             )
-            x_stack = list(block.x_stack)
-            l_stack = list[str]()
             avm_ops.append(models.Label(name=block.label))
             for op in block.ops:
-                stacks = {}
+                stack_modified = False
                 defined = []
                 for sm in op.stack_manipulations:
-                    match sm.stack:
-                        case "f":
-                            stack = f_stack
-                        case "x":
-                            stack = x_stack
-                        case "l":
-                            stack = l_stack
-                        case _:
-                            typing.assert_never(sm.stack)
                     if sm.manipulation in ("insert", "pop"):
-                        stacks[f"{sm.stack}_stack_out"] = stack
+                        stack_modified = True
                     match sm.manipulation:
                         case "insert":
                             stack.insert(sm.index, sm.local_id)
@@ -75,10 +66,9 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
                         case _:
                             typing.assert_never(sm.manipulation)
                 if defined:
-                    available = {*f_stack, *x_stack, *l_stack}
-                    update_event(defined_out=sorted(set(defined) & available))
-                for name, value in stacks.items():
-                    update_event(**{name: list(value)})
+                    update_event(defined_out=sorted(set(defined) & set(stack)))
+                if stack_modified:
+                    update_event(stack_out=stack.copy())
                 avm_op = lower_op(ctx, op)
                 match avm_op:
                     case models.Jump(op_code="callsub", label=models.Label(name=func_block)):
