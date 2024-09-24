@@ -130,27 +130,27 @@ def get_x_stack_store_ops(record: BlockRecord) -> set[mir.StoreVirtual]:
 
 def add_x_stack_ops(record: BlockRecord) -> None:
     block = record.block
-    # determine ops to replace first so stack can be simulated while replacing
+    # determine ops to replace
     load_ops = get_x_stack_load_ops(record)
     store_ops = get_x_stack_store_ops(record)
 
-    for op in block.ops[:]:  # using a copy as the list will have insertions
+    for index, op in enumerate(block.ops):
         if op in store_ops:
             assert isinstance(op, mir.StoreVirtual)
-            index = block.ops.index(op)  # recalculate index due to inserts
-            new_op = mir.StoreXStack(
+            # can replace virtual store op because only variables that could be fully
+            # scheduled are on the x-stack
+            block.ops[index] = mir.StoreXStack(
                 local_id=op.local_id,
-                source_location=op.source_location,
+                copy=False,
                 atype=op.atype,
+                source_location=op.source_location,
             )
-            block.ops.insert(index, new_op)
         elif op in load_ops:
             assert isinstance(op, mir.LoadVirtual)
-            index = block.ops.index(op)
             block.ops[index] = mir.LoadXStack(
                 local_id=op.local_id,
-                source_location=op.source_location,
                 atype=op.atype,
+                source_location=op.source_location,
             )
 
 
