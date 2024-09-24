@@ -79,15 +79,6 @@ def optimize_pair(
         return None
 
     if is_redundant_rotate_mir(stack, a, maybe_virtuals, b):
-        match a, b:
-            case (
-                mir.LoadLStack(copy=False, local_id=a_local_id),
-                mir.StoreLStack(copy=False, local_id=b_local_id),
-            ) if a_local_id == b_local_id:
-                # loading and storing to the same spot in the same stack can be removed entirely
-                # if the local_id does not change
-                return maybe_virtuals
-        # otherwise keep around as virtual stack op
         return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
 
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
