@@ -24,6 +24,11 @@ ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
     "PYTHONUTF8": "1",  # force utf8 on windows
 }
+# iterate optimization levels first and with O1 first and then cases, this is a workaround
+# to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to
+# read the client_<contract>.py output from the 01 level before it is finished writing to
+# disk
+DEFAULT_OPTIMIZATION = (1, 0, 2)
 
 
 def get_root_and_relative_path(path: Path) -> tuple[Path, Path]:
@@ -242,6 +247,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
 @attrs.define(kw_only=True)
 class CompileAllOptions:
     limit_to: list[Path] = attrs.field(factory=list)
+    optimization_level: list[int] = attrs.field(factory=list)
 
 
 def main(options: CompileAllOptions) -> None:
@@ -258,12 +264,14 @@ def main(options: CompileAllOptions) -> None:
 
     failures = list[tuple[str, str]]()
     program_sizes = ProgramSizes()
+    # use selected opt levels, but retain original order
+    opt_levels = [
+        o
+        for o in DEFAULT_OPTIMIZATION
+        if o in (options.optimization_level or DEFAULT_OPTIMIZATION)
+    ]
     with ProcessPoolExecutor() as executor:
-        # iterate optimization levels first and with O1 first and then cases, this is a workaround
-        # to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to
-        # read the client_<contract>.py output from the 01 level before it is finished writing to
-        # disk
-        args = [(case, level) for level in (1, 0, 2) for case in to_compile]
+        args = [(case, level) for level in opt_levels for case in to_compile]
         for compilation_result, level in executor.map(_compile_for_level, args):
             rel_path = compilation_result.rel_path
             case_name = f"{rel_path} -O{level}"
@@ -287,9 +295,15 @@ def main(options: CompileAllOptions) -> None:
                 )
             )
     print("Updating sizes.txt")
-    if limit_to:
-        existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
-        program_sizes = ProgramSizes(sizes={**existing.sizes, **program_sizes.sizes})
+    if limit_to or options.optimization_level:
+        print("Loading existing sizes.txt")
+        # load existing sizes for non-default options
+        merged = ProgramSizes.read_file(SIZE_TALLY_PATH)
+        for program, sizes in program_sizes.sizes.items():
+            merged_sizes = merged.sizes.setdefault(program, {})
+            for o, size in sizes.items():
+                merged_sizes[o] = size
+        program_sizes = merged
     SIZE_TALLY_PATH.write_text(str(program_sizes))
     sys.exit(len(failures))
 
@@ -297,6 +311,15 @@ def main(options: CompileAllOptions) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("limit_to", type=Path, nargs="*", metavar="LIMIT_TO")
+    parser.add_argument(
+        "-O",
+        "--optimization-level",
+        action="extend",
+        type=int,
+        choices=DEFAULT_OPTIMIZATION,
+        nargs="+",
+        help="Set optimization level of output TEAL / AVM bytecode",
+    )
     options = CompileAllOptions()
     parser.parse_args(namespace=options)
     main(options)
