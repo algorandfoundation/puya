@@ -252,14 +252,8 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         if store.local_id not in self.parameters:
             self._stack_error(f"{store.local_id} is not a parameter")
         self._l_stack_assign_name(store.local_id)
-        if not store.copy:
-            self.l_stack.pop()
-            return [teal.FrameBury(store.index, source_location=store.source_location)]
-        else:
-            return [
-                teal.Dup(source_location=store.source_location),
-                teal.FrameBury(store.index, source_location=store.source_location),
-            ]
+        self.l_stack.pop()
+        return [teal.FrameBury(store.index, source_location=store.source_location)]
 
     def visit_proto(self, proto: models.Proto) -> list[teal.TealOp]:
         return [teal.Proto(proto.parameters, proto.returns, source_location=proto.source_location)]

@@ -236,14 +236,12 @@ class LoadParam(LoadOp):
 @attrs.frozen(eq=False)
 class StoreParam(StoreOp):
     index: int
-    copy: bool = False
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_param(self)
 
     def __str__(self) -> str:
-        copy = "(copy)" if self.copy else "(no copy)"
-        return f"store {self.local_id} to parameters {copy}"
+        return f"store {self.local_id} to parameters"
 
 
 @attrs.frozen(eq=False)
