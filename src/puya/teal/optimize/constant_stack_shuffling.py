@@ -26,7 +26,7 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
                 case models.Cover(n=n) if n < len(loads):
                     modified = True
                     to_cover = loads.pop()
-                    loads.insert(-n, to_cover)
+                    loads.insert(len(loads) - n, to_cover)
                 case _:
                     result.extend(loads)
                     loads = []
