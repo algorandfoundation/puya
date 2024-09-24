@@ -1,0 +1,50 @@
+#pragma version 10
+
+test_cases.bug_load_store_load_store.contract.MyContract.approval_program:
+    byte ""
+    int 0
+    dup
+
+main_for_header@1:
+    dup
+    int 2
+    <
+    bz main_after_for@11
+    callsub get_bool
+    bnz main_after_if_else@9
+    callsub get_bool
+    dig 2
+    bury 4
+    bz main_after_if_else@8
+    callsub get_bool
+    dig 2
+    bury 4
+    bnz main_after_if_else@7
+    dig 1
+    int 123
+    +
+    bury 3
+
+main_after_if_else@7:
+
+main_after_if_else@8:
+    dig 2
+    bury 2
+
+main_after_if_else@9:
+    dup
+    int 1
+    +
+    bury 1
+    b main_for_header@1
+
+main_after_for@11:
+    dig 1
+    return
+
+
+// test_cases.bug_load_store_load_store.contract.get_bool() -> uint64:
+get_bool:
+    proto 0 1
+    int 1
+    retsub

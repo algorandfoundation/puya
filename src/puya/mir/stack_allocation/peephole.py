@@ -95,12 +95,16 @@ def optimize_pair(
             match a, b:
                 case mir.LoadLStack(copy=False) as load, mir.StoreLStack(copy=True):
                     return attrs.evolve(load, copy=True), *maybe_virtuals
+                # consider this sequence Load*, Virtual(Store*), Virtual(Load*), Store*
+                # can't just remove outer virtuals because inner virtual ops assume "something"
+                # loaded a value onto the stack, so need to keep entire sequence around as
+                # virtual ops
                 case mir.LoadXStack(), mir.StoreXStack(copy=False):
-                    return maybe_virtuals
+                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
                 case mir.LoadFStack(), mir.StoreFStack():
-                    return maybe_virtuals
+                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
                 case mir.LoadVirtual(), mir.StoreVirtual():
-                    return maybe_virtuals
+                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
     else:
         match a, b:
             case (
