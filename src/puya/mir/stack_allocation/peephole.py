@@ -90,34 +90,20 @@ def optimize_pair(
         # otherwise keep around as virtual stack op
         return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
 
-    if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp):
-        if a.local_id == b.local_id:
-            match a, b:
-                case mir.LoadLStack(copy=False) as load, mir.StoreLStack(copy=True):
-                    return attrs.evolve(load, copy=True), *maybe_virtuals
-                # consider this sequence Load*, Virtual(Store*), Virtual(Load*), Store*
-                # can't just remove outer virtuals because inner virtual ops assume "something"
-                # loaded a value onto the stack, so need to keep entire sequence around as
-                # virtual ops
-                case mir.LoadXStack(), mir.StoreXStack(copy=False):
-                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
-                case mir.LoadFStack(), mir.StoreFStack():
-                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
-                case mir.LoadVirtual(), mir.StoreVirtual():
-                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
-    else:
+    if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
-            case (
-                mir.StoreParam(copy=False, local_id=a_local_id) as store_param,
-                mir.LoadParam(local_id=b_local_id),
-            ) if a_local_id == b_local_id:
-                # if we have a store to param and then read from param,
-                # we can reduce the program size byte 1 byte by copying
-                # and then storing instead
-                # i.e. frame_bury -x; frame_dig -x
-                # =>   dup; frame_bury -x
-                store_with_copy = attrs.evolve(store_param, copy=True)
-                return store_with_copy, *maybe_virtuals
+            case mir.LoadLStack(copy=False) as load, mir.StoreLStack(copy=True):
+                return attrs.evolve(load, copy=True), *maybe_virtuals
+            # consider this sequence Load*, Virtual(Store*), Virtual(Load*), Store*
+            # can't just remove outer virtuals because inner virtual ops assume "something"
+            # loaded a value onto the stack, so need to keep entire sequence around as
+            # virtual ops
+            case mir.LoadXStack(), mir.StoreXStack(copy=False):
+                return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+            case mir.LoadFStack(), mir.StoreFStack():
+                return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+            case mir.LoadVirtual(), mir.StoreVirtual():
+                return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
     return None
 
 
