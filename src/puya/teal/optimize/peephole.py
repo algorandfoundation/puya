@@ -77,6 +77,9 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
         # `frame_dig n; frame_bury n` is redundant
         case models.FrameDig(n=dig_n), models.FrameBury(n=bury_n) if dig_n == bury_n:
             return [], True
+        # `frame_bury n; frame_dig n` can be simplified to dup; frame_bury n
+        case models.FrameBury(n=dig_n), models.FrameDig(n=bury_n) if dig_n == bury_n:
+            return [models.Dup(source_location=None), a], True
         # `dup; swap` -> `dup`
         case models.TealOp(op_code="dup" | "dupn"), maybe_swap if is_stack_swap(maybe_swap):
             return [a], True
