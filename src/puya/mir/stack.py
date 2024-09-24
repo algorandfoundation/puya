@@ -89,40 +89,51 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         )
 
     def _f_stack_append(self, local_id: str, *, defined: bool) -> teal.StackManipulation:
-        self._f_stack.append(local_id)
+        index = len(self._f_stack)
+        self._f_stack.insert(index, local_id)
         return teal.StackManipulation(
-            stack="f",
             manipulation="insert",
-            index=len(self.f_stack) - 1,
+            index=index,
             local_id=local_id,
             defined=defined,
         )
 
     def _x_stack_insert(self, local_id: str) -> teal.StackManipulation:
         self._x_stack.insert(0, local_id)
-        return teal.StackManipulation(stack="x", manipulation="insert", index=0, local_id=local_id)
+        return teal.StackManipulation(
+            manipulation="insert", index=len(self._f_stack), local_id=local_id
+        )
 
     def _x_stack_pop(self, index: int = -1) -> teal.StackManipulation:
+        if index < 0:
+            index += len(self._x_stack)
         local_id = self._x_stack.pop(index)
         return teal.StackManipulation(
-            stack="x", manipulation="pop", index=index, local_id=local_id
+            manipulation="pop", index=len(self._f_stack) + index, local_id=local_id
         )
 
     def _l_stack_pop(self, index: int = -1) -> teal.StackManipulation:
+        if index < 0:
+            index += len(self._l_stack)
         removed = self._l_stack.pop(index)
-        return teal.StackManipulation(stack="l", manipulation="pop", index=index, local_id=removed)
+        return teal.StackManipulation(
+            manipulation="pop",
+            index=len(self._f_stack) + len(self._x_stack) + index,
+            local_id=removed,
+        )
 
     def _l_stack_insert(self, index: int, local_id: str) -> teal.StackManipulation:
+        if index < 0:
+            index += len(self._l_stack)
         self._l_stack.insert(index, local_id)
         return teal.StackManipulation(
-            stack="l", manipulation="insert", index=index, local_id=local_id
+            manipulation="insert",
+            index=len(self._f_stack) + len(self._x_stack) + index,
+            local_id=local_id,
         )
 
     def _l_stack_append(self, local_id: str) -> teal.StackManipulation:
-        self._l_stack.append(local_id)
-        return teal.StackManipulation(
-            stack="l", manipulation="insert", index=len(self._l_stack) - 1, local_id=local_id
-        )
+        return self._l_stack_insert(len(self._l_stack), local_id)
 
     def _l_stack_copy(self, local_id: str) -> teal.StackManipulation:
         return self._l_stack_append(f"{local_id} (copy)")
@@ -196,7 +207,7 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
 
     def _store_f_stack(
         self, local_id: str, source_location: SourceLocation | None
-    ) -> teal.Cover | teal.FrameBury | teal.Bury:
+    ) -> teal.FrameBury | teal.Bury:
         if local_id not in self.f_stack:
             self._stack_error(f"{local_id} not found in f-stack")
 
@@ -204,16 +215,14 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         frame_bury = self.f_stack.index(local_id)
         bury = self._get_f_stack_dig_bury(local_id)
         pop = self._l_stack_pop()
-        store = teal.StackManipulation(
-            stack="f", manipulation="define", index=0, local_id=local_id
-        )
+        define = teal.StackManipulation(manipulation="define", index=0, local_id=local_id)
         if self.use_frame:
             return teal.FrameBury(
-                frame_bury, stack_manipulations=[pop, store], source_location=source_location
+                frame_bury, stack_manipulations=[pop, define], source_location=source_location
             )
         else:
             return teal.Bury(
-                bury, stack_manipulations=[pop, store], source_location=source_location
+                bury, stack_manipulations=[pop, define], source_location=source_location
             )
 
     def _insert_f_stack(self, local_id: str, source_location: SourceLocation | None) -> teal.Cover:
