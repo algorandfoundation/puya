@@ -1,4 +1,16 @@
 # CHANGELOG
+## v3.2.0 (2024-09-24)
+
+### Feature
+
+* expand handling of literal expressions to allow combining them with binary boolean operators, and improve error messaging when handling of type unions in nested bool contexts ([`b4e0c30`](https://github.com/algorandfoundation/puya/commit/b4e0c306e59dab70664f0c2509bc5eb9458b2821))
+
+### Fix
+
+* prevent error that occurs when removing a series of redundant Load and Store ops ([`17778b8`](https://github.com/algorandfoundation/puya/commit/17778b859d4e0b0f3dbc329afbd64f8908470d5d))
+
+* fix compilation error when a nested tuple is passed as a named argument ([`d849496`](https://github.com/algorandfoundation/puya/commit/d849496dfe5b4b14ee1cc38cfdce8cfb8066c70d))
+
 ## v3.1.0 (2024-09-13)
 
 ### Feature
