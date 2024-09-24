@@ -198,11 +198,7 @@ class IntBlock(TealOp):
     op_code: str = attrs.field(default="intcblock", init=False)
     constants: Mapping[int | str, SourceLocation | None]
     consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(init=False)
-
-    @produces.default
-    def _produces(self) -> int:
-        return len(self.constants)
+    produces: int = attrs.field(default=0, init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -264,11 +260,7 @@ class BytesBlock(TealOp):
     op_code: str = attrs.field(default="bytecblock", init=False)
     constants: Mapping[bytes | str, tuple[AVMBytesEncoding, SourceLocation | None]]
     consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(init=False)
-
-    @produces.default
-    def _produces(self) -> int:
-        return len(self.constants)
+    produces: int = attrs.field(default=0, init=False)
 
     @property
     def immediates(self) -> Sequence[str]:
