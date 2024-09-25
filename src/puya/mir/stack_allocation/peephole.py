@@ -4,47 +4,10 @@ import attrs
 
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
-from puya.mir.stack import Stack
-from puya.teal import models as teal
-from puya.teal.optimize.peephole import is_redundant_rotate as is_redundant_rotate_teal
-
-
-def optimize_single(stack_before_a: Stack, a: mir.BaseOp) -> mir.BaseOp:
-    if isinstance(a, mir.MemoryOp):
-        teal_ops = a.accept(stack_before_a.copy())
-        match teal_ops:
-            case [teal.Cover(0) | teal.Uncover(0)]:
-                return mir.VirtualStackOp(a)
-    return a
-
-
-def is_redundant_rotate_mir(
-    stack: Stack, a: mir.MemoryOp, maybe_virtuals: Sequence[mir.BaseOp], b: mir.MemoryOp
-) -> bool:
-    stack_after_a = stack.copy()
-    a_teal = a.accept(stack_after_a)
-    try:
-        (a_op,) = a_teal
-    except ValueError:
-        return False
-
-    # optimization: the virtual op is applied here instead of outside optimize_pair
-    # as it is a hot path so deferring it until it is actually required saves some time
-
-    stack = stack_after_a.copy()
-    for virtual in maybe_virtuals:
-        virtual.accept(stack)
-    b_teal = b.accept(stack)
-    try:
-        (b_op,) = b_teal
-    except ValueError:
-        return False
-    return is_redundant_rotate_teal(a_op, b_op)
 
 
 def optimize_pair(
     ctx: SubroutineCodeGenContext,
-    stack: Stack,  # stack state before a
     a: mir.BaseOp,
     # represents virtual ops that may be between a and b
     maybe_virtuals: Sequence[mir.BaseOp],
@@ -55,16 +18,38 @@ def optimize_pair(
     # this function has been optimized to reduce the number of isinstance checks,
     # consider this when making any modifications
 
+    # goal: get rid of VirtualStackOp
+    # goal: remove usage of stack in mir
+    # goal: stack can then be refactored into a teal op builder?
+    #       minimal stack manipulations on teal ops?
+    # move local_id into produces of previous op, and eliminate redundant stores where possible
+    # TODO: can we simplify a sequence of Stores following a tuple load?
+    # TODO: other stores
+    # move local_ids to source where possible
+    if (
+        not maybe_virtuals
+        and isinstance(b, mir.StoreLStack | mir.StoreXStack | mir.StoreFStack)
+        and len(a.produces)
+        and a.produces[-1] != b.local_id
+    ):
+        a = attrs.evolve(a, produces=(*a.produces[:-1], b.local_id))
+        return a, b
+
+    # remove redundant stores and loads
+    if not maybe_virtuals and a.produces and a.produces[-1] == _get_local_id_alias(b):
+        return (a,)
+
     if isinstance(b, mir.StoreVirtual) and b.local_id not in ctx.vla.get_live_out_variables(b):
         # aka dead store removal
         match a:
             case mir.StoreLStack(copy=True) as cover:
+                assert not ctx.l_stack_depth_calculated, "dead store no longer allowed"
                 # StoreLStack is used to:
                 #   1.) store a variable for retrieval later via a load
                 #   2.) store a copy at the bottom of the stack for use in a later op
                 # If it is a dead store, then the 1st scenario is no longer needed
                 # and instead just need to ensure the value is moved to the bottom of the stack
-                return attrs.evolve(cover, copy=False), *maybe_virtuals
+                return attrs.evolve(cover, copy=False, produces=()), *maybe_virtuals
         return a, mir.Pop(n=1, source_location=b.source_location), *maybe_virtuals
 
     # optimization: cases after here are only applicable if "a" is a MemoryOp
@@ -78,23 +63,40 @@ def optimize_pair(
     if not isinstance(b, mir.MemoryOp):
         return None
 
-    if is_redundant_rotate_mir(stack, a, maybe_virtuals, b):
+    if _is_redundant_rotate(a, b):
         return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
 
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
             case mir.LoadLStack(copy=False) as load, mir.StoreLStack(copy=True):
-                return attrs.evolve(load, copy=True), *maybe_virtuals
+                assert not ctx.l_stack_depth_calculated
+                return (
+                    attrs.evolve(
+                        load,
+                        copy=True,
+                        produces=(f"{load.local_id} (copy)",),
+                    ),
+                    *maybe_virtuals,
+                )
             # consider this sequence Load*, Virtual(Store*), Virtual(Load*), Store*
             # can't just remove outer virtuals because inner virtual ops assume "something"
             # loaded a value onto the stack, so need to keep entire sequence around as
             # virtual ops
             case mir.LoadXStack(), mir.StoreXStack():
-                return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+                if maybe_virtuals:
+                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+                else:
+                    return ()
             case mir.LoadFStack(), mir.StoreFStack():
-                return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+                if maybe_virtuals:
+                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+                else:
+                    return ()
             case mir.LoadVirtual(), mir.StoreVirtual():
-                return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+                if maybe_virtuals:
+                    return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+                else:
+                    return ()
     return None
 
 
@@ -107,8 +109,6 @@ class PeepholeResult:
 def peephole_optimization_single_pass(
     ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock
 ) -> PeepholeResult:
-    stack = Stack.for_full_stack(ctx.subroutine, block)
-
     result = block.ops
     curr_op_idx = 0
     modified = False
@@ -119,8 +119,6 @@ def peephole_optimization_single_pass(
             original_op = result[curr_op_idx]
             if type(original_op) is not mir.VirtualStackOp:
                 break
-            # we still need to visit the op, to update the virtual stack
-            original_op.accept(stack)
             curr_op_idx += 1
         else:
             break  # all remaining ops are virtual, we're done
@@ -137,7 +135,7 @@ def peephole_optimization_single_pass(
         modified_pair = False
         if next_op_idx < len(result):
             curr_op, *virtuals, next_op = result[curr_op_idx : next_op_idx + 1]
-            pair_result = optimize_pair(ctx, stack, curr_op, virtuals, next_op)
+            pair_result = optimize_pair(ctx, curr_op, virtuals, next_op)
             if pair_result is not None:
                 modified = modified_pair = True
                 result[curr_op_idx : next_op_idx + 1] = pair_result
@@ -145,12 +143,12 @@ def peephole_optimization_single_pass(
                 # if so VLA needs updating
                 # note we check the "current" at the end of the loop
                 vla_modified = vla_modified or (
-                    next_op is not pair_result[-1]
+                    next_op not in pair_result[-1:]
                     and isinstance(next_op, mir.StoreVirtual | mir.LoadVirtual)
                 )
 
         # optimize the "current" op, if possible
-        result[curr_op_idx] = optimize_single(stack, result[curr_op_idx])
+        # result[curr_op_idx] = optimize_single(stack, result[curr_op_idx])
         # check if we've updated "current" at all, in this iteration,
         # note this could have been done in optimize_pair
         if original_op is not result[curr_op_idx]:
@@ -164,8 +162,46 @@ def peephole_optimization_single_pass(
         elif not modified_pair:
             # otherwise, "current" has not been changed by this loop iteration,
             # and neither has any "next" if it existed,
-            # so we can visit current and advance to the next
-            original_op.accept(stack)
+            # so we can advance to the next
             curr_op_idx += 1
 
     return PeepholeResult(modified=modified, vla_modified=vla_modified)
+
+
+def _is_redundant_rotate(a: mir.MemoryOp, b: mir.MemoryOp) -> bool:
+    rot_a = _get_rotation(a)
+    if rot_a is None:
+        return False
+    rot_b = _get_rotation(b)
+    if rot_b is None:
+        return False
+    # rotate left + rotate right
+    if rot_a + rot_b == 0:
+        return True
+    # two swaps
+    return rot_a == rot_b and rot_a in (1, -1)
+
+
+def _get_rotation(op: mir.MemoryOp) -> int | None:
+    match op:
+        case (
+            mir.StoreLStack(copy=False) | mir.StoreXStack() | mir.StoreFStack(insert=True) as store
+        ):
+            return store.depth
+        case mir.LoadLStack(copy=False, depth=int(depth)) | mir.LoadXStack(depth=depth):
+            return depth
+    return None
+
+
+def _get_local_id_alias(op: mir.BaseOp) -> str | None:
+    """Returns the local_id of a memory op if it has no effect
+    apart from renaming the top variable on the stack"""
+    if isinstance(op, mir.StoreLStack | mir.LoadLStack) and not op.copy and not op.depth:
+        return op.local_id
+    # TODO: the following can only be done if the movement between l-stack and the other stack
+    #       is captured somehow (also check assumption that it needs to be captured...)
+    # if isinstance(op, mir.StoreXStack | mir.LoadXStack) and not op.depth:
+    #    return op.local_id
+    # if isinstance(op, mir.StoreFStack) and op.insert and not op.depth:
+    #    return op.local_id
+    return None

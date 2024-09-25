@@ -25,14 +25,30 @@ _T = t.TypeVar("_T")
 class BaseOp(abc.ABC):
     comment: str | None = None
     source_location: SourceLocation | None = None
+    consumes: int
+    """How many values are removed from the l-stack + x-stack
+    Note: may consume from any where in the stack"""
+    produces: Sequence[str]
+    """How many values are added to the l-stack + x-stack
+    Note: may produce anywhere in the stack"""
 
     @abc.abstractmethod
     def accept(self, visitor: MIRVisitor[_T]) -> _T: ...
 
 
+def _is_single_item(_: object, __: object, value: Sequence[str]) -> None:
+    assert len(value) == 1, "expected single item"
+
+
 @attrs.frozen(eq=False)
 class Int(BaseOp):
     value: int | str
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (str(self.value),)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_int(self)
@@ -45,6 +61,12 @@ class Int(BaseOp):
 class Byte(BaseOp):
     value: bytes
     encoding: AVMBytesEncoding
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (format_bytes(self.value, self.encoding),)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_byte(self)
@@ -58,6 +80,12 @@ class TemplateVar(BaseOp):
     name: str
     atype: AVMType = attrs.field()
     op_code: typing.Literal["int", "byte"] = attrs.field(init=False)
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (self.name,)
 
     @op_code.default
     def _default_opcode(self) -> typing.Literal["int", "byte"]:
@@ -81,6 +109,12 @@ class TemplateVar(BaseOp):
 @attrs.frozen(eq=False)
 class Address(BaseOp):
     value: str
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (f"Address({self.value})",)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_address(self)
@@ -92,6 +126,12 @@ class Address(BaseOp):
 @attrs.frozen(eq=False)
 class Method(BaseOp):
     value: str
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (f"Method({self.value})",)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_method(self)
@@ -103,6 +143,8 @@ class Method(BaseOp):
 @attrs.frozen(eq=False)
 class Comment(BaseOp):
     comment: str
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_comment(self)
@@ -144,6 +186,9 @@ class LoadOp(MemoryOp, abc.ABC):
 
 @attrs.frozen(eq=False)
 class StoreVirtual(StoreOp):
+    consumes: int = attrs.field(default=1, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
+
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_virtual(self)
 
@@ -153,6 +198,13 @@ class StoreVirtual(StoreOp):
 
 @attrs.frozen(eq=False)
 class LoadVirtual(LoadOp):
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (self.local_id,)
+
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_virtual(self)
 
@@ -162,8 +214,23 @@ class LoadVirtual(LoadOp):
 
 @attrs.frozen(eq=False, kw_only=True)
 class StoreLStack(StoreOp):
-    cover: int = attrs.field(validator=attrs.validators.ge(0))
-    copy: bool = True
+    depth: int = attrs.field(validator=attrs.validators.ge(0))
+    copy: bool
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field()
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        # produces can't sufficiently describe the stack change
+        # TODO: maybe split the copy out into a Dup operation
+        # on copy:
+        #   dup and alias as (copy)
+        # rotates local_id into the l-stack
+        return (f"{self.local_id} (copy)",) if self.copy else ()
+
+    @produces.validator
+    def _validate_produces(self, _: object, value: Sequence[str]) -> None:
+        assert len(value) == (1 if self.copy else 0), "invalid produces size"
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_l_stack(self)
@@ -175,7 +242,22 @@ class StoreLStack(StoreOp):
 
 @attrs.frozen(eq=False)
 class LoadLStack(LoadOp):
-    copy: bool = False
+    copy: bool
+    consumes: int = attrs.field(init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    # depth can only be defined after koopmans pass and dead store removal
+    depth: int | None = None
+
+    @consumes.default
+    def _consumes(self) -> int:
+        return 0 if self.copy else 1
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        produces = self.local_id
+        if self.copy:
+            produces += " (copy)"
+        return (produces,)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_l_stack(self)
@@ -187,6 +269,14 @@ class LoadLStack(LoadOp):
 
 @attrs.frozen(eq=False)
 class StoreXStack(StoreOp):
+    depth: int = attrs.field(validator=attrs.validators.ge(0))
+    consumes: int = attrs.field(default=1, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (self.local_id,)
+
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_x_stack(self)
 
@@ -196,6 +286,14 @@ class StoreXStack(StoreOp):
 
 @attrs.frozen(eq=False)
 class LoadXStack(LoadOp):
+    depth: int = attrs.field(validator=attrs.validators.ge(0))
+    consumes: int = attrs.field(default=1, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (self.local_id,)
+
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_x_stack(self)
 
@@ -205,7 +303,10 @@ class LoadXStack(LoadOp):
 
 @attrs.frozen(eq=False)
 class StoreFStack(StoreOp):
+    depth: int = attrs.field(validator=attrs.validators.ge(0))
     insert: bool = False
+    consumes: int = attrs.field(default=1, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_f_stack(self)
@@ -216,6 +317,14 @@ class StoreFStack(StoreOp):
 
 @attrs.frozen(eq=False)
 class LoadFStack(LoadOp):
+    depth: int = attrs.field(validator=attrs.validators.ge(0))
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (f"{self.local_id} (copy)",)
+
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_f_stack(self)
 
@@ -226,6 +335,12 @@ class LoadFStack(LoadOp):
 @attrs.frozen(eq=False)
 class LoadParam(LoadOp):
     index: int
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+
+    @produces.default
+    def _produces(self) -> Sequence[str]:
+        return (f"{self.local_id} (copy)",)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_param(self)
@@ -237,6 +352,8 @@ class LoadParam(LoadOp):
 @attrs.frozen(eq=False)
 class StoreParam(StoreOp):
     index: int
+    consumes: int = attrs.field(default=1, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_param(self)
@@ -248,6 +365,12 @@ class StoreParam(StoreOp):
 @attrs.frozen(eq=False)
 class Pop(MemoryOp):
     n: int
+    consumes: int = attrs.field(init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
+
+    @consumes.default
+    def _consumes(self) -> int:
+        return self.n
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_pop(self)
@@ -260,6 +383,9 @@ class Pop(MemoryOp):
 @attrs.frozen(eq=False)
 class VirtualStackOp(BaseOp):
     """A no-op that manipulates the virtual stack"""
+
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     original: BaseOp
     source_location: SourceLocation | None = attrs.field(init=False)
@@ -279,6 +405,8 @@ class VirtualStackOp(BaseOp):
 class Proto(BaseOp):
     parameters: int
     returns: int
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_proto(self)
@@ -291,6 +419,11 @@ class Proto(BaseOp):
 class Allocate(BaseOp):
     bytes_vars: Sequence[str]
     uint64_vars: Sequence[str]
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(init=False)
+
+    def _produces(self) -> Sequence[str]:
+        return self.allocate_on_entry
 
     @property
     def allocate_on_entry(self) -> Sequence[str]:
@@ -316,6 +449,16 @@ class CallSub(BaseOp):
     target: str
     parameters: int
     returns: int
+    consumes: int = attrs.field(init=False)
+    produces: Sequence[str] = attrs.field()
+
+    @consumes.default
+    def _consumes(self) -> int:
+        return self.parameters
+
+    @produces.validator
+    def _validate_produces(self, _: object, value: Sequence[str]) -> None:
+        assert len(value) == self.returns, "invalid produces size"
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_callsub(self)
@@ -328,6 +471,8 @@ class CallSub(BaseOp):
 class RetSub(MemoryOp):
     returns: int
     f_stack_size: int = 0
+    consumes: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_retsub(self)
@@ -342,8 +487,6 @@ class IntrinsicOp(BaseOp):
 
     # TODO: use enum values for these ops
     op_code: str
-    consumes: int
-    produces: int | Sequence[str]
     immediates: Sequence[str | int] = attrs.field(default=(), converter=tuple[str | int, ...])
 
     def __attrs_post_init__(self) -> None:
@@ -376,7 +519,7 @@ class BranchingOp(IntrinsicOp, abc.ABC):
 class Branch(BranchingOp):
     op_code: str = attrs.field(default="b", init=False)
     consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(
         validator=[attrs.validators.min_len(1), attrs.validators.max_len(1)],
         converter=tuple[str, ...],
@@ -390,7 +533,7 @@ class Branch(BranchingOp):
 class BranchNonZero(BranchingOp):
     op_code: str = attrs.field(default="bnz", init=False)
     consumes: int = attrs.field(default=1, init=False)
-    produces: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(
         validator=[attrs.validators.min_len(1), attrs.validators.max_len(1)],
         converter=tuple[str, ...],
@@ -404,7 +547,7 @@ class BranchNonZero(BranchingOp):
 class BranchZero(BranchingOp):
     op_code: str = attrs.field(default="bz", init=False)
     consumes: int = attrs.field(default=1, init=False)
-    produces: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(
         validator=[attrs.validators.min_len(1), attrs.validators.max_len(1)],
         converter=tuple[str, ...],
@@ -418,31 +561,23 @@ class BranchZero(BranchingOp):
 class Switch(BranchingOp):
     op_code: str = attrs.field(default="switch", init=False)
     consumes: int = attrs.field(default=1, init=False)
-    produces: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(converter=tuple[str, ...])
 
     def targets(self) -> Sequence[str]:
         return self.immediates
 
 
-@attrs.frozen(eq=False, init=False)
+@attrs.frozen(eq=False)
 class Match(BranchingOp):
     op_code: str = attrs.field(default="match", init=False)
-    produces: int = attrs.field(default=0, init=False)
+    produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(converter=tuple[str, ...])
+    consumes: int = attrs.field(init=False)
 
-    def __init__(
-        self,
-        immediates: Sequence[str],
-        comment: str | None = None,
-        source_location: SourceLocation | None = None,
-    ):
-        self.__attrs_init__(
-            immediates=immediates,
-            consumes=len(immediates) + 1,
-            comment=comment,
-            source_location=source_location,
-        )
+    @consumes.default
+    def _consumes(self) -> int:
+        return len(self.immediates) + 1
 
     def targets(self) -> Sequence[str]:
         return self.immediates
@@ -465,6 +600,13 @@ class MemoryBasicBlock:
 
     def __repr__(self) -> str:
         return self.block_name
+
+    def get_stack_height(self, n: int) -> int:
+        """Returns the stack height before the nth op"""
+        height = len(self.x_stack_in or ())
+        for op in self.ops[:n]:
+            height += len(op.produces) - op.consumes
+        return height
 
     @property
     def entry_stack_height(self) -> int:
@@ -527,3 +669,14 @@ class Program:
     def all_subroutines(self) -> Iterator[MemorySubroutine]:
         yield self.main
         yield from self.subroutines
+
+
+def produces_from_desc(desc: str, size: int) -> Sequence[str]:
+    desc = f"{{{desc}}}"
+    if size > 1:
+        produces = [f"{desc}.{n}" for n in range(size)]
+    elif size == 1:
+        produces = [desc]
+    else:
+        produces = []
+    return produces

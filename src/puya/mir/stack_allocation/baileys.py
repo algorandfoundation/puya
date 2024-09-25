@@ -134,6 +134,7 @@ def add_x_stack_ops(record: BlockRecord) -> None:
     load_ops = get_x_stack_load_ops(record)
     store_ops = get_x_stack_store_ops(record)
 
+    x_stack = list(block.x_stack_in or ())
     for index, op in enumerate(block.ops):
         if op in store_ops:
             assert isinstance(op, mir.StoreVirtual)
@@ -141,16 +142,21 @@ def add_x_stack_ops(record: BlockRecord) -> None:
             # scheduled are on the x-stack
             block.ops[index] = mir.StoreXStack(
                 local_id=op.local_id,
+                depth=block.get_stack_height(index) - 1,  # store to bottom
                 atype=op.atype,
                 source_location=op.source_location,
             )
+            x_stack.insert(0, op.local_id)
         elif op in load_ops:
             assert isinstance(op, mir.LoadVirtual)
+            depth = block.get_stack_height(index) - x_stack.index(op.local_id) - 1
             block.ops[index] = mir.LoadXStack(
                 local_id=op.local_id,
+                depth=depth,
                 atype=op.atype,
                 source_location=op.source_location,
             )
+            x_stack.remove(op.local_id)
 
 
 def add_x_stack_ops_to_edge_sets(edge_sets: Sequence[EdgeSet]) -> None:

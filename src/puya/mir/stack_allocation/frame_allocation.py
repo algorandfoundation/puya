@@ -97,26 +97,44 @@ def allocate_locals_on_stack(ctx: SubroutineCodeGenContext) -> None:
         block.f_stack_in = block.f_stack_out = all_f_stack
 
     removed_virtual = False
+    f_stack_height = len(allocate_at_entry)
     for block in subroutine.body:
         for index, op in enumerate(block.ops):
             match op:
                 case mir.StoreVirtual(
                     local_id=local_id, source_location=src_location, atype=atype
                 ):
+                    insert = op in first_store_ops
+                    depth = (
+                        block.get_stack_height(index)
+                        + f_stack_height
+                        - all_f_stack.index(local_id)
+                        - 1
+                    )
                     block.ops[index] = mir.StoreFStack(
                         local_id=local_id,
+                        depth=depth,
                         source_location=src_location,
-                        insert=op in first_store_ops,
+                        insert=insert,
                         atype=atype,
                     )
+                    if insert:
+                        f_stack_height += 1
                     removed_virtual = True
                 case mir.LoadVirtual(
                     local_id=local_id,
                     source_location=src_location,
                     atype=atype,
                 ):
+                    depth = (
+                        block.get_stack_height(index)
+                        + f_stack_height
+                        - all_f_stack.index(local_id)
+                        - 1
+                    )
                     block.ops[index] = mir.LoadFStack(
                         local_id=local_id,
+                        depth=depth,
                         source_location=src_location,
                         atype=atype,
                     )
