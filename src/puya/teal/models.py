@@ -21,18 +21,17 @@ TEAL_ALIASES = {
 @attrs.frozen
 class StackManipulation:
     manipulation: typing.Literal["insert", "pop", "define"]
-    stack: typing.Literal["f", "x", "l"]
     local_id: str
     index: int
     defined: bool = True
 
     def __str__(self) -> str:
         if self.manipulation == "insert":
-            return f"{self.stack}.insert({self.index}, {self.local_id!r})"
+            return f"insert({self.index}, {self.local_id!r}, defined={self.defined})"
         elif self.manipulation == "pop":
-            return f"{self.stack}.pop({self.index}) == {self.local_id!r}"
+            return f"pop({self.index}) == {self.local_id!r}"
         else:
-            return f"{self.stack}.define({self.local_id!r}, {self.defined})"
+            return f"define({self.local_id!r})"
 
 
 @attrs.frozen(kw_only=True)
@@ -483,16 +482,10 @@ class TealBlock:
             )
 
     def _validate_stack_manipulations(self) -> None:
-        x_stack = list(self.x_stack)
-        l_stack = list[str]()
+        stack = [""] * (self.entry_stack_height - len(self.x_stack))
+        stack.extend(self.x_stack)
         for op in self.ops:
             for sm in op.stack_manipulations:
-                if sm.stack == "l":
-                    stack = l_stack
-                elif sm.stack == "x":
-                    stack = x_stack
-                else:
-                    continue
                 if sm.manipulation == "insert":
                     try:
                         stack.insert(sm.index, sm.local_id)
@@ -505,7 +498,7 @@ class TealBlock:
                     except IndexError:
                         stack_desc = ",".join(stack)
                         raise InternalError(
-                            f"could not find {sm.local_id!r} in {sm.stack!r} stack: {stack_desc}"
+                            f"could not find {sm.local_id!r} stack: {stack_desc}"
                         ) from None
                 # TODO: check define too?
 

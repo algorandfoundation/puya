@@ -15,14 +15,9 @@ class Event:
     retsub: bool = False
     params: Mapping[str, str] | None = None
     """Also defines the p-stack, which holds the parameters passed via the stack to a function"""
-    f_stack_out: Sequence[str] | None = None
-    """Frame stack, the variables defined relative to the a function's frame"""
-    x_stack_in: Sequence[str] | None = None
-    x_stack_out: Sequence[str] | None = None
-    """Transfer stack, for passing variables between blocks"""
-    l_stack_out: Sequence[str] | None = None
-    """Local stack, variables used within a block"""
-    # TODO: split separate e_stack from l_stack?
+    stack_in: Sequence[str] | None = None
+    stack_out: Sequence[str] | None = None
+    """The variables defined relative to a function's current subroutine frame"""
     defined_out: Sequence[str] | None = None
 
 
