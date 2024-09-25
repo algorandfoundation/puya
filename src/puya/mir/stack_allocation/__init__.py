@@ -1,19 +1,36 @@
-from puya.mir.context import SubroutineCodeGenContext
-from puya.mir.stack_allocation.baileys import baileys
-from puya.mir.stack_allocation.frame_allocation import allocate_locals_on_stack
-from puya.mir.stack_allocation.koopmans import koopmans
+from pathlib import Path
+
+from puya.mir import models
+from puya.mir.context import ProgramMIRContext, SubroutineCodeGenContext
+from puya.mir.output import output_memory_ir
+from puya.mir.stack_allocation.f_stack import f_stack_allocation
+from puya.mir.stack_allocation.l_stack import l_stack_allocation
 from puya.mir.stack_allocation.peephole import peephole_optimization_single_pass
+from puya.mir.stack_allocation.x_stack import x_stack_allocation
 
 # Note: implementation of http://www.euroforth.org/ef06/shannon-bailey06.pdf
 
 
-def global_stack_allocation(sub_ctx: SubroutineCodeGenContext) -> None:
-    koopmans(sub_ctx)
-    _peephole_optimization(sub_ctx)
-    baileys(sub_ctx)
-    _peephole_optimization(sub_ctx)
-    allocate_locals_on_stack(sub_ctx)
-    _peephole_optimization(sub_ctx)
+def global_stack_allocation(
+    ctx: ProgramMIRContext, program: models.Program, mir_output_path: Path | None
+) -> None:
+    for idx, (desc, method) in enumerate(
+        {
+            "lstack": l_stack_allocation,
+            "lstack.opt": _peephole_optimization,
+            "xstack": x_stack_allocation,
+            "xstack.opt": _peephole_optimization,
+            "fstack": f_stack_allocation,
+            "fstack.opt": _peephole_optimization,
+        }.items()
+    ):
+        for mir_sub in program.all_subroutines:
+            sub_ctx = ctx.for_subroutine(mir_sub)
+            method(sub_ctx)
+        if ctx.options.output_memory_ir and mir_output_path:
+            output_memory_ir(ctx, program, mir_output_path.with_suffix(f".{idx}.{desc}.mir"))
+    if ctx.options.output_memory_ir and mir_output_path:
+        output_memory_ir(ctx, program, mir_output_path)
 
 
 def _peephole_optimization(ctx: SubroutineCodeGenContext) -> None:
