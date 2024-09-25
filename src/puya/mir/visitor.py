@@ -68,9 +68,6 @@ class MIRVisitor(abc.ABC, typing.Generic[_T]):
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> _T: ...
 
     @abc.abstractmethod
-    def visit_virtual_stack(self, nop: models.VirtualStackOp) -> _T: ...
-
-    @abc.abstractmethod
     def visit_address(self, addr: models.Address) -> _T: ...
 
     @abc.abstractmethod

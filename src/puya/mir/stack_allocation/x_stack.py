@@ -7,6 +7,7 @@ from puya import log
 from puya.errors import InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.stack import Stack
 
 logger = log.get_logger(__name__)
 
@@ -128,32 +129,38 @@ def get_x_stack_store_ops(record: BlockRecord) -> set[mir.StoreVirtual]:
     return set(store_ops)
 
 
-def add_x_stack_ops(record: BlockRecord) -> None:
+def add_x_stack_ops(ctx: SubroutineCodeGenContext, record: BlockRecord) -> None:
     block = record.block
     # determine ops to replace
     load_ops = get_x_stack_load_ops(record)
     store_ops = get_x_stack_store_ops(record)
 
+    stack = Stack.begin_block(ctx.subroutine, block)
     for index, op in enumerate(block.ops):
         if op in store_ops:
             assert isinstance(op, mir.StoreVirtual)
             # can replace virtual store op because only variables that could be fully
             # scheduled are on the x-stack
-            block.ops[index] = mir.StoreXStack(
+            block.ops[index] = op = mir.StoreXStack(
                 local_id=op.local_id,
+                depth=stack.xl_height - 1,  # store to bottom
                 atype=op.atype,
                 source_location=op.source_location,
             )
         elif op in load_ops:
             assert isinstance(op, mir.LoadVirtual)
-            block.ops[index] = mir.LoadXStack(
+            block.ops[index] = op = mir.LoadXStack(
                 local_id=op.local_id,
+                depth=stack.xl_height - stack.x_stack.index(op.local_id) - 1,
                 atype=op.atype,
                 source_location=op.source_location,
             )
+        op.accept(stack)
 
 
-def add_x_stack_ops_to_edge_sets(edge_sets: Sequence[EdgeSet]) -> None:
+def add_x_stack_ops_to_edge_sets(
+    ctx: SubroutineCodeGenContext, edge_sets: Sequence[EdgeSet]
+) -> None:
     records = dict.fromkeys(
         b
         for edge_set in edge_sets
@@ -165,7 +172,7 @@ def add_x_stack_ops_to_edge_sets(edge_sets: Sequence[EdgeSet]) -> None:
         assert record.x_stack_out is not None
         record.block.x_stack_in = record.x_stack_in
         record.block.x_stack_out = record.x_stack_out
-        add_x_stack_ops(record)
+        add_x_stack_ops(ctx, record)
 
 
 def _unique_ordered_blocks(blocks: Iterable[BlockRecord]) -> list[BlockRecord]:
@@ -345,7 +352,8 @@ def validate_x_stacks(edge_sets: Sequence[EdgeSet]) -> bool:
     return ok
 
 
-def baileys(ctx: SubroutineCodeGenContext) -> None:
+def x_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
+    # this is basically baileys algorithm
     edge_sets = get_edge_sets(ctx)
     if not edge_sets:
         # nothing to do
@@ -357,4 +365,4 @@ def baileys(ctx: SubroutineCodeGenContext) -> None:
     if not validate_x_stacks(edge_sets):
         raise InternalError("Could not schedule x-stack")
 
-    add_x_stack_ops_to_edge_sets(edge_sets)
+    add_x_stack_ops_to_edge_sets(ctx, edge_sets)
