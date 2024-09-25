@@ -1,4 +1,5 @@
 import typing
+from collections.abc import Sequence
 
 import attrs
 
@@ -150,7 +151,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 immediates=intrinsic.immediates,
                 source_location=intrinsic.source_location,
                 consumes=len(intrinsic.op_signature.args),
-                produces=produces,
+                produces=_produces_from_op(intrinsic.op.code, produces, self.active_op),
                 comment=intrinsic.comment,
             )
         )
@@ -165,6 +166,9 @@ class MemoryIRBuilder(IRVisitor[None]):
             target=self.context.subroutine_names[target],
             parameters=len(target.parameters),
             returns=len(target.returns),
+            produces=_produces_from_op(
+                self.context.subroutine_names[target], len(target.returns), self.active_op
+            ),
             source_location=callsub.source_location,
         )
 
@@ -238,7 +242,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 op_code="return",
                 source_location=retsub.source_location,
                 consumes=len(retsub.result),
-                produces=0,
+                produces=(),
             )
             if self.is_main
             else models.RetSub(source_location=retsub.source_location, returns=len(retsub.result))
@@ -251,7 +255,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 op_code="return",
                 source_location=exit_.source_location,
                 consumes=0,
-                produces=0,
+                produces=(),
             )
         )
 
@@ -262,7 +266,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 comment=fail.comment,
                 source_location=fail.source_location,
                 consumes=0,
-                produces=0,
+                produces=(),
             )
         )
 
@@ -326,3 +330,12 @@ def _unexpected_node(node: ir.IRVisitable) -> typing.Never:
         f" - should have been eliminated in prior stages",
         node.source_location,
     )
+
+
+def _produces_from_op(
+    prefix: str, size: int, maybe_assignment: ir.IRVisitable | None
+) -> Sequence[str]:
+    produces = models.produces_from_desc(prefix, size)
+    if isinstance(maybe_assignment, ir.Assignment):
+        produces = [r.local_id for r in maybe_assignment.targets]
+    return produces

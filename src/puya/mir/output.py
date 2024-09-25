@@ -1,103 +1,70 @@
+import textwrap
 from pathlib import Path
 
 import attrs
 
 from puya import log
 from puya.context import CompileContext
-from puya.ir import models as ir
-from puya.mir import annotaters, models
-from puya.mir.context import ProgramMIRContext
-from puya.utils import attrs_extend
+from puya.mir import models
+from puya.mir.aligned_writer import AlignedWriter
+from puya.mir.stack import Stack
+from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-# virtual stack ops can generate a lot of noise, so only turn on at highest debug level
-VIRTUAL_STACK_DEBUG_LEVEL = 2
 
 
-def _emit_op(
-    context: annotaters.EmitProgramContext,
-    op: models.BaseOp,
-    op_annotaters: list[annotaters.OpAnnotater],
-) -> None:
-    teal_ops = op.accept(context.stack)
-    if not teal_ops:
-        debug_level = context.options.debug_level
-        match op:
-            case models.Comment():
-                context.writer.append(f"// {op.comment}")
-                if debug_level < 1:
-                    context.writer.ignore_line()
-            case _:
-                context.writer.append("")
-                if debug_level < VIRTUAL_STACK_DEBUG_LEVEL:
-                    context.writer.ignore_line()
-    for teal_op_idx, teal_op in enumerate(teal_ops):
-        context.writer.append(teal_op.teal())
-        # omit new line for all but the last op
-        if teal_op_idx < len(teal_ops) - 1:
-            context.writer.new_line()
-    for annotate_op in op_annotaters:
-        annotate_op.annotate(context.writer, op)
-    context.writer.new_line()
-
-
-def _emit_subroutine(
-    context: annotaters.EmitProgramContext, subroutine: models.MemorySubroutine
-) -> None:
-    subroutine_context = attrs_extend(
-        annotaters.EmitSubroutineContext, context, subroutine=subroutine
-    )
-    writer = context.writer
-    writer.append_line(f"// {subroutine.signature}")
-    op_annotaters = [a.create_op_annotater(subroutine_context) for a in context.annotaters]
-    for block in subroutine.all_blocks:
-        if block.ops:
-            context.stack.begin_block(subroutine, block)
-            for annotate_op in op_annotaters:
-                annotate_op.begin_block(writer, block)
-            writer.append_line(f"{block.block_name}:")
-
-            with writer.indent():
-                for op in block.ops:
-                    _emit_op(context, op, op_annotaters)
-            writer.new_line()
-    writer.new_line()
-
-
-def emit_memory_ir(context: ProgramMIRContext, program: models.Program) -> list[str]:
-    mir_annotations = [
-        annotaters.BeginCommentsAnnotater(),
-        annotaters.OpDescriptionAnnotation(),
-        annotaters.StackAnnotation(),
-        annotaters.VLAAnnotation(),
-        annotaters.XStack(),
-        annotaters.SourceAnnotation(),
-    ]
-
-    emit_context = attrs_extend(annotaters.EmitProgramContext, context, annotaters=mir_annotations)
-
-    writer = emit_context.writer
+def output_memory_ir(ctx: CompileContext, program: models.Program, output_path: Path) -> None:
+    writer = AlignedWriter()
     writer.add_header("// Op")
-    for annotater in mir_annotations:
-        annotater.header(writer)
-
-    writer.new_line()
-    writer.append_line(f"#pragma version {context.options.target_avm_version}")
-    writer.new_line()
-
+    writer.add_header("Stack (out)", 4)
     for subroutine in program.all_subroutines:
-        _emit_subroutine(emit_context, subroutine)
-    return writer.write()
+        writer.append_line(f"// {subroutine.signature}")
+        for block in subroutine.all_blocks:
+            stack = Stack.begin_block(subroutine, block)
+            last_location = None
+            if block.ops:
+                writer.append(f"{block.block_name}:")
+                writer.append(stack.full_stack_desc)
+                writer.new_line()
+                with writer.indent():
+                    for op in block.ops:
+                        last_location = _output_src_comment(
+                            ctx, writer, last_location, op.source_location
+                        )
+                        op_str = str(op)
+                        op.accept(stack)
+                        # some ops can be very long (generally due to labels)
+                        # in those (rare?) cases bypass the column alignment
+                        if len(op_str) > 80:
+                            writer.append_line(
+                                writer.current_indent + op_str + " " + stack.full_stack_desc
+                            )
+                        else:
+                            writer.append(op_str)
+                            writer.append(stack.full_stack_desc)
+                            writer.new_line()
+                writer.new_line()
+        writer.new_line()
+    writer.new_line()
+    output_path.write_text("\n".join(writer.write()), "utf8")
 
 
-def output_memory_ir(
-    context: CompileContext, ir_program: ir.Program, mir_program: models.Program, output_path: Path
-) -> None:
-    cg_context = attrs_extend(
-        ProgramMIRContext,
-        context,
-        program=ir_program,
-        options=attrs.evolve(context.options, debug_level=2),
-    )
-    mir_output = emit_memory_ir(cg_context, mir_program)
-    output_path.write_text("\n".join(mir_output), "utf8")
+def _output_src_comment(
+    ctx: CompileContext,
+    writer: AlignedWriter,
+    last_loc: SourceLocation | None,
+    op_loc: SourceLocation | None,
+) -> SourceLocation | None:
+    if op_loc:
+        whole_lines_location = attrs.evolve(op_loc, column=None, end_column=None)
+        if whole_lines_location != last_loc:
+            last_loc = whole_lines_location
+            src = ctx.try_get_source(whole_lines_location)
+            if src is not None:
+                writer.append(f"// {whole_lines_location}")
+                writer.new_line()
+                lines = textwrap.dedent("\n".join(src)).splitlines()
+                for line in lines:
+                    writer.append(f"// {line.rstrip()}")
+                    writer.new_line()
+    return last_loc
