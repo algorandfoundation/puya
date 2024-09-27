@@ -29,7 +29,7 @@ def program_ir_to_mir(
         global_stack_allocation(sub_ctx)
 
     if context.options.output_memory_ir and mir_output_path:
-        output_memory_ir(context, program_ir, result, mir_output_path)
+        output_memory_ir(context, result, mir_output_path)
     return result
 
 

@@ -4,9 +4,9 @@ from collections.abc import Callable, Iterator
 
 import attrs
 
+from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.mir import models
-from puya.mir.context import ProgramMIRContext
 from puya.mir.stack import Stack
 from puya.mir.vla import VariableLifetimeAnalysis
 
@@ -112,7 +112,7 @@ class SimpleOpAnnotater(OpAnnotater):
 
 
 @attrs.frozen(kw_only=True)
-class EmitProgramContext(ProgramMIRContext):
+class EmitProgramContext(CompileContext):
     annotaters: "list[MIRAnnotater]"
     writer: AlignedWriter = attrs.field(factory=AlignedWriter)
     stack: Stack = attrs.field()

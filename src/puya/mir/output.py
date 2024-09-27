@@ -4,9 +4,7 @@ import attrs
 
 from puya import log
 from puya.context import CompileContext
-from puya.ir import models as ir
 from puya.mir import annotaters, models
-from puya.mir.context import ProgramMIRContext
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
@@ -64,7 +62,7 @@ def _emit_subroutine(
     writer.new_line()
 
 
-def emit_memory_ir(context: ProgramMIRContext, program: models.Program) -> list[str]:
+def emit_memory_ir(context: CompileContext, program: models.Program) -> list[str]:
     mir_annotations = [
         annotaters.BeginCommentsAnnotater(),
         annotaters.OpDescriptionAnnotation(),
@@ -91,13 +89,11 @@ def emit_memory_ir(context: ProgramMIRContext, program: models.Program) -> list[
 
 
 def output_memory_ir(
-    context: CompileContext, ir_program: ir.Program, mir_program: models.Program, output_path: Path
+    context: CompileContext, mir_program: models.Program, output_path: Path
 ) -> None:
-    cg_context = attrs_extend(
-        ProgramMIRContext,
+    emit_context = attrs.evolve(
         context,
-        program=ir_program,
         options=attrs.evolve(context.options, debug_level=2),
     )
-    mir_output = emit_memory_ir(cg_context, mir_program)
+    mir_output = emit_memory_ir(emit_context, mir_program)
     output_path.write_text("\n".join(mir_output), "utf8")
