@@ -40,16 +40,8 @@ def optimize_pair(
         return (a,)
 
     if isinstance(b, mir.StoreVirtual) and b.local_id not in ctx.vla.get_live_out_variables(b):
-        # aka dead store removal
-        match a:
-            case mir.StoreLStack(copy=True) as cover:
-                assert not ctx.l_stack_depth_calculated, "dead store no longer allowed"
-                # StoreLStack is used to:
-                #   1.) store a variable for retrieval later via a load
-                #   2.) store a copy at the bottom of the stack for use in a later op
-                # If it is a dead store, then the 1st scenario is no longer needed
-                # and instead just need to ensure the value is moved to the bottom of the stack
-                return attrs.evolve(cover, copy=False, produces=()), *maybe_virtuals
+        # note l-stack dead store removal occurs during l-stack allocation
+        # this handles any other cases
         return a, mir.Pop(n=1, source_location=b.source_location), *maybe_virtuals
 
     # optimization: cases after here are only applicable if "a" is a MemoryOp
@@ -68,16 +60,6 @@ def optimize_pair(
 
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
-            case mir.LoadLStack(copy=False) as load, mir.StoreLStack(copy=True):
-                assert not ctx.l_stack_depth_calculated
-                return (
-                    attrs.evolve(
-                        load,
-                        copy=True,
-                        produces=(f"{load.local_id} (copy)",),
-                    ),
-                    *maybe_virtuals,
-                )
             # consider this sequence Load*, Virtual(Store*), Virtual(Load*), Store*
             # can't just remove outer virtuals because inner virtual ops assume "something"
             # loaded a value onto the stack, so need to keep entire sequence around as

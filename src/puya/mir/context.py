@@ -36,7 +36,6 @@ class ProgramMIRContext(CompileContext):
 @attrs.define(frozen=False)
 class SubroutineCodeGenContext(ProgramMIRContext):
     subroutine: models.MemorySubroutine
-    l_stack_depth_calculated: bool = False
     _vla: VariableLifetimeAnalysis | None = None
 
     @property

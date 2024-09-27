@@ -1,12 +1,10 @@
 import itertools
-from collections.abc import Sequence
 
 import attrs
 
 from puya import log
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
-from puya.mir.visitor import MIRVisitor
 
 logger = log.get_logger(__name__)
 
@@ -30,6 +28,12 @@ def koopmans(ctx: SubroutineCodeGenContext) -> None:
     for block in ctx.subroutine.body:
         usage_pairs = find_usage_pairs(block)
         copy_usage_pairs(block, usage_pairs)
+    for block in ctx.subroutine.body:
+        dead_store_removal(ctx, block)
+    # update vla after dead store removal
+    ctx.invalidate_vla()
+    for block in ctx.subroutine.body:
+        calculate_load_depths(block)
 
 
 def find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
@@ -103,117 +107,56 @@ def copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> Non
         logger.debug(f"Replaced {block.block_name}.ops[{b_index}]: '{b}' with '{uncover}'")
 
 
-def determine_l_stack_depth(ctx: SubroutineCodeGenContext) -> None:
-    for block in ctx.subroutine.body:
-        stack = list[str]()
-        for idx, op in enumerate(block.ops):
-            match op:
-                case mir.StoreLStack(local_id=local_id) as store:
-                    index = len(stack) - store.depth - 1
-                    stack.pop()
-                    stack.insert(index, local_id)
-                    stack.extend(store.produces)
-                case mir.LoadLStack(local_id=local_id) as load:
-                    block.ops[idx] = attrs.evolve(op, depth=len(stack) - stack.index(local_id) - 1)
-                    if not load.copy:
-                        stack.remove(local_id)
-                    stack.append("")
-                case _:
-                    if op.consumes:
-                        stack = stack[: -op.consumes]
-                    stack.extend(op.produces)
-    ctx.l_stack_depth_calculated = True
+def dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
+    ops = block.ops
+    op_idx = 0
+    while op_idx < len(ops) - 1:
+        window = slice(op_idx, op_idx + 2)
+        a, b = ops[window]
+        if (
+            isinstance(a, mir.StoreLStack)
+            and a.copy
+            and isinstance(b, mir.StoreVirtual)
+            and b.local_id not in ctx.vla.get_live_out_variables(b)
+        ):
+            # StoreLStack is used to:
+            #   1.) create copy of the value to be immediately stored via virtual store
+            #   2.) rotate the value to the bottom of the stack for use in a later op in this block
+            # If it is a dead store, then the 1st scenario is no longer needed
+            # and instead just need to ensure the value is moved to the bottom of the stack
+            a = attrs.evolve(a, copy=False, produces=())
+            ops[window] = [a]
+        elif (
+            isinstance(a, mir.LoadLStack)
+            and not a.copy
+            and isinstance(b, mir.StoreLStack)
+            and b.copy
+            and a.local_id == b.local_id
+        ):
+            a = attrs.evolve(
+                a,
+                copy=True,
+                produces=(f"{a.local_id} (copy)",),
+            )
+            ops[window] = [a]
+        op_idx += 1
 
 
-def _get_lstack_before_op(block: mir.MemoryBasicBlock, target_index: int) -> Sequence[str]:
+def calculate_load_depths(block: mir.MemoryBasicBlock) -> None:
     stack = list[str]()
-    for op in block.ops[:target_index]:
+    for idx, op in enumerate(block.ops):
         match op:
             case mir.StoreLStack(local_id=local_id) as store:
-                assert store.copy
-                stack.insert(0, local_id)
-                stack.append("")
+                index = len(stack) - store.depth - 1
+                stack.pop()
+                stack.insert(index, local_id)
+                stack.extend(store.produces)
             case mir.LoadLStack(local_id=local_id) as load:
-                assert not load.copy
-                stack.remove(local_id)
-                stack.append("")
+                block.ops[idx] = attrs.evolve(op, depth=len(stack) - stack.index(local_id) - 1)
+                if not load.copy:
+                    stack.remove(local_id)
+                stack.extend(op.produces)
             case _:
                 if op.consumes:
                     stack = stack[: -op.consumes]
                 stack.extend(op.produces)
-        delta = len(op.produces) - op.consumes
-        assert delta == op.accept(StackDelta()), "invalid delta"
-    return stack
-
-
-class StackDelta(MIRVisitor[int]):
-
-    def visit_int(self, _: mir.Int) -> int:
-        return 1
-
-    def visit_byte(self, _: mir.Byte) -> int:
-        return 1
-
-    def visit_comment(self, _: mir.Comment) -> int:
-        return 0
-
-    def visit_store_l_stack(self, store: mir.StoreLStack) -> int:
-        return 1 if store.copy else 0
-
-    def visit_load_l_stack(self, load: mir.LoadLStack) -> int:
-        return 1 if load.copy else 0
-
-    def visit_store_x_stack(self, _: mir.StoreXStack) -> int:
-        return 0
-
-    def visit_load_x_stack(self, _: mir.LoadXStack) -> int:
-        return 0
-
-    def visit_store_f_stack(self, _: mir.StoreFStack) -> int:
-        return -1
-
-    def visit_load_f_stack(self, _: mir.LoadFStack) -> int:
-        return 1
-
-    def visit_load_param(self, _: mir.LoadParam) -> int:
-        return 1
-
-    def visit_store_param(self, _: mir.StoreParam) -> int:
-        return -1
-
-    def visit_store_virtual(self, _: mir.StoreVirtual) -> int:
-        return -1
-
-    def visit_load_virtual(self, _: mir.LoadVirtual) -> int:
-        return 1
-
-    def visit_proto(self, _: mir.Proto) -> int:
-        return 0
-
-    def visit_allocate(self, allocate: mir.Allocate) -> int:
-        return allocate.num_bytes + allocate.num_uints
-
-    def visit_pop(self, pop: mir.Pop) -> int:
-        return -pop.n
-
-    def visit_callsub(self, callsub: mir.CallSub) -> int:
-        return callsub.returns - callsub.parameters
-
-    def visit_retsub(self, _: mir.RetSub) -> int:
-        return 0
-
-    def visit_intrinsic(self, intrinsic: mir.IntrinsicOp) -> int:
-        produces = len(intrinsic.produces)
-        return produces - intrinsic.consumes
-
-    def visit_virtual_stack(self, _: mir.VirtualStackOp) -> int:
-        return 0
-
-    def visit_address(self, _: mir.Address) -> int:
-        return 1
-
-    def visit_method(self, _: mir.Method) -> int:
-        return 1
-
-    def visit_template_var(self, _: mir.TemplateVar) -> int:
-        return 1
