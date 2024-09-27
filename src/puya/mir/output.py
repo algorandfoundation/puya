@@ -5,6 +5,7 @@ import attrs
 from puya import log
 from puya.context import CompileContext
 from puya.mir import annotaters, models
+from puya.mir.annotaters import AlignedWriter
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
@@ -97,3 +98,21 @@ def output_memory_ir(
     )
     mir_output = emit_memory_ir(emit_context, mir_program)
     output_path.write_text("\n".join(mir_output), "utf8")
+
+
+def output_memory_ir_simple(_: CompileContext, program: models.Program, output_path: Path) -> None:
+    writer = AlignedWriter()
+    for subroutine in program.all_subroutines:
+        writer.append_line(f"// {subroutine.signature}")
+        for block in subroutine.all_blocks:
+            if block.ops:
+                writer.append_line(f"{block.block_name}:")
+
+                with writer.indent():
+                    for op in block.ops:
+                        writer.append(str(op))
+                        writer.new_line()
+                writer.new_line()
+        writer.new_line()
+    writer.new_line()
+    output_path.write_text("\n".join(writer.write()), "utf8")
