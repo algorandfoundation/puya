@@ -193,7 +193,7 @@ class StoreVirtual(StoreOp):
         return visitor.visit_store_virtual(self)
 
     def __str__(self) -> str:
-        return f"store {self.local_id}"
+        return f"v-store {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -209,7 +209,7 @@ class LoadVirtual(LoadOp):
         return visitor.visit_load_virtual(self)
 
     def __str__(self) -> str:
-        return f"load {self.local_id}"
+        return f"v-load {self.local_id}"
 
 
 @attrs.frozen(eq=False, kw_only=True)
@@ -236,8 +236,8 @@ class StoreLStack(StoreOp):
         return visitor.visit_store_l_stack(self)
 
     def __str__(self) -> str:
-        copy = "(copy)" if self.copy else "(no copy)"
-        return f"store {self.local_id} to l-stack {copy}"
+        op = "l-store-copy" if self.copy else "l-store"
+        return f"{op} {self.local_id} {self.depth}"
 
 
 @attrs.frozen(eq=False)
@@ -263,8 +263,9 @@ class LoadLStack(LoadOp):
         return visitor.visit_load_l_stack(self)
 
     def __str__(self) -> str:
-        copy = "(copy)" if self.copy else "(no copy)"
-        return f"load {self.local_id} from l-stack {copy}"
+        depth = "" if self.depth is None else f" {self.depth}"
+        op = "l-load-copy" if self.copy else "l-load"
+        return f"{op} {self.local_id}{depth}"
 
 
 @attrs.frozen(eq=False)
@@ -281,7 +282,7 @@ class StoreXStack(StoreOp):
         return visitor.visit_store_x_stack(self)
 
     def __str__(self) -> str:
-        return f"store {self.local_id} to x-stack"
+        return f"x-store {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -298,7 +299,7 @@ class LoadXStack(LoadOp):
         return visitor.visit_load_x_stack(self)
 
     def __str__(self) -> str:
-        return f"load {self.local_id} from x-stack"
+        return f"x-load {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -312,7 +313,7 @@ class StoreFStack(StoreOp):
         return visitor.visit_store_f_stack(self)
 
     def __str__(self) -> str:
-        return f"store {self.local_id} to f-stack"
+        return f"f-store {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -329,7 +330,7 @@ class LoadFStack(LoadOp):
         return visitor.visit_load_f_stack(self)
 
     def __str__(self) -> str:
-        return f"load {self.local_id} from f-stack"
+        return f"f-load {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -346,7 +347,7 @@ class LoadParam(LoadOp):
         return visitor.visit_load_param(self)
 
     def __str__(self) -> str:
-        return f"load {self.local_id} from parameters"
+        return f"p-load {self.local_id}"
 
 
 @attrs.frozen(eq=False)
@@ -359,7 +360,7 @@ class StoreParam(StoreOp):
         return visitor.visit_store_param(self)
 
     def __str__(self) -> str:
-        return f"store {self.local_id} to parameters"
+        return f"p-store {self.local_id}"
 
 
 @attrs.frozen(eq=False)
