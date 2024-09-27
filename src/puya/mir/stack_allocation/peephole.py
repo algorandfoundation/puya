@@ -14,6 +14,7 @@ def optimize_pair(
     b: mir.BaseOp,
 ) -> Sequence[mir.BaseOp] | None:
     """Given a pair of ops, returns which ops should be kept including replacements"""
+    assert not maybe_virtuals, "expected virtuals to no longer occur"
 
     # this function has been optimized to reduce the number of isinstance checks,
     # consider this when making any modifications
@@ -48,15 +49,12 @@ def optimize_pair(
     if not isinstance(a, mir.MemoryOp):
         return None
 
-    if isinstance(b, mir.Pop) and b.n == 1 and isinstance(a, mir.LoadOp):
-        return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
+    if isinstance(b, mir.Pop) and b.n == 1 and isinstance(a, mir.LoadOp) and not maybe_virtuals:
+        return ()
 
     # optimization: cases after here are only applicable if "b" is a MemoryOp
     if not isinstance(b, mir.MemoryOp):
         return None
-
-    if _is_redundant_rotate(a, b):
-        return mir.VirtualStackOp(a), *maybe_virtuals, mir.VirtualStackOp(b)
 
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
