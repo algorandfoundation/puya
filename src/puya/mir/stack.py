@@ -1,6 +1,5 @@
-import contextlib
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 
 import attrs
 
@@ -498,20 +497,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
                 source_location=intrinsic.source_location,
             )
         ]
-
-    @contextlib.contextmanager
-    def _enter_virtual_stack(self) -> Iterator[None]:
-        original_allow_virtual = self.allow_virtual
-        try:
-            self.allow_virtual = True
-            yield
-        finally:
-            self.allow_virtual = original_allow_virtual
-
-    def visit_virtual_stack(self, virtual: models.VirtualStackOp) -> list[teal.TealOp]:
-        with self._enter_virtual_stack():
-            virtual.original.accept(self)
-        return []
 
     def __str__(self) -> str:
         return self.full_stack_desc

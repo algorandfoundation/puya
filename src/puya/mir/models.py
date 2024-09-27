@@ -379,28 +379,6 @@ class Pop(MemoryOp):
         return f"pop {self.n}"
 
 
-@t.final
-@attrs.frozen(eq=False)
-class VirtualStackOp(BaseOp):
-    """A no-op that manipulates the virtual stack"""
-
-    consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
-
-    original: BaseOp
-    source_location: SourceLocation | None = attrs.field(init=False)
-
-    @source_location.default
-    def _source_location_factory(self) -> SourceLocation | None:
-        return self.original.source_location
-
-    def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_virtual_stack(self)
-
-    def __str__(self) -> str:
-        return f"virtual: {self.original}"
-
-
 @attrs.frozen(eq=False)
 class Proto(BaseOp):
     parameters: int

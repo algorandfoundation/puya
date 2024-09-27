@@ -152,9 +152,7 @@ class OpDescriptionAnnotation(MIRAnnotater):
 
     def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotater:
         def annotate(writer: AlignedWriter, op: models.BaseOp) -> None:
-            if isinstance(
-                op, models.StoreOp | models.LoadOp | models.Allocate | models.VirtualStackOp
-            ):
+            if isinstance(op, models.StoreOp | models.LoadOp | models.Allocate):
                 writer.append(str(op))
             else:
                 writer.append("")
