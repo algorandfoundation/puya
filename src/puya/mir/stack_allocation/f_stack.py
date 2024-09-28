@@ -70,7 +70,7 @@ def get_allocate_op(
     return mir.Allocate(bytes_vars=byte_vars, uint64_vars=uint64_vars)
 
 
-def allocate_locals_on_stack(ctx: SubroutineCodeGenContext) -> None:
+def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     all_variables = ctx.vla.all_variables
     if not all_variables:
         return

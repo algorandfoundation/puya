@@ -351,7 +351,8 @@ def validate_x_stacks(edge_sets: Sequence[EdgeSet]) -> bool:
     return ok
 
 
-def baileys(ctx: SubroutineCodeGenContext) -> None:
+def x_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
+    # this is basically baileys algorithm
     edge_sets = get_edge_sets(ctx)
     if not edge_sets:
         # nothing to do

@@ -24,7 +24,8 @@ class UsagePair:
         return pair.b_index - pair.a_index, pair.a_index, pair.b_index
 
 
-def koopmans(ctx: SubroutineCodeGenContext) -> None:
+def l_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
+    # the following is basically koopmans algorithm
     for block in ctx.subroutine.body:
         usage_pairs = find_usage_pairs(block)
         copy_usage_pairs(block, usage_pairs)
@@ -32,6 +33,7 @@ def koopmans(ctx: SubroutineCodeGenContext) -> None:
         dead_store_removal(ctx, block)
     # update vla after dead store removal
     ctx.invalidate_vla()
+    # calculate load depths now that l-stack allocations are done
     for block in ctx.subroutine.body:
         calculate_load_depths(block)
 
