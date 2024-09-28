@@ -27,10 +27,12 @@ class BaseOp(abc.ABC):
     source_location: SourceLocation | None = None
     consumes: int
     """How many values are removed from the l-stack + x-stack
-    Note: may consume from any where in the stack"""
+    Generally consumes from the top of the l-stack, but LoadLStack and LoadXStack consume from
+    somewhere down the stack"""
     produces: Sequence[str]
-    """How many values are added to the l-stack + x-stack
-    Note: may produce anywhere in the stack"""
+    """The local ids that are added to the l-stack + x-stack
+    Generally produces at the top of the l-stack, but StoreLStack and StoreXStack insert
+    somewhere down the stack"""
 
     @abc.abstractmethod
     def accept(self, visitor: MIRVisitor[_T]) -> _T: ...
@@ -44,6 +46,7 @@ def _is_single_item(_: object, __: object, value: Sequence[str]) -> None:
 class Int(BaseOp):
     value: int | str
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -62,6 +65,7 @@ class Byte(BaseOp):
     value: bytes
     encoding: AVMBytesEncoding
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -81,6 +85,7 @@ class TemplateVar(BaseOp):
     atype: AVMType = attrs.field()
     op_code: typing.Literal["int", "byte"] = attrs.field(init=False)
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -110,6 +115,7 @@ class TemplateVar(BaseOp):
 class Address(BaseOp):
     value: str
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -127,6 +133,7 @@ class Address(BaseOp):
 class Method(BaseOp):
     value: str
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -186,6 +193,7 @@ class LoadOp(MemoryOp, abc.ABC):
 
 @attrs.frozen(eq=False)
 class StoreVirtual(StoreOp):
+    # consumes: end l-stack
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
@@ -199,6 +207,7 @@ class StoreVirtual(StoreOp):
 @attrs.frozen(eq=False)
 class LoadVirtual(LoadOp):
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -216,13 +225,19 @@ class LoadVirtual(LoadOp):
 class StoreLStack(StoreOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     copy: bool
+    # TODO: fix this?
+    #       consumes + produces can't sufficiently describe the stack change without
+    #       knowing the state of the stack
+    #       Because there can be a local_id inserted at depth and at the end (when copying)
+    #       for now this doesn't matter as this specific behaviour is handled during
+    #       l-stack allocation
     consumes: int = attrs.field(default=0, init=False)
+    # produces: insert at depth
     produces: Sequence[str] = attrs.field()
 
     @produces.default
     def _produces(self) -> Sequence[str]:
-        # produces can't sufficiently describe the stack change
-        # TODO: maybe split the copy out into a Dup operation
+
         # on copy:
         #   dup and alias as (copy)
         # rotates local_id into the l-stack
@@ -243,7 +258,9 @@ class StoreLStack(StoreOp):
 @attrs.frozen(eq=False)
 class LoadLStack(LoadOp):
     copy: bool
+    # consumes: at depth
     consumes: int = attrs.field(init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
     # depth can only be defined after koopmans pass and dead store removal
     depth: int | None = None
@@ -271,7 +288,9 @@ class LoadLStack(LoadOp):
 @attrs.frozen(eq=False)
 class StoreXStack(StoreOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
+    # consumes: end
     consumes: int = attrs.field(default=1, init=False)
+    # produces: insert at depth
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -288,7 +307,9 @@ class StoreXStack(StoreOp):
 @attrs.frozen(eq=False)
 class LoadXStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
+    # consumes: at depth
     consumes: int = attrs.field(default=1, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -306,6 +327,7 @@ class LoadXStack(LoadOp):
 class StoreFStack(StoreOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     insert: bool = False
+    # consumes: end
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
@@ -320,6 +342,7 @@ class StoreFStack(StoreOp):
 class LoadFStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -337,6 +360,7 @@ class LoadFStack(LoadOp):
 class LoadParam(LoadOp):
     index: int
     consumes: int = attrs.field(default=0, init=False)
+    # produces: extend l-stack
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
     @produces.default
@@ -353,6 +377,7 @@ class LoadParam(LoadOp):
 @attrs.frozen(eq=False)
 class StoreParam(StoreOp):
     index: int
+    # consumes: end
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
@@ -366,6 +391,7 @@ class StoreParam(StoreOp):
 @attrs.frozen(eq=False)
 class Pop(MemoryOp):
     n: int
+    # consumes: end
     consumes: int = attrs.field(init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
@@ -399,10 +425,7 @@ class Allocate(BaseOp):
     bytes_vars: Sequence[str]
     uint64_vars: Sequence[str]
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(init=False)
-
-    def _produces(self) -> Sequence[str]:
-        return self.allocate_on_entry
+    produces: Sequence[str] = attrs.field(default=(), init=False)
 
     @property
     def allocate_on_entry(self) -> Sequence[str]:
@@ -428,7 +451,9 @@ class CallSub(BaseOp):
     target: str
     parameters: int
     returns: int
+    # consumes: end
     consumes: int = attrs.field(init=False)
+    # produces: extends l-stack
     produces: Sequence[str] = attrs.field()
 
     @consumes.default
@@ -450,6 +475,7 @@ class CallSub(BaseOp):
 class RetSub(MemoryOp):
     returns: int
     f_stack_size: int = 0
+    # l, x & f stacks discarded after this op, so doesn't really matter
     consumes: int = attrs.field(default=0, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
@@ -511,6 +537,7 @@ class Branch(BranchingOp):
 @attrs.frozen(eq=False)
 class BranchNonZero(BranchingOp):
     op_code: str = attrs.field(default="bnz", init=False)
+    # consumes: end
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(
@@ -525,6 +552,7 @@ class BranchNonZero(BranchingOp):
 @attrs.frozen(eq=False)
 class BranchZero(BranchingOp):
     op_code: str = attrs.field(default="bz", init=False)
+    # consumes: end
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(
@@ -539,6 +567,7 @@ class BranchZero(BranchingOp):
 @attrs.frozen(eq=False)
 class Switch(BranchingOp):
     op_code: str = attrs.field(default="switch", init=False)
+    # consumes: end
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(converter=tuple[str, ...])
@@ -550,6 +579,7 @@ class Switch(BranchingOp):
 @attrs.frozen(eq=False)
 class Match(BranchingOp):
     op_code: str = attrs.field(default="match", init=False)
+    # consumes: end
     produces: Sequence[str] = attrs.field(default=(), init=False)
     immediates: Sequence[str] = attrs.field(converter=tuple[str, ...])
     consumes: int = attrs.field(init=False)
@@ -569,18 +599,22 @@ class MemoryBasicBlock:
     predecessors: list[str]
     successors: list[str]
     source_location: SourceLocation
-    # TODO: move this somewhere else?
+    # the ordering of values on the stack is used by debug maps
+    # the assumption is lower levels won't change the order of variables in the stack
+    # however they can introduce changes that do that ordering more efficiently
     x_stack_in: Sequence[str] | None = None
+    """local_ids on x-stack on entry to a block"""
     x_stack_out: Sequence[str] | None = None
+    """local_ids on x-stack on exit from a block"""
     f_stack_in: Sequence[str] = attrs.field(factory=list)
+    """local_ids on f-stack on entry to a block"""
     f_stack_out: Sequence[str] = attrs.field(factory=list)
-    # f_stack is also used in debug maps, the assumption is lower levels won't change the order
-    # of the f-stack
+    """local_ids on f-stack on exit from a block"""
 
     def __repr__(self) -> str:
         return self.block_name
 
-    def get_stack_height(self, n: int) -> int:
+    def get_xl_stack_height(self, n: int) -> int:
         """Returns the stack height before the nth op"""
         height = len(self.x_stack_in or ())
         for op in self.ops[:n]:

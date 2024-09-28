@@ -8,9 +8,6 @@ from puya.mir.context import SubroutineCodeGenContext
 
 logger = log.get_logger(__name__)
 
-# Note: implementation of the koopmans algorithm part of http://www.euroforth.org/ef06/shannon-bailey06.pdf
-# see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
-
 
 @attrs.define
 class UsagePair:
@@ -26,19 +23,21 @@ class UsagePair:
 
 def l_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     # the following is basically koopmans algorithm
+    # done as part of http://www.euroforth.org/ef06/shannon-bailey06.pdf
+    # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
     for block in ctx.subroutine.body:
-        usage_pairs = find_usage_pairs(block)
-        copy_usage_pairs(block, usage_pairs)
+        usage_pairs = _find_usage_pairs(block)
+        _copy_usage_pairs(block, usage_pairs)
     for block in ctx.subroutine.body:
-        dead_store_removal(ctx, block)
+        _dead_store_removal(ctx, block)
     # update vla after dead store removal
     ctx.invalidate_vla()
     # calculate load depths now that l-stack allocations are done
     for block in ctx.subroutine.body:
-        calculate_load_depths(block)
+        _calculate_load_depths(block)
 
 
-def find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
+def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
     # find usage pairs of variables within the block
     # the first element of the pair is an op that defines or uses a variable
     # the second element of the pair is an op that uses the variable
@@ -51,6 +50,7 @@ def find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
 
     pairs = list[UsagePair]()
     for uses in variables.values():
+        # pairwise iteration means an op can only be in at most 2 pairs
         for (a_index, a), (b_index, b) in itertools.pairwise(uses):
             if isinstance(b, mir.StoreVirtual):
                 continue  # skip redefines, if they are used they will be picked up in next pair
@@ -59,7 +59,7 @@ def find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
     return sorted(pairs, key=UsagePair.by_distance)
 
 
-def copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> None:
+def _copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> None:
     # 1. copy define or use to bottom of l-stack
     # 2. replace usage with instruction to rotate the value from the bottom of l-stack to the top
 
@@ -67,22 +67,25 @@ def copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> Non
     # to rotate: uncover {stack_height} - 1
     replaced_ops = dict[mir.StoreOp | mir.LoadOp, mir.LoadOp]()
     for pair in pairs:
-        local_id = pair.a.local_id
-        # step 1. copy define or use to bottom of stack
-
         # note: pairs may refer to ops that have been replaced by an earlier iteration
         a = replaced_ops.get(pair.a, pair.a)
+        b = replaced_ops.get(pair.b, pair.b)
+        local_id = a.local_id
+        # step 1. copy define or use to bottom of stack
+
         # redetermine index as block ops may have changed
         a_index = block.ops.index(a)
 
         # insert replacement before store, or after load
         insert_index = a_index if isinstance(a, mir.StoreVirtual) else a_index + 1
-        store_height = block.get_stack_height(insert_index)
+        store_height = block.get_xl_stack_height(insert_index)
         dup = mir.StoreLStack(
             depth=store_height - 1,
             local_id=local_id,
-            # leave a copy for the existing virtual store to consume
-            # this will be eliminated later if not required
+            # leave a copy for the original consumer of this value which is either:
+            #   a.) the virtual store we are inserting before
+            #   b.) whatever came after the virtual load we are inserting after
+            # The copy will be eliminated during dead store removal if no longer required
             copy=True,
             source_location=a.source_location,
             atype=a.atype,
@@ -91,10 +94,13 @@ def copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> Non
         logger.debug(f"Inserted {block.block_name}.ops[{insert_index}]: '{dup}'")
 
         # step 2. replace b usage with instruction to rotate the value from the bottom of the stack
-        b = replaced_ops.get(pair.b, pair.b)
+        # determine index of b, as inserts may have shifted its location
         b_index = block.ops.index(b)
 
         uncover = mir.LoadLStack(
+            # can not determine depth yet
+            # as it depends on any other l-stack operations between the store and this load
+            # which could change until after dead store removal is complete
             depth=None,
             local_id=local_id,
             copy=False,
@@ -105,11 +111,12 @@ def copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> Non
         block.ops[b_index] = uncover
 
         # remember replacement in case it is part of another pair
+        # an op can only be at most in 2 pairs, so don't need to do this recursively
         replaced_ops[b] = uncover
         logger.debug(f"Replaced {block.block_name}.ops[{b_index}]: '{b}' with '{uncover}'")
 
 
-def dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
+def _dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
     ops = block.ops
     op_idx = 0
     while op_idx < len(ops) - 1:
@@ -144,19 +151,23 @@ def dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBloc
         op_idx += 1
 
 
-def calculate_load_depths(block: mir.MemoryBasicBlock) -> None:
+def _calculate_load_depths(block: mir.MemoryBasicBlock) -> None:
     stack = list[str]()
     for idx, op in enumerate(block.ops):
         match op:
             case mir.StoreLStack(local_id=local_id) as store:
                 index = len(stack) - store.depth - 1
+                # TODO: this pop & insert isn't represented accurately
+                #       by the consumes and produces property of StoreLStack
                 stack.pop()
                 stack.insert(index, local_id)
+                # produces already accounts for if there is a copy or not
                 stack.extend(store.produces)
             case mir.LoadLStack(local_id=local_id) as load:
-                block.ops[idx] = attrs.evolve(op, depth=len(stack) - stack.index(local_id) - 1)
+                local_id_index = stack.index(local_id)
+                block.ops[idx] = attrs.evolve(op, depth=len(stack) - local_id_index - 1)
                 if not load.copy:
-                    stack.remove(local_id)
+                    stack.pop(local_id_index)
                 stack.extend(op.produces)
             case _:
                 if op.consumes:

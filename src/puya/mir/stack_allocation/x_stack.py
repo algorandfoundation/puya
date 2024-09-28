@@ -142,14 +142,14 @@ def add_x_stack_ops(record: BlockRecord) -> None:
             # scheduled are on the x-stack
             block.ops[index] = mir.StoreXStack(
                 local_id=op.local_id,
-                depth=block.get_stack_height(index) - 1,  # store to bottom
+                depth=block.get_xl_stack_height(index) - 1,  # store to bottom
                 atype=op.atype,
                 source_location=op.source_location,
             )
             x_stack.insert(0, op.local_id)
         elif op in load_ops:
             assert isinstance(op, mir.LoadVirtual)
-            depth = block.get_stack_height(index) - x_stack.index(op.local_id) - 1
+            depth = block.get_xl_stack_height(index) - x_stack.index(op.local_id) - 1
             block.ops[index] = mir.LoadXStack(
                 local_id=op.local_id,
                 depth=depth,

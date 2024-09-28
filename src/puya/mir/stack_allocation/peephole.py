@@ -15,14 +15,10 @@ def optimize_pair(
     # this function has been optimized to reduce the number of isinstance checks,
     # consider this when making any modifications
 
-    # goal: get rid of VirtualStackOp
-    # goal: remove usage of stack in mir
     # goal: stack can then be refactored into a teal op builder?
     #       minimal stack manipulations on teal ops?
-    # move local_id into produces of previous op, and eliminate redundant stores where possible
     # TODO: can we simplify a sequence of Stores following a tuple load?
-    # TODO: other stores
-    # move local_ids to source where possible
+    # move local_ids to produces of previous op where possible
     if (
         isinstance(b, mir.StoreLStack | mir.StoreXStack | mir.StoreFStack)
         and len(a.produces)

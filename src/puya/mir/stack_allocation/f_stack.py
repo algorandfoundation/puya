@@ -106,7 +106,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                 ):
                     insert = op in first_store_ops
                     depth = (
-                        block.get_stack_height(index)
+                        block.get_xl_stack_height(index)
                         + f_stack_height
                         - all_f_stack.index(local_id)
                         - 1
@@ -127,7 +127,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                     atype=atype,
                 ):
                     depth = (
-                        block.get_stack_height(index)
+                        block.get_xl_stack_height(index)
                         + f_stack_height
                         - all_f_stack.index(local_id)
                         - 1
