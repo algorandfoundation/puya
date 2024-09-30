@@ -6,10 +6,12 @@ import re
 import shutil
 import subprocess
 import sys
+from collections import defaultdict
 from collections.abc import Iterable
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
+import algokit_utils.deploy
 import attrs
 import prettytable
 
@@ -57,55 +59,102 @@ def get_unique_name(path: Path) -> str:
     return "/".join(filter(None, use_parts))
 
 
+@attrs.frozen
+class Size:
+    bytecode: int | None = None
+    ops: int | None = None
+
+    def __add__(self, other: object) -> "Size":
+        if not isinstance(other, Size):
+            return NotImplemented
+        return Size(
+            bytecode=(self.bytecode or 0) + (other.bytecode or 0),
+            ops=(self.ops or 0) + (other.ops or 0),
+        )
+
+
+def _program_to_sizes() -> defaultdict[str, defaultdict[int, Size]]:
+    def _opt_to_sizes() -> defaultdict[int, Size]:
+        return defaultdict[int, Size](Size)
+
+    return defaultdict[str, defaultdict[int, Size]](_opt_to_sizes)
+
+
 @attrs.define(str=False)
 class ProgramSizes:
-    sizes: dict[str, dict[int, int]] = attrs.field(factory=dict)
+    sizes: defaultdict[str, defaultdict[int, Size]] = attrs.field(factory=_program_to_sizes)
 
-    def add_at_level(self, level: int, bin_file: Path) -> None:
+    def add_at_level(self, level: int, teal_file: Path, bin_file: Path) -> None:
         name = get_unique_name(bin_file)
-        sizes = self.sizes.setdefault(name, {})
         # this combines both approval and clear program sizes
-        sizes[level] = sizes.get(level, 0) + bin_file.stat().st_size
+        self.sizes[name][level] += Size(
+            bytecode=bin_file.stat().st_size,
+            ops=_get_num_teal_ops(teal_file),
+        )
 
     @classmethod
     def read_file(cls, path: Path) -> "ProgramSizes":
         lines = path.read_text("utf-8").splitlines()
         program_sizes = ProgramSizes()
+        sizes = program_sizes.sizes
         for line in lines[1:]:
-            name, o0, o1, o1_delta, o2, o2_delta = line.rsplit(maxsplit=5)
+            name, o0, o1, o2, _, o0_ops, o1_ops, o2_ops = line.rsplit(maxsplit=7)
             name = name.strip()
-            program_sizes.sizes[name] = {}
-            for key, int_str in enumerate((o0, o1, o2)):
-                try:
-                    val = int(int_str)
-                except ValueError:
+            for opt, (bin_str, ops_str) in enumerate(((o0, o0_ops), (o1, o1_ops), (o2, o2_ops))):
+                if bin_str == "None":
                     continue
-                program_sizes.sizes[name][key] = val
+                if bin_str == "-":
+                    previous = sizes[name][opt - 1]
+                    bytecode = previous.bytecode
+                    ops = previous.ops
+                else:
+                    bytecode = int(bin_str)
+                    ops = int(ops_str)
+                sizes[name][opt] = Size(bytecode=bytecode, ops=ops)
         return program_sizes
 
     def __str__(self) -> str:
         writer = prettytable.PrettyTable(
-            field_names=["Name", "O0 size", "O1 size", "O1 ⏷", "O2 size", "O2 ⏷"],
+            field_names=["Name", "O0", "O1", "O2", "|", "O0#Ops", "O1#Ops", "O2#Ops"],
             sortby="Name",
             header=True,
             border=False,
-            padding_width=2,
+            min_width=6,
             left_padding_width=0,
-            right_padding_width=1,
+            right_padding_width=0,
             align="r",
         )
         writer.align["Name"] = "l"
+        writer.align["|"] = "c"
         for name, prog_sizes in self.sizes.items():
-            o0 = prog_sizes.get(0)
-            o1 = prog_sizes.get(1)
-            o2 = prog_sizes.get(2)
-            o1_delta = o2_delta = None
-            if o0 is not None and o1 is not None:
-                o1_delta = o0 - o1
-            if o1 is not None and o2 is not None:
-                o2_delta = o1 - o2
-            writer.add_row(list(map(str, (name, o0, o1, o1_delta, o2, o2_delta))))
+            o0, o1, o2 = (prog_sizes[i] for i in range(3))
+            row = list(
+                map(
+                    str, (name, o0.bytecode, o1.bytecode, o2.bytecode, "|", o0.ops, o1.ops, o2.ops)
+                )
+            )
+            if o0 == o1:
+                for i in (2, 6):
+                    row[i] = "-"
+            if o1 == o2:
+                for i in (3, 7):
+                    row[i] = "-"
+            writer.add_row(row)
         return writer.get_string()
+
+
+def _get_num_teal_ops(path: Path) -> int:
+    ops = 0
+    teal = path.read_text("utf8")
+    for line in algokit_utils.deploy.strip_comments(teal).splitlines():
+        line = line.strip()
+        if not line or line.endswith(":") or line.startswith("#"):
+            # ignore comment only lines, labels and pragmas
+            pass
+        else:
+            ops += 1
+
+    return ops
 
 
 @attrs.define
@@ -276,7 +325,7 @@ def main(options: CompileAllOptions) -> None:
             rel_path = compilation_result.rel_path
             case_name = f"{rel_path} -O{level}"
             for bin_file in compilation_result.bin_files:
-                program_sizes.add_at_level(level, bin_file)
+                program_sizes.add_at_level(level, bin_file.with_suffix(".teal"), bin_file)
             if compilation_result.ok:
                 print(f"✅  {case_name}")
             else:
@@ -300,9 +349,8 @@ def main(options: CompileAllOptions) -> None:
         # load existing sizes for non-default options
         merged = ProgramSizes.read_file(SIZE_TALLY_PATH)
         for program, sizes in program_sizes.sizes.items():
-            merged_sizes = merged.sizes.setdefault(program, {})
             for o, size in sizes.items():
-                merged_sizes[o] = size
+                merged.sizes[program][o] = size
         program_sizes = merged
     SIZE_TALLY_PATH.write_text(str(program_sizes))
     sys.exit(len(failures))
