@@ -652,7 +652,9 @@ def test_literal_conditional_expressions(harness: _TestHarness) -> None:
 
 
 def test_contains_operator(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "contains", request=AppCallRequest(increase_budget=1))
+    harness.deploy(
+        TEST_CASES_DIR / "contains", request=AppCallRequest(extra_pages=1, increase_budget=1)
+    )
 
 
 def test_boolean_binary_ops(harness: _TestHarness) -> None:
@@ -923,7 +925,9 @@ def test_abi_numeric(harness: _TestHarness) -> None:
 def test_abi_array(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "array.py",
-        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "array.log"),
+        AppCallRequest(
+            increase_budget=1, trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "array.log"
+        ),
     )
 
 
@@ -989,7 +993,7 @@ def test_abi_bool_eval(harness: _TestHarness) -> None:
 def test_arc4_uintn_comparisons(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_numeric_comparisons" / "uint_n.py",
-        AppCallRequest(increase_budget=1),
+        AppCallRequest(extra_pages=1, increase_budget=1),
     )
 
 
@@ -1151,7 +1155,7 @@ def iteration_idfn(value: object) -> str:
         return ""
 
 
-_test_iteration_params = [("tuple", 0), ("indexable", 0), ("urange", 1)]
+_test_iteration_params = [("tuple", 0), ("indexable", 1), ("urange", 1)]
 
 
 @pytest.mark.parametrize(
