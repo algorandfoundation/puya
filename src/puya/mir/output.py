@@ -17,15 +17,14 @@ def output_memory_ir(ctx: CompileContext, program: models.Program, output_path: 
     writer = AlignedWriter()
     writer.add_header("// Op")
     writer.add_header("Stack (out)", 4)
-    stack = Stack(allow_virtual=True)
     for subroutine in program.all_subroutines:
         writer.append_line(f"// {subroutine.signature}")
         for block in subroutine.all_blocks:
-            stack.begin_block(subroutine, block)
+            stack = Stack.begin_block(subroutine, block)
             last_location = None
             if block.ops:
                 writer.append(f"{block.block_name}:")
-                writer.append(str(stack))
+                writer.append(stack.full_stack_desc)
                 writer.new_line()
                 with writer.indent():
                     for op in block.ops:
@@ -37,10 +36,12 @@ def output_memory_ir(ctx: CompileContext, program: models.Program, output_path: 
                         # some ops can be very long (generally due to labels)
                         # in those (rare?) cases bypass the column alignment
                         if len(op_str) > 80:
-                            writer.append_line(writer.current_indent + op_str + " " + str(stack))
+                            writer.append_line(
+                                writer.current_indent + op_str + " " + stack.full_stack_desc
+                            )
                         else:
-                            writer.append(str(op))
-                            writer.append(str(stack))
+                            writer.append(op_str)
+                            writer.append(stack.full_stack_desc)
                             writer.new_line()
                 writer.new_line()
         writer.new_line()

@@ -7,6 +7,8 @@ from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.stack import Stack
+from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
 
@@ -97,49 +99,33 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
         block.f_stack_in = block.f_stack_out = all_f_stack
 
     removed_virtual = False
-    f_stack_height = len(allocate_at_entry)
     for block in subroutine.body:
+        stack = Stack.begin_block(subroutine, block)
         for index, op in enumerate(block.ops):
             match op:
-                case mir.StoreVirtual(
-                    local_id=local_id, source_location=src_location, atype=atype
-                ):
+                case mir.StoreVirtual() as store:
                     insert = op in first_store_ops
-                    depth = (
-                        block.get_xl_stack_height(index)
-                        + f_stack_height
-                        - all_f_stack.index(local_id)
-                        - 1
-                    )
-                    block.ops[index] = mir.StoreFStack(
-                        local_id=local_id,
-                        depth=depth,
-                        source_location=src_location,
-                        insert=insert,
-                        atype=atype,
-                    )
                     if insert:
-                        f_stack_height += 1
-                    removed_virtual = True
-                case mir.LoadVirtual(
-                    local_id=local_id,
-                    source_location=src_location,
-                    atype=atype,
-                ):
-                    depth = (
-                        block.get_xl_stack_height(index)
-                        + f_stack_height
-                        - all_f_stack.index(local_id)
-                        - 1
-                    )
-                    block.ops[index] = mir.LoadFStack(
-                        local_id=local_id,
+                        depth = stack.xl_height - 1
+                    else:
+                        depth = stack.fxl_height - stack.f_stack.index(store.local_id) - 1
+                    block.ops[index] = attrs_extend(
+                        mir.StoreFStack,
+                        store,
                         depth=depth,
-                        source_location=src_location,
-                        atype=atype,
+                        insert=insert,
+                    )
+                    removed_virtual = True
+                case mir.LoadVirtual() as load:
+                    depth = stack.fxl_height - stack.f_stack.index(load.local_id) - 1
+                    block.ops[index] = attrs_extend(
+                        mir.LoadFStack,
+                        load,
+                        depth=depth,
                     )
                     removed_virtual = True
                 case mir.RetSub() as retsub:
                     block.ops[index] = attrs.evolve(retsub, f_stack_size=len(all_variables))
+            op.accept(stack)
     if removed_virtual:
         ctx.invalidate_vla()

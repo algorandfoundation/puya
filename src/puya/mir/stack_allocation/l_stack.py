@@ -5,6 +5,7 @@ import attrs
 from puya import log
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
+from puya.mir.stack import Stack
 
 logger = log.get_logger(__name__)
 
@@ -27,7 +28,7 @@ def l_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
     for block in ctx.subroutine.body:
         usage_pairs = _find_usage_pairs(block)
-        _copy_usage_pairs(block, usage_pairs)
+        _copy_usage_pairs(ctx, block, usage_pairs)
     for block in ctx.subroutine.body:
         _dead_store_removal(ctx, block)
         if ctx.options.optimization_level:
@@ -36,7 +37,7 @@ def l_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
     ctx.invalidate_vla()
     # calculate load depths now that l-stack allocations are done
     for block in ctx.subroutine.body:
-        _calculate_load_depths(block)
+        _calculate_load_depths(ctx, block)
 
 
 def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
@@ -61,7 +62,9 @@ def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
     return sorted(pairs, key=UsagePair.by_distance)
 
 
-def _copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> None:
+def _copy_usage_pairs(
+    ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock, pairs: list[UsagePair]
+) -> None:
     # 1. copy define or use to bottom of l-stack
     # 2. replace usage with instruction to rotate the value from the bottom of l-stack to the top
 
@@ -80,9 +83,11 @@ def _copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> No
 
         # insert replacement before store, or after load
         insert_index = a_index if isinstance(a, mir.StoreVirtual) else a_index + 1
-        store_height = block.get_xl_stack_height(insert_index)
+        stack = Stack.begin_block(ctx.subroutine, block)
+        for op in block.ops[:insert_index]:
+            op.accept(stack)
         dup = mir.StoreLStack(
-            depth=store_height - 1,
+            depth=len(stack.l_stack) - 1,
             local_id=local_id,
             # leave a copy for the original consumer of this value which is either:
             #   a.) the virtual store we are inserting before
@@ -175,25 +180,10 @@ def _implicit_store_removal(block: mir.MemoryBasicBlock) -> None:
         op_idx = next_op_idx
 
 
-def _calculate_load_depths(block: mir.MemoryBasicBlock) -> None:
-    stack = list[str]()
+def _calculate_load_depths(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlock) -> None:
+    stack = Stack.begin_block(ctx.subroutine, block)
     for idx, op in enumerate(block.ops):
-        match op:
-            case mir.StoreLStack(local_id=local_id) as store:
-                index = len(stack) - store.depth - 1
-                # TODO: this pop & insert isn't represented accurately
-                #       by the consumes and produces property of StoreLStack
-                stack.pop()
-                stack.insert(index, local_id)
-                # produces already accounts for if there is a copy or not
-                stack.extend(store.produces)
-            case mir.LoadLStack(local_id=local_id) as load:
-                local_id_index = stack.index(local_id)
-                block.ops[idx] = attrs.evolve(op, depth=len(stack) - local_id_index - 1)
-                if not load.copy:
-                    stack.pop(local_id_index)
-                stack.extend(op.produces)
-            case _:
-                if op.consumes:
-                    stack = stack[: -op.consumes]
-                stack.extend(op.produces)
+        if isinstance(op, mir.LoadLStack):
+            local_id_index = stack.l_stack.index(op.local_id)
+            block.ops[idx] = attrs.evolve(op, depth=len(stack.l_stack) - local_id_index - 1)
+        op.accept(stack)

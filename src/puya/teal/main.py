@@ -1,11 +1,11 @@
 from puya import log
 from puya.context import CompileContext
 from puya.mir import models as mir
-from puya.mir.stack import Stack
 from puya.teal import models as teal_models
 from puya.teal.optimize.combine_pushes import combine_pushes
 from puya.teal.optimize.constant_block import gather_program_constants
 from puya.teal.optimize.main import optimize_teal_program
+from puya.teal.stack import Stack
 
 logger = log.get_logger(__name__)
 
@@ -80,16 +80,6 @@ def _lower_sub(mir_sub: mir.MemorySubroutine) -> teal_models.TealSubroutine:
             teal_op for mir_op in mir_block.ops for teal_op in mir_op.accept(stack)
         )
 
-    stack = Stack(allow_virtual=False)
-    mir_sm = list[teal_models.StackManipulation]()
-    for mir_block in mir_sub.all_blocks:
-        stack.begin_block(mir_sub, mir_block)
-        for mir_op in mir_block.ops:
-            teal_ops = mir_op.accept(stack)
-            mir_sm.extend(sm for teal_op in teal_ops for sm in teal_op.stack_manipulations)
-
-    teal_sm = [sm for block in sub.blocks for op in block.ops for sm in op.stack_manipulations]
-    assert mir_sm == teal_sm, "expected stack manipulations to be preserved when lowering mir"
     return sub
 
 
