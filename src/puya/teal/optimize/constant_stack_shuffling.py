@@ -24,11 +24,6 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
             loads.extend([attrs.evolve(loads[-1], source_location=op.source_location)] * n)
         elif loads:
             match op:
-                case models.Dig(n=n) if n < len(loads):
-                    modified = True
-                    simplified.append(op)
-                    dug = loads[-(n + 1)]
-                    loads.append(dug)
                 case models.Uncover(n=n) if n < len(loads):
                     modified = True
                     simplified.append(op)
