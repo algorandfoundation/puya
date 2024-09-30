@@ -2,7 +2,7 @@ from pathlib import Path
 
 from puya.mir import models
 from puya.mir.context import ProgramMIRContext, SubroutineCodeGenContext
-from puya.mir.output import output_memory_ir, output_memory_ir_simple
+from puya.mir.output import output_memory_ir
 from puya.mir.stack_allocation.f_stack import f_stack_allocation
 from puya.mir.stack_allocation.l_stack import l_stack_allocation
 from puya.mir.stack_allocation.peephole import peephole_optimization_single_pass
@@ -28,9 +28,7 @@ def global_stack_allocation(
             sub_ctx = ctx.for_subroutine(mir_sub)
             method(sub_ctx)
         if ctx.options.output_memory_ir and mir_output_path:
-            output_memory_ir_simple(
-                ctx, program, mir_output_path.with_suffix(f".{idx}.{desc}.mir")
-            )
+            output_memory_ir(ctx, program, mir_output_path.with_suffix(f".{idx}.{desc}.mir"))
     if ctx.options.output_memory_ir and mir_output_path:
         output_memory_ir(ctx, program, mir_output_path)
 
