@@ -229,6 +229,10 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
     # visit call graph starting at entry point(s) to collect all references for each
     callees = CalleesLookup(set)
     approval_subs_srefs = StableSet[awst_nodes.Function]()
+    if folded.init:
+        approval_subs_srefs.add(folded.init)
+        init_sub_srefs = SubroutineCollector.collect(ctx, start=folded.init, callees=callees)
+        approval_subs_srefs |= init_sub_srefs
     approval_subs_srefs.add(arc4_router_func)
     approval_subs_srefs |= SubroutineCollector.collect(
         ctx, start=arc4_router_func, callees=callees
@@ -239,10 +243,6 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
     clear_subs_srefs = SubroutineCollector.collect(
         ctx, start=folded.clear_program, callees=callees
     )
-    if folded.init:
-        approval_subs_srefs.add(folded.init)
-        init_sub_srefs = SubroutineCollector.collect(ctx, start=folded.init, callees=callees)
-        approval_subs_srefs |= init_sub_srefs
     # construct unique Subroutine objects for each function
     # that was referenced through either entry point
     for func in itertools.chain(approval_subs_srefs, clear_subs_srefs):

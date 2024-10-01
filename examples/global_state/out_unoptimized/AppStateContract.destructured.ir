@@ -88,6 +88,16 @@ contract examples.global_state.contract.AppStateContract:
                 (assert tmp%20#0)
                 return 1u
         
+        subroutine examples.global_state.contract.AppStateContract.__init__() -> void:
+            block@0: // L15
+                (app_global_put "global_int_full" 55u)
+                (app_global_put "global_int_simplified" 33u)
+                (app_global_put "global_bytes_full" 0x48656c6c6f)
+                (app_global_put "global_bytes_simplified" 0x48656c6c6f)
+                (app_global_put "global_bool_full" 0u)
+                (app_global_put "global_bool_simplified" 1u)
+                return 
+        
         subroutine examples.global_state.contract.read_global_uint64(key: bytes) -> uint64:
             block@0: // L84
                 let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u key#0)
@@ -106,16 +116,6 @@ contract examples.global_state.contract.AppStateContract:
                 (assert maybe_exists%0#0) // check GlobalState exists
                 let tmp%0#0: uint64 = (+ maybe_value%0#0 1u)
                 return tmp%0#0
-        
-        subroutine examples.global_state.contract.AppStateContract.__init__() -> void:
-            block@0: // L15
-                (app_global_put "global_int_full" 55u)
-                (app_global_put "global_int_simplified" 33u)
-                (app_global_put "global_bytes_full" 0x48656c6c6f)
-                (app_global_put "global_bytes_simplified" 0x48656c6c6f)
-                (app_global_put "global_bool_full" 0u)
-                (app_global_put "global_bool_simplified" 1u)
-                return 
     
     program clear-state:
         subroutine examples.global_state.contract.AppStateContract.clear_state_program() -> bool:
