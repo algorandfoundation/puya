@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.match.counter.Counter.approval_program:
+    intcblock 0 1
+    bytecblock "counter"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -9,24 +11,24 @@ main_entrypoint@2:
     txn OnCompletion
     bnz main_switch_case_default@4
     callsub increment_counter
-    int 1
+    intc_1 // 1
     return
 
 main_switch_case_default@4:
-    int 0
+    intc_0 // 0
     return
 
 
 // test_cases.match.counter.Counter.increment_counter() -> void:
 increment_counter:
     proto 0 0
-    int 0
-    byte "counter"
+    intc_0 // 0
+    bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    int 1
+    intc_1 // 1
     +
-    byte "counter"
+    bytec_0 // "counter"
     swap
     app_global_put
     retsub
@@ -35,7 +37,7 @@ increment_counter:
 // test_cases.match.counter.Counter.__init__() -> void:
 __init__:
     proto 0 0
-    byte "counter"
-    int 0
+    bytec_0 // "counter"
+    intc_0 // 0
     app_global_put
     retsub

@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.approval_program:
+    intcblock 0 1 2 4
+    bytecblock 0x0004 0x0002 0x001c 0x 0x0012 0x001a
     callsub __puya_arc4_router__
     return
 
@@ -10,15 +12,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@10
-    method "test_static_elements()void"
-    method "test_dynamic_elements()void"
-    method "test_mixed_single_dynamic_elements()void"
-    method "test_mixed_multiple_dynamic_elements()void"
-    method "test_nested_struct_replacement()void"
-    method "test_nested_tuple_modification()void"
+    pushbytess 0x55715827 0x713dd6db 0x37158aac 0x8570be3b 0x51aa8c49 0x283a186f // method "test_static_elements()void", method "test_dynamic_elements()void", method "test_mixed_single_dynamic_elements()void", method "test_mixed_multiple_dynamic_elements()void", method "test_nested_struct_replacement()void", method "test_nested_tuple_modification()void"
     txna ApplicationArgs 0
     match __puya_arc4_router___test_static_elements_route@2 __puya_arc4_router___test_dynamic_elements_route@3 __puya_arc4_router___test_mixed_single_dynamic_elements_route@4 __puya_arc4_router___test_mixed_multiple_dynamic_elements_route@5 __puya_arc4_router___test_nested_struct_replacement_route@6 __puya_arc4_router___test_nested_tuple_modification_route@7
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___test_static_elements_route@2:
@@ -28,7 +25,7 @@ __puya_arc4_router___test_static_elements_route@2:
     txn ApplicationID
     assert // is not creating
     callsub test_static_elements
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_dynamic_elements_route@3:
@@ -38,7 +35,7 @@ __puya_arc4_router___test_dynamic_elements_route@3:
     txn ApplicationID
     assert // is not creating
     callsub test_dynamic_elements
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_mixed_single_dynamic_elements_route@4:
@@ -48,7 +45,7 @@ __puya_arc4_router___test_mixed_single_dynamic_elements_route@4:
     txn ApplicationID
     assert // is not creating
     callsub test_mixed_single_dynamic_elements
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_mixed_multiple_dynamic_elements_route@5:
@@ -58,7 +55,7 @@ __puya_arc4_router___test_mixed_multiple_dynamic_elements_route@5:
     txn ApplicationID
     assert // is not creating
     callsub test_mixed_multiple_dynamic_elements
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_nested_struct_replacement_route@6:
@@ -68,7 +65,7 @@ __puya_arc4_router___test_nested_struct_replacement_route@6:
     txn ApplicationID
     assert // is not creating
     callsub test_nested_struct_replacement
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_nested_tuple_modification_route@7:
@@ -78,7 +75,7 @@ __puya_arc4_router___test_nested_tuple_modification_route@7:
     txn ApplicationID
     assert // is not creating
     callsub test_nested_tuple_modification
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@10:
@@ -87,11 +84,11 @@ __puya_arc4_router___bare_routing@10:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@14:
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -114,13 +111,13 @@ test_static_elements:
     dup
     dig 1
     concat
-    byte 0x0002
+    bytec_1 // 0x0002
     swap
     concat
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     >
     assert // Index access is out of bounds
     dig 2
@@ -134,13 +131,13 @@ test_static_elements:
     log
     extract 10 10 // on error: Index access is out of bounds
     log
-    int 10
+    pushint 10 // 10
     callsub dynamic_array_pop_fixed_size
     swap
     uncover 3
     ==
     assert
-    int 10
+    pushint 10 // 10
     callsub dynamic_array_pop_fixed_size
     pop
     ==
@@ -151,42 +148,42 @@ test_static_elements:
 // test_cases.arc4_dynamic_arrays.contract.get_byte1() -> bytes:
 get_byte1:
     proto 0 1
-    byte 0x04
+    pushbytes 0x04
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte2() -> bytes:
 get_byte2:
     proto 0 1
-    byte 0x05
+    pushbytes 0x05
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte3() -> bytes:
 get_byte3:
     proto 0 1
-    byte 0x2a
+    pushbytes 0x2a
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_byte4() -> bytes:
 get_byte4:
     proto 0 1
-    byte 0xff
+    pushbytes 0xff
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_uint1() -> bytes:
 get_uint1:
     proto 0 1
-    byte 0x0000000000000003
+    pushbytes 0x0000000000000003
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_uint2() -> bytes:
 get_uint2:
     proto 0 1
-    byte 0x0000040000000000
+    pushbytes 0x0000040000000000
     retsub
 
 
@@ -198,11 +195,11 @@ test_dynamic_elements:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -214,11 +211,11 @@ test_dynamic_elements:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -228,54 +225,54 @@ test_dynamic_elements:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     dig 1
     concat
     dig 1
     concat
-    byte 0x0002
+    bytec_1 // 0x0002
     swap
     concat
-    byte 0x0002
+    bytec_1 // 0x0002
     dig 2
     concat
     swap
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     swap
     extract 2 0
-    int 1
+    intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     dig 2
-    int 1
+    intc_1 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
     log
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     dig 1
-    int 0
+    intc_0 // 0
     extract_uint16
     dup
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 2
     len
     swap
     dig 3
-    int 2
+    intc_2 // 2
     extract_uint16
     dig 2
     dig 1
@@ -287,10 +284,10 @@ test_dynamic_elements:
     substring3
     log
     dig 2
-    int 2
+    intc_2 // 2
     - // on error: Index access is out of bounds
     dig 4
-    int 4
+    intc_3 // 4
     extract_uint16
     dig 3
     dig 1
@@ -302,10 +299,10 @@ test_dynamic_elements:
     substring3
     log
     uncover 2
-    int 3
+    pushint 3 // 3
     - // on error: Index access is out of bounds
     dig 3
-    int 6
+    pushint 6 // 6
     extract_uint16
     uncover 3
     swap
@@ -339,21 +336,21 @@ test_dynamic_elements:
 // test_cases.arc4_dynamic_arrays.contract.get_string1() -> bytes:
 get_string1:
     proto 0 1
-    byte 0x000161
+    pushbytes 0x000161
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_string2() -> bytes:
 get_string2:
     proto 0 1
-    byte 0x0003626565
+    pushbytes 0x0003626565
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_string3() -> bytes:
 get_string3:
     proto 0 1
-    byte 0x000b48656c6c6f20576f726c64
+    pushbytes 0x000b48656c6c6f20576f726c64
     retsub
 
 
@@ -365,7 +362,7 @@ test_mixed_single_dynamic_elements:
     swap
     callsub get_uint2
     swap
-    byte 0x0012
+    bytec 4 // 0x0012
     concat
     swap
     concat
@@ -376,50 +373,50 @@ test_mixed_single_dynamic_elements:
     swap
     callsub get_uint1
     swap
-    byte 0x0012
+    bytec 4 // 0x0012
     concat
     swap
     concat
     swap
     concat
-    byte 0x0002
+    bytec_1 // 0x0002
     dig 1
     concat
-    int 0
-    byte 0x
-    int 1
+    intc_0 // 0
+    bytec_3 // 0x
+    intc_1 // 1
     dig 3
     callsub dynamic_array_concat_dynamic_element
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     swap
     extract 2 0
-    int 1
+    intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     dig 2
-    int 0
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     dup
     log
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     dig 1
-    int 0
+    intc_0 // 0
     extract_uint16
     dup
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 2
     len
     swap
     dig 3
-    int 2
+    intc_2 // 2
     extract_uint16
     dig 2
     dig 1
@@ -431,10 +428,10 @@ test_mixed_single_dynamic_elements:
     substring3
     log
     uncover 2
-    int 2
+    intc_2 // 2
     - // on error: Index access is out of bounds
     dig 3
-    int 4
+    intc_3 // 4
     extract_uint16
     uncover 3
     swap
@@ -466,11 +463,11 @@ test_mixed_multiple_dynamic_elements:
     cover 3
     callsub get_uint1
     cover 3
-    byte 0x001c
+    bytec_2 // 0x001c
     concat
     dig 1
     len
-    int 28
+    pushint 28 // 28
     +
     swap
     uncover 3
@@ -494,11 +491,11 @@ test_mixed_multiple_dynamic_elements:
     cover 3
     callsub get_uint2
     cover 3
-    byte 0x001c
+    bytec_2 // 0x001c
     concat
     dig 1
     len
-    int 28
+    pushint 28 // 28
     +
     swap
     uncover 3
@@ -515,42 +512,42 @@ test_mixed_multiple_dynamic_elements:
     concat
     dig 1
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     dig 2
     concat
     dig 2
     concat
-    byte 0x0002
+    bytec_1 // 0x0002
     swap
     concat
     dig 1
-    int 1
+    intc_1 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
     log
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     dig 1
-    int 0
+    intc_0 // 0
     extract_uint16
     dup
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 2
     len
     swap
     dig 3
-    int 2
+    intc_2 // 2
     extract_uint16
     dig 2
     dig 1
@@ -562,10 +559,10 @@ test_mixed_multiple_dynamic_elements:
     substring3
     log
     uncover 2
-    int 2
+    intc_2 // 2
     - // on error: Index access is out of bounds
     dig 3
-    int 4
+    intc_3 // 4
     extract_uint16
     uncover 3
     swap
@@ -588,14 +585,14 @@ test_mixed_multiple_dynamic_elements:
 // test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> bytes:
 get_u16_arr1:
     proto 0 1
-    byte 0x0003ffff0000002a
+    pushbytes 0x0003ffff0000002a
     retsub
 
 
 // test_cases.arc4_dynamic_arrays.contract.get_u16_arr2() -> bytes:
 get_u16_arr2:
     proto 0 1
-    byte 0x00040001000200030004
+    pushbytes 0x00040001000200030004
     retsub
 
 
@@ -612,11 +609,11 @@ test_nested_struct_replacement:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -637,11 +634,11 @@ test_nested_struct_replacement:
     cover 3
     callsub get_uint1
     cover 3
-    byte 0x001c
+    bytec_2 // 0x001c
     concat
     dig 1
     len
-    int 28
+    pushint 28 // 28
     +
     swap
     uncover 3
@@ -661,11 +658,11 @@ test_nested_struct_replacement:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -673,11 +670,11 @@ test_nested_struct_replacement:
     swap
     concat
     uncover 4
-    byte 0x001a
+    bytec 5 // 0x001a
     concat
     dig 4
     len
-    int 26
+    pushint 26 // 26
     dig 1
     +
     uncover 2
@@ -711,11 +708,11 @@ test_nested_struct_replacement:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -724,7 +721,7 @@ test_nested_struct_replacement:
     concat
     dup
     len
-    int 26
+    pushint 26 // 26
     +
     dup
     itob
@@ -745,15 +742,15 @@ test_nested_struct_replacement:
     uncover 2
     concat
     dup
-    int 10
+    pushint 10 // 10
     extract_uint16
     dig 1
-    int 0
+    intc_0 // 0
     dig 2
     extract3
     swap
     dig 2
-    int 22
+    pushint 22 // 22
     extract_uint16
     swap
     dig 3
@@ -772,7 +769,7 @@ test_nested_struct_replacement:
     -
     swap
     dup
-    int 22
+    pushint 22 // 22
     extract_uint16
     dig 3
     +
@@ -782,7 +779,7 @@ test_nested_struct_replacement:
     extract 6 2
     replace2 22
     dup
-    int 24
+    pushint 24 // 24
     extract_uint16
     uncover 3
     +
@@ -809,11 +806,11 @@ test_nested_tuple_modification:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -834,11 +831,11 @@ test_nested_tuple_modification:
     cover 3
     callsub get_uint1
     cover 3
-    byte 0x001c
+    bytec_2 // 0x001c
     concat
     dig 1
     len
-    int 28
+    pushint 28 // 28
     +
     swap
     uncover 3
@@ -860,11 +857,11 @@ test_nested_tuple_modification:
     cover 2
     callsub get_u16_arr1
     extract 2 0
-    byte 0x007b
+    pushbytes 0x007b
     concat
     dup
     len
-    int 2
+    intc_2 // 2
     /
     itob
     extract 6 2
@@ -873,11 +870,11 @@ test_nested_tuple_modification:
     cover 2
     callsub get_uint1
     swap
-    byte 0x001c
+    bytec_2 // 0x001c
     concat
     dig 2
     len
-    int 28
+    pushint 28 // 28
     +
     swap
     uncover 5
@@ -897,11 +894,11 @@ test_nested_tuple_modification:
     swap
     dup
     len
-    int 4
+    intc_3 // 4
     +
     itob
     extract 6 2
-    byte 0x0004
+    bytec_0 // 0x0004
     swap
     concat
     swap
@@ -909,11 +906,11 @@ test_nested_tuple_modification:
     swap
     concat
     uncover 5
-    byte 0x001a
+    bytec 5 // 0x001a
     concat
     dig 5
     len
-    int 26
+    pushint 26 // 26
     +
     swap
     uncover 5
@@ -955,18 +952,18 @@ test_nested_tuple_modification:
     swap
     concat
     dup
-    int 22
+    pushint 22 // 22
     extract_uint16
     swap
     dup
-    int 24
+    pushint 24 // 24
     extract_uint16
     dig 1
     dig 3
     dig 2
     substring3
     dup
-    int 18
+    pushint 18 // 18
     extract_uint16
     swap
     dup
@@ -976,17 +973,17 @@ test_nested_tuple_modification:
     dig 3
     uncover 3
     substring3
-    int 2
+    intc_2 // 2
     callsub dynamic_array_pop_fixed_size
     bury 1
     swap
-    int 0
+    intc_0 // 0
     uncover 3
     extract3
     swap
     concat
     dig 2
-    int 0
+    intc_0 // 0
     dig 5
     extract3
     swap
@@ -1009,7 +1006,7 @@ test_nested_tuple_modification:
     swap
     len
     dig 1
-    int 24
+    pushint 24 // 24
     extract_uint16
     +
     uncover 2
@@ -1026,9 +1023,9 @@ test_nested_tuple_modification:
 dynamic_array_pop_fixed_size:
     proto 2 2
     frame_dig -2
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     -
     itob
     extract 6 0
@@ -1043,7 +1040,7 @@ dynamic_array_pop_fixed_size:
     frame_dig -1
     extract3
     cover 2
-    int 0
+    intc_0 // 0
     swap
     substring3
     retsub
@@ -1053,12 +1050,12 @@ dynamic_array_pop_fixed_size:
 dynamic_array_pop_dynamic_element:
     proto 1 2
     frame_dig -1
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     -
     dup
-    int 2
+    intc_2 // 2
     *
     dup
     frame_dig -1
@@ -1075,8 +1072,8 @@ dynamic_array_pop_dynamic_element:
     swap
     cover 2
     substring3
-    byte 0x
-    int 0
+    bytec_3 // 0x
+    intc_0 // 0
 
 dynamic_array_pop_dynamic_element_for_header@1:
     frame_dig 6
@@ -1088,7 +1085,7 @@ dynamic_array_pop_dynamic_element_for_header@1:
     dup
     cover 2
     extract_uint16
-    int 2
+    intc_2 // 2
     -
     itob
     extract 6 2
@@ -1096,7 +1093,7 @@ dynamic_array_pop_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 5
-    int 2
+    intc_2 // 2
     +
     frame_bury 6
     b dynamic_array_pop_dynamic_element_for_header@1
@@ -1108,7 +1105,7 @@ dynamic_array_pop_dynamic_element_after_for@4:
     frame_dig 5
     concat
     frame_dig 1
-    int 2
+    intc_2 // 2
     +
     frame_dig 2
     swap
@@ -1124,15 +1121,15 @@ dynamic_array_pop_dynamic_element_after_for@4:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
-    byte ""
-    byte 0x
+    bytec_3 // ""
+    bytec_3 // 0x
     frame_dig -2
-    int 2
+    intc_2 // 2
     *
     frame_dig -4
-    int 2
+    intc_2 // 2
     *
-    int 0
+    intc_0 // 0
 
 dynamic_array_concat_dynamic_element_for_header@1:
     frame_dig 4
@@ -1152,7 +1149,7 @@ dynamic_array_concat_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 1
-    int 2
+    intc_2 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@1
@@ -1161,7 +1158,7 @@ dynamic_array_concat_dynamic_element_after_for@4:
     frame_dig -3
     len
     frame_bury 0
-    int 0
+    intc_0 // 0
     frame_bury 4
 
 dynamic_array_concat_dynamic_element_for_header@5:
@@ -1182,7 +1179,7 @@ dynamic_array_concat_dynamic_element_for_header@5:
     swap
     concat
     frame_bury 1
-    int 2
+    intc_2 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@5
@@ -1232,15 +1229,15 @@ dynamic_array_replace_dynamic_element:
 static_array_replace_dynamic_element:
     proto 4 1
     frame_dig -2
-    int 2
+    intc_2 // 2
     *
     frame_dig -4
     swap
     extract_uint16
     frame_dig -2
-    int 1
+    intc_1 // 1
     +
-    int 2
+    intc_2 // 2
     *
     dup
     cover 2
@@ -1252,7 +1249,7 @@ static_array_replace_dynamic_element:
     frame_dig -1
     frame_dig -2
     -
-    int 1
+    intc_1 // 1
     -
     dig 1
     uncover 3
@@ -1266,7 +1263,7 @@ static_array_replace_dynamic_element:
     len
     cover 3
     frame_dig -4
-    int 0
+    intc_0 // 0
     uncover 4
     substring3
     frame_dig -3
@@ -1277,7 +1274,7 @@ static_array_replace_dynamic_element:
     substring3
     concat
     frame_dig -1
-    int 2
+    intc_2 // 2
     *
 
 static_array_replace_dynamic_element_for_header@1:
@@ -1301,7 +1298,7 @@ static_array_replace_dynamic_element_for_header@1:
     swap
     replace3
     frame_bury 3
-    int 2
+    intc_2 // 2
     +
     frame_bury 0
     b static_array_replace_dynamic_element_for_header@1

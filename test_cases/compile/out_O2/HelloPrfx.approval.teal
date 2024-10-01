@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.compile.apps.HelloPrfx.approval_program:
+    intcblock 1 0
+    bytecblock "greeting" PRFX_GREETING
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -15,12 +17,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@7
-    method "create()void"
-    method "delete()void"
-    method "greet(string)string"
+    pushbytess 0x4c5c61ba 0x24378d3c 0xd0a28200 // method "create()void", method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
     match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___create_route@2:
@@ -30,17 +30,17 @@ __puya_arc4_router___create_route@2:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___delete_route@3:
     txn OnCompletion
-    int DeleteApplication
+    pushint 5 // DeleteApplication
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
     assert // is not creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___greet_route@4:
@@ -58,35 +58,35 @@ __puya_arc4_router___greet_route@4:
     extract 6 2
     swap
     concat
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@7:
-    int 4
+    pushint 4 // 4
     txn OnCompletion
     match __puya_arc4_router___update@8
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___update@8:
     txn ApplicationID
     assert // is not creating
-    int 1
+    intc_0 // 1
     retsub
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
 greet:
     proto 1 1
-    int 0
-    byte "greeting"
+    intc_1 // 0
+    bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
-    byte " "
+    pushbytes " "
     concat
     frame_dig -1
     concat
@@ -96,7 +96,7 @@ greet:
 // test_cases.compile.apps.HelloPrfx.__init__() -> void:
 __init__:
     proto 0 0
-    byte "greeting"
-    byte PRFX_GREETING
+    bytec_0 // "greeting"
+    bytec_1 // PRFX_GREETING
     app_global_put
     retsub

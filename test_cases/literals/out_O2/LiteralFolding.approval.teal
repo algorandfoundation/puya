@@ -1,26 +1,28 @@
 #pragma version 10
 
 test_cases.literals.folding.LiteralFolding.approval_program:
+    intcblock 1 0
+    bytecblock "a" "b"
     callsub compare_str
-    int 1
+    intc_0 // 1
     return
 
 
 // test_cases.literals.folding.compare_str() -> void:
 compare_str:
     proto 0 0
-    byte "a"
-    byte "b"
+    bytec_0 // "a"
+    bytec_1 // "b"
     callsub is_substring
     !
     assert
-    byte "a"
-    byte "b"
+    bytec_0 // "a"
+    bytec_1 // "b"
     callsub is_substring
     !
     assert
-    byte "a"
-    byte "abc"
+    bytec_0 // "a"
+    pushbytes "abc"
     callsub is_substring
     assert
     retsub
@@ -29,8 +31,8 @@ compare_str:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    byte ""
-    int 0
+    pushbytes ""
+    intc_1 // 0
 
 is_substring_while_top@1:
     frame_dig -2
@@ -50,18 +52,18 @@ is_substring_while_top@1:
     frame_dig -2
     ==
     bz is_substring_after_if_else@4
-    int 1
+    intc_0 // 1
     frame_bury 0
     retsub
 
 is_substring_after_if_else@4:
     frame_dig 1
-    int 1
+    intc_0 // 1
     +
     frame_bury 1
     b is_substring_while_top@1
 
 is_substring_after_while@5:
-    int 0
+    intc_1 // 0
     frame_bury 0
     retsub

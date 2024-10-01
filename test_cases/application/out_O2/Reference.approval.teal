@@ -7,18 +7,18 @@ test_cases.application.contract.Reference.approval_program:
 
 main_entrypoint@2:
     txn NumAppArgs
-    int 1
+    pushint 1 // 1
     ==
     bz main_after_if_else@7
     txna ApplicationArgs 0
-    byte 0x76616c6964617465
+    pushbytes 0x76616c6964617465
     ==
     assert // Expected validate
     global CurrentApplicationID
     callsub validate_asset
 
 main_after_if_else@7:
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -39,25 +39,25 @@ validate_asset:
     frame_dig -1
     app_params_get AppGlobalNumUint
     assert // application exists
-    int 1
+    pushint 1 // 1
     ==
     assert // expected global_num_uint
     frame_dig -1
     app_params_get AppGlobalNumByteSlice
     assert // application exists
-    int 2
+    pushint 2 // 2
     ==
     assert // expected global_num_bytes
     frame_dig -1
     app_params_get AppLocalNumUint
     assert // application exists
-    int 3
+    pushint 3 // 3
     ==
     assert // expected local_num_uint
     frame_dig -1
     app_params_get AppLocalNumByteSlice
     assert // application exists
-    int 4
+    pushint 4 // 4
     ==
     assert // expected local_num_bytes
     frame_dig -1
@@ -86,13 +86,11 @@ validate_asset:
 // test_cases.application.contract.Reference.__init__() -> void:
 __init__:
     proto 0 0
-    byte "int_1"
-    int 0
+    pushbytes "int_1"
+    pushint 0 // 0
     app_global_put
-    byte "bytes_1"
-    byte 0x
+    pushbytess "bytes_1" 0x // "bytes_1", 0x
     app_global_put
-    byte "bytes_2"
-    byte 0x
+    pushbytess "bytes_2" 0x // "bytes_2", 0x
     app_global_put
     retsub

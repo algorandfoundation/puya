@@ -1,6 +1,8 @@
 #pragma version 10
 
 examples.debug.contract.DebugContract.approval_program:
+    intcblock 1 0 10 TMPL_A_MULT
+    bytecblock " " 0x30313233343536373839
     callsub __puya_arc4_router__
     return
 
@@ -10,10 +12,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@5
-    method "test(uint64,uint64,uint64)uint64"
+    pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     txna ApplicationArgs 0
     match __puya_arc4_router___test_route@2
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___test_route@2:
@@ -30,11 +32,11 @@ __puya_arc4_router___test_route@2:
     btoi
     callsub test
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@5:
@@ -43,21 +45,24 @@ __puya_arc4_router___bare_routing@5:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@9:
-    int 0
+    intc_1 // 0
     retsub
 
 
 // examples.debug.contract.DebugContract.test(x: uint64, y: uint64, z: uint64) -> uint64:
 test:
     proto 3 1
-    int 0
+    intc_1 // 0
     dup
-    byte ""
-    dupn 2
+    pushbytes ""
+    dup
+    frame_dig -3
+    intc_3 // TMPL_A_MULT
+    *
     frame_dig -3
     frame_dig -2
     +
@@ -68,68 +73,66 @@ test:
     cover 2
     <
     bz test_else_body@2
-    frame_dig 5
-    dup
-    frame_bury 2
-    frame_bury 5
+    frame_dig 4
+    frame_dig -2
+    +
+    frame_bury 4
     b test_after_if_else@11
 
 test_else_body@2:
-    frame_dig -3
+    frame_dig 4
     frame_dig 6
     <
     bz test_else_body@4
-    frame_dig -3
+    frame_dig 4
     frame_dig -1
     +
-    frame_bury 2
+    frame_bury 4
     b test_after_if_else@10
 
 test_else_body@4:
     frame_dig 5
-    frame_dig -3
+    frame_dig 4
     <
     bz test_else_body@6
-    frame_dig -3
-    int 3
+    frame_dig 4
+    pushint 3 // 3
     *
-    frame_bury 2
+    frame_bury 4
     b test_after_if_else@10
 
 test_else_body@6:
     frame_dig 5
     dup
-    frame_dig -3
+    frame_dig 4
     >
     swap
-    frame_bury 4
+    frame_bury 3
     bz test_after_if_else@8
     frame_dig 5
-    frame_dig -3
+    frame_dig 4
     +
-    frame_bury 4
+    frame_bury 3
 
 test_after_if_else@8:
-    frame_dig 4
+    frame_dig 3
     frame_bury 5
-    frame_dig -3
-    frame_bury 2
 
 test_after_if_else@10:
 
 test_after_if_else@11:
-    frame_dig 2
+    frame_dig 4
     frame_dig 5
     +
     frame_dig 6
     <
     bz test_else_body@13
-    frame_dig 2
+    frame_dig 4
     dup
     frame_dig -2
     callsub some_func
     *
-    frame_bury 2
+    frame_bury 4
     b test_after_if_else@14
 
 test_else_body@13:
@@ -145,7 +148,7 @@ test_after_if_else@14:
     dup
     callsub itoa
     frame_bury 0
-    frame_dig 2
+    frame_dig 4
     dup
     uncover 2
     +
@@ -157,54 +160,54 @@ test_after_if_else@14:
     dig 1
     >
     swap
-    frame_bury 3
+    frame_bury 2
     bz test_after_if_else@16
-    frame_dig 2
+    frame_dig 4
     frame_dig 6
     +
-    frame_bury 3
+    frame_bury 2
 
 test_after_if_else@16:
-    frame_dig 3
+    frame_dig 2
     dup
-    frame_bury 2
+    frame_bury 4
     dup
     frame_dig 5
     <
     swap
-    frame_bury 3
+    frame_bury 2
     bz test_after_if_else@18
-    frame_dig 2
+    frame_dig 4
     frame_dig 5
     +
-    frame_bury 3
+    frame_bury 2
 
 test_after_if_else@18:
-    frame_dig 3
+    frame_dig 2
     dup
-    frame_bury 2
+    frame_bury 4
     frame_dig 5
     frame_dig 6
     +
     dig 1
     >
     swap
-    frame_bury 3
+    frame_bury 2
     bz test_after_if_else@20
-    frame_dig 2
+    frame_dig 4
     frame_dig -1
     *
-    frame_bury 3
+    frame_bury 2
 
 test_after_if_else@20:
-    frame_dig 3
+    frame_dig 2
     dup
     callsub itoa
-    byte " "
+    bytec_0 // " "
     concat
     frame_dig 0
     concat
-    byte " "
+    bytec_0 // " "
     concat
     frame_dig 1
     concat
@@ -229,7 +232,7 @@ some_func:
     +
     dup
     frame_bury -2
-    int 2
+    pushint 2 // 2
     *
     dup
     frame_bury -2
@@ -250,13 +253,13 @@ some_func:
 itoa:
     proto 1 1
     frame_dig -1
-    int 10
+    intc_2 // 10
     <
     bz itoa_after_if_else@2
     frame_dig -1
-    int 1
+    intc_0 // 1
     +
-    byte 0x30313233343536373839
+    bytec_1 // 0x30313233343536373839
     frame_dig -1
     uncover 2
     substring3
@@ -264,16 +267,16 @@ itoa:
 
 itoa_after_if_else@2:
     frame_dig -1
-    int 10
+    intc_2 // 10
     /
     callsub itoa
     frame_dig -1
-    int 10
+    intc_2 // 10
     %
     dup
-    int 1
+    intc_0 // 1
     +
-    byte 0x30313233343536373839
+    bytec_1 // 0x30313233343536373839
     cover 2
     substring3
     concat

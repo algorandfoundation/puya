@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.compile.apps.HelloOtherConstants.approval_program:
+    bytecblock TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -16,13 +17,13 @@ __puya_arc4_router__:
     // class HelloOtherConstants(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
-    method "create()uint64"
-    method "delete()void"
-    method "greet(string)byte[]"
+    pushbytes 0xd9285a74 // method "create()uint64"
+    pushbytes 0x24378d3c // method "delete()void"
+    pushbytes 0x5b0c2375 // method "greet(string)byte[]"
     uncover 3
     match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
     b __puya_arc4_router___switch_case_default@5
@@ -31,46 +32,46 @@ __puya_arc4_router___create_route@2:
     // compile/apps.py:89
     // @arc4.abimethod(create="require")
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub create
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___delete_route@3:
     // compile/apps.py:93
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
-    int DeleteApplication
+    pushint 5 // DeleteApplication
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub delete
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___greet_route@4:
     // compile/apps.py:97
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // compile/apps.py:81
@@ -80,17 +81,17 @@ __puya_arc4_router___greet_route@4:
     // compile/apps.py:97
     // @arc4.abimethod()
     callsub greet
-    dup
+    dig 0
     len
     itob
     extract 6 2
     uncover 1
     concat
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -101,7 +102,7 @@ __puya_arc4_router___bare_routing@7:
 __puya_arc4_router___after_if_else@8:
     // compile/apps.py:81
     // class HelloOtherConstants(ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -113,7 +114,7 @@ create:
     proto 0 1
     // compile/apps.py:91
     // return UInt64(1)
-    int 1
+    pushint 1 // 1
     retsub
 
 
@@ -134,23 +135,23 @@ greet:
     proto 1 1
     // compile/apps.py:99
     // num_alpha = (self.num + 48).bytes[-1]
-    int 0
-    byte "num"
+    pushint 0 // 0
+    pushbytes "num"
     app_global_get_ex
     assert // check self.num exists
-    byte 0x30
+    pushbytes 0x30
     b+
     len
-    int 1
+    pushint 1 // 1
     -
-    int 0
-    byte "num"
+    pushint 0 // 0
+    pushbytes "num"
     app_global_get_ex
     assert // check self.num exists
-    byte 0x30
+    pushbytes 0x30
     b+
     dig 1
-    int 1
+    pushint 1 // 1
     +
     uncover 1
     uncover 2
@@ -158,23 +159,23 @@ greet:
     substring3
     // compile/apps.py:101
     // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
-    int 0
-    byte "greeting"
+    pushint 0 // 0
+    pushbytes "greeting"
     app_global_get_ex
     assert // check self.greeting exists
-    byte 0x20
+    pushbytes 0x20
     concat
     frame_dig -1
     concat
     uncover 1
     concat
-    int 0
-    byte "address"
+    pushint 0 // 0
+    pushbytes "address"
     app_global_get_ex
     assert // check self.address exists
     concat
-    int 0
-    byte "method"
+    pushint 0 // 0
+    pushbytes "method"
     app_global_get_ex
     assert // check self.method exists
     concat
@@ -192,22 +193,22 @@ __init__:
     proto 0 0
     // compile/apps.py:84
     // self.greeting = TemplateVar[String]("GREETING")
-    byte "greeting"
-    byte TMPL_GREETING
+    pushbytes "greeting"
+    bytec_0 // TMPL_GREETING
     app_global_put
     // compile/apps.py:85
     // self.num = TemplateVar[BigUInt]("NUM")
-    byte "num"
-    byte TMPL_NUM
+    pushbytes "num"
+    bytec_1 // TMPL_NUM
     app_global_put
     // compile/apps.py:86
     // self.address = TemplateVar[Account]("ACCOUNT")
-    byte "address"
-    byte TMPL_ACCOUNT
+    pushbytes "address"
+    bytec_2 // TMPL_ACCOUNT
     app_global_put
     // compile/apps.py:87
     // self.method = TemplateVar[Bytes]("METHOD")
-    byte "method"
-    byte TMPL_METHOD
+    pushbytes "method"
+    bytec_3 // TMPL_METHOD
     app_global_put
     retsub

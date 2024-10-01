@@ -1,59 +1,62 @@
 #pragma version 10
 
 test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
-    int 0
-    dup
-    byte ""
-    dupn 3
+    pushint 0 // 0
+    pushint 0 // 0
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
     // arc4_types/dynamic_bytes.py:11
     // total = UInt64(0)
-    int 0
+    pushint 0 // 0
     // arc4_types/dynamic_bytes.py:12
     // dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)
-    byte 0x
-    byte 0x02
+    pushbytes 0x
+    pushbytes 0x02
     concat
-    byte 0x03
+    pushbytes 0x03
     concat
-    byte 0x01
+    pushbytes 0x01
     concat
-    byte 0x0003
+    pushbytes 0x0003
     uncover 1
     concat
     dup
     cover 1
+    cover 1
     // arc4_types/dynamic_bytes.py:13
     // assert dynamic_bytes.native == b"\x02\x03\x01"
-    dup
+    dig 0
     extract 2 0
-    byte 0x020301
+    pushbytes 0x020301
     ==
     assert
     // arc4_types/dynamic_bytes.py:14
     // assert dynamic_bytes.bytes == b"\x00\x03\x02\x03\x01"
-    dup
-    byte 0x0003020301
+    dig 0
+    pushbytes 0x0003020301
     ==
     assert
     // arc4_types/dynamic_bytes.py:16
     // for uint8_item in dynamic_bytes:
-    int 0
+    pushint 0 // 0
     extract_uint16
-    int 0
+    pushint 0 // 0
 
 main_for_header@1:
     // arc4_types/dynamic_bytes.py:16
     // for uint8_item in dynamic_bytes:
-    dup
+    dig 0
     dig 2
     <
     bz main_after_for@4
     dig 2
     extract 2 0
     dig 1
-    int 1
+    pushint 1 // 1
     *
-    int 1
+    pushint 1 // 1
     extract3 // on error: Index access is out of bounds
     // arc4_types/dynamic_bytes.py:17
     // total += uint8_item.native
@@ -62,8 +65,8 @@ main_for_header@1:
     uncover 1
     +
     bury 4
-    dup
-    int 1
+    dig 0
+    pushint 1 // 1
     +
     bury 1
     b main_for_header@1
@@ -72,38 +75,39 @@ main_after_for@4:
     // arc4_types/dynamic_bytes.py:19
     // assert total == 6, "Total should be of dynamic_bytes items"
     dig 3
-    int 6
+    pushint 6 // 6
     ==
     assert // Total should be of dynamic_bytes items
     // arc4_types/dynamic_bytes.py:21
     // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    byte 0x0304
+    pushbytes 0x0304
     len
     itob
     extract 6 2
-    byte 0x0304
+    pushbytes 0x0304
     concat
     dup
+    cover 1
     bury 11
     // arc4_types/dynamic_bytes.py:22
     // assert dynamic_bytes2.native == b"\x03\x04"
-    dup
+    dig 0
     extract 2 0
-    byte 0x0304
+    pushbytes 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:23
     // assert dynamic_bytes2.bytes == b"\x00\x02\x03\x04"
-    dup
-    byte 0x00020304
+    dig 0
+    pushbytes 0x00020304
     ==
     assert
     // arc4_types/dynamic_bytes.py:25
     // for uint8_item in dynamic_bytes2:
-    int 0
+    pushint 0 // 0
     extract_uint16
     bury 8
-    int 0
+    pushint 0 // 0
     bury 6
 
 main_for_header@5:
@@ -116,9 +120,9 @@ main_for_header@5:
     dig 9
     extract 2 0
     dig 6
-    int 1
+    pushint 1 // 1
     *
-    int 1
+    pushint 1 // 1
     extract3 // on error: Index access is out of bounds
     // arc4_types/dynamic_bytes.py:26
     // total += uint8_item.native
@@ -128,7 +132,7 @@ main_for_header@5:
     +
     bury 4
     dig 5
-    int 1
+    pushint 1 // 1
     +
     bury 6
     b main_for_header@5
@@ -138,33 +142,34 @@ main_after_for@8:
     // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
     dig 9
     extract 2 0
-    dup
+    dig 0
     len
     itob
     extract 6 2
     uncover 1
     concat
     dup
+    cover 1
     bury 10
     // arc4_types/dynamic_bytes.py:29
     // assert dynamic_bytes3.native == b"\x03\x04"
-    dup
+    dig 0
     extract 2 0
-    byte 0x0304
+    pushbytes 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:30
     // assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
-    dup
-    byte 0x00020304
+    dig 0
+    pushbytes 0x00020304
     ==
     assert
     // arc4_types/dynamic_bytes.py:32
     // for uint8_item in dynamic_bytes3:
-    int 0
+    pushint 0 // 0
     extract_uint16
     bury 7
-    int 0
+    pushint 0 // 0
     bury 5
 
 main_for_header@9:
@@ -177,9 +182,9 @@ main_for_header@9:
     dig 8
     extract 2 0
     dig 5
-    int 1
+    pushint 1 // 1
     *
-    int 1
+    pushint 1 // 1
     extract3 // on error: Index access is out of bounds
     // arc4_types/dynamic_bytes.py:33
     // total += uint8_item.native
@@ -189,7 +194,7 @@ main_for_header@9:
     +
     bury 4
     dig 4
-    int 1
+    pushint 1 // 1
     +
     bury 5
     b main_for_header@9
@@ -198,22 +203,22 @@ main_after_for@12:
     // arc4_types/dynamic_bytes.py:35
     // assert total == 20, "Total should now include sum of dynamic_bytes3 items"
     dig 3
-    int 20
+    pushint 20 // 20
     ==
     assert // Total should now include sum of dynamic_bytes3 items
     // arc4_types/dynamic_bytes.py:37
     // dynamic_bytes3.extend(DynamicBytes(b"abc"))
     dig 8
     extract 2 0
-    byte 0x616263
+    pushbytes 0x616263
     len
     itob
     extract 6 2
-    byte 0x616263
+    pushbytes 0x616263
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -221,73 +226,73 @@ main_after_for@12:
     concat
     // arc4_types/dynamic_bytes.py:38
     // assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
-    dup
-    byte 0x00050304616263
+    dig 0
+    pushbytes 0x00050304616263
     ==
     assert
     // arc4_types/dynamic_bytes.py:39
     // assert dynamic_bytes3.native == b"\x03\x04abc"
     extract 2 0
-    byte 0x0304616263
+    pushbytes 0x0304616263
     ==
     assert
     // arc4_types/dynamic_bytes.py:41
     // dynamic_bytes = DynamicBytes(2 if Txn.num_app_args else 3, UInt8(3), 1)
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
-    byte 0x03
-    byte 0x02
+    pushbytes 0x03
+    pushbytes 0x02
     uncover 2
     select
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
-    byte 0x03
+    pushbytes 0x03
     concat
-    byte 0x01
+    pushbytes 0x01
     concat
-    byte 0x0003
+    pushbytes 0x0003
     uncover 1
     concat
     // arc4_types/dynamic_bytes.py:42
     // assert dynamic_bytes.native == Bytes.from_hex("030301")
     extract 2 0
-    byte 0x030301
+    pushbytes 0x030301
     ==
     assert
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz main_ternary_false@14
-    byte 0x32
+    pushbytes 0x32
     len
     itob
     extract 6 2
-    byte 0x32
+    pushbytes 0x32
     concat
     b main_ternary_merge@15
 
 main_ternary_false@14:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
-    byte 0x33
+    pushbytes 0x33
     len
     itob
     extract 6 2
-    byte 0x33
+    pushbytes 0x33
     concat
 
 main_ternary_merge@15:
     // arc4_types/dynamic_bytes.py:45
     // assert dynamic_bytes.native == b"3"
     extract 2 0
-    byte 0x33
+    pushbytes 0x33
     ==
     assert
     // arc4_types/dynamic_bytes.py:46
     // return True
-    int 1
+    pushint 1 // 1
     return

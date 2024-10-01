@@ -11,11 +11,11 @@ __puya_arc4_router__:
     // class CreateAndTransferContract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
-    method "create_and_transfer()void"
+    pushbytes 0x48e9ed7c // method "create_and_transfer()void"
     uncover 1
     match __puya_arc4_router___create_and_transfer_route@2
     b __puya_arc4_router___switch_case_default@3
@@ -24,15 +24,15 @@ __puya_arc4_router___create_and_transfer_route@2:
     // inner_transactions/asset_transfer.py:11
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub create_and_transfer
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -42,7 +42,7 @@ __puya_arc4_router___bare_routing@5:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn OnCompletion
-    int 0
+    pushint 0 // 0
     uncover 1
     match __puya_arc4_router_____algopy_default_create@6
     b __puya_arc4_router___switch_case_default@7
@@ -51,11 +51,11 @@ __puya_arc4_router_____algopy_default_create@6:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -63,7 +63,7 @@ __puya_arc4_router___switch_case_default@7:
 __puya_arc4_router___after_if_else@9:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -94,25 +94,25 @@ create_and_transfer:
     itxn_field ConfigAssetManager
     // inner_transactions/asset_transfer.py:19
     // decimals=0,
-    int 0
+    pushint 0 // 0
     itxn_field ConfigAssetDecimals
     // inner_transactions/asset_transfer.py:18
     // unit_name="TST",
-    byte "TST"
+    pushbytes "TST"
     itxn_field ConfigAssetUnitName
     // inner_transactions/asset_transfer.py:17
     // asset_name="test",
-    byte "test"
+    pushbytes "test"
     itxn_field ConfigAssetName
     // inner_transactions/asset_transfer.py:16
     // total=1000,
-    int 1000
+    pushint 1000 // 1000
     itxn_field ConfigAssetTotal
     // inner_transactions/asset_transfer.py:15
     // itxn.AssetConfig(
-    int acfg
+    pushint 3 // acfg
     itxn_field TypeEnum
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // inner_transactions/asset_transfer.py:15-23
     // itxn.AssetConfig(
@@ -148,7 +148,7 @@ create_and_transfer:
     itxn_begin
     // inner_transactions/asset_transfer.py:29
     // asset_sender=new_asset.creator,
-    dup
+    dig 0
     asset_params_get AssetCreator
     assert // asset exists
     cover 1
@@ -162,16 +162,16 @@ create_and_transfer:
     itxn_field XferAsset
     // inner_transactions/asset_transfer.py:31
     // asset_amount=1000,
-    int 1000
+    pushint 1000 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
     // inner_transactions/asset_transfer.py:27-28
     // # transfer
     // itxn.AssetTransfer(
-    int axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // inner_transactions/asset_transfer.py:27-33
     // # transfer

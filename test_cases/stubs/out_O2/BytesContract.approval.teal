@@ -1,18 +1,20 @@
 #pragma version 10
 
 test_cases.stubs.bytes.BytesContract.approval_program:
-    byte 0x616263
+    intcblock 1 10 0 12
+    bytecblock 0x616263 0x 0x6e6f2061726773
+    bytec_0 // 0x616263
     callsub check_slicing_with_uint64
-    byte 0x616263
+    bytec_0 // 0x616263
     callsub check_end_before_start_slicing
-    byte 0x6e6f2061726773
-    byte 0x61726773
+    bytec_2 // 0x6e6f2061726773
+    pushbytes 0x61726773
     txn NumAppArgs
     select
-    byte 0x6e6f2061726773
+    bytec_2 // 0x6e6f2061726773
     ==
     assert // constructor expressions supported
-    int 1
+    intc_0 // 1
     return
 
 
@@ -21,10 +23,10 @@ check_slicing_with_uint64:
     proto 1 0
     frame_dig -1
     len
-    int 1
+    intc_0 // 1
     dig 1
     >=
-    int 1
+    intc_0 // 1
     dig 2
     uncover 2
     select
@@ -32,30 +34,30 @@ check_slicing_with_uint64:
     dig 1
     dig 3
     substring3
-    byte 0x6263
+    pushbytes 0x6263
     ==
     assert
     frame_dig -1
     dig 1
     dig 2
     substring3
-    byte 0x
+    bytec_1 // 0x
     ==
     assert
     frame_dig -1
-    int 0
+    intc_2 // 0
     uncover 2
     substring3
-    byte 0x61
+    pushbytes 0x61
     ==
     assert
     callsub one_to_seven
     dup
     len
-    int 1
+    intc_0 // 1
     dig 1
     >=
-    int 1
+    intc_0 // 1
     dig 2
     uncover 2
     select
@@ -69,27 +71,27 @@ check_slicing_with_uint64:
     swap
     select
     substring3
-    byte 0x3233343536
+    pushbytes 0x3233343536
     ==
     assert
-    int 0
+    intc_2 // 0
     dig 1
     >=
-    int 0
+    intc_2 // 0
     dig 2
     uncover 2
     select
     swap
-    int 10
+    intc_1 // 10
     dig 1
     >=
-    int 10
+    intc_1 // 10
     cover 2
     select
     frame_dig -1
     cover 2
     substring3
-    byte 0x616263
+    bytec_0 // 0x616263
     ==
     assert
     retsub
@@ -98,9 +100,9 @@ check_slicing_with_uint64:
 // test_cases.stubs.bytes.one_to_seven() -> bytes:
 one_to_seven:
     proto 0 1
-    byte "one_to_seven called"
+    pushbytes "one_to_seven called"
     log
-    byte 0x31323334353637
+    pushbytes 0x31323334353637
     retsub
 
 
@@ -109,18 +111,18 @@ check_end_before_start_slicing:
     proto 1 0
     frame_dig -1
     len
-    int 10
+    intc_1 // 10
     dig 1
     >=
-    int 10
+    intc_1 // 10
     dig 2
     uncover 2
     select
     swap
-    int 1
+    intc_0 // 1
     dig 1
     >=
-    int 1
+    intc_0 // 1
     dig 2
     uncover 2
     select
@@ -134,17 +136,17 @@ check_end_before_start_slicing:
     dig 3
     uncover 2
     substring3
-    byte 0x
+    bytec_1 // 0x
     ==
     assert
     dup
     uncover 2
     -
     swap
-    int 12
+    intc_3 // 12
     dig 1
     >=
-    int 12
+    intc_3 // 12
     dig 2
     uncover 2
     select
@@ -158,7 +160,7 @@ check_end_before_start_slicing:
     frame_dig -1
     cover 2
     substring3
-    byte 0x
+    bytec_1 // 0x
     ==
     assert
     retsub

@@ -1,42 +1,41 @@
 #pragma version 10
 
 test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
+    intcblock 1 2 0 4
+    bytecblock "state"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
 
 main_entrypoint@2:
-    int 101
-    int 102
-    int 103
+    pushints 101 102 103 // 101, 102, 103
     callsub add_three_values
     itob
     log
-    int 1
-    int 2
+    intc_0 // 1
+    intc_1 // 2
     addw
-    byte "state"
+    bytec_0 // "state"
     dig 1
     app_global_put
     dig 1
     !
     assert // overflow!
-    int 1
-    int 2
+    intc_0 // 1
+    intc_1 // 2
     callsub get_tuple
     swap
-    int 1
+    intc_0 // 1
     ==
     swap
-    int 2
+    intc_1 // 2
     ==
     &&
     assert
-    byte 0x48656c6c6f2c20
-    byte 0x776f726c6421
+    pushbytess 0x48656c6c6f2c20 0x776f726c6421 // 0x48656c6c6f2c20, 0x776f726c6421
     callsub bytes_combine
     log
-    int 18446744073709551615
+    pushint 18446744073709551615 // 18446744073709551615
     dup
     addw
     uncover 3
@@ -50,39 +49,36 @@ main_entrypoint@2:
     log
     itob
     log
-    byte 0x6e61
-    int 5
+    pushbytes 0x6e61
+    pushint 5 // 5
     callsub bytes_multiply
     log
-    int 0
+    intc_2 // 0
     callsub test_tuple_swap
-    int 1
-    int 2
-    int 3
-    int 4
-    int 5
-    int 6
-    int 7
-    int 8
+    intc_0 // 1
+    intc_1 // 2
+    pushint 3 // 3
+    intc_3 // 4
+    pushints 5 6 7 8 // 5, 6, 7, 8
     callsub slicing
     callsub non_empty_tuple
     popn 2
-    byte "not empty"
+    pushbytes "not empty"
     log
     callsub get_uint_with_side_effect
     pop
-    byte "not empty2"
+    pushbytes "not empty2"
     log
-    int 3
+    pushint 3 // 3
     return
 
 
 // test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
 add_three_values:
     proto 3 1
-    int 0
+    intc_2 // 0
     frame_dig -3
-    int 0
+    intc_2 // 0
 
 add_three_values_for_body@1:
     frame_dig 0
@@ -97,12 +93,12 @@ add_three_values_for_body@1:
 
 add_three_values_for_header_1@3:
     frame_dig -2
-    int 1
+    intc_0 // 1
     b add_three_values_for_body@1
 
 add_three_values_for_header_2@4:
     frame_dig -1
-    int 2
+    intc_1 // 2
     b add_three_values_for_body@1
 
 
@@ -148,8 +144,8 @@ addw2:
 // test_cases.tuple_support.tuple_support.bytes_multiply(arg.0: bytes, arg.1: uint64) -> bytes:
 bytes_multiply:
     proto 2 1
-    byte 0x
-    int 0
+    pushbytes 0x
+    intc_2 // 0
 
 bytes_multiply_for_header@1:
     frame_dig 1
@@ -161,7 +157,7 @@ bytes_multiply_for_header@1:
     concat
     frame_bury 0
     frame_dig 1
-    int 1
+    intc_0 // 1
     +
     frame_bury 1
     b bytes_multiply_for_header@1
@@ -174,15 +170,15 @@ bytes_multiply_after_for@4:
 test_tuple_swap:
     proto 1 0
     frame_dig -1
-    int 1
+    intc_0 // 1
     +
     frame_dig -1
-    int 2
+    intc_1 // 2
     +
-    int 2
+    intc_1 // 2
     ==
     assert // a should be two
-    int 1
+    intc_0 // 1
     ==
     assert // b should be one
     retsub
@@ -208,26 +204,26 @@ slicing:
 // test_cases.tuple_support.tuple_support.non_empty_tuple() -> uint64, uint64:
 non_empty_tuple:
     proto 0 2
-    byte "non_empty_tuple called"
+    pushbytes "non_empty_tuple called"
     log
-    int 4
-    int 2
+    intc_3 // 4
+    intc_1 // 2
     retsub
 
 
 // test_cases.tuple_support.tuple_support.get_uint_with_side_effect() -> uint64:
 get_uint_with_side_effect:
     proto 0 1
-    byte "get_uint_with_side_effect called"
+    pushbytes "get_uint_with_side_effect called"
     log
-    int 4
+    intc_3 // 4
     retsub
 
 
 // test_cases.tuple_support.tuple_support.TupleSupport.__init__() -> void:
 __init__:
     proto 0 0
-    byte "state"
-    int 0
+    bytec_0 // "state"
+    intc_2 // 0
     app_global_put
     retsub
