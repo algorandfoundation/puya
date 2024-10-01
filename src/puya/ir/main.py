@@ -224,16 +224,11 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
 
     # visit call graph starting at entry point(s) to collect all references for each
     callees = CalleesLookup(set)
-    approval_subs_srefs = StableSet[awst_nodes.Function]()
-    approval_subs_srefs.add(arc4_router_func)
-    approval_subs_srefs |= SubroutineCollector.collect(
-        ctx, start=arc4_router_func, callees=callees
-    )
-    approval_subs_srefs |= SubroutineCollector.collect(
-        ctx, start=contract.approval_program, callees=callees
+    approval_subs_srefs = SubroutineCollector.collect(
+        ctx, start=contract.approval_program, callees=callees, arc4_router_func=arc4_router_func
     )
     clear_subs_srefs = SubroutineCollector.collect(
-        ctx, start=contract.clear_program, callees=callees
+        ctx, start=contract.clear_program, callees=callees, arc4_router_func=arc4_router_func
     )
     # construct unique Subroutine objects for each function
     # that was referenced through either entry point
@@ -289,7 +284,9 @@ def _build_logic_sig_ir(
 ) -> LogicSignature:
     # visit call graph starting at entry point(s) to collect all references for each
     callees = CalleesLookup(set)
-    program_sub_refs = SubroutineCollector.collect(ctx, start=logic_sig.program, callees=callees)
+    program_sub_refs = SubroutineCollector.collect(
+        ctx, start=logic_sig.program, callees=callees, arc4_router_func=None
+    )
 
     # construct unique Subroutine objects for each function
     # that was referenced through either entry point
@@ -535,27 +532,48 @@ def _fold_state_and_special_methods(
 
 
 class SubroutineCollector(FunctionTraverser):
-    def __init__(self, context: IRBuildContext, callees: CalleesLookup) -> None:
+    def __init__(
+        self,
+        context: IRBuildContext,
+        callees: CalleesLookup,
+        arc4_router_func: awst_nodes.Function | None,
+    ) -> None:
         self.context = context
         self.result = StableSet[awst_nodes.Function]()
         self.callees = callees
         self._func_stack = list[awst_nodes.Function]()
+        self._arc4_router_func = arc4_router_func
 
     @classmethod
     def collect(
-        cls, context: IRBuildContext, start: awst_nodes.Function, callees: CalleesLookup
+        cls,
+        context: IRBuildContext,
+        start: awst_nodes.Function,
+        callees: CalleesLookup,
+        *,
+        arc4_router_func: awst_nodes.Function | None,
     ) -> StableSet[awst_nodes.Function]:
-        collector = cls(context, callees)
+        collector = cls(context, callees, arc4_router_func)
         with collector._enter_func(start):  # noqa: SLF001
             start.body.accept(collector)
         return collector.result
 
+    @typing.override
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
         callee = self._func_stack[-1]
         func = self.context.resolve_function_reference(
             expr.target, expr.source_location, caller=callee
         )
+        self._visit_func(func)
+
+    @typing.override
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> None:
+        if self._arc4_router_func is not None:
+            self._visit_func(self._arc4_router_func)
+
+    def _visit_func(self, func: awst_nodes.Function) -> None:
+        callee = self._func_stack[-1]
         self.callees[func].add(callee)
         if func not in self.result:
             self.result.add(func)
