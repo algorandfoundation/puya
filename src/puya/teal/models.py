@@ -234,7 +234,7 @@ class PushInt(TealOp):
     produces: int = attrs.field(default=1, init=False)
 
     @property
-    def immediates(self) -> Sequence[int | str]:
+    def immediates(self) -> Sequence[int]:
         return (self.value,)
 
 
@@ -295,7 +295,8 @@ class BytesC(TealOp):
 class PushBytes(TealOp):
     op_code: str = attrs.field(default="pushbytes", init=False)
     value: bytes = attrs.field(validator=_valid_bytes)
-    encoding: AVMBytesEncoding
+    # exclude encoding from equality so for example 0x and "" can be combined
+    encoding: AVMBytesEncoding = attrs.field(eq=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 
@@ -391,7 +392,8 @@ class Proto(TealOp):
 @attrs.frozen
 class Byte(TealOp):
     value: bytes
-    encoding: AVMBytesEncoding
+    # exclude encoding from equality so for example 0x and "" can be combined
+    encoding: AVMBytesEncoding = attrs.field(eq=False)
     op_code: str = attrs.field(default="byte", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
