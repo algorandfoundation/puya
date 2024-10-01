@@ -126,7 +126,7 @@ def test_assemble_last_op_jump() -> None:
                 source_location=None,
             )
         ],
-        x_stack=(),
+        x_stack_in=(),
         entry_stack_height=0,
         exit_stack_height=0,
     )

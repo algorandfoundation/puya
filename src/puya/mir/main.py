@@ -32,7 +32,7 @@ def _lower_subroutine_to_mir(
 ) -> models.MemorySubroutine:
     builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
     body = [
-        builder.lower_block_to_teal(block, next_block)
+        builder.lower_block_to_mir(block, next_block)
         for block, next_block in itertools.zip_longest(subroutine.body, subroutine.body[1:])
     ]
     preamble = models.MemoryBasicBlock(

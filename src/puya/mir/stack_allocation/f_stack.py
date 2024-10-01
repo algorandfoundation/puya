@@ -109,10 +109,12 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                         depth = stack.xl_height - 1
                     else:
                         depth = stack.fxl_height - stack.f_stack.index(store.local_id) - 1
+
                     block.ops[index] = attrs_extend(
                         mir.StoreFStack,
                         store,
                         depth=depth,
+                        frame_index=stack.fxl_height - depth - 1,
                         insert=insert,
                     )
                     removed_virtual = True
@@ -122,10 +124,13 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                         mir.LoadFStack,
                         load,
                         depth=depth,
+                        frame_index=stack.fxl_height - depth - 1,
                     )
                     removed_virtual = True
                 case mir.RetSub() as retsub:
-                    block.ops[index] = attrs.evolve(retsub, f_stack_size=len(all_variables))
+                    block.ops[index] = attrs.evolve(
+                        retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
+                    )
             op.accept(stack)
     if removed_virtual:
         ctx.invalidate_vla()

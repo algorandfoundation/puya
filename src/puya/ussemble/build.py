@@ -41,8 +41,11 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
         )
         stack = list[str]()
         for block in subroutine.blocks:
-            stack = stack[: block.entry_stack_height - len(block.x_stack)]
-            stack.extend(block.x_stack)
+            # stack = stack[: block.entry_stack_height - len(block.x_stack_in)]
+            # stack.extend(block.x_stack_in)
+            # update stack with correct values on entry to a block
+            f_stack_height = block.entry_stack_height - len(block.x_stack_in)
+            stack[f_stack_height:] = block.x_stack_in
             update_event(
                 block=block.label,
                 stack_in=stack.copy(),
@@ -50,21 +53,32 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
             avm_ops.append(models.Label(name=block.label))
             for op in block.ops:
                 stack_modified = False
-                defined = []
+                defined = list[str]()
                 for sm in op.stack_manipulations:
-                    if sm.manipulation in ("insert", "pop"):
-                        stack_modified = True
-                    match sm.manipulation:
-                        case "insert":
-                            stack.insert(sm.index, sm.local_id)
-                            if sm.defined:  # f-stack allocates variables before they are defined
-                                defined.append(sm.local_id)
-                        case "pop":
-                            stack.pop(sm.index)
-                        case "define":
-                            defined.append(sm.local_id)
+                    match sm:
+                        case teal.StackConsume(n=n):
+                            for _ in range(n):
+                                stack.pop()
+                            stack_modified = True
+                        case teal.StackExtend() as se:
+                            stack.extend(se.local_ids)
+                            if se.defined:
+                                defined.extend(se.local_ids)
+                            stack_modified = True
+                        case teal.StackDefine() as sd:
+                            defined.append(sd.local_id)
+                        case teal.StackInsert() as si:
+                            index = len(stack) - si.depth
+                            stack.insert(index, si.local_id)
+                            defined.append(si.local_id)
+                            stack_modified = True
+                        case teal.StackPop() as sp:
+                            index = len(stack) - sp.depth - 1
+                            stack.pop(index)
+                            stack_modified = True
                         case _:
-                            typing.assert_never(sm.manipulation)
+                            typing.assert_never(sm)
+
                 if defined:
                     update_event(defined_out=sorted(set(defined) & set(stack)))
                 if stack_modified:
@@ -81,6 +95,8 @@ def lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> list[models.No
 
 
 def lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
+    # TODO: use visitor pattern, and simplify assemble ops since constant gathering is now done
+    # at the teal level
     match op:
         case teal.TemplateVar():
             raise InternalError(
