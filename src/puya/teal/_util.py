@@ -10,29 +10,6 @@ _T = typing.TypeVar("_T", bound=models.TealOp)
 
 
 def preserve_stack_manipulations(
-    new: Sequence[_T], original: Sequence[models.TealOp | models.StackManipulation]
-) -> Sequence[_T]:
-    """Replaces all stack manipulations on new, with stack manipulations from original
-
-    Note: stack manipulations will all be placed on last op on new"""
-    if not new:
-        raise ValueError("expected a non empty sequence to put stack manipulations on")
-    # clear existing stack_manipulations on new sequence
-    new = [attrs.evolve(op, stack_manipulations=()) for op in new]
-    stack_manipulations = [
-        sm
-        for op in original
-        for sm in (op.stack_manipulations if isinstance(op, models.TealOp) else [op])
-    ]
-    # add stack manipulations to last op in new sequence
-    new[-1] = attrs.evolve(
-        new[-1],
-        stack_manipulations=stack_manipulations,
-    )
-    return new
-
-
-def preserve_stack_manipulations_window(
     ops: list[_T],
     window: slice,
     new: Sequence[_T],
@@ -56,6 +33,13 @@ def preserve_stack_manipulations_window(
         else:
             # can this even happen? if it does, maybe attach to block instead?
             raise InternalError("could not preserve stack manipulations")
-    ops[window] = preserve_stack_manipulations(
-        new, [sm for op in ops[window] for sm in op.stack_manipulations]
+
+    # clear existing stack_manipulations on new sequence
+    new = [attrs.evolve(op, stack_manipulations=()) for op in new]
+    # add original stack manipulations to last op in new sequence
+    new[-1] = attrs.evolve(
+        new[-1],
+        stack_manipulations=[sm for op in ops[window] for sm in op.stack_manipulations],
     )
+    # replace original ops with new ops
+    ops[window] = new

@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 
 from puya.teal import models
-from puya.teal._util import preserve_stack_manipulations_window
+from puya.teal._util import preserve_stack_manipulations
 
 
 def _simplify_repeated_rotation_ops(
@@ -40,7 +40,7 @@ def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
             if maybe_simplify:
                 maybe_simplified, modified_ = _simplify_repeated_rotation_ops(maybe_simplify)
                 modified = modified or modified_
-                preserve_stack_manipulations_window(
+                preserve_stack_manipulations(
                     result, slice(end_idx - len(maybe_simplify), end_idx), maybe_simplified
                 )
                 end_idx += len(maybe_simplified) - len(maybe_simplify)
@@ -52,7 +52,7 @@ def simplify_repeated_rotation_ops(block: models.TealBlock) -> bool:
         maybe_simplified, modified_ = _simplify_repeated_rotation_ops(maybe_simplify)
         modified = modified or modified_
         idx = len(result)
-        preserve_stack_manipulations_window(
+        preserve_stack_manipulations(
             result, slice(idx - len(maybe_simplify), idx), maybe_simplified
         )
     block.ops = result
