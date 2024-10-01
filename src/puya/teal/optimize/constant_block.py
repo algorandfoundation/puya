@@ -2,7 +2,6 @@ import itertools
 import typing
 from collections import Counter
 
-from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.parse import SourceLocation
@@ -12,7 +11,7 @@ from puya.utils import Address, coalesce, method_selector_hash, unique
 _T = typing.TypeVar("_T")
 
 
-def gather_program_constants(ctx: CompileContext, program: models.TealProgram) -> None:
+def gather_program_constants(program: models.TealProgram) -> None:
     # collect constants & template vars
     all_ints = list[int | str]()
     all_bytes = list[bytes | str]()
@@ -44,9 +43,9 @@ def gather_program_constants(ctx: CompileContext, program: models.TealProgram) -
                         source_location=op.source_location,
                     )
             match op:
-                case models.Int(value=int_or_alias) if ctx.options.optimization_level:
+                case models.Int(value=int_or_alias):
                     all_ints.append(_resolve_teal_alias(int_or_alias))
-                case models.Byte(value=bytes_value) as byte if ctx.options.optimization_level:
+                case models.Byte(value=bytes_value) as byte:
                     all_bytes.append(bytes_value)
                     # preserve bytes encoding if it matches
                     if bytes_encodings.setdefault(bytes_value, byte.encoding) != byte.encoding:

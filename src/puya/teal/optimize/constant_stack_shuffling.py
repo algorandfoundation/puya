@@ -7,17 +7,19 @@ from puya.teal.optimize._data import LOAD_OP_CODES
 
 
 def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
-    result = list[models.TealOp]()
+    result = block.ops.copy()
     loads = list[models.TealOp]()
-    simplified = list[models.TealOp]()
-    modified = False
-    for op in block.ops:
+    loads_modified = modified = False
+    start_idx = idx = 0
+    while idx < len(result):
+        op = result[idx]
         if _is_constant_load(op):
-            simplified.append(op)
+            if not loads:
+                start_idx = idx
+                loads_modified = False
             loads.append(op)
         elif loads and op.op_code in ("dup", "dupn"):
-            modified = True
-            simplified.append(op)
+            modified = loads_modified = True
             (n,) = op.immediates or (1,)
             assert isinstance(n, int)
             # extend loads with n copies of the last load
@@ -25,26 +27,24 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
         elif loads:
             match op:
                 case models.Uncover(n=n) if n < len(loads):
-                    modified = True
-                    simplified.append(op)
+                    modified = loads_modified = True
                     uncovered = loads.pop(-(n + 1))
                     loads.append(uncovered)
                 case models.Cover(n=n) if n < len(loads):
-                    modified = True
-                    simplified.append(op)
+                    modified = loads_modified = True
                     covered = loads.pop()
                     loads.insert(len(loads) - n, covered)
                 case _:
-                    result.extend(
-                        preserve_stack_manipulations(loads, simplified) if modified else loads
-                    )
+                    if loads_modified:
+                        window = slice(start_idx, idx)
+                        preserve_stack_manipulations(result, window, loads)
+                        idx = start_idx + len(loads)
                     loads = []
-                    simplified = []
-                    result.append(op)
-        else:
-            result.append(op)
-    if loads:
-        result.extend(preserve_stack_manipulations(loads, simplified) if modified else loads)
+        idx += 1
+
+    if loads_modified and loads:
+        window = slice(start_idx, len(result))
+        preserve_stack_manipulations(result, window, loads)
     block.ops = result
     return modified
 
@@ -86,10 +86,8 @@ def constant_dup2_insertion(block: models.TealBlock) -> bool:
             loc = sequential_source_locations_merge(
                 (load_a2.source_location, load_b2.source_location)
             )
-            dup2 = preserve_stack_manipulations(
-                [models.Dup2(source_location=loc)], [load_a2, load_b2]
-            )
-            result[idx : idx + 4] = [load_a, load_b, *dup2]
+            dup2 = models.Dup2(source_location=loc)
+            preserve_stack_manipulations(result, slice(idx + 2, idx + 4), [dup2])
             modified = True
             idx += 3
         else:
@@ -108,7 +106,8 @@ def _collapse_loads(loads: list[models.TealOp]) -> bool:
         dup_op: models.TealOp = models.Dup(source_location=dup_source_location)
     else:
         dup_op = models.DupN(n=n, source_location=dup_source_location)
-    loads[1:] = preserve_stack_manipulations([dup_op], loads[1:])
+
+    preserve_stack_manipulations(loads, slice(1, None), [dup_op])
     return True
 
 

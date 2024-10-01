@@ -15,9 +15,13 @@ from puya.teal.optimize.repeated_rotations_search import repeated_rotation_ops_s
 def optimize_block(block: models.TealBlock, *, level: int) -> None:
     modified = True
     while modified:
-        modified = perform_constant_stack_shuffling(block)
-        modified = simplify_repeated_rotation_ops(block) or modified
-        modified = peephole(block) or modified
+        modified = False
+        if level > 0:
+            modified = perform_constant_stack_shuffling(block) or modified
+            modified = simplify_repeated_rotation_ops(block) or modified
+        modified = peephole(block, level) or modified
+    if not level:
+        return
 
     # we don't do dup/dupn collapse in the above loop, but after it.
     # it's easier to deal with expanded dup/dupn instructions above when looking at
@@ -40,5 +44,5 @@ def optimize_teal_program(
     for teal_sub in teal_program.all_subroutines:
         for teal_block in teal_sub.blocks:
             optimize_block(teal_block, level=context.options.optimization_level)
-            teal_block.validate()
+            teal_block.validate_stack_height()
     return teal_program
