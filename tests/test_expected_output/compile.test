@@ -3,28 +3,20 @@
 # type: ignore
 ## case: test_non_constant_templates
 ## template: SOME_VAR="test"
-import arc4 ## E: Cannot find implementation or library stub for module named "arc4"  [import-not-found] \
-            ## N: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
 from algopy import *
 
 class MyContract(ARC4Contract):
 
-    @arc4.abimethod ## E: Expression has type "Any"  [misc] \
-                    ## E: Untyped decorator makes function "log" untyped  [misc] \
-                    ## E: Unsupported decorator ""
-    def log(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must be annotated with exactly one of @algopy.subroutine, @algopy.arc4.abimethod, or @algopy.arc4.baremethod \
-                           ## E: Function is untyped after decorator transformation  [misc]
+    @arc4.abimethod
+    def log(self) -> None:
         log(TemplateVar[String]("SOME_VAR"))
 
 
 class Factory(ARC4Contract):
 
-    @arc4.abimethod ## E: Untyped decorator makes function "compile" untyped  [misc] \
-                    ## E: Expression has type "Any"  [misc] \
-                    ## E: Unsupported decorator ""
-    def compile(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must be annotated with exactly one of @algopy.subroutine, @algopy.arc4.abimethod, or @algopy.arc4.baremethod \
-                               ## E: Function is untyped after decorator transformation  [misc]
-        compiled = compile_contract(MyContract, template_vars={"SOME_VAR": get_non_const()})
+    @arc4.abimethod
+    def compile(self) -> None:
+        compiled = compile_contract(MyContract, template_vars={"SOME_VAR": get_non_const()}) ## E: non-constant template value
         log(compiled.extra_program_pages)
 
 @subroutine
