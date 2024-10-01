@@ -1280,7 +1280,7 @@ def insert_on_create_call(context: IRFunctionBuildContext, to: Subroutine) -> No
     )
     on_create_block, entrypoint_block = context.block_builder.mkblocks(
         "on_create",
-        "entrypoint",
+        "after_if_else",
         source_location=to.source_location or context.function.source_location,
     )
     context.block_builder.terminate(
