@@ -11,6 +11,22 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__()
                 return tmp%0#0
         
+        subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
+            block@0: // L23
+                (app_global_put "asa" 123u)
+                (app_global_put "an_int" 2u)
+                let result%0#0: bytes = 0x07
+                let result%1#0: bytes = (concat result%0#0 0x08)
+                let result%2#0: bytes = (concat result%1#0 0x09)
+                let array_data%0#0: bytes = result%2#0
+                (app_global_put "some_bytes" array_data%0#0)
+                let new_state_value%0#0: bytes = (txn Sender)
+                (app_global_put "creator" new_state_value%0#0)
+                (app_global_put "app" 123u)
+                let tmp%0#0: uint64 = (len method "get(uint64,byte[])byte[]")
+                (assert tmp%0#0) // has method selector
+                return 
+        
         subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> bool:
             block@0: // L22
                 let tmp%0#0: uint64 = (txn NumAppArgs)
@@ -500,22 +516,6 @@ contract test_cases.abi_routing.contract.Reference:
         subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
             block@0: // L66
                 (log "Hello World")
-                return 
-        
-        subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
-            block@0: // L23
-                (app_global_put "asa" 123u)
-                (app_global_put "an_int" 2u)
-                let result%0#0: bytes = 0x07
-                let result%1#0: bytes = (concat result%0#0 0x08)
-                let result%2#0: bytes = (concat result%1#0 0x09)
-                let array_data%0#0: bytes = result%2#0
-                (app_global_put "some_bytes" array_data%0#0)
-                let new_state_value%0#0: bytes = (txn Sender)
-                (app_global_put "creator" new_state_value%0#0)
-                (app_global_put "app" 123u)
-                let tmp%0#0: uint64 = (len method "get(uint64,byte[])byte[]")
-                (assert tmp%0#0) // has method selector
                 return 
     
     program clear-state:

@@ -14,6 +14,46 @@ main_after_if_else@2:
     return
 
 
+// test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
+__init__:
+    // state_proxies/contract.py:13
+    // def __init__(self) -> None:
+    proto 0 0
+
+__init___block@0:
+    // state_proxies/contract.py:17
+    // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
+    byte 0x6732                                                                               0x6732
+    int 0                                                                                     0x6732,0
+    app_global_put
+    // state_proxies/contract.py:20
+    // if Txn.num_app_args
+    txn NumAppArgs                                                                            tmp%0#0
+    // state_proxies/contract.py:21
+    // else GlobalState(UInt64, key="town")
+    byte "town"                                                                               tmp%0#0,"town"
+    // state_proxies/contract.py:19
+    // GlobalState(UInt64, key="funky")
+    byte "funky"                                                                              tmp%0#0,"town","funky"
+    // state_proxies/contract.py:18-22
+    // funky_town = (
+    //     GlobalState(UInt64, key="funky")
+    //     if Txn.num_app_args
+    //     else GlobalState(UInt64, key="town")
+    // )
+    l-load tmp%0#0 2                                                                          "town","funky",tmp%0#0
+    // state_proxies/contract.py:19-21
+    // GlobalState(UInt64, key="funky")
+    // if Txn.num_app_args
+    // else GlobalState(UInt64, key="town")
+    select                                                                                    funky_town#0
+    // state_proxies/contract.py:23
+    // funky_town.value = UInt64(123)
+    int 123                                                                                   funky_town#0,123
+    app_global_put
+    retsub
+
+
 // test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__() -> uint64:
 __puya_arc4_router__:
     // state_proxies/contract.py:12
@@ -83,46 +123,6 @@ create_block@0:
     byte 0x6c32                                                                               tmp%1#0,0x6c32
     int 3                                                                                     tmp%1#0,0x6c32,3
     app_local_put
-    retsub
-
-
-// test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
-__init__:
-    // state_proxies/contract.py:13
-    // def __init__(self) -> None:
-    proto 0 0
-
-__init___block@0:
-    // state_proxies/contract.py:17
-    // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
-    byte 0x6732                                                                               0x6732
-    int 0                                                                                     0x6732,0
-    app_global_put
-    // state_proxies/contract.py:20
-    // if Txn.num_app_args
-    txn NumAppArgs                                                                            tmp%0#0
-    // state_proxies/contract.py:21
-    // else GlobalState(UInt64, key="town")
-    byte "town"                                                                               tmp%0#0,"town"
-    // state_proxies/contract.py:19
-    // GlobalState(UInt64, key="funky")
-    byte "funky"                                                                              tmp%0#0,"town","funky"
-    // state_proxies/contract.py:18-22
-    // funky_town = (
-    //     GlobalState(UInt64, key="funky")
-    //     if Txn.num_app_args
-    //     else GlobalState(UInt64, key="town")
-    // )
-    l-load tmp%0#0 2                                                                          "town","funky",tmp%0#0
-    // state_proxies/contract.py:19-21
-    // GlobalState(UInt64, key="funky")
-    // if Txn.num_app_args
-    // else GlobalState(UInt64, key="town")
-    select                                                                                    funky_town#0
-    // state_proxies/contract.py:23
-    // funky_town.value = UInt64(123)
-    int 123                                                                                   funky_town#0,123
-    app_global_put
     retsub
 
 
