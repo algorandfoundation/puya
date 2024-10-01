@@ -10,6 +10,57 @@ main_after_if_else@2:
     return
 
 
+// test_cases.abi_routing.contract.Reference.__init__() -> void:
+__init__:
+    // abi_routing/contract.py:23
+    // def __init__(self) -> None:
+    proto 0 0
+    // abi_routing/contract.py:24
+    // self.asa = Asset(123)
+    byte "asa"
+    int 123
+    app_global_put
+    // abi_routing/contract.py:25
+    // self.an_int = UInt64(2)
+    byte "an_int"
+    int 2
+    app_global_put
+    // abi_routing/contract.py:26
+    // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
+    byte 0x
+    byte 0x07
+    concat
+    byte 0x08
+    concat
+    byte 0x09
+    concat
+    byte 0x
+    uncover 1
+    concat
+    byte "some_bytes"
+    uncover 1
+    app_global_put
+    // abi_routing/contract.py:27
+    // self.creator = op.Txn.sender
+    txn Sender
+    byte "creator"
+    uncover 1
+    app_global_put
+    // abi_routing/contract.py:28
+    // self.app = Application(123)
+    byte "app"
+    int 123
+    app_global_put
+    // abi_routing/contract.py:30
+    // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
+    method "get(uint64,byte[])byte[]"
+    len
+    int 0
+    !=
+    assert // has method selector
+    retsub
+
+
 // test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> uint64:
 __puya_arc4_router__:
     // abi_routing/contract.py:22
@@ -1673,55 +1724,4 @@ bare_abi_config:
     // log("Hello World")
     byte "Hello World"
     log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.__init__() -> void:
-__init__:
-    // abi_routing/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-    // abi_routing/contract.py:24
-    // self.asa = Asset(123)
-    byte "asa"
-    int 123
-    app_global_put
-    // abi_routing/contract.py:25
-    // self.an_int = UInt64(2)
-    byte "an_int"
-    int 2
-    app_global_put
-    // abi_routing/contract.py:26
-    // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-    byte 0x
-    byte 0x07
-    concat
-    byte 0x08
-    concat
-    byte 0x09
-    concat
-    byte 0x
-    uncover 1
-    concat
-    byte "some_bytes"
-    uncover 1
-    app_global_put
-    // abi_routing/contract.py:27
-    // self.creator = op.Txn.sender
-    txn Sender
-    byte "creator"
-    uncover 1
-    app_global_put
-    // abi_routing/contract.py:28
-    // self.app = Application(123)
-    byte "app"
-    int 123
-    app_global_put
-    // abi_routing/contract.py:30
-    // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
-    method "get(uint64,byte[])byte[]"
-    len
-    int 0
-    !=
-    assert // has method selector
     retsub
