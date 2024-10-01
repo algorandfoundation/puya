@@ -10,14 +10,14 @@ main_block@0:
     txn ApplicationID                                //                                                           (𝕗) me#0 | {txn}
                                                      // virtual: store app_id%0#0 to l-stack (no copy)            (𝕗) me#0 | app_id%0#0
                                                      // virtual: load app_id%0#0 from l-stack (no copy)           (𝕗) me#0 | app_id%0#0
-    bnz main_entrypoint@2                            //                                                           (𝕗) me#0 |
+    bnz main_after_if_else@2                         //                                                           (𝕗) me#0 |
     // Implicit fall through to main_on_create@1     //                                                           (𝕗) me#0 |
 
 main_on_create@1:
     callsub __init__                                 //                                                           (𝕗) me#0 |
-    // Implicit fall through to main_entrypoint@2    //                                                           (𝕗) me#0 |
+    // Implicit fall through to main_after_if_else@2 //                                                           (𝕗) me#0 |
 
-main_entrypoint@2:
+main_after_if_else@2:
     txn Sender                                       //                                                           (𝕗) me#0 | {txn}                                                                op.Txn.sender                                      augmented_assignment/contract.py:20
     bury 1                                           // store me#0 to f-stack                                     (𝕗) me#0 |                                                                      me = op.Txn.sender                                 augmented_assignment/contract.py:20
     txn OnCompletion                                 //                                                           (𝕗) me#0 | {txn}                                                                op.Txn.on_completion                               augmented_assignment/contract.py:22
