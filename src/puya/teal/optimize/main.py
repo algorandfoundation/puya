@@ -39,6 +39,12 @@ def optimize_teal_program(
     teal_program = copy.deepcopy(teal_program)
     for teal_sub in teal_program.all_subroutines:
         for teal_block in teal_sub.blocks:
+            # TODO: perform trivial optimizations at all levels
+            # cover/uncover 0 -> remove
+            # dig 0 -> dup
+            # dupn 1 -> dup
+            # cover 1/uncover 1 -> swap
+            # popn 1 -> pop
             optimize_block(teal_block, level=context.options.optimization_level)
-            teal_block.validate()
+            teal_block.validate_stack_height()
     return teal_program

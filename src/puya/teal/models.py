@@ -19,19 +19,33 @@ TEAL_ALIASES = {
 
 
 @attrs.frozen
-class StackManipulation:
-    manipulation: typing.Literal["insert", "pop", "define"]
-    local_id: str
-    index: int
+class StackConsume:
+    n: int
+
+
+@attrs.frozen
+class StackExtend:
+    local_ids: Sequence[str]
     defined: bool = True
 
-    def __str__(self) -> str:
-        if self.manipulation == "insert":
-            return f"insert({self.index}, {self.local_id!r}, defined={self.defined})"
-        elif self.manipulation == "pop":
-            return f"pop({self.index}) == {self.local_id!r}"
-        else:
-            return f"define({self.local_id!r})"
+
+@attrs.frozen
+class StackInsert:
+    depth: int
+    local_id: str
+
+
+@attrs.frozen
+class StackPop:
+    depth: int
+
+
+@attrs.frozen
+class StackDefine:
+    local_id: str
+
+
+StackManipulation = StackConsume | StackExtend | StackDefine | StackInsert | StackPop
 
 
 @attrs.frozen(kw_only=True)
@@ -458,15 +472,11 @@ class CallSub(TealOp):
 class TealBlock:
     label: str
     ops: list[TealOp]
-    x_stack: Sequence[str]
+    x_stack_in: Sequence[str]
     entry_stack_height: int
     exit_stack_height: int
 
-    def validate(self) -> None:
-        self._validate_stack_height()
-        self._validate_stack_manipulations()
-
-    def _validate_stack_height(self) -> None:
+    def validate_stack_height(self) -> None:
         stack_height = self.entry_stack_height
         for op in self.ops:
             stack_height -= op.consumes
@@ -483,33 +493,12 @@ class TealBlock:
                 self.ops[-1].source_location,
             )
 
-    def _validate_stack_manipulations(self) -> None:
-        stack = [""] * (self.entry_stack_height - len(self.x_stack))
-        stack.extend(self.x_stack)
-        for op in self.ops:
-            for sm in op.stack_manipulations:
-                if sm.manipulation == "insert":
-                    try:
-                        stack.insert(sm.index, sm.local_id)
-                    except ValueError:
-                        stack_desc = ",".join(stack)
-                        raise InternalError(f"invalid index {sm.index} for {stack_desc}") from None
-                elif sm.manipulation == "pop":
-                    try:
-                        stack.pop(sm.index)
-                    except IndexError:
-                        stack_desc = ",".join(stack)
-                        raise InternalError(
-                            f"could not find {sm.local_id!r} stack: {stack_desc}"
-                        ) from None
-                # TODO: check define too?
-
 
 @attrs.define
 class TealSubroutine:
     is_main: bool
     signature: Signature
-    blocks: list[TealBlock] = attrs.field(factory=list)
+    blocks: list[TealBlock]
 
 
 @attrs.define

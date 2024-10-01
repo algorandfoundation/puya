@@ -65,6 +65,13 @@ def _optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
                 stack_manipulations=a.stack_manipulations,
             )
         ], True
+    if a.op_code == "popn" and a.immediates == (1,):
+        return [
+            models.Pop(
+                source_location=a.source_location,
+                stack_manipulations=a.stack_manipulations,
+            )
+        ], True
     return [a], False
 
 

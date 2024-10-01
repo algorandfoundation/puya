@@ -286,7 +286,7 @@ class MemoryIRBuilder(IRVisitor[None]):
             )
         )
 
-    def lower_block_to_teal(
+    def lower_block_to_mir(
         self, block: ir.BasicBlock, next_block: ir.BasicBlock | None
     ) -> models.MemoryBasicBlock:
         self.next_block = next_block

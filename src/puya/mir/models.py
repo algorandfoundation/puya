@@ -185,7 +185,7 @@ class LoadOp(MemoryOp, abc.ABC):
 
 
 @attrs.frozen(eq=False)
-class StoreVirtual(StoreOp):
+class StoreVirtual(StoreOp):  # TODO: rename to AbstractStore
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
@@ -197,7 +197,7 @@ class StoreVirtual(StoreOp):
 
 
 @attrs.frozen(eq=False)
-class LoadVirtual(LoadOp):
+class LoadVirtual(LoadOp):  # TODO: rename to AbstractLoad
     consumes: int = attrs.field(default=0, init=False)
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
@@ -292,6 +292,7 @@ class LoadXStack(LoadOp):
 @attrs.frozen(eq=False)
 class StoreFStack(StoreOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
+    frame_index: int = attrs.field(validator=attrs.validators.ge(0))
     insert: bool = False
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
@@ -306,6 +307,7 @@ class StoreFStack(StoreOp):
 @attrs.frozen(eq=False)
 class LoadFStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
+    frame_index: int = attrs.field(validator=attrs.validators.ge(0))
     consumes: int = attrs.field(default=0, init=False)
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
@@ -433,7 +435,7 @@ class CallSub(BaseOp):
 @attrs.frozen(eq=False)
 class RetSub(MemoryOp):
     returns: int
-    f_stack_size: int = 0
+    fx_height: int = 0
     # l-stack is discarded after this op
     consumes: int = attrs.field(default=0, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
@@ -465,13 +467,13 @@ class IntrinsicOp(BaseOp):
         return visitor.visit_intrinsic(self)
 
     def __str__(self) -> str:
-        teal = [self.op_code, *map(str, self.immediates)]
+        result = [self.op_code, *map(str, self.immediates)]
         if self.comment:
             # TODO: determine if the comment is user defined or not
             # if not user then self.include_op_desc should be respected
             # e.g. consider assert comments
-            teal += ("//", self.comment)
-        return " ".join(teal)
+            result += ("//", self.comment)
+        return " ".join(result)
 
 
 class BranchingOp(IntrinsicOp, abc.ABC):

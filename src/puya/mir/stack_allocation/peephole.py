@@ -15,9 +15,6 @@ def optimize_pair(
     # this function has been optimized to reduce the number of isinstance checks,
     # consider this when making any modifications
 
-    # goal: stack can then be refactored into a teal op builder?
-    #       minimal stack manipulations on teal ops?
-    # TODO: can we simplify a sequence of Stores following a tuple load?
     # move local_ids to produces of previous op where possible
     if (
         isinstance(b, mir.StoreLStack | mir.StoreXStack | mir.StoreFStack)
