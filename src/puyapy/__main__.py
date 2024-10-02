@@ -112,12 +112,6 @@ def main() -> None:
         help="Output AVM bytecode",
     )
     parser.add_argument(
-        "--match-algod-bytecode",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="When outputting bytecode, ensure bytecode matches algod output",
-    )
-    parser.add_argument(
         "-T",
         "--template-var",
         dest="cli_template_definitions",

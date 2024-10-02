@@ -23,7 +23,6 @@ class PuyaOptions:
     output_destructured_ir: bool = False
     output_memory_ir: bool = False
     output_bytecode: bool = False
-    match_algod_bytecode: bool = False
     debug_level: int = 1
     optimization_level: int = 1
     target_avm_version: int = MAINNET_TEAL_LANGUAGE_VERSION
