@@ -167,7 +167,7 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
-    debug_info: bytes = b""
+    debug_info: bytes
     bytecode: bytes | None = None
 
 
@@ -205,6 +205,7 @@ def _dummy_program() -> _CompiledProgram:
             subroutines=[],
         ),
         teal_src="",
+        debug_info=b"",
     )
 
 
