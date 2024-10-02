@@ -51,7 +51,6 @@ def test_assemble_matches_algod(
         output_arc32=False,
         output_source_map=False,
         output_bytecode=True,
-        match_algod_bytecode=True,
         out_dir=Path("out"),
         template_vars_prefix=prefix,
         cli_template_definitions=template_vars,
@@ -70,34 +69,6 @@ def test_assemble_matches_algod(
                 assemble_and_compare_program(
                     options, algod_client, logic_sig, f"{artifact.metadata.ref}-logicsig"
                 )
-
-
-@pytest.mark.parametrize("optimization_level", [0, 1, 2])
-def test_assemble(case: PuyaExample, optimization_level: int) -> None:
-    prefix, template_vars = load_template_vars(case.template_vars_path)
-    compile_src_from_options(
-        PuyaPyOptions(
-            paths=(case.path,),
-            optimization_level=optimization_level,
-            debug_level=0,
-            output_teal=False,
-            output_arc32=False,
-            output_bytecode=True,
-            out_dir=Path("out"),
-            template_vars_prefix=prefix,
-            cli_template_definitions=template_vars,
-        )
-    )
-
-
-def _value_as_tmpl_str(value: int | bytes | str) -> str:
-    match value:
-        case int(int_value):
-            return str(int_value)
-        case bytes(bytes_value):
-            return f"0x{bytes_value.hex()}"
-        case str(str_value):
-            return repr(str_value)
 
 
 def assemble_and_compare_program(
