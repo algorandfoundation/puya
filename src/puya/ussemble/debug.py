@@ -4,21 +4,7 @@ import attrs
 from cattrs.preconf.json import make_converter
 
 from puya.ussemble import models
-
-
-@attrs.frozen
-class Event:
-    subroutine: str | None = None
-    block: str | None = None
-    op: str | None = None
-    callsub: str | None = None
-    retsub: bool = False
-    params: Mapping[str, str] | None = None
-    """Also defines the p-stack, which holds the parameters passed via the stack to a function"""
-    stack_in: Sequence[str] | None = None
-    stack_out: Sequence[str] | None = None
-    """The variables defined relative to a function's current subroutine frame"""
-    defined_out: Sequence[str] | None = None
+from puya.ussemble.context import AssembleContext
 
 
 @attrs.frozen
@@ -27,26 +13,28 @@ class DebugOutput:
     sources: list[str]
     mappings: str
     op_pc_offset: int
-    pc_events: Mapping[int, Event]
+    pc_events: Mapping[int, models.DebugEvent]
 
 
 _converter = make_converter(omit_if_default=True)
 
 
 def build_debug_info(
-    source_map: Mapping[int, models.Node],
-    events: Mapping[int, Event],
-    *,
-    offset_pc_from_constant_blocks: bool,
+    ctx: AssembleContext,
+    source_map: Mapping[int, models.AVMOp],
+    events: Mapping[int, models.DebugEvent],
 ) -> bytes:
     files = sorted(
         map(str, {s.source_location.file for s in source_map.values() if s.source_location})
     )
     op_pc_offset = pc_offset = 0
-    if offset_pc_from_constant_blocks:
+    if ctx.offset_pc_from_constant_blocks:
         for idx, (pc, node) in enumerate(source_map.items()):
             # stop at first op that is not a constant block
-            if not isinstance(node, models.IntBlock | models.BytesBlock):
+            if not isinstance(node, models.AVMOp) or node.op_code not in (
+                "intcblock",
+                "bytecblock",
+            ):
                 op_pc_offset = idx
                 pc_offset = pc
                 break
@@ -66,7 +54,7 @@ def build_debug_info(
 
 
 def _get_src_mappings(
-    source_map: Mapping[int, models.Node],
+    source_map: Mapping[int, models.AVMOp],
     files: Sequence[str],
 ) -> list[str]:
     mappings = []
@@ -123,7 +111,3 @@ def _base64vlq_encode(*values: int) -> str:
             if not v:
                 break
     return "".join(results)
-
-
-def _bytes_desc(value: bytes) -> str:
-    return value.hex()
