@@ -12,7 +12,7 @@ from puya.teal.optimize._data import (
 from puya.utils import invert_ordered_binary_op
 
 
-def peephole(block: models.TealBlock) -> bool:
+def peephole(block: models.TealBlock, opt_level: int) -> bool:
     start_idx = 0
     stack_height = block.entry_stack_height
     any_modified = False
@@ -20,18 +20,18 @@ def peephole(block: models.TealBlock) -> bool:
     while start_idx < len(result):
         modified = False
         window: slice | None = None
-        if not modified and start_idx < len(result) - 3:
+        if opt_level > 0 and not modified and start_idx < len(result) - 3:
             window = slice(start_idx, start_idx + 4)
             new_values, modified = _optimize_quadruplet(*result[window])
-        if not modified and start_idx < len(result) - 2:
+        if opt_level > 0 and not modified and start_idx < len(result) - 2:
             window = slice(start_idx, start_idx + 3)
             new_values, modified = _optimize_triplet(*result[window], stack_height=stack_height)
-        if not modified and start_idx < len(result) - 1:
+        if opt_level > 0 and not modified and start_idx < len(result) - 1:
             window = slice(start_idx, start_idx + 2)
             new_values, modified = _optimize_pair(*result[window])
         if not modified:
             window = slice(start_idx, start_idx + 1)
-            new_values, modified = _optimize_single(*result[window])
+            new_values, modified = optimize_single(*result[window])
         if modified:
             assert window is not None
             any_modified = True
@@ -57,7 +57,9 @@ def is_stack_swap(op: models.TealOp) -> bool:
     return op.op_code == "swap" or (op.op_code in ("cover", "uncover") and op.immediates[0] == 1)
 
 
-def _optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
+def optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
+    if a.op_code in ("cover", "uncover") and a.immediates == (0,):
+        return [], True
     if a.op_code == "dig" and a.immediates == (0,):
         return [
             models.Dup(

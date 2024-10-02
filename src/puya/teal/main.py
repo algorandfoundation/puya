@@ -14,9 +14,8 @@ def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> teal_model
     teal = _build_teal(context, program_mir)
     before = _get_all_stack_manipulations(teal)
 
-    if context.options.optimization_level > 0:
-        teal = optimize_teal_program(context, teal)
-    gather_program_constants(context, teal)
+    teal = optimize_teal_program(context, teal)
+    gather_program_constants(teal)
     if context.options.optimization_level > 0:
         teal = combine_pushes(teal)
     after = _get_all_stack_manipulations(teal)
