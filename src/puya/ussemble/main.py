@@ -1,22 +1,12 @@
 from collections.abc import Mapping, Sequence
 
-import attrs
-
 from puya.context import CompileContext
 from puya.models import TemplateValue
 from puya.teal import models as teal
-from puya.ussemble.build import lower_ops
+from puya.ussemble import models
+from puya.ussemble.assemble import assemble_bytecode_and_debug_info
 from puya.ussemble.context import AssembleContext
-from puya.ussemble.debug import build_debug_info
-from puya.ussemble.output import AssembleVisitor
-from puya.ussemble.validate import validate_labels
 from puya.utils import attrs_extend
-
-
-@attrs.frozen
-class AssembledProgram:
-    bytecode: bytes
-    debug_info: bytes
 
 
 def assemble_program(
@@ -25,8 +15,9 @@ def assemble_program(
     template_variables: Mapping[str, TemplateValue],
     *,
     debug_only: bool = False,
-) -> AssembledProgram:
+) -> models.AssembledProgram:
     if debug_only:
+        # use dummy template values to produce a debug map
         program_variables: Mapping[str, TemplateValue] = {
             **{t: (0, None) for t in _gather_template_variables(program, teal.IntBlock)},
             **{t: (b"", None) for t in _gather_template_variables(program, teal.BytesBlock)},
@@ -43,18 +34,9 @@ def assemble_program(
         AssembleContext,
         ctx,
         template_variables=template_variables,
+        offset_pc_from_constant_blocks=offset_pc,
     )
-    avm_ops = lower_ops(assemble_ctx, program)
-    validate_labels(avm_ops)
-    assembled = AssembleVisitor.assemble(assemble_ctx, avm_ops)
-    return AssembledProgram(
-        bytecode=assembled.bytecode,
-        debug_info=build_debug_info(
-            assembled.source_map,
-            assembled.events,
-            offset_pc_from_constant_blocks=offset_pc,
-        ),
-    )
+    return assemble_bytecode_and_debug_info(assemble_ctx, program)
 
 
 def _gather_template_variables[
