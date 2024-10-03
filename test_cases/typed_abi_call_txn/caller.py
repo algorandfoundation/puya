@@ -17,13 +17,14 @@ class Caller(ARC4Contract):
             asset_name="TEST",
             total=1,
         )
-        arc4.abi_call(
+        asset_id, _txn = arc4.abi_call(
             TxnContract.call_with_txn,
             a,
             txn,
             b,
             app_id=app,
         )
+        assert asset_id, "expected asset id"
 
     @arc4.abimethod
     def test_call_with_acfg(self, a: Bytes, b: Bytes, app: Application) -> None:
