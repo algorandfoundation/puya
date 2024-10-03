@@ -1,34 +1,11 @@
-import typing
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 
 import attrs
 
+from puya.models import DebugInfo
 from puya.parse import SourceLocation
 from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import OpSpec
-
-
-class DebugEvent(typing.TypedDict, total=False):
-    """Describes various attributes for a particular PC location"""
-
-    subroutine: str
-    """Subroutine name"""
-    params: Mapping[str, str]
-    """Describes a subroutines parameters and their types"""
-    block: str
-    """Name of a block"""
-    stack_in: Sequence[str]
-    """Variable names on the stack BEFORE the next op executes"""
-    op: str
-    """Op description"""
-    callsub: str
-    """The subroutine that is about to be called"""
-    retsub: bool
-    """Returns from current subroutine"""
-    stack_out: Sequence[str]
-    """Variable names on the stack AFTER the next op executes"""
-    defined_out: Sequence[str]
-    """Variable names that are defined AFTER the next op executes"""
 
 
 @attrs.frozen(str=False)
@@ -55,4 +32,4 @@ class AVMOp:
 @attrs.frozen
 class AssembledProgram:
     bytecode: bytes
-    debug_info: bytes
+    debug_info: DebugInfo
