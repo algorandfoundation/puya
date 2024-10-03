@@ -469,9 +469,6 @@ class IntrinsicOp(BaseOp):
     def __str__(self) -> str:
         result = [self.op_code, *map(str, self.immediates)]
         if self.comment:
-            # TODO: determine if the comment is user defined or not
-            # if not user then self.include_op_desc should be respected
-            # e.g. consider assert comments
             result += ("//", self.comment)
         return " ".join(result)
 

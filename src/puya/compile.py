@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
+from cattrs.preconf.json import make_converter
 from immutabledict import immutabledict
 
 from puya import log
@@ -29,6 +30,7 @@ from puya.models import (
     CompiledProgram,
     ContractMetaData,
     ContractReference,
+    DebugInfo,
     LogicSignatureMetaData,
     LogicSigReference,
     TemplateValue,
@@ -167,7 +169,7 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
-    debug_info: bytes
+    debug_info: DebugInfo | None = None
     bytecode: bytes | None = None
 
 
@@ -205,7 +207,6 @@ def _dummy_program() -> _CompiledProgram:
             subroutines=[],
         ),
         teal_src="",
-        debug_info=b"",
     )
 
 
@@ -316,8 +317,34 @@ def _write_artifacts(
         if context.options.output_source_map:
             _write_output(
                 artifact_base_path,
-                {f"{suffix}.puya.map": program.debug_info for suffix, program in programs.items()},
+                {
+                    f"{suffix}.puya.map": (
+                        _debug_info_as_json(program.debug_info, out_dir)
+                        if program.debug_info
+                        else None
+                    )
+                    for suffix, program in programs.items()
+                },
             )
+
+
+_debug_info_converter = make_converter(omit_if_default=True)
+
+
+def _debug_info_as_json(info: DebugInfo, base_path: Path) -> bytes:
+    # make sources relative to output
+    info = attrs.evolve(
+        info, sources=[str(_try_make_relative_to(Path(s), base_path)) for s in info.sources]
+    )
+    json = _debug_info_converter.dumps(info, DebugInfo, indent=2)
+    return json.encode("utf-8")
+
+
+def _try_make_relative_to(path: Path, relative_to: Path) -> Path:
+    try:
+        return path.relative_to(relative_to, walk_up=True)
+    except ValueError:
+        return path
 
 
 def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:
