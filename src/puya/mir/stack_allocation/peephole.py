@@ -28,7 +28,7 @@ def optimize_pair(
     if a.produces and a.produces[-1] == _get_local_id_alias(b):
         return (a,)
 
-    if isinstance(b, mir.StoreVirtual) and b.local_id not in ctx.vla.get_live_out_variables(b):
+    if isinstance(b, mir.AbstractStore) and b.local_id not in ctx.vla.get_live_out_variables(b):
         # note l-stack dead store removal occurs during l-stack allocation
         # this handles any other cases
         return a, mir.Pop(n=1, source_location=b.source_location)
@@ -47,11 +47,11 @@ def optimize_pair(
 
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
-            case mir.LoadXStack(), mir.StoreXStack():  # TODO: keep? NOT USED
+            case mir.LoadXStack(), mir.StoreXStack():
                 return ()
-            case mir.LoadFStack(), mir.StoreFStack():  # TODO: keep? NOT USED
+            case mir.LoadFStack(), mir.StoreFStack():
                 return ()
-            case mir.LoadVirtual(), mir.StoreVirtual():
+            case mir.AbstractLoad(), mir.AbstractStore():
                 # this is used see test_cases/bug_load_store_load_store
                 return ()
     return None
@@ -82,11 +82,11 @@ def peephole_optimization_single_pass(
                 vla_modified
                 or (
                     curr_op not in pair_result
-                    and isinstance(curr_op, mir.StoreVirtual | mir.LoadVirtual)
+                    and isinstance(curr_op, mir.AbstractStore | mir.AbstractLoad)
                 )
                 or (
                     next_op not in pair_result
-                    and isinstance(next_op, mir.StoreVirtual | mir.LoadVirtual)
+                    and isinstance(next_op, mir.AbstractStore | mir.AbstractLoad)
                 )
             )
         else:  # if nothing optimized, then advance

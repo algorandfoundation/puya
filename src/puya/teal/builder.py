@@ -96,14 +96,14 @@ class TealBuilder(MIRVisitor[None]):
     def visit_comment(self, _comment: mir.Comment) -> None:
         pass
 
-    def visit_store_virtual(self, store: mir.StoreVirtual) -> typing.Never:
+    def visit_abstract_store(self, store: mir.AbstractStore) -> typing.Never:
         raise InternalError(
-            "StoreVirtual op encountered during TEAL generation", store.source_location
+            "AbstractStore op encountered during TEAL generation", store.source_location
         )
 
-    def visit_load_virtual(self, load: mir.LoadVirtual) -> typing.Never:
+    def visit_abstract_load(self, load: mir.AbstractLoad) -> typing.Never:
         raise InternalError(
-            "LoadVirtual op encountered during TEAL generation", load.source_location
+            "AbstractLoad op encountered during TEAL generation", load.source_location
         )
 
     def _store_f_stack(self, store: mir.StoreFStack) -> None:

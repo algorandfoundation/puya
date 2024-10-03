@@ -86,10 +86,10 @@ class Stack(MIRVisitor[None]):
     def visit_comment(self, _: models.Comment) -> None:
         pass
 
-    def visit_store_virtual(self, store: models.StoreVirtual) -> None:
+    def visit_abstract_store(self, store: models.AbstractStore) -> None:
         self._apply_lstack_effects(store)
 
-    def visit_load_virtual(self, load: models.LoadVirtual) -> None:
+    def visit_abstract_load(self, load: models.AbstractLoad) -> None:
         self._apply_lstack_effects(load)
 
     def _store_f_stack(self, store: models.StoreFStack) -> None:
