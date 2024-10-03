@@ -9,17 +9,26 @@ from puya.ussemble.op_spec_models import OpSpec
 
 
 class DebugEvent(typing.TypedDict, total=False):
+    """Describes various attributes for a particular PC location"""
+
     subroutine: str
-    block: str
-    op: str
-    callsub: str
-    retsub: bool
+    """Subroutine name"""
     params: Mapping[str, str]
-    """Also defines the p-stack, which holds the parameters passed via the stack to a function"""
+    """Describes a subroutines parameters and their types"""
+    block: str
+    """Name of a block"""
     stack_in: Sequence[str]
+    """Variable names on the stack BEFORE the next op executes"""
+    op: str
+    """Op description"""
+    callsub: str
+    """The subroutine that is about to be called"""
+    retsub: bool
+    """Returns from current subroutine"""
     stack_out: Sequence[str]
-    """The variables defined relative to a function's current subroutine frame"""
+    """Variable names on the stack AFTER the next op executes"""
     defined_out: Sequence[str]
+    """Variable names that are defined AFTER the next op executes"""
 
 
 @attrs.frozen(str=False)
@@ -41,27 +50,6 @@ class AVMOp:
     @property
     def op_spec(self) -> OpSpec:
         return OP_SPECS[self.op_code]
-
-    def __str__(self) -> str:
-        return f"{self.op_code} {' '.join(map(_immediate_desc, self.immediates))}".rstrip()
-
-
-def _immediate_desc(
-    imm: int | bytes | Label | Sequence[int] | Sequence[bytes] | Sequence[Label] | str,
-) -> str:
-    if isinstance(imm, str):
-        return imm
-    if isinstance(imm, Label):
-        return imm.name
-    elif isinstance(imm, bytes):
-        return f"0x{imm.hex()}"
-    elif isinstance(imm, Sequence):
-        return " ".join(map(_immediate_desc, imm))
-    else:
-        return str(imm)
-
-
-Node = Label | AVMOp
 
 
 @attrs.frozen

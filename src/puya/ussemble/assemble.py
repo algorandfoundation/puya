@@ -1,7 +1,7 @@
 import struct
 import typing
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from puya import log
 from puya.errors import CodeError, InternalError
@@ -10,150 +10,134 @@ from puya.teal import models as teal
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 from puya.ussemble.debug import build_debug_info
+from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind
 
 logger = log.get_logger(__name__)
+_BRANCHING_OPS = {
+    op.name
+    for op in OP_SPECS.values()
+    if any(i in (ImmediateKind.label, ImmediateKind.label_array) for i in op.immediates)
+}
 
 
-class _AVMProgram:
-
-    def __init__(self) -> None:
-        self._ops = list[models.Node]()
-        self._events = defaultdict[int, models.DebugEvent](models.DebugEvent)  # type: ignore[arg-type]
-
-    @property
-    def ops(self) -> Sequence[models.Node]:
-        return self._ops
-
-    def get_debug_info(self, index: int) -> models.DebugEvent:
-        return self._events[index]
-
-    def add_op(self, op: models.Node) -> None:
-        self._ops.append(op)
-
-    def add_debug_info(self, **info: typing.Unpack[models.DebugEvent]) -> None:
-        self._events[len(self._ops)].update(info)
-
-
-def assemble_bytecode(
-    ctx: AssembleContext,
-    teal_program: teal.TealProgram,
+def assemble_bytecode_and_debug_info(
+    ctx: AssembleContext, program: teal.TealProgram
 ) -> models.AssembledProgram:
-    program = _lower_ops(ctx, teal_program)
-    node_pcs = dict[models.Node, int]()
-    source_map = dict[int, models.AVMOp]()
-    events = defaultdict[int, models.DebugEvent](models.DebugEvent)  # type: ignore[arg-type]
+    function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
 
     version_bytes = _encode_varuint(ctx.options.target_avm_version)
+    pc_events = defaultdict[int, models.DebugEvent](models.DebugEvent)  # type: ignore[arg-type]
+    pc_ops = dict[int, models.AVMOp]()
+    label_pcs = dict[str, int]()
+
     # pc includes version header
     pc = len(version_bytes)
-    # first pass to collect PC fo each op
-    for op in program.ops:
-        node_pcs[op] = pc
+    # first pass lowers teal ops, calculate pcs, and captures debug info
+    for subroutine in program.all_subroutines:
+        current_event = pc_events[pc]
+        current_event["subroutine"] = subroutine.signature.name
+        current_event["params"] = {
+            p.local_id: p.atype.name or "" for p in subroutine.signature.parameters
+        }
+        stack = list[str]()
+        for block in subroutine.blocks:
+            current_event = pc_events[pc]
+            # update stack with correct values on entry to a block
+            f_stack_height = block.entry_stack_height - len(block.x_stack_in)
+            stack[f_stack_height:] = block.x_stack_in
+            label_pcs[block.label] = pc
+            current_event["block"] = block.label
+            current_event["stack_in"] = stack.copy()
+            defined = set[str]()
 
-        if not isinstance(op, models.Label):
-            op_bytecode = _assemble_op(op, get_label_offset=lambda _: 0)
-            pc = pc + len(op_bytecode)
-    # dummy label to represent the end of the program
-    end = models.Label("")
-    node_pcs[end] = pc
+            for op in block.ops:
+                current_event = pc_events[pc]
+                avm_op = _lower_op(ctx, op)
+                # actual label offsets can't be determined until all PC values are known
+                # so just use a placeholder value initially
+                op_size = len(_encode_op(avm_op, get_label_offset=lambda _: 0))
+                assert op_size, "expected non empty bytecode"
+                _add_op_debug_events(
+                    current_event,
+                    function_block_ids,
+                    op,
+                    # note: stack & defined are mutated
+                    stack,
+                    defined,
+                )
+                pc_ops[pc] = avm_op
+                pc += op_size
 
-    # second pass to get actual bytecode
+    # all pc values, including pc after final op
+    pcs = [*pc_ops, pc]
+    # second pass assembles final byte code
     bytecode = [version_bytes]
-    for op_index, (op, next_op) in enumerate(
-        zip(program.ops, (*program.ops[1:], end), strict=True)
-    ):
+    for op_index, avm_op in enumerate(pc_ops.values()):
 
-        def _get_label_offset(label: models.Label) -> int:
-            return node_pcs[label] - node_pcs[next_op]  # noqa: B023
+        def get_label_offset(label: models.Label) -> int:
+            # label offset is the signed PC difference
+            # between the label PC location and the end of the current op
+            return label_pcs[label.name] - pcs[op_index + 1]  # noqa: B023
 
-        pc = node_pcs[op]
-        if isinstance(op, models.AVMOp):
-            source_map[pc] = op
-            bytecode.append(_assemble_op(op, get_label_offset=_get_label_offset))
-        events[pc].update(program.get_debug_info(op_index))
+        bytecode.append(_encode_op(avm_op, get_label_offset=get_label_offset))
 
     return models.AssembledProgram(
         bytecode=b"".join(bytecode),
         debug_info=build_debug_info(
             ctx,
-            source_map,
-            events,
+            pc_ops,
+            pc_events,
         ),
     )
 
 
-def _lower_ops(ctx: AssembleContext, program: teal.TealProgram) -> _AVMProgram:
-    function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
+def _add_op_debug_events(
+    event: models.DebugEvent,
+    subroutine_ids: Mapping[str, str],
+    op: teal.TealOp,
+    stack: list[str],
+    defined: set[str],
+) -> None:
+    stack_in = stack.copy()
+    num_defined = len(defined)
+    if op.op_code == "callsub":
+        (func_block,) = op.immediates
+        assert isinstance(func_block, str), "expected label"
+        event["callsub"] = subroutine_ids[func_block]
+    elif op.op_code == "retsub":
+        event["retsub"] = True
+    event["op"] = op.teal()
 
-    avm_program = _AVMProgram()
+    for sm in op.stack_manipulations:
+        match sm:
+            case teal.StackConsume(n=n):
+                for _ in range(n):
+                    stack.pop()
+            case teal.StackExtend() as se:
+                stack.extend(se.local_ids)
+            case teal.StackDefine() as sd:
+                defined.update(sd.local_ids)
+            case teal.StackInsert() as si:
+                index = len(stack) - si.depth
+                stack.insert(index, si.local_id)
+            case teal.StackPop() as sp:
+                index = len(stack) - sp.depth - 1
+                stack.pop(index)
+            case _:
+                typing.assert_never(sm)
 
-    for subroutine in program.all_subroutines:
-        avm_program.add_debug_info(
-            subroutine=subroutine.signature.name,
-            params={p.local_id: p.atype.name or "" for p in subroutine.signature.parameters},
-        )
-        stack = list[str]()
-        for block in subroutine.blocks:
-            # update stack with correct values on entry to a block
-            f_stack_height = block.entry_stack_height - len(block.x_stack_in)
-            stack[f_stack_height:] = block.x_stack_in
-            avm_program.add_op(models.Label(name=block.label))
-            avm_program.add_debug_info(
-                block=block.label,
-                stack_in=stack.copy(),
-            )
-
-            for op in block.ops:
-                stack_modified = False
-                defined = list[str]()
-                for sm in op.stack_manipulations:
-                    match sm:
-                        case teal.StackConsume(n=n):
-                            for _ in range(n):
-                                stack.pop()
-                            stack_modified = True
-                        case teal.StackExtend() as se:
-                            stack.extend(se.local_ids)
-                            if se.defined:
-                                defined.extend(se.local_ids)
-                            stack_modified = True
-                        case teal.StackDefine() as sd:
-                            defined.append(sd.local_id)
-                        case teal.StackInsert() as si:
-                            index = len(stack) - si.depth
-                            stack.insert(index, si.local_id)
-                            defined.append(si.local_id)
-                            stack_modified = True
-                        case teal.StackPop() as sp:
-                            index = len(stack) - sp.depth - 1
-                            stack.pop(index)
-                            stack_modified = True
-                        case _:
-                            typing.assert_never(sm)
-
-                if defined:
-                    avm_program.add_debug_info(defined_out=sorted(set(defined) & set(stack)))
-                if stack_modified:
-                    avm_program.add_debug_info(stack_out=stack.copy())
-                avm_op = _lower_op(ctx, op)
-                match avm_op:
-                    case models.AVMOp(
-                        op_code="callsub", immediates=[models.Label(name=func_block)]
-                    ):
-                        avm_program.add_debug_info(callsub=function_block_ids[func_block])
-                    case models.AVMOp(op_code="retsub"):
-                        avm_program.add_debug_info(retsub=True)
-                avm_program.add_debug_info(op=str(avm_op))
-                avm_program.add_op(avm_op)
-    return avm_program
+    if len(defined) != num_defined:
+        event["defined_out"] = sorted(set(defined) & set(stack))
+    if stack_in != stack:
+        event["stack_out"] = stack.copy()
 
 
 def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
     loc = op.source_location
     match op:
         case teal.TemplateVar() | teal.Int() | teal.Byte():
-            raise InternalError(f"{op} should not be present", loc)
+            raise InternalError(f"{op} should have been eliminated during TEAL phase", loc)
         case teal.IntBlock(constants=constants):
             return models.AVMOp(
                 op_code=op.op_code,
@@ -186,45 +170,30 @@ def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
                 immediates=[values],
                 source_location=loc,
             )
-        case teal.CallSub(target=label_id, op_code=op_code):
+        case teal.CallSub(target=label_id):
             return models.AVMOp(
-                op_code=op_code,
+                op_code=op.op_code,
                 immediates=[models.Label(name=label_id)],
                 source_location=loc,
             )
-        case teal.TealOp(op_code="b" | "bz" | "bnz" as op_code, immediates=immediates):
-            try:
-                (maybe_label_id,) = immediates
-            except ValueError:
-                maybe_label_id = None
-            if not isinstance(maybe_label_id, str):
-                raise InternalError(
-                    f"Invalid op code: {op.teal()}",
-                    loc,
-                )
+        case teal.TealOp(op_code="b" | "bz" | "bnz", immediates=[str(label_id)]):
             return models.AVMOp(
-                op_code=op_code,
-                immediates=[models.Label(name=maybe_label_id)],
+                op_code=op.op_code,
+                immediates=[models.Label(name=label_id)],
                 source_location=loc,
             )
-        case teal.TealOp(op_code="switch" | "match" as op_code, immediates=immediates):
-            labels = list[str]()
-            for maybe_label in immediates:
-                if not isinstance(maybe_label, str):
-                    raise InternalError(
-                        f"Invalid op code: {op.teal()}",
-                        loc,
-                    )
-                labels.append(maybe_label)
+        case teal.TealOp(
+            op_code="switch" | "match" as op_code, immediates=label_ids
+        ) if _is_sequence(label_ids, str):
             return models.AVMOp(
                 op_code=op_code,
-                immediates=[[models.Label(label) for label in labels]],
+                immediates=[[models.Label(label_id) for label_id in label_ids]],
                 source_location=loc,
             )
-        case teal.TealOp(op_code=op_code, immediates=immediates):
-            return models.AVMOp(op_code=op_code, immediates=immediates, source_location=loc)
+        case teal.TealOp() if op.op_code not in _BRANCHING_OPS:
+            return models.AVMOp(op_code=op.op_code, immediates=op.immediates, source_location=loc)
         case _:
-            typing.assert_never()
+            raise InternalError(f"invalid teal op: {op}", loc)
 
 
 _T = typing.TypeVar("_T")
@@ -255,7 +224,7 @@ def _resolve_template_vars(
     return result
 
 
-def _assemble_op(op: models.AVMOp, *, get_label_offset: Callable[[models.Label], int]) -> bytes:
+def _encode_op(op: models.AVMOp, *, get_label_offset: Callable[[models.Label], int]) -> bytes:
     op_spec = op.op_spec
     bytecode = _encode_uint8(op.op_spec.code)
     for immediate_kind, immediate in zip(op_spec.immediates, op.immediates, strict=True):
@@ -281,7 +250,7 @@ def _assemble_op(op: models.AVMOp, *, get_label_offset: Callable[[models.Label],
             case ImmediateKind.label_array if _is_sequence(immediate, models.Label):
                 offsets = [get_label_offset(label) for label in immediate]
                 bytecode += _encode_label_array(offsets)
-            case _:  # other immediate types only appear in other AVMOps
+            case _:
                 raise InternalError(f"Invalid op: {op}")
     return bytecode
 

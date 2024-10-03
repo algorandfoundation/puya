@@ -26,7 +26,6 @@ class StackConsume:
 @attrs.frozen
 class StackExtend:
     local_ids: Sequence[str]
-    defined: bool = True
 
 
 @attrs.frozen
@@ -42,7 +41,7 @@ class StackPop:
 
 @attrs.frozen
 class StackDefine:
-    local_id: str
+    local_ids: Sequence[str]
 
 
 StackManipulation = StackConsume | StackExtend | StackDefine | StackInsert | StackPop

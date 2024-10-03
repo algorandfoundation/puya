@@ -163,6 +163,7 @@ class TealBuilder(MIRVisitor[None]):
                 stack_manipulations=[
                     *_lstack_manipulations(store),
                     teal.StackInsert(store.depth, store.local_id),
+                    teal.StackDefine(store.local_id),
                 ],
                 source_location=store.source_location,
             )
@@ -185,8 +186,10 @@ class TealBuilder(MIRVisitor[None]):
             self._add_op(
                 teal.Dup(
                     stack_manipulations=[
+                        # re-alias top of stack
                         teal.StackConsume(1),
                         *_lstack_manipulations(store),
+                        # actual dup
                         teal.StackExtend([f"{store.local_id} (copy)"]),
                     ],
                     source_location=store.source_location,
@@ -200,7 +203,9 @@ class TealBuilder(MIRVisitor[None]):
                 cover,
                 stack_manipulations=[
                     teal.StackConsume(1),
+                    # store
                     teal.StackInsert(cover, store.local_id),
+                    teal.StackDefine([store.local_id]),
                 ],
                 source_location=store.source_location,
             )
@@ -265,7 +270,7 @@ class TealBuilder(MIRVisitor[None]):
             self._add_op(
                 attrs.evolve(
                     bad_value,
-                    stack_manipulations=[teal.StackExtend([local_id], defined=False)],
+                    stack_manipulations=[teal.StackExtend([local_id])],
                 )
             )
 
@@ -331,4 +336,5 @@ def _lstack_manipulations(op: mir.BaseOp) -> list[teal.StackManipulation]:
         result.append(teal.StackConsume(op.consumes))
     if op.produces:
         result.append(teal.StackExtend(op.produces))
+        result.append(teal.StackDefine(op.produces))
     return result

@@ -3,6 +3,7 @@ from collections.abc import Mapping, Sequence
 import attrs
 from cattrs.preconf.json import make_converter
 
+from puya.parse import SourceLocation
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 
@@ -21,25 +22,23 @@ _converter = make_converter(omit_if_default=True)
 
 def build_debug_info(
     ctx: AssembleContext,
-    source_map: Mapping[int, models.AVMOp],
-    events: Mapping[int, models.DebugEvent],
+    pc_ops: Mapping[int, models.AVMOp],
+    pc_events: Mapping[int, models.DebugEvent],
 ) -> bytes:
-    files = sorted(
-        map(str, {s.source_location.file for s in source_map.values() if s.source_location})
-    )
     op_pc_offset = pc_offset = 0
     if ctx.offset_pc_from_constant_blocks:
-        for idx, (pc, node) in enumerate(source_map.items()):
+        for idx, (pc, node) in enumerate(pc_ops.items()):
             # stop at first op that is not a constant block
-            if not isinstance(node, models.AVMOp) or node.op_code not in (
-                "intcblock",
-                "bytecblock",
-            ):
+            if node.op_code not in ("intcblock", "bytecblock"):
                 op_pc_offset = idx
                 pc_offset = pc
                 break
-    events = {pc - pc_offset: event for pc, event in events.items() if pc >= pc_offset}
-    source_map = {pc - pc_offset: node for pc, node in source_map.items() if pc >= pc_offset}
+    events = {pc - pc_offset: event for pc, event in pc_events.items() if pc >= pc_offset}
+    source_map = {
+        pc - pc_offset: node.source_location for pc, node in pc_ops.items() if pc >= pc_offset
+    }
+
+    files = sorted(map(str, {s.file for s in source_map.values() if s and s.file}))
     mappings = _get_src_mappings(source_map, files)
 
     debug = DebugOutput(
@@ -54,25 +53,18 @@ def build_debug_info(
 
 
 def _get_src_mappings(
-    source_map: Mapping[int, models.AVMOp],
+    source_map: Mapping[int, SourceLocation | None],
     files: Sequence[str],
 ) -> list[str]:
     mappings = []
-
     previous_source_index = 0
     previous_line = 0
     previous_column = 0
     for pc in range(max(source_map) + 1):
-        try:
-            op = source_map[pc]
-        except KeyError:
+        loc = source_map.get(pc)
+        if not loc or not loc.file:
             mappings.append("")
             continue
-        else:
-            loc = op.source_location
-            if not loc or not loc.file:
-                mappings.append("")
-                continue
         source_index = files.index(str(loc.file))
         line = loc.line - 1  # make 0-indexed
         column = loc.column or 0
