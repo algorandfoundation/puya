@@ -41,7 +41,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 param_idx = self.current_subroutine.parameters.index(target)
             except ValueError:
                 self._add_op(
-                    models.StoreVirtual(
+                    models.AbstractStore(
                         local_id=target.local_id,
                         source_location=ass.source_location,
                         atype=target.atype,
@@ -75,7 +75,7 @@ class MemoryIRBuilder(IRVisitor[None]):
             param_idx = self.current_subroutine.parameters.index(reg)
         except ValueError:
             self._add_op(
-                models.LoadVirtual(
+                models.AbstractLoad(
                     local_id=reg.local_id,
                     produces=produces,
                     source_location=(self.active_op or reg).source_location,
