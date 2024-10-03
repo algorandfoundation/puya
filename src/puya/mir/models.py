@@ -185,19 +185,19 @@ class LoadOp(MemoryOp, abc.ABC):
 
 
 @attrs.frozen(eq=False)
-class StoreVirtual(StoreOp):  # TODO: rename to AbstractStore
+class AbstractStore(StoreOp):
     consumes: int = attrs.field(default=1, init=False)
     produces: Sequence[str] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_store_virtual(self)
+        return visitor.visit_abstract_store(self)
 
     def __str__(self) -> str:
         return f"v-store {self.local_id}"
 
 
 @attrs.frozen(eq=False)
-class LoadVirtual(LoadOp):  # TODO: rename to AbstractLoad
+class AbstractLoad(LoadOp):
     consumes: int = attrs.field(default=0, init=False)
     produces: Sequence[str] = attrs.field(validator=_is_single_item)
 
@@ -206,7 +206,7 @@ class LoadVirtual(LoadOp):  # TODO: rename to AbstractLoad
         return (self.local_id,)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_load_virtual(self)
+        return visitor.visit_abstract_load(self)
 
     def __str__(self) -> str:
         return f"v-load {self.local_id}"

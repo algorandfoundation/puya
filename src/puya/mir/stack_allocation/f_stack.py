@@ -13,8 +13,8 @@ from puya.utils import attrs_extend
 logger = log.get_logger(__name__)
 
 
-def get_lazy_fstack(subroutine: mir.MemorySubroutine) -> list[mir.StoreVirtual]:
-    result = list[mir.StoreVirtual]()
+def get_lazy_fstack(subroutine: mir.MemorySubroutine) -> list[mir.AbstractStore]:
+    result = list[mir.AbstractStore]()
     seen_local_ids = set[str]()
     # TODO: consider more than the entry block
     entry = subroutine.body[0]
@@ -22,7 +22,7 @@ def get_lazy_fstack(subroutine: mir.MemorySubroutine) -> list[mir.StoreVirtual]:
     if entry.predecessors:
         return result
     for op in entry.ops:
-        if isinstance(op, mir.StoreVirtual) and op.local_id not in seen_local_ids:
+        if isinstance(op, mir.AbstractStore) and op.local_id not in seen_local_ids:
             seen_local_ids.add(op.local_id)
             result.append(op)
     return result
@@ -32,7 +32,7 @@ def get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
     variable_mapping = dict[str, AVMType]()
     for block in subroutine.all_blocks:
         for op in block.ops:
-            if isinstance(op, mir.StoreVirtual):
+            if isinstance(op, mir.AbstractStore):
                 try:
                     existing_type = variable_mapping[op.local_id]
                 except KeyError:
@@ -103,7 +103,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
         stack = Stack.begin_block(subroutine, block)
         for index, op in enumerate(block.ops):
             match op:
-                case mir.StoreVirtual() as store:
+                case mir.AbstractStore() as store:
                     insert = op in first_store_ops
                     if insert:
                         depth = stack.xl_height - 1
@@ -118,7 +118,7 @@ def f_stack_allocation(ctx: SubroutineCodeGenContext) -> None:
                         insert=insert,
                     )
                     removed_virtual = True
-                case mir.LoadVirtual() as load:
+                case mir.AbstractLoad() as load:
                     depth = stack.fxl_height - stack.f_stack.index(load.local_id) - 1
                     block.ops[index] = attrs_extend(
                         mir.LoadFStack,
