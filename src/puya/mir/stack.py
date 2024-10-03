@@ -109,8 +109,6 @@ class Stack(MIRVisitor[None]):
         assert cover == store.depth, f"expected {cover=} == {store.depth=}"
         self._f_stack.append(local_id)
         self._apply_lstack_effects(store)
-        bury = self._get_f_stack_dig_bury(local_id)
-        assert bury == cover, f"is this true? {bury=} == {cover=}"
 
     def visit_store_f_stack(self, store: models.StoreFStack) -> None:
         assert self._l_stack, f"l-stack is empty, can not store {store.local_id} to f-stack"
