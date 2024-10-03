@@ -202,6 +202,10 @@ def _is_assignable_itxn_expr(expr: awst_nodes.Expression) -> bool:
             items=items
         ):  # tuple expressions composed of assignable expressions are assignable
             return all(map(_is_assignable_itxn_expr, items))
+        case awst_nodes.TupleItemExpression(
+            base=base
+        ):  # tuple items are assignable if their base is assignable
+            return _is_assignable_itxn_expr(base)
         case awst_nodes.SingleEvaluation(source=source):
             return _is_assignable_itxn_expr(source)
     # anything else is not considered assignable

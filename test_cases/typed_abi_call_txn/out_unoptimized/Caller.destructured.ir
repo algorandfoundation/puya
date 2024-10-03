@@ -29,7 +29,7 @@ contract test_cases.typed_abi_call_txn.caller.Caller:
                 let tmp%13#0: uint64 = ((txnas Applications) tmp%12#0)
                 test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(tmp%8#0, tmp%10#0, tmp%13#0)
                 return 1u
-            block@3: // test_call_with_acfg_route_L28
+            block@3: // test_call_with_acfg_route_L29
                 let tmp%14#0: uint64 = (txn OnCompletion)
                 let tmp%15#0: bool = (== tmp%14#0 NoOp)
                 (assert tmp%15#0) // OnCompletion is NoOp
@@ -97,13 +97,17 @@ contract test_cases.typed_abi_call_txn.caller.Caller:
             block@2: // next_txn_L20
                 itxn_submit
                 let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
                 let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
                 let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
                 (assert tmp%2#0) // ARC4 prefix is valid
+                let asset_id#0: uint64 = (btoi tmp%0#0)
+                let tmp%3#0: bool = (!= asset_id#0 0u)
+                (assert tmp%3#0) // expected asset id
                 return 
         
         subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
-            block@0: // L28
+            block@0: // L29
                 itxn_begin
                 ((itxn_field ConfigAssetTotal) 1u)
                 ((itxn_field ConfigAssetName) "TEST")
@@ -111,7 +115,7 @@ contract test_cases.typed_abi_call_txn.caller.Caller:
                 ((itxn_field TypeEnum) acfg)
                 ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L38
+            block@1: // next_txn_L39
                 itxn_next
                 let length%0#0: uint64 = (len a#0)
                 let as_bytes%0#0: bytes = (itob length%0#0)
@@ -131,7 +135,7 @@ contract test_cases.typed_abi_call_txn.caller.Caller:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 goto block@2
-            block@2: // next_txn_L35
+            block@2: // next_txn_L36
                 itxn_submit
                 let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
                 let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
