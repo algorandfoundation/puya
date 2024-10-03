@@ -12,8 +12,8 @@ logger = log.get_logger(__name__)
 
 @attrs.define
 class UsagePair:
-    a: mir.LoadVirtual | mir.StoreVirtual
-    b: mir.LoadVirtual
+    a: mir.AbstractLoad | mir.AbstractStore
+    b: mir.AbstractLoad
     a_index: int
     b_index: int
 
@@ -45,17 +45,17 @@ def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
     # the first element of the pair is an op that defines or uses a variable
     # the second element of the pair is an op that uses the variable
     # return pairs in ascending order, based on the number of instruction between each pair
-    variables = dict[str, list[tuple[int, mir.StoreVirtual | mir.LoadVirtual]]]()
+    variables = dict[str, list[tuple[int, mir.AbstractStore | mir.AbstractLoad]]]()
     for index, op in enumerate(block.ops):
         match op:
-            case mir.StoreVirtual(local_id=local_id) | mir.LoadVirtual(local_id=local_id):
+            case mir.AbstractStore(local_id=local_id) | mir.AbstractLoad(local_id=local_id):
                 variables.setdefault(local_id, []).append((index, op))
 
     pairs = list[UsagePair]()
     for uses in variables.values():
         # pairwise iteration means an op can only be in at most 2 pairs
         for (a_index, a), (b_index, b) in itertools.pairwise(uses):
-            if isinstance(b, mir.StoreVirtual):
+            if isinstance(b, mir.AbstractStore):
                 continue  # skip redefines, if they are used they will be picked up in next pair
             pairs.append(UsagePair(a=a, b=b, a_index=a_index, b_index=b_index))
 
@@ -82,7 +82,7 @@ def _copy_usage_pairs(
         a_index = block.ops.index(a)
 
         # insert replacement before store, or after load
-        insert_index = a_index if isinstance(a, mir.StoreVirtual) else a_index + 1
+        insert_index = a_index if isinstance(a, mir.AbstractStore) else a_index + 1
         stack = Stack.begin_block(ctx.subroutine, block)
         for op in block.ops[:insert_index]:
             op.accept(stack)
@@ -132,7 +132,7 @@ def _dead_store_removal(ctx: SubroutineCodeGenContext, block: mir.MemoryBasicBlo
         if (
             isinstance(a, mir.StoreLStack)
             and a.copy
-            and isinstance(b, mir.StoreVirtual)
+            and isinstance(b, mir.AbstractStore)
             and b.local_id not in ctx.vla.get_live_out_variables(b)
         ):
             # StoreLStack is used to:
