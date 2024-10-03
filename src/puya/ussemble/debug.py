@@ -1,30 +1,16 @@
 from collections.abc import Mapping, Sequence
 
-import attrs
-from cattrs.preconf.json import make_converter
-
+from puya.models import DebugEvent, DebugInfo
 from puya.parse import SourceLocation
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 
 
-@attrs.frozen
-class DebugOutput:
-    version: int
-    sources: list[str]
-    mappings: str
-    op_pc_offset: int
-    pc_events: Mapping[int, models.DebugEvent]
-
-
-_converter = make_converter(omit_if_default=True)
-
-
 def build_debug_info(
     ctx: AssembleContext,
     pc_ops: Mapping[int, models.AVMOp],
-    pc_events: Mapping[int, models.DebugEvent],
-) -> bytes:
+    pc_events: Mapping[int, DebugEvent],
+) -> DebugInfo:
     op_pc_offset = pc_offset = 0
     if ctx.offset_pc_from_constant_blocks:
         for idx, (pc, node) in enumerate(pc_ops.items()):
@@ -41,15 +27,13 @@ def build_debug_info(
     files = sorted(map(str, {s.file for s in source_map.values() if s and s.file}))
     mappings = _get_src_mappings(source_map, files)
 
-    debug = DebugOutput(
+    return DebugInfo(
         version=3,
         sources=files,
         mappings=";".join(mappings),
         op_pc_offset=op_pc_offset,
         pc_events=events,
     )
-    json = _converter.dumps(debug, DebugOutput, indent=2)
-    return json.encode("utf-8")
 
 
 def _get_src_mappings(

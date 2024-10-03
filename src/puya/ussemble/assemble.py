@@ -5,6 +5,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from puya import log
 from puya.errors import CodeError, InternalError
+from puya.models import DebugEvent
 from puya.parse import SourceLocation
 from puya.teal import models as teal
 from puya.ussemble import models
@@ -27,7 +28,7 @@ def assemble_bytecode_and_debug_info(
     function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
 
     version_bytes = _encode_varuint(ctx.options.target_avm_version)
-    pc_events = defaultdict[int, models.DebugEvent](models.DebugEvent)  # type: ignore[arg-type]
+    pc_events = defaultdict[int, DebugEvent](DebugEvent)  # type: ignore[arg-type]
     pc_ops = dict[int, models.AVMOp]()
     label_pcs = dict[str, int]()
 
@@ -93,7 +94,7 @@ def assemble_bytecode_and_debug_info(
 
 
 def _add_op_debug_events(
-    event: models.DebugEvent,
+    event: DebugEvent,
     subroutine_ids: Mapping[str, str],
     op: teal.TealOp,
     stack: list[str],

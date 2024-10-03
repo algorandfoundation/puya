@@ -38,7 +38,6 @@ def optimize_pair(
         return None
 
     if isinstance(b, mir.Pop) and b.n == 1 and isinstance(a, mir.LoadOp):
-        # TODO: keep? NOT USED
         return ()
 
     # optimization: cases after here are only applicable if "b" is a MemoryOp
