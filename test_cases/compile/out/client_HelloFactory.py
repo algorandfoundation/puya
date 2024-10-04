@@ -61,3 +61,8 @@ class HelloFactory(algopy.arc4.ARC4Client, typing.Protocol):
     def test_other_constants(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_abi_call_create_params(
+        self,
+    ) -> None: ...

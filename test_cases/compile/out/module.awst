@@ -222,4 +222,13 @@ contract HelloFactory extends (algopy.arc4.ARC4Contract)
     assert(result == hex<"68656C6C6F204A6F686E6E7935"> + reinterpret_cast<bytes>(global<ZeroAddress>()) + Method("something()void"))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
   }
+  
+  abimethod test_abi_call_create_params(): void
+  {
+    compiled: tuple<bytes,bytes,bytes,bytes,uint64,uint64,uint64,uint64,uint64> = compiled_contract(test_cases.compile.apps.Hello,,, prefix=None, variables={})
+    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("create(string)void"), arc4_encode('hey', arc4.dynamic_array<arc4.uint8>)), ApprovalProgramPages=(SINGLE_EVAL(id=45, source=(compiled[0], compiled[1]))[0], SINGLE_EVAL(id=45)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=46, source=(compiled[2], compiled[3]))[0], SINGLE_EVAL(id=46)[1]), GlobalNumUint=compiled[5], GlobalNumByteSlice=compiled[6], LocalNumUint=compiled[7], LocalNumByteSlice=compiled[8], ExtraProgramPages=compiled[4])).CreatedApplicationID
+    (result, _txn): tuple<string,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=48, source=SINGLE_EVAL(id=47, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("greet(string)string"), arc4_encode('there', arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=48)) == hex<"151F7C75">)), string), SINGLE_EVAL(id=47))
+    assert(result == 'hey there')
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
 }
