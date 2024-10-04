@@ -1,4 +1,10 @@
 # CHANGELOG
+## v3.2.1 (2024-10-04)
+
+### Fix
+
+* fixed error when assigning result of an abi_call with inner transactions that return an ABI value ([`e3ef7dd`](https://github.com/algorandfoundation/puya/commit/e3ef7ddaea0ff050aa316b385047a89435e046a6))
+
 ## v3.2.0 (2024-09-24)
 
 ### Feature
