@@ -13,7 +13,7 @@ __puya_arc4_router__:
     txn NumAppArgs
     int 0
     !=
-    bz __puya_arc4_router___bare_routing@15
+    bz __puya_arc4_router___bare_routing@16
     txna ApplicationArgs 0
     method "test_logicsig()address"
     method "test_compile_contract()void"
@@ -26,9 +26,10 @@ __puya_arc4_router__:
     method "test_arc4_create_large()void"
     method "test_arc4_update()void"
     method "test_other_constants()void"
-    uncover 11
-    match __puya_arc4_router___test_logicsig_route@2 __puya_arc4_router___test_compile_contract_route@3 __puya_arc4_router___test_compile_contract_tmpl_route@4 __puya_arc4_router___test_compile_contract_prfx_route@5 __puya_arc4_router___test_compile_contract_large_route@6 __puya_arc4_router___test_arc4_create_route@7 __puya_arc4_router___test_arc4_create_tmpl_route@8 __puya_arc4_router___test_arc4_create_prfx_route@9 __puya_arc4_router___test_arc4_create_large_route@10 __puya_arc4_router___test_arc4_update_route@11 __puya_arc4_router___test_other_constants_route@12
-    b __puya_arc4_router___switch_case_default@13
+    method "test_abi_call_create_params()void"
+    uncover 12
+    match __puya_arc4_router___test_logicsig_route@2 __puya_arc4_router___test_compile_contract_route@3 __puya_arc4_router___test_compile_contract_tmpl_route@4 __puya_arc4_router___test_compile_contract_prfx_route@5 __puya_arc4_router___test_compile_contract_large_route@6 __puya_arc4_router___test_arc4_create_route@7 __puya_arc4_router___test_arc4_create_tmpl_route@8 __puya_arc4_router___test_arc4_create_prfx_route@9 __puya_arc4_router___test_arc4_create_large_route@10 __puya_arc4_router___test_arc4_update_route@11 __puya_arc4_router___test_other_constants_route@12 __puya_arc4_router___test_abi_call_create_params_route@13
+    b __puya_arc4_router___switch_case_default@14
 
 __puya_arc4_router___test_logicsig_route@2:
     // compile/factory.py:26
@@ -199,19 +200,34 @@ __puya_arc4_router___test_other_constants_route@12:
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@13:
-    b __puya_arc4_router___after_if_else@19
+__puya_arc4_router___test_abi_call_create_params_route@13:
+    // compile/factory.py:296
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    int 0
+    !=
+    assert // is not creating
+    callsub test_abi_call_create_params
+    int 1
+    retsub
 
-__puya_arc4_router___bare_routing@15:
+__puya_arc4_router___switch_case_default@14:
+    b __puya_arc4_router___after_if_else@20
+
+__puya_arc4_router___bare_routing@16:
     // compile/factory.py:24
     // class HelloFactory(ARC4Contract):
     txn OnCompletion
     int 0
     uncover 1
-    match __puya_arc4_router_____algopy_default_create@16
-    b __puya_arc4_router___switch_case_default@17
+    match __puya_arc4_router_____algopy_default_create@17
+    b __puya_arc4_router___switch_case_default@18
 
-__puya_arc4_router_____algopy_default_create@16:
+__puya_arc4_router_____algopy_default_create@17:
     // compile/factory.py:24
     // class HelloFactory(ARC4Contract):
     txn ApplicationID
@@ -222,9 +238,9 @@ __puya_arc4_router_____algopy_default_create@16:
     int 1
     retsub
 
-__puya_arc4_router___switch_case_default@17:
+__puya_arc4_router___switch_case_default@18:
 
-__puya_arc4_router___after_if_else@19:
+__puya_arc4_router___after_if_else@20:
     // compile/factory.py:24
     // class HelloFactory(ARC4Contract):
     int 0
@@ -1675,6 +1691,130 @@ test_other_constants:
     // compile/factory.py:293-294
     // # delete the app
     // arc4.abi_call(HelloOtherConstants.delete, app_id=app)
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_abi_call_create_params() -> void:
+test_abi_call_create_params:
+    // compile/factory.py:296-297
+    // @arc4.abimethod()
+    // def test_abi_call_create_params(self) -> None:
+    proto 0 0
+    // compile/factory.py:299-309
+    // app = arc4.abi_call(
+    //     Hello.create,
+    //     String("hey"),
+    //     approval_program=compiled.approval_program,
+    //     clear_state_program=compiled.clear_state_program,
+    //     global_num_uint=compiled.global_uints,
+    //     global_num_bytes=compiled.global_bytes,
+    //     local_num_uint=compiled.local_uints,
+    //     local_num_bytes=compiled.local_bytes,
+    //     extra_program_pages=compiled.extra_program_pages,
+    // ).created_app
+    itxn_begin
+    // compile/factory.py:301
+    // String("hey"),
+    byte "hey"
+    len
+    itob
+    extract 6 2
+    byte "hey"
+    concat
+    // compile/factory.py:298
+    // compiled = compile_contract(Hello)
+    int 0
+    itxn_field ExtraProgramPages
+    int 0
+    itxn_field LocalNumByteSlice
+    int 0
+    itxn_field LocalNumUint
+    int 1
+    itxn_field GlobalNumByteSlice
+    int 0
+    itxn_field GlobalNumUint
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte 0x
+    itxn_field ClearStateProgramPages
+    byte base64 CiACAAEmAQhncmVldGluZzEYQAADiAC3iAABQ4oAATEbIhNBAHE2GgCCAwQg3zpUBCQ3jTwE0KKCAE8DjgMAAwAYAChCAE0xGSISRDEYIhJENhoBVwIAiABWI4kxGYEFEkQxGCITRIgATiOJMRkiEkQxGCITRDYaAVcCAIgAPUkVFlcGAk8BUIAEFR98dU8BULAjiUIAFzEZgQRPAY4BAANCAAoxGCITRIgAHyOJIomKAQAoi/9niYoAAImKAQEiKGVEgAEgUIv/UImKAACJigAAKIAAZ4k=
+    itxn_field ApprovalProgramPages
+    byte 0x
+    itxn_field ApprovalProgramPages
+    // compile/factory.py:299-309
+    // app = arc4.abi_call(
+    //     Hello.create,
+    //     String("hey"),
+    //     approval_program=compiled.approval_program,
+    //     clear_state_program=compiled.clear_state_program,
+    //     global_num_uint=compiled.global_uints,
+    //     global_num_bytes=compiled.global_bytes,
+    //     local_num_uint=compiled.local_uints,
+    //     local_num_bytes=compiled.local_bytes,
+    //     extra_program_pages=compiled.extra_program_pages,
+    // ).created_app
+    method "create(string)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    dup
+    cover 1
+    // compile/factory.py:311
+    // result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
+    itxn_begin
+    byte "there"
+    len
+    itob
+    extract 6 2
+    byte "there"
+    concat
+    // compile/factory.py:299
+    // app = arc4.abi_call(
+    uncover 1
+    itxn_field ApplicationID
+    // compile/factory.py:311
+    // result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    cover 1
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    // compile/factory.py:313
+    // assert result == "hey there"
+    byte "hey there"
+    ==
+    assert
+    // compile/factory.py:315-316
+    // # delete the app
+    // arc4.abi_call(Hello.delete, app_id=app)
     itxn_begin
     int DeleteApplication
     itxn_field OnCompletion

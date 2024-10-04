@@ -292,3 +292,25 @@ class HelloFactory(ARC4Contract):
 
         # delete the app
         arc4.abi_call(HelloOtherConstants.delete, app_id=app)
+
+    @arc4.abimethod()
+    def test_abi_call_create_params(self) -> None:
+        compiled = compile_contract(Hello)
+        app = arc4.abi_call(
+            Hello.create,
+            String("hey"),
+            approval_program=compiled.approval_program,
+            clear_state_program=compiled.clear_state_program,
+            global_num_uint=compiled.global_uints,
+            global_num_bytes=compiled.global_bytes,
+            local_num_uint=compiled.local_uints,
+            local_num_bytes=compiled.local_bytes,
+            extra_program_pages=compiled.extra_program_pages,
+        ).created_app
+
+        result, _txn = arc4.abi_call(Hello.greet, "there", app_id=app)
+
+        assert result == "hey there"
+
+        # delete the app
+        arc4.abi_call(Hello.delete, app_id=app)

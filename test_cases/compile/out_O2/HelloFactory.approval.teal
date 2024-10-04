@@ -9,7 +9,7 @@ test_cases.compile.factory.HelloFactory.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@15
+    bz __puya_arc4_router___bare_routing@16
     method "test_logicsig()address"
     method "test_compile_contract()void"
     method "test_compile_contract_tmpl()void"
@@ -21,8 +21,9 @@ __puya_arc4_router__:
     method "test_arc4_create_large()void"
     method "test_arc4_update()void"
     method "test_other_constants()void"
+    method "test_abi_call_create_params()void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___test_logicsig_route@2 __puya_arc4_router___test_compile_contract_route@3 __puya_arc4_router___test_compile_contract_tmpl_route@4 __puya_arc4_router___test_compile_contract_prfx_route@5 __puya_arc4_router___test_compile_contract_large_route@6 __puya_arc4_router___test_arc4_create_route@7 __puya_arc4_router___test_arc4_create_tmpl_route@8 __puya_arc4_router___test_arc4_create_prfx_route@9 __puya_arc4_router___test_arc4_create_large_route@10 __puya_arc4_router___test_arc4_update_route@11 __puya_arc4_router___test_other_constants_route@12
+    match __puya_arc4_router___test_logicsig_route@2 __puya_arc4_router___test_compile_contract_route@3 __puya_arc4_router___test_compile_contract_tmpl_route@4 __puya_arc4_router___test_compile_contract_prfx_route@5 __puya_arc4_router___test_compile_contract_large_route@6 __puya_arc4_router___test_arc4_create_route@7 __puya_arc4_router___test_arc4_create_tmpl_route@8 __puya_arc4_router___test_arc4_create_prfx_route@9 __puya_arc4_router___test_arc4_create_large_route@10 __puya_arc4_router___test_arc4_update_route@11 __puya_arc4_router___test_other_constants_route@12 __puya_arc4_router___test_abi_call_create_params_route@13
     int 0
     retsub
 
@@ -140,16 +141,26 @@ __puya_arc4_router___test_other_constants_route@12:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@15:
+__puya_arc4_router___test_abi_call_create_params_route@13:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@19
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_abi_call_create_params
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@16:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@20
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@19:
+__puya_arc4_router___after_if_else@20:
     int 0
     retsub
 
@@ -756,6 +767,64 @@ test_other_constants:
     byte base32 NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     method "something()void"
     concat
+    ==
+    assert
+    itxn_begin
+    int DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    method "delete()void"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// test_cases.compile.factory.HelloFactory.test_abi_call_create_params() -> void:
+test_abi_call_create_params:
+    proto 0 0
+    itxn_begin
+    int 1
+    itxn_field GlobalNumByteSlice
+    byte base64 CoEBQw==
+    itxn_field ClearStateProgramPages
+    byte base64 CiACAQAmAQhncmVldGluZzEYQAADiACRiAABQ4oAATEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwACABUAICOJMRkURDEYFEQ2GgFXAgCIAD8iiTEZgQUSRDEYRCKJMRkURDEYRDYaAVcCAIgAKkkVFlcGAkxQgAQVH3x1TFCwIomBBDEZjgEAAiOJMRhEIomKAQAoi/9niYoBASMoZUSAASBQi/9QiYoAACiAAGeJ
+    itxn_field ApprovalProgramPages
+    method "create(string)void"
+    itxn_field ApplicationArgs
+    byte 0x0003686579
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    method "greet(string)string"
+    itxn_field ApplicationArgs
+    byte 0x00057468657265
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    byte "hey there"
     ==
     assert
     itxn_begin

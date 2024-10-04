@@ -9,10 +9,10 @@ contract test_cases.compile.factory.HelloFactory:
             block@0: // L24
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 let tmp%1#0: bool = (!= tmp%0#0 0u)
-                goto tmp%1#0 ? block@1 : block@15
+                goto tmp%1#0 ? block@1 : block@16
             block@1: // abi_routing_L24
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "test_logicsig()address" => block@2, method "test_compile_contract()void" => block@3, method "test_compile_contract_tmpl()void" => block@4, method "test_compile_contract_prfx()void" => block@5, method "test_compile_contract_large()void" => block@6, method "test_arc4_create()void" => block@7, method "test_arc4_create_tmpl()void" => block@8, method "test_arc4_create_prfx()void" => block@9, method "test_arc4_create_large()void" => block@10, method "test_arc4_update()void" => block@11, method "test_other_constants()void" => block@12, * => block@13}
+                switch tmp%2#0 {method "test_logicsig()address" => block@2, method "test_compile_contract()void" => block@3, method "test_compile_contract_tmpl()void" => block@4, method "test_compile_contract_prfx()void" => block@5, method "test_compile_contract_large()void" => block@6, method "test_arc4_create()void" => block@7, method "test_arc4_create_tmpl()void" => block@8, method "test_arc4_create_prfx()void" => block@9, method "test_arc4_create_large()void" => block@10, method "test_arc4_update()void" => block@11, method "test_other_constants()void" => block@12, method "test_abi_call_create_params()void" => block@13, * => block@14}
             block@2: // test_logicsig_route_L26
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -114,24 +114,33 @@ contract test_cases.compile.factory.HelloFactory:
                 (assert tmp%48#0) // is not creating
                 test_cases.compile.factory.HelloFactory.test_other_constants()
                 return 1u
-            block@13: // switch_case_default_L24
-                goto block@14
-            block@14: // switch_case_next_L24
-                goto block@19
-            block@15: // bare_routing_L24
+            block@13: // test_abi_call_create_params_route_L296
                 let tmp%49#0: uint64 = (txn OnCompletion)
-                switch tmp%49#0 {0u => block@16, * => block@17}
-            block@16: // __algopy_default_create_L24
-                let tmp%50#0: uint64 = (txn ApplicationID)
-                let tmp%51#0: bool = (== tmp%50#0 0u)
-                (assert tmp%51#0) // is creating
+                let tmp%50#0: bool = (== tmp%49#0 NoOp)
+                (assert tmp%50#0) // OnCompletion is NoOp
+                let tmp%51#0: uint64 = (txn ApplicationID)
+                let tmp%52#0: bool = (!= tmp%51#0 0u)
+                (assert tmp%52#0) // is not creating
+                test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
+                return 1u
+            block@14: // switch_case_default_L24
+                goto block@15
+            block@15: // switch_case_next_L24
+                goto block@20
+            block@16: // bare_routing_L24
+                let tmp%53#0: uint64 = (txn OnCompletion)
+                switch tmp%53#0 {0u => block@17, * => block@18}
+            block@17: // __algopy_default_create_L24
+                let tmp%54#0: uint64 = (txn ApplicationID)
+                let tmp%55#0: bool = (== tmp%54#0 0u)
+                (assert tmp%55#0) // is creating
                 test_cases.compile.factory.HelloFactory.__algopy_default_create()
                 return 1u
-            block@17: // switch_case_default_L24
-                goto block@18
-            block@18: // switch_case_next_L24
+            block@18: // switch_case_default_L24
                 goto block@19
-            block@19: // after_if_else_L24
+            block@19: // switch_case_next_L24
+                goto block@20
+            block@20: // after_if_else_L24
                 return 0u
         
         subroutine test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes:
@@ -713,6 +722,66 @@ contract test_cases.compile.factory.HelloFactory:
                 ((itxn_field Fee) 0u)
                 goto block@3
             block@3: // next_txn_L294
+                itxn_submit
+                return 
+        
+        subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params() -> void:
+            block@0: // L296
+                itxn_begin
+                let length%0#0: uint64 = (len "hey")
+                let as_bytes%0#0: bytes = (itob length%0#0)
+                let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+                let encoded_value%0#0: bytes = (concat length_uint16%0#0 "hey")
+                let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+                ((itxn_field ExtraProgramPages) 0u)
+                ((itxn_field LocalNumByteSlice) 0u)
+                ((itxn_field LocalNumUint) 0u)
+                ((itxn_field GlobalNumByteSlice) 1u)
+                ((itxn_field GlobalNumUint) 0u)
+                ((itxn_field ClearStateProgramPages) CoEBQw==)
+                (itxn_field ClearStateProgramPages)
+                ((itxn_field ApprovalProgramPages) CiACAAEmAQhncmVldGluZzEYQAADiAC3iAABQ4oAATEbIhNBAHE2GgCCAwQg3zpUBCQ3jTwE0KKCAE8DjgMAAwAYAChCAE0xGSISRDEYIhJENhoBVwIAiABWI4kxGYEFEkQxGCITRIgATiOJMRkiEkQxGCITRDYaAVcCAIgAPUkVFlcGAk8BUIAEFR98dU8BULAjiUIAFzEZgQRPAY4BAANCAAoxGCITRIgAHyOJIomKAQAoi/9niYoAAImKAQEiKGVEgAEgUIv/UImKAACJigAAKIAAZ4k=)
+                (itxn_field ApprovalProgramPages)
+                ((itxn_field ApplicationArgs) method "create(string)void")
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@1
+            block@1: // next_txn_L299
+                itxn_submit
+                let app#0: uint64 = (itxn CreatedApplicationID)
+                itxn_begin
+                let length%1#0: uint64 = (len "there")
+                let as_bytes%1#0: bytes = (itob length%1#0)
+                let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+                let encoded_value%1#0: bytes = (concat length_uint16%1#0 "there")
+                let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
+                let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "greet(string)string")
+                ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@2
+            block@2: // next_txn_L311
+                itxn_submit
+                let awst_tmp%0#0: bytes = (itxn LastLog)
+                let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+                let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+                (assert tmp%2#0) // ARC4 prefix is valid
+                let result#0: bytes = ((extract 2 0) tmp%0#0)
+                let tmp%3#0: bool = (== result#0 "hey there")
+                (assert tmp%3#0)
+                itxn_begin
+                let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) method "delete()void")
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                goto block@3
+            block@3: // next_txn_L316
                 itxn_submit
                 return 
         
