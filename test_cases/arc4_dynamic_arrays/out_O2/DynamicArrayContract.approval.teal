@@ -107,9 +107,8 @@ test_static_elements:
     callsub get_uint2
     uncover 2
     concat
-    swap
-    dup
     dig 1
+    dig 2
     concat
     bytec_1 // 0x0002
     swap
@@ -120,7 +119,7 @@ test_static_elements:
     intc_1 // 1
     >
     assert // Index access is out of bounds
-    dig 2
+    dig 1
     replace2 12
     dup
     log
@@ -134,7 +133,7 @@ test_static_elements:
     pushint 10 // 10
     callsub dynamic_array_pop_fixed_size
     swap
-    uncover 3
+    uncover 2
     ==
     assert
     pushint 10 // 10
@@ -192,8 +191,7 @@ test_dynamic_elements:
     proto 0 0
     callsub get_string1
     callsub get_string2
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -202,14 +200,13 @@ test_dynamic_elements:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
     callsub get_string3
     callsub get_string1
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -218,12 +215,11 @@ test_dynamic_elements:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -232,26 +228,25 @@ test_dynamic_elements:
     bytec_0 // 0x0004
     swap
     concat
-    dig 1
-    concat
-    dig 1
-    concat
-    bytec_1 // 0x0002
-    swap
-    concat
-    bytec_1 // 0x0002
     dig 2
     concat
+    dig 2
+    concat
+    bytec_1 // 0x0002
     swap
-    dup
+    concat
+    bytec_1 // 0x0002
+    dig 3
+    concat
+    dig 1
     intc_0 // 0
     extract_uint16
-    swap
+    uncover 2
     extract 2 0
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    dig 2
+    dig 1
     intc_1 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
@@ -261,25 +256,22 @@ test_dynamic_elements:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    dig 1
+    dig 2
     intc_0 // 0
     extract_uint16
     dup
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 2
-    len
-    swap
     dig 3
+    len
+    dig 4
     intc_2 // 2
     extract_uint16
-    dig 2
-    dig 1
-    uncover 3
+    dup2
+    uncover 4
     select
-    dig 4
-    uncover 7
+    dig 5
+    uncover 5
     uncover 2
     substring3
     log
@@ -312,14 +304,14 @@ test_dynamic_elements:
     log
     callsub dynamic_array_pop_dynamic_element
     swap
-    dig 2
+    dig 3
     ==
     assert
     dup
     log
     callsub dynamic_array_pop_dynamic_element
     swap
-    uncover 3
+    uncover 2
     ==
     assert
     dup
@@ -359,9 +351,8 @@ test_mixed_single_dynamic_elements:
     proto 0 0
     callsub get_uint1
     callsub get_string1
-    swap
     callsub get_uint2
-    swap
+    uncover 2
     bytec 4 // 0x0012
     concat
     swap
@@ -370,9 +361,8 @@ test_mixed_single_dynamic_elements:
     concat
     callsub get_uint2
     callsub get_string2
-    swap
     callsub get_uint1
-    swap
+    uncover 2
     bytec 4 // 0x0012
     concat
     swap
@@ -405,25 +395,22 @@ test_mixed_single_dynamic_elements:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    dig 1
+    dig 2
     intc_0 // 0
     extract_uint16
     dup
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 2
-    len
-    swap
     dig 3
+    len
+    dig 4
     intc_2 // 2
     extract_uint16
-    dig 2
-    dig 1
-    uncover 3
+    dup2
+    uncover 4
     select
-    dig 4
-    uncover 7
+    dig 5
+    uncover 5
     uncover 2
     substring3
     log
@@ -456,57 +443,51 @@ test_mixed_multiple_dynamic_elements:
     proto 0 0
     callsub get_uint1
     callsub get_string1
-    swap
     callsub get_uint2
-    cover 2
     callsub get_u16_arr1
-    cover 3
     callsub get_uint1
-    cover 3
+    uncover 4
     bytec_2 // 0x001c
     concat
-    dig 1
+    dig 4
     len
     pushint 28 // 28
     +
     swap
-    uncover 3
+    uncover 4
     concat
     swap
     itob
     extract 6 2
     concat
-    uncover 2
-    concat
     swap
+    concat
+    uncover 2
     concat
     swap
     concat
     callsub get_uint2
     callsub get_string2
-    swap
     callsub get_uint1
-    cover 2
     callsub get_u16_arr2
-    cover 3
     callsub get_uint2
-    cover 3
+    uncover 4
     bytec_2 // 0x001c
     concat
-    dig 1
+    dig 4
     len
     pushint 28 // 28
     +
     swap
-    uncover 3
+    uncover 4
     concat
     swap
     itob
     extract 6 2
     concat
-    uncover 2
-    concat
     swap
+    concat
+    uncover 2
     concat
     swap
     concat
@@ -536,25 +517,22 @@ test_mixed_multiple_dynamic_elements:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    dig 1
+    dig 2
     intc_0 // 0
     extract_uint16
     dup
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 2
-    len
-    swap
     dig 3
+    len
+    dig 4
     intc_2 // 2
     extract_uint16
-    dig 2
-    dig 1
-    uncover 3
+    dup2
+    uncover 4
     select
-    dig 4
-    uncover 7
+    dig 5
+    uncover 5
     uncover 2
     substring3
     log
@@ -606,8 +584,7 @@ test_nested_struct_replacement:
     concat
     callsub get_string1
     callsub get_string2
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -616,7 +593,7 @@ test_nested_struct_replacement:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -627,36 +604,32 @@ test_nested_struct_replacement:
     concat
     callsub get_uint1
     callsub get_string1
-    swap
     callsub get_uint2
-    cover 2
     callsub get_u16_arr1
-    cover 3
     callsub get_uint1
-    cover 3
+    uncover 4
     bytec_2 // 0x001c
     concat
-    dig 1
+    dig 4
     len
     pushint 28 // 28
     +
     swap
-    uncover 3
+    uncover 4
     concat
     swap
     itob
     extract 6 2
     concat
-    uncover 2
-    concat
     swap
+    concat
+    uncover 2
     concat
     swap
     concat
     callsub get_string1
     callsub get_string2
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -665,7 +638,7 @@ test_nested_struct_replacement:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -680,33 +653,31 @@ test_nested_struct_replacement:
     uncover 2
     uncover 5
     concat
-    swap
-    dup
+    dig 1
     itob
     extract 6 2
-    dig 2
+    dig 1
     swap
     concat
-    swap
     dig 5
     len
-    dup
-    cover 6
+    uncover 3
+    dig 1
     +
     itob
     extract 6 2
+    uncover 2
+    swap
     concat
     dig 6
     concat
     dig 5
     concat
-    dig 3
+    dig 4
     concat
-    cover 5
     callsub get_string2
     callsub get_string1
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -715,7 +686,7 @@ test_nested_struct_replacement:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -726,20 +697,20 @@ test_nested_struct_replacement:
     dup
     itob
     extract 6 2
-    uncover 3
+    uncover 5
     swap
     concat
     swap
-    uncover 5
+    uncover 4
     +
     itob
     extract 6 2
     concat
     swap
     concat
-    uncover 3
+    uncover 4
     concat
-    uncover 2
+    uncover 3
     concat
     dup
     pushint 10 // 10
@@ -748,40 +719,39 @@ test_nested_struct_replacement:
     intc_0 // 0
     dig 2
     extract3
-    swap
     dig 2
     pushint 22 // 22
     extract_uint16
-    swap
     dig 3
     len
-    swap
     uncover 4
-    dig 3
-    uncover 3
+    dig 2
+    uncover 2
     substring3
-    uncover 3
+    uncover 2
     uncover 6
     concat
     swap
     concat
-    cover 2
-    -
     swap
-    dup
+    uncover 2
+    -
+    dig 1
     pushint 22 // 22
     extract_uint16
-    dig 3
+    dig 4
     +
-    dig 2
+    dig 1
     -
     itob
     extract 6 2
+    uncover 2
+    swap
     replace2 22
     dup
     pushint 24 // 24
     extract_uint16
-    uncover 3
+    uncover 4
     +
     uncover 2
     -
@@ -803,8 +773,7 @@ test_nested_tuple_modification:
     concat
     callsub get_string1
     callsub get_string2
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -813,7 +782,7 @@ test_nested_tuple_modification:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -824,37 +793,32 @@ test_nested_tuple_modification:
     concat
     callsub get_uint1
     callsub get_string1
-    swap
     callsub get_uint2
-    cover 2
     callsub get_u16_arr1
-    cover 3
     callsub get_uint1
-    cover 3
+    uncover 4
     bytec_2 // 0x001c
     concat
-    dig 1
+    dig 4
     len
     pushint 28 // 28
     +
     swap
-    uncover 3
+    uncover 4
     concat
     swap
     itob
     extract 6 2
     concat
-    uncover 2
-    concat
     swap
+    concat
+    uncover 2
     concat
     swap
     concat
     callsub get_uint1
     callsub get_string1
-    swap
     callsub get_uint2
-    cover 2
     callsub get_u16_arr1
     extract 2 0
     pushbytes 0x007b
@@ -867,17 +831,16 @@ test_nested_tuple_modification:
     extract 6 2
     swap
     concat
-    cover 2
     callsub get_uint1
-    swap
+    uncover 4
     bytec_2 // 0x001c
     concat
-    dig 2
+    dig 4
     len
     pushint 28 // 28
     +
     swap
-    uncover 5
+    uncover 4
     concat
     swap
     itob
@@ -885,14 +848,13 @@ test_nested_tuple_modification:
     concat
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
     callsub get_string1
     callsub get_string2
-    swap
-    dup
+    dig 1
     len
     intc_3 // 4
     +
@@ -901,7 +863,7 @@ test_nested_tuple_modification:
     bytec_0 // 0x0004
     swap
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -915,21 +877,17 @@ test_nested_tuple_modification:
     swap
     uncover 5
     concat
-    swap
-    dup
+    dig 1
     itob
     extract 6 2
-    uncover 2
-    swap
     concat
-    swap
     dig 4
     len
-    dig 1
+    dig 2
     +
     itob
     extract 6 2
-    dig 2
+    dig 1
     swap
     concat
     dig 6
@@ -938,63 +896,60 @@ test_nested_tuple_modification:
     concat
     dig 3
     concat
-    cover 5
-    dig 3
+    dig 4
     len
+    uncover 3
     +
     itob
     extract 6 2
+    uncover 2
+    swap
+    concat
+    uncover 4
     concat
     uncover 3
     concat
     uncover 2
     concat
-    swap
-    concat
     dup
     pushint 22 // 22
     extract_uint16
-    swap
-    dup
+    dig 1
     pushint 24 // 24
     extract_uint16
-    dig 1
-    dig 3
+    dig 2
+    dig 2
     dig 2
     substring3
     dup
     pushint 18 // 18
     extract_uint16
-    swap
-    dup
+    dig 1
     len
-    swap
-    dup
-    dig 3
-    uncover 3
+    dig 2
+    dig 2
+    uncover 2
     substring3
     intc_2 // 2
     callsub dynamic_array_pop_fixed_size
     bury 1
-    swap
+    uncover 2
     intc_0 // 0
     uncover 3
     extract3
     swap
     concat
-    dig 2
-    intc_0 // 0
-    dig 5
-    extract3
-    swap
     dig 3
-    len
-    swap
-    uncover 4
+    intc_0 // 0
     dig 4
-    uncover 3
-    substring3
+    extract3
+    dig 4
+    len
+    uncover 5
+    dig 4
     uncover 2
+    substring3
+    swap
     dig 2
     concat
     swap
@@ -1002,14 +957,13 @@ test_nested_tuple_modification:
     uncover 2
     uncover 3
     -
-    cover 2
-    swap
+    uncover 2
     len
-    dig 1
+    dig 2
     pushint 24 // 24
     extract_uint16
     +
-    uncover 2
+    swap
     -
     itob
     extract 6 2
@@ -1039,9 +993,9 @@ dynamic_array_pop_fixed_size:
     dup2
     frame_dig -1
     extract3
-    cover 2
+    uncover 2
     intc_0 // 0
-    swap
+    uncover 3
     substring3
     retsub
 
@@ -1122,7 +1076,7 @@ dynamic_array_pop_dynamic_element_after_for@4:
 dynamic_array_concat_dynamic_element:
     proto 4 1
     bytec_3 // ""
-    bytec_3 // 0x
+    dup
     frame_dig -2
     intc_2 // 2
     *

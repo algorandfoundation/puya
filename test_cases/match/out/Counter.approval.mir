@@ -1,65 +1,80 @@
-// Op                                                // Op Description                                          Stack (out)                                    Source code                                                                                          Source line
-
-#pragma version 10
-
+// Op                                                            Stack (out)
 // test_cases.match.counter.Counter.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                //                                                         {txn}
-                                                     // virtual: store app_id%0#0 to l-stack (no copy)          app_id%0#0
-                                                     // virtual: load app_id%0#0 from l-stack (no copy)         app_id%0#0
-    bnz main_entrypoint@2                            //
-    // Implicit fall through to main_on_create@1     //
+    txn ApplicationID                                            app_id%0#0
+    bnz main_entrypoint@2
+    // Implicit fall through to main_on_create@1
 
 main_on_create@1:
-    callsub __init__                                 //
-    // Implicit fall through to main_entrypoint@2    //
+    callsub __init__
+    // Implicit fall through to main_entrypoint@2
 
 main_entrypoint@2:
-    txn OnCompletion                                 //                                                         {txn}                                          algopy.Txn.on_completion                                                                             match/counter.py:9
-                                                     // virtual: store tmp%0#0 to l-stack (no copy)             tmp%0#0                                        algopy.Txn.on_completion                                                                             match/counter.py:9
-                                                     // virtual: load tmp%0#0 from l-stack (no copy)            tmp%0#0                                        match algopy.Txn.on_completion:\ncase algopy.OnCompleteAction.NoOp:\nself.increment_counter()\nre... match/counter.py:9-15
-    bnz main_switch_case_default@4                   //                                                                                                        match algopy.Txn.on_completion:\ncase algopy.OnCompleteAction.NoOp:\nself.increment_counter()\nre... match/counter.py:9-15
-    // Implicit fall through to main_switch_case_0@3 //                                                                                                        match algopy.Txn.on_completion:\ncase algopy.OnCompleteAction.NoOp:\nself.increment_counter()\nre... match/counter.py:9-15
+    // match/counter.py:9
+    // match algopy.Txn.on_completion:
+    txn OnCompletion                                             tmp%0#0
+    // match/counter.py:9-15
+    // match algopy.Txn.on_completion:
+    //     case algopy.OnCompleteAction.NoOp:
+    //         self.increment_counter()
+    //         return True
+    //     case _:
+    //         # reject all OnCompletionAction's other than NoOp
+    //         return False
+    bnz main_switch_case_default@4
+    // Implicit fall through to main_switch_case_0@3
 
 main_switch_case_0@3:
-    callsub increment_counter                        //                                                                                                        self.increment_counter()                                                                             match/counter.py:11
-    int 1                                            //                                                         1                                              True                                                                                                 match/counter.py:12
-    return                                           //                                                                                                        return True                                                                                          match/counter.py:12
+    // match/counter.py:11
+    // self.increment_counter()
+    callsub increment_counter
+    // match/counter.py:12
+    // return True
+    int 1                                                        1
+    return
 
 main_switch_case_default@4:
-    int 0                                            //                                                         0                                              False                                                                                                match/counter.py:15
-    return                                           //                                                                                                        return False                                                                                         match/counter.py:15
+    // match/counter.py:15
+    // return False
+    int 0                                                        0
+    return
 
 
 // test_cases.match.counter.Counter.increment_counter() -> void:
 increment_counter:
-    proto 0 0                                        //                                                                                                        @algopy.subroutine\ndef increment_counter(self) -> None:                                             match/counter.py:20-21
+    // match/counter.py:20-21
+    // @algopy.subroutine
+    // def increment_counter(self) -> None:
+    proto 0 0
 
 increment_counter_block@0:
-    int 0                                            //                                                         0                                              self.counter                                                                                         match/counter.py:22
-    byte "counter"                                   //                                                         0,"counter"                                    self.counter                                                                                         match/counter.py:22
-    app_global_get_ex                                //                                                         {app_global_get_ex}.0,{app_global_get_ex}.1    self.counter                                                                                         match/counter.py:22
-                                                     // virtual: store maybe_exists%0#0 to l-stack (no copy)    maybe_exists%0#0,{app_global_get_ex}.0         self.counter                                                                                         match/counter.py:22
-                                                     // virtual: store maybe_value%0#0 to l-stack (no copy)     maybe_value%0#0,maybe_exists%0#0               self.counter                                                                                         match/counter.py:22
-                                                     // virtual: load maybe_exists%0#0 from l-stack (no copy)   maybe_value%0#0,maybe_exists%0#0               self.counter                                                                                         match/counter.py:22
-    assert // check self.counter exists              //                                                         maybe_value%0#0                                self.counter                                                                                         match/counter.py:22
-                                                     // virtual: load maybe_value%0#0 from l-stack (no copy)    maybe_value%0#0                                self.counter += 1                                                                                    match/counter.py:22
-    int 1                                            //                                                         maybe_value%0#0,1                              1                                                                                                    match/counter.py:22
-    +                                                //                                                         {+}                                            self.counter += 1                                                                                    match/counter.py:22
-                                                     // virtual: store new_state_value%0#0 to l-stack (no copy) new_state_value%0#0                            self.counter += 1                                                                                    match/counter.py:22
-    byte "counter"                                   //                                                         new_state_value%0#0,"counter"                  self.counter                                                                                         match/counter.py:22
-    uncover 1                                        // load new_state_value%0#0 from l-stack (no copy)         "counter",new_state_value%0#0                  self.counter += 1                                                                                    match/counter.py:22
-    app_global_put                                   //                                                                                                        self.counter += 1                                                                                    match/counter.py:22
-    retsub                                           //
+    // match/counter.py:22
+    // self.counter += 1
+    int 0                                                        0
+    byte "counter"                                               0,"counter"
+    app_global_get_ex                                            maybe_value%0#0,maybe_exists%0#0
+    assert // check self.counter exists                          maybe_value%0#0
+    l-load maybe_value%0#0 0                                     maybe_value%0#0
+    int 1                                                        maybe_value%0#0,1
+    +                                                            new_state_value%0#0
+    byte "counter"                                               new_state_value%0#0,"counter"
+    l-load new_state_value%0#0 1                                 "counter",new_state_value%0#0
+    app_global_put
+    retsub
 
 
 // test_cases.match.counter.Counter.__init__() -> void:
 __init__:
-    proto 0 0                                        //                                                                                                        def __init__(self) -> None:                                                                          match/counter.py:5
+    // match/counter.py:5
+    // def __init__(self) -> None:
+    proto 0 0
 
 __init___block@0:
-    byte "counter"                                   //                                                         "counter"                                      self.counter                                                                                         match/counter.py:6
-    int 0                                            //                                                         "counter",0                                    algopy.UInt64(0)                                                                                     match/counter.py:6
-    app_global_put                                   //                                                                                                        self.counter = algopy.UInt64(0)                                                                      match/counter.py:6
-    retsub                                           //
+    // match/counter.py:6
+    // self.counter = algopy.UInt64(0)
+    byte "counter"                                               "counter"
+    int 0                                                        "counter",0
+    app_global_put
+    retsub
+
 

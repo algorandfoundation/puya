@@ -1,118 +1,122 @@
-// Op                                             // Op Description                               Stack (out)                                                                          X stack       Source code                                                                 Source line
-
-#pragma version 10
-
+// Op                                                                 Stack (out)
 // test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
 main_block@0:
-    txna ApplicationArgs 0                        //                                              {txna}                                                                                             op.Txn.application_args(0)                                                  too_many_permutations/contract.py:6
-    dup
-    cover 1                                       // store a#0 to l-stack (copy)                  a#0,a#0 (copy)                                                                                     a = op.Txn.application_args(0)                                              too_many_permutations/contract.py:6
-    cover 1                                       // store a#0 to f-stack                         (𝕗) a#0 | a#0                                                                                      a = op.Txn.application_args(0)                                              too_many_permutations/contract.py:6
-    txna ApplicationArgs 1                        //                                              (𝕗) a#0 | a#0,{txna}                                                                               op.Txn.application_args(1)                                                  too_many_permutations/contract.py:7
-    cover 1                                       // store b#0 to f-stack                         (𝕗) a#0,b#0 | a#0                                                                                  b = op.Txn.application_args(1)                                              too_many_permutations/contract.py:7
-    txna ApplicationArgs 2                        //                                              (𝕗) a#0,b#0 | a#0,{txna}                                                                           op.Txn.application_args(2)                                                  too_many_permutations/contract.py:8
-    dup
-    cover 1                                       // store c#0 to l-stack (copy)                  (𝕗) a#0,b#0 | a#0,c#0,c#0 (copy)                                                                   c = op.Txn.application_args(2)                                              too_many_permutations/contract.py:8
-    cover 2                                       // store c#0 to f-stack                         (𝕗) a#0,b#0,c#0 | a#0,c#0                                                                          c = op.Txn.application_args(2)                                              too_many_permutations/contract.py:8
-    txna ApplicationArgs 3                        //                                              (𝕗) a#0,b#0,c#0 | a#0,c#0,{txna}                                                                   op.Txn.application_args(3)                                                  too_many_permutations/contract.py:9
-    cover 2                                       // store d#0 to f-stack                         (𝕗) a#0,b#0,c#0,d#0 | a#0,c#0                                                                      d = op.Txn.application_args(3)                                              too_many_permutations/contract.py:9
-                                                  // virtual: load a#0 from l-stack (no copy)     (𝕗) a#0,b#0,c#0,d#0 | c#0,a#0                                                                      a != c                                                                      too_many_permutations/contract.py:11
-                                                  // virtual: load c#0 from l-stack (no copy)     (𝕗) a#0,b#0,c#0,d#0 | a#0,c#0                                                                      a != c                                                                      too_many_permutations/contract.py:11
-    !=                                            //                                              (𝕗) a#0,b#0,c#0,d#0 | {!=}                                                                         a != c                                                                      too_many_permutations/contract.py:11
-                                                  // virtual: store tmp%0#0 to l-stack (no copy)  (𝕗) a#0,b#0,c#0,d#0 | tmp%0#0                                                                      a != c                                                                      too_many_permutations/contract.py:11
-                                                  // virtual: load tmp%0#0 from l-stack (no copy) (𝕗) a#0,b#0,c#0,d#0 | tmp%0#0                                                                      (a != c) or (b != d)                                                        too_many_permutations/contract.py:11
-    bnz main_bool_true@2                          //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              (a != c) or (b != d)                                                        too_many_permutations/contract.py:11
-    // Implicit fall through to main_or_contd@1   //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              (a != c) or (b != d)                                                        too_many_permutations/contract.py:11
+    // too_many_permutations/contract.py:6
+    // a = op.Txn.application_args(0)
+    txna ApplicationArgs 0                                            a#0
+    l-store-copy a#0 0                                                a#0,a#0
+    f-store a#0                                                       (𝕗) a#0 | a#0
+    // too_many_permutations/contract.py:7
+    // b = op.Txn.application_args(1)
+    txna ApplicationArgs 1                                            (𝕗) a#0 | a#0,b#0
+    f-store b#0                                                       (𝕗) a#0,b#0 | a#0
+    // too_many_permutations/contract.py:8
+    // c = op.Txn.application_args(2)
+    txna ApplicationArgs 2                                            (𝕗) a#0,b#0 | a#0,c#0
+    l-store-copy c#0 0                                                (𝕗) a#0,b#0 | a#0,c#0,c#0
+    f-store c#0                                                       (𝕗) a#0,b#0,c#0 | a#0,c#0
+    // too_many_permutations/contract.py:9
+    // d = op.Txn.application_args(3)
+    txna ApplicationArgs 3                                            (𝕗) a#0,b#0,c#0 | a#0,c#0,d#0
+    f-store d#0                                                       (𝕗) a#0,b#0,c#0,d#0 | a#0,c#0
+    // too_many_permutations/contract.py:11
+    // assert (a != c) or (b != d)
+    l-load a#0 1                                                      (𝕗) a#0,b#0,c#0,d#0 | c#0,a#0
+    l-load c#0 1                                                      (𝕗) a#0,b#0,c#0,d#0 | a#0,c#0
+    !=                                                                (𝕗) a#0,b#0,c#0,d#0 | tmp%0#0
+    bnz main_bool_true@2                                              (𝕗) a#0,b#0,c#0,d#0 |
+    // Implicit fall through to main_or_contd@1                       (𝕗) a#0,b#0,c#0,d#0 |
 
-main_or_contd@1:
-    dig 2                                         // load b#0 from f-stack                        (𝕗) a#0,b#0,c#0,d#0 | b#0 (copy)                                                                   b != d                                                                      too_many_permutations/contract.py:11
-    dig 1                                         // load d#0 from f-stack                        (𝕗) a#0,b#0,c#0,d#0 | b#0 (copy),d#0 (copy)                                                        b != d                                                                      too_many_permutations/contract.py:11
-    !=                                            //                                              (𝕗) a#0,b#0,c#0,d#0 | {!=}                                                                         b != d                                                                      too_many_permutations/contract.py:11
-                                                  // virtual: store tmp%1#0 to l-stack (no copy)  (𝕗) a#0,b#0,c#0,d#0 | tmp%1#0                                                                      b != d                                                                      too_many_permutations/contract.py:11
-                                                  // virtual: load tmp%1#0 from l-stack (no copy) (𝕗) a#0,b#0,c#0,d#0 | tmp%1#0                                                                      (a != c) or (b != d)                                                        too_many_permutations/contract.py:11
-    bz main_bool_false@3                          //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              (a != c) or (b != d)                                                        too_many_permutations/contract.py:11
-    // Implicit fall through to main_bool_true@2  //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              (a != c) or (b != d)                                                        too_many_permutations/contract.py:11
+main_or_contd@1:                                                      (𝕗) a#0,b#0,c#0,d#0 |
+    // too_many_permutations/contract.py:11
+    // assert (a != c) or (b != d)
+    f-load b#0                                                        (𝕗) a#0,b#0,c#0,d#0 | b#0
+    f-load d#0                                                        (𝕗) a#0,b#0,c#0,d#0 | b#0,d#0
+    !=                                                                (𝕗) a#0,b#0,c#0,d#0 | tmp%1#0
+    bz main_bool_false@3                                              (𝕗) a#0,b#0,c#0,d#0 |
+    // Implicit fall through to main_bool_true@2                      (𝕗) a#0,b#0,c#0,d#0 |
 
-main_bool_true@2:
-    int 1                                         //                                              (𝕗) a#0,b#0,c#0,d#0 | 1
-                                                  // virtual: store or_result%0#0 to x-stack      (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
-    b main_bool_merge@4                           //                                              (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |                                            or_result%0#0
+main_bool_true@2:                                                     (𝕗) a#0,b#0,c#0,d#0 |
+    int 1                                                             (𝕗) a#0,b#0,c#0,d#0 | or_result%0#0
+    x-store or_result%0#0                                             (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
+    b main_bool_merge@4                                               (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
 
-main_bool_false@3:
-    int 0                                         //                                              (𝕗) a#0,b#0,c#0,d#0 | 0
-                                                  // virtual: store or_result%0#0 to x-stack      (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
-    // Implicit fall through to main_bool_merge@4 //                                              (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |                                            or_result%0#0
+main_bool_false@3:                                                    (𝕗) a#0,b#0,c#0,d#0 |
+    int 0                                                             (𝕗) a#0,b#0,c#0,d#0 | or_result%0#0
+    x-store or_result%0#0                                             (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
+    // Implicit fall through to main_bool_merge@4                     (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
 
-main_bool_merge@4:
-                                                  // virtual: load or_result%0#0 from x-stack     (𝕗) a#0,b#0,c#0,d#0 | or_result%0#0 (copy)                                           or_result%0#0 assert (a != c) or (b != d)                                                 too_many_permutations/contract.py:11
-    assert                                        //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              assert (a != c) or (b != d)                                                 too_many_permutations/contract.py:11
-    dig 3                                         // load a#0 from f-stack                        (𝕗) a#0,b#0,c#0,d#0 | a#0 (copy)                                                                   four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dup
-    cover 1                                       // store a#0 to l-stack (copy)                  (𝕗) a#0,b#0,c#0,d#0 | a#0,a#0 (copy)                                                               four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dig 4                                         // load b#0 from f-stack                        (𝕗) a#0,b#0,c#0,d#0 | a#0,a#0 (copy),b#0 (copy)                                                    four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dup
-    cover 3                                       // store b#0 to l-stack (copy)                  (𝕗) a#0,b#0,c#0,d#0 | b#0,a#0,a#0 (copy),b#0 (copy)                                                four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dig 5                                         // load c#0 from f-stack                        (𝕗) a#0,b#0,c#0,d#0 | b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy)                                     four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dup
-    cover 5                                       // store c#0 to l-stack (copy)                  (𝕗) a#0,b#0,c#0,d#0 | c#0,b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy)                                 four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dig 6                                         // load d#0 from f-stack                        (𝕗) a#0,b#0,c#0,d#0 | c#0,b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy),d#0 (copy)                      four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    dup
-    cover 7                                       // store d#0 to l-stack (copy)                  (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy),d#0 (copy)                  four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-    callsub four_args                             //                                              (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0,{four_args}                                                  four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-                                                  // virtual: store tmp%2#0 to l-stack (no copy)  (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0,tmp%2#0                                                      four_args(a, b, c, d)                                                       too_many_permutations/contract.py:12
-                                                  // virtual: load tmp%2#0 from l-stack (no copy) (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0,tmp%2#0                                                      assert four_args(a, b, c, d)                                                too_many_permutations/contract.py:12
-    assert                                        //                                              (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0                                                              assert four_args(a, b, c, d)                                                too_many_permutations/contract.py:12
-                                                  // virtual: load a#0 from l-stack (no copy)     (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0                                                              two_args(a, b)                                                              too_many_permutations/contract.py:13
-    uncover 1                                     // load b#0 from l-stack (no copy)              (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,a#0,b#0                                                              two_args(a, b)                                                              too_many_permutations/contract.py:13
-    callsub two_args                              //                                              (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0                                                                      two_args(a, b)                                                              too_many_permutations/contract.py:13
-                                                  // virtual: load c#0 from l-stack (no copy)     (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0                                                                      two_args(c, d)                                                              too_many_permutations/contract.py:14
-    uncover 1                                     // load d#0 from l-stack (no copy)              (𝕗) a#0,b#0,c#0,d#0 | c#0,d#0                                                                      two_args(c, d)                                                              too_many_permutations/contract.py:14
-    callsub two_args                              //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              two_args(c, d)                                                              too_many_permutations/contract.py:14
-    int 1                                         //                                              (𝕗) a#0,b#0,c#0,d#0 | 1                                                                            True                                                                        too_many_permutations/contract.py:16
-    return                                        //                                              (𝕗) a#0,b#0,c#0,d#0 |                                                                              return True                                                                 too_many_permutations/contract.py:16
+main_bool_merge@4:                                                    (𝕗) a#0,b#0,c#0,d#0 | (𝕏) or_result%0#0 |
+    // too_many_permutations/contract.py:11
+    // assert (a != c) or (b != d)
+    x-load or_result%0#0                                              (𝕗) a#0,b#0,c#0,d#0 | or_result%0#0
+    assert                                                            (𝕗) a#0,b#0,c#0,d#0 |
+    // too_many_permutations/contract.py:12
+    // assert four_args(a, b, c, d)
+    f-load a#0                                                        (𝕗) a#0,b#0,c#0,d#0 | a#0
+    l-store-copy a#0 0                                                (𝕗) a#0,b#0,c#0,d#0 | a#0,a#0 (copy)
+    f-load b#0                                                        (𝕗) a#0,b#0,c#0,d#0 | a#0,a#0 (copy),b#0
+    l-store-copy b#0 2                                                (𝕗) a#0,b#0,c#0,d#0 | b#0,a#0,a#0 (copy),b#0 (copy)
+    f-load c#0                                                        (𝕗) a#0,b#0,c#0,d#0 | b#0,a#0,a#0 (copy),b#0 (copy),c#0
+    l-store-copy c#0 4                                                (𝕗) a#0,b#0,c#0,d#0 | c#0,b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy)
+    f-load d#0                                                        (𝕗) a#0,b#0,c#0,d#0 | c#0,b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy),d#0
+    l-store-copy d#0 6                                                (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0,a#0 (copy),b#0 (copy),c#0 (copy),d#0 (copy)
+    callsub four_args                                                 (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0,tmp%2#0
+    assert                                                            (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0
+    // too_many_permutations/contract.py:13
+    // two_args(a, b)
+    l-load a#0 0                                                      (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,b#0,a#0
+    l-load b#0 1                                                      (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0,a#0,b#0
+    callsub two_args                                                  (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0
+    // too_many_permutations/contract.py:14
+    // two_args(c, d)
+    l-load c#0 0                                                      (𝕗) a#0,b#0,c#0,d#0 | d#0,c#0
+    l-load d#0 1                                                      (𝕗) a#0,b#0,c#0,d#0 | c#0,d#0
+    callsub two_args                                                  (𝕗) a#0,b#0,c#0,d#0 |
+    // too_many_permutations/contract.py:16
+    // return True
+    int 1                                                             (𝕗) a#0,b#0,c#0,d#0 | 1
+    return                                                            (𝕗) a#0,b#0,c#0,d#0 |
 
 
 // test_cases.too_many_permutations.contract.four_args(a: bytes, b: bytes, c: bytes, d: bytes) -> uint64:
-four_args:
-    proto 4 1                                     //                                              (𝕡) a#0,b#0,c#0,d#0 |                                                                              @subroutine\ndef four_args(a: Bytes, b: Bytes, c: Bytes, d: Bytes) -> bool: too_many_permutations/contract.py:22-23
+four_args:                                                            (𝕡) a#0,b#0,c#0,d#0 |
+    // too_many_permutations/contract.py:22-23
+    // @subroutine
+    // def four_args(a: Bytes, b: Bytes, c: Bytes, d: Bytes) -> bool:
+    proto 4 1                                                         (𝕡) a#0,b#0,c#0,d#0 |
 
-four_args_block@0:
-    frame_dig -4                                  // load a#0 from parameters                     (𝕡) a#0,b#0,c#0,d#0 | a#0 (copy)                                                                   a + b                                                                       too_many_permutations/contract.py:24
-    frame_dig -3                                  // load b#0 from parameters                     (𝕡) a#0,b#0,c#0,d#0 | a#0 (copy),b#0 (copy)                                                        a + b                                                                       too_many_permutations/contract.py:24
-    concat                                        //                                              (𝕡) a#0,b#0,c#0,d#0 | {concat}                                                                     a + b                                                                       too_many_permutations/contract.py:24
-                                                  // virtual: store tmp%0#0 to l-stack (no copy)  (𝕡) a#0,b#0,c#0,d#0 | tmp%0#0                                                                      a + b                                                                       too_many_permutations/contract.py:24
-                                                  // virtual: load tmp%0#0 from l-stack (no copy) (𝕡) a#0,b#0,c#0,d#0 | tmp%0#0                                                                      a + b + c                                                                   too_many_permutations/contract.py:24
-    frame_dig -2                                  // load c#0 from parameters                     (𝕡) a#0,b#0,c#0,d#0 | tmp%0#0,c#0 (copy)                                                           a + b + c                                                                   too_many_permutations/contract.py:24
-    concat                                        //                                              (𝕡) a#0,b#0,c#0,d#0 | {concat}                                                                     a + b + c                                                                   too_many_permutations/contract.py:24
-                                                  // virtual: store tmp%1#0 to l-stack (no copy)  (𝕡) a#0,b#0,c#0,d#0 | tmp%1#0                                                                      a + b + c                                                                   too_many_permutations/contract.py:24
-                                                  // virtual: load tmp%1#0 from l-stack (no copy) (𝕡) a#0,b#0,c#0,d#0 | tmp%1#0                                                                      a + b + c + d                                                               too_many_permutations/contract.py:24
-    frame_dig -1                                  // load d#0 from parameters                     (𝕡) a#0,b#0,c#0,d#0 | tmp%1#0,d#0 (copy)                                                           a + b + c + d                                                               too_many_permutations/contract.py:24
-    concat                                        //                                              (𝕡) a#0,b#0,c#0,d#0 | {concat}                                                                     a + b + c + d                                                               too_many_permutations/contract.py:24
-                                                  // virtual: store tmp%2#0 to l-stack (no copy)  (𝕡) a#0,b#0,c#0,d#0 | tmp%2#0                                                                      a + b + c + d                                                               too_many_permutations/contract.py:24
-                                                  // virtual: load tmp%2#0 from l-stack (no copy) (𝕡) a#0,b#0,c#0,d#0 | tmp%2#0                                                                      (a + b + c + d).length                                                      too_many_permutations/contract.py:24
-    len                                           //                                              (𝕡) a#0,b#0,c#0,d#0 | {len}                                                                        (a + b + c + d).length                                                      too_many_permutations/contract.py:24
-                                                  // virtual: store tmp%3#0 to l-stack (no copy)  (𝕡) a#0,b#0,c#0,d#0 | tmp%3#0                                                                      (a + b + c + d).length                                                      too_many_permutations/contract.py:24
-                                                  // virtual: load tmp%3#0 from l-stack (no copy) (𝕡) a#0,b#0,c#0,d#0 | tmp%3#0                                                                      (a + b + c + d).length > 0                                                  too_many_permutations/contract.py:24
-    int 0                                         //                                              (𝕡) a#0,b#0,c#0,d#0 | tmp%3#0,0                                                                    0                                                                           too_many_permutations/contract.py:24
-    >                                             //                                              (𝕡) a#0,b#0,c#0,d#0 | {>}                                                                          (a + b + c + d).length > 0                                                  too_many_permutations/contract.py:24
-                                                  // virtual: store tmp%4#0 to l-stack (no copy)  (𝕡) a#0,b#0,c#0,d#0 | tmp%4#0                                                                      (a + b + c + d).length > 0                                                  too_many_permutations/contract.py:24
-                                                  // virtual: load tmp%4#0 from l-stack (no copy) (𝕡) a#0,b#0,c#0,d#0 | tmp%4#0                                                                      return (a + b + c + d).length > 0                                           too_many_permutations/contract.py:24
-    retsub                                        //                                              tmp%4#0                                                                                            return (a + b + c + d).length > 0                                           too_many_permutations/contract.py:24
+four_args_block@0:                                                    (𝕡) a#0,b#0,c#0,d#0 |
+    // too_many_permutations/contract.py:24
+    // return (a + b + c + d).length > 0
+    p-load a#0                                                        (𝕡) a#0,b#0,c#0,d#0 | a#0 (copy)
+    p-load b#0                                                        (𝕡) a#0,b#0,c#0,d#0 | a#0 (copy),b#0 (copy)
+    concat                                                            (𝕡) a#0,b#0,c#0,d#0 | tmp%0#0
+    p-load c#0                                                        (𝕡) a#0,b#0,c#0,d#0 | tmp%0#0,c#0 (copy)
+    concat                                                            (𝕡) a#0,b#0,c#0,d#0 | tmp%1#0
+    p-load d#0                                                        (𝕡) a#0,b#0,c#0,d#0 | tmp%1#0,d#0 (copy)
+    concat                                                            (𝕡) a#0,b#0,c#0,d#0 | tmp%2#0
+    len                                                               (𝕡) a#0,b#0,c#0,d#0 | tmp%3#0
+    int 0                                                             (𝕡) a#0,b#0,c#0,d#0 | tmp%3#0,0
+    >                                                                 (𝕡) a#0,b#0,c#0,d#0 | tmp%4#0
+    retsub                                                            tmp%4#0
 
 
 // test_cases.too_many_permutations.contract.two_args(a: bytes, b: bytes) -> void:
-two_args:
-    proto 2 0                                     //                                              (𝕡) a#0,b#0 |                                                                                      @subroutine\ndef two_args(a: Bytes, b: Bytes) -> None:                      too_many_permutations/contract.py:27-28
+two_args:                                                             (𝕡) a#0,b#0 |
+    // too_many_permutations/contract.py:27-28
+    // @subroutine
+    // def two_args(a: Bytes, b: Bytes) -> None:
+    proto 2 0                                                         (𝕡) a#0,b#0 |
 
-two_args_block@0:
-    frame_dig -2                                  // load a#0 from parameters                     (𝕡) a#0,b#0 | a#0 (copy)                                                                           a + b                                                                       too_many_permutations/contract.py:29
-    frame_dig -1                                  // load b#0 from parameters                     (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)                                                                a + b                                                                       too_many_permutations/contract.py:29
-    concat                                        //                                              (𝕡) a#0,b#0 | {concat}                                                                             a + b                                                                       too_many_permutations/contract.py:29
-                                                  // virtual: store tmp%0#0 to l-stack (no copy)  (𝕡) a#0,b#0 | tmp%0#0                                                                              a + b                                                                       too_many_permutations/contract.py:29
-                                                  // virtual: load tmp%0#0 from l-stack (no copy) (𝕡) a#0,b#0 | tmp%0#0                                                                              a + b                                                                       too_many_permutations/contract.py:29
-    len                                           //                                              (𝕡) a#0,b#0 | {len}                                                                                a + b                                                                       too_many_permutations/contract.py:29
-                                                  // virtual: store tmp%1#0 to l-stack (no copy)  (𝕡) a#0,b#0 | tmp%1#0                                                                              a + b                                                                       too_many_permutations/contract.py:29
-                                                  // virtual: load tmp%1#0 from l-stack (no copy) (𝕡) a#0,b#0 | tmp%1#0                                                                              assert a + b                                                                too_many_permutations/contract.py:29
-    assert                                        //                                              (𝕡) a#0,b#0 |                                                                                      assert a + b                                                                too_many_permutations/contract.py:29
-    retsub                                        //
+two_args_block@0:                                                     (𝕡) a#0,b#0 |
+    // too_many_permutations/contract.py:29
+    // assert a + b
+    p-load a#0                                                        (𝕡) a#0,b#0 | a#0 (copy)
+    p-load b#0                                                        (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+    concat                                                            (𝕡) a#0,b#0 | tmp%0#0
+    len                                                               (𝕡) a#0,b#0 | tmp%1#0
+    assert                                                            (𝕡) a#0,b#0 |
+    retsub
+
 

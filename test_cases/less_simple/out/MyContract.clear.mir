@@ -1,86 +1,91 @@
-// Op                                                // Op Description                                            Stack (out)                                                                                  Source code                        Source line
-
-#pragma version 10
-
+// Op                                                Stack (out)
 // test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
 main:
-    byte ""                                          // allocate 1 to stack                                       (𝕗) sum_of_squares#10 |
+    allocate 1 to stack                              (𝕗) sum_of_squares#10 |
 
-main_block@0:
-    int 0                                            //                                                           (𝕗) sum_of_squares#10 | 0                                                                    UInt64(0)                          less_simple/contract.py:28
-                                                     // virtual: store sum_of_squares#0 to f-stack                (𝕗) sum_of_squares#10,sum_of_squares#0 |                                                     sum_of_squares = UInt64(0)         less_simple/contract.py:28
-    int 1                                            //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0 | 1                                                   1                                  less_simple/contract.py:29
-                                                     // virtual: store i#0 to f-stack                             (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 i                                  less_simple/contract.py:29
-    // Implicit fall through to main_for_header@1    //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+main_block@0:                                        (𝕗) sum_of_squares#10 |
+    // less_simple/contract.py:28
+    // sum_of_squares = UInt64(0)
+    int 0                                            (𝕗) sum_of_squares#10 | sum_of_squares#0
+    f-store sum_of_squares#0                         (𝕗) sum_of_squares#10,sum_of_squares#0 |
+    // less_simple/contract.py:29
+    // for i in urange(1, 100):
+    int 1                                            (𝕗) sum_of_squares#10,sum_of_squares#0 | i#0
+    f-store i#0                                      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // Implicit fall through to main_for_header@1    (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_for_header@1:
-    dig 0                                            // load i#0 from f-stack                                     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0 (copy)                                      urange(1, 100)                     less_simple/contract.py:29
-    int 100                                          //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0 (copy),100                                  100                                less_simple/contract.py:29
-    <                                                //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | {<}                                             urange(1, 100)                     less_simple/contract.py:29
-                                                     // virtual: store continue_looping%0#0 to l-stack (no copy)  (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0                            urange(1, 100)                     less_simple/contract.py:29
-    dig 2                                            // load sum_of_squares#0 from f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0,sum_of_squares#0 (copy)
-    bury 4                                           // store sum_of_squares#10 to f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0
-                                                     // virtual: load continue_looping%0#0 from l-stack (no copy) (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0                            for i in urange(1, 100):           less_simple/contract.py:29
-    bz main_after_for@8                              //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 for i in urange(1, 100):           less_simple/contract.py:29
-    // Implicit fall through to main_for_body@2      //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 for i in urange(1, 100):           less_simple/contract.py:29
+main_for_header@1:                                   (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // less_simple/contract.py:29
+    // for i in urange(1, 100):
+    f-load i#0                                       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0
+    int 100                                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,100
+    <                                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0
+    f-load sum_of_squares#0                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0,sum_of_squares#10
+    f-store sum_of_squares#10                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0
+    l-load continue_looping%0#0 0                    (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | continue_looping%0#0
+    bz main_after_for@8                              (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // Implicit fall through to main_for_body@2      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_for_body@2:
-    dig 0                                            // load i#0 from f-stack                                     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0 (copy)                                      square_root = op.sqrt(i)           less_simple/contract.py:30
-    dup
-    cover 1                                          // store i#0 to l-stack (copy)                               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,i#0 (copy)                                  square_root = op.sqrt(i)           less_simple/contract.py:30
-    sqrt                                             //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,{sqrt}                                      op.sqrt(i)                         less_simple/contract.py:30
-                                                     // virtual: store square_root#0 to l-stack (no copy)         (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,square_root#0                               square_root = op.sqrt(i)           less_simple/contract.py:30
-    dig 0                                            // load square_root#0 from l-stack (copy)                    (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,square_root#0,square_root#0 (copy)          square_root * square_root          less_simple/contract.py:31
-    uncover 1                                        // load square_root#0 from l-stack (no copy)                 (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,square_root#0 (copy),square_root#0          square_root * square_root          less_simple/contract.py:31
-    *                                                //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,{*}                                         square_root * square_root          less_simple/contract.py:31
-                                                     // virtual: store tmp%0#0 to l-stack (no copy)               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,tmp%0#0                                     square_root * square_root          less_simple/contract.py:31
-                                                     // virtual: load tmp%0#0 from l-stack (no copy)              (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,tmp%0#0                                     square_root * square_root == i     less_simple/contract.py:31
-    uncover 1                                        // load i#0 from l-stack (no copy)                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%0#0,i#0                                     square_root * square_root == i     less_simple/contract.py:31
-    ==                                               //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | {==}                                            square_root * square_root == i     less_simple/contract.py:31
-                                                     // virtual: store tmp%1#0 to l-stack (no copy)               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0                                         square_root * square_root == i     less_simple/contract.py:31
-    dig 2                                            // load sum_of_squares#0 from f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0,sum_of_squares#0 (copy)
-    bury 4                                           // store sum_of_squares#10 to f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0
-                                                     // virtual: load tmp%1#0 from l-stack (no copy)              (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0                                         if square_root * square_root == i: less_simple/contract.py:31
-    bz main_after_if_else@4                          //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 if square_root * square_root == i: less_simple/contract.py:31
-    // Implicit fall through to main_if_body@3       //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 if square_root * square_root == i: less_simple/contract.py:31
+main_for_body@2:                                     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // less_simple/contract.py:30
+    // square_root = op.sqrt(i)
+    f-load i#0                                       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0
+    l-store-copy i#0 0                               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,i#0 (copy)
+    sqrt                                             (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,square_root#0
+    // less_simple/contract.py:31
+    // if square_root * square_root == i:
+    l-load-copy square_root#0 0                      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,square_root#0,square_root#0 (copy)
+    l-load square_root#0 1                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,square_root#0 (copy),square_root#0
+    *                                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,tmp%0#0
+    l-load i#0 1                                     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%0#0,i#0
+    ==                                               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0
+    f-load sum_of_squares#0                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0,sum_of_squares#10
+    f-store sum_of_squares#10                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0
+    l-load tmp%1#0 0                                 (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%1#0
+    bz main_after_if_else@4                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // Implicit fall through to main_if_body@3       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_if_body@3:
-    dig 1                                            // load sum_of_squares#0 from f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0 (copy)                         sum_of_squares += i                less_simple/contract.py:32
-    dig 1                                            // load i#0 from f-stack                                     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0 (copy),i#0 (copy)              sum_of_squares += i                less_simple/contract.py:32
-    +                                                //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | {+}                                             sum_of_squares += i                less_simple/contract.py:32
-                                                     // virtual: store sum_of_squares#0 to l-stack (no copy)      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0                                sum_of_squares += i                less_simple/contract.py:32
-                                                     // virtual: load sum_of_squares#0 from l-stack (no copy)     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
-    bury 3                                           // store sum_of_squares#10 to f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
-    // Implicit fall through to main_after_if_else@4 //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+main_if_body@3:                                      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // less_simple/contract.py:32
+    // sum_of_squares += i
+    f-load sum_of_squares#0                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
+    f-load i#0                                       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0,i#0
+    +                                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#10
+    f-store sum_of_squares#10                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // Implicit fall through to main_after_if_else@4 (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_after_if_else@4:
-    dig 2                                            // load sum_of_squares#10 from f-stack                       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#10 (copy)
-    dup
-    cover 1                                          // store sum_of_squares#0 to l-stack (copy)                  (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0,sum_of_squares#0 (copy)
-    bury 3                                           // store sum_of_squares#0 to f-stack                         (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
-                                                     // virtual: load sum_of_squares#0 from l-stack (no copy)     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0                                sum_of_squares > 200               less_simple/contract.py:33
-    int 200                                          //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0,200                            200                                less_simple/contract.py:33
-    >                                                //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | {>}                                             sum_of_squares > 200               less_simple/contract.py:33
-                                                     // virtual: store tmp%2#0 to l-stack (no copy)               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%2#0                                         sum_of_squares > 200               less_simple/contract.py:33
-                                                     // virtual: load tmp%2#0 from l-stack (no copy)              (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%2#0                                         if sum_of_squares > 200:           less_simple/contract.py:33
-    bz main_after_if_else@6                          //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 if sum_of_squares > 200:           less_simple/contract.py:33
-    // Implicit fall through to main_if_body@5       //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 if sum_of_squares > 200:           less_simple/contract.py:33
+main_after_if_else@4:                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    f-load sum_of_squares#10                         (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
+    l-store-copy sum_of_squares#0 0                  (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0,sum_of_squares#0
+    f-store sum_of_squares#0                         (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
+    // less_simple/contract.py:33
+    // if sum_of_squares > 200:
+    l-load sum_of_squares#0 0                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
+    int 200                                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0,200
+    >                                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | tmp%2#0
+    bz main_after_if_else@6                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // Implicit fall through to main_if_body@5       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_if_body@5:
-    dig 1                                            // load sum_of_squares#0 from f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0 (copy)
-    bury 3                                           // store sum_of_squares#10 to f-stack                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
-    b main_after_for@8                               //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 break                              less_simple/contract.py:34
+main_if_body@5:                                      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    f-load sum_of_squares#0                          (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#10
+    f-store sum_of_squares#10                        (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // less_simple/contract.py:34
+    // break
+    b main_after_for@8                               (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_after_if_else@6:
-    dig 0                                            // load i#0 from f-stack                                     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0 (copy)                                      urange(1, 100)                     less_simple/contract.py:29
-    int 1                                            //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0 (copy),1                                    urange(1, 100)                     less_simple/contract.py:29
-    +                                                //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | {+}                                             urange(1, 100)                     less_simple/contract.py:29
-    bury 1                                           // store i#0 to f-stack                                      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 urange(1, 100)                     less_simple/contract.py:29
-    b main_for_header@1                              //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+main_after_if_else@6:                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    // less_simple/contract.py:29
+    // for i in urange(1, 100):
+    f-load i#0                                       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0
+    int 1                                            (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0,1
+    +                                                (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | i#0
+    f-store i#0                                      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    b main_for_header@1                              (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
 
-main_after_for@8:
-    dig 2                                            // load sum_of_squares#10 from f-stack                       (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#10 (copy)
-                                                     // virtual: store sum_of_squares#0 to l-stack (no copy)      (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
-                                                     // virtual: load sum_of_squares#0 from l-stack (no copy)     (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0                                return sum_of_squares              less_simple/contract.py:35
-    return                                           //                                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |                                                 return sum_of_squares              less_simple/contract.py:35
+main_after_for@8:                                    (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+    f-load sum_of_squares#10                         (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 | sum_of_squares#0
+    // less_simple/contract.py:35
+    // return sum_of_squares
+    return                                           (𝕗) sum_of_squares#10,sum_of_squares#0,i#0 |
+
 

@@ -1,16 +1,17 @@
 #pragma version 10
 
 test_cases.stubs.biguint.BigUIntContract.approval_program:
+    bytecblock 0x01 0x02 0x05
     // stubs/biguint.py:6
     // one = BigUInt(1)
-    pushbytes 0x01
+    bytec_0 // 0x01
     // stubs/biguint.py:7
     // compare_biguints(one, BigUInt(2))
-    pushbytes 0x02
+    bytec_1 // 0x02
     callsub compare_biguints
     // stubs/biguint.py:6
     // one = BigUInt(1)
-    pushbytes 0x01
+    bytec_0 // 0x01
     // stubs/biguint.py:8
     // compare_biguint_vs_uint64(one, UInt64(2))
     pushint 2 // 2
@@ -18,18 +19,18 @@ test_cases.stubs.biguint.BigUIntContract.approval_program:
     // stubs/biguint.py:9
     // compare_uint64_vs_biguint(UInt64(1), BigUInt(2))
     pushint 1 // 1
-    pushbytes 0x02
+    bytec_1 // 0x02
     callsub compare_uint64_vs_biguint
     // stubs/biguint.py:10
     // assert BigUInt(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"
     txn NumAppArgs
     pushint 0 // 0
     !=
-    pushbytes 0x05
-    pushbytes 0x01
+    bytec_2 // 0x05
+    bytec_0 // 0x01
     uncover 2
     select
-    pushbytes 0x05
+    bytec_2 // 0x05
     b==
     assert // constructor expressions supported
     // stubs/biguint.py:11
@@ -38,12 +39,14 @@ test_cases.stubs.biguint.BigUIntContract.approval_program:
     bsqrt
     pushbytes 0x0a
     bsqrt
+    uncover 1
+    uncover 1
     b==
     assert
     // stubs/biguint.py:6
     // one = BigUInt(1)
-    pushbytes 0x01
-    pushbytes 0x01
+    bytec_0 // 0x01
+    bytec_0 // 0x01
     // stubs/biguint.py:12
     // assert one == +one
     b==

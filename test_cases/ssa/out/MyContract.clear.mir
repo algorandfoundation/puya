@@ -1,52 +1,62 @@
-// Op                                                       // Op Description                               Stack (out)                               Source code                                        Source line
-
-#pragma version 10
-
+// Op                                                       Stack (out)
 // test_cases.ssa.contract.MyContract.clear_state_program() -> uint64:
 main_block@0:
-    int 40                                                  //                                              40                                        UInt64(40)                                         ssa/contract.py:44
-    callsub one_hundred                                     //                                              {one_hundred}                             one_hundred(UInt64(40))                            ssa/contract.py:44
-                                                            // virtual: store tmp%0#0 to l-stack (no copy)  tmp%0#0                                   one_hundred(UInt64(40))                            ssa/contract.py:44
-                                                            // virtual: load tmp%0#0 from l-stack (no copy) tmp%0#0                                   return one_hundred(UInt64(40))                     ssa/contract.py:44
-    return                                                  //                                                                                        return one_hundred(UInt64(40))                     ssa/contract.py:44
+    // ssa/contract.py:44
+    // return one_hundred(UInt64(40))
+    int 40                                                  40
+    callsub one_hundred                                     tmp%0#0
+    return
 
 
 // test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:
-one_hundred:
-    proto 1 1                                               //                                              (𝕡) c#0 |                                 @subroutine\ndef one_hundred(c: UInt64) -> UInt64: ssa/contract.py:47-48
+one_hundred:                                                (𝕡) c#0 |
+    // ssa/contract.py:47-48
+    // @subroutine
+    // def one_hundred(c: UInt64) -> UInt64:
+    proto 1 1                                               (𝕡) c#0 |
 
-one_hundred_block@0:
-    int 25                                                  //                                              (𝕡) c#0 | 25                              UInt64(25)                                         ssa/contract.py:49
-                                                            // virtual: store a#0 to f-stack                (𝕡) c#0 | (𝕗) a#0 |                       a = UInt64(25)                                     ssa/contract.py:49
-    int 2                                                   //                                              (𝕡) c#0 | (𝕗) a#0 | 2                     UInt64(2)                                          ssa/contract.py:50
-                                                            // virtual: store b#0 to f-stack                (𝕡) c#0 | (𝕗) a#0,b#0 |                   b = UInt64(2)                                      ssa/contract.py:50
-    int 25                                                  //                                              (𝕡) c#0 | (𝕗) a#0,b#0 | 25                UInt64(25)                                         ssa/contract.py:49
-    frame_dig -1                                            // load c#0 from parameters                     (𝕡) c#0 | (𝕗) a#0,b#0 | 25,c#0 (copy)     a < c                                              ssa/contract.py:51
-    <                                                       //                                              (𝕡) c#0 | (𝕗) a#0,b#0 | {<}               a < c                                              ssa/contract.py:51
-                                                            // virtual: store tmp%0#0 to l-stack (no copy)  (𝕡) c#0 | (𝕗) a#0,b#0 | tmp%0#0           a < c                                              ssa/contract.py:51
-                                                            // virtual: load tmp%0#0 from l-stack (no copy) (𝕡) c#0 | (𝕗) a#0,b#0 | tmp%0#0           if a < c:                                          ssa/contract.py:51
-    bz one_hundred_after_if_else@2                          //                                              (𝕡) c#0 | (𝕗) a#0,b#0 |                   if a < c:                                          ssa/contract.py:51
-    // Implicit fall through to one_hundred_if_body@1       //                                              (𝕡) c#0 | (𝕗) a#0,b#0 |                   if a < c:                                          ssa/contract.py:51
+one_hundred_block@0:                                        (𝕡) c#0 |
+    // ssa/contract.py:49
+    // a = UInt64(25)
+    int 25                                                  (𝕡) c#0 | a#0
+    f-store a#0                                             (𝕡) c#0 | (𝕗) a#0 |
+    // ssa/contract.py:50
+    // b = UInt64(2)
+    int 2                                                   (𝕡) c#0 | (𝕗) a#0 | b#0
+    f-store b#0                                             (𝕡) c#0 | (𝕗) a#0,b#0 |
+    // ssa/contract.py:49
+    // a = UInt64(25)
+    int 25                                                  (𝕡) c#0 | (𝕗) a#0,b#0 | 25
+    // ssa/contract.py:51
+    // if a < c:
+    p-load c#0                                              (𝕡) c#0 | (𝕗) a#0,b#0 | 25,c#0 (copy)
+    <                                                       (𝕡) c#0 | (𝕗) a#0,b#0 | tmp%0#0
+    bz one_hundred_after_if_else@2                          (𝕡) c#0 | (𝕗) a#0,b#0 |
+    // Implicit fall through to one_hundred_if_body@1       (𝕡) c#0 | (𝕗) a#0,b#0 |
 
-one_hundred_if_body@1:
-    int 1                                                   //                                              (𝕡) c#0 | (𝕗) a#0,b#0 | 1                 UInt64(1)                                          ssa/contract.py:52
-    frame_bury 1                                            // store b#0 to f-stack                         (𝕡) c#0 | (𝕗) a#0,b#0 |                   b = UInt64(1)                                      ssa/contract.py:52
-    int 100                                                 //                                              (𝕡) c#0 | (𝕗) a#0,b#0 | 100               UInt64(100)                                        ssa/contract.py:53
-    frame_bury 0                                            // store a#0 to f-stack                         (𝕡) c#0 | (𝕗) a#0,b#0 |                   a = UInt64(100)                                    ssa/contract.py:53
-    // Implicit fall through to one_hundred_after_if_else@2 //                                              (𝕡) c#0 | (𝕗) a#0,b#0 |
+one_hundred_if_body@1:                                      (𝕡) c#0 | (𝕗) a#0,b#0 |
+    // ssa/contract.py:52
+    // b = UInt64(1)
+    int 1                                                   (𝕡) c#0 | (𝕗) a#0,b#0 | b#0
+    f-store b#0                                             (𝕡) c#0 | (𝕗) a#0,b#0 |
+    // ssa/contract.py:53
+    // a = UInt64(100)
+    int 100                                                 (𝕡) c#0 | (𝕗) a#0,b#0 | a#0
+    f-store a#0                                             (𝕡) c#0 | (𝕗) a#0,b#0 |
+    // Implicit fall through to one_hundred_after_if_else@2 (𝕡) c#0 | (𝕗) a#0,b#0 |
 
-one_hundred_after_if_else@2:
-    frame_dig 1                                             // load b#0 from f-stack                        (𝕡) c#0 | (𝕗) a#0,b#0 | b#0 (copy)        b *= b                                             ssa/contract.py:55
-    dup
-    cover 1                                                 // store b#0 to l-stack (copy)                  (𝕡) c#0 | (𝕗) a#0,b#0 | b#0,b#0 (copy)    b *= b                                             ssa/contract.py:55
-    uncover 1                                               // load b#0 from l-stack (no copy)              (𝕡) c#0 | (𝕗) a#0,b#0 | b#0 (copy),b#0    b *= b                                             ssa/contract.py:55
-    *                                                       //                                              (𝕡) c#0 | (𝕗) a#0,b#0 | {*}               b *= b                                             ssa/contract.py:55
-                                                            // virtual: store b#0 to l-stack (no copy)      (𝕡) c#0 | (𝕗) a#0,b#0 | b#0               b *= b                                             ssa/contract.py:55
-    frame_dig 0                                             // load a#0 from f-stack                        (𝕡) c#0 | (𝕗) a#0,b#0 | b#0,a#0 (copy)    a * b                                              ssa/contract.py:56
-    uncover 1                                               // load b#0 from l-stack (no copy)              (𝕡) c#0 | (𝕗) a#0,b#0 | a#0 (copy),b#0    a * b                                              ssa/contract.py:56
-    *                                                       //                                              (𝕡) c#0 | (𝕗) a#0,b#0 | {*}               a * b                                              ssa/contract.py:56
-                                                            // virtual: store tmp%1#0 to l-stack (no copy)  (𝕡) c#0 | (𝕗) a#0,b#0 | tmp%1#0           a * b                                              ssa/contract.py:56
-                                                            // virtual: load tmp%1#0 from l-stack (no copy) (𝕡) c#0 | (𝕗) a#0,b#0 | tmp%1#0           return a * b                                       ssa/contract.py:56
-    frame_bury 0
-    retsub                                                  //                                              tmp%1#0                                   return a * b                                       ssa/contract.py:56
+one_hundred_after_if_else@2:                                (𝕡) c#0 | (𝕗) a#0,b#0 |
+    // ssa/contract.py:55
+    // b *= b
+    f-load b#0                                              (𝕡) c#0 | (𝕗) a#0,b#0 | b#0
+    l-store-copy b#0 0                                      (𝕡) c#0 | (𝕗) a#0,b#0 | b#0,b#0 (copy)
+    l-load b#0 1                                            (𝕡) c#0 | (𝕗) a#0,b#0 | b#0 (copy),b#0
+    *                                                       (𝕡) c#0 | (𝕗) a#0,b#0 | b#0
+    // ssa/contract.py:56
+    // return a * b
+    f-load a#0                                              (𝕡) c#0 | (𝕗) a#0,b#0 | b#0,a#0
+    l-load b#0 1                                            (𝕡) c#0 | (𝕗) a#0,b#0 | a#0,b#0
+    *                                                       (𝕡) c#0 | (𝕗) a#0,b#0 | tmp%1#0
+    retsub                                                  tmp%1#0
+
 

@@ -863,9 +863,9 @@ _update_ratio:
     // amm/contract.py:258
     // b_balance = self._current_b_balance()
     callsub _current_b_balance
-    swap
     // amm/contract.py:260
     // self.ratio = a_balance * SCALE // b_balance
+    swap
     intc_2 // 1000
     *
     swap
@@ -976,7 +976,6 @@ burn:
     swap
     dig 3
     callsub tokens_to_burn
-    cover 2
     // amm/contract.py:193
     // supply=self._current_b_balance(),
     callsub _current_b_balance
@@ -987,8 +986,9 @@ burn:
     //     amount=pool_xfer.asset_amount,
     // )
     uncover 2
-    callsub tokens_to_burn
     swap
+    uncover 3
+    callsub tokens_to_burn
     // amm/contract.py:197-198
     // # Send back commensurate amt of a
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
@@ -997,7 +997,7 @@ burn:
     bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
-    uncover 2
+    uncover 3
     callsub do_asset_transfer
     // amm/contract.py:200-201
     // # Send back commensurate amt of b
@@ -1199,12 +1199,12 @@ tokens_to_swap:
     frame_dig -3
     pushint 995 // 995
     *
-    dup
-    cover 2
-    +
     swap
+    dig 1
+    +
     // amm/contract.py:352
     // out_total = in_amount * FACTOR * out_supply
+    swap
     frame_dig -1
     *
     // amm/contract.py:353

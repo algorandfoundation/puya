@@ -1,27 +1,28 @@
 #pragma version 10
 
 test_cases.ssa2.contract.MyContract.approval_program:
+    intcblock 1 5
     // ssa2/contract.py:8
     // a = UInt64(1) + 2
-    pushint 1 // 1
+    intc_0 // 1
     pushint 2 // 2
     +
     // ssa2/contract.py:9
     // b = UInt64(4) * 5
     pushint 4 // 4
-    pushint 5 // 5
+    intc_1 // 5
     *
     // ssa2/contract.py:15
     // for i in urange(5):
-    pushint 1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
     pushint 0 // 0
 
 main_for_header@1:
     // ssa2/contract.py:15
     // for i in urange(5):
-    dig 0
-    pushint 5 // 5
+    dup
+    intc_1 // 5
     <
     bz main_after_for@4
     // ssa2/contract.py:16
@@ -39,8 +40,8 @@ main_for_header@1:
     bury 3
     // ssa2/contract.py:15
     // for i in urange(5):
-    dig 0
-    pushint 1 // 1
+    dup
+    intc_0 // 1
     +
     bury 1
     b main_for_header@1
