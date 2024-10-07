@@ -9,10 +9,10 @@ contract test_cases.typed_abi_call_txn.txn_contract.TxnContract:
             block@0: // L11
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 let tmp%1#0: bool = (!= tmp%0#0 0u)
-                goto tmp%1#0 ? block@1 : block@6
+                goto tmp%1#0 ? block@1 : block@7
             block@1: // abi_routing_L11
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "call_with_txn(byte[],txn,byte[])uint64" => block@2, method "call_with_acfg(byte[],acfg,byte[])uint64" => block@3, * => block@4}
+                switch tmp%2#0 {method "call_with_txn(byte[],txn,byte[])uint64" => block@2, method "call_with_acfg(byte[],acfg,byte[])uint64" => block@3, method "call_with_acfg_no_return(byte[],acfg,byte[])void" => block@4, * => block@5}
             block@2: // call_with_txn_route_L12
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -52,24 +52,42 @@ contract test_cases.typed_abi_call_txn.txn_contract.TxnContract:
                 let tmp%24#0: bytes = (concat 0x151f7c75 val_as_bytes%1#0)
                 (log tmp%24#0)
                 return 1u
-            block@4: // switch_case_default_L11
-                goto block@5
-            block@5: // switch_case_next_L11
-                goto block@10
-            block@6: // bare_routing_L11
+            block@4: // call_with_acfg_no_return_route_L27
                 let tmp%25#0: uint64 = (txn OnCompletion)
-                switch tmp%25#0 {0u => block@7, * => block@8}
-            block@7: // __algopy_default_create_L11
-                let tmp%26#0: uint64 = (txn ApplicationID)
-                let tmp%27#0: bool = (== tmp%26#0 0u)
-                (assert tmp%27#0) // is creating
+                let tmp%26#0: bool = (== tmp%25#0 NoOp)
+                (assert tmp%26#0) // OnCompletion is NoOp
+                let tmp%27#0: uint64 = (txn ApplicationID)
+                let tmp%28#0: bool = (!= tmp%27#0 0u)
+                (assert tmp%28#0) // is not creating
+                let tmp%29#0: bytes = (txna ApplicationArgs 1)
+                let tmp%30#0: bytes = ((extract 2 0) tmp%29#0)
+                let tmp%31#0: uint64 = (txn GroupIndex)
+                let gtxn_idx%2#0: uint64 = (- tmp%31#0 1u)
+                let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
+                let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 acfg)
+                (assert gtxn_type_matches%1#0) // transaction type is acfg
+                let tmp%32#0: bytes = (txna ApplicationArgs 2)
+                let tmp%33#0: bytes = ((extract 2 0) tmp%32#0)
+                test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(tmp%30#0, gtxn_idx%2#0, tmp%33#0)
+                return 1u
+            block@5: // switch_case_default_L11
+                goto block@6
+            block@6: // switch_case_next_L11
+                goto block@11
+            block@7: // bare_routing_L11
+                let tmp%34#0: uint64 = (txn OnCompletion)
+                switch tmp%34#0 {0u => block@8, * => block@9}
+            block@8: // __algopy_default_create_L11
+                let tmp%35#0: uint64 = (txn ApplicationID)
+                let tmp%36#0: bool = (== tmp%35#0 0u)
+                (assert tmp%36#0) // is creating
                 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__algopy_default_create()
                 return 1u
-            block@8: // switch_case_default_L11
-                goto block@9
-            block@9: // switch_case_next_L11
+            block@9: // switch_case_default_L11
                 goto block@10
-            block@10: // after_if_else_L11
+            block@10: // switch_case_next_L11
+                goto block@11
+            block@11: // after_if_else_L11
                 return 0u
         
         subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:
@@ -98,6 +116,17 @@ contract test_cases.typed_abi_call_txn.txn_contract.TxnContract:
                 (assert tmp%3#0) // expected asset id
                 let tmp%4#0: uint64 = ((gtxns CreatedAssetID) acfg#0)
                 return tmp%4#0
+        
+        subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: uint64, b: bytes) -> void:
+            block@0: // L27
+                let tmp%0#0: bool = (== a#0 0x61)
+                (assert tmp%0#0) // a is not a
+                let tmp%1#0: bool = (== b#0 0x62)
+                (assert tmp%1#0) // b is not b
+                let tmp%2#0: uint64 = ((gtxns CreatedAssetID) acfg#0)
+                let tmp%3#0: bool = (!= tmp%2#0 0u)
+                (assert tmp%3#0) // expected asset id
+                return 
         
         subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.__algopy_default_create() -> void:
             block@0: // L11

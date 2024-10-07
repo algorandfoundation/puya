@@ -220,18 +220,15 @@ class FunctionIRBuilder(
         )
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
-        if self._itxn.handle_inner_transaction_field_assignments(stmt):  # noqa: SIM114
-            pass
-        elif self._itxn.handle_inner_transaction_submit_assignments(
-            stmt.target, stmt.value, stmt.source_location
-        ):
-            pass
-        else:
-            handle_assignment_expr(
+        if not self._itxn.handle_inner_transaction_field_assignments(stmt):
+            targets = handle_assignment_expr(
                 self.context,
                 target=stmt.target,
                 value=stmt.value,
                 assignment_location=stmt.source_location,
+            )
+            self._itxn.add_inner_transaction_submit_result_assignments(
+                targets, stmt.value, stmt.source_location
             )
         return None
 

@@ -23,3 +23,11 @@ class TxnContract(ARC4Contract):
         assert b == b"b", "b is not b"
         assert acfg.created_asset.id, "expected asset id"
         return acfg.created_asset.id
+
+    @arc4.abimethod
+    def call_with_acfg_no_return(
+        self, a: Bytes, acfg: gtxn.AssetConfigTransaction, b: Bytes
+    ) -> None:
+        assert a == b"a", "a is not a"
+        assert b == b"b", "b is not b"
+        assert acfg.created_asset.id, "expected asset id"

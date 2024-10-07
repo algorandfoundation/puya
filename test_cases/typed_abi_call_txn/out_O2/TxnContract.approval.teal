@@ -9,11 +9,12 @@ test_cases.typed_abi_call_txn.txn_contract.TxnContract.approval_program:
 __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@6
+    bz __puya_arc4_router___bare_routing@7
     method "call_with_txn(byte[],txn,byte[])uint64"
     method "call_with_acfg(byte[],acfg,byte[])uint64"
+    method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     txna ApplicationArgs 0
-    match __puya_arc4_router___call_with_txn_route@2 __puya_arc4_router___call_with_acfg_route@3
+    match __puya_arc4_router___call_with_txn_route@2 __puya_arc4_router___call_with_acfg_route@3 __puya_arc4_router___call_with_acfg_no_return_route@4
     int 0
     retsub
 
@@ -66,16 +67,38 @@ __puya_arc4_router___call_with_acfg_route@3:
     int 1
     retsub
 
-__puya_arc4_router___bare_routing@6:
+__puya_arc4_router___call_with_acfg_no_return_route@4:
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@10
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int acfg
+    ==
+    assert // transaction type is acfg
+    txna ApplicationArgs 2
+    extract 2 0
+    callsub call_with_acfg_no_return
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@7:
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@11
     txn ApplicationID
     !
     assert // is creating
     int 1
     retsub
 
-__puya_arc4_router___after_if_else@10:
+__puya_arc4_router___after_if_else@11:
     int 0
     retsub
 
@@ -117,5 +140,22 @@ call_with_acfg:
     frame_dig -2
     gtxns CreatedAssetID
     dup
+    assert // expected asset id
+    retsub
+
+
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: uint64, b: bytes) -> void:
+call_with_acfg_no_return:
+    proto 3 0
+    frame_dig -3
+    byte 0x61
+    ==
+    assert // a is not a
+    frame_dig -1
+    byte 0x62
+    ==
+    assert // b is not b
+    frame_dig -2
+    gtxns CreatedAssetID
     assert // expected asset id
     retsub

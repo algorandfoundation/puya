@@ -1,0 +1,419 @@
+#pragma version 10
+
+test_cases.inner_transactions_assignment.contract.Contract.approval_program:
+    callsub __puya_arc4_router__
+    return
+
+
+// test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__() -> uint64:
+__puya_arc4_router__:
+    // inner_transactions_assignment/contract.py:11
+    // class Contract(ARC4Contract):
+    proto 0 1
+    txn NumAppArgs
+    bz __puya_arc4_router___bare_routing@6
+    method "test_itxn_slice()void"
+    method "test_itxn_nested()void"
+    txna ApplicationArgs 0
+    match __puya_arc4_router___test_itxn_slice_route@2 __puya_arc4_router___test_itxn_nested_route@3
+    int 0
+    retsub
+
+__puya_arc4_router___test_itxn_slice_route@2:
+    // inner_transactions_assignment/contract.py:13
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_itxn_slice
+    int 1
+    retsub
+
+__puya_arc4_router___test_itxn_nested_route@3:
+    // inner_transactions_assignment/contract.py:30
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_itxn_nested
+    int 1
+    retsub
+
+__puya_arc4_router___bare_routing@6:
+    // inner_transactions_assignment/contract.py:11
+    // class Contract(ARC4Contract):
+    txn OnCompletion
+    bnz __puya_arc4_router___after_if_else@10
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    retsub
+
+__puya_arc4_router___after_if_else@10:
+    // inner_transactions_assignment/contract.py:11
+    // class Contract(ARC4Contract):
+    int 0
+    retsub
+
+
+// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
+test_itxn_slice:
+    // inner_transactions_assignment/contract.py:13-14
+    // @arc4.abimethod
+    // def test_itxn_slice(self) -> None:
+    proto 0 0
+    // inner_transactions_assignment/contract.py:21
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    txn Sender
+    // inner_transactions_assignment/contract.py:26
+    // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+    itxn_begin
+    // inner_transactions_assignment/contract.py:21
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    byte "pay1"
+    itxn_field Note
+    int 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:26
+    // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+    itxn_next
+    // inner_transactions_assignment/contract.py:19
+    // total=1,
+    int 1
+    itxn_field ConfigAssetTotal
+    // inner_transactions_assignment/contract.py:18
+    // note="acfg",
+    byte "acfg"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:17
+    // asset_name="TEST",
+    byte "TEST"
+    itxn_field ConfigAssetName
+    // inner_transactions_assignment/contract.py:16
+    // unit_name="TST",
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    // inner_transactions_assignment/contract.py:15
+    // acfg = itxn.AssetConfig(
+    int acfg
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:26
+    // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+    itxn_next
+    // inner_transactions_assignment/contract.py:21
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    // inner_transactions_assignment/contract.py:23
+    // pay2.set(note="pay2")
+    byte "pay2"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:21
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:26
+    // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+    itxn_next
+    // inner_transactions_assignment/contract.py:21
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Amount
+    itxn_field Receiver
+    // inner_transactions_assignment/contract.py:25
+    // pay3.set(note="pay3")
+    byte "pay3"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:21
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:26
+    // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+    itxn_submit
+    gitxn 2 Note
+    gitxn 1 Note
+    // inner_transactions_assignment/contract.py:27
+    // assert sliced_txns[0].note == b"acfg"
+    byte 0x61636667
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:28
+    // assert sliced_txns[1].note == b"pay2"
+    byte 0x70617932
+    ==
+    assert
+    retsub
+
+
+// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested() -> void:
+test_itxn_nested:
+    // inner_transactions_assignment/contract.py:30-31
+    // @arc4.abimethod
+    // def test_itxn_nested(self) -> None:
+    proto 0 0
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    txn Sender
+    dup
+    // inner_transactions_assignment/contract.py:44
+    // echo(Bytes(b"hi")),
+    byte 0x6869
+    callsub echo
+    dup
+    uncover 2
+    // inner_transactions_assignment/contract.py:45
+    // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+    itxn_begin
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    byte "pay1"
+    itxn_field Note
+    int 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:45
+    // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+    itxn_next
+    // inner_transactions_assignment/contract.py:36
+    // total=1,
+    int 1
+    itxn_field ConfigAssetTotal
+    // inner_transactions_assignment/contract.py:35
+    // note="acfg",
+    byte "acfg"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:34
+    // asset_name="TEST",
+    byte "TEST"
+    itxn_field ConfigAssetName
+    // inner_transactions_assignment/contract.py:33
+    // unit_name="TST",
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    // inner_transactions_assignment/contract.py:32
+    // acfg = itxn.AssetConfig(
+    int acfg
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:45
+    // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+    itxn_next
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    // inner_transactions_assignment/contract.py:40
+    // pay2.set(note="pay2")
+    byte "pay2"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:45
+    // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+    itxn_next
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Amount
+    itxn_field Receiver
+    // inner_transactions_assignment/contract.py:42
+    // pay3.set(note="pay3")
+    byte "pay3"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:45
+    // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+    itxn_submit
+    // inner_transactions_assignment/contract.py:46
+    // echo(Bytes(b"there")),
+    byte 0x7468657265
+    callsub echo
+    dup
+    cover 2
+    gitxn 1 Note
+    dup
+    cover 3
+    gitxn 2 Note
+    dup
+    cover 2
+    cover 4
+    // inner_transactions_assignment/contract.py:48
+    // assert nested_tuple[0] == b"hi"
+    uncover 3
+    byte 0x6869
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:49
+    // assert nested_tuple[1][0].note == b"acfg"
+    byte 0x61636667
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:50
+    // assert nested_tuple[1][1].note == b"pay2"
+    byte 0x70617932
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:51
+    // assert nested_tuple[2] == b"there"
+    byte 0x7468657265
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:58
+    // if echo(Bytes(b"maybe")) == b"maybe":
+    byte 0x6d61796265
+    callsub echo
+    byte 0x6d61796265
+    ==
+    bz test_itxn_nested_after_if_else@9
+    // inner_transactions_assignment/contract.py:60
+    // echo(Bytes(b"hi2")),
+    byte 0x686932
+    callsub echo
+    frame_bury 1
+    // inner_transactions_assignment/contract.py:61
+    // itxn.submit_txns(pay1, acfg, pay3)[1:],
+    itxn_begin
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    byte "pay1"
+    itxn_field Note
+    int 0
+    itxn_field Amount
+    frame_dig 0
+    dup
+    itxn_field Receiver
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:61
+    // itxn.submit_txns(pay1, acfg, pay3)[1:],
+    itxn_next
+    // inner_transactions_assignment/contract.py:36
+    // total=1,
+    int 1
+    itxn_field ConfigAssetTotal
+    // inner_transactions_assignment/contract.py:54
+    // acfg.set(note="acfg2")
+    byte "acfg2"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:34
+    // asset_name="TEST",
+    byte "TEST"
+    itxn_field ConfigAssetName
+    // inner_transactions_assignment/contract.py:33
+    // unit_name="TST",
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    // inner_transactions_assignment/contract.py:32
+    // acfg = itxn.AssetConfig(
+    int acfg
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:61
+    // itxn.submit_txns(pay1, acfg, pay3)[1:],
+    itxn_next
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int pay
+    itxn_field TypeEnum
+    int 0
+    itxn_field Amount
+    itxn_field Receiver
+    // inner_transactions_assignment/contract.py:56
+    // pay3.set(note="pay5")
+    byte "pay5"
+    itxn_field Note
+    // inner_transactions_assignment/contract.py:38
+    // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+    int 0
+    itxn_field Fee
+    // inner_transactions_assignment/contract.py:61
+    // itxn.submit_txns(pay1, acfg, pay3)[1:],
+    itxn_submit
+    // inner_transactions_assignment/contract.py:62
+    // echo(Bytes(b"there2")),
+    byte 0x746865726532
+    callsub echo
+    frame_bury 2
+    gitxn 1 Note
+    frame_bury 3
+    itxn Note
+    frame_bury 4
+
+test_itxn_nested_after_if_else@9:
+    // inner_transactions_assignment/contract.py:64
+    // assert nested_tuple[0] == b"hi2"
+    frame_dig 1
+    byte 0x686932
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:65
+    // assert nested_tuple[1][0].note == b"acfg2"
+    frame_dig 3
+    byte 0x6163666732
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:66
+    // assert nested_tuple[1][1].note == b"pay5"
+    frame_dig 4
+    byte 0x70617935
+    ==
+    assert
+    // inner_transactions_assignment/contract.py:67
+    // assert nested_tuple[2] == b"there2"
+    frame_dig 2
+    byte 0x746865726532
+    ==
+    assert
+    retsub
+
+
+// test_cases.inner_transactions_assignment.contract.echo(value: bytes) -> bytes:
+echo:
+    // inner_transactions_assignment/contract.py:77-78
+    // @subroutine
+    // def echo(value: Bytes) -> Bytes:
+    proto 1 1
+    // inner_transactions_assignment/contract.py:79
+    // return value
+    frame_dig -1
+    retsub

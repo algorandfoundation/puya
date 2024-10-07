@@ -1,0 +1,55 @@
+contract Contract extends (algopy.arc4.ARC4Contract)
+{
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod test_itxn_slice(): void
+  {
+    acfg: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', Note='acfg', ConfigAssetTotal=1u)
+    pay1: inner_transaction_fields_pay = create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=0u, Note='pay1')
+    pay2: inner_transaction_fields_pay = pay1.copy()
+    update_inner_transaction(pay2,Note='pay2')
+    pay3: inner_transaction_fields_pay = pay2.copy()
+    update_inner_transaction(pay3,Note='pay3')
+    sliced_txns: tuple<inner_transaction_acfg,inner_transaction_pay> = submit_txn(pay1, acfg, pay2, pay3)[1u:3u]
+    assert(sliced_txns[0].Note == hex<"61636667">)
+    assert(sliced_txns[1].Note == hex<"70617932">)
+  }
+  
+  abimethod test_itxn_nested(): void
+  {
+    acfg: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', Note='acfg', ConfigAssetTotal=1u)
+    pay1: inner_transaction_fields_pay = create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=0u, Note='pay1')
+    pay2: inner_transaction_fields_pay = pay1.copy()
+    update_inner_transaction(pay2,Note='pay2')
+    pay3: inner_transaction_fields_pay = pay2.copy()
+    update_inner_transaction(pay3,Note='pay3')
+    nested_tuple: tuple<bytes,tuple<inner_transaction_acfg,inner_transaction_pay>,bytes> = (test_cases.inner_transactions_assignment.contract.echo(hex<"6869">), submit_txn(pay1, acfg, pay2, pay3)[1u:3u], test_cases.inner_transactions_assignment.contract.echo(hex<"7468657265">))
+    assert(nested_tuple[0] == hex<"6869">)
+    assert(nested_tuple[1][0].Note == hex<"61636667">)
+    assert(nested_tuple[1][1].Note == hex<"70617932">)
+    assert(nested_tuple[2] == hex<"7468657265">)
+    nested_tuple_copy: tuple<bytes,tuple<inner_transaction_acfg,inner_transaction_pay>,bytes> = nested_tuple
+    update_inner_transaction(acfg,Note='acfg2')
+    update_inner_transaction(pay2,Note='pay4')
+    update_inner_transaction(pay3,Note='pay5')
+    if (test_cases.inner_transactions_assignment.contract.echo(hex<"6D61796265">) == hex<"6D61796265">) {
+      nested_tuple: tuple<bytes,tuple<inner_transaction_acfg,inner_transaction_pay>,bytes> = (test_cases.inner_transactions_assignment.contract.echo(hex<"686932">), submit_txn(pay1, acfg, pay3)[1u:], test_cases.inner_transactions_assignment.contract.echo(hex<"746865726532">))
+    }
+    assert(nested_tuple[0] == hex<"686932">)
+    assert(nested_tuple[1][0].Note == hex<"6163666732">)
+    assert(nested_tuple[1][1].Note == hex<"70617935">)
+    assert(nested_tuple[2] == hex<"746865726532">)
+    mish_mash: tuple<inner_transaction_acfg,inner_transaction_pay,tuple<inner_transaction_acfg,inner_transaction_pay>> = (nested_tuple_copy[1][0], nested_tuple_copy[1][1], nested_tuple[1])
+    assert(mish_mash[0].Note == hex<"61636667">)
+    assert(mish_mash[1].Note == hex<"70617932">)
+    assert(mish_mash[2][0].Note == hex<"6163666732">)
+    assert(mish_mash[2][1].Note == hex<"70617935">)
+  }
+}
+
+subroutine echo(value: bytes): bytes
+{
+  return value
+}

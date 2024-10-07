@@ -22,3 +22,11 @@ class TxnContract(algopy.arc4.ARC4Client, typing.Protocol):
         acfg: algopy.gtxn.AssetConfigTransaction,
         b: algopy.arc4.DynamicBytes,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def call_with_acfg_no_return(
+        self,
+        a: algopy.arc4.DynamicBytes,
+        acfg: algopy.gtxn.AssetConfigTransaction,
+        b: algopy.arc4.DynamicBytes,
+    ) -> None: ...
