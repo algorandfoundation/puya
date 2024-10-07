@@ -10,7 +10,7 @@ from puya.utils import make_path_relative_to_cwd
 
 @attrs.frozen(kw_only=True, repr=False, str=False)
 class SourceLocation:
-    file: Path = attrs.field()
+    file: Path | None = attrs.field()
     line: int = attrs.field(validator=attrs.validators.ge(1))
     end_line: int = attrs.field()
     comment_lines: int = attrs.field(default=0, validator=attrs.validators.ge(0))
@@ -27,7 +27,7 @@ class SourceLocation:
         # this check is simply to make sure relative paths aren't accidentally passed in.
         # so we use root rather than is_absolute(), because that requires a drive on Windows,
         # which we naturally don't supply for synthetic paths such as embedded lib.
-        if not value.root:
+        if value is not None and not value.root:
             raise ValueError(f"source file locations cannot be relative, got {value}")
 
     @end_line.default
@@ -56,7 +56,7 @@ class SourceLocation:
         return self.end_line - self.line + 1
 
     def __str__(self) -> str:
-        relative_path = make_path_relative_to_cwd(self.file)
+        relative_path = make_path_relative_to_cwd(self.file) if self.file else "INTERNAL"
         result = f"{relative_path}:{self.line}"
         if self.end_line != self.line:
             result += f"-{self.end_line}"
