@@ -334,10 +334,17 @@ _debug_info_converter = make_converter(omit_if_default=True)
 def _debug_info_as_json(info: DebugInfo, base_path: Path) -> bytes:
     # make sources relative to output
     info = attrs.evolve(
-        info, sources=[str(Path(s).relative_to(base_path, walk_up=True)) for s in info.sources]
+        info, sources=[str(_try_make_relative_to(Path(s), base_path)) for s in info.sources]
     )
     json = _debug_info_converter.dumps(info, DebugInfo, indent=2)
     return json.encode("utf-8")
+
+
+def _try_make_relative_to(path: Path, relative_to: Path) -> Path:
+    try:
+        return path.relative_to(relative_to, walk_up=True)
+    except ValueError:
+        return path
 
 
 def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:
