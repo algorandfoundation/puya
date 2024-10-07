@@ -103,11 +103,9 @@ def narrowed_compile_context(
     }
     awst_lookup = {n.id: n for n in awst}
     compilation_set = {
-        target_id: determine_out_dir(
-            awst_lookup[target_id].source_location.file.parent, puyapy_options
-        )
-        for target_id in compilation_set
-        if awst_lookup[target_id].source_location.file in narrowed_sources_by_path
+        target_id: determine_out_dir(loc.file.parent, puyapy_options)
+        for target_id, loc in ((t, awst_lookup[t].source_location) for t in compilation_set)
+        if loc.file in narrowed_sources_by_path
     }
     return narrowed_sources_by_path, compilation_set
 
@@ -137,7 +135,7 @@ def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
 
 
 def get_relative_path(location: SourceLocation | None, root_dir: Path) -> Path | None:
-    if not location:
+    if not location or not location.file:
         return None
     try:
         return location.file.relative_to(root_dir)
