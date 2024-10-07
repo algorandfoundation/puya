@@ -1722,9 +1722,13 @@ class Contract(RootNode):
     """
     The entry point to the clear-state program, can appear in methods, but not required.
     """
-    methods: Sequence[ContractMethod]  # TODO: change to Collection
+    methods: Sequence[ContractMethod] = attrs.field(
+        converter=tuple[ContractMethod, ...]
+    )  # TODO: change to Collection
     """All the methods in this contract and in it's entire hierarchy."""
-    app_state: Sequence[AppStorageDefinition]  # TODO: change to Collection
+    app_state: Sequence[AppStorageDefinition] = attrs.field(
+        converter=tuple[AppStorageDefinition, ...]
+    )  # TODO: change to Collection
     """All the app storage on this contract."""
     state_totals: StateTotals | None
     """State totals which can override in part or in full those implied by `app_state`."""
