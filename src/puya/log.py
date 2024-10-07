@@ -316,7 +316,13 @@ class _Logger:
         **kwargs: typing.Any,
     ) -> None:
         log_ctx = _current_ctx.get(None)
-        if level >= LogLevel.error and location and log_ctx and log_ctx.sources_by_path:
+        if (
+            level >= LogLevel.error
+            and location
+            and log_ctx
+            and log_ctx.sources_by_path
+            and location.file
+        ):
             file_source = log_ctx.sources_by_path.get(location.file)
             if file_source is not None:
                 kwargs["related_lines"] = _get_pretty_source(file_source, location)

@@ -24,7 +24,7 @@ class CompileContext:
 def try_get_source(
     sources_by_path: Mapping[Path, Sequence[str] | None], location: SourceLocation | None
 ) -> Sequence[str] | None:
-    if not location:
+    if not location or not location.file:
         return None
     source_lines = sources_by_path.get(location.file)
     if source_lines is None:
