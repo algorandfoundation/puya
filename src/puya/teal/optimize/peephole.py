@@ -1,7 +1,7 @@
 import attrs
 
 from puya.teal import models
-from puya.teal._util import preserve_stack_manipulations_window
+from puya.teal._util import preserve_stack_manipulations
 from puya.teal.optimize._data import (
     COMMUTATIVE_OPS,
     LOAD_OP_CODES,
@@ -35,7 +35,7 @@ def peephole(block: models.TealBlock, opt_level: int) -> bool:
         if modified:
             assert window is not None
             any_modified = True
-            preserve_stack_manipulations_window(result, window, new_values)
+            preserve_stack_manipulations(result, window, new_values)
         else:
             stack_height += result[start_idx].stack_height_delta
             start_idx += 1  # go to next
