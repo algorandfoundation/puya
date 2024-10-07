@@ -27,15 +27,15 @@ class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         txn = params.submit()
-        self.cant_pass_inner_txn(  ## E: inner transactions cannot be used as a subroutine argument or return value
+        self.cant_pass_inner_txn( ## E: inner transactions cannot be used as a subroutine argument or return value
             txn
         )
-        txn2 = self.cant_return_inner_txn()  ## E: inner transactions can not be used like this
+        txn2 = self.cant_return_inner_txn() ## E: inner transactions can not be used like this
         if (
-            txn3 := params.submit()  ## E: inner transactions cannot be used in assignment expressions
+            txn3 := params.submit() ## E: inner transactions cannot be used in assignment expressions
         ).created_app:
             pass
-        txn4 = txn  ## E: inner transactions can not be used like this
+        txn4 = txn
         return True
 
     def clear_state_program(self) -> bool:
@@ -44,11 +44,11 @@ class MyContract(Contract):
     @subroutine
     def cant_pass_inner_txn(
         self,
-        txn: itxn.InnerTransactionResult,  ## E: inner transactions cannot be used as a subroutine argument or return value
+        txn: itxn.InnerTransactionResult, ## E: inner transactions cannot be used as a subroutine argument or return value
     ) -> None:
         assert txn.type
 
-    @subroutine  ## E: inner transactions cannot be used as a subroutine argument or return value
+    @subroutine ## E: inner transactions cannot be used as a subroutine argument or return value
     def cant_return_inner_txn(self) -> itxn.InnerTransactionResult:
         return itxn.InnerTransaction(type=TransactionType.Payment).submit()
 

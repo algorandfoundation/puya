@@ -196,6 +196,8 @@ def _is_assignable_itxn_expr(expr: awst_nodes.Expression) -> bool:
     if not _is_itxn_wtype(expr.wtype):  # non itxn expressions are assignable
         return True
     match expr:
+        case awst_nodes.VarExpression():  # local itxn expressions can be copied
+            return True
         case awst_nodes.SubmitInnerTransaction():  # submit expressions are assignable
             return True
         case awst_nodes.TupleExpression(
@@ -208,6 +210,10 @@ def _is_assignable_itxn_expr(expr: awst_nodes.Expression) -> bool:
             return _is_assignable_itxn_expr(base)
         case awst_nodes.SingleEvaluation(source=source):
             return _is_assignable_itxn_expr(source)
+        case awst_nodes.SliceExpression(
+            base=base, wtype=wtypes.WTuple()
+        ):  # tuple slices can be assigned if base can be
+            return _is_assignable_itxn_expr(base)
     # anything else is not considered assignable
     return False
 

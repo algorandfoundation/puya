@@ -4,7 +4,7 @@ from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Register, Value, ValueProvider, ValueTuple
-from puya.ir.types_ import get_wtype_arity, sum_wtypes_arity, wtype_to_ir_type
+from puya.ir.types_ import IRType, get_wtype_arity, sum_wtypes_arity, wtype_to_ir_type
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -42,27 +42,23 @@ def build_tuple_registers(
     wtype: wtypes.WType,
     source_location: SourceLocation | None,
 ) -> list[Register]:
-    if not isinstance(wtype, wtypes.WTuple):
-        return [
-            context.ssa.new_register(
-                base_name,
-                wtype_to_ir_type(wtype, source_location),
-                source_location,
-            )
-        ]
     return [
-        reg
-        for idx, item_type in enumerate(wtype.types)
-        for reg in build_tuple_registers(
-            context, format_tuple_index(base_name, idx), item_type, source_location
-        )
+        context.ssa.new_register(name, ir_type, source_location)
+        for name, ir_type in build_tuple_item_names(base_name, wtype, source_location)
     ]
 
 
 def build_tuple_item_names(
-    context: IRFunctionBuildContext,
     base_name: str,
-    wtype: wtypes.WTuple,
+    wtype: wtypes.WType,
     source_location: SourceLocation | None,
-) -> list[str]:
-    return [r.name for r in build_tuple_registers(context, base_name, wtype, source_location)]
+) -> list[tuple[str, IRType]]:
+    if not isinstance(wtype, wtypes.WTuple):
+        return [(base_name, wtype_to_ir_type(wtype, source_location))]
+    return [
+        reg
+        for idx, item_type in enumerate(wtype.types)
+        for reg in build_tuple_item_names(
+            format_tuple_index(base_name, idx), item_type, source_location
+        )
+    ]
