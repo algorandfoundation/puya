@@ -20,11 +20,12 @@ test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program:
     txn Sender
     dup
     len
-    int 32
+    pushint 32 // 32
     uncover 1
     ==
     assert // Address length is 32 bytes
     dup
+    cover 1
     cover 2
     // arc4_types/reference_types.py:13-15
     // # When using from_bytes, no validation is performed as per all implementations of
@@ -34,17 +35,19 @@ test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program:
     cover 2
     // arc4_types/reference_types.py:16
     // assert sender_address == checked_address and checked_address == unchecked_address
+    uncover 1
+    uncover 1
     ==
     bz main_bool_false@3
     dig 1
     dig 1
     ==
     bz main_bool_false@3
-    int 1
+    pushint 1 // 1
     b main_bool_merge@4
 
 main_bool_false@3:
-    int 0
+    pushint 0 // 0
 
 main_bool_merge@4:
     // arc4_types/reference_types.py:16
@@ -53,10 +56,10 @@ main_bool_merge@4:
     // arc4_types/reference_types.py:18
     // assert arc4.Address() == "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"
     global ZeroAddress
-    addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
+    pushbytes base32(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
     ==
     assert
     // arc4_types/reference_types.py:19
     // return True
-    int 1
+    pushint 1 // 1
     return

@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from pathlib import Path
 
 from puya import log
 from puya.awst.nodes import ContractFragment, LogicSignature, RootNode
@@ -67,7 +66,7 @@ def _algopy_arc4_module(ctx: ASTConversionContext) -> list[RootNode]:
         ReturnStatement,
     )
 
-    location = SourceLocation(file=Path("/algopy/arc4.py"), line=1)
+    location = SourceLocation(file=None, line=1)
     _, class_name = constants.ARC4_CONTRACT_BASE.rsplit(".", maxsplit=1)
     cref = ContractReference(constants.ARC4_CONTRACT_BASE)
     ctx.set_state_defs(cref, {})

@@ -68,10 +68,11 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
                 output_awst_json(nodes, awst_out_dir)
         awst_lookup = {n.id: n for n in awst}
         compilation_set = {
-            target_id: determine_out_dir(
-                awst_lookup[target_id].source_location.file.parent, puyapy_options
+            target_id: determine_out_dir(loc.file.parent, puyapy_options)
+            for target_id, loc in (
+                (t, awst_lookup[t].source_location) for t in compilation_targets
             )
-            for target_id in compilation_targets
+            if loc.file
         }
         teal = awst_to_teal(
             log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst

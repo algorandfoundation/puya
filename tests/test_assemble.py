@@ -7,6 +7,7 @@ from _pytest.mark import ParameterSet
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
 from puya.context import CompileContext
+from puya.mir.models import Signature
 from puya.models import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.options import PuyaOptions
 from puya.teal import models as teal
@@ -49,7 +50,6 @@ def test_assemble_matches_algod(
         output_teal=False,
         output_arc32=False,
         output_bytecode=True,
-        match_algod_bytecode=True,
         out_dir=Path("out"),
         template_vars_prefix=prefix,
         cli_template_definitions=template_vars,
@@ -68,34 +68,6 @@ def test_assemble_matches_algod(
                 assemble_and_compare_program(
                     options, algod_client, logic_sig, f"{artifact.metadata.ref}-logicsig"
                 )
-
-
-@pytest.mark.parametrize("optimization_level", [0, 1, 2])
-def test_assemble(case: PuyaExample, optimization_level: int) -> None:
-    prefix, template_vars = load_template_vars(case.template_vars_path)
-    compile_src_from_options(
-        PuyaPyOptions(
-            paths=(case.path,),
-            optimization_level=optimization_level,
-            debug_level=0,
-            output_teal=False,
-            output_arc32=False,
-            output_bytecode=True,
-            out_dir=Path("out"),
-            template_vars_prefix=prefix,
-            cli_template_definitions=template_vars,
-        )
-    )
-
-
-def _value_as_tmpl_str(value: int | bytes | str) -> str:
-    match value:
-        case int(int_value):
-            return str(int_value)
-        case bytes(bytes_value):
-            return f"0x{bytes_value.hex()}"
-        case str(str_value):
-            return repr(str_value)
 
 
 def assemble_and_compare_program(
@@ -156,6 +128,7 @@ def test_assemble_last_op_jump() -> None:
                 source_location=None,
             )
         ],
+        x_stack_in=(),
         entry_stack_height=0,
         exit_stack_height=0,
     )
@@ -168,9 +141,11 @@ def test_assemble_last_op_jump() -> None:
             sources_by_path={},
         ),
         program=teal.TealProgram(
+            id="",
             target_avm_version=10,
             main=teal.TealSubroutine(
-                signature="",
+                is_main=True,
+                signature=Signature(name="", parameters=(), returns=()),
                 blocks=[looping_block],
             ),
             subroutines=[],

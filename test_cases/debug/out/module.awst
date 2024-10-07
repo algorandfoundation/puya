@@ -1,0 +1,69 @@
+contract DebugContract extends (algopy.arc4.ARC4Contract)
+{
+  baremethod __algopy_default_create(): void
+  {
+  }
+  
+  abimethod test(x: uint64, y: uint64, z: uint64): uint64
+  {
+    a: uint64 = x * TemplateVar[uint64](TMPL_A_MULT)
+    b: uint64 = x + y
+    c: uint64 = b * z
+    if (b < c) {
+      a: uint64 = a + y
+    } else {
+      if (a < c) {
+        a: uint64 = a + z
+      } else {
+        if (b < a) {
+          a: uint64 = a * 3u
+        } else {
+          if (b > a) {
+            b: uint64 = b + a
+          }
+        }
+      }
+    }
+    if (a + b < c) {
+      a *= test_cases.debug.contract.some_func(a, y)
+    } else {
+      b *= test_cases.debug.contract.some_func(b, z)
+    }
+    bee: bytes = test_cases.debug.contract.itoa(b)
+    c: uint64 = a + b
+    cea: bytes = test_cases.debug.contract.itoa(c)
+    if (a < c) {
+      a += c
+    }
+    if (a < b) {
+      a += b
+    }
+    if (a < b + c) {
+      a: uint64 = a * z
+    }
+    aye: bytes = test_cases.debug.contract.itoa(a)
+    log(concat(concat(concat(concat(aye, ' '), bee), ' '), cea))
+    return a
+  }
+}
+
+subroutine some_func(a: uint64, b: uint64): uint64
+{
+  a += b
+  b *= a
+  a += b
+  a *= 2u
+  x: uint64 = a + b
+  y: uint64 = a * b
+  return (x < y) ? (x) : (y)
+}
+
+subroutine itoa(i: uint64): bytes
+{
+  digits: bytes = hex<"30313233343536373839">
+  radix: uint64 = len(digits)
+  if (i < radix) {
+    return digits[i]
+  }
+  return test_cases.debug.contract.itoa(i // radix) + digits[i % radix]
+}

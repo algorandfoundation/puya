@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
+from cattrs.preconf.json import make_converter
 from immutabledict import immutabledict
 
 from puya import log
@@ -29,6 +30,7 @@ from puya.models import (
     CompiledProgram,
     ContractMetaData,
     ContractReference,
+    DebugInfo,
     LogicSignatureMetaData,
     LogicSigReference,
     TemplateValue,
@@ -167,7 +169,8 @@ def _ir_to_teal(
 class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
-    bytecode: bytes | None
+    debug_info: DebugInfo | None = None
+    bytecode: bytes | None = None
 
 
 @attrs.frozen
@@ -186,12 +189,24 @@ class _CompiledLogicSig(CompiledLogicSig):
 
 
 def _dummy_program() -> _CompiledProgram:
+    from puya.mir.models import Signature
+
     return _CompiledProgram(
         teal=TealProgram(
-            target_avm_version=0, main=TealSubroutine(signature="", blocks=[]), subroutines=[]
+            id="",
+            target_avm_version=0,
+            main=TealSubroutine(
+                is_main=True,
+                signature=Signature(
+                    name="",
+                    parameters=(),
+                    returns=(),
+                ),
+                blocks=[],
+            ),
+            subroutines=[],
         ),
         teal_src="",
-        bytecode=b"",
     )
 
 
@@ -239,18 +254,17 @@ def _logic_sig_to_teal(
 
 
 def _compile_program(context: CompileContext, program: TealProgram) -> _CompiledProgram:
+    assembled = assemble_program(
+        context,
+        program,
+        template_variables={k: (v, None) for k, v in context.options.template_variables.items()},
+        debug_only=not context.options.output_bytecode,
+    )
     return _CompiledProgram(
         teal=program,
         teal_src=emit_teal(context, program),
-        bytecode=(
-            assemble_program(
-                context,
-                program,
-                {k: (v, None) for k, v in context.options.template_variables.items()},
-            ).bytecode
-            if context.options.output_bytecode
-            else None
-        ),
+        bytecode=assembled.bytecode if context.options.output_bytecode else None,
+        debug_info=assembled.debug_info,
     )
 
 
@@ -300,6 +314,37 @@ def _write_artifacts(
                 artifact_base_path,
                 {f"{suffix}.bin": program.bytecode for suffix, program in programs.items()},
             )
+        if context.options.output_source_map:
+            _write_output(
+                artifact_base_path,
+                {
+                    f"{suffix}.puya.map": (
+                        _debug_info_as_json(program.debug_info, out_dir)
+                        if program.debug_info
+                        else None
+                    )
+                    for suffix, program in programs.items()
+                },
+            )
+
+
+_debug_info_converter = make_converter(omit_if_default=True)
+
+
+def _debug_info_as_json(info: DebugInfo, base_path: Path) -> bytes:
+    # make sources relative to output
+    info = attrs.evolve(
+        info, sources=[str(_try_make_relative_to(Path(s), base_path)) for s in info.sources]
+    )
+    json = _debug_info_converter.dumps(info, DebugInfo, indent=2)
+    return json.encode("utf-8")
+
+
+def _try_make_relative_to(path: Path, relative_to: Path) -> Path:
+    try:
+        return path.relative_to(relative_to, walk_up=True)
+    except ValueError:
+        return path
 
 
 def _write_output(base_path: Path, programs: dict[str, bytes | None]) -> None:

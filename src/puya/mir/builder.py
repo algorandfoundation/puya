@@ -1,4 +1,5 @@
 import typing
+from collections.abc import Sequence
 
 import attrs
 
@@ -40,7 +41,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 param_idx = self.current_subroutine.parameters.index(target)
             except ValueError:
                 self._add_op(
-                    models.StoreVirtual(
+                    models.AbstractStore(
                         local_id=target.local_id,
                         source_location=ass.source_location,
                         atype=target.atype,
@@ -58,21 +59,37 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
 
     def visit_register(self, reg: ir.Register) -> None:
+        produces = (reg.local_id,)
+        if isinstance(self.active_op, ir.Assignment):
+            if reg is self.active_op.source:
+                (target,) = self.active_op.targets
+                produces = (target.local_id,)
+            elif (
+                isinstance(self.active_op.source, ir.ValueTuple)
+                and reg in self.active_op.source.values
+            ):
+                index = self.active_op.source.values.index(reg)
+                target = self.active_op.targets[index]
+                produces = (target.local_id,)
         try:
             param_idx = self.current_subroutine.parameters.index(reg)
         except ValueError:
             self._add_op(
-                models.LoadVirtual(
+                models.AbstractLoad(
                     local_id=reg.local_id,
+                    produces=produces,
                     source_location=(self.active_op or reg).source_location,
                     atype=reg.atype,
                 )
             )
         else:
             index = param_idx - len(self.current_subroutine.parameters)
+            if produces[0] == reg.local_id:
+                produces = (f"{produces[0]} (copy)",)
             self._add_op(
                 models.LoadParam(
                     local_id=reg.local_id,
+                    produces=produces,
                     index=index,
                     source_location=(self.active_op or reg).source_location,
                     atype=reg.atype,
@@ -150,7 +167,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 immediates=intrinsic.immediates,
                 source_location=intrinsic.source_location,
                 consumes=len(intrinsic.op_signature.args),
-                produces=produces,
+                produces=_produces_from_op(intrinsic.op.code, produces, self.active_op),
                 comment=intrinsic.comment,
             )
         )
@@ -165,6 +182,9 @@ class MemoryIRBuilder(IRVisitor[None]):
             target=self.context.subroutine_names[target],
             parameters=len(target.parameters),
             returns=len(target.returns),
+            produces=_produces_from_op(
+                self.context.subroutine_names[target], len(target.returns), self.active_op
+            ),
             source_location=callsub.source_location,
         )
 
@@ -238,7 +258,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 op_code="return",
                 source_location=retsub.source_location,
                 consumes=len(retsub.result),
-                produces=0,
+                produces=(),
             )
             if self.is_main
             else models.RetSub(source_location=retsub.source_location, returns=len(retsub.result))
@@ -251,7 +271,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 op_code="return",
                 source_location=exit_.source_location,
                 consumes=0,
-                produces=0,
+                produces=(),
             )
         )
 
@@ -262,11 +282,11 @@ class MemoryIRBuilder(IRVisitor[None]):
                 comment=fail.comment,
                 source_location=fail.source_location,
                 consumes=0,
-                produces=0,
+                produces=(),
             )
         )
 
-    def lower_block_to_teal(
+    def lower_block_to_mir(
         self, block: ir.BasicBlock, next_block: ir.BasicBlock | None
     ) -> models.MemoryBasicBlock:
         self.next_block = next_block
@@ -326,3 +346,12 @@ def _unexpected_node(node: ir.IRVisitable) -> typing.Never:
         f" - should have been eliminated in prior stages",
         node.source_location,
     )
+
+
+def _produces_from_op(
+    prefix: str, size: int, maybe_assignment: ir.IRVisitable | None
+) -> Sequence[str]:
+    produces = models.produces_from_desc(prefix, size)
+    if isinstance(maybe_assignment, ir.Assignment):
+        produces = [r.local_id for r in maybe_assignment.targets]
+    return produces

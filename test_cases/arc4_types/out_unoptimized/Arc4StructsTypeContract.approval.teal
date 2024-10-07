@@ -1,39 +1,46 @@
 #pragma version 10
 
 test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
+    intcblock 0 8 1 2
+    bytecblock 0x00 0x 0x000000083cfbf217 0x000000230384b842
     // arc4_types/structs.py:27
     // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
-    byte 0x
-    byte 0x000000083cfbf217
+    bytec_1 // 0x
+    bytec_2 // 0x000000083cfbf217
     concat
-    byte 0x000000230384b842
+    bytec_3 // 0x000000230384b842
     concat
     dup
     cover 1
+    cover 1
     // arc4_types/structs.py:28
     // coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))
-    byte 0x
-    byte 0x000000083cfbf217
+    bytec_1 // 0x
+    bytec_2 // 0x000000083cfbf217
     concat
-    byte 0x000000230384b842
+    bytec_3 // 0x000000230384b842
     concat
     // arc4_types/structs.py:29
     // coord_3 = add(coord_1.copy(), coord_2.copy())
+    uncover 1
+    cover 1
+    uncover 1
+    uncover 1
     callsub add
     pop
     pop
     // arc4_types/structs.py:30
     // for val in (coord_3.x, coord_3.y):
     dup
-    int 0
-    int 8
+    intc_0 // 0
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
     cover 1
-    int 8
-    int 8
+    intc_1 // 8
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
     cover 1
-    int 0
+    intc_0 // 0
     cover 1
 
 main_for_body@1:
@@ -47,7 +54,7 @@ main_for_body@1:
     b main_after_for@4
 
 main_for_header_1@3:
-    int 1
+    intc_2 // 1
     bury 1
     // arc4_types/structs.py:30
     // for val in (coord_3.x, coord_3.y):
@@ -57,46 +64,46 @@ main_for_header_1@3:
 main_after_for@4:
     // arc4_types/structs.py:33
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
-    byte 0x00
-    int 0
-    int 1
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_2 // 1
     setbit
-    byte 0x00
-    int 0
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_0 // 0
     setbit
-    byte 0x00
-    int 0
-    int 1
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_2 // 1
     setbit
     cover 2
-    byte 0x00
-    int 0
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
+    intc_0 // 0
     setbit
     cover 3
-    byte 0x
+    bytec_1 // 0x
     uncover 2
     concat
     uncover 1
-    int 0
+    intc_0 // 0
     getbit
     uncover 1
-    int 1
+    intc_2 // 1
     uncover 2
     setbit
     uncover 1
-    int 0
+    intc_0 // 0
     getbit
     uncover 1
-    int 2
+    intc_3 // 2
     uncover 2
     setbit
     uncover 1
-    int 0
+    intc_0 // 0
     getbit
     uncover 1
-    int 3
+    pushint 3 // 3
     uncover 2
     setbit
     // arc4_types/structs.py:34
@@ -112,12 +119,15 @@ main_after_for@4:
     // assert Vector.from_bytes(coord_1.bytes).bytes == coord_1.bytes
     dig 3
     dup
+    cover 1
     dig 1
     ==
     assert
     // arc4_types/structs.py:38
     // nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
-    byte 0x
+    uncover 1
+    cover 1
+    bytec_1 // 0x
     uncover 1
     concat
     uncover 1
@@ -126,7 +136,7 @@ main_after_for@4:
     pop
     // arc4_types/structs.py:40
     // return True
-    int 1
+    intc_2 // 1
     return
 
 
@@ -139,31 +149,35 @@ add:
     // arc4_types/structs.py:49
     // x=add_decimal(v1.x, v2.x),
     frame_dig -2
-    int 0
-    int 8
+    intc_0 // 0
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
     frame_dig -1
-    int 0
-    int 8
+    intc_0 // 0
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
+    uncover 1
+    uncover 1
     callsub add_decimal
     // arc4_types/structs.py:50
     // y=add_decimal(v1.y, v2.y),
     frame_dig -2
-    int 8
-    int 8
+    intc_1 // 8
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
     frame_dig -1
-    int 8
-    int 8
+    intc_1 // 8
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
+    uncover 1
+    uncover 1
     callsub add_decimal
     // arc4_types/structs.py:48-51
     // return Vector(
     //     x=add_decimal(v1.x, v2.x),
     //     y=add_decimal(v1.y, v2.y),
     // )
-    byte 0x
+    bytec_1 // 0x
     uncover 2
     concat
     uncover 1
@@ -185,6 +199,8 @@ add_decimal:
     btoi
     frame_dig -1
     btoi
+    uncover 1
+    uncover 1
     +
     itob
     retsub
@@ -199,50 +215,50 @@ check:
     // arc4_types/structs.py:56
     // assert flags.a.native
     frame_dig -1
-    int 0
+    intc_0 // 0
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert
     // arc4_types/structs.py:57
     // assert not flags.b.native
     frame_dig -1
-    int 1
+    intc_2 // 1
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     !
     assert
     // arc4_types/structs.py:58
     // assert flags.c.native
     frame_dig -1
-    int 2
+    intc_3 // 2
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert
     // arc4_types/structs.py:59
     // assert not flags.d.native
     frame_dig -1
-    int 3
+    pushint 3 // 3
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     !
     assert
@@ -259,29 +275,31 @@ nested_decode:
     // arc4_types/structs.py:64
     // assert vector_flags.vector.x.bytes == op.itob(35382882839)
     frame_dig -1
-    int 0
-    int 16
+    intc_0 // 0
+    pushint 16 // 16
     extract3 // on error: Index access is out of bounds
-    int 0
-    int 8
+    intc_0 // 0
+    intc_1 // 8
     extract3 // on error: Index access is out of bounds
-    int 35382882839
+    pushint 35382882839 // 35382882839
     itob
+    uncover 1
+    uncover 1
     ==
     assert
     // arc4_types/structs.py:65
     // assert vector_flags.flags.c.native
     frame_dig -1
-    int 16
-    int 1
+    pushint 16 // 16
+    intc_2 // 1
     extract3 // on error: Index access is out of bounds
-    int 2
+    intc_3 // 2
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert
     frame_dig -1
