@@ -14,14 +14,14 @@ from puya.arc32 import create_arc32_json
 from puya.models import CompiledContract, DebugInfo
 from puyapy.options import PuyaPyOptions
 
-from tests import EXAMPLES_DIR
+from tests import TEST_CASES_DIR
 from tests.utils import compile_src_from_options
 
 pytestmark = pytest.mark.localnet
 
 
 def test_debug(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    contract_src = EXAMPLES_DIR / "debug" / "contract.py"
+    contract_src = TEST_CASES_DIR / "debug" / "contract.py"
     result = compile_src_from_options(
         PuyaPyOptions(
             paths=(contract_src,),
