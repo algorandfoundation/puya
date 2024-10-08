@@ -1,4 +1,12 @@
 # CHANGELOG
+## v3.2.2 (2024-10-08)
+
+### Fix
+
+* assigning transaction result from algopy.arc4.abi_call containing other transactions no longer causes an error ([`125e85e`](https://github.com/algorandfoundation/puya/commit/125e85ecda39f36a07beb7db20af17b751291566))
+
+* fixed incorrect typing of `algopy.arc4.abi_call` parameters `global_num_uint`, `global_num_bytes`, `local_num_uint`, `local_num_bytes` and `extra_program_pages` ([`e464ca2`](https://github.com/algorandfoundation/puya/commit/e464ca291c94e573099dfa00a8cc75726e401641))
+
 ## v3.2.1 (2024-10-04)
 
 ### Fix
