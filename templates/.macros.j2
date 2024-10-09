@@ -1,8 +1,9 @@
 {%- macro render_type_commits(type_commits) -%}
 {%- for type_ in ("breaking", "feature", "performance", "fix", "documentation") -%}
-{%- if type_ in type_commits %}
+{% set commits = type_commits[type_]|rejectattr("scope", "eq", "internal")|list -%}
+{%- if commits|length > 0 %}
 ### {{ type_ | capitalize }}
-{% for commit in type_commits[type_] %}
+{% for commit in commits %}
 * {{ commit["descriptions"][0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
 {% set ns = namespace(skip_line=false) -%}
 {%- for line in commit["descriptions"][1:] -%}
