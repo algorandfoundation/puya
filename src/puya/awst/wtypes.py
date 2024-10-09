@@ -158,37 +158,37 @@ class WInnerTransaction(_TransactionRelatedWType):
 
 
 @typing.final
-@attrs.frozen(init=False)
+@attrs.frozen
 class WStructType(WType):
     fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
     scalar_type: None = attrs.field(default=None, init=False)
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
-    def __init__(
-        self,
-        fields: Mapping[str, WType],
-        *,
-        name: str,
-        immutable: bool,
-        source_location: SourceLocation | None,
-    ):
+    @fields.validator
+    def _fields_validator(self, _: object, fields: Mapping[str, WType]) -> None:
         if not fields:
-            raise CodeError("struct needs fields", source_location)
+            raise CodeError("struct needs fields", self.source_location)
         if void_wtype in fields.values():
-            raise CodeError("struct should not contain void types", source_location)
-        self.__attrs_init__(name=name, fields=fields, immutable=immutable)
+            raise CodeError("struct should not contain void types", self.source_location)
 
 
 @typing.final
-@attrs.frozen(init=False)
+@attrs.frozen
 class WArray(WType):
-    element_type: WType
+    element_type: WType = attrs.field()
+    name: str = attrs.field(init=False)
     scalar_type: None = attrs.field(default=None, init=False)
+    source_location: SourceLocation | None = attrs.field(eq=False)
+    immutable: bool = attrs.field(default=False, init=False)
 
-    def __init__(self, element_type: WType, source_location: SourceLocation | None):
+    @element_type.validator
+    def _element_type_validator(self, _: object, element_type: WType) -> None:
         if element_type == void_wtype:
-            raise CodeError("array element type cannot be void", source_location)
-        name = f"array<{element_type.name}>"
-        self.__attrs_init__(name=name, element_type=element_type, immutable=False)
+            raise CodeError("array element type cannot be void", self.source_location)
+
+    @name.default
+    def _name(self) -> str:
+        return f"array<{self.element_type.name}>"
 
 
 @typing.final
