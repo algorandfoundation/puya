@@ -200,7 +200,7 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
 
 
 @attrs.frozen
-class PuyaExample:
+class PuyaTestCase:
     root: Path
     name: str
 
@@ -216,15 +216,6 @@ class PuyaExample:
     @property
     def id(self) -> str:
         return f"{self.root.stem}_{self.name}"
-
-
-def get_all_examples() -> list[PuyaExample]:
-    return [
-        PuyaExample(root, item.name)
-        for root in (EXAMPLES_DIR, TEST_CASES_DIR)
-        for item in root.iterdir()
-        if item.is_dir() and any(item.glob("*.py"))
-    ]
 
 
 def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:

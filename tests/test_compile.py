@@ -2,22 +2,18 @@ import os
 import shutil
 import subprocess
 import typing
-from collections.abc import Iterable
 from fnmatch import fnmatch
 from pathlib import Path
 
 import attrs
-import pytest
-from _pytest.mark import ParameterSet
 from puya import log
 from puyapy.options import PuyaPyOptions
 
 from tests import VCS_ROOT
 from tests.utils import (
     APPROVAL_EXTENSIONS,
-    PuyaExample,
+    PuyaTestCase,
     compile_src_from_options,
-    get_all_examples,
     get_relative_path,
     load_template_vars,
 )
@@ -29,6 +25,15 @@ ENV_WITH_NO_COLOR = dict(os.environ) | {
 SUFFIX_O0 = "_unoptimized"
 SUFFIX_O1 = ""
 SUFFIX_O2 = "_O2"
+
+
+def test_compile(test_case: PuyaTestCase) -> None:
+    remove_output(test_case.path)
+    compile_no_optimization(test_case)
+    compile_with_level1_optimizations(test_case)
+    compile_with_level2_optimizations(test_case)
+    diff = check_for_diff(test_case.path)
+    assert diff is None, f"Uncommitted changes were found:\n{diff}"
 
 
 def _should_output(path: Path, puyapy_options: PuyaPyOptions) -> bool:
@@ -47,7 +52,7 @@ def _should_output(path: Path, puyapy_options: PuyaPyOptions) -> bool:
 
 
 def compile_test_case(
-    test_case: PuyaExample, suffix: str, log_path: Path | None = None, **options: typing.Any
+    test_case: PuyaTestCase, suffix: str, log_path: Path | None = None, **options: typing.Any
 ) -> None:
     path = test_case.path.resolve()
     if path.is_dir():
@@ -98,7 +103,7 @@ def _log_to_str(log: log.Log, root_dir: Path) -> str:
     return f"{location}{log.level}: {log.message}"
 
 
-def compile_no_optimization(test_case: PuyaExample) -> None:
+def compile_no_optimization(test_case: PuyaTestCase) -> None:
     compile_test_case(
         test_case,
         SUFFIX_O0,
@@ -109,7 +114,7 @@ def compile_no_optimization(test_case: PuyaExample) -> None:
     )
 
 
-def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
+def compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
     compile_test_case(
         test_case,
         SUFFIX_O1,
@@ -128,7 +133,7 @@ def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
     )
 
 
-def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
+def compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
     compile_test_case(
         test_case,
         SUFFIX_O2,
@@ -138,15 +143,6 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
         output_bytecode=True,
         output_destructured_ir=True,
     )
-
-
-def get_test_cases() -> Iterable[ParameterSet]:
-    for example in get_all_examples():
-        if example.name == "stress_tests":
-            marks = [pytest.mark.slow]
-        else:
-            marks = []
-        yield ParameterSet.param(example, marks=marks, id=example.id)
 
 
 def remove_output(path: Path) -> None:
@@ -177,16 +173,3 @@ def check_for_diff(path: Path) -> str | None:
         )
         stdout += result.stdout.decode("utf8")
     return stdout or None
-
-
-def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    metafunc.parametrize("case", get_test_cases())
-
-
-def test_cases(case: PuyaExample) -> None:
-    remove_output(case.path)
-    compile_no_optimization(case)
-    compile_with_level1_optimizations(case)
-    compile_with_level2_optimizations(case)
-    diff = check_for_diff(case.path)
-    assert diff is None, f"Uncommitted changes were found:\n{diff}"

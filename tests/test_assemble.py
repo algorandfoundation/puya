@@ -1,9 +1,8 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from pathlib import Path
 
 import algosdk.error
 import pytest
-from _pytest.mark import ParameterSet
 from algokit_utils import Program
 from algosdk.v2client.algod import AlgodClient
 from puya.context import CompileContext
@@ -15,36 +14,20 @@ from puya.ussemble.main import assemble_program
 from puyapy.options import PuyaPyOptions
 
 from tests.utils import (
-    PuyaExample,
+    PuyaTestCase,
     compile_src_from_options,
-    get_all_examples,
     load_template_vars,
 )
-
-
-def get_test_cases() -> Iterable[ParameterSet]:
-    for example in get_all_examples():
-        marks = []
-        if example.name == "stress_tests":
-            marks.append(pytest.mark.slow)
-        yield ParameterSet.param(example, marks=marks, id=example.id)
-
-
-def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    if metafunc.definition.name == "test_assemble_last_op_jump":
-        pass
-    else:
-        metafunc.parametrize("case", get_test_cases())
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
 @pytest.mark.localnet()
 def test_assemble_matches_algod(
-    algod_client: AlgodClient, case: PuyaExample, optimization_level: int
+    algod_client: AlgodClient, test_case: PuyaTestCase, optimization_level: int
 ) -> None:
-    prefix, template_vars = load_template_vars(case.template_vars_path)
+    prefix, template_vars = load_template_vars(test_case.template_vars_path)
     options = PuyaPyOptions(
-        paths=(case.path,),
+        paths=(test_case.path,),
         optimization_level=optimization_level,
         debug_level=0,
         output_bytecode=True,
