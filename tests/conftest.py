@@ -1,6 +1,7 @@
 from random import randbytes
 
 import pytest
+from _pytest.mark import ParameterSet
 from algokit_utils import (
     Account,
     get_algod_client,
@@ -11,6 +12,27 @@ from algosdk import transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
 from puya import log
+
+from tests import EXAMPLES_DIR, TEST_CASES_DIR
+from tests.utils import PuyaTestCase
+
+
+def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
+    # parametrize `test_case: PuyaTestCase` based on test cases in examples and test_cases dirs
+    if "test_case" in metafunc.fixturenames:
+        # only parametrize if not already parametrized
+        mark = metafunc.definition.get_closest_marker("parametrize")
+        if not mark or "test_case" not in mark.args[0]:
+            params = [
+                ParameterSet.param(
+                    PuyaTestCase(root, item.name),
+                    marks=[pytest.mark.slow] if item.name == "stress_tests" else [],
+                )
+                for root in (EXAMPLES_DIR, TEST_CASES_DIR)
+                for item in root.iterdir()
+                if item.is_dir() and any(item.glob("*.py"))
+            ]
+            metafunc.parametrize("test_case", params, ids=lambda t: t.id)
 
 
 @pytest.fixture(autouse=True, scope="session")
