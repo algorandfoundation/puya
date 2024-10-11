@@ -16,12 +16,12 @@ __puya_arc4_router__:
     // class Greeter(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
-    method "bootstrap()uint64"
-    method "log_greetings(string)void"
+    pushbytes 0x786b6291 // method "bootstrap()uint64"
+    pushbytes 0x33fb5d48 // method "log_greetings(string)void"
     uncover 2
     match __puya_arc4_router___bootstrap_route@2 __puya_arc4_router___log_greetings_route@3
     b __puya_arc4_router___switch_case_default@4
@@ -30,31 +30,31 @@ __puya_arc4_router___bootstrap_route@2:
     // inner_transactions/c2c.py:10
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub bootstrap
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___log_greetings_route@3:
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // inner_transactions/c2c.py:6
@@ -63,7 +63,7 @@ __puya_arc4_router___log_greetings_route@3:
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     callsub log_greetings
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -73,7 +73,7 @@ __puya_arc4_router___bare_routing@6:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn OnCompletion
-    int 0
+    pushint 0 // 0
     uncover 1
     match __puya_arc4_router_____algopy_default_create@7
     b __puya_arc4_router___switch_case_default@8
@@ -82,11 +82,11 @@ __puya_arc4_router_____algopy_default_create@7:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@8:
@@ -94,7 +94,7 @@ __puya_arc4_router___switch_case_default@8:
 __puya_arc4_router___after_if_else@10:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -106,8 +106,8 @@ bootstrap:
     proto 0 1
     // inner_transactions/c2c.py:12
     // assert not self.hello_app, "already bootstrapped"
-    int 0
-    byte "hello_app"
+    pushint 0 // 0
+    pushbytes "hello_app"
     app_global_get_ex
     assert // check self.hello_app exists
     !
@@ -121,17 +121,17 @@ bootstrap:
     itxn_begin
     // inner_transactions/c2c.py:16
     // clear_state_program=HELLO_WORLD_CLEAR,
-    byte 0x0a8101
+    pushbytes 0x0a8101
     itxn_field ClearStateProgramPages
     // inner_transactions/c2c.py:15
     // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
-    byte 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
+    pushbytes 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
     itxn_field ApprovalProgramPages
     // inner_transactions/c2c.py:14
     // itxn.ApplicationCall(
-    int appl
+    pushint 6 // appl
     itxn_field TypeEnum
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // inner_transactions/c2c.py:14-18
     // itxn.ApplicationCall(
@@ -150,7 +150,7 @@ bootstrap:
     itxn CreatedApplicationID
     // inner_transactions/c2c.py:13
     // self.hello_app = (
-    byte "hello_app"
+    pushbytes "hello_app"
     // inner_transactions/c2c.py:13-20
     // self.hello_app = (
     //     itxn.ApplicationCall(
@@ -164,8 +164,8 @@ bootstrap:
     app_global_put
     // inner_transactions/c2c.py:21
     // return self.hello_app.id
-    int 0
-    byte "hello_app"
+    pushint 0 // 0
+    pushbytes "hello_app"
     app_global_get_ex
     assert // check self.hello_app exists
     retsub
@@ -185,8 +185,8 @@ log_greetings:
     itxn_begin
     // inner_transactions/c2c.py:26
     // app_id=self.hello_app,
-    int 0
-    byte "hello_app"
+    pushint 0 // 0
+    pushbytes "hello_app"
     app_global_get_ex
     assert // check self.hello_app exists
     // inner_transactions/c2c.py:24
@@ -194,15 +194,15 @@ log_greetings:
     frame_dig -1
     // inner_transactions/c2c.py:27
     // app_args=(arc4.arc4_signature("hello(string)string"), name),
-    method "hello(string)string"
+    pushbytes 0x02bece11 // method "hello(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationID
     // inner_transactions/c2c.py:25
     // hello_call = itxn.ApplicationCall(
-    int appl
+    pushint 6 // appl
     itxn_field TypeEnum
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // inner_transactions/c2c.py:25-28
     // hello_call = itxn.ApplicationCall(
@@ -213,17 +213,17 @@ log_greetings:
     itxn LastLog
     // inner_transactions/c2c.py:29
     // greeting = arc4.String.from_log(hello_call.last_log)
-    dup
+    dig 0
     extract 4 0
     cover 1
     extract 0 4
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // inner_transactions/c2c.py:30
     // log("HelloWorld returned: ", greeting.native)
-    byte "HelloWorld returned: "
-    byte ""
+    pushbytes "HelloWorld returned: "
+    pushbytes ""
     concat
     uncover 1
     extract 2 0
@@ -247,7 +247,7 @@ __init__:
     proto 0 0
     // inner_transactions/c2c.py:8
     // self.hello_app = Application()
-    byte "hello_app"
-    int 0
+    pushbytes "hello_app"
+    pushint 0 // 0
     app_global_put
     retsub

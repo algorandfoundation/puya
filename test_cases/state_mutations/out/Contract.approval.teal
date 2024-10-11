@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.state_mutations.contract.Contract.approval_program:
+    intcblock 0 1 2 8
+    bytecblock "box" "glob" "loc" "map" 0x00086d6f646966696564 0x0000
     callsub __puya_arc4_router__
     return
 
@@ -12,12 +14,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@7
-    method "append()void"
-    method "modify()void"
-    method "get()(uint64,string)[]"
+    pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
     match __puya_arc4_router___append_route@2 __puya_arc4_router___modify_route@3 __puya_arc4_router___get_route@4
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___append_route@2:
@@ -29,7 +29,7 @@ __puya_arc4_router___append_route@2:
     txn ApplicationID
     assert // is not creating
     callsub append
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___modify_route@3:
@@ -41,7 +41,7 @@ __puya_arc4_router___modify_route@3:
     txn ApplicationID
     assert // is not creating
     callsub modify
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___get_route@4:
@@ -53,11 +53,11 @@ __puya_arc4_router___get_route@4:
     txn ApplicationID
     assert // is not creating
     callsub get
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@7:
@@ -65,7 +65,7 @@ __puya_arc4_router___bare_routing@7:
     // class Contract(ARC4Contract):
     txn OnCompletion
     switch __puya_arc4_router_____algopy_default_create@8 __puya_arc4_router___opt_in@9
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router_____algopy_default_create@8:
@@ -74,7 +74,7 @@ __puya_arc4_router_____algopy_default_create@8:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___opt_in@9:
@@ -86,7 +86,7 @@ __puya_arc4_router___opt_in@9:
     // @arc4.baremethod(allow_actions=["OptIn"])
     // def opt_in(self) -> None:
     callsub opt_in
-    int 1
+    intc_1 // 1
     retsub
 
 
@@ -101,79 +101,79 @@ append:
     callsub get_struct
     // state_mutations/contract.py:39
     // self.glob.value.append(struct.copy())
-    int 0
-    byte "glob"
+    intc_0 // 0
+    bytec_1 // "glob"
     app_global_get_ex
     assert // check self.glob exists
-    byte 0x0002
+    pushbytes 0x0002
     uncover 2
     concat
     swap
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     swap
     extract 2 0
-    int 1
+    intc_1 // 1
     dig 3
     callsub dynamic_array_concat_dynamic_element
-    byte "glob"
+    bytec_1 // "glob"
     swap
     app_global_put
     // state_mutations/contract.py:40
     // self.loc[Txn.sender].append(struct.copy())
     txn Sender
-    int 0
-    byte "loc"
+    intc_0 // 0
+    bytec_2 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     swap
     extract 2 0
-    int 1
+    intc_1 // 1
     dig 3
     callsub dynamic_array_concat_dynamic_element
     txn Sender
-    byte "loc"
+    bytec_2 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:41
     // self.box.value.append(struct.copy())
-    byte "box"
+    bytec_0 // "box"
     box_get
     assert // check self.box exists
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     swap
     extract 2 0
-    int 1
+    intc_1 // 1
     dig 3
     callsub dynamic_array_concat_dynamic_element
-    byte "box"
+    bytec_0 // "box"
     box_del
     pop
-    byte "box"
+    bytec_0 // "box"
     swap
     box_put
     // state_mutations/contract.py:42
     // self.map[Txn.sender].append(struct.copy())
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     box_get
     assert // check self.map entry exists
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     swap
     extract 2 0
-    int 1
+    intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     dup
@@ -195,7 +195,7 @@ get_struct:
     //     bar=arc4.UInt64(1),
     //     baz=arc4.String("baz"),
     // )
-    byte 0x0000000000000001000a000362617a
+    pushbytes 0x0000000000000001000a000362617a
     retsub
 
 
@@ -207,26 +207,26 @@ modify:
     proto 0 0
     // state_mutations/contract.py:46
     // self.glob.value[0].baz = arc4.String("modified")
-    int 0
-    byte "glob"
+    intc_0 // 0
+    bytec_1 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     swap
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 1
     len
     swap
     dig 2
-    int 2
+    intc_2 // 2
     extract_uint16
     swap
     select
@@ -234,46 +234,46 @@ modify:
     cover 2
     substring3
     dup
-    int 8
+    intc_3 // 8
     extract_uint16
-    int 0
+    intc_0 // 0
     swap
     extract3
-    byte 0x00086d6f646966696564
+    bytec 4 // 0x00086d6f646966696564
     concat
-    int 0
-    byte "glob"
+    intc_0 // 0
+    bytec_1 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     swap
-    int 0
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    byte "glob"
+    bytec_1 // "glob"
     swap
     app_global_put
     // state_mutations/contract.py:47
     // self.loc[Txn.sender][0].baz = arc4.String("modified")
     txn Sender
-    int 0
-    byte "loc"
+    intc_0 // 0
+    bytec_2 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     swap
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 1
     len
     swap
     dig 2
-    int 2
+    intc_2 // 2
     extract_uint16
     swap
     select
@@ -281,46 +281,46 @@ modify:
     cover 2
     substring3
     dup
-    int 8
+    intc_3 // 8
     extract_uint16
-    int 0
+    intc_0 // 0
     swap
     extract3
-    byte 0x00086d6f646966696564
+    bytec 4 // 0x00086d6f646966696564
     concat
     txn Sender
-    int 0
-    byte "loc"
+    intc_0 // 0
+    bytec_2 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     swap
-    int 0
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     txn Sender
-    byte "loc"
+    bytec_2 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:48
     // self.box.value[0].baz = arc4.String("modified")
-    byte "box"
+    bytec_0 // "box"
     box_get
     assert // check self.box exists
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     swap
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 1
     len
     swap
     dig 2
-    int 2
+    intc_2 // 2
     extract_uint16
     swap
     select
@@ -328,28 +328,28 @@ modify:
     cover 2
     substring3
     dup
-    int 8
+    intc_3 // 8
     extract_uint16
-    int 0
+    intc_0 // 0
     swap
     extract3
-    byte 0x00086d6f646966696564
+    bytec 4 // 0x00086d6f646966696564
     concat
-    byte "box"
+    bytec_0 // "box"
     box_get
     assert // check self.box exists
     swap
-    int 0
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    byte "box"
+    bytec_0 // "box"
     box_del
     pop
-    byte "box"
+    bytec_0 // "box"
     swap
     box_put
     // state_mutations/contract.py:49
     // self.map[Txn.sender][0].baz = arc4.String("modified")
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     box_get
@@ -357,19 +357,19 @@ modify:
     dup
     extract 2 0
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
     cover 2
     swap
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 1
+    intc_1 // 1
     - // on error: Index access is out of bounds
     dig 1
     len
     swap
     dig 2
-    int 2
+    intc_2 // 2
     extract_uint16
     swap
     select
@@ -377,22 +377,22 @@ modify:
     cover 2
     substring3
     dup
-    int 8
+    intc_3 // 8
     extract_uint16
-    int 0
+    intc_0 // 0
     swap
     extract3
-    byte 0x00086d6f646966696564
+    bytec 4 // 0x00086d6f646966696564
     concat
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     box_get
     assert // check self.map entry exists
     swap
-    int 0
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     dup
@@ -411,27 +411,27 @@ get:
     proto 0 1
     // state_mutations/contract.py:53
     // a1 = self.glob.value.copy()
-    int 0
-    byte "glob"
+    intc_0 // 0
+    bytec_1 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     // state_mutations/contract.py:54
     // a2 = self.loc[Txn.sender].copy()
     txn Sender
-    int 0
-    byte "loc"
+    intc_0 // 0
+    bytec_2 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     // state_mutations/contract.py:55
     // a3 = self.box.value.copy()
-    byte "box"
+    bytec_0 // "box"
     box_get
     swap
     cover 2
     assert // check self.box exists
     // state_mutations/contract.py:56
     // a4 = self.map[Txn.sender].copy()
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     box_get
@@ -466,32 +466,32 @@ opt_in:
     proto 0 0
     // state_mutations/contract.py:31
     // self.glob.value = MyArray()
-    byte "glob"
-    byte 0x0000
+    bytec_1 // "glob"
+    bytec 5 // 0x0000
     app_global_put
     // state_mutations/contract.py:32
     // self.box.value = MyArray()
-    byte "box"
+    bytec_0 // "box"
     box_del
     pop
-    byte "box"
-    byte 0x0000
+    bytec_0 // "box"
+    bytec 5 // 0x0000
     box_put
     // state_mutations/contract.py:33
     // self.loc[Txn.sender] = MyArray()
     txn Sender
-    byte "loc"
-    byte 0x0000
+    bytec_2 // "loc"
+    bytec 5 // 0x0000
     app_local_put
     // state_mutations/contract.py:34
     // self.map[Txn.sender] = MyArray()
-    byte "map"
+    bytec_3 // "map"
     txn Sender
     concat
     dup
     box_del
     pop
-    byte 0x0000
+    bytec 5 // 0x0000
     box_put
     retsub
 
@@ -499,15 +499,14 @@ opt_in:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
-    byte ""
-    byte 0x
+    pushbytess "" 0x // "", 0x
     frame_dig -2
-    int 2
+    intc_2 // 2
     *
     frame_dig -4
-    int 2
+    intc_2 // 2
     *
-    int 0
+    intc_0 // 0
 
 dynamic_array_concat_dynamic_element_for_header@1:
     frame_dig 4
@@ -527,7 +526,7 @@ dynamic_array_concat_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 1
-    int 2
+    intc_2 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@1
@@ -536,7 +535,7 @@ dynamic_array_concat_dynamic_element_after_for@4:
     frame_dig -3
     len
     frame_bury 0
-    int 0
+    intc_0 // 0
     frame_bury 4
 
 dynamic_array_concat_dynamic_element_for_header@5:
@@ -557,7 +556,7 @@ dynamic_array_concat_dynamic_element_for_header@5:
     swap
     concat
     frame_bury 1
-    int 2
+    intc_2 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@5
@@ -607,15 +606,15 @@ dynamic_array_replace_dynamic_element:
 static_array_replace_dynamic_element:
     proto 4 1
     frame_dig -2
-    int 2
+    intc_2 // 2
     *
     frame_dig -4
     swap
     extract_uint16
     frame_dig -2
-    int 1
+    intc_1 // 1
     +
-    int 2
+    intc_2 // 2
     *
     dup
     cover 2
@@ -627,7 +626,7 @@ static_array_replace_dynamic_element:
     frame_dig -1
     frame_dig -2
     -
-    int 1
+    intc_1 // 1
     -
     dig 1
     uncover 3
@@ -641,7 +640,7 @@ static_array_replace_dynamic_element:
     len
     cover 3
     frame_dig -4
-    int 0
+    intc_0 // 0
     uncover 4
     substring3
     frame_dig -3
@@ -652,7 +651,7 @@ static_array_replace_dynamic_element:
     substring3
     concat
     frame_dig -1
-    int 2
+    intc_2 // 2
     *
 
 static_array_replace_dynamic_element_for_header@1:
@@ -676,7 +675,7 @@ static_array_replace_dynamic_element_for_header@1:
     swap
     replace3
     frame_bury 3
-    int 2
+    intc_2 // 2
     +
     frame_bury 0
     b static_array_replace_dynamic_element_for_header@1

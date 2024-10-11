@@ -27,7 +27,7 @@ test_cases.literals.folding.LiteralFolding.approval_program:
     callsub tuples
     // literals/folding.py:102
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -48,47 +48,47 @@ compare_str:
     proto 0 0
     // literals/folding.py:13
     // assert not ("a" == "b")  # type: ignore[comparison-overlap]
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:17
     // assert not ("a" > "b")
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:18
     // assert not ("a" >= "b")
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:20
     // assert not ("a" in "b")
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:23
     // b = String("b")
-    byte "b"
+    pushbytes "b"
     // literals/folding.py:24
     // assert not ("a" == b)
-    byte "a"
+    pushbytes "a"
     ==
     !
     assert
     // literals/folding.py:23
     // b = String("b")
-    byte "b"
+    pushbytes "b"
     // literals/folding.py:25
     // assert "a" != b
-    byte "a"
+    pushbytes "a"
     !=
     assert
     // literals/folding.py:26
     // assert "a" not in b
-    byte "a"
+    pushbytes "a"
     // literals/folding.py:23
     // b = String("b")
-    byte "b"
+    pushbytes "b"
     // literals/folding.py:26
     // assert "a" not in b
     callsub is_substring
@@ -96,10 +96,10 @@ compare_str:
     assert
     // literals/folding.py:27
     // assert not ("a" in b)
-    byte "a"
+    pushbytes "a"
     // literals/folding.py:23
     // b = String("b")
-    byte "b"
+    pushbytes "b"
     // literals/folding.py:27
     // assert not ("a" in b)
     callsub is_substring
@@ -107,8 +107,8 @@ compare_str:
     assert
     // literals/folding.py:28
     // assert "a" in String("abc")
-    byte "a"
-    byte "abc"
+    pushbytes "a"
+    pushbytes "abc"
     callsub is_substring
     assert
     retsub
@@ -149,67 +149,67 @@ compare_int:
     proto 0 0
     // literals/folding.py:58
     // assert not (0 == 1)  # type: ignore[comparison-overlap]
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:62
     // assert not (0 > 1)
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:63
     // assert not (0 >= 1)
-    int 0
+    pushint 0 // 0
     !
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    int 1
+    pushint 1 // 1
     // literals/folding.py:66
     // assert not (0 == one)
-    int 0
+    pushint 0 // 0
     ==
     !
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    int 1
+    pushint 1 // 1
     // literals/folding.py:67
     // assert 0 != one
-    int 0
+    pushint 0 // 0
     !=
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    int 1
+    pushint 1 // 1
     // literals/folding.py:68
     // assert 0 < one
-    int 0
+    pushint 0 // 0
     >
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    int 1
+    pushint 1 // 1
     // literals/folding.py:69
     // assert 0 <= one
-    int 0
+    pushint 0 // 0
     >=
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    int 1
+    pushint 1 // 1
     // literals/folding.py:70
     // assert not (0 > one)
-    int 0
+    pushint 0 // 0
     <
     !
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    int 1
+    pushint 1 // 1
     // literals/folding.py:71
     // assert not (0 >= one)
-    int 0
+    pushint 0 // 0
     <=
     !
     assert
@@ -233,70 +233,70 @@ tuples:
     proto 0 0
     // literals/folding.py:85
     // assert (97, UInt64(98), 99) == tuple(b"abc")  # type: ignore[comparison-overlap]
-    int 98
-    int 98
+    pushint 98 // 98
+    pushint 98 // 98
     ==
-    int 1
+    pushint 1 // 1
     uncover 1
     &&
-    int 1
+    pushint 1 // 1
     &&
     assert
     // literals/folding.py:86
     // assert ("a", "b", "c") == tuple("abc")
-    int 1
-    int 1
+    pushint 1 // 1
+    pushint 1 // 1
     &&
-    int 1
+    pushint 1 // 1
     &&
     assert
     // literals/folding.py:87
     // assert (97, UInt64(98), 99) == tuple(arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99)))  # type: ignore[comparison-overlap]
-    byte 0x
-    byte 0x0000000000000061
+    pushbytes 0x
+    pushbytes 0x0000000000000061
     concat
-    byte 0x0000000000000062
+    pushbytes 0x0000000000000062
     concat
-    byte 0x0000000000000063
+    pushbytes 0x0000000000000063
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
-    dup
-    int 0
-    int 8
+    dig 0
+    pushint 0 // 0
+    pushint 8 // 8
     *
-    int 8
+    pushint 8 // 8
     extract3 // on error: Index access is out of bounds
-    byte 0x0000000000000061
+    pushbytes 0x0000000000000061
     b==
     cover 1
-    dup
-    int 1
-    int 8
+    dig 0
+    pushint 1 // 1
+    pushint 8 // 8
     *
-    int 8
+    pushint 8 // 8
     extract3 // on error: Index access is out of bounds
-    int 98
+    pushint 98 // 98
     itob
     b==
     uncover 2
     uncover 1
     &&
     uncover 1
-    int 2
-    int 8
+    pushint 2 // 2
+    pushint 8 // 8
     *
-    int 8
+    pushint 8 // 8
     extract3 // on error: Index access is out of bounds
-    byte 0x0000000000000063
+    pushbytes 0x0000000000000063
     b==
     &&
     assert
     // literals/folding.py:88
     // assert (1, 2) == tuple((1, 2))
-    int 1
-    int 1
+    pushint 1 // 1
+    pushint 1 // 1
     &&
     assert
     retsub
@@ -305,7 +305,7 @@ tuples:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    int 0
+    pushint 0 // 0
 
 is_substring_while_top@1:
     frame_dig -2
@@ -332,18 +332,18 @@ is_substring_while_top@1:
     uncover 1
     ==
     bz is_substring_after_if_else@4
-    int 1
+    pushint 1 // 1
     uncover 1
     retsub
 
 is_substring_after_if_else@4:
     frame_dig 0
-    int 1
+    pushint 1 // 1
     +
     frame_bury 0
     b is_substring_while_top@1
 
 is_substring_after_while@5:
-    int 0
+    pushint 0 // 0
     uncover 1
     retsub

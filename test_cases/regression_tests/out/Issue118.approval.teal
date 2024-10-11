@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.regression_tests.issue_118.Issue118.approval_program:
+    intcblock 0 1
+    bytecblock 0x0003 0x0000
     callsub __puya_arc4_router__
     return
 
@@ -12,10 +14,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@5
-    method "verify(uint256[])(bool,string)"
+    pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     txna ApplicationArgs 0
     match __puya_arc4_router___verify_route@2
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___verify_route@2:
@@ -34,11 +36,11 @@ __puya_arc4_router___verify_route@2:
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
     callsub verify
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@5:
@@ -49,13 +51,13 @@ __puya_arc4_router___bare_routing@5:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@9:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -70,8 +72,8 @@ verify:
     // val1 = Bool(
     //     bool(Txn.num_app_args)
     // )  # use a non constant value so the repeated expression is not simplified
-    byte 0x00
-    int 0
+    pushbytes 0x00
+    intc_0 // 0
     // regression_tests/issue_118.py:10
     // bool(Txn.num_app_args)
     txn NumAppArgs
@@ -83,24 +85,24 @@ verify:
     // regression_tests/issue_118.py:12
     // if values.length != 2:
     frame_dig -1
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 2
+    pushint 2 // 2
     !=
     bz verify_after_if_else@2
     // regression_tests/issue_118.py:13
     // return Tuple((val1, String("")))
-    byte 0x0003
+    bytec_0 // 0x0003
     concat
-    byte 0x0000
+    bytec_1 // 0x0000
     concat
     retsub
 
 verify_after_if_else@2:
     // regression_tests/issue_118.py:14
     // return Tuple((val1, String("")))
-    byte 0x0003
+    bytec_0 // 0x0003
     concat
-    byte 0x0000
+    bytec_1 // 0x0000
     concat
     retsub

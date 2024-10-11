@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.typed_abi_call_txn.txn_contract.TxnContract.approval_program:
+    intcblock 1 3 0
+    bytecblock 0x61 0x62 0x151f7c75
     callsub __puya_arc4_router__
     return
 
@@ -10,12 +12,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@7
-    method "call_with_txn(byte[],txn,byte[])uint64"
-    method "call_with_acfg(byte[],acfg,byte[])uint64"
-    method "call_with_acfg_no_return(byte[],acfg,byte[])void"
+    pushbytess 0xa1f5040d 0x6d4700ad 0xc840077d // method "call_with_txn(byte[],txn,byte[])uint64", method "call_with_acfg(byte[],acfg,byte[])uint64", method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     txna ApplicationArgs 0
     match __puya_arc4_router___call_with_txn_route@2 __puya_arc4_router___call_with_acfg_route@3 __puya_arc4_router___call_with_acfg_no_return_route@4
-    int 0
+    intc_2 // 0
     retsub
 
 __puya_arc4_router___call_with_txn_route@2:
@@ -27,17 +27,17 @@ __puya_arc4_router___call_with_txn_route@2:
     txna ApplicationArgs 1
     extract 2 0
     txn GroupIndex
-    int 1
+    intc_0 // 1
     -
     txna ApplicationArgs 2
     extract 2 0
     callsub call_with_txn
     itob
-    byte 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___call_with_acfg_route@3:
@@ -49,22 +49,22 @@ __puya_arc4_router___call_with_acfg_route@3:
     txna ApplicationArgs 1
     extract 2 0
     txn GroupIndex
-    int 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
-    int acfg
+    intc_1 // acfg
     ==
     assert // transaction type is acfg
     txna ApplicationArgs 2
     extract 2 0
     callsub call_with_acfg
     itob
-    byte 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___call_with_acfg_no_return_route@4:
@@ -76,17 +76,17 @@ __puya_arc4_router___call_with_acfg_no_return_route@4:
     txna ApplicationArgs 1
     extract 2 0
     txn GroupIndex
-    int 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
-    int acfg
+    intc_1 // acfg
     ==
     assert // transaction type is acfg
     txna ApplicationArgs 2
     extract 2 0
     callsub call_with_acfg_no_return
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@7:
@@ -95,11 +95,11 @@ __puya_arc4_router___bare_routing@7:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@11:
-    int 0
+    intc_2 // 0
     retsub
 
 
@@ -107,16 +107,16 @@ __puya_arc4_router___after_if_else@11:
 call_with_txn:
     proto 3 1
     frame_dig -3
-    byte 0x61
+    bytec_0 // 0x61
     ==
     assert // a is not a
     frame_dig -1
-    byte 0x62
+    bytec_1 // 0x62
     ==
     assert // b is not b
     frame_dig -2
     gtxns TypeEnum
-    int acfg
+    intc_1 // acfg
     ==
     assert // expected asset config
     frame_dig -2
@@ -130,11 +130,11 @@ call_with_txn:
 call_with_acfg:
     proto 3 1
     frame_dig -3
-    byte 0x61
+    bytec_0 // 0x61
     ==
     assert // a is not a
     frame_dig -1
-    byte 0x62
+    bytec_1 // 0x62
     ==
     assert // b is not b
     frame_dig -2
@@ -148,11 +148,11 @@ call_with_acfg:
 call_with_acfg_no_return:
     proto 3 0
     frame_dig -3
-    byte 0x61
+    bytec_0 // 0x61
     ==
     assert // a is not a
     frame_dig -1
-    byte 0x62
+    bytec_1 // 0x62
     ==
     assert // b is not b
     frame_dig -2

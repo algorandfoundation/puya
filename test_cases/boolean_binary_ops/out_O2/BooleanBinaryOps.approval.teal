@@ -1,16 +1,18 @@
 #pragma version 10
 
 test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program:
-    int 1
-    int 0
+    intcblock 1 0 3 4
+    bytecblock "" 0x5f 0x6c6873 0x726873 0x616263
+    intc_0 // 1
+    intc_1 // 0
     callsub test_boolean_binary_ops
     callsub test_boolean_shortcircuit_binary_ops
     callsub test_union_boolean_binary_ops
     callsub test_literal_boolean_binary_ops
-    int 1
-    int 0
+    intc_0 // 1
+    intc_1 // 0
     callsub test_literal_conditionals
-    int 1
+    intc_0 // 1
     return
 
 
@@ -59,50 +61,50 @@ test_boolean_binary_ops:
 // test_cases.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops() -> void:
 test_boolean_shortcircuit_binary_ops:
     proto 0 0
-    int 0
+    intc_1 // 0
     dup
-    byte ""
+    bytec_0 // ""
     dup
-    int 0
-    int 1
+    intc_1 // 0
+    intc_0 // 1
 
 test_boolean_shortcircuit_binary_ops_for_body@1:
-    int 0
+    intc_1 // 0
     frame_bury 2
-    int 1
+    intc_0 // 1
     frame_bury 3
 
 test_boolean_shortcircuit_binary_ops_for_body@2:
     frame_dig 5
     dup
     callsub bool_to_bytes
-    byte 0x5f
+    bytec_1 // 0x5f
     swap
     concat
-    byte 0x5f616e645f
+    pushbytes 0x5f616e645f
     concat
     frame_dig 3
     callsub bool_to_bytes
     concat
     dup
     frame_bury 0
-    byte 0x6c6873
+    bytec_2 // 0x6c6873
     swap
     concat
     callsub log_and_return
     bz test_boolean_shortcircuit_binary_ops_bool_false@5
-    byte 0x726873
+    bytec_3 // 0x726873
     frame_dig 0
     concat
     frame_dig 3
     swap
     callsub log_and_return
     bz test_boolean_shortcircuit_binary_ops_bool_false@5
-    int 1
+    intc_0 // 1
     b test_boolean_shortcircuit_binary_ops_bool_merge@6
 
 test_boolean_shortcircuit_binary_ops_bool_false@5:
-    int 0
+    intc_1 // 0
 
 test_boolean_shortcircuit_binary_ops_bool_merge@6:
     frame_dig 5
@@ -116,22 +118,22 @@ test_boolean_shortcircuit_binary_ops_bool_merge@6:
     assert
     dup
     callsub bool_to_bytes
-    byte 0x5f
+    bytec_1 // 0x5f
     swap
     concat
-    byte 0x5f6f725f
+    pushbytes 0x5f6f725f
     concat
     uncover 2
     callsub bool_to_bytes
     concat
     dup
     frame_bury 1
-    byte 0x6c6873
+    bytec_2 // 0x6c6873
     swap
     concat
     callsub log_and_return
     bnz test_boolean_shortcircuit_binary_ops_bool_true@8
-    byte 0x726873
+    bytec_3 // 0x726873
     frame_dig 1
     concat
     frame_dig 3
@@ -140,11 +142,11 @@ test_boolean_shortcircuit_binary_ops_bool_merge@6:
     bz test_boolean_shortcircuit_binary_ops_bool_false@9
 
 test_boolean_shortcircuit_binary_ops_bool_true@8:
-    int 1
+    intc_0 // 1
     b test_boolean_shortcircuit_binary_ops_bool_merge@10
 
 test_boolean_shortcircuit_binary_ops_bool_false@9:
-    int 0
+    intc_1 // 0
 
 test_boolean_shortcircuit_binary_ops_bool_merge@10:
     frame_dig 5
@@ -154,18 +156,18 @@ test_boolean_shortcircuit_binary_ops_bool_merge@10:
     assert
     frame_dig 2
     bnz test_boolean_shortcircuit_binary_ops_after_for@13
-    int 1
+    intc_0 // 1
     frame_bury 2
-    int 0
+    intc_1 // 0
     frame_bury 3
     b test_boolean_shortcircuit_binary_ops_for_body@2
 
 test_boolean_shortcircuit_binary_ops_after_for@13:
     frame_dig 4
     bnz test_boolean_shortcircuit_binary_ops_after_for@16
-    int 1
+    intc_0 // 1
     frame_bury 4
-    int 0
+    intc_1 // 0
     frame_bury 5
     b test_boolean_shortcircuit_binary_ops_for_body@1
 
@@ -176,8 +178,7 @@ test_boolean_shortcircuit_binary_ops_after_for@16:
 // test_cases.boolean_binary_ops.contract.bool_to_bytes(x: uint64) -> bytes:
 bool_to_bytes:
     proto 1 1
-    byte 0x66616c7365
-    byte 0x74727565
+    pushbytess 0x66616c7365 0x74727565 // 0x66616c7365, 0x74727565
     frame_dig -1
     select
     retsub
@@ -195,24 +196,24 @@ log_and_return:
 // test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops() -> void:
 test_union_boolean_binary_ops:
     proto 0 0
-    int 0
+    intc_1 // 0
 
 test_union_boolean_binary_ops_for_header@45:
     frame_dig 0
-    int 3
+    intc_2 // 3
     <
     bz test_union_boolean_binary_ops_after_for@48
-    byte 0x616263
+    bytec 4 // 0x616263
     frame_dig 0
     dup
     cover 2
-    int 1
+    intc_0 // 1
     extract3
     swap
     dup
-    int 1
+    intc_0 // 1
     +
-    byte 0x616263
+    bytec 4 // 0x616263
     uncover 2
     dig 2
     substring3
@@ -223,8 +224,7 @@ test_union_boolean_binary_ops_for_header@45:
     b test_union_boolean_binary_ops_for_header@45
 
 test_union_boolean_binary_ops_after_for@48:
-    byte "ight"
-    byte "right"
+    pushbytess "ight" "right" // "ight", "right"
     callsub is_substring
     assert
     retsub
@@ -233,12 +233,12 @@ test_union_boolean_binary_ops_after_for@48:
 // test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops() -> void:
 test_literal_boolean_binary_ops:
     proto 0 0
-    int 4
+    intc_3 // 4
     bitlen
-    int 3
+    intc_2 // 3
     ==
     assert
-    byte 0x68656c6c6f
+    pushbytes 0x68656c6c6f
     bitlen
     assert
     retsub
@@ -247,23 +247,23 @@ test_literal_boolean_binary_ops:
 // test_cases.boolean_binary_ops.contract.test_literal_conditionals(true: uint64, false: uint64) -> void:
 test_literal_conditionals:
     proto 2 0
-    byte ""
+    bytec_0 // ""
     frame_dig -1
-    int 1
+    intc_0 // 1
     ||
     assert
     frame_dig -2
     bz test_literal_conditionals_bool_false@3
-    int 1
+    intc_0 // 1
     b test_literal_conditionals_bool_merge@4
 
 test_literal_conditionals_bool_false@3:
-    int 0
+    intc_1 // 0
 
 test_literal_conditionals_bool_merge@4:
     assert
     frame_dig -1
-    int 3
+    intc_2 // 3
     *
     dup
     frame_bury 0
@@ -272,16 +272,16 @@ test_literal_conditionals_bool_merge@4:
     b test_literal_conditionals_ternary_merge@11
 
 test_literal_conditionals_ternary_false@10:
-    int 4
+    intc_3 // 4
 
 test_literal_conditionals_ternary_merge@11:
-    int 4
+    intc_3 // 4
     ==
     assert
     frame_dig -2
-    int 3
+    intc_2 // 3
     *
-    int 3
+    intc_2 // 3
     ==
     assert
     retsub
@@ -290,8 +290,8 @@ test_literal_conditionals_ternary_merge@11:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    byte ""
-    int 0
+    bytec_0 // ""
+    intc_1 // 0
 
 is_substring_while_top@1:
     frame_dig -2
@@ -311,18 +311,18 @@ is_substring_while_top@1:
     frame_dig -2
     ==
     bz is_substring_after_if_else@4
-    int 1
+    intc_0 // 1
     frame_bury 0
     retsub
 
 is_substring_after_if_else@4:
     frame_dig 1
-    int 1
+    intc_0 // 1
     +
     frame_bury 1
     b is_substring_while_top@1
 
 is_substring_after_while@5:
-    int 0
+    intc_1 // 0
     frame_bury 0
     retsub

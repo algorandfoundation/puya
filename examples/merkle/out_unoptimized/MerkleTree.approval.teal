@@ -11,12 +11,12 @@ __puya_arc4_router__:
     // class MerkleTree(arc4.ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
-    method "create(byte[32])void"
-    method "verify(byte[32][],byte[32])bool"
+    pushbytes 0x8424203b // method "create(byte[32])void"
+    pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
     uncover 2
     match __puya_arc4_router___create_route@2 __puya_arc4_router___verify_route@3
     b __puya_arc4_router___switch_case_default@4
@@ -25,11 +25,11 @@ __puya_arc4_router___create_route@2:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     // merkle/contract.py:9
@@ -38,18 +38,18 @@ __puya_arc4_router___create_route@2:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     callsub create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___verify_route@3:
     // merkle/contract.py:14
     // @arc4.abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // merkle/contract.py:9
@@ -59,15 +59,15 @@ __puya_arc4_router___verify_route@3:
     // merkle/contract.py:14
     // @arc4.abimethod
     callsub verify
-    byte 0x00
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
     uncover 2
     setbit
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -78,7 +78,7 @@ __puya_arc4_router___bare_routing@6:
 __puya_arc4_router___after_if_else@7:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -90,7 +90,7 @@ create:
     proto 1 0
     // merkle/contract.py:12
     // self.root = root.bytes
-    byte "root"
+    pushbytes "root"
     frame_dig -1
     app_global_put
     retsub
@@ -104,8 +104,8 @@ verify:
     proto 2 1
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
-    int 0
-    byte "root"
+    pushint 0 // 0
+    pushbytes "root"
     app_global_get_ex
     assert // check self.root exists
     frame_dig -2
@@ -128,11 +128,11 @@ compute_root_hash:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig -2
-    int 0
+    pushint 0 // 0
     extract_uint16
-    int 1
+    pushint 1 // 1
     assert // Step cannot be zero
-    int 0
+    pushint 0 // 0
 
 compute_root_hash_for_header@1:
     // merkle/contract.py:22
@@ -146,9 +146,9 @@ compute_root_hash_for_header@1:
     frame_dig -2
     extract 2 0
     frame_dig 2
-    int 32
+    pushint 32 // 32
     *
-    int 32
+    pushint 32 // 32
     extract3 // on error: Index access is out of bounds
     frame_dig 0
     uncover 1
@@ -157,7 +157,7 @@ compute_root_hash_for_header@1:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig 2
-    int 1
+    pushint 1 // 1
     +
     frame_bury 2
     b compute_root_hash_for_header@1

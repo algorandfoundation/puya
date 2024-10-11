@@ -1,9 +1,11 @@
 #pragma version 10
 
 test_cases.simplish.contract.Simplish.approval_program:
-    int 0
+    intcblock 0 1 10 5 100000
+    bytecblock "counter" 0x30313233343536373839
+    intc_0 // 0
     dup
-    byte ""
+    pushbytes ""
     dupn 2
     txn ApplicationID
     bnz main_entrypoint@2
@@ -14,7 +16,7 @@ main_entrypoint@2:
     bnz main_after_if_else@4
 
 main_if_body@3:
-    int 1
+    intc_1 // 1
     return
 
 main_after_if_else@4:
@@ -23,28 +25,28 @@ main_after_if_else@4:
     bury 2
     txn Sender
     bury 5
-    int UpdateApplication
+    pushint 4 // UpdateApplication
     ==
     bnz main_if_body@6
     dup
-    int DeleteApplication
+    intc_3 // DeleteApplication
     ==
     bz main_after_if_else@9
 
 main_if_body@6:
     dup
-    int DeleteApplication
+    intc_3 // DeleteApplication
     ==
     bz main_after_if_else@8
-    int 0
-    byte "counter"
+    intc_0 // 0
+    bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     callsub itoa
-    byte 0x4920776173207573656420
+    pushbytes 0x4920776173207573656420
     swap
     concat
-    byte 0x2074696d65287329206265666f726520492064696564
+    pushbytes 0x2074696d65287329206265666f726520492064696564
     concat
     log
 
@@ -56,7 +58,7 @@ main_after_if_else@8:
 
 main_after_if_else@9:
     dup
-    int OptIn
+    intc_1 // OptIn
     ==
     bz main_after_if_else@13
     txn NumAppArgs
@@ -68,7 +70,7 @@ main_after_if_else@9:
 main_after_if_else@13:
     dup
     bz main_after_if_else@15
-    int 0
+    intc_0 // 0
     return
 
 main_after_if_else@15:
@@ -85,35 +87,35 @@ main_after_if_else@15:
 
 main_else_body@17:
     txn NumAssets
-    int 1
+    intc_1 // 1
     ==
     bz main_else_body@22
     dig 3
-    int 0
+    intc_0 // 0
     asset_holding_get AssetBalance
     swap
     bury 4
     bnz main_else_body@20
-    byte 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
+    pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
     bury 5
     b main_after_if_else@21
 
 main_else_body@20:
     dig 2
     callsub itoa
-    byte 0x596f7520686176652061737365742062616c616e63653a20
+    pushbytes 0x596f7520686176652061737365742062616c616e63653a20
     swap
     concat
     bury 5
 
 main_after_if_else@21:
-    int 1
+    intc_1 // 1
     b main_after_if_else@24
 
 main_else_body@22:
-    byte 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
+    pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
     bury 5
-    int 0
+    intc_0 // 0
 
 main_after_if_else@24:
     dig 5
@@ -126,13 +128,13 @@ main_after_if_else@24:
 itoa:
     proto 1 1
     frame_dig -1
-    int 10
+    intc_2 // 10
     <
     bz itoa_after_if_else@2
     frame_dig -1
-    int 1
+    intc_1 // 1
     +
-    byte 0x30313233343536373839
+    bytec_1 // 0x30313233343536373839
     frame_dig -1
     uncover 2
     substring3
@@ -140,16 +142,16 @@ itoa:
 
 itoa_after_if_else@2:
     frame_dig -1
-    int 10
+    intc_2 // 10
     /
     callsub itoa
     frame_dig -1
-    int 10
+    intc_2 // 10
     %
     dup
-    int 1
+    intc_1 // 1
     +
-    byte 0x30313233343536373839
+    bytec_1 // 0x30313233343536373839
     cover 2
     substring3
     concat
@@ -159,8 +161,8 @@ itoa_after_if_else@2:
 // test_cases.simplish.base_class.CallCounter.set_sender_nickname(nickname: bytes) -> void:
 set_sender_nickname:
     proto 1 0
-    int 0
-    byte "name"
+    intc_0 // 0
+    pushbytes "name"
     frame_dig -1
     app_local_put
     retsub
@@ -169,16 +171,16 @@ set_sender_nickname:
 // test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64) -> bytes, uint64:
 call:
     proto 2 2
-    int 0
+    intc_0 // 0
     frame_dig -1
-    int 2
+    pushint 2 // 2
     ==
     assert // insufficient arguments
     txna ApplicationArgs 1
     btoi
-    int 1
+    intc_1 // 1
     frame_dig -2
-    byte 0x636972636c655f61726561
+    pushbytes 0x636972636c655f61726561
     ==
     bz call_else_body@2
     frame_dig 1
@@ -189,7 +191,7 @@ call:
 
 call_else_body@2:
     frame_dig -2
-    byte 0x636972636c655f63697263756d666572656e6365
+    pushbytes 0x636972636c655f63697263756d666572656e6365
     ==
     bz call_else_body@4
     frame_dig 1
@@ -200,7 +202,7 @@ call_else_body@2:
 
 call_else_body@4:
     frame_dig -2
-    byte 0x636972636c655f7265706f7274
+    pushbytes 0x636972636c655f7265706f7274
     ==
     bz call_else_body@6
     frame_dig 1
@@ -211,15 +213,15 @@ call_else_body@4:
     callsub circle_circumference
     cover 2
     callsub itoa
-    byte 0x417070726f78696d617465206172656120616e642063697263756d666572656e6365206f6620636972636c6520776974682072616469757320
+    pushbytes 0x417070726f78696d617465206172656120616e642063697263756d666572656e6365206f6620636972636c6520776974682072616469757320
     swap
     concat
-    byte 0x203d20
+    pushbytes 0x203d20
     concat
     swap
     callsub itoa
     concat
-    byte 0x2c20
+    pushbytes 0x2c20
     concat
     swap
     callsub itoa
@@ -228,9 +230,9 @@ call_else_body@4:
     b call_after_if_else@8
 
 call_else_body@6:
-    int 0
+    intc_0 // 0
     frame_bury 2
-    byte 0x756e6b6e6f776e206d6574686f64206e616d65
+    pushbytes 0x756e6b6e6f776e206d6574686f64206e616d65
     frame_bury 0
 
 call_after_if_else@8:
@@ -247,11 +249,11 @@ call_after_if_else@9:
 circle_area:
     proto 1 1
     frame_dig -1
-    int 2
+    pushint 2 // 2
     exp
-    int 314159
+    pushint 314159 // 314159
     *
-    int 100000
+    intc 4 // 100000
     /
     retsub
 
@@ -260,9 +262,9 @@ circle_area:
 circle_circumference:
     proto 1 1
     frame_dig -1
-    int 628318
+    pushint 628318 // 628318
     *
-    int 100000
+    intc 4 // 100000
     /
     retsub
 
@@ -270,7 +272,7 @@ circle_circumference:
 // test_cases.simplish.contract.Simplish.increment_counter() -> void:
 increment_counter:
     proto 0 0
-    byte "Incrementing counter!"
+    pushbytes "Incrementing counter!"
     log
     callsub test_cases.simplish.base_class.CallCounter.increment_counter
     retsub
@@ -279,13 +281,13 @@ increment_counter:
 // test_cases.simplish.base_class.CallCounter.increment_counter() -> void:
 test_cases.simplish.base_class.CallCounter.increment_counter:
     proto 0 0
-    int 0
-    byte "counter"
+    intc_0 // 0
+    bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    int 1
+    intc_1 // 1
     +
-    byte "counter"
+    bytec_0 // "counter"
     swap
     app_global_put
     retsub
@@ -294,7 +296,7 @@ test_cases.simplish.base_class.CallCounter.increment_counter:
 // test_cases.simplish.base_class.CallCounter.__init__() -> void:
 __init__:
     proto 0 0
-    byte "counter"
-    int 0
+    bytec_0 // "counter"
+    intc_0 // 0
     app_global_put
     retsub

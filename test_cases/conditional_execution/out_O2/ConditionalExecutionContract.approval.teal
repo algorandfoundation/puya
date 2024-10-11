@@ -1,212 +1,214 @@
 #pragma version 10
 
 test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program:
+    intcblock 0 1
+    bytecblock "did_execute_a" "did_execute_b"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
 
 main_entrypoint@2:
-    int 1
+    intc_1 // 1
     callsub func_a
     bnz main_bool_merge@6
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_bool_merge@6:
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@9
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bnz main_bool_false@9
-    int 1
+    intc_1 // 1
     b main_bool_merge@10
 
 main_bool_false@9:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@10:
     callsub assert_and_reset
-    int 0
+    intc_0 // 0
     callsub func_a
     bnz main_bool_merge@14
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_bool_merge@14:
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@17
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@17
-    int 1
+    intc_1 // 1
     b main_bool_merge@18
 
 main_bool_false@17:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@18:
     callsub assert_and_reset
-    int 0
+    intc_0 // 0
     callsub func_a
     bz main_bool_merge@22
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_bool_merge@22:
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@25
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bnz main_bool_false@25
-    int 1
+    intc_1 // 1
     b main_bool_merge@26
 
 main_bool_false@25:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@26:
     callsub assert_and_reset
-    int 1
+    intc_1 // 1
     callsub func_a
     bz main_bool_merge@30
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_bool_merge@30:
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@33
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@33
-    int 1
+    intc_1 // 1
     b main_bool_merge@34
 
 main_bool_false@33:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@34:
     callsub assert_and_reset
-    int 1
+    intc_1 // 1
     callsub func_a
     pop
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@37
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@37
-    int 1
+    intc_1 // 1
     b main_bool_merge@38
 
 main_bool_false@37:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@38:
     callsub assert_and_reset
-    int 1
+    intc_1 // 1
     callsub func_c
     bz main_ternary_false@40
-    int 1
+    intc_1 // 1
     callsub func_a
     pop
     b main_ternary_merge@41
 
 main_ternary_false@40:
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_ternary_merge@41:
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bz main_bool_false@44
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bnz main_bool_false@44
-    int 1
+    intc_1 // 1
     b main_bool_merge@45
 
 main_bool_false@44:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@45:
     callsub assert_and_reset
-    int 0
+    intc_0 // 0
     callsub func_c
     bz main_ternary_false@47
-    int 1
+    intc_1 // 1
     callsub func_a
     pop
     b main_ternary_merge@48
 
 main_ternary_false@47:
-    int 1
+    intc_1 // 1
     callsub func_b
     pop
 
 main_ternary_merge@48:
-    int 0
-    byte "did_execute_a"
+    intc_0 // 0
+    bytec_0 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
     bnz main_bool_false@51
-    int 0
-    byte "did_execute_b"
+    intc_0 // 0
+    bytec_1 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
     bz main_bool_false@51
-    int 1
+    intc_1 // 1
     b main_bool_merge@52
 
 main_bool_false@51:
-    int 0
+    intc_0 // 0
 
 main_bool_merge@52:
     callsub assert_and_reset
-    int 1
+    intc_1 // 1
     return
 
 
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val: uint64) -> uint64:
 func_a:
     proto 1 1
-    byte "did_execute_a"
-    int 1
+    bytec_0 // "did_execute_a"
+    intc_1 // 1
     app_global_put
     frame_dig -1
     retsub
@@ -215,8 +217,8 @@ func_a:
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(ret_val: uint64) -> uint64:
 func_b:
     proto 1 1
-    byte "did_execute_b"
-    int 1
+    bytec_1 // "did_execute_b"
+    intc_1 // 1
     app_global_put
     frame_dig -1
     retsub
@@ -227,11 +229,11 @@ assert_and_reset:
     proto 1 0
     frame_dig -1
     assert
-    byte "did_execute_b"
-    int 0
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
     app_global_put
-    byte "did_execute_a"
-    int 0
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
     app_global_put
     retsub
 
@@ -246,10 +248,10 @@ func_c:
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__() -> void:
 __init__:
     proto 0 0
-    byte "did_execute_a"
-    int 0
+    bytec_0 // "did_execute_a"
+    intc_0 // 0
     app_global_put
-    byte "did_execute_b"
-    int 0
+    bytec_1 // "did_execute_b"
+    intc_0 // 0
     app_global_put
     retsub

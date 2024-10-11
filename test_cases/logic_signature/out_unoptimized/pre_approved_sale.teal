@@ -1,41 +1,43 @@
 #pragma version 10
 
 test_cases.logic_signature.signature.pre_approved_sale:
+    intcblock TMPL_PRICE TMPL_ASSET_ID
+    bytecblock TMPL_SELLER
     // logic_signature/signature.py:13
     // pay_txn = gtxn.PaymentTransaction(0)
-    int 0
+    pushint 0 // 0
     gtxns TypeEnum
-    int pay
+    pushint 1 // pay
     ==
     assert // transaction type is pay
     // logic_signature/signature.py:14
     // asset_txn = gtxn.AssetTransferTransaction(1)
-    int 1
+    pushint 1 // 1
     gtxns TypeEnum
-    int axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     // logic_signature/signature.py:13
     // pay_txn = gtxn.PaymentTransaction(0)
-    int 0
+    pushint 0 // 0
     // logic_signature/signature.py:15
     // assert_correct_payment(pay_txn)
     callsub assert_correct_payment
     // logic_signature/signature.py:14
     // asset_txn = gtxn.AssetTransferTransaction(1)
-    int 1
+    pushint 1 // 1
     // logic_signature/signature.py:16
     // assert_correct_asset(asset_txn)
     callsub assert_correct_asset
     // logic_signature/signature.py:13
     // pay_txn = gtxn.PaymentTransaction(0)
-    int 0
+    pushint 0 // 0
     // logic_signature/signature.py:17
     // assert pay_txn.sender == asset_txn.asset_receiver
     gtxns Sender
     // logic_signature/signature.py:14
     // asset_txn = gtxn.AssetTransferTransaction(1)
-    int 1
+    pushint 1 // 1
     // logic_signature/signature.py:17
     // assert pay_txn.sender == asset_txn.asset_receiver
     gtxns AssetReceiver
@@ -44,12 +46,12 @@ test_cases.logic_signature.signature.pre_approved_sale:
     // logic_signature/signature.py:18
     // assert Global.group_size == 2
     global GroupSize
-    int 2
+    pushint 2 // 2
     ==
     assert
     // logic_signature/signature.py:19
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -63,7 +65,7 @@ assert_correct_payment:
     // assert txn.receiver == TemplateVar[Account]("SELLER") and (
     frame_dig -1
     gtxns Receiver
-    byte TMPL_SELLER
+    bytec_0 // TMPL_SELLER
     ==
     // logic_signature/signature.py:24-26
     // assert txn.receiver == TemplateVar[Account]("SELLER") and (
@@ -74,18 +76,18 @@ assert_correct_payment:
     // txn.amount == TemplateVar[UInt64]("PRICE")
     frame_dig -1
     gtxns Amount
-    int TMPL_PRICE
+    intc_0 // TMPL_PRICE
     ==
     // logic_signature/signature.py:24-26
     // assert txn.receiver == TemplateVar[Account]("SELLER") and (
     //     txn.amount == TemplateVar[UInt64]("PRICE")
     // )
     bz assert_correct_payment_bool_false@3
-    int 1
+    pushint 1 // 1
     b assert_correct_payment_bool_merge@4
 
 assert_correct_payment_bool_false@3:
-    int 0
+    pushint 0 // 0
 
 assert_correct_payment_bool_merge@4:
     // logic_signature/signature.py:24-26
@@ -106,7 +108,7 @@ assert_correct_asset:
     // txn.asset_amount == 1
     frame_dig -1
     gtxns AssetAmount
-    int 1
+    pushint 1 // 1
     ==
     // logic_signature/signature.py:32-36
     // txn.asset_amount == 1
@@ -119,7 +121,7 @@ assert_correct_asset:
     // and txn.sender == TemplateVar[Account]("SELLER")
     frame_dig -1
     gtxns Sender
-    byte TMPL_SELLER
+    bytec_0 // TMPL_SELLER
     ==
     // logic_signature/signature.py:32-36
     // txn.asset_amount == 1
@@ -132,7 +134,7 @@ assert_correct_asset:
     // and txn.xfer_asset == TemplateVar[Asset]("ASSET_ID")
     frame_dig -1
     gtxns XferAsset
-    int TMPL_ASSET_ID
+    intc_1 // TMPL_ASSET_ID
     ==
     // logic_signature/signature.py:32-36
     // txn.asset_amount == 1
@@ -167,11 +169,11 @@ assert_correct_asset:
     // and txn.asset_close_to == Global.zero_address
     // and txn.rekey_to == Global.zero_address
     bz assert_correct_asset_bool_false@6
-    int 1
+    pushint 1 // 1
     b assert_correct_asset_bool_merge@7
 
 assert_correct_asset_bool_false@6:
-    int 0
+    pushint 0 // 0
 
 assert_correct_asset_bool_merge@7:
     // logic_signature/signature.py:31-37

@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.debug.contract.DebugContract.approval_program:
+    intcblock TMPL_A_MULT
     callsub __puya_arc4_router__
     return
 
@@ -11,11 +12,11 @@ __puya_arc4_router__:
     // class DebugContract(arc4.ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
-    method "test(uint64,uint64,uint64)uint64"
+    pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     uncover 1
     match __puya_arc4_router___test_route@2
     b __puya_arc4_router___switch_case_default@3
@@ -24,11 +25,11 @@ __puya_arc4_router___test_route@2:
     // debug/contract.py:5
     // @arc4.abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // debug/contract.py:4
@@ -46,11 +47,11 @@ __puya_arc4_router___test_route@2:
     uncover 2
     callsub test
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -60,7 +61,7 @@ __puya_arc4_router___bare_routing@5:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn OnCompletion
-    int 0
+    pushint 0 // 0
     uncover 1
     match __puya_arc4_router_____algopy_default_create@6
     b __puya_arc4_router___switch_case_default@7
@@ -69,11 +70,11 @@ __puya_arc4_router_____algopy_default_create@6:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -81,7 +82,7 @@ __puya_arc4_router___switch_case_default@7:
 __puya_arc4_router___after_if_else@9:
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -91,14 +92,14 @@ test:
     // @arc4.abimethod
     // def test(self, x: UInt64, y: UInt64, z: UInt64) -> UInt64:
     proto 3 1
-    int 0
-    int 0
-    byte ""
-    byte ""
+    pushint 0 // 0
+    pushint 0 // 0
+    pushbytes ""
+    pushbytes ""
     // debug/contract.py:8
     // a = x * TemplateVar[UInt64]("A_MULT")
     frame_dig -3
-    int TMPL_A_MULT
+    intc_0 // TMPL_A_MULT
     *
     // debug/contract.py:9
     // b = x + y
@@ -153,7 +154,7 @@ test_else_body@4:
     // debug/contract.py:16
     // a = a * 3
     frame_dig 4
-    int 3
+    pushint 3 // 3
     *
     frame_bury 4
     b test_after_if_else@9
@@ -304,11 +305,11 @@ test_after_if_else@20:
     callsub itoa
     // debug/contract.py:37
     // log(aye, bee, cea, sep=" ")
-    byte " "
+    pushbytes " "
     concat
     frame_dig 0
     concat
-    byte " "
+    pushbytes " "
     concat
     frame_dig 1
     concat
@@ -346,7 +347,7 @@ some_func:
     // debug/contract.py:47
     // a *= 2
     frame_dig -2
-    int 2
+    pushint 2 // 2
     *
     frame_bury -2
     // debug/contract.py:48
@@ -379,7 +380,7 @@ itoa:
     proto 1 1
     // debug/contract.py:55
     // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839
+    pushbytes 0x30313233343536373839
     // debug/contract.py:56
     // radix = digits.length
     len
@@ -395,11 +396,11 @@ itoa:
     // debug/contract.py:58
     // return digits[i]
     frame_dig -1
-    int 1
+    pushint 1 // 1
     +
     // debug/contract.py:55
     // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839
+    pushbytes 0x30313233343536373839
     // debug/contract.py:58
     // return digits[i]
     frame_dig -1
@@ -422,11 +423,11 @@ itoa_after_if_else@2:
     uncover 1
     %
     dig 0
-    int 1
+    pushint 1 // 1
     +
     // debug/contract.py:55
     // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839
+    pushbytes 0x30313233343536373839
     // debug/contract.py:59
     // return itoa(i // radix) + digits[i % radix]
     uncover 2

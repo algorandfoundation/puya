@@ -16,15 +16,15 @@ __puya_arc4_router__:
     // class ConstantProductAMM(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@9
     txna ApplicationArgs 0
-    method "set_governor(account)void"
-    method "bootstrap(pay,asset,asset)uint64"
-    method "mint(axfer,axfer,asset,asset,asset)void"
-    method "burn(axfer,asset,asset,asset)void"
-    method "swap(axfer,asset,asset)void"
+    pushbytes 0x08a956f7 // method "set_governor(account)void"
+    pushbytes 0x6b59d965 // method "bootstrap(pay,asset,asset)uint64"
+    pushbytes 0x5cbf1e2d // method "mint(axfer,axfer,asset,asset,asset)void"
+    pushbytes 0x1436c2ac // method "burn(axfer,asset,asset,asset)void"
+    pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
     uncover 5
     match __puya_arc4_router___set_governor_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___mint_route@4 __puya_arc4_router___burn_route@5 __puya_arc4_router___swap_route@6
     b __puya_arc4_router___switch_case_default@7
@@ -33,11 +33,11 @@ __puya_arc4_router___set_governor_route@2:
     // amm/contract.py:43
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // amm/contract.py:27
@@ -48,28 +48,28 @@ __puya_arc4_router___set_governor_route@2:
     // amm/contract.py:43
     // @arc4.abimethod()
     callsub set_governor
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___bootstrap_route@3:
     // amm/contract.py:49
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int pay
+    pushint 1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
@@ -85,11 +85,11 @@ __puya_arc4_router___bootstrap_route@3:
     uncover 2
     callsub bootstrap
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___mint_route@4:
@@ -102,29 +102,29 @@ __puya_arc4_router___mint_route@4:
     //     },
     // )
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
-    int 2
+    pushint 2 // 2
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
@@ -150,7 +150,7 @@ __puya_arc4_router___mint_route@4:
     uncover 4
     uncover 4
     callsub mint
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___burn_route@5:
@@ -163,21 +163,21 @@ __puya_arc4_router___burn_route@5:
     //     },
     // )
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
@@ -202,7 +202,7 @@ __puya_arc4_router___burn_route@5:
     uncover 3
     uncover 3
     callsub burn
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___swap_route@6:
@@ -214,21 +214,21 @@ __puya_arc4_router___swap_route@6:
     //     },
     // )
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
@@ -248,7 +248,7 @@ __puya_arc4_router___swap_route@6:
     uncover 2
     uncover 2
     callsub swap
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -258,7 +258,7 @@ __puya_arc4_router___bare_routing@9:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
-    int 0
+    pushint 0 // 0
     uncover 1
     match __puya_arc4_router_____algopy_default_create@10
     b __puya_arc4_router___switch_case_default@11
@@ -267,11 +267,11 @@ __puya_arc4_router_____algopy_default_create@10:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@11:
@@ -279,7 +279,7 @@ __puya_arc4_router___switch_case_default@11:
 __puya_arc4_router___after_if_else@13:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -294,7 +294,7 @@ set_governor:
     callsub _check_is_governor
     // amm/contract.py:47
     // self.governor = new_governor
-    byte "governor"
+    pushbytes "governor"
     frame_dig -1
     app_global_put
     retsub
@@ -309,8 +309,8 @@ _check_is_governor:
     // amm/contract.py:265
     // Txn.sender == self.governor
     txn Sender
-    int 0
-    byte "governor"
+    pushint 0 // 0
+    pushbytes "governor"
     app_global_get_ex
     assert // check self.governor exists
     ==
@@ -330,8 +330,8 @@ bootstrap:
     proto 3 1
     // amm/contract.py:66
     // assert not self.pool_token, "application has already been bootstrapped"
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     !
@@ -342,7 +342,7 @@ bootstrap:
     // amm/contract.py:68
     // assert Global.group_size == 2, "group size not 2"
     global GroupSize
-    int 2
+    pushint 2 // 2
     ==
     assert // group size not 2
     // amm/contract.py:69
@@ -356,7 +356,7 @@ bootstrap:
     // assert seed.amount >= 300_000, "amount minimum not met"  # 0.3 Algos
     frame_dig -3
     gtxns Amount
-    int 300000
+    pushint 300000 // 300000
     >=
     assert // amount minimum not met
     // amm/contract.py:72
@@ -367,38 +367,38 @@ bootstrap:
     assert // asset a must be less than asset b
     // amm/contract.py:73
     // self.asset_a = a_asset
-    byte "asset_a"
+    pushbytes "asset_a"
     frame_dig -2
     app_global_put
     // amm/contract.py:74
     // self.asset_b = b_asset
-    byte "asset_b"
+    pushbytes "asset_b"
     frame_dig -1
     app_global_put
     // amm/contract.py:75
     // self.pool_token = self._create_pool_token()
     callsub _create_pool_token
-    byte "pool_token"
+    pushbytes "pool_token"
     uncover 1
     app_global_put
     // amm/contract.py:77
     // self._do_opt_in(self.asset_a)
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     callsub _do_opt_in
     // amm/contract.py:78
     // self._do_opt_in(self.asset_b)
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     callsub _do_opt_in
     // amm/contract.py:79
     // return self.pool_token.id
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     retsub
@@ -423,19 +423,19 @@ _create_pool_token:
     itxn_begin
     // amm/contract.py:272
     // asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_params_get AssetUnitName
     assert // asset exists
-    byte 0x4450542d
+    pushbytes 0x4450542d
     uncover 1
     concat
-    byte 0x2d
+    pushbytes 0x2d
     concat
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_params_get AssetUnitName
@@ -451,22 +451,22 @@ _create_pool_token:
     itxn_field ConfigAssetManager
     // amm/contract.py:275
     // decimals=3,
-    int 3
+    pushint 3 // 3
     itxn_field ConfigAssetDecimals
     // amm/contract.py:274
     // total=TOTAL_SUPPLY,
-    int 10000000000
+    pushint 10000000000 // 10000000000
     itxn_field ConfigAssetTotal
     // amm/contract.py:273
     // unit_name=b"dbt",
-    byte 0x646274
+    pushbytes 0x646274
     itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
     // amm/contract.py:271
     // itxn.AssetConfig(
-    int acfg
+    pushint 3 // acfg
     itxn_field TypeEnum
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // amm/contract.py:271-279
     // itxn.AssetConfig(
@@ -525,7 +525,7 @@ _do_opt_in:
     frame_dig -1
     // amm/contract.py:288
     // amount=UInt64(0),
-    int 0
+    pushint 0 // 0
     // amm/contract.py:285-289
     // do_asset_transfer(
     //     receiver=Global.current_application_address,
@@ -559,9 +559,9 @@ do_asset_transfer:
     itxn_field XferAsset
     // amm/contract.py:358
     // itxn.AssetTransfer(
-    int axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // amm/contract.py:358-362
     // itxn.AssetTransfer(
@@ -598,8 +598,8 @@ mint:
     // amm/contract.py:113-114
     // # well-formed mint
     // assert pool_asset == self.pool_token, "asset pool incorrect"
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     frame_dig -3
@@ -608,8 +608,8 @@ mint:
     assert // asset pool incorrect
     // amm/contract.py:115
     // assert a_asset == self.asset_a, "asset a incorrect"
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
@@ -618,8 +618,8 @@ mint:
     assert // asset a incorrect
     // amm/contract.py:116
     // assert b_asset == self.asset_b, "asset b incorrect"
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -656,8 +656,8 @@ mint:
     // assert a_xfer.xfer_asset == self.asset_a, "asset a incorrect"
     frame_dig -5
     gtxns XferAsset
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     ==
@@ -666,7 +666,7 @@ mint:
     // assert a_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -5
     gtxns AssetAmount
-    int 0
+    pushint 0 // 0
     >
     assert // amount minimum not met
     // amm/contract.py:129
@@ -685,8 +685,8 @@ mint:
     // assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
     frame_dig -4
     gtxns XferAsset
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     ==
@@ -695,7 +695,7 @@ mint:
     // assert b_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -4
     gtxns AssetAmount
-    int 0
+    pushint 0 // 0
     >
     assert // amount minimum not met
     // amm/contract.py:135
@@ -731,16 +731,16 @@ mint:
     callsub tokens_to_mint
     // amm/contract.py:141
     // assert to_mint > 0, "send amount too low"
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     >
     assert // send amount too low
     // amm/contract.py:143-144
     // # mint tokens
     // do_asset_transfer(receiver=Txn.sender, asset=self.pool_token, amount=to_mint)
     txn Sender
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     uncover 2
@@ -759,8 +759,8 @@ _check_bootstrapped:
     proto 0 0
     // amm/contract.py:253
     // assert self.pool_token, "bootstrap method needs to be called first"
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     assert // bootstrap method needs to be called first
@@ -776,8 +776,8 @@ _current_pool_balance:
     // amm/contract.py:293
     // return self.pool_token.balance(Global.current_application_address)
     global CurrentApplicationAddress
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     asset_holding_get AssetBalance
@@ -794,8 +794,8 @@ _current_a_balance:
     // amm/contract.py:297
     // return self.asset_a.balance(Global.current_application_address)
     global CurrentApplicationAddress
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_holding_get AssetBalance
@@ -812,8 +812,8 @@ _current_b_balance:
     // amm/contract.py:301
     // return self.asset_b.balance(Global.current_application_address)
     global CurrentApplicationAddress
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_holding_get AssetBalance
@@ -834,8 +834,8 @@ tokens_to_mint:
     //     b_amount: UInt64,
     // ) -> UInt64:
     proto 5 1
-    byte ""
-    dup
+    pushbytes ""
+    pushbytes ""
     // amm/contract.py:331
     // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     frame_dig -4
@@ -846,11 +846,11 @@ tokens_to_mint:
     frame_dig -1
     ==
     bz tokens_to_mint_bool_false@3
-    int 1
+    pushint 1 // 1
     b tokens_to_mint_bool_merge@4
 
 tokens_to_mint_bool_false@3:
-    int 0
+    pushint 0 // 0
 
 tokens_to_mint_bool_merge@4:
     // amm/contract.py:332
@@ -862,7 +862,7 @@ tokens_to_mint_bool_merge@4:
     frame_dig -1
     *
     sqrt
-    int 1000
+    pushint 1000 // 1000
     -
     frame_bury 0
     retsub
@@ -870,12 +870,12 @@ tokens_to_mint_bool_merge@4:
 tokens_to_mint_after_if_else@6:
     // amm/contract.py:334
     // issued = TOTAL_SUPPLY - pool_balance
-    int 10000000000
+    pushint 10000000000 // 10000000000
     frame_dig -5
     -
     // amm/contract.py:335
     // a_ratio = SCALE * a_amount // (a_balance - a_amount)
-    int 1000
+    pushint 1000 // 1000
     frame_dig -2
     *
     frame_dig -4
@@ -883,10 +883,11 @@ tokens_to_mint_after_if_else@6:
     -
     /
     dup
+    cover 1
     frame_bury 0
     // amm/contract.py:336
     // b_ratio = SCALE * b_amount // (b_balance - b_amount)
-    int 1000
+    pushint 1000 // 1000
     frame_dig -1
     *
     frame_dig -3
@@ -894,6 +895,7 @@ tokens_to_mint_after_if_else@6:
     -
     /
     dup
+    cover 1
     frame_bury 1
     // amm/contract.py:337
     // if a_ratio < b_ratio:
@@ -904,7 +906,7 @@ tokens_to_mint_after_if_else@6:
     frame_dig 0
     uncover 1
     *
-    int 1000
+    pushint 1000 // 1000
     /
     frame_bury 0
     retsub
@@ -915,7 +917,7 @@ tokens_to_mint_else_body@8:
     frame_dig 1
     uncover 1
     *
-    int 1000
+    pushint 1000 // 1000
     /
     frame_bury 0
     retsub
@@ -936,11 +938,11 @@ _update_ratio:
     cover 1
     // amm/contract.py:260
     // self.ratio = a_balance * SCALE // b_balance
-    int 1000
+    pushint 1000 // 1000
     *
     uncover 1
     /
-    byte "ratio"
+    pushbytes "ratio"
     uncover 1
     app_global_put
     retsub
@@ -969,8 +971,8 @@ burn:
     callsub _check_bootstrapped
     // amm/contract.py:172
     // assert pool_asset == self.pool_token, "asset pool incorrect"
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     frame_dig -3
@@ -979,8 +981,8 @@ burn:
     assert // asset pool incorrect
     // amm/contract.py:173
     // assert a_asset == self.asset_a, "asset a incorrect"
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
@@ -989,8 +991,8 @@ burn:
     assert // asset a incorrect
     // amm/contract.py:174
     // assert b_asset == self.asset_b, "asset b incorrect"
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -1012,15 +1014,15 @@ burn:
     // assert pool_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -4
     gtxns AssetAmount
-    int 0
+    pushint 0 // 0
     >
     assert // amount minimum not met
     // amm/contract.py:180
     // assert pool_xfer.xfer_asset == self.pool_token, "asset pool incorrect"
     frame_dig -4
     gtxns XferAsset
-    int 0
-    byte "pool_token"
+    pushint 0 // 0
+    pushbytes "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     ==
@@ -1077,8 +1079,8 @@ burn:
     // # Send back commensurate amt of a
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
     txn Sender
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 2
@@ -1087,8 +1089,8 @@ burn:
     // # Send back commensurate amt of b
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_b, amount=b_amt)
     txn Sender
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     uncover 2
@@ -1107,7 +1109,7 @@ tokens_to_burn:
     proto 3 1
     // amm/contract.py:345
     // issued = TOTAL_SUPPLY - pool_balance - amount
-    int 10000000000
+    pushint 10000000000 // 10000000000
     frame_dig -3
     -
     frame_dig -1
@@ -1138,15 +1140,15 @@ swap:
     //     b_asset: Asset,
     // ) -> None:
     proto 3 0
-    byte ""
-    dup
+    pushbytes ""
+    pushbytes ""
     // amm/contract.py:223
     // self._check_bootstrapped()
     callsub _check_bootstrapped
     // amm/contract.py:225
     // assert a_asset == self.asset_a, "asset a incorrect"
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
@@ -1155,8 +1157,8 @@ swap:
     assert // asset a incorrect
     // amm/contract.py:226
     // assert b_asset == self.asset_b, "asset b incorrect"
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -1167,7 +1169,7 @@ swap:
     // assert swap_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -3
     gtxns AssetAmount
-    int 0
+    pushint 0 // 0
     >
     assert // amount minimum not met
     // amm/contract.py:229
@@ -1179,14 +1181,14 @@ swap:
     assert // sender invalid
     // amm/contract.py:232
     // case self.asset_a:
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     // amm/contract.py:236
     // case self.asset_b:
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     // amm/contract.py:231
@@ -1223,8 +1225,8 @@ swap_switch_case_0@1:
     callsub _current_a_balance
     // amm/contract.py:235
     // out_asset = self.asset_a
-    int 0
-    byte "asset_a"
+    pushint 0 // 0
+    pushbytes "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_bury 1
@@ -1240,8 +1242,8 @@ swap_switch_case_1@2:
     callsub _current_b_balance
     // amm/contract.py:239
     // out_asset = self.asset_b
-    int 0
-    byte "asset_b"
+    pushint 0 // 0
+    pushbytes "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_bury 1
@@ -1266,8 +1268,8 @@ swap_switch_case_next@4:
     callsub tokens_to_swap
     // amm/contract.py:246
     // assert to_swap > 0, "send amount too low"
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     >
     assert // send amount too low
     // amm/contract.py:248
@@ -1293,17 +1295,17 @@ tokens_to_swap:
     frame_dig -2
     frame_dig -3
     -
-    int 1000
+    pushint 1000 // 1000
     uncover 1
     *
     frame_dig -3
-    int 995
+    pushint 995 // 995
     *
     +
     // amm/contract.py:352
     // out_total = in_amount * FACTOR * out_supply
     frame_dig -3
-    int 995
+    pushint 995 // 995
     *
     frame_dig -1
     *
@@ -1330,32 +1332,32 @@ __init__:
     // amm/contract.py:32-33
     // # The asset id of asset A
     // self.asset_a = Asset()
-    byte "asset_a"
-    int 0
+    pushbytes "asset_a"
+    pushint 0 // 0
     app_global_put
     // amm/contract.py:34-35
     // # The asset id of asset B
     // self.asset_b = Asset()
-    byte "asset_b"
-    int 0
+    pushbytes "asset_b"
+    pushint 0 // 0
     app_global_put
     // amm/contract.py:36-37
     // # The current governor of this contract, allowed to do admin type actions
     // self.governor = Txn.sender
     txn Sender
-    byte "governor"
+    pushbytes "governor"
     uncover 1
     app_global_put
     // amm/contract.py:38-39
     // # The asset id of the Pool Token, used to track share of pool the holder may recover
     // self.pool_token = Asset()
-    byte "pool_token"
-    int 0
+    pushbytes "pool_token"
+    pushint 0 // 0
     app_global_put
     // amm/contract.py:40-41
     // # The ratio between assets (A*Scale/B)
     // self.ratio = UInt64(0)
-    byte "ratio"
-    int 0
+    pushbytes "ratio"
+    pushint 0 // 0
     app_global_put
     retsub

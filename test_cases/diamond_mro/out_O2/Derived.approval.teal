@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.diamond_mro.derived.Derived.approval_program:
+    intcblock 0 1
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -15,11 +16,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___after_if_else@7
-    method "method()void"
-    method "create()void"
+    pushbytess 0x4f045d84 0x4c5c61ba // method "method()void", method "create()void"
     txna ApplicationArgs 0
     match __puya_arc4_router___method_route@2 __puya_arc4_router___create_route@3
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___method_route@2:
@@ -29,7 +29,7 @@ __puya_arc4_router___method_route@2:
     txn ApplicationID
     assert // is not creating
     callsub method
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___create_route@3:
@@ -39,18 +39,18 @@ __puya_arc4_router___create_route@3:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@7:
-    int 0
+    intc_0 // 0
     retsub
 
 
 // test_cases.diamond_mro.derived.Derived.method() -> void:
 method:
     proto 0 0
-    byte "derived.method"
+    pushbytes "derived.method"
     log
     callsub test_cases.diamond_mro.base1.Base1.method
     retsub
@@ -59,7 +59,7 @@ method:
 // test_cases.diamond_mro.base1.Base1.method() -> void:
 test_cases.diamond_mro.base1.Base1.method:
     proto 0 0
-    byte "base1.method"
+    pushbytes "base1.method"
     log
     callsub test_cases.diamond_mro.base2.Base2.method
     retsub
@@ -68,7 +68,7 @@ test_cases.diamond_mro.base1.Base1.method:
 // test_cases.diamond_mro.base2.Base2.method() -> void:
 test_cases.diamond_mro.base2.Base2.method:
     proto 0 0
-    byte "base2.method"
+    pushbytes "base2.method"
     log
     callsub test_cases.diamond_mro.gp.GP.method
     retsub
@@ -77,7 +77,7 @@ test_cases.diamond_mro.base2.Base2.method:
 // test_cases.diamond_mro.gp.GP.method() -> void:
 test_cases.diamond_mro.gp.GP.method:
     proto 0 0
-    byte "gp.method"
+    pushbytes "gp.method"
     log
     retsub
 
@@ -85,7 +85,7 @@ test_cases.diamond_mro.gp.GP.method:
 // test_cases.diamond_mro.derived.Derived.__init__() -> void:
 __init__:
     proto 0 0
-    byte "derived.__init__"
+    pushbytes "derived.__init__"
     log
     callsub test_cases.diamond_mro.base1.Base1.__init__
     retsub
@@ -94,7 +94,7 @@ __init__:
 // test_cases.diamond_mro.base1.Base1.__init__() -> void:
 test_cases.diamond_mro.base1.Base1.__init__:
     proto 0 0
-    byte "base1.__init__"
+    pushbytes "base1.__init__"
     log
     callsub test_cases.diamond_mro.base2.Base2.__init__
     retsub
@@ -103,7 +103,7 @@ test_cases.diamond_mro.base1.Base1.__init__:
 // test_cases.diamond_mro.base2.Base2.__init__() -> void:
 test_cases.diamond_mro.base2.Base2.__init__:
     proto 0 0
-    byte "base2.__init__"
+    pushbytes "base2.__init__"
     log
     callsub test_cases.diamond_mro.gp.GP.__init__
     retsub
@@ -112,6 +112,6 @@ test_cases.diamond_mro.base2.Base2.__init__:
 // test_cases.diamond_mro.gp.GP.__init__() -> void:
 test_cases.diamond_mro.gp.GP.__init__:
     proto 0 0
-    byte "gp.__init__"
+    pushbytes "gp.__init__"
     log
     retsub

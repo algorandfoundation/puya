@@ -16,12 +16,12 @@ __puya_arc4_router__:
     // class Derived(Base1, Base2):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
-    method "method()void"
-    method "create()void"
+    pushbytes 0x4f045d84 // method "method()void"
+    pushbytes 0x4c5c61ba // method "create()void"
     uncover 2
     match __puya_arc4_router___method_route@2 __puya_arc4_router___create_route@3
     b __puya_arc4_router___switch_case_default@4
@@ -30,30 +30,30 @@ __puya_arc4_router___method_route@2:
     // diamond_mro/derived.py:12
     // @arc4.abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub method
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___create_route@3:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -64,7 +64,7 @@ __puya_arc4_router___bare_routing@6:
 __puya_arc4_router___after_if_else@7:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -76,7 +76,7 @@ method:
     proto 0 0
     // diamond_mro/derived.py:14
     // log("derived.method")
-    byte "derived.method"
+    pushbytes "derived.method"
     log
     // diamond_mro/derived.py:15
     // super().method()
@@ -92,7 +92,7 @@ test_cases.diamond_mro.base1.Base1.method:
     proto 0 0
     // diamond_mro/base1.py:13
     // log("base1.method")
-    byte "base1.method"
+    pushbytes "base1.method"
     log
     // diamond_mro/base1.py:14
     // super().method()
@@ -108,7 +108,7 @@ test_cases.diamond_mro.base2.Base2.method:
     proto 0 0
     // diamond_mro/base2.py:13
     // log("base2.method")
-    byte "base2.method"
+    pushbytes "base2.method"
     log
     // diamond_mro/base2.py:14
     // super().method()
@@ -124,7 +124,7 @@ test_cases.diamond_mro.gp.GP.method:
     proto 0 0
     // diamond_mro/gp.py:17
     // log("gp.method")
-    byte "gp.method"
+    pushbytes "gp.method"
     log
     retsub
 
@@ -145,7 +145,7 @@ __init__:
     proto 0 0
     // diamond_mro/derived.py:9
     // log("derived.__init__")
-    byte "derived.__init__"
+    pushbytes "derived.__init__"
     log
     // diamond_mro/derived.py:10
     // super().__init__()
@@ -160,7 +160,7 @@ test_cases.diamond_mro.base1.Base1.__init__:
     proto 0 0
     // diamond_mro/base1.py:8
     // log("base1.__init__")
-    byte "base1.__init__"
+    pushbytes "base1.__init__"
     log
     // diamond_mro/base1.py:9
     // super().__init__()
@@ -175,7 +175,7 @@ test_cases.diamond_mro.base2.Base2.__init__:
     proto 0 0
     // diamond_mro/base2.py:8
     // log("base2.__init__")
-    byte "base2.__init__"
+    pushbytes "base2.__init__"
     log
     // diamond_mro/base2.py:9
     // super().__init__()
@@ -190,6 +190,6 @@ test_cases.diamond_mro.gp.GP.__init__:
     proto 0 0
     // diamond_mro/gp.py:8
     // log("gp.__init__")
-    byte "gp.__init__"
+    pushbytes "gp.__init__"
     log
     retsub

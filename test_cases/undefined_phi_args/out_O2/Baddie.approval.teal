@@ -1,150 +1,152 @@
 #pragma version 10
 
 test_cases.undefined_phi_args.baddie.Baddie.approval_program:
+    intcblock 1 0 10 8
+    bytecblock 0x0a 0x08 0x75696e74 0x6279746573
     txna ApplicationArgs 0
     txn NumAppArgs
-    int 1
+    intc_0 // 1
     >
     bz main_bool_false@3
     txna ApplicationArgs 1
     btoi
     bz main_bool_false@3
-    int 1
+    intc_0 // 1
     b main_bool_merge@4
 
 main_bool_false@3:
-    int 0
+    intc_1 // 0
 
 main_bool_merge@4:
     bz main_else_body@12
     dup
-    byte 0x75696e74
+    bytec_2 // 0x75696e74
     ==
     bz main_else_body@7
-    int 1
-    int 0
+    intc_0 // 1
+    intc_1 // 0
     callsub test_uint_undefined
-    int 10
+    intc_2 // 10
     ==
     assert
-    int 0
-    int 1
+    intc_1 // 0
+    intc_0 // 1
     callsub test_uint_undefined
-    int 8
+    intc_3 // 8
     ==
     assert
     b main_after_if_else@19
 
 main_else_body@7:
     dup
-    byte 0x6279746573
+    bytec_3 // 0x6279746573
     ==
     bz main_else_body@9
-    int 1
-    int 0
+    intc_0 // 1
+    intc_1 // 0
     callsub test_bytes_undefined
-    byte 0x0a
+    bytec_0 // 0x0a
     b==
     assert
-    int 0
-    int 1
+    intc_1 // 0
+    intc_0 // 1
     callsub test_bytes_undefined
-    byte 0x08
+    bytec_1 // 0x08
     b==
     assert
     b main_after_if_else@19
 
 main_else_body@9:
-    int 1
-    int 0
+    intc_0 // 1
+    intc_1 // 0
     callsub test_mixed_undefined
-    byte 0x0a
+    bytec_0 // 0x0a
     b==
     assert
-    int 0
-    int 1
+    intc_1 // 0
+    intc_0 // 1
     callsub test_mixed_undefined
-    byte 0x08
+    bytec_1 // 0x08
     b==
     assert
     b main_after_if_else@19
 
 main_else_body@12:
     dup
-    byte 0x75696e74
+    bytec_2 // 0x75696e74
     ==
     bz main_else_body@14
-    int 1
+    intc_0 // 1
     dup
     callsub test_uint_undefined
-    int 8
+    intc_3 // 8
     ==
     assert
-    int 0
+    intc_1 // 0
     dup
     callsub test_uint_undefined
-    int 10
+    intc_2 // 10
     ==
     assert
     b main_after_if_else@19
 
 main_else_body@14:
     dup
-    byte 0x6279746573
+    bytec_3 // 0x6279746573
     ==
     bz main_else_body@16
-    int 1
+    intc_0 // 1
     dup
     callsub test_bytes_undefined
-    byte 0x08
+    bytec_1 // 0x08
     b==
     assert
-    int 0
+    intc_1 // 0
     dup
     callsub test_bytes_undefined
-    byte 0x0a
+    bytec_0 // 0x0a
     b==
     assert
     b main_after_if_else@19
 
 main_else_body@16:
-    int 1
+    intc_0 // 1
     dup
     callsub test_mixed_undefined
-    byte 0x08
+    bytec_1 // 0x08
     b==
     assert
-    int 0
+    intc_1 // 0
     dup
     callsub test_mixed_undefined
-    byte 0x0a
+    bytec_0 // 0x0a
     b==
     assert
 
 main_after_if_else@19:
-    int 1
+    intc_0 // 1
     return
 
 
 // test_cases.undefined_phi_args.baddie.test_uint_undefined(x: uint64, y: uint64) -> uint64:
 test_uint_undefined:
     proto 2 1
-    byte ""
+    pushbytes ""
     frame_dig -2
     bz test_uint_undefined_after_if_else@2
-    int 7
+    pushint 7 // 7
     frame_bury 0
 
 test_uint_undefined_after_if_else@2:
     frame_dig -1
     bz test_uint_undefined_else_body@7
     frame_dig 0
-    int 1
+    intc_0 // 1
     +
     b test_uint_undefined_after_if_else@8
 
 test_uint_undefined_else_body@7:
-    int 10
+    intc_2 // 10
 
 test_uint_undefined_after_if_else@8:
     swap
@@ -154,22 +156,22 @@ test_uint_undefined_after_if_else@8:
 // test_cases.undefined_phi_args.baddie.test_bytes_undefined(x: uint64, y: uint64) -> bytes:
 test_bytes_undefined:
     proto 2 1
-    int 0
+    intc_1 // 0
     frame_dig -2
     bz test_bytes_undefined_after_if_else@2
-    byte 0x07
+    pushbytes 0x07
     frame_bury 0
 
 test_bytes_undefined_after_if_else@2:
     frame_dig -1
     bz test_bytes_undefined_else_body@7
     frame_dig 0
-    byte 0x01
+    pushbytes 0x01
     b+
     b test_bytes_undefined_after_if_else@8
 
 test_bytes_undefined_else_body@7:
-    byte 0x0a
+    bytec_0 // 0x0a
 
 test_bytes_undefined_after_if_else@8:
     swap
@@ -179,10 +181,10 @@ test_bytes_undefined_after_if_else@8:
 // test_cases.undefined_phi_args.baddie.test_mixed_undefined(x: uint64, y: uint64) -> bytes:
 test_mixed_undefined:
     proto 2 1
-    byte ""
+    pushbytes ""
     frame_dig -2
     bz test_mixed_undefined_after_if_else@2
-    int 7
+    pushint 7 // 7
     frame_bury 0
 
 test_mixed_undefined_after_if_else@2:
@@ -190,12 +192,12 @@ test_mixed_undefined_after_if_else@2:
     bz test_mixed_undefined_else_body@7
     frame_dig 0
     itob
-    byte 0x01
+    pushbytes 0x01
     b+
     b test_mixed_undefined_after_if_else@8
 
 test_mixed_undefined_else_body@7:
-    byte 0x0a
+    bytec_0 // 0x0a
 
 test_mixed_undefined_after_if_else@8:
     swap

@@ -11,13 +11,13 @@ __puya_arc4_router__:
     // class TxnContract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
-    method "call_with_txn(byte[],txn,byte[])uint64"
-    method "call_with_acfg(byte[],acfg,byte[])uint64"
-    method "call_with_acfg_no_return(byte[],acfg,byte[])void"
+    pushbytes 0xa1f5040d // method "call_with_txn(byte[],txn,byte[])uint64"
+    pushbytes 0x6d4700ad // method "call_with_acfg(byte[],acfg,byte[])uint64"
+    pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     uncover 3
     match __puya_arc4_router___call_with_txn_route@2 __puya_arc4_router___call_with_acfg_route@3 __puya_arc4_router___call_with_acfg_no_return_route@4
     b __puya_arc4_router___switch_case_default@5
@@ -26,11 +26,11 @@ __puya_arc4_router___call_with_txn_route@2:
     // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // typed_abi_call_txn/txn_contract.py:11
@@ -38,7 +38,7 @@ __puya_arc4_router___call_with_txn_route@2:
     txna ApplicationArgs 1
     extract 2 0
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
     txna ApplicationArgs 2
     extract 2 0
@@ -49,22 +49,22 @@ __puya_arc4_router___call_with_txn_route@2:
     uncover 2
     callsub call_with_txn
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___call_with_acfg_route@3:
     // typed_abi_call_txn/txn_contract.py:20
     // @arc4.abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // typed_abi_call_txn/txn_contract.py:11
@@ -72,11 +72,11 @@ __puya_arc4_router___call_with_acfg_route@3:
     txna ApplicationArgs 1
     extract 2 0
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int acfg
+    pushint 3 // acfg
     ==
     assert // transaction type is acfg
     txna ApplicationArgs 2
@@ -88,22 +88,22 @@ __puya_arc4_router___call_with_acfg_route@3:
     uncover 2
     callsub call_with_acfg
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___call_with_acfg_no_return_route@4:
     // typed_abi_call_txn/txn_contract.py:27
     // @arc4.abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // typed_abi_call_txn/txn_contract.py:11
@@ -111,11 +111,11 @@ __puya_arc4_router___call_with_acfg_no_return_route@4:
     txna ApplicationArgs 1
     extract 2 0
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     gtxns TypeEnum
-    int acfg
+    pushint 3 // acfg
     ==
     assert // transaction type is acfg
     txna ApplicationArgs 2
@@ -126,7 +126,7 @@ __puya_arc4_router___call_with_acfg_no_return_route@4:
     uncover 2
     uncover 2
     callsub call_with_acfg_no_return
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -136,7 +136,7 @@ __puya_arc4_router___bare_routing@7:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
     txn OnCompletion
-    int 0
+    pushint 0 // 0
     uncover 1
     match __puya_arc4_router_____algopy_default_create@8
     b __puya_arc4_router___switch_case_default@9
@@ -145,11 +145,11 @@ __puya_arc4_router_____algopy_default_create@8:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@9:
@@ -157,7 +157,7 @@ __puya_arc4_router___switch_case_default@9:
 __puya_arc4_router___after_if_else@11:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -170,27 +170,27 @@ call_with_txn:
     // typed_abi_call_txn/txn_contract.py:14
     // assert a == b"a", "a is not a"
     frame_dig -3
-    byte 0x61
+    pushbytes 0x61
     ==
     assert // a is not a
     // typed_abi_call_txn/txn_contract.py:15
     // assert b == b"b", "b is not b"
     frame_dig -1
-    byte 0x62
+    pushbytes 0x62
     ==
     assert // b is not b
     // typed_abi_call_txn/txn_contract.py:16
     // assert acfg.type == TransactionType.AssetConfig, "expected asset config"
     frame_dig -2
     gtxns TypeEnum
-    int acfg
+    pushint 3 // acfg
     ==
     assert // expected asset config
     // typed_abi_call_txn/txn_contract.py:17
     // assert acfg.created_asset.id, "expected asset id"
     frame_dig -2
     gtxns CreatedAssetID
-    int 0
+    pushint 0 // 0
     !=
     assert // expected asset id
     // typed_abi_call_txn/txn_contract.py:18
@@ -209,20 +209,20 @@ call_with_acfg:
     // typed_abi_call_txn/txn_contract.py:22
     // assert a == b"a", "a is not a"
     frame_dig -3
-    byte 0x61
+    pushbytes 0x61
     ==
     assert // a is not a
     // typed_abi_call_txn/txn_contract.py:23
     // assert b == b"b", "b is not b"
     frame_dig -1
-    byte 0x62
+    pushbytes 0x62
     ==
     assert // b is not b
     // typed_abi_call_txn/txn_contract.py:24
     // assert acfg.created_asset.id, "expected asset id"
     frame_dig -2
     gtxns CreatedAssetID
-    int 0
+    pushint 0 // 0
     !=
     assert // expected asset id
     // typed_abi_call_txn/txn_contract.py:25
@@ -243,20 +243,20 @@ call_with_acfg_no_return:
     // typed_abi_call_txn/txn_contract.py:31
     // assert a == b"a", "a is not a"
     frame_dig -3
-    byte 0x61
+    pushbytes 0x61
     ==
     assert // a is not a
     // typed_abi_call_txn/txn_contract.py:32
     // assert b == b"b", "b is not b"
     frame_dig -1
-    byte 0x62
+    pushbytes 0x62
     ==
     assert // b is not b
     // typed_abi_call_txn/txn_contract.py:33
     // assert acfg.created_asset.id, "expected asset id"
     frame_dig -2
     gtxns CreatedAssetID
-    int 0
+    pushint 0 // 0
     !=
     assert // expected asset id
     retsub

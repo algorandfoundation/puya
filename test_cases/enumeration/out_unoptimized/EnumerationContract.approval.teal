@@ -3,9 +3,9 @@
 test_cases.enumeration.contract.EnumerationContract.approval_program:
     // enumeration/contract.py:6
     // iteration_count, item_sum, index_sum = enumerate_urange(UInt64(10), UInt64(21), UInt64(5))
-    int 10
-    int 21
-    int 5
+    pushint 10 // 10
+    pushint 21 // 21
+    pushint 5 // 5
     callsub enumerate_urange
     cover 2
     cover 2
@@ -13,25 +13,25 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     cover 2
     // enumeration/contract.py:8
     // assert iteration_count == 6
-    int 6
+    pushint 6 // 6
     ==
     assert
     // enumeration/contract.py:9
     // assert item_sum == 90
-    int 90
+    pushint 90 // 90
     ==
     assert
     // enumeration/contract.py:10
     // assert index_sum == 3
-    int 3
+    pushint 3 // 3
     ==
     assert
     // enumeration/contract.py:13
     // (Bytes(b"How"), Bytes(b"Now"), Bytes(b"Brown"), Bytes(b"Cow"))
-    byte 0x486f77
-    byte 0x4e6f77
-    byte 0x42726f776e
-    byte 0x436f77
+    pushbytes 0x486f77
+    pushbytes 0x4e6f77
+    pushbytes 0x42726f776e
+    pushbytes 0x436f77
     // enumeration/contract.py:12-14
     // iteration_count, item_concat, index_sum = enumerate_tuple(
     //     (Bytes(b"How"), Bytes(b"Now"), Bytes(b"Brown"), Bytes(b"Cow"))
@@ -43,22 +43,22 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     cover 2
     // enumeration/contract.py:16
     // assert iteration_count == 8
-    int 8
+    pushint 8 // 8
     ==
     assert
     // enumeration/contract.py:17
     // assert item_concat == Bytes(b"HowNowBrownCowHowNowBrownCow")
-    byte 0x486f774e6f7742726f776e436f77486f774e6f7742726f776e436f77
+    pushbytes 0x486f774e6f7742726f776e436f77486f774e6f7742726f776e436f77
     ==
     assert
     // enumeration/contract.py:18
     // assert index_sum == 6
-    int 6
+    pushint 6 // 6
     ==
     assert
     // enumeration/contract.py:20
     // iteration_count, item_concat, index_sum = enumerate_bytes(Bytes(b"abcdefg"))
-    byte 0x61626364656667
+    pushbytes 0x61626364656667
     callsub enumerate_bytes
     cover 2
     cover 2
@@ -66,22 +66,22 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     cover 2
     // enumeration/contract.py:22
     // assert iteration_count == 14
-    int 14
+    pushint 14 // 14
     ==
     assert
     // enumeration/contract.py:23
     // assert item_concat == Bytes(b"abcdefgabcdefg")
-    byte 0x6162636465666761626364656667
+    pushbytes 0x6162636465666761626364656667
     ==
     assert
     // enumeration/contract.py:24
     // assert index_sum == 21
-    int 21
+    pushint 21 // 21
     ==
     assert
     // enumeration/contract.py:26
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -91,16 +91,16 @@ enumerate_urange:
     // @subroutine
     // def enumerate_urange(start: UInt64, stop: UInt64, step: UInt64) -> tuple[UInt64, UInt64, UInt64]:
     proto 3 3
-    byte ""
+    pushbytes ""
     // enumeration/contract.py:34
     // iteration_count = UInt64(0)
-    int 0
+    pushint 0 // 0
     // enumeration/contract.py:35
     // item_sum = UInt64(0)
-    int 0
+    pushint 0 // 0
     // enumeration/contract.py:36
     // index_sum = UInt64(0)
-    int 0
+    pushint 0 // 0
     // enumeration/contract.py:38
     // for item in urange(start, stop, step):
     frame_dig -1
@@ -117,7 +117,7 @@ enumerate_urange_for_header@1:
     // enumeration/contract.py:39
     // iteration_count += 1
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     // enumeration/contract.py:40
@@ -141,7 +141,7 @@ enumerate_urange_after_for@4:
     assert // Step cannot be zero
     frame_dig -3
     frame_bury 4
-    int 0
+    pushint 0 // 0
     frame_bury 0
 
 enumerate_urange_for_header@5:
@@ -154,7 +154,7 @@ enumerate_urange_for_header@5:
     // enumeration/contract.py:43
     // iteration_count += 1
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     // enumeration/contract.py:44
@@ -176,7 +176,7 @@ enumerate_urange_for_header@5:
     +
     frame_bury 4
     frame_dig 0
-    int 1
+    pushint 1 // 1
     +
     frame_bury 0
     b enumerate_urange_for_header@5
@@ -199,17 +199,17 @@ enumerate_tuple:
     // @subroutine
     // def enumerate_tuple(tup: tuple[Bytes, Bytes, Bytes, Bytes]) -> tuple[UInt64, Bytes, UInt64]:
     proto 4 3
-    byte ""
+    pushbytes ""
     // enumeration/contract.py:52
     // iteration_count = UInt64(0)
-    int 0
+    pushint 0 // 0
     // enumeration/contract.py:53
     // item_concat = Bytes(b"")
-    byte 0x
+    pushbytes 0x
     // enumeration/contract.py:54
     // index_sum = UInt64(0)
-    int 0
-    int 0
+    pushint 0 // 0
+    pushint 0 // 0
     // enumeration/contract.py:56
     // for item in tup:
     frame_dig -4
@@ -218,7 +218,7 @@ enumerate_tuple_for_body@1:
     // enumeration/contract.py:57
     // iteration_count += 1
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     // enumeration/contract.py:58
@@ -234,7 +234,7 @@ enumerate_tuple_for_body@1:
     b enumerate_tuple_after_for@6
 
 enumerate_tuple_for_header_1@3:
-    int 1
+    pushint 1 // 1
     frame_bury 4
     // enumeration/contract.py:56
     // for item in tup:
@@ -242,7 +242,7 @@ enumerate_tuple_for_header_1@3:
     b enumerate_tuple_for_body@1
 
 enumerate_tuple_for_header_2@4:
-    int 2
+    pushint 2 // 2
     frame_bury 4
     // enumeration/contract.py:56
     // for item in tup:
@@ -250,7 +250,7 @@ enumerate_tuple_for_header_2@4:
     b enumerate_tuple_for_body@1
 
 enumerate_tuple_for_header_3@5:
-    int 3
+    pushint 3 // 3
     frame_bury 4
     // enumeration/contract.py:56
     // for item in tup:
@@ -261,14 +261,14 @@ enumerate_tuple_after_for@6:
     // enumeration/contract.py:59
     // for index, item in uenumerate(tup):
     frame_dig -4
-    int 0
+    pushint 0 // 0
     frame_bury 0
 
 enumerate_tuple_for_body@7:
     // enumeration/contract.py:60
     // iteration_count += 1
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     // enumeration/contract.py:61
@@ -293,7 +293,7 @@ enumerate_tuple_for_header_1@9:
     // enumeration/contract.py:59
     // for index, item in uenumerate(tup):
     frame_dig -3
-    int 1
+    pushint 1 // 1
     frame_bury 0
     b enumerate_tuple_for_body@7
 
@@ -301,7 +301,7 @@ enumerate_tuple_for_header_2@10:
     // enumeration/contract.py:59
     // for index, item in uenumerate(tup):
     frame_dig -2
-    int 2
+    pushint 2 // 2
     frame_bury 0
     b enumerate_tuple_for_body@7
 
@@ -309,7 +309,7 @@ enumerate_tuple_for_header_3@11:
     // enumeration/contract.py:59
     // for index, item in uenumerate(tup):
     frame_dig -1
-    int 3
+    pushint 3 // 3
     frame_bury 0
     b enumerate_tuple_for_body@7
 
@@ -331,22 +331,22 @@ enumerate_bytes:
     // @subroutine
     // def enumerate_bytes(bytes_: Bytes) -> tuple[UInt64, Bytes, UInt64]:
     proto 1 3
-    byte ""
-    dup
+    pushbytes ""
+    pushbytes ""
     // enumeration/contract.py:69
     // iteration_count = UInt64(0)
-    int 0
+    pushint 0 // 0
     // enumeration/contract.py:70
     // item_concat = Bytes(b"")
-    byte 0x
+    pushbytes 0x
     // enumeration/contract.py:71
     // index_sum = UInt64(0)
-    int 0
+    pushint 0 // 0
     // enumeration/contract.py:73
     // for item in bytes_:
     frame_dig -1
     len
-    int 0
+    pushint 0 // 0
 
 enumerate_bytes_for_header@1:
     // enumeration/contract.py:73
@@ -357,12 +357,12 @@ enumerate_bytes_for_header@1:
     bz enumerate_bytes_after_for@4
     frame_dig -1
     frame_dig 6
-    int 1
+    pushint 1 // 1
     extract3
     // enumeration/contract.py:74
     // iteration_count += 1
     frame_dig 2
-    int 1
+    pushint 1 // 1
     +
     frame_bury 2
     // enumeration/contract.py:75
@@ -372,7 +372,7 @@ enumerate_bytes_for_header@1:
     concat
     frame_bury 3
     frame_dig 6
-    int 1
+    pushint 1 // 1
     +
     frame_bury 6
     b enumerate_bytes_for_header@1
@@ -383,7 +383,7 @@ enumerate_bytes_after_for@4:
     frame_dig -1
     len
     frame_bury 0
-    int 0
+    pushint 0 // 0
     frame_bury 1
 
 enumerate_bytes_for_header@5:
@@ -397,12 +397,12 @@ enumerate_bytes_for_header@5:
     frame_dig 1
     dup
     cover 2
-    int 1
+    pushint 1 // 1
     extract3
     // enumeration/contract.py:77
     // iteration_count += 1
     frame_dig 2
-    int 1
+    pushint 1 // 1
     +
     frame_bury 2
     // enumeration/contract.py:78
@@ -418,7 +418,7 @@ enumerate_bytes_for_header@5:
     +
     frame_bury 4
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     b enumerate_bytes_for_header@5

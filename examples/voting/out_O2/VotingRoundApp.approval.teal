@@ -1,6 +1,8 @@
 #pragma version 10
 
 examples.voting.voting.VotingRoundApp.approval_program:
+    intcblock 0 1 10 8
+    bytecblock "vote_id" "option_counts" "is_bootstrapped" "voter_count" "V" "close_time" "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options" 0x30313233343536373839 0x068101
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -15,14 +17,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___after_if_else@10
-    method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
-    method "bootstrap(pay)void"
-    method "close()void"
-    method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
-    method "vote(pay,byte[],uint8[])void"
+    pushbytess 0xae897f6b 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void", method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
     txna ApplicationArgs 0
     match __puya_arc4_router___create_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___close_route@4 __puya_arc4_router___get_preconditions_route@5 __puya_arc4_router___vote_route@6
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___create_route@2:
@@ -48,7 +46,7 @@ __puya_arc4_router___create_route@2:
     txna ApplicationArgs 8
     extract 2 0
     callsub create
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bootstrap_route@3:
@@ -58,15 +56,15 @@ __puya_arc4_router___bootstrap_route@3:
     txn ApplicationID
     assert // is not creating
     txn GroupIndex
-    int 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    int pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     callsub bootstrap
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___close_route@4:
@@ -76,7 +74,7 @@ __puya_arc4_router___close_route@4:
     txn ApplicationID
     assert // is not creating
     callsub close
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___get_preconditions_route@5:
@@ -88,11 +86,11 @@ __puya_arc4_router___get_preconditions_route@5:
     txna ApplicationArgs 1
     extract 2 0
     callsub get_preconditions
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___vote_route@6:
@@ -102,22 +100,22 @@ __puya_arc4_router___vote_route@6:
     txn ApplicationID
     assert // is not creating
     txn GroupIndex
-    int 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    int pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
     callsub vote
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@10:
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -132,25 +130,25 @@ create:
     global LatestTimestamp
     >=
     assert // End time should be in the future
-    byte "vote_id"
+    bytec_0 // "vote_id"
     frame_dig -8
     app_global_put
-    byte "snapshot_public_key"
+    bytec 6 // "snapshot_public_key"
     frame_dig -7
     app_global_put
-    byte "metadata_ipfs_cid"
+    bytec 7 // "metadata_ipfs_cid"
     frame_dig -6
     app_global_put
-    byte "start_time"
+    bytec 8 // "start_time"
     frame_dig -5
     app_global_put
-    byte "end_time"
+    bytec 9 // "end_time"
     frame_dig -4
     app_global_put
-    byte "quorum"
+    bytec 10 // "quorum"
     frame_dig -2
     app_global_put
-    byte "nft_image_url"
+    bytec 11 // "nft_image_url"
     frame_dig -1
     app_global_put
     frame_dig -3
@@ -163,14 +161,14 @@ create:
 store_option_counts:
     proto 1 1
     frame_dig -1
-    int 0
+    intc_0 // 0
     extract_uint16
     dupn 2
     assert // option_counts should be non-empty
-    int 112
+    pushint 112 // 112
     <=
     assert // Can't have more than 112 questions
-    int 0
+    intc_0 // 0
     dup
 
 store_option_counts_for_header@1:
@@ -183,13 +181,13 @@ store_option_counts_for_header@1:
     frame_dig 2
     dup
     cover 2
-    int 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     btoi
     frame_dig 1
     +
     frame_bury 1
-    int 1
+    intc_1 // 1
     +
     frame_bury 2
     b store_option_counts_for_header@1
@@ -197,13 +195,13 @@ store_option_counts_for_header@1:
 store_option_counts_after_for@4:
     frame_dig 1
     dup
-    int 128
+    pushint 128 // 128
     <=
     assert // Can't have more than 128 vote options
-    byte "option_counts"
+    bytec_1 // "option_counts"
     frame_dig -1
     app_global_put
-    byte "total_options"
+    bytec 12 // "total_options"
     swap
     app_global_put
     frame_dig -1
@@ -214,30 +212,30 @@ store_option_counts_after_for@4:
 // examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
 bootstrap:
     proto 1 0
-    int 0
-    byte "is_bootstrapped"
+    intc_0 // 0
+    bytec_2 // "is_bootstrapped"
     app_global_get_ex
     assert // check self.is_bootstrapped exists
     !
     assert // Must not be already bootstrapped
-    byte "is_bootstrapped"
-    int 1
+    bytec_2 // "is_bootstrapped"
+    intc_1 // 1
     app_global_put
     frame_dig -1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert // Payment must be to app address
-    int 0
-    byte "total_options"
+    intc_0 // 0
+    bytec 12 // "total_options"
     app_global_get_ex
     assert // check self.total_options exists
-    int 8
+    intc_3 // 8
     *
     dup
-    int 400
+    pushint 400 // 400
     *
-    int 203900
+    pushint 203900 // 203900
     +
     dup
     itob
@@ -246,7 +244,7 @@ bootstrap:
     gtxns Amount
     ==
     assert // Payment must be for the exact min balance requirement
-    byte "V"
+    bytec 4 // "V"
     swap
     box_create
     assert
@@ -256,72 +254,72 @@ bootstrap:
 // examples.voting.voting.VotingRoundApp.close() -> void:
 close:
     proto 0 0
-    int 0
+    intc_0 // 0
     dup
-    byte ""
+    pushbytes ""
     dupn 2
-    int 20000
-    int 0
+    pushint 20000 // 20000
+    intc_0 // 0
     callsub ensure_budget
-    int 0
-    byte "close_time"
+    intc_0 // 0
+    bytec 5 // "close_time"
     app_global_get_ex
     bury 1
     !
     assert // Already closed
-    byte "close_time"
+    bytec 5 // "close_time"
     global LatestTimestamp
     app_global_put
-    int 0
-    byte "vote_id"
+    intc_0 // 0
+    bytec_0 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
-    byte "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
+    pushbytes "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
     swap
     concat
-    byte ".\",\"properties\":{\"metadata\":\"ipfs://"
+    pushbytes ".\",\"properties\":{\"metadata\":\"ipfs://"
     concat
-    int 0
-    byte "metadata_ipfs_cid"
+    intc_0 // 0
+    bytec 7 // "metadata_ipfs_cid"
     app_global_get_ex
     assert // check self.metadata_ipfs_cid exists
     concat
-    byte "\",\"id\":\""
+    pushbytes "\",\"id\":\""
     concat
-    int 0
-    byte "vote_id"
+    intc_0 // 0
+    bytec_0 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     concat
-    byte "\",\"quorum\":"
+    pushbytes "\",\"quorum\":"
     concat
-    int 0
-    byte "quorum"
+    intc_0 // 0
+    bytec 10 // "quorum"
     app_global_get_ex
     assert // check self.quorum exists
     callsub itoa
     concat
-    byte ",\"voterCount\":"
+    pushbytes ",\"voterCount\":"
     concat
-    int 0
-    byte "voter_count"
+    intc_0 // 0
+    bytec_3 // "voter_count"
     app_global_get_ex
     assert // check self.voter_count exists
     callsub itoa
     concat
-    byte ",\"tallies\":["
+    pushbytes ",\"tallies\":["
     concat
-    int 0
+    intc_0 // 0
     dup
-    byte "option_counts"
+    bytec_1 // "option_counts"
     app_global_get_ex
     swap
     dup
     uncover 2
     assert // check self.option_counts exists
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 0
+    intc_0 // 0
 
 close_for_header@1:
     frame_dig 9
@@ -333,14 +331,14 @@ close_for_header@1:
     frame_dig 9
     dup
     cover 2
-    int 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     frame_bury 1
     frame_dig 5
     frame_bury 0
     bz close_after_if_else@4
     frame_dig 5
-    byte ","
+    pushbytes ","
     concat
     frame_bury 0
 
@@ -349,7 +347,7 @@ close_after_if_else@4:
     dup
     frame_bury 5
     frame_dig 1
-    byte 0x00
+    pushbytes 0x00
     b>
     frame_dig 6
     frame_bury 2
@@ -357,13 +355,13 @@ close_after_if_else@4:
     frame_bury 0
     bz close_after_if_else@12
     frame_dig 5
-    byte "["
+    pushbytes "["
     concat
     frame_bury 5
     frame_dig 1
     btoi
     frame_bury 4
-    int 0
+    intc_0 // 0
     frame_bury 3
 
 close_for_header@6:
@@ -376,7 +374,7 @@ close_for_header@6:
     frame_dig 3
     bz close_after_if_else@9
     frame_dig 5
-    byte ","
+    pushbytes ","
     concat
     frame_bury 0
 
@@ -389,18 +387,18 @@ close_after_if_else@9:
     callsub itoa
     concat
     frame_bury 5
-    int 1
+    intc_1 // 1
     +
     frame_bury 6
     frame_dig 3
-    int 1
+    intc_1 // 1
     +
     frame_bury 3
     b close_for_header@6
 
 close_after_for@11:
     frame_dig 5
-    byte "]"
+    pushbytes "]"
     concat
     frame_dig 6
     frame_bury 2
@@ -412,46 +410,46 @@ close_after_if_else@12:
     frame_dig 0
     frame_bury 5
     frame_dig 9
-    int 1
+    intc_1 // 1
     +
     frame_bury 9
     b close_for_header@1
 
 close_after_for@14:
     frame_dig 5
-    byte "]}}"
+    pushbytes "]}}"
     concat
     itxn_begin
     global MinTxnFee
     swap
-    int 0
-    byte "vote_id"
+    intc_0 // 0
+    bytec_0 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
-    byte "[VOTE RESULT] "
+    pushbytes "[VOTE RESULT] "
     swap
     concat
-    int 0
-    byte "nft_image_url"
+    intc_0 // 0
+    bytec 11 // "nft_image_url"
     app_global_get_ex
     assert // check self.nft_image_url exists
     uncover 2
     itxn_field Note
     itxn_field ConfigAssetURL
-    byte "VOTERSLT"
+    pushbytes "VOTERSLT"
     itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
-    int 0
+    intc_0 // 0
     itxn_field ConfigAssetDefaultFrozen
-    int 0
+    intc_0 // 0
     itxn_field ConfigAssetDecimals
-    int 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
-    int acfg
+    pushint 3 // acfg
     itxn_field TypeEnum
     itxn_field Fee
     itxn_submit
-    byte "nft_asset_id"
+    pushbytes "nft_asset_id"
     itxn CreatedAssetID
     app_global_put
     retsub
@@ -461,13 +459,13 @@ close_after_for@14:
 itoa:
     proto 1 1
     frame_dig -1
-    int 10
+    intc_2 // 10
     <
     bz itoa_after_if_else@2
     frame_dig -1
-    int 1
+    intc_1 // 1
     +
-    byte 0x30313233343536373839
+    bytec 13 // 0x30313233343536373839
     frame_dig -1
     uncover 2
     substring3
@@ -475,16 +473,16 @@ itoa:
 
 itoa_after_if_else@2:
     frame_dig -1
-    int 10
+    intc_2 // 10
     /
     callsub itoa
     frame_dig -1
-    int 10
+    intc_2 // 10
     %
     dup
-    int 1
+    intc_1 // 1
     +
-    byte 0x30313233343536373839
+    bytec 13 // 0x30313233343536373839
     cover 2
     substring3
     concat
@@ -494,9 +492,9 @@ itoa_after_if_else@2:
 // examples.voting.voting.VotingRoundApp.get_vote_from_box(index: uint64) -> uint64:
 get_vote_from_box:
     proto 1 1
-    byte "V"
+    bytec 4 // "V"
     frame_dig -1
-    int 8
+    intc_3 // 8
     box_extract
     btoi
     retsub
@@ -527,19 +525,19 @@ get_preconditions:
 // examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
 voting_open:
     proto 0 1
-    byte ""
-    int 0
-    byte "is_bootstrapped"
+    pushbytes ""
+    intc_0 // 0
+    bytec_2 // "is_bootstrapped"
     app_global_get_ex
     assert // check self.is_bootstrapped exists
     bz voting_open_bool_false@5
-    int 0
-    byte "close_time"
+    intc_0 // 0
+    bytec 5 // "close_time"
     app_global_get_ex
     bury 1
     bnz voting_open_bool_false@5
-    int 0
-    byte "start_time"
+    intc_0 // 0
+    bytec 8 // "start_time"
     app_global_get_ex
     assert // check self.start_time exists
     global LatestTimestamp
@@ -547,18 +545,18 @@ voting_open:
     frame_bury 0
     <=
     bz voting_open_bool_false@5
-    int 0
-    byte "end_time"
+    intc_0 // 0
+    bytec 9 // "end_time"
     app_global_get_ex
     assert // check self.end_time exists
     frame_dig 0
     >=
     bz voting_open_bool_false@5
-    int 1
+    intc_1 // 1
     b voting_open_bool_merge@6
 
 voting_open_bool_false@5:
-    int 0
+    intc_0 // 0
 
 voting_open_bool_merge@6:
     swap
@@ -568,12 +566,12 @@ voting_open_bool_merge@6:
 // examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> uint64:
 allowed_to_vote:
     proto 1 1
-    int 2000
-    int 0
+    pushint 2000 // 2000
+    intc_0 // 0
     callsub ensure_budget
     txn Sender
-    int 0
-    byte "snapshot_public_key"
+    intc_0 // 0
+    bytec 6 // "snapshot_public_key"
     app_global_get_ex
     assert // check self.snapshot_public_key exists
     frame_dig -1
@@ -594,8 +592,8 @@ already_voted:
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
 vote:
     proto 3 0
-    int 7700
-    int 0
+    pushint 7700 // 7700
+    intc_0 // 0
     callsub ensure_budget
     frame_dig -2
     callsub allowed_to_vote
@@ -605,25 +603,25 @@ vote:
     callsub already_voted
     !
     assert // Already voted
-    int 0
-    byte "option_counts"
+    intc_0 // 0
+    bytec_1 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
-    int 0
+    intc_0 // 0
     extract_uint16
     dup
     frame_dig -1
-    int 0
+    intc_0 // 0
     extract_uint16
     dup
     uncover 2
     ==
     assert // Number of answers incorrect
-    int 34
+    pushint 34 // 34
     +
-    int 400
+    pushint 400 // 400
     *
-    int 2500
+    pushint 2500 // 2500
     +
     frame_dig -3
     gtxns Receiver
@@ -637,7 +635,7 @@ vote:
     gtxns Amount
     ==
     assert // Payment must be the exact min balance
-    int 0
+    intc_0 // 0
     dup
 
 vote_for_header@1:
@@ -650,17 +648,17 @@ vote_for_header@1:
     frame_dig 2
     dup
     cover 2
-    int 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    int 0
-    byte "option_counts"
+    intc_0 // 0
+    bytec_1 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     extract 2 0
     dig 1
-    int 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     btoi
     dig 2
@@ -680,16 +678,16 @@ vote_for_header@1:
     pop
     frame_dig -1
     box_put
-    int 0
-    byte "voter_count"
+    intc_0 // 0
+    bytec_3 // "voter_count"
     app_global_get_ex
     assert // check self.voter_count exists
-    int 1
+    intc_1 // 1
     +
-    byte "voter_count"
+    bytec_3 // "voter_count"
     swap
     app_global_put
-    int 1
+    intc_1 // 1
     +
     frame_bury 2
     b vote_for_header@1
@@ -703,10 +701,10 @@ increment_vote_in_box:
     proto 1 0
     frame_dig -1
     callsub get_vote_from_box
-    int 1
+    intc_1 // 1
     +
     itob
-    byte "V"
+    bytec 4 // "V"
     frame_dig -1
     uncover 2
     box_replace
@@ -716,11 +714,11 @@ increment_vote_in_box:
 // examples.voting.voting.VotingRoundApp.__init__() -> void:
 __init__:
     proto 0 0
-    byte "is_bootstrapped"
-    int 0
+    bytec_2 // "is_bootstrapped"
+    intc_0 // 0
     app_global_put
-    byte "voter_count"
-    int 0
+    bytec_3 // "voter_count"
+    intc_0 // 0
     app_global_put
     retsub
 
@@ -729,7 +727,7 @@ __init__:
 ensure_budget:
     proto 2 0
     frame_dig -2
-    int 10
+    intc_2 // 10
     +
 
 ensure_budget_while_top@1:
@@ -738,20 +736,20 @@ ensure_budget_while_top@1:
     >
     bz ensure_budget_after_while@7
     itxn_begin
-    int appl
+    pushint 6 // appl
     itxn_field TypeEnum
-    int DeleteApplication
+    pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    byte 0x068101
+    bytec 14 // 0x068101
     itxn_field ApprovalProgram
-    byte 0x068101
+    bytec 14 // 0x068101
     itxn_field ClearStateProgram
     frame_dig -1
     switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
     b ensure_budget_switch_case_next@6
 
 ensure_budget_switch_case_0@3:
-    int 0
+    intc_0 // 0
     itxn_field Fee
     b ensure_budget_switch_case_next@6
 

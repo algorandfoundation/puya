@@ -16,15 +16,15 @@ __puya_arc4_router__:
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@9
     txna ApplicationArgs 0
-    method "create()void"
-    method "register(string)void"
-    method "say_hello()string"
-    method "calculate(uint64,uint64)uint64"
-    method "close_out()void"
+    pushbytes 0x4c5c61ba // method "create()void"
+    pushbytes 0xbd6099e5 // method "register(string)void"
+    pushbytes 0x5d5c84c7 // method "say_hello()string"
+    pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
+    pushbytes 0x1658aa2f // method "close_out()void"
     uncover 5
     match __puya_arc4_router___create_route@2 __puya_arc4_router___register_route@3 __puya_arc4_router___say_hello_route@4 __puya_arc4_router___calculate_route@5 __puya_arc4_router___close_out_route@6
     b __puya_arc4_router___switch_case_default@7
@@ -33,29 +33,29 @@ __puya_arc4_router___create_route@2:
     // everything/contract.py:41
     // @abimethod(create="require")
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___register_route@3:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
-    int 1
+    pushint 1 // 1
     uncover 1
     shl
-    int 3
+    pushint 3 // 3
     &
     assert // OnCompletion is one of NoOp, OptIn
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // everything/contract.py:37
@@ -64,37 +64,37 @@ __puya_arc4_router___register_route@3:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     callsub register
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___say_hello_route@4:
     // everything/contract.py:56
     // @abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub say_hello
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___calculate_route@5:
     // everything/contract.py:64
     // @abimethod
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // everything/contract.py:37
@@ -104,26 +104,26 @@ __puya_arc4_router___calculate_route@5:
     // everything/contract.py:64
     // @abimethod
     callsub calculate
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___close_out_route@6:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
-    int CloseOut
+    pushint 2 // CloseOut
     ==
     assert // OnCompletion is CloseOut
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub close_out
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -134,7 +134,7 @@ __puya_arc4_router___bare_routing@9:
 __puya_arc4_router___after_if_else@10:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -152,8 +152,8 @@ create:
     callsub remember_creator
     // everything/contract.py:45
     // self.counter = UInt64(ZERO)
-    byte "counter"
-    int 0
+    pushbytes "counter"
+    pushint 0 // 0
     app_global_put
     retsub
 
@@ -181,7 +181,7 @@ get_banned:
     proto 0 1
     // everything/contract.py:25
     // addr = Account(BANNED)
-    addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    pushbytes base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     // everything/contract.py:26
     // return addr
     retsub
@@ -196,7 +196,7 @@ remember_creator:
     // everything/my_base.py:9
     // self.creator = op.Txn.sender
     txn Sender
-    byte "creator"
+    pushbytes "creator"
     uncover 1
     app_global_put
     retsub
@@ -214,14 +214,14 @@ register:
     // everything/contract.py:50
     // if op.Txn.on_completion == OnCompleteAction.OptIn:
     txn OnCompletion
-    int OptIn
+    pushint 1 // OptIn
     ==
     bz register_after_if_else@4
     // everything/contract.py:51
     // sender_name, sender_name_existed = self.name.maybe(account=0)
-    int 0
-    int 0
-    byte "name"
+    pushint 0 // 0
+    pushint 0 // 0
+    pushbytes "name"
     app_local_get_ex
     cover 1
     pop
@@ -230,13 +230,13 @@ register:
     bnz register_after_if_else@3
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
-    int 0
-    byte "counter"
+    pushint 0 // 0
+    pushbytes "counter"
     app_global_get_ex
     assert // check self.counter exists
     callsub multiplicative_identity
     +
-    byte "counter"
+    pushbytes "counter"
     uncover 1
     app_global_put
 
@@ -245,8 +245,8 @@ register_after_if_else@3:
 register_after_if_else@4:
     // everything/contract.py:54
     // self.name[0] = name
-    int 0
-    byte "name"
+    pushint 0 // 0
+    pushbytes "name"
     frame_dig -1
     app_local_put
     retsub
@@ -260,7 +260,7 @@ multiplicative_identity:
     proto 0 1
     // everything/my_base.py:20
     // return UInt64(1)
-    int 1
+    pushint 1 // 1
     retsub
 
 
@@ -275,20 +275,20 @@ say_hello:
     callsub _check_ban_list
     // everything/contract.py:59
     // name, exists = self.name.maybe(account=0)
-    int 0
-    int 0
-    byte "name"
+    pushint 0 // 0
+    pushint 0 // 0
+    pushbytes "name"
     app_local_get_ex
     // everything/contract.py:60
     // if not exists:
     bnz say_hello_after_if_else@2
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    byte "Howdy stranger!"
+    pushbytes "Howdy stranger!"
     len
     itob
     extract 6 2
-    byte "Howdy stranger!"
+    pushbytes "Howdy stranger!"
     concat
     uncover 1
     retsub
@@ -296,32 +296,32 @@ say_hello:
 say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    byte "Hello, "
+    pushbytes "Hello, "
     len
     itob
     extract 6 2
-    byte "Hello, "
+    pushbytes "Hello, "
     concat
     extract 2 0
     frame_dig 0
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
     uncover 1
     concat
     extract 2 0
-    byte "!"
+    pushbytes "!"
     len
     itob
     extract 6 2
-    byte "!"
+    pushbytes "!"
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -389,13 +389,13 @@ _remove_sender:
     proto 0 0
     // everything/contract.py:83
     // self.counter -= positive_one()
-    int 0
-    byte "counter"
+    pushint 0 // 0
+    pushbytes "counter"
     app_global_get_ex
     assert // check self.counter exists
     callsub positive_one
     -
-    byte "counter"
+    pushbytes "counter"
     uncover 1
     app_global_put
     retsub
@@ -409,7 +409,7 @@ positive_one:
     proto 0 1
     // everything/contract.py:88
     // return UInt64(1)
-    int 1
+    pushint 1 // 1
     retsub
 
 
