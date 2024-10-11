@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.approval_program:
+    intcblock 0 1 1000
     callsub __puya_arc4_router__
     return
 
@@ -11,12 +12,12 @@ __puya_arc4_router__:
     // class CreateAndTransferContract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
     pushbytes 0x48e9ed7c // method "create_and_transfer()void"
-    uncover 1
+    swap
     match __puya_arc4_router___create_and_transfer_route@2
     b __puya_arc4_router___switch_case_default@3
 
@@ -24,15 +25,15 @@ __puya_arc4_router___create_and_transfer_route@2:
     // inner_transactions/asset_transfer.py:11
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub create_and_transfer
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -42,8 +43,8 @@ __puya_arc4_router___bare_routing@5:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@6
     b __puya_arc4_router___switch_case_default@7
 
@@ -51,11 +52,11 @@ __puya_arc4_router_____algopy_default_create@6:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -63,7 +64,7 @@ __puya_arc4_router___switch_case_default@7:
 __puya_arc4_router___after_if_else@9:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -89,12 +90,12 @@ create_and_transfer:
     global CurrentApplicationAddress
     // inner_transactions/asset_transfer.py:21
     // clawback=op.Global.current_application_address,
-    global CurrentApplicationAddress
+    dup
     itxn_field ConfigAssetClawback
     itxn_field ConfigAssetManager
     // inner_transactions/asset_transfer.py:19
     // decimals=0,
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field ConfigAssetDecimals
     // inner_transactions/asset_transfer.py:18
     // unit_name="TST",
@@ -106,13 +107,13 @@ create_and_transfer:
     itxn_field ConfigAssetName
     // inner_transactions/asset_transfer.py:16
     // total=1000,
-    pushint 1000 // 1000
+    intc_2 // 1000
     itxn_field ConfigAssetTotal
     // inner_transactions/asset_transfer.py:15
     // itxn.AssetConfig(
     pushint 3 // acfg
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions/asset_transfer.py:15-23
     // itxn.AssetConfig(
@@ -148,21 +149,21 @@ create_and_transfer:
     itxn_begin
     // inner_transactions/asset_transfer.py:29
     // asset_sender=new_asset.creator,
-    dig 0
+    dup
     asset_params_get AssetCreator
     assert // asset exists
-    cover 1
+    swap
     // inner_transactions/asset_transfer.py:30
     // asset_receiver=Global.current_application_address,
     global CurrentApplicationAddress
     // inner_transactions/asset_transfer.py:13-14
     // # create
     // new_asset = (
-    uncover 1
+    swap
     itxn_field XferAsset
     // inner_transactions/asset_transfer.py:31
     // asset_amount=1000,
-    pushint 1000 // 1000
+    intc_2 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
@@ -171,7 +172,7 @@ create_and_transfer:
     // itxn.AssetTransfer(
     pushint 4 // axfer
     itxn_field TypeEnum
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // inner_transactions/asset_transfer.py:27-33
     // # transfer

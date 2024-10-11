@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.state_mutations.contract.Contract.approval_program:
+    intcblock 0 2 1 8
+    bytecblock 0x "box" "modified" "glob" "loc" "map" 0x0000 "baz"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -16,7 +18,7 @@ __puya_arc4_router__:
     // class Contract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
@@ -31,49 +33,49 @@ __puya_arc4_router___append_route@2:
     // state_mutations/contract.py:36
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub append
-    pushint 1 // 1
+    intc_2 // 1
     retsub
 
 __puya_arc4_router___modify_route@3:
     // state_mutations/contract.py:44
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub modify
-    pushint 1 // 1
+    intc_2 // 1
     retsub
 
 __puya_arc4_router___get_route@4:
     // state_mutations/contract.py:51
     // @arc4.abimethod
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub get
     pushbytes 0x151f7c75
-    uncover 1
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_2 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -83,8 +85,8 @@ __puya_arc4_router___bare_routing@7:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    intc_2 // 1
     uncover 2
     match __puya_arc4_router_____algopy_default_create@8 __puya_arc4_router___opt_in@9
     b __puya_arc4_router___switch_case_default@10
@@ -93,25 +95,25 @@ __puya_arc4_router_____algopy_default_create@8:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_2 // 1
     retsub
 
 __puya_arc4_router___opt_in@9:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // state_mutations/contract.py:29-30
     // @arc4.baremethod(allow_actions=["OptIn"])
     // def opt_in(self) -> None:
     callsub opt_in
-    pushint 1 // 1
+    intc_2 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@10:
@@ -119,7 +121,7 @@ __puya_arc4_router___switch_case_default@10:
 __puya_arc4_router___after_if_else@12:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -134,133 +136,133 @@ append:
     callsub get_struct
     // state_mutations/contract.py:39
     // self.glob.value.append(struct.copy())
-    pushint 0 // 0
-    pushbytes "glob"
+    intc_0 // 0
+    bytec_3 // "glob"
     app_global_get_ex
-    cover 1
+    swap
     cover 2
     assert // check self.glob exists
-    dig 0
-    pushint 2 // 2
+    dup
+    intc_1 // 2
     itob
     extract 6 2
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
-    uncover 1
+    swap
     concat
     dig 2
-    pushint 0 // 0
+    intc_0 // 0
     extract_uint16
-    cover 1
+    swap
     uncover 3
     extract 2 0
     uncover 2
-    uncover 1
-    pushint 1 // 1
+    swap
+    intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    pushbytes "glob"
-    uncover 1
+    bytec_3 // "glob"
+    swap
     app_global_put
     // state_mutations/contract.py:40
     // self.loc[Txn.sender].append(struct.copy())
     txn Sender
-    pushint 0 // 0
-    pushbytes "loc"
+    intc_0 // 0
+    bytec 4 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     dig 1
-    pushint 2 // 2
+    intc_1 // 2
     itob
     extract 6 2
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
-    uncover 1
+    swap
     concat
     dig 1
-    pushint 0 // 0
+    intc_0 // 0
     extract_uint16
-    cover 1
+    swap
     uncover 2
     extract 2 0
     uncover 2
-    uncover 1
-    pushint 1 // 1
+    swap
+    intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     txn Sender
-    pushbytes "loc"
+    bytec 4 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:41
     // self.box.value.append(struct.copy())
-    pushbytes "box"
+    bytec_1 // "box"
     box_get
     assert // check self.box exists
     dig 1
-    pushint 2 // 2
+    intc_1 // 2
     itob
     extract 6 2
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
-    uncover 1
+    swap
     concat
     dig 1
-    pushint 0 // 0
+    intc_0 // 0
     extract_uint16
-    cover 1
+    swap
     uncover 2
     extract 2 0
     uncover 2
-    uncover 1
-    pushint 1 // 1
+    swap
+    intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    pushbytes "box"
+    bytec_1 // "box"
     box_del
     pop
-    pushbytes "box"
-    uncover 1
+    bytec_1 // "box"
+    swap
     box_put
     // state_mutations/contract.py:42
     // self.map[Txn.sender].append(struct.copy())
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
     box_get
     assert // check self.map entry exists
-    uncover 1
-    pushint 2 // 2
+    swap
+    intc_1 // 2
     itob
     extract 6 2
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
-    uncover 1
+    swap
     concat
     dig 1
-    pushint 0 // 0
+    intc_0 // 0
     extract_uint16
-    cover 1
+    swap
     uncover 2
     extract 2 0
     uncover 2
-    uncover 1
-    pushint 1 // 1
+    swap
+    intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
-    dig 0
+    dup
     box_del
     pop
-    uncover 1
+    swap
     box_put
     retsub
 
@@ -273,18 +275,18 @@ get_struct:
     proto 0 1
     // state_mutations/contract.py:68
     // baz=arc4.String("baz"),
-    pushbytes "baz"
+    bytec 7 // "baz"
     len
     itob
     extract 6 2
-    pushbytes "baz"
+    bytec 7 // "baz"
     concat
     // state_mutations/contract.py:66-69
     // return MyStruct(
     //     bar=arc4.UInt64(1),
     //     baz=arc4.String("baz"),
     // )
-    pushbytes 0x
+    bytec_0 // 0x
     // state_mutations/contract.py:67
     // bar=arc4.UInt64(1),
     pushbytes 0x0000000000000001
@@ -298,7 +300,7 @@ get_struct:
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
     retsub
 
@@ -311,281 +313,281 @@ modify:
     proto 0 0
     // state_mutations/contract.py:46
     // self.glob.value[0].baz = arc4.String("modified")
-    pushbytes "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    pushbytes "modified"
+    bytec_2 // "modified"
     concat
-    pushint 0 // 0
-    pushbytes "glob"
+    intc_0 // 0
+    bytec_3 // "glob"
     app_global_get_ex
     assert // check self.glob exists
-    dig 0
+    dup
     extract 2 0
-    pushint 0 // 0
-    pushint 2 // 2
+    intc_0 // 0
+    intc_1 // 2
     *
     dig 1
-    uncover 1
+    swap
     extract_uint16
     cover 2
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     extract_uint16
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    intc_2 // 1
     +
-    dup
-    cover 2
+    swap
+    dig 1
     - // on error: Index access is out of bounds
-    cover 1
+    swap
     dig 2
     len
     cover 2
-    pushint 2 // 2
+    intc_1 // 2
     *
     dig 3
-    uncover 1
+    swap
     extract_uint16
     uncover 2
-    uncover 1
+    swap
     uncover 2
     select
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
-    dig 0
-    pushint 8 // 8
+    dup
+    intc_3 // 8
     extract_uint16
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     uncover 2
     extract3
-    uncover 1
+    swap
     concat
-    pushint 0 // 0
-    pushbytes "glob"
+    intc_0 // 0
+    bytec_3 // "glob"
     app_global_get_ex
     assert // check self.glob exists
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    pushbytes "glob"
-    uncover 1
+    bytec_3 // "glob"
+    swap
     app_global_put
     // state_mutations/contract.py:47
     // self.loc[Txn.sender][0].baz = arc4.String("modified")
-    pushbytes "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    pushbytes "modified"
+    bytec_2 // "modified"
     concat
     txn Sender
-    pushint 0 // 0
-    pushbytes "loc"
+    intc_0 // 0
+    bytec 4 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
-    dig 0
+    dup
     extract 2 0
-    pushint 0 // 0
-    pushint 2 // 2
+    intc_0 // 0
+    intc_1 // 2
     *
     dig 1
-    uncover 1
+    swap
     extract_uint16
     cover 2
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     extract_uint16
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    intc_2 // 1
     +
-    dup
-    cover 2
+    swap
+    dig 1
     - // on error: Index access is out of bounds
-    cover 1
+    swap
     dig 2
     len
     cover 2
-    pushint 2 // 2
+    intc_1 // 2
     *
     dig 3
-    uncover 1
+    swap
     extract_uint16
     uncover 2
-    uncover 1
+    swap
     uncover 2
     select
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
-    dig 0
-    pushint 8 // 8
+    dup
+    intc_3 // 8
     extract_uint16
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     uncover 2
     extract3
-    uncover 1
+    swap
     concat
     txn Sender
-    pushint 0 // 0
-    pushbytes "loc"
+    intc_0 // 0
+    bytec 4 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     txn Sender
-    pushbytes "loc"
+    bytec 4 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:48
     // self.box.value[0].baz = arc4.String("modified")
-    pushbytes "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    pushbytes "modified"
+    bytec_2 // "modified"
     concat
-    pushbytes "box"
+    bytec_1 // "box"
     box_get
     assert // check self.box exists
-    dig 0
+    dup
     extract 2 0
-    pushint 0 // 0
-    pushint 2 // 2
+    intc_0 // 0
+    intc_1 // 2
     *
     dig 1
-    uncover 1
+    swap
     extract_uint16
     cover 2
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     extract_uint16
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    intc_2 // 1
     +
-    dup
-    cover 2
+    swap
+    dig 1
     - // on error: Index access is out of bounds
-    cover 1
+    swap
     dig 2
     len
     cover 2
-    pushint 2 // 2
+    intc_1 // 2
     *
     dig 3
-    uncover 1
+    swap
     extract_uint16
     uncover 2
-    uncover 1
+    swap
     uncover 2
     select
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
-    dig 0
-    pushint 8 // 8
+    dup
+    intc_3 // 8
     extract_uint16
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     uncover 2
     extract3
-    uncover 1
+    swap
     concat
-    pushbytes "box"
+    bytec_1 // "box"
     box_get
     assert // check self.box exists
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    pushbytes "box"
+    bytec_1 // "box"
     box_del
     pop
-    pushbytes "box"
-    uncover 1
+    bytec_1 // "box"
+    swap
     box_put
     // state_mutations/contract.py:49
     // self.map[Txn.sender][0].baz = arc4.String("modified")
-    pushbytes "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    pushbytes "modified"
+    bytec_2 // "modified"
     concat
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
     box_get
     assert // check self.map entry exists
-    dig 0
+    dup
     extract 2 0
-    pushint 0 // 0
-    pushint 2 // 2
+    intc_0 // 0
+    intc_1 // 2
     *
     dig 1
-    uncover 1
+    swap
     extract_uint16
     cover 2
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     extract_uint16
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    intc_2 // 1
     +
-    dup
-    cover 2
+    swap
+    dig 1
     - // on error: Index access is out of bounds
-    cover 1
+    swap
     dig 2
     len
     cover 2
-    pushint 2 // 2
+    intc_1 // 2
     *
     dig 3
-    uncover 1
+    swap
     extract_uint16
     uncover 2
-    uncover 1
+    swap
     uncover 2
     select
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
-    dig 0
-    pushint 8 // 8
+    dup
+    intc_3 // 8
     extract_uint16
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     uncover 2
     extract3
-    uncover 1
+    swap
     concat
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
     box_get
     assert // check self.map entry exists
-    uncover 1
-    pushint 0 // 0
+    swap
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
-    dig 0
+    dup
     box_del
     pop
-    uncover 1
+    swap
     box_put
     retsub
 
@@ -598,27 +600,27 @@ get:
     proto 0 1
     // state_mutations/contract.py:53
     // a1 = self.glob.value.copy()
-    pushint 0 // 0
-    pushbytes "glob"
+    intc_0 // 0
+    bytec_3 // "glob"
     app_global_get_ex
     assert // check self.glob exists
     // state_mutations/contract.py:54
     // a2 = self.loc[Txn.sender].copy()
     txn Sender
-    pushint 0 // 0
-    pushbytes "loc"
+    intc_0 // 0
+    bytec 4 // "loc"
     app_local_get_ex
     assert // check self.loc exists for account
     // state_mutations/contract.py:55
     // a3 = self.box.value.copy()
-    pushbytes "box"
+    bytec_1 // "box"
     box_get
     assert // check self.box exists
     // state_mutations/contract.py:56
     // a4 = self.map[Txn.sender].copy()
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
     box_get
     assert // check self.map entry exists
@@ -637,7 +639,6 @@ get:
     // state_mutations/contract.py:60
     // assert a1 == a4, "expected map == global"
     dig 1
-    uncover 1
     ==
     assert // expected map == global
     // state_mutations/contract.py:61
@@ -661,45 +662,45 @@ opt_in:
     proto 0 0
     // state_mutations/contract.py:31
     // self.glob.value = MyArray()
-    pushbytes 0x0000
-    pushbytes 0x
+    bytec 6 // 0x0000
+    bytec_0 // 0x
     concat
-    pushbytes "glob"
-    uncover 1
+    bytec_3 // "glob"
+    swap
     app_global_put
     // state_mutations/contract.py:32
     // self.box.value = MyArray()
-    pushbytes 0x0000
-    pushbytes 0x
+    bytec 6 // 0x0000
+    bytec_0 // 0x
     concat
-    pushbytes "box"
+    bytec_1 // "box"
     box_del
     pop
-    pushbytes "box"
-    uncover 1
+    bytec_1 // "box"
+    swap
     box_put
     // state_mutations/contract.py:33
     // self.loc[Txn.sender] = MyArray()
-    pushbytes 0x0000
-    pushbytes 0x
+    bytec 6 // 0x0000
+    bytec_0 // 0x
     concat
     txn Sender
-    pushbytes "loc"
+    bytec 4 // "loc"
     uncover 2
     app_local_put
     // state_mutations/contract.py:34
     // self.map[Txn.sender] = MyArray()
-    pushbytes 0x0000
-    pushbytes 0x
+    bytec 6 // 0x0000
+    bytec_0 // 0x
     concat
     txn Sender
-    pushbytes "map"
-    uncover 1
+    bytec 5 // "map"
+    swap
     concat
-    dig 0
+    dup
     box_del
     pop
-    uncover 1
+    swap
     box_put
     retsub
 
@@ -715,17 +716,17 @@ __init__:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
-    pushbytes ""
-    pushbytes 0x
+    bytec_0 // ""
+    dup
     frame_dig -2
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_dig -4
-    pushint 2 // 2
+    intc_1 // 2
     *
-    pushint 2 // 2
+    intc_1 // 2
     assert // Step cannot be zero
-    pushint 0 // 0
+    intc_0 // 0
 
 dynamic_array_concat_dynamic_element_for_header@1:
     frame_dig 4
@@ -736,16 +737,15 @@ dynamic_array_concat_dynamic_element_for_header@1:
     frame_dig 4
     extract_uint16
     frame_dig 2
-    uncover 1
     +
     itob
     extract 6 2
     frame_dig 1
-    uncover 1
+    swap
     concat
     frame_bury 1
     frame_dig 4
-    pushint 2 // 2
+    intc_1 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@1
@@ -755,12 +755,12 @@ dynamic_array_concat_dynamic_element_after_for@4:
     len
     frame_bury 2
     frame_dig -2
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_bury 0
-    pushint 2 // 2
+    intc_1 // 2
     assert // Step cannot be zero
-    pushint 0 // 0
+    intc_0 // 0
     frame_bury 4
 
 dynamic_array_concat_dynamic_element_for_header@5:
@@ -772,16 +772,15 @@ dynamic_array_concat_dynamic_element_for_header@5:
     frame_dig 4
     extract_uint16
     frame_dig 2
-    uncover 1
     +
     itob
     extract 6 2
     frame_dig 1
-    uncover 1
+    swap
     concat
     frame_bury 1
     frame_dig 4
-    pushint 2 // 2
+    intc_1 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@5
@@ -795,7 +794,7 @@ dynamic_array_concat_dynamic_element_after_for@8:
     frame_dig 1
     concat
     frame_dig -4
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_dig -3
     len
@@ -805,7 +804,7 @@ dynamic_array_concat_dynamic_element_after_for@8:
     substring3
     concat
     frame_dig -2
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_dig -1
     len
@@ -823,7 +822,7 @@ dynamic_array_replace_dynamic_element:
     proto 3 1
     frame_dig -3
     substring 0 2
-    dig 0
+    dup
     btoi
     frame_dig -3
     extract 2 0
@@ -839,31 +838,31 @@ dynamic_array_replace_dynamic_element:
 static_array_replace_dynamic_element:
     proto 4 1
     frame_dig -2
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_dig -4
-    uncover 1
+    swap
     extract_uint16
     frame_dig -2
-    pushint 1 // 1
+    intc_2 // 1
     +
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_dig -4
-    uncover 1
+    swap
     extract_uint16
     frame_dig -4
     len
     frame_dig -1
     frame_dig -2
     -
-    pushint 1 // 1
+    intc_2 // 1
     -
     dig 1
     uncover 3
     uncover 2
     select
-    dig 0
+    dup
     dig 3
     -
     cover 3
@@ -871,7 +870,7 @@ static_array_replace_dynamic_element:
     len
     cover 3
     frame_dig -4
-    pushint 0 // 0
+    intc_0 // 0
     uncover 4
     substring3
     frame_dig -3
@@ -882,14 +881,14 @@ static_array_replace_dynamic_element:
     substring3
     concat
     frame_dig -1
-    pushint 2 // 2
+    intc_1 // 2
     *
     frame_dig -2
-    pushint 1 // 1
+    intc_2 // 1
     +
-    pushint 2 // 2
+    intc_1 // 2
     *
-    pushint 2 // 2
+    intc_1 // 2
     assert // Step cannot be zero
 
 static_array_replace_dynamic_element_for_header@1:
@@ -899,7 +898,6 @@ static_array_replace_dynamic_element_for_header@1:
     bz static_array_replace_dynamic_element_after_for@4
     frame_dig 2
     dup
-    cover 1
     frame_dig 4
     dup
     cover 3
@@ -910,13 +908,13 @@ static_array_replace_dynamic_element_for_header@1:
     -
     itob
     extract 6 2
-    uncover 1
+    swap
     uncover 2
     uncover 2
     replace3
     frame_bury 2
     frame_dig 4
-    pushint 2 // 2
+    intc_1 // 2
     +
     frame_bury 4
     b static_array_replace_dynamic_element_for_header@1

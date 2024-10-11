@@ -1,21 +1,19 @@
 #pragma version 10
 
 test_cases.too_many_permutations.contract.MyContract.approval_program:
+    intcblock 0 1
     // too_many_permutations/contract.py:6
     // a = op.Txn.application_args(0)
     txna ApplicationArgs 0
     dup
-    cover 1
-    cover 1
     // too_many_permutations/contract.py:7
     // b = op.Txn.application_args(1)
     txna ApplicationArgs 1
-    cover 1
+    swap
     // too_many_permutations/contract.py:8
     // c = op.Txn.application_args(2)
     txna ApplicationArgs 2
     dup
-    cover 1
     cover 2
     // too_many_permutations/contract.py:9
     // d = op.Txn.application_args(3)
@@ -31,11 +29,11 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     bz main_bool_false@3
 
 main_bool_true@2:
-    pushint 1 // 1
+    intc_1 // 1
     b main_bool_merge@4
 
 main_bool_false@3:
-    pushint 0 // 0
+    intc_0 // 0
 
 main_bool_merge@4:
     // too_many_permutations/contract.py:11
@@ -45,7 +43,6 @@ main_bool_merge@4:
     // assert four_args(a, b, c, d)
     dig 3
     dup
-    cover 1
     dig 4
     dup
     cover 3
@@ -59,15 +56,15 @@ main_bool_merge@4:
     assert
     // too_many_permutations/contract.py:13
     // two_args(a, b)
-    uncover 1
+    swap
     callsub two_args
     // too_many_permutations/contract.py:14
     // two_args(c, d)
-    uncover 1
+    swap
     callsub two_args
     // too_many_permutations/contract.py:16
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -87,7 +84,7 @@ four_args:
     frame_dig -1
     concat
     len
-    pushint 0 // 0
+    intc_0 // 0
     >
     retsub
 
@@ -104,7 +101,7 @@ two_args:
     frame_dig -1
     concat
     len
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert
     retsub

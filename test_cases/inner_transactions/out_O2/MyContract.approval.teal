@@ -70,17 +70,15 @@ test1:
     itxn_field Fee
     itxn_submit
     itxn ConfigAssetName
-    cover 2
     itxn CreatedAssetID
-    cover 3
     intc_0 // 0
     bytec_2 // "name"
     app_global_get_ex
     assert // check self.name exists
     itxn_begin
-    dig 1
+    dig 3
     itxn_field ConfigAssetReserve
-    dig 2
+    dig 4
     itxn_field ConfigAssetManager
     intc_3 // 3
     itxn_field ConfigAssetDecimals
@@ -94,16 +92,17 @@ test1:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    itxn CreatedAssetID
     itxn ConfigAssetName
-    uncover 4
+    itxn CreatedAssetID
+    uncover 3
     bytec 6 // 0x41535431
     ==
     assert // asset1_txn is correct
+    swap
     bytec 7 // 0x41535432
     ==
     assert // asset2_txn is correct
-    uncover 3
+    swap
     asset_params_get AssetName
     assert // asset exists
     bytec 6 // 0x41535431
@@ -599,22 +598,20 @@ test4:
     itxn_field Fee
     itxn_submit
     itxn NumApprovalProgramPages
-    itxn ExtraProgramPages
     itxn NumClearStateProgramPages
-    cover 3
+    itxn ExtraProgramPages
     intc_3 // 3
     ==
     assert // extra_pages == 3
+    swap
     pushint 2 // 2
     ==
     assert // approval_pages == 2
     itxna ApprovalProgramPages 0
-    swap
     bytec_0 // 0x098101
-    dig 1
+    dig 3
     concat
-    swap
-    dup
+    dig 3
     len
     intc_3 // 3
     dig 1
@@ -626,22 +623,22 @@ test4:
     dig 1
     swap
     -
-    dig 2
+    dig 5
     intc_0 // 0
     dig 2
     substring3
-    uncover 4
+    uncover 3
     swap
     concat
-    uncover 4
+    uncover 3
     ==
     assert // expected approval page 0
     itxna ApprovalProgramPages 1
-    dig 3
+    dig 4
     uncover 2
     uncover 3
     substring3
-    uncover 2
+    uncover 3
     concat
     ==
     assert // expected approval page 1

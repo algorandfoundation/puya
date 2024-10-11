@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_arc32=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, match_algod_bytecode=False, debug_level=1, optimization_level=1, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, paths=['bug_load_store_load_store'], output_awst=True, output_awst_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, debug_level=1, optimization_level=1, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, paths=['bug_load_store_load_store'], output_awst=True, output_awst_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
 info: Found python prefix: <git root>/.venv
 info: writing bug_load_store_load_store/out/module.awst
 debug: Sealing block@0: // L12
@@ -530,49 +530,24 @@ debug: Sequentializing parallel copies in test_cases.bug_load_store_load_store.c
 debug: Performing post-SSA optimizations
 debug: Removing jump block block@3: // if_body_L14 and replacing references with block@9: // after_if_else_L13
 debug: Output IR to bug_load_store_load_store/out/MyContract.destructured.ir
-debug: Inserted main_for_header@1.ops[3]: 'store continue_looping%0#0 to l-stack (copy)'
-debug: Replaced main_for_header@1.ops[5]: 'load continue_looping%0#0' with 'load continue_looping%0#0 from l-stack (no copy)'
-debug: Inserted main_for_body@2.ops[1]: 'store tmp%0#0 to l-stack (copy)'
-debug: Replaced main_for_body@2.ops[3]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
-debug: Inserted main_else_body@4.ops[1]: 'store tmp%1#0 to l-stack (copy)'
-debug: Replaced main_else_body@4.ops[5]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
-debug: Inserted main_if_body@5.ops[1]: 'store tmp%2#0 to l-stack (copy)'
-debug: Replaced main_if_body@5.ops[5]: 'load tmp%2#0' with 'load tmp%2#0 from l-stack (no copy)'
-debug: Inserted main_if_body@6.ops[3]: 'store val#0 to l-stack (copy)'
-debug: Replaced main_if_body@6.ops[5]: 'load val#0' with 'load val#0 from l-stack (no copy)'
-debug: Inserted main_after_if_else@7.ops[1]: 'store val#0 to l-stack (copy)'
-debug: Replaced main_after_if_else@7.ops[3]: 'load val#0' with 'load val#0 from l-stack (no copy)'
+debug: Inserted main_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
+debug: Replaced main_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
+debug: Inserted main_for_body@2.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced main_for_body@2.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted main_else_body@4.ops[1]: 'l-store-copy tmp%1#0 0'
+debug: Replaced main_else_body@4.ops[5]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted main_if_body@5.ops[1]: 'l-store-copy tmp%2#0 0'
+debug: Replaced main_if_body@5.ops[5]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted main_if_body@6.ops[3]: 'l-store-copy val#0 0'
+debug: Replaced main_if_body@6.ops[5]: 'v-load val#0' with 'l-load val#0'
+debug: Inserted main_after_if_else@7.ops[1]: 'l-store-copy val#0 0'
+debug: Replaced main_after_if_else@7.ops[3]: 'v-load val#0' with 'l-load val#0'
 debug: Found 5 edge set/s for test_cases.bug_load_store_load_store.contract.MyContract.approval_program
 debug: test_cases.bug_load_store_load_store.contract.MyContract.approval_program f-stack entry: ['val#11']
 debug: test_cases.bug_load_store_load_store.contract.MyContract.approval_program f-stack on first store: ['val#0', '_idx#0']
-debug: Traceback (most recent call last):
-  File "<git root>/src/puya/errors.py", line 36, in log_exceptions
-    yield
-  File "<git root>/src/puyapy/compile.py", line 77, in compile_to_teal
-    teal = awst_to_teal(
-           ^^^^^^^^^^^^^
-  File "<git root>/src/puya/compile.py", line 66, in awst_to_teal
-    teal = _ir_to_teal(log_ctx, context, ir)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/compile.py", line 143, in _ir_to_teal
-    compiled = _contract_ir_to_teal(context, contract, artifact_ir_base_path)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/compile.py", line 226, in _contract_ir_to_teal
-    approval = mir_to_teal(context, approval_mir)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/teal/main.py", line 15, in mir_to_teal
-    teal = _build_teal(context, program_mir)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/teal/main.py", line 43, in _build_teal
-    main=_lower_sub(mir_program.main),
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/teal/main.py", line 84, in _lower_sub
-    virtual_teal_ops = mir_op.original.accept(stack)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/mir/models.py", line 157, in accept
-    return visitor.visit_load_virtual(self)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<git root>/src/puya/mir/stack.py", line 191, in visit_load_virtual
-    raise InternalError(
-puya.errors.InternalError: LoadVirtual op encountered during TEAL generation
-critical: LoadVirtual op encountered during TEAL generation
+info: Writing bug_load_store_load_store/out/MyContract.approval.teal
+info: Writing bug_load_store_load_store/out/MyContract.clear.teal
+info: Writing bug_load_store_load_store/out/MyContract.approval.bin
+info: Writing bug_load_store_load_store/out/MyContract.clear.bin
+info: Writing bug_load_store_load_store/out/MyContract.approval.puya.map
+info: Writing bug_load_store_load_store/out/MyContract.clear.puya.map

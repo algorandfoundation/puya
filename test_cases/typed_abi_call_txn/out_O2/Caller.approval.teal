@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.typed_abi_call_txn.caller.Caller.approval_program:
+    intcblock 0 1 3 6
+    bytecblock "TEST" "TST" 0x151f7c75 0x6d4700ad
     callsub __puya_arc4_router__
     return
 
@@ -10,13 +12,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@8
-    method "test_call_with_txn(byte[],byte[],application)void"
-    method "test_call_with_acfg(byte[],byte[],application)void"
-    method "test_call_with_infer(byte[],byte[],application)void"
-    method "test_call_with_acfg_no_return(byte[],byte[],application)void"
+    pushbytess 0x284c1e61 0xaa33c1ba 0x4f96071a 0xbb0098a2 // method "test_call_with_txn(byte[],byte[],application)void", method "test_call_with_acfg(byte[],byte[],application)void", method "test_call_with_infer(byte[],byte[],application)void", method "test_call_with_acfg_no_return(byte[],byte[],application)void"
     txna ApplicationArgs 0
     match __puya_arc4_router___test_call_with_txn_route@2 __puya_arc4_router___test_call_with_acfg_route@3 __puya_arc4_router___test_call_with_infer_route@4 __puya_arc4_router___test_call_with_acfg_no_return_route@5
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___test_call_with_txn_route@2:
@@ -33,7 +32,7 @@ __puya_arc4_router___test_call_with_txn_route@2:
     btoi
     txnas Applications
     callsub test_call_with_txn
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_call_with_acfg_route@3:
@@ -50,7 +49,7 @@ __puya_arc4_router___test_call_with_acfg_route@3:
     btoi
     txnas Applications
     callsub test_call_with_acfg
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_call_with_infer_route@4:
@@ -67,7 +66,7 @@ __puya_arc4_router___test_call_with_infer_route@4:
     btoi
     txnas Applications
     callsub test_call_with_infer
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___test_call_with_acfg_no_return_route@5:
@@ -84,7 +83,7 @@ __puya_arc4_router___test_call_with_acfg_no_return_route@5:
     btoi
     txnas Applications
     callsub test_call_with_acfg_no_return
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@8:
@@ -93,11 +92,11 @@ __puya_arc4_router___bare_routing@8:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@12:
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -105,15 +104,15 @@ __puya_arc4_router___after_if_else@12:
 test_call_with_txn:
     proto 3 0
     itxn_begin
-    int 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
-    byte "TEST"
+    bytec_0 // "TEST"
     itxn_field ConfigAssetName
-    byte "TST"
+    bytec_1 // "TST"
     itxn_field ConfigAssetUnitName
-    int acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     frame_dig -3
@@ -130,14 +129,14 @@ test_call_with_txn:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    method "call_with_txn(byte[],txn,byte[])uint64"
+    pushbytes 0xa1f5040d // method "call_with_txn(byte[],txn,byte[])uint64"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    int appl
+    intc_3 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
@@ -145,7 +144,7 @@ test_call_with_txn:
     extract 4 0
     swap
     extract 0 4
-    byte 0x151f7c75
+    bytec_2 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     btoi
@@ -157,15 +156,15 @@ test_call_with_txn:
 test_call_with_acfg:
     proto 3 0
     itxn_begin
-    int 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
-    byte "TEST"
+    bytec_0 // "TEST"
     itxn_field ConfigAssetName
-    byte "TST"
+    bytec_1 // "TST"
     itxn_field ConfigAssetUnitName
-    int acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     frame_dig -3
@@ -182,19 +181,19 @@ test_call_with_acfg:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    method "call_with_acfg(byte[],acfg,byte[])uint64"
+    bytec_3 // method "call_with_acfg(byte[],acfg,byte[])uint64"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    int appl
+    intc_3 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
     extract 0 4
-    byte 0x151f7c75
+    bytec_2 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     retsub
@@ -204,15 +203,15 @@ test_call_with_acfg:
 test_call_with_infer:
     proto 3 0
     itxn_begin
-    int 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
-    byte "TEST"
+    bytec_0 // "TEST"
     itxn_field ConfigAssetName
-    byte "TST"
+    bytec_1 // "TST"
     itxn_field ConfigAssetUnitName
-    int acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     frame_dig -3
@@ -229,19 +228,19 @@ test_call_with_infer:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    method "call_with_acfg(byte[],acfg,byte[])uint64"
+    bytec_3 // method "call_with_acfg(byte[],acfg,byte[])uint64"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    int appl
+    intc_3 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
     extract 0 4
-    byte 0x151f7c75
+    bytec_2 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     retsub
@@ -251,15 +250,15 @@ test_call_with_infer:
 test_call_with_acfg_no_return:
     proto 3 0
     itxn_begin
-    int 1
+    intc_1 // 1
     itxn_field ConfigAssetTotal
-    byte "TEST"
+    bytec_0 // "TEST"
     itxn_field ConfigAssetName
-    byte "TST"
+    bytec_1 // "TST"
     itxn_field ConfigAssetUnitName
-    int acfg
+    intc_2 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     frame_dig -3
@@ -274,22 +273,22 @@ test_call_with_acfg_no_return:
     extract 6 2
     frame_dig -2
     concat
-    byte 0x31
+    pushbytes 0x31
     itxn_field Note
     frame_dig -1
     itxn_field ApplicationID
-    method "call_with_acfg_no_return(byte[],acfg,byte[])void"
+    pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    int appl
+    intc_3 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn Note
-    byte 0x31
+    pushbytes 0x31
     ==
     assert
     gitxn 0 CreatedAssetID

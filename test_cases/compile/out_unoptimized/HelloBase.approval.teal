@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.compile.apps.HelloBase.approval_program:
+    intcblock 0 1
+    bytecblock "greeting"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -16,7 +18,7 @@ __puya_arc4_router__:
     // class HelloBase(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
@@ -34,22 +36,22 @@ __puya_arc4_router___delete_route@2:
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub delete
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___greet_route@3:
     // compile/apps.py:33
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // compile/apps.py:20
@@ -59,17 +61,17 @@ __puya_arc4_router___greet_route@3:
     // compile/apps.py:33
     // @arc4.abimethod()
     callsub greet
-    dig 0
+    dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     pushbytes 0x151f7c75
-    uncover 1
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -79,7 +81,7 @@ __puya_arc4_router___bare_routing@6:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
+    intc_0 // 0
     pushint 4 // 4
     uncover 2
     match __puya_arc4_router_____algopy_default_create@7 __puya_arc4_router___update@8
@@ -89,25 +91,25 @@ __puya_arc4_router_____algopy_default_create@7:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___update@8:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     callsub update
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@9:
@@ -115,7 +117,7 @@ __puya_arc4_router___switch_case_default@9:
 __puya_arc4_router___after_if_else@11:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -136,8 +138,8 @@ greet:
     proto 1 1
     // compile/apps.py:35
     // return self.greeting + " " + name
-    pushint 0 // 0
-    pushbytes "greeting"
+    intc_0 // 0
+    bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes " "
@@ -171,7 +173,7 @@ __init__:
     proto 0 0
     // compile/apps.py:23
     // self.greeting = String()
-    pushbytes "greeting"
+    bytec_0 // "greeting"
     pushbytes ""
     app_global_put
     retsub

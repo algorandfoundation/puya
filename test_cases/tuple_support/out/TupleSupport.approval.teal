@@ -38,6 +38,8 @@ main_entrypoint@2:
     // tuple_support/tuple_support.py:29
     // (m, n) = get_tuple(a, b) or get_tuple(b, a)
     callsub get_tuple
+    // tuple_support/tuple_support.py:30
+    // assert (m, n) == (a, b)
     swap
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
@@ -71,14 +73,14 @@ main_entrypoint@2:
     uncover 3
     uncover 3
     callsub addw2
-    cover 2
-    swap
     // tuple_support/tuple_support.py:37
     // log(hi)
+    uncover 2
     itob
     log
     // tuple_support/tuple_support.py:38
     // log(mid)
+    swap
     itob
     log
     // tuple_support/tuple_support.py:39
@@ -229,7 +231,6 @@ addw2:
     frame_dig -3
     frame_dig -1
     addw
-    swap
     // tuple_support/tuple_support.py:152
     // hi_carry1, c_mid = op.addw(a_hi, b_hi)
     frame_dig -4
@@ -237,15 +238,15 @@ addw2:
     addw
     // tuple_support/tuple_support.py:153
     // hi_carry2, c_mid = op.addw(c_mid, lo_carry)
-    uncover 2
+    uncover 3
     addw
-    cover 2
     // tuple_support/tuple_support.py:154
     // did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
+    cover 2
     addw
-    swap
     // tuple_support/tuple_support.py:155
     // assert not did_overflow, "is such a thing even possible? 👽"
+    swap
     !
     assert // is such a thing even possible? 👽
     // tuple_support/tuple_support.py:156

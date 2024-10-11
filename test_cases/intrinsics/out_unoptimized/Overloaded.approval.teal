@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.intrinsics.overloaded.Overloaded.approval_program:
+    intcblock 0 1
+    bytecblock 0x6b6579
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -8,51 +10,51 @@ test_cases.intrinsics.overloaded.Overloaded.approval_program:
 main_entrypoint@2:
     // intrinsics/overloaded.py:9
     // assert op.AppGlobal.get_uint64(b"key") == op.AppGlobal.get_uint64(b"key")
-    pushbytes 0x6b6579
+    bytec_0 // 0x6b6579
     app_global_get
-    pushbytes 0x6b6579
+    bytec_0 // 0x6b6579
     app_global_get
     ==
     assert
     // intrinsics/overloaded.py:10
     // assert self.key.maybe()[0] == self.key.maybe()[0]
-    pushint 0 // 0
-    pushbytes "key"
+    intc_0 // 0
+    bytec_0 // "key"
     app_global_get_ex
     pop
-    pushint 0 // 0
-    pushbytes "key"
+    intc_0 // 0
+    bytec_0 // "key"
     app_global_get_ex
     pop
     ==
     assert
     // intrinsics/overloaded.py:11
     // assert op.setbit_uint64(0, 0, 1) == op.setbit_uint64(0, 0, 1)
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    dup
+    intc_1 // 1
     setbit
-    pushint 0 // 0
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_0 // 0
+    dup
+    intc_1 // 1
     setbit
     ==
     assert
     // intrinsics/overloaded.py:12
     // assert op.select_uint64(0, 1, True) == op.select_uint64(1, 0, False)
-    pushint 0 // 0
-    pushint 1 // 1
-    pushint 1 // 1
+    intc_0 // 0
+    intc_1 // 1
+    dup
     select
-    pushint 1 // 1
-    pushint 0 // 0
-    pushint 0 // 0
+    intc_1 // 1
+    intc_0 // 0
+    dup
     select
     ==
     assert
     // intrinsics/overloaded.py:13
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -63,7 +65,7 @@ __init__:
     proto 0 0
     // intrinsics/overloaded.py:6
     // self.key = GlobalState(UInt64(0))
-    pushbytes "key"
-    pushint 0 // 0
+    bytec_0 // "key"
+    intc_0 // 0
     app_global_put
     retsub

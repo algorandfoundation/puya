@@ -1,8 +1,8 @@
 #pragma version 10
 
 test_cases.template_variables.contract.TemplateVariablesContract.approval_program:
-    intcblock TMPL_UPDATABLE TMPL_DELETABLE
-    bytecblock TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
+    intcblock 0 1 64 TMPL_UPDATABLE TMPL_DELETABLE
+    bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
     callsub __puya_arc4_router__
     return
 
@@ -13,7 +13,7 @@ __puya_arc4_router__:
     // class TemplateVariablesContract(arc4.ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@6
     txna ApplicationArgs 0
@@ -27,44 +27,44 @@ __puya_arc4_router___get_bytes_route@2:
     // template_variables/contract.py:6
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub get_bytes
-    dig 0
+    dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
-    pushbytes 0x151f7c75
-    uncover 1
+    bytec_0 // 0x151f7c75
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___get_big_uint_route@3:
     // template_variables/contract.py:10
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub get_big_uint
-    pushbytes 0x151f7c75
-    uncover 1
+    bytec_0 // 0x151f7c75
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@4:
@@ -74,7 +74,7 @@ __puya_arc4_router___bare_routing@6:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
+    intc_0 // 0
     pushint 4 // 4
     pushint 5 // 5
     uncover 3
@@ -85,39 +85,39 @@ __puya_arc4_router_____algopy_default_create@7:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___on_update@8:
     // template_variables/contract.py:15
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // template_variables/contract.py:15-16
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def on_update(self) -> None:
     callsub on_update
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___on_delete@9:
     // template_variables/contract.py:19
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // template_variables/contract.py:19-20
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     // def on_delete(self) -> None:
     callsub on_delete
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@10:
@@ -125,7 +125,7 @@ __puya_arc4_router___switch_case_default@10:
 __puya_arc4_router___after_if_else@12:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -137,7 +137,7 @@ get_bytes:
     proto 0 1
     // template_variables/contract.py:8
     // return TemplateVar[Bytes]("SOME_BYTES")
-    bytec_0 // TMPL_SOME_BYTES
+    bytec_1 // TMPL_SOME_BYTES
     retsub
 
 
@@ -149,15 +149,15 @@ get_big_uint:
     proto 0 1
     // template_variables/contract.py:12
     // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
-    bytec_1 // TMPL_SOME_BIG_UINT
+    bytec_2 // TMPL_SOME_BIG_UINT
     // template_variables/contract.py:13
     // return UInt512(x)
-    dig 0
+    dup
     len
-    pushint 64 // 64
+    intc_2 // 64
     <=
     assert // overflow
-    pushint 64 // 64
+    intc_2 // 64
     bzero
     b|
     retsub
@@ -179,7 +179,7 @@ on_update:
     proto 0 0
     // template_variables/contract.py:17
     // assert TemplateVar[bool]("UPDATABLE")
-    intc_0 // TMPL_UPDATABLE
+    intc_3 // TMPL_UPDATABLE
     assert
     retsub
 
@@ -192,8 +192,8 @@ on_delete:
     proto 0 0
     // template_variables/contract.py:21
     // assert TemplateVar[UInt64]("DELETABLE")
-    intc_1 // TMPL_DELETABLE
-    pushint 0 // 0
+    intc 4 // TMPL_DELETABLE
+    intc_0 // 0
     !=
     assert
     retsub

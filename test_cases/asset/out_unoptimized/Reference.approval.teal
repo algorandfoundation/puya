@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.asset.contract.Reference.approval_program:
+    intcblock 0 1
+    bytecblock "asa"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -9,7 +11,7 @@ main_entrypoint@2:
     // asset/contract.py:21
     // if Txn.num_app_args == 1:
     txn NumAppArgs
-    pushint 1 // 1
+    intc_1 // 1
     ==
     bz main_after_if_else@10
     // asset/contract.py:22
@@ -53,7 +55,7 @@ main_after_if_else@9:
 main_after_if_else@10:
     // asset/contract.py:30
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -73,8 +75,8 @@ opt_into_asset:
     // asset/contract.py:39-40
     // # Verify a ASA hasn't already been opted into
     // assert not self.asa, "ASA already opted in"
-    pushint 0 // 0
-    pushbytes "asa"
+    intc_0 // 0
+    bytec_0 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     !
@@ -82,7 +84,7 @@ opt_into_asset:
     // asset/contract.py:41-42
     // # Save ASA ID in global state
     // self.asa = asset
-    pushbytes "asa"
+    bytec_0 // "asa"
     frame_dig -1
     app_global_put
     // asset/contract.py:44-45
@@ -95,7 +97,7 @@ opt_into_asset:
     itxn_field TypeEnum
     // asset/contract.py:47
     // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
-    pushint 0 // 0
+    intc_0 // 0
     itxn_field Fee
     // asset/contract.py:48
     // ITxnCreate.set_asset_receiver(Global.current_application_address)
@@ -119,8 +121,8 @@ is_opted_asset:
     proto 1 0
     // asset/contract.py:54
     // assert self.asa == asset, "asset self.asa == asset"
-    pushint 0 // 0
-    pushbytes "asa"
+    intc_0 // 0
+    bytec_0 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     frame_dig -1
@@ -139,7 +141,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetDecimals
     assert // asset exists
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // decimals
     // asset/contract.py:57
@@ -227,8 +229,7 @@ is_opted_asset:
     global CurrentApplicationAddress
     frame_dig -1
     asset_holding_get AssetBalance
-    cover 1
-    pop
+    bury 1
     assert // asset opted in
     retsub
 
@@ -240,7 +241,7 @@ __init__:
     proto 0 0
     // asset/contract.py:18
     // self.asa = Asset()
-    pushbytes "asa"
-    pushint 0 // 0
+    bytec_0 // "asa"
+    intc_0 // 0
     app_global_put
     retsub

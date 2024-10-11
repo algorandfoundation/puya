@@ -1,16 +1,17 @@
 #pragma version 10
 
 test_cases.stubs.biguint.BigUIntContract.approval_program:
+    bytecblock 0x01 0x02 0x05
     // stubs/biguint.py:6
     // one = BigUInt(1)
-    pushbytes 0x01
+    bytec_0 // 0x01
     // stubs/biguint.py:7
     // compare_biguints(one, BigUInt(2))
-    pushbytes 0x02
+    bytec_1 // 0x02
     callsub compare_biguints
     // stubs/biguint.py:6
     // one = BigUInt(1)
-    pushbytes 0x01
+    bytec_0 // 0x01
     // stubs/biguint.py:8
     // compare_biguint_vs_uint64(one, UInt64(2))
     pushint 2 // 2
@@ -18,18 +19,18 @@ test_cases.stubs.biguint.BigUIntContract.approval_program:
     // stubs/biguint.py:9
     // compare_uint64_vs_biguint(UInt64(1), BigUInt(2))
     pushint 1 // 1
-    pushbytes 0x02
+    bytec_1 // 0x02
     callsub compare_uint64_vs_biguint
     // stubs/biguint.py:10
     // assert BigUInt(1 if Txn.num_app_args else 5) == 5, "constructor expressions supported"
     txn NumAppArgs
     pushint 0 // 0
     !=
-    pushbytes 0x05
-    pushbytes 0x01
+    bytec_2 // 0x05
+    bytec_0 // 0x01
     uncover 2
     select
-    pushbytes 0x05
+    bytec_2 // 0x05
     b==
     assert // constructor expressions supported
     // stubs/biguint.py:11
@@ -42,8 +43,8 @@ test_cases.stubs.biguint.BigUIntContract.approval_program:
     assert
     // stubs/biguint.py:6
     // one = BigUInt(1)
-    pushbytes 0x01
-    pushbytes 0x01
+    bytec_0 // 0x01
+    dup
     // stubs/biguint.py:12
     // assert one == +one
     b==
@@ -75,7 +76,7 @@ compare_biguints:
     // stubs/biguint.py:24
     // assert one == one  # noqa: PLR0124
     frame_dig -2
-    frame_dig -2
+    dup
     b==
     assert
     // stubs/biguint.py:25
@@ -110,21 +111,19 @@ compare_biguint_vs_uint64:
     frame_dig -1
     itob
     frame_dig -2
-    uncover 1
-    b<
+    b>
     assert
     // stubs/biguint.py:33
     // assert one <= two
     frame_dig -1
     itob
     frame_dig -2
-    uncover 1
-    b<=
+    b>=
     assert
     // stubs/biguint.py:34
     // assert one == one  # noqa: PLR0124
     frame_dig -2
-    frame_dig -2
+    dup
     b==
     assert
     // stubs/biguint.py:35
@@ -132,23 +131,20 @@ compare_biguint_vs_uint64:
     frame_dig -1
     itob
     frame_dig -2
-    uncover 1
-    b<
+    b>
     assert
     // stubs/biguint.py:36
     // assert two >= one
     frame_dig -1
     itob
     frame_dig -2
-    uncover 1
-    b<=
+    b>=
     assert
     // stubs/biguint.py:37
     // assert one != two
     frame_dig -1
     itob
     frame_dig -2
-    uncover 1
     b!=
     assert
     retsub
@@ -165,21 +161,19 @@ compare_uint64_vs_biguint:
     frame_dig -2
     itob
     frame_dig -1
-    uncover 1
-    b>
+    b<
     assert
     // stubs/biguint.py:43
     // assert one <= two
     frame_dig -2
     itob
     frame_dig -1
-    uncover 1
-    b>=
+    b<=
     assert
     // stubs/biguint.py:44
     // assert one == one  # noqa: PLR0124
     frame_dig -2
-    frame_dig -2
+    dup
     ==
     assert
     // stubs/biguint.py:45
@@ -187,23 +181,20 @@ compare_uint64_vs_biguint:
     frame_dig -2
     itob
     frame_dig -1
-    uncover 1
-    b>
+    b<
     assert
     // stubs/biguint.py:46
     // assert two >= one
     frame_dig -2
     itob
     frame_dig -1
-    uncover 1
-    b>=
+    b<=
     assert
     // stubs/biguint.py:47
     // assert one != two
     frame_dig -2
     itob
     frame_dig -1
-    uncover 1
     b!=
     assert
     retsub

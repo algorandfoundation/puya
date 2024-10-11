@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.tuple_support.nested_tuples.NestedTuples.approval_program:
+    intcblock 0 1 2 8
+    bytecblock 0x "Hi" "There" "build_nested_call_count" 0x151f7c75 "hi"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -16,14 +18,14 @@ __puya_arc4_router__:
     // class NestedTuples(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@8
     txna ApplicationArgs 0
-    method "run_tests()bool"
-    method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
-    method "named_tuple((uint64,byte[],string))(uint64,byte[],string)"
-    method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))"
+    pushbytes 0x9e5a3ba7 // method "run_tests()bool"
+    pushbytes 0xcea0521b // method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))"
+    pushbytes 0x373f5b24 // method "named_tuple((uint64,byte[],string))(uint64,byte[],string)"
+    pushbytes 0xec593096 // method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))"
     uncover 4
     match __puya_arc4_router___run_tests_route@2 __puya_arc4_router___nested_tuple_params_route@3 __puya_arc4_router___named_tuple_route@4 __puya_arc4_router___nested_named_tuple_params_route@5
     b __puya_arc4_router___switch_case_default@6
@@ -32,80 +34,80 @@ __puya_arc4_router___run_tests_route@2:
     // tuple_support/nested_tuples.py:22
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub run_tests
-    byte 0x00
-    int 0
+    pushbytes 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    byte 0x151f7c75
-    uncover 1
+    bytec 4 // 0x151f7c75
+    swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___nested_tuple_params_route@3:
     // tuple_support/nested_tuples.py:51
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    intc_0 // 0
     !=
     assert // is not creating
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
-    cover 1
+    swap
     dup
-    int 2
+    intc_2 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    cover 1
+    swap
     dup
-    int 2
+    intc_2 // 2
     extract_uint16
-    cover 1
+    swap
     dup
     len
-    cover 1
+    swap
     uncover 2
     uncover 2
     substring3
     dup
-    int 0
+    intc_0 // 0
     extract_uint16
-    cover 1
+    swap
     dup
     len
-    cover 1
+    swap
     dup
     uncover 3
     uncover 3
     substring3
     extract 2 0
-    cover 1
-    int 2
-    int 8
+    swap
+    intc_2 // 2
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
-    int 0
-    int 8
+    intc_0 // 0
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     // tuple_support/nested_tuples.py:51
@@ -115,97 +117,96 @@ __puya_arc4_router___nested_tuple_params_route@3:
     uncover 2
     callsub nested_tuple_params
     cover 2
-    cover 1
+    swap
     dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     cover 2
     dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     itob
-    int 10
-    itob
-    extract 6 2
-    byte 0x
-    uncover 1
-    concat
-    uncover 1
-    concat
-    uncover 1
-    concat
-    int 4
+    pushint 10 // 10
     itob
     extract 6 2
-    byte 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushint 4 // 4
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
     concat
     dig 2
     len
-    int 4
-    uncover 1
+    pushint 4 // 4
     +
     itob
     extract 6 2
     concat
     uncover 2
     concat
-    uncover 1
+    swap
     concat
-    byte 0x151f7c75
-    uncover 1
+    bytec 4 // 0x151f7c75
+    swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___named_tuple_route@4:
     // tuple_support/nested_tuples.py:58
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    intc_0 // 0
     !=
     assert // is not creating
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    int 0
-    int 8
+    intc_0 // 0
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
     btoi
-    cover 1
+    swap
     dup
-    int 8
+    intc_3 // 8
     extract_uint16
-    cover 1
+    swap
     dup
-    int 10
+    pushint 10 // 10
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    cover 1
+    swap
     dup
-    int 10
+    pushint 10 // 10
     extract_uint16
-    cover 1
+    swap
     dup
     len
-    cover 1
+    swap
     uncover 2
     uncover 2
     substring3
@@ -217,110 +218,109 @@ __puya_arc4_router___named_tuple_route@4:
     uncover 2
     callsub named_tuple
     cover 2
-    cover 1
+    swap
     itob
     cover 2
     dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     cover 2
     dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     cover 2
-    byte 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
-    int 12
+    pushint 12 // 12
     itob
     extract 6 2
     concat
     dig 1
     len
-    int 12
-    uncover 1
+    pushint 12 // 12
     +
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     concat
-    byte 0x151f7c75
-    uncover 1
+    bytec 4 // 0x151f7c75
+    swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___nested_named_tuple_params_route@5:
     // tuple_support/nested_tuples.py:63
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    intc_0 // 0
     !=
     assert // is not creating
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    int 0
-    int 8
+    intc_0 // 0
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
     btoi
-    cover 1
+    swap
     dup
-    int 8
-    int 8
+    intc_3 // 8
+    dup
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     dup
-    int 16
+    pushint 16 // 16
     extract_uint16
-    cover 1
+    swap
     dup
     len
-    cover 1
+    swap
     uncover 2
     uncover 2
     substring3
     dup
-    int 0
-    int 8
+    intc_0 // 0
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
     btoi
-    cover 1
+    swap
     dup
-    int 8
+    intc_3 // 8
     extract_uint16
-    cover 1
+    swap
     dup
-    int 10
+    pushint 10 // 10
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    cover 1
+    swap
     dup
-    int 10
+    pushint 10 // 10
     extract_uint16
-    cover 1
+    swap
     dup
     len
-    cover 1
+    swap
     uncover 2
     uncover 2
     substring3
@@ -345,51 +345,50 @@ __puya_arc4_router___nested_named_tuple_params_route@5:
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     cover 2
     dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     cover 2
-    byte 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
-    int 12
+    pushint 12 // 12
     itob
     extract 6 2
     concat
     dig 1
     len
-    int 12
-    uncover 1
+    pushint 12 // 12
     +
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     concat
-    byte 0x
+    bytec_0 // 0x
     uncover 2
     concat
     uncover 2
     concat
-    int 18
+    pushint 18 // 18
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
-    byte 0x151f7c75
-    uncover 1
+    bytec 4 // 0x151f7c75
+    swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@6:
@@ -399,8 +398,8 @@ __puya_arc4_router___bare_routing@8:
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
     txn OnCompletion
-    int 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@9
     b __puya_arc4_router___switch_case_default@10
 
@@ -408,11 +407,11 @@ __puya_arc4_router_____algopy_default_create@9:
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
     txn ApplicationID
-    int 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@10:
@@ -420,7 +419,7 @@ __puya_arc4_router___switch_case_default@10:
 __puya_arc4_router___after_if_else@12:
     // tuple_support/nested_tuples.py:18
     // class NestedTuples(ARC4Contract):
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -432,118 +431,118 @@ run_tests:
     proto 0 1
     // tuple_support/nested_tuples.py:24
     // x = (String("Hi"), String("There"))
-    byte "Hi"
-    byte "There"
+    bytec_1 // "Hi"
+    bytec_2 // "There"
     // tuple_support/nested_tuples.py:25
     // assert test_swap(x) == (String("There"), String("Hi"))
     callsub test_swap
-    cover 1
-    byte "There"
+    swap
+    bytec_2 // "There"
     ==
-    uncover 1
-    byte "Hi"
+    swap
+    bytec_1 // "Hi"
     ==
     &&
     assert
     // tuple_support/nested_tuples.py:24
     // x = (String("Hi"), String("There"))
-    byte "There"
+    bytec_2 // "There"
     // tuple_support/nested_tuples.py:31
     // assert z2_1_1 == "There"
-    byte "There"
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:24
     // x = (String("Hi"), String("There"))
-    byte "Hi"
+    bytec_1 // "Hi"
     // tuple_support/nested_tuples.py:27
     // z = (UInt64(0), UInt64(2), y)
-    int 0
-    int 2
+    intc_0 // 0
+    intc_2 // 2
     // tuple_support/nested_tuples.py:26
     // y = (UInt64(1), x)
-    int 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:24
     // x = (String("Hi"), String("There"))
-    byte "Hi"
-    byte "There"
-    byte "There"
+    bytec_1 // "Hi"
+    bytec_2 // "There"
+    dup
     // tuple_support/nested_tuples.py:33
     // (a, b, (c, d, (e,))) = test_rearrange(x[0], _b=x[1], args=z)
     callsub test_rearrange
     cover 4
     cover 3
     cover 2
-    cover 1
+    swap
     cover 2
     cover 3
     cover 4
-    uncover 1
+    swap
     cover 4
     uncover 2
     cover 4
     // tuple_support/nested_tuples.py:34
     // assert (a, b) == (String("Hi"), UInt64(0))
-    byte "Hi"
+    bytec_1 // "Hi"
     ==
-    uncover 1
-    int 0
+    swap
+    intc_0 // 0
     ==
     &&
     assert
     // tuple_support/nested_tuples.py:35
     // assert (c, d) == (UInt64(2), UInt64(1))
-    int 2
+    intc_2 // 2
     ==
-    uncover 1
-    int 1
+    swap
+    intc_1 // 1
     ==
     &&
     assert
     // tuple_support/nested_tuples.py:36
     // assert e == String("There")
-    byte "There"
+    bytec_2 // "There"
     ==
     assert
     // tuple_support/nested_tuples.py:38
     // test_intrinsics(UInt64(1), UInt64(2))
-    int 1
-    int 2
+    intc_1 // 1
+    intc_2 // 2
     callsub test_intrinsics
     // tuple_support/nested_tuples.py:39
     // test_nested_slicing()
     callsub test_nested_slicing
     // tuple_support/nested_tuples.py:40
     // test_nested_singles(UInt64(1), reassign=True)
-    int 1
-    int 1
+    intc_1 // 1
+    dup
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:41
     // test_nested_singles(UInt64(1), reassign=False)
-    int 1
-    int 0
+    intc_1 // 1
+    intc_0 // 0
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:42
     // test_nested_mutation()
     callsub test_nested_mutation
     // tuple_support/nested_tuples.py:26
     // y = (UInt64(1), x)
-    int 1
-    int 1
+    intc_1 // 1
+    dup
     // tuple_support/nested_tuples.py:44
     // assert z[2] == y
     ==
     // tuple_support/nested_tuples.py:24
     // x = (String("Hi"), String("There"))
-    byte "Hi"
-    byte "Hi"
+    bytec_1 // "Hi"
+    dup
     // tuple_support/nested_tuples.py:44
     // assert z[2] == y
     ==
     // tuple_support/nested_tuples.py:24
     // x = (String("Hi"), String("There"))
-    byte "There"
-    byte "There"
+    bytec_2 // "There"
+    dup
     // tuple_support/nested_tuples.py:44
     // assert z[2] == y
     ==
@@ -558,7 +557,7 @@ run_tests:
     callsub test_single_evaluation_nested
     // tuple_support/nested_tuples.py:49
     // return True
-    int 1
+    intc_1 // 1
     retsub
 
 
@@ -574,7 +573,7 @@ test_swap:
     frame_dig -1
     // tuple_support/nested_tuples.py:93
     // return b, a
-    uncover 1
+    swap
     retsub
 
 
@@ -593,7 +592,7 @@ test_rearrange:
     frame_dig -4
     frame_dig -3
     frame_dig -2
-    cover 1
+    swap
     // tuple_support/nested_tuples.py:87
     // return d, a, (b, c, (e,))
     uncover 4
@@ -614,38 +613,37 @@ test_intrinsics:
     frame_dig -2
     frame_dig -1
     addw
-    cover 1
-    int 1
+    swap
+    intc_1 // 1
     // tuple_support/nested_tuples.py:99
     // assert nt[0] == 1
-    int 1
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:98
     // nt = (UInt64(1), op.addw(num1, num2), UInt64(42))
-    int 42
+    pushint 42 // 42
     // tuple_support/nested_tuples.py:100
     // assert nt[-1] == 42
-    int 42
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:101
     // assert nt[1] == (0, num1 + num2)  # type: ignore[comparison-overlap]
     dup
-    int 0
+    intc_0 // 0
     ==
     frame_dig -2
     frame_dig -1
     +
     dig 3
-    uncover 1
     ==
     &&
     assert
     // tuple_support/nested_tuples.py:102
     // assert nt[1][:1] == (0,)  # type: ignore[comparison-overlap]
     dup
-    int 0
+    intc_0 // 0
     ==
     assert
     // tuple_support/nested_tuples.py:103
@@ -654,12 +652,11 @@ test_intrinsics:
     frame_dig -1
     +
     dig 2
-    uncover 1
     ==
     assert
     // tuple_support/nested_tuples.py:105
     // assert x == 0
-    int 0
+    intc_0 // 0
     ==
     assert
     // tuple_support/nested_tuples.py:106
@@ -680,41 +677,41 @@ test_nested_slicing:
     proto 0 0
     // tuple_support/nested_tuples.py:120
     // UInt64(4),
-    int 4
+    pushint 4 // 4
     // tuple_support/nested_tuples.py:126
     // assert b[-1] == 4
-    int 4
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:113
     // UInt64(2),
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:127
     // assert ((a, c),) == ((2, 5),)  # type: ignore[comparison-overlap]
-    int 2
+    dup
     ==
     // tuple_support/nested_tuples.py:122
     // UInt64(5),
-    int 5
+    pushint 5 // 5
     // tuple_support/nested_tuples.py:127
     // assert ((a, c),) == ((2, 5),)  # type: ignore[comparison-overlap]
-    int 5
+    dup
     ==
     &&
     assert
     // tuple_support/nested_tuples.py:117
     // String("a"),
-    byte "a"
+    pushbytes "a"
     // tuple_support/nested_tuples.py:128
     // assert b[1][:] == ("a", "b")  # type: ignore[comparison-overlap]
-    byte "a"
+    dup
     ==
     // tuple_support/nested_tuples.py:118
     // String("b"),
-    byte "b"
+    pushbytes "b"
     // tuple_support/nested_tuples.py:128
     // assert b[1][:] == ("a", "b")  # type: ignore[comparison-overlap]
-    byte "b"
+    dup
     ==
     &&
     assert
@@ -729,7 +726,7 @@ test_nested_singles:
     proto 2 0
     // tuple_support/nested_tuples.py:134
     // (UInt64(0),),
-    int 0
+    intc_0 // 0
     // tuple_support/nested_tuples.py:133-137
     // s = (
     //     (UInt64(0),),
@@ -738,37 +735,36 @@ test_nested_singles:
     // )
     frame_dig -2
     dup
-    cover 1
     // tuple_support/nested_tuples.py:136
     // (UInt64(2),),
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:133-137
     // s = (
     //     (UInt64(0),),
     //     (one,),
     //     (UInt64(2),),
     // )
-    cover 1
+    swap
     // tuple_support/nested_tuples.py:134
     // (UInt64(0),),
-    int 0
+    intc_0 // 0
     // tuple_support/nested_tuples.py:138
     // assert s[0][0] == 0
-    int 0
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:134
     // (UInt64(0),),
-    int 0
+    intc_0 // 0
     // tuple_support/nested_tuples.py:139
     // assert s[0] == (0,)  # type: ignore[comparison-overlap]
-    int 0
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:140
     // assert s[1][0] == 1
     dup
-    int 1
+    intc_1 // 1
     ==
     assert
     // tuple_support/nested_tuples.py:141
@@ -779,18 +775,18 @@ test_nested_singles:
     assert
     // tuple_support/nested_tuples.py:136
     // (UInt64(2),),
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:142
     // assert s[2][0] == 2
-    int 2
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:136
     // (UInt64(2),),
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:143
     // assert s[2] == (2,)  # type: ignore[comparison-overlap]
-    int 2
+    dup
     ==
     assert
     // tuple_support/nested_tuples.py:145
@@ -799,7 +795,7 @@ test_nested_singles:
     bz test_nested_singles_after_if_else@2
     // tuple_support/nested_tuples.py:147
     // (UInt64(3),),
-    int 3
+    pushint 3 // 3
     // tuple_support/nested_tuples.py:146-150
     // s = (
     //     (UInt64(3),),
@@ -809,7 +805,7 @@ test_nested_singles:
     frame_bury 0
     // tuple_support/nested_tuples.py:148
     // (UInt64(4),),
-    int 4
+    pushint 4 // 4
     // tuple_support/nested_tuples.py:146-150
     // s = (
     //     (UInt64(3),),
@@ -819,7 +815,7 @@ test_nested_singles:
     frame_bury 1
     // tuple_support/nested_tuples.py:149
     // (UInt64(5),),
-    int 5
+    pushint 5 // 5
     // tuple_support/nested_tuples.py:146-150
     // s = (
     //     (UInt64(3),),
@@ -831,12 +827,11 @@ test_nested_singles:
 test_nested_singles_after_if_else@2:
     // tuple_support/nested_tuples.py:151
     // assert s[0][0] == (3 if reassign else 0)
-    int 0
-    int 3
+    intc_0 // 0
+    pushint 3 // 3
     frame_dig -1
     select
     frame_dig 0
-    uncover 1
     ==
     assert
     // tuple_support/nested_tuples.py:152
@@ -844,8 +839,8 @@ test_nested_singles_after_if_else@2:
     frame_dig 2
     // tuple_support/nested_tuples.py:153
     // assert tmp == (5 if reassign else 2)
-    int 2
-    int 5
+    intc_2 // 2
+    pushint 5 // 5
     frame_dig -1
     select
     ==
@@ -866,16 +861,16 @@ test_nested_singles_after_if_else@2:
     +
     // tuple_support/nested_tuples.py:158
     // assert s1 == (5 if reassign else 2)
-    int 2
-    int 5
+    intc_2 // 2
+    pushint 5 // 5
     frame_dig -1
     select
     ==
     assert
     // tuple_support/nested_tuples.py:159
     // assert s[1][0] == (4 if reassign else 1)
-    int 1
-    int 4
+    intc_1 // 1
+    pushint 4 // 4
     frame_dig -1
     select
     ==
@@ -893,38 +888,38 @@ test_nested_mutation:
     // arc4.DynamicArray(
     //     arc4.UInt64(0),
     // ),
-    byte 0x
+    bytec_0 // 0x
     // tuple_support/nested_tuples.py:167
     // arc4.UInt64(0),
-    byte 0x0000000000000000
+    pushbytes 0x0000000000000000
     // tuple_support/nested_tuples.py:166-168
     // arc4.DynamicArray(
     //     arc4.UInt64(0),
     // ),
     concat
-    byte 0x0001
-    uncover 1
+    pushbytes 0x0001
+    swap
     concat
     // tuple_support/nested_tuples.py:171
     // x[0][0].append(arc4.UInt64(1))
     extract 2 0
-    byte 0x
-    byte 0x0000000000000001
+    bytec_0 // 0x
+    pushbytes 0x0000000000000001
     concat
     concat
     dup
     len
-    int 8
+    intc_3 // 8
     /
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     // tuple_support/nested_tuples.py:172
     // assert x[0][0].length == 2
-    int 0
+    intc_0 // 0
     extract_uint16
-    int 2
+    intc_2 // 2
     ==
     assert
     retsub
@@ -936,29 +931,27 @@ test_nested_iteration:
     // @subroutine
     // def test_nested_iteration() -> None:
     proto 0 0
-    byte ""
+    bytec_0 // ""
     dup
     // tuple_support/nested_tuples.py:179
     // total = UInt64(0)
-    int 0
-    int 0
+    intc_0 // 0
+    dup
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
 
 test_nested_iteration_for_body@1:
     // tuple_support/nested_tuples.py:182
     // a, b = t
     frame_dig 4
-    uncover 1
     // tuple_support/nested_tuples.py:183
     // total += a + b
     +
     frame_dig 2
-    uncover 1
     +
     frame_bury 2
     // tuple_support/nested_tuples.py:181
@@ -968,68 +961,66 @@ test_nested_iteration_for_body@1:
     b test_nested_iteration_after_for@6
 
 test_nested_iteration_for_header_1@3:
-    int 1
+    intc_1 // 1
     frame_bury 3
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 4
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     b test_nested_iteration_for_body@1
 
 test_nested_iteration_for_header_2@4:
-    int 2
+    intc_2 // 2
     frame_bury 3
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 4
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     b test_nested_iteration_for_body@1
 
 test_nested_iteration_for_header_3@5:
-    int 3
+    pushint 3 // 3
     frame_bury 3
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:181
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 4
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
     b test_nested_iteration_for_body@1
 
 test_nested_iteration_after_for@6:
-    int 0
+    intc_0 // 0
     frame_bury 1
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
 
 test_nested_iteration_for_body@7:
     // tuple_support/nested_tuples.py:186
     // total += a + b
     frame_dig 0
-    uncover 1
     +
     frame_dig 2
-    uncover 1
     +
     frame_bury 2
     // tuple_support/nested_tuples.py:185
@@ -1039,54 +1030,54 @@ test_nested_iteration_for_body@7:
     b test_nested_iteration_after_for@12
 
 test_nested_iteration_for_header_1@9:
-    int 1
+    intc_1 // 1
     frame_bury 1
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     b test_nested_iteration_for_body@7
 
 test_nested_iteration_for_header_2@10:
-    int 2
+    intc_2 // 2
     frame_bury 1
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
     // tuple_support/nested_tuples.py:177
     // x = UInt64(1)
-    int 1
+    intc_1 // 1
     b test_nested_iteration_for_body@7
 
 test_nested_iteration_for_header_3@11:
-    int 3
+    pushint 3 // 3
     frame_bury 1
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
     // tuple_support/nested_tuples.py:185
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
     // tuple_support/nested_tuples.py:178
     // y = UInt64(2)
-    int 2
+    intc_2 // 2
     b test_nested_iteration_for_body@7
 
 test_nested_iteration_after_for@12:
     // tuple_support/nested_tuples.py:188
     // assert total // 8 == 3
     frame_dig 2
-    int 8
+    intc_3 // 8
     /
-    int 3
+    pushint 3 // 3
     ==
     assert
     retsub
@@ -1100,18 +1091,17 @@ test_single_evaluation_nested:
     proto 0 0
     // tuple_support/nested_tuples.py:75
     // self.build_nested_call_count = UInt64(0)
-    byte "build_nested_call_count"
-    int 0
+    bytec_3 // "build_nested_call_count"
+    intc_0 // 0
     app_global_put
     // tuple_support/nested_tuples.py:76
     // result = self.build_nested() or self.build_nested()
     callsub build_nested
     cover 2
-    cover 1
+    swap
     dup
     cover 3
     dup
-    uncover 1
     ==
     dig 1
     uncover 2
@@ -1129,22 +1119,21 @@ test_single_evaluation_nested_ternary_false@2:
     // tuple_support/nested_tuples.py:76
     // result = self.build_nested() or self.build_nested()
     callsub build_nested
-    pop
-    pop
+    popn 2
 
 test_single_evaluation_nested_ternary_merge@3:
     // tuple_support/nested_tuples.py:77
     // assert result[0][0] == "hi"
-    byte "hi"
+    bytec 5 // "hi"
     ==
     assert
     // tuple_support/nested_tuples.py:78
     // assert self.build_nested_call_count == 1
-    int 0
-    byte "build_nested_call_count"
+    intc_0 // 0
+    bytec_3 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
-    int 1
+    intc_1 // 1
     ==
     assert
     retsub
@@ -1158,20 +1147,20 @@ build_nested:
     proto 0 3
     // tuple_support/nested_tuples.py:70
     // self.build_nested_call_count += 1
-    int 0
-    byte "build_nested_call_count"
+    intc_0 // 0
+    bytec_3 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
-    int 1
+    intc_1 // 1
     +
-    byte "build_nested_call_count"
-    uncover 1
+    bytec_3 // "build_nested_call_count"
+    swap
     app_global_put
     // tuple_support/nested_tuples.py:71
     // return (String("hi"), UInt64(1)), Bytes(b"hmmm")
-    byte "hi"
-    int 1
-    byte 0x686d6d6d
+    bytec 5 // "hi"
+    intc_1 // 1
+    pushbytes 0x686d6d6d
     retsub
 
 
@@ -1188,7 +1177,7 @@ nested_tuple_params:
     frame_dig -3
     frame_dig -2
     frame_dig -1
-    cover 1
+    swap
     // tuple_support/nested_tuples.py:56
     // return b, (s, u)
     uncover 2
@@ -1253,7 +1242,7 @@ __init__:
     proto 0 0
     // tuple_support/nested_tuples.py:20
     // self.build_nested_call_count = UInt64(0)
-    byte "build_nested_call_count"
-    int 0
+    bytec_3 // "build_nested_call_count"
+    intc_0 // 0
     app_global_put
     retsub

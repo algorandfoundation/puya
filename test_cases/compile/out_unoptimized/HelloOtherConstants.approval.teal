@@ -1,7 +1,8 @@
 #pragma version 10
 
 test_cases.compile.apps.HelloOtherConstants.approval_program:
-    bytecblock TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    intcblock 0 1
+    bytecblock "num" 0x151f7c75 0x30 "greeting" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -17,7 +18,7 @@ __puya_arc4_router__:
     // class HelloOtherConstants(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
@@ -32,20 +33,20 @@ __puya_arc4_router___create_route@2:
     // compile/apps.py:89
     // @arc4.abimethod(create="require")
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub create
     itob
-    pushbytes 0x151f7c75
-    uncover 1
+    bytec_1 // 0x151f7c75
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___delete_route@3:
@@ -56,22 +57,22 @@ __puya_arc4_router___delete_route@3:
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub delete
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___greet_route@4:
     // compile/apps.py:97
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // compile/apps.py:81
@@ -81,17 +82,17 @@ __puya_arc4_router___greet_route@4:
     // compile/apps.py:97
     // @arc4.abimethod()
     callsub greet
-    dig 0
+    dup
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
-    pushbytes 0x151f7c75
-    uncover 1
+    bytec_1 // 0x151f7c75
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -102,7 +103,7 @@ __puya_arc4_router___bare_routing@7:
 __puya_arc4_router___after_if_else@8:
     // compile/apps.py:81
     // class HelloOtherConstants(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -114,7 +115,7 @@ create:
     proto 0 1
     // compile/apps.py:91
     // return UInt64(1)
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 
@@ -135,47 +136,47 @@ greet:
     proto 1 1
     // compile/apps.py:99
     // num_alpha = (self.num + 48).bytes[-1]
-    pushint 0 // 0
-    pushbytes "num"
+    intc_0 // 0
+    bytec_0 // "num"
     app_global_get_ex
     assert // check self.num exists
-    pushbytes 0x30
+    bytec_2 // 0x30
     b+
     len
-    pushint 1 // 1
+    intc_1 // 1
     -
-    pushint 0 // 0
-    pushbytes "num"
+    intc_0 // 0
+    bytec_0 // "num"
     app_global_get_ex
     assert // check self.num exists
-    pushbytes 0x30
+    bytec_2 // 0x30
     b+
     dig 1
-    pushint 1 // 1
+    intc_1 // 1
     +
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
     // compile/apps.py:101
     // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
-    pushint 0 // 0
-    pushbytes "greeting"
+    intc_0 // 0
+    bytec_3 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes 0x20
     concat
     frame_dig -1
     concat
-    uncover 1
+    swap
     concat
-    pushint 0 // 0
-    pushbytes "address"
+    intc_0 // 0
+    bytec 4 // "address"
     app_global_get_ex
     assert // check self.address exists
     concat
-    pushint 0 // 0
-    pushbytes "method"
+    intc_0 // 0
+    bytec 5 // "method"
     app_global_get_ex
     assert // check self.method exists
     concat
@@ -193,22 +194,22 @@ __init__:
     proto 0 0
     // compile/apps.py:84
     // self.greeting = TemplateVar[String]("GREETING")
-    pushbytes "greeting"
-    bytec_0 // TMPL_GREETING
+    bytec_3 // "greeting"
+    bytec 6 // TMPL_GREETING
     app_global_put
     // compile/apps.py:85
     // self.num = TemplateVar[BigUInt]("NUM")
-    pushbytes "num"
-    bytec_1 // TMPL_NUM
+    bytec_0 // "num"
+    bytec 7 // TMPL_NUM
     app_global_put
     // compile/apps.py:86
     // self.address = TemplateVar[Account]("ACCOUNT")
-    pushbytes "address"
-    bytec_2 // TMPL_ACCOUNT
+    bytec 4 // "address"
+    bytec 8 // TMPL_ACCOUNT
     app_global_put
     // compile/apps.py:87
     // self.method = TemplateVar[Bytes]("METHOD")
-    pushbytes "method"
-    bytec_3 // TMPL_METHOD
+    bytec 5 // "method"
+    bytec 9 // TMPL_METHOD
     app_global_put
     retsub
