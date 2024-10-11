@@ -1,26 +1,28 @@
 #pragma version 10
 
 test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
-    int 0
-    byte ""
+    intcblock 2 1 0 4
+    bytecblock "" 0x0004000b000548656c6c6f0005576f726c64 0x0004000a000450696e670004506f6e67 " "
+    intc_2 // 0
+    bytec_0 // ""
     dupn 2
     // arc4_types/array.py:26
     // total = UInt64(0)
-    int 0
+    intc_2 // 0
     dup
 
 main_for_header@1:
     // arc4_types/array.py:27
     // for uint8_item in dynamic_uint8_array:
     dup
-    int 2
+    intc_0 // 2
     <
     bz main_after_for@4
-    byte 0x0102
+    pushbytes 0x0102
     dig 1
     dup
     cover 2
-    int 1
+    intc_1 // 1
     extract3 // on error: Index access is out of bounds
     // arc4_types/array.py:28
     // total += uint8_item.native
@@ -28,7 +30,7 @@ main_for_header@1:
     dig 3
     +
     bury 3
-    int 1
+    intc_1 // 1
     +
     bury 1
     b main_for_header@1
@@ -37,26 +39,26 @@ main_after_for@4:
     // arc4_types/array.py:30
     // assert total == 3, "Total should be sum of dynamic_uint8_array items"
     dig 1
-    int 3
+    pushint 3 // 3
     ==
     assert // Total should be sum of dynamic_uint8_array items
-    int 0
+    intc_2 // 0
     bury 4
 
 main_for_header@5:
     // arc4_types/array.py:32
     // for uint16_item in aliased_dynamic:
     dig 3
-    int 1
+    intc_1 // 1
     <
     bz main_after_for@8
     dig 3
     dup
-    int 2
+    intc_0 // 2
     *
-    byte 0x0001
+    pushbytes 0x0001
     swap
-    int 2
+    intc_0 // 2
     extract3 // on error: Index access is out of bounds
     // arc4_types/array.py:33
     // total += uint16_item.native
@@ -64,7 +66,7 @@ main_for_header@5:
     dig 3
     +
     bury 3
-    int 1
+    intc_1 // 1
     +
     bury 4
     b main_for_header@5
@@ -73,14 +75,14 @@ main_after_for@8:
     // arc4_types/array.py:34
     // assert total == 4, "Total should now include sum of aliased_dynamic items"
     dig 1
-    int 4
+    intc_3 // 4
     ==
     assert // Total should now include sum of aliased_dynamic items
     // arc4_types/array.py:38
     // result = String("")
-    byte ""
+    bytec_0 // ""
     bury 6
-    int 0
+    intc_2 // 0
     bury 5
 
 main_for_header@9:
@@ -89,34 +91,34 @@ main_for_header@9:
     dig 4
     // arc4_types/array.py:36
     // assert dynamic_string_array.length == 2
-    int 2
+    intc_0 // 2
     // arc4_types/array.py:39
     // for index, string_item in uenumerate(dynamic_string_array):
     <
     bz main_after_for@15
     dig 4
     dup
-    int 2
+    intc_0 // 2
     *
     // arc4_types/array.py:37
     // assert dynamic_string_array[0] == ARC4String("Hello")
-    byte 0x0004000b000548656c6c6f0005576f726c64
+    bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
     // arc4_types/array.py:39
     // for index, string_item in uenumerate(dynamic_string_array):
     swap
     extract_uint16
     // arc4_types/array.py:37
     // assert dynamic_string_array[0] == ARC4String("Hello")
-    byte 0x0004000b000548656c6c6f0005576f726c64
+    bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
     // arc4_types/array.py:39
     // for index, string_item in uenumerate(dynamic_string_array):
     dig 1
     extract_uint16
-    int 2
+    intc_0 // 2
     +
     // arc4_types/array.py:37
     // assert dynamic_string_array[0] == ARC4String("Hello")
-    byte 0x0004000b000548656c6c6f0005576f726c64
+    bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
     // arc4_types/array.py:39
     // for index, string_item in uenumerate(dynamic_string_array):
     cover 2
@@ -135,7 +137,7 @@ main_else_body@12:
     // arc4_types/array.py:43
     // result += " " + string_item.native
     extract 2 0
-    byte " "
+    bytec_3 // " "
     swap
     concat
     dig 6
@@ -145,7 +147,7 @@ main_else_body@12:
 
 main_after_if_else@13:
     dig 4
-    int 1
+    intc_1 // 1
     +
     bury 5
     b main_for_header@9
@@ -154,30 +156,30 @@ main_after_for@15:
     // arc4_types/array.py:45
     // assert result == "Hello World"
     dig 5
-    byte "Hello World"
+    pushbytes "Hello World"
     ==
     assert
-    int 0
+    intc_2 // 0
     bury 3
 
 main_for_header@16:
     // arc4_types/array.py:49
     // for uint32_item in static_uint32_array:
     dig 2
-    int 4
+    intc_3 // 4
     <
     bz main_after_for@19
     dig 2
     dup
-    int 4
+    intc_3 // 4
     *
     // arc4_types/array.py:47
     // static_uint32_array = StaticArray(UInt32(1), UInt32(10), UInt32(255), UInt32(128))
-    byte 0x000000010000000a000000ff00000080
+    pushbytes 0x000000010000000a000000ff00000080
     // arc4_types/array.py:49
     // for uint32_item in static_uint32_array:
     swap
-    int 4
+    intc_3 // 4
     extract3 // on error: Index access is out of bounds
     // arc4_types/array.py:50
     // total += uint32_item.native
@@ -185,7 +187,7 @@ main_for_header@16:
     dig 3
     +
     bury 3
-    int 1
+    intc_1 // 1
     +
     bury 3
     b main_for_header@16
@@ -194,46 +196,46 @@ main_after_for@19:
     // arc4_types/array.py:52
     // assert total == 4 + 1 + 10 + 255 + 128
     dig 1
-    int 398
+    pushint 398 // 398
     ==
     assert
     // arc4_types/array.py:62
     // result = String("")
-    byte ""
+    bytec_0 // ""
     bury 6
-    int 0
+    intc_2 // 0
     bury 5
 
 main_for_header@20:
     // arc4_types/array.py:63
     // for index, string_item in uenumerate(static_string_array):
     dig 4
-    int 2
+    intc_0 // 2
     <
     bz main_after_for@26
     dig 4
     dup
-    int 2
+    intc_0 // 2
     *
     // arc4_types/array.py:60
     // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    byte 0x0004000a000450696e670004506f6e67
+    bytec_2 // 0x0004000a000450696e670004506f6e67
     // arc4_types/array.py:63
     // for index, string_item in uenumerate(static_string_array):
     swap
     extract_uint16
     // arc4_types/array.py:60
     // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    byte 0x0004000a000450696e670004506f6e67
+    bytec_2 // 0x0004000a000450696e670004506f6e67
     // arc4_types/array.py:63
     // for index, string_item in uenumerate(static_string_array):
     dig 1
     extract_uint16
-    int 2
+    intc_0 // 2
     +
     // arc4_types/array.py:60
     // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    byte 0x0004000a000450696e670004506f6e67
+    bytec_2 // 0x0004000a000450696e670004506f6e67
     // arc4_types/array.py:63
     // for index, string_item in uenumerate(static_string_array):
     cover 2
@@ -252,7 +254,7 @@ main_else_body@23:
     // arc4_types/array.py:67
     // result += " " + string_item.native
     extract 2 0
-    byte " "
+    bytec_3 // " "
     swap
     concat
     dig 6
@@ -262,7 +264,7 @@ main_else_body@23:
 
 main_after_if_else@24:
     dig 4
-    int 1
+    intc_1 // 1
     +
     bury 5
     b main_for_header@20
@@ -271,17 +273,17 @@ main_after_for@26:
     // arc4_types/array.py:69
     // assert result == "Ping Pong"
     dig 5
-    byte "Ping Pong"
+    pushbytes "Ping Pong"
     ==
     assert
     // arc4_types/array.py:71
     // self.hash_as_array(Bytes(b"Testing 123"))
-    byte 0x54657374696e6720313233
+    pushbytes 0x54657374696e6720313233
     callsub hash_as_array
     pop
     // arc4_types/array.py:73
     // return True
-    int 1
+    intc_1 // 1
     return
 
 

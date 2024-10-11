@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.template_variables.contract.TemplateVariablesContract.approval_program:
+    intcblock 1 0 64 TMPL_UPDATABLE TMPL_DELETABLE
+    bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
     callsub __puya_arc4_router__
     return
 
@@ -12,11 +14,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@6
-    method "get_bytes()byte[]"
-    method "get_big_uint()uint512"
+    pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
     txna ApplicationArgs 0
     match __puya_arc4_router___get_bytes_route@2 __puya_arc4_router___get_big_uint_route@3
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___get_bytes_route@2:
@@ -34,11 +35,11 @@ __puya_arc4_router___get_bytes_route@2:
     extract 6 2
     swap
     concat
-    byte 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___get_big_uint_route@3:
@@ -50,11 +51,11 @@ __puya_arc4_router___get_big_uint_route@3:
     txn ApplicationID
     assert // is not creating
     callsub get_big_uint
-    byte 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@6:
@@ -62,7 +63,7 @@ __puya_arc4_router___bare_routing@6:
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
     switch __puya_arc4_router_____algopy_default_create@7 __puya_arc4_router___after_if_else@12 __puya_arc4_router___after_if_else@12 __puya_arc4_router___after_if_else@12 __puya_arc4_router___on_update@8 __puya_arc4_router___on_delete@9
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router_____algopy_default_create@7:
@@ -71,7 +72,7 @@ __puya_arc4_router_____algopy_default_create@7:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___on_update@8:
@@ -83,7 +84,7 @@ __puya_arc4_router___on_update@8:
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def on_update(self) -> None:
     callsub on_update
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___on_delete@9:
@@ -95,13 +96,13 @@ __puya_arc4_router___on_delete@9:
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     // def on_delete(self) -> None:
     callsub on_delete
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@12:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -113,7 +114,7 @@ get_bytes:
     proto 0 1
     // template_variables/contract.py:8
     // return TemplateVar[Bytes]("SOME_BYTES")
-    byte TMPL_SOME_BYTES
+    bytec_1 // TMPL_SOME_BYTES
     retsub
 
 
@@ -125,15 +126,15 @@ get_big_uint:
     proto 0 1
     // template_variables/contract.py:12
     // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
-    byte TMPL_SOME_BIG_UINT
+    bytec_2 // TMPL_SOME_BIG_UINT
     // template_variables/contract.py:13
     // return UInt512(x)
     dup
     len
-    int 64
+    intc_2 // 64
     <=
     assert // overflow
-    int 64
+    intc_2 // 64
     bzero
     b|
     retsub
@@ -147,7 +148,7 @@ on_update:
     proto 0 0
     // template_variables/contract.py:17
     // assert TemplateVar[bool]("UPDATABLE")
-    int TMPL_UPDATABLE
+    intc_3 // TMPL_UPDATABLE
     assert
     retsub
 
@@ -160,6 +161,6 @@ on_delete:
     proto 0 0
     // template_variables/contract.py:21
     // assert TemplateVar[UInt64]("DELETABLE")
-    int TMPL_DELETABLE
+    intc 4 // TMPL_DELETABLE
     assert
     retsub

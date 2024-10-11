@@ -6,6 +6,7 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     txna ApplicationArgs 0
     dup
     cover 1
+    cover 1
     // too_many_permutations/contract.py:7
     // b = op.Txn.application_args(1)
     txna ApplicationArgs 1
@@ -14,6 +15,7 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     // c = op.Txn.application_args(2)
     txna ApplicationArgs 2
     dup
+    cover 1
     cover 2
     // too_many_permutations/contract.py:9
     // d = op.Txn.application_args(3)
@@ -29,11 +31,11 @@ test_cases.too_many_permutations.contract.MyContract.approval_program:
     bz main_bool_false@3
 
 main_bool_true@2:
-    int 1
+    pushint 1 // 1
     b main_bool_merge@4
 
 main_bool_false@3:
-    int 0
+    pushint 0 // 0
 
 main_bool_merge@4:
     // too_many_permutations/contract.py:11
@@ -43,6 +45,7 @@ main_bool_merge@4:
     // assert four_args(a, b, c, d)
     dig 3
     dup
+    cover 1
     dig 4
     dup
     cover 3
@@ -64,7 +67,7 @@ main_bool_merge@4:
     callsub two_args
     // too_many_permutations/contract.py:16
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -84,7 +87,7 @@ four_args:
     frame_dig -1
     concat
     len
-    int 0
+    pushint 0 // 0
     >
     retsub
 
@@ -101,7 +104,7 @@ two_args:
     frame_dig -1
     concat
     len
-    int 0
+    pushint 0 // 0
     !=
     assert
     retsub

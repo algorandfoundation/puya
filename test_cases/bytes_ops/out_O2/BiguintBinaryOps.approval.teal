@@ -1,16 +1,17 @@
 #pragma version 10
 
 test_cases.bytes_ops.contract.BiguintBinaryOps.approval_program:
-    byte 0xff
-    byte 0x0f
-    byte 0xff0f
-    byte 0xff
-    byte 0xf0
-    byte 0x0f
+    bytecblock 0x05 0xff 0x0f 0x00
+    bytec_1 // 0xff
+    bytec_2 // 0x0f
+    pushbytes 0xff0f
+    bytec_1 // 0xff
+    pushbytes 0xf0
+    bytec_2 // 0x0f
     callsub do_some_ops
-    byte 0xff
+    bytec_1 // 0xff
     callsub do_augmented_assignment_ops
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -48,43 +49,43 @@ do_some_ops:
 do_augmented_assignment_ops:
     proto 1 0
     frame_dig -1
-    byte 0x00
+    bytec_3 // 0x00
     b&
     dup
     frame_bury -1
-    byte 0x00
+    bytec_3 // 0x00
     ==
     assert
     frame_dig -1
-    byte 0x05
+    bytec_0 // 0x05
     b|
     dup
     frame_bury -1
-    byte 0x05
+    bytec_0 // 0x05
     ==
     assert
     frame_dig -1
-    byte 0x10
+    pushbytes 0x10
     b^
     dup
     frame_bury -1
-    byte 0x15
+    pushbytes 0x15
     ==
     assert
     frame_dig -1
-    byte 0x05
+    bytec_0 // 0x05
     b^
     dup
     frame_bury -1
-    byte 0x10
+    pushbytes 0x10
     ==
     assert
     frame_dig -1
-    byte 0x05
+    bytec_0 // 0x05
     concat
     dup
     frame_bury -1
-    byte 0x1005
+    pushbytes 0x1005
     ==
     assert
     retsub

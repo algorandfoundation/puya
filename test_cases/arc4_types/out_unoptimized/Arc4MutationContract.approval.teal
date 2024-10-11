@@ -27,7 +27,7 @@ test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
     callsub array_concat
     // arc4_types/mutation.py:43
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -39,22 +39,22 @@ dynamic_array_fixed_size:
     proto 0 0
     // arc4_types/mutation.py:145
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:146
     // dynamic_uint8_array.append(UInt8(50))
     extract 2 0
-    byte 0x
-    byte 0x32
+    pushbytes 0x
+    pushbytes 0x32
     concat
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -62,14 +62,14 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:147
     // assert dynamic_uint8_array == DynamicArray[UInt8](UInt8(1), UInt8(2), UInt8(50))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x32
+    pushbytes 0x32
     concat
-    byte 0x0003
+    pushbytes 0x0003
     uncover 1
     concat
     dig 1
@@ -78,12 +78,12 @@ dynamic_array_fixed_size:
     assert
     // arc4_types/mutation.py:148
     // dynamic_uint8_array.extend(dynamic_uint8_array)
-    dup
+    dig 0
     extract 2 0
     cover 1
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -93,10 +93,10 @@ dynamic_array_fixed_size:
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
     // )
-    byte 0x
+    pushbytes 0x
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    byte 0x01
+    pushbytes 0x01
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -104,7 +104,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    byte 0x02
+    pushbytes 0x02
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -112,7 +112,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -120,7 +120,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    byte 0x01
+    pushbytes 0x01
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -128,7 +128,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    byte 0x02
+    pushbytes 0x02
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -136,13 +136,13 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
     // )
     concat
-    byte 0x0006
+    pushbytes 0x0006
     uncover 1
     concat
     dig 1
@@ -152,13 +152,13 @@ dynamic_array_fixed_size:
     // arc4_types/mutation.py:153
     // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
     extract 2 0
-    byte 0x
-    byte 0x04
+    pushbytes 0x
+    pushbytes 0x04
     concat
-    byte 0x5a
+    pushbytes 0x5a
     concat
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -168,10 +168,10 @@ dynamic_array_fixed_size:
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
     // )
-    byte 0x
+    pushbytes 0x
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x01
+    pushbytes 0x01
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -179,7 +179,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x02
+    pushbytes 0x02
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -187,7 +187,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -195,7 +195,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x01
+    pushbytes 0x01
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -203,7 +203,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x02
+    pushbytes 0x02
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -211,7 +211,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -219,7 +219,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x04
+    pushbytes 0x04
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -227,13 +227,13 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    byte 0x5a
+    pushbytes 0x5a
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
     // )
     concat
-    byte 0x0008
+    pushbytes 0x0008
     uncover 1
     concat
     dig 1
@@ -242,22 +242,22 @@ dynamic_array_fixed_size:
     assert
     // arc4_types/mutation.py:159
     // popped = dynamic_uint8_array.pop()
-    int 1
+    pushint 1 // 1
     callsub dynamic_array_pop_fixed_size
     cover 1
     // arc4_types/mutation.py:160
     // assert popped == UInt8(90)
-    byte 0x5a
+    pushbytes 0x5a
     b==
     assert
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
     // )
-    byte 0x
+    pushbytes 0x
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x01
+    pushbytes 0x01
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -265,7 +265,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x02
+    pushbytes 0x02
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -273,7 +273,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -281,7 +281,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x01
+    pushbytes 0x01
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -289,7 +289,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x02
+    pushbytes 0x02
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -297,7 +297,7 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -305,13 +305,13 @@ dynamic_array_fixed_size:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    byte 0x04
+    pushbytes 0x04
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
     // )
     concat
-    byte 0x0007
+    pushbytes 0x0007
     uncover 1
     concat
     ==
@@ -327,106 +327,106 @@ dynamic_array_bool:
     proto 0 0
     // arc4_types/mutation.py:168
     // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     cover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:169
     // assert dynamic_bool_array.bytes == Bytes.from_hex("000280")
-    dup
-    byte 0x000280
+    dig 0
+    pushbytes 0x000280
     ==
     assert
     // arc4_types/mutation.py:170
     // dynamic_bool_array.extend((Bool(True), Bool(False)))
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     uncover 1
     concat
-    int 2
-    int 0
+    pushint 2 // 2
+    pushint 0 // 0
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:171
     // assert dynamic_bool_array.bytes == Bytes.from_hex("0004A0")
-    dup
-    byte 0x0004a0
+    dig 0
+    pushbytes 0x0004a0
     ==
     assert
     // arc4_types/mutation.py:173
     // Bool(True), Bool(False), Bool(True), Bool(False)
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 2
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 3
     // arc4_types/mutation.py:172-174
     // assert dynamic_bool_array == DynamicArray[Bool](
     //     Bool(True), Bool(False), Bool(True), Bool(False)
     // )
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 2
+    pushint 2 // 2
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 3
+    pushint 3 // 3
     uncover 2
     setbit
-    byte 0x0004
+    pushbytes 0x0004
     uncover 1
     concat
     dig 1
@@ -435,67 +435,67 @@ dynamic_array_bool:
     assert
     // arc4_types/mutation.py:175
     // dynamic_bool_array.extend(dynamic_bool_array)
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
     cover 1
-    dup
+    dig 0
     extract 2 0
     uncover 2
-    int 1
+    pushint 1 // 1
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:178
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     // arc4_types/mutation.py:179
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     // arc4_types/mutation.py:180
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 2
     // arc4_types/mutation.py:181
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 3
     // arc4_types/mutation.py:182
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 4
     // arc4_types/mutation.py:183
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 5
     // arc4_types/mutation.py:184
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 6
     // arc4_types/mutation.py:185
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 7
     // arc4_types/mutation.py:177-186
@@ -509,59 +509,59 @@ dynamic_array_bool:
     //     Bool(True),
     //     Bool(False),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 2
+    pushint 2 // 2
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 3
+    pushint 3 // 3
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 4
+    pushint 4 // 4
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 5
+    pushint 5 // 5
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 6
+    pushint 6 // 6
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 7
+    pushint 7 // 7
     uncover 2
     setbit
-    byte 0x0008
+    pushbytes 0x0008
     uncover 1
     concat
     dig 1
@@ -570,75 +570,75 @@ dynamic_array_bool:
     assert
     // arc4_types/mutation.py:187
     // dynamic_bool_array.append(Bool(True))
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
-    int 1
-    int 0
+    pushint 1 // 1
+    pushint 0 // 0
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:190
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     // arc4_types/mutation.py:191
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     // arc4_types/mutation.py:192
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 2
     // arc4_types/mutation.py:193
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 3
     // arc4_types/mutation.py:194
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 4
     // arc4_types/mutation.py:195
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 5
     // arc4_types/mutation.py:196
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 6
     // arc4_types/mutation.py:197
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 7
     // arc4_types/mutation.py:198
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 8
     // arc4_types/mutation.py:189-199
@@ -653,61 +653,61 @@ dynamic_array_bool:
     //     Bool(False),
     //     Bool(True),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 2
+    pushint 2 // 2
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 3
+    pushint 3 // 3
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 4
+    pushint 4 // 4
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 5
+    pushint 5 // 5
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 6
+    pushint 6 // 6
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 7
+    pushint 7 // 7
     uncover 2
     setbit
     uncover 1
     concat
-    byte 0x0009
+    pushbytes 0x0009
     uncover 1
     concat
     dig 1
@@ -718,9 +718,9 @@ dynamic_array_bool:
     // assert dynamic_bool_array.pop() == Bool(True)
     callsub dynamic_array_pop_bit
     cover 1
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     ==
     assert
@@ -728,57 +728,57 @@ dynamic_array_bool:
     // assert dynamic_bool_array.pop() == Bool(False)
     callsub dynamic_array_pop_bit
     cover 1
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     ==
     assert
     // arc4_types/mutation.py:204
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     // arc4_types/mutation.py:205
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     // arc4_types/mutation.py:206
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 2
     // arc4_types/mutation.py:207
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 3
     // arc4_types/mutation.py:208
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 4
     // arc4_types/mutation.py:209
     // Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 5
     // arc4_types/mutation.py:210
     // Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     cover 6
     // arc4_types/mutation.py:203-211
@@ -791,52 +791,52 @@ dynamic_array_bool:
     //     Bool(False),
     //     Bool(True),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 2
+    pushint 2 // 2
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 3
+    pushint 3 // 3
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 4
+    pushint 4 // 4
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 5
+    pushint 5 // 5
     uncover 2
     setbit
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 6
+    pushint 6 // 6
     uncover 2
     setbit
-    byte 0x0007
+    pushbytes 0x0007
     uncover 1
     concat
     ==
@@ -852,49 +852,49 @@ dynamic_array_string:
     proto 0 0
     // arc4_types/mutation.py:215
     // hello = String("Hello")
-    byte "Hello"
+    pushbytes "Hello"
     len
     itob
     extract 6 2
-    byte "Hello"
+    pushbytes "Hello"
     concat
     // arc4_types/mutation.py:216
     // world = String("World")
-    byte "World"
+    pushbytes "World"
     len
     itob
     extract 6 2
-    byte "World"
+    pushbytes "World"
     concat
     cover 1
     // arc4_types/mutation.py:217
     // foo = String("Foo")
-    byte "Foo"
+    pushbytes "Foo"
     len
     itob
     extract 6 2
-    byte "Foo"
+    pushbytes "Foo"
     concat
     cover 2
     // arc4_types/mutation.py:218
     // bar = String("Bar")
-    byte "Bar"
+    pushbytes "Bar"
     len
     itob
     extract 6 2
-    byte "Bar"
+    pushbytes "Bar"
     concat
     // arc4_types/mutation.py:219
     // dynamic_string_array = DynamicArray(hello, world)
-    int 4
+    pushint 4 // 4
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     dig 2
     len
-    int 4
+    pushint 4 // 4
     uncover 1
     +
     itob
@@ -904,45 +904,45 @@ dynamic_array_string:
     concat
     dig 3
     concat
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:220-222
     // assert dynamic_string_array.bytes == Bytes(
     //     b"\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World"
     // )
-    dup
-    byte 0x00020004000b000548656c6c6f0005576f726c64
+    dig 0
+    pushbytes 0x00020004000b000548656c6c6f0005576f726c64
     ==
     assert
     // arc4_types/mutation.py:223
     // dynamic_string_array.extend((foo, bar))
-    byte 0x
+    pushbytes 0x
     dig 5
     concat
     dig 2
     concat
-    int 2
+    pushint 2 // 2
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:225-227
     // assert dynamic_string_array.bytes == Bytes(
     //     b"\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar"
     // )
-    dup
-    byte 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172
+    dig 0
+    pushbytes 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172
     ==
     assert
     // arc4_types/mutation.py:229
     // dynamic_string_array.extend(dynamic_string_array)
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
     cover 1
-    dup
+    dig 0
     extract 2 0
     cover 1
     dig 2
-    int 2
+    pushint 2 // 2
     *
     cover 1
     dig 2
@@ -957,18 +957,18 @@ dynamic_array_string:
     cover 4
     // arc4_types/mutation.py:231
     // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    int 16
+    pushint 16 // 16
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     dig 2
     len
-    int 16
+    pushint 16 // 16
     uncover 1
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -978,7 +978,7 @@ dynamic_array_string:
     dig 4
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -988,7 +988,7 @@ dynamic_array_string:
     dig 5
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -998,7 +998,7 @@ dynamic_array_string:
     dig 2
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1008,7 +1008,7 @@ dynamic_array_string:
     dig 3
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1018,7 +1018,7 @@ dynamic_array_string:
     dig 4
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1047,7 +1047,7 @@ dynamic_array_string:
     concat
     dig 1
     concat
-    byte 0x0008
+    pushbytes 0x0008
     uncover 1
     concat
     uncover 5
@@ -1056,18 +1056,18 @@ dynamic_array_string:
     assert
     // arc4_types/mutation.py:232
     // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    int 16
+    pushint 16 // 16
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     dig 2
     len
-    int 16
+    pushint 16 // 16
     uncover 1
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1077,7 +1077,7 @@ dynamic_array_string:
     dig 4
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1087,7 +1087,7 @@ dynamic_array_string:
     dig 5
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1097,7 +1097,7 @@ dynamic_array_string:
     dig 2
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1107,7 +1107,7 @@ dynamic_array_string:
     dig 3
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1117,7 +1117,7 @@ dynamic_array_string:
     dig 4
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1146,36 +1146,36 @@ dynamic_array_string:
     concat
     dig 1
     concat
-    byte 0x0008
+    pushbytes 0x0008
     uncover 1
     concat
     // arc4_types/mutation.py:233
     // dynamic_string_array[3] = hello
     dig 2
-    int 3
+    pushint 3 // 3
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:234
     // dynamic_string_array[5] = hello
     dig 2
-    int 5
+    pushint 5 // 5
     callsub dynamic_array_replace_byte_length_head
     cover 3
     // arc4_types/mutation.py:236-238
     // assert dynamic_string_array == DynamicArray(
     //     hello, world, foo, hello, hello, hello, foo, bar
     // )
-    int 16
+    pushint 16 // 16
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     dig 2
     len
-    int 16
+    pushint 16 // 16
     uncover 1
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1185,7 +1185,7 @@ dynamic_array_string:
     dig 4
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1195,7 +1195,7 @@ dynamic_array_string:
     dig 6
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1205,7 +1205,7 @@ dynamic_array_string:
     dig 3
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1215,7 +1215,7 @@ dynamic_array_string:
     dig 3
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1225,7 +1225,7 @@ dynamic_array_string:
     dig 3
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1254,7 +1254,7 @@ dynamic_array_string:
     concat
     dig 1
     concat
-    byte 0x0008
+    pushbytes 0x0008
     uncover 1
     concat
     dig 4
@@ -1278,18 +1278,18 @@ dynamic_array_string:
     assert
     // arc4_types/mutation.py:242
     // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    int 12
+    pushint 12 // 12
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     dig 1
     len
-    int 12
+    pushint 12 // 12
     uncover 1
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1299,7 +1299,7 @@ dynamic_array_string:
     dig 3
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1309,7 +1309,7 @@ dynamic_array_string:
     dig 4
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1319,7 +1319,7 @@ dynamic_array_string:
     dig 2
     len
     +
-    dup
+    dig 0
     itob
     extract 6 2
     uncover 2
@@ -1344,7 +1344,7 @@ dynamic_array_string:
     concat
     uncover 1
     concat
-    byte 0x0006
+    pushbytes 0x0006
     uncover 1
     concat
     ==
@@ -1360,67 +1360,67 @@ array_of_array_dynamic:
     proto 0 0
     // arc4_types/mutation.py:72
     // array_of_array = DynamicArray[DynamicArray[UInt8]]()
-    byte 0x0000
-    byte 0x
+    pushbytes 0x0000
+    pushbytes 0x
     concat
     // arc4_types/mutation.py:73
     // assert array_of_array.bytes == Bytes.from_hex("0000")
-    dup
-    byte 0x0000
+    dig 0
+    pushbytes 0x0000
     ==
     assert
     // arc4_types/mutation.py:74
     // array_of_array.append(DynamicArray[UInt8](UInt8(10)))
-    byte 0x
-    byte 0x0a
+    pushbytes 0x
+    pushbytes 0x0a
     concat
-    byte 0x0001
+    pushbytes 0x0001
     uncover 1
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
-    int 1
+    pushint 1 // 1
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:75
     // assert array_of_array.bytes == Bytes.from_hex("0001000200010A")
-    dup
-    byte 0x0001000200010a
+    dig 0
+    pushbytes 0x0001000200010a
     ==
     assert
     // arc4_types/mutation.py:76
     // array_of_array.append(DynamicArray[UInt8](UInt8(16)))
-    byte 0x
-    byte 0x10
+    pushbytes 0x
+    pushbytes 0x10
     concat
-    byte 0x0001
+    pushbytes 0x0001
     uncover 1
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
-    int 1
+    pushint 1 // 1
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:77
     // assert array_of_array.bytes == Bytes.from_hex("00020004000700010A000110")
-    dup
-    byte 0x00020004000700010a000110
+    dig 0
+    pushbytes 0x00020004000700010a000110
     ==
     assert
     // arc4_types/mutation.py:78
     // array_of_array[0].append(UInt8(255))
-    dup
+    dig 0
     extract 2 0
     cover 1
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
-    int 0
+    pushint 0 // 0
     uncover 1
     <
     assert // Index access is out of bounds
-    int 0
-    int 2
+    pushint 0 // 0
+    pushint 2 // 2
     *
     dig 2
     uncover 1
@@ -1428,47 +1428,47 @@ array_of_array_dynamic:
     dig 2
     dig 1
     extract_uint16
-    int 1
+    pushint 1 // 1
     *
-    int 2
+    pushint 2 // 2
     +
     uncover 3
     uncover 2
     uncover 2
     extract3
     extract 2 0
-    byte 0x
-    byte 0xff
+    pushbytes 0x
+    pushbytes 0xff
     concat
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
     uncover 1
     concat
-    int 0
+    pushint 0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:80
     // assert array_of_array.bytes == Bytes.from_hex("00020004000800020AFF000110")
-    dup
-    byte 0x00020004000800020aff000110
+    dig 0
+    pushbytes 0x00020004000800020aff000110
     ==
     assert
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
-    dup
+    dig 0
     extract 2 0
     cover 1
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
-    int 0
+    pushint 0 // 0
     uncover 1
     <
     assert // Index access is out of bounds
-    int 0
-    int 2
+    pushint 0 // 0
+    pushint 2 // 2
     *
     dig 2
     uncover 1
@@ -1476,29 +1476,29 @@ array_of_array_dynamic:
     dig 2
     dig 1
     extract_uint16
-    int 1
+    pushint 1 // 1
     *
-    int 2
+    pushint 2 // 2
     +
     uncover 3
     uncover 2
     uncover 2
     extract3
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
-    int 1
+    pushint 1 // 1
     uncover 1
     <
     assert // Index access is out of bounds
-    int 3
-    byte 0x00
+    pushint 3 // 3
+    pushbytes 0x00
     replace3
-    int 0
+    pushint 0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:83
     // assert array_of_array.bytes == Bytes.from_hex("00020004000800020A00000110")
-    byte 0x00020004000800020a00000110
+    pushbytes 0x00020004000800020a00000110
     ==
     assert
     retsub
@@ -1512,22 +1512,22 @@ array_of_array_static:
     proto 0 0
     // arc4_types/mutation.py:88
     // StaticArray[UInt8, typing.Literal[2]](UInt8(10), UInt8(9)),
-    byte 0x
-    byte 0x0a
+    pushbytes 0x
+    pushbytes 0x0a
     concat
-    byte 0x09
+    pushbytes 0x09
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:89
     // StaticArray[UInt8, typing.Literal[2]](UInt8(64), UInt8(128)),
-    byte 0x
-    byte 0x40
+    pushbytes 0x
+    pushbytes 0x40
     concat
-    byte 0x80
+    pushbytes 0x80
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:87-90
@@ -1535,58 +1535,58 @@ array_of_array_static:
     //     StaticArray[UInt8, typing.Literal[2]](UInt8(10), UInt8(9)),
     //     StaticArray[UInt8, typing.Literal[2]](UInt8(64), UInt8(128)),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     uncover 1
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:92
     // assert array_of_array.bytes == Bytes.from_hex("0A094080")
-    dup
-    byte 0x0a094080
+    dig 0
+    pushbytes 0x0a094080
     ==
     assert
     // arc4_types/mutation.py:94
     // array_of_array[0] = StaticArray[UInt8, typing.Literal[2]](UInt8(255), UInt8(254))
-    byte 0x
-    byte 0xff
+    pushbytes 0x
+    pushbytes 0xff
     concat
-    byte 0xfe
+    pushbytes 0xfe
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     uncover 1
-    int 0
+    pushint 0 // 0
     uncover 2
     replace3
     // arc4_types/mutation.py:95
     // assert array_of_array.bytes == Bytes.from_hex("FFFE4080")
-    dup
-    byte 0xfffe4080
+    dig 0
+    pushbytes 0xfffe4080
     ==
     assert
     // arc4_types/mutation.py:97
     // array_of_array[1][0] = UInt8(1)
-    dup
-    int 1
-    int 2
+    dig 0
+    pushint 1 // 1
+    pushint 2 // 2
     *
-    int 2
+    pushint 2 // 2
     extract3 // on error: Index access is out of bounds
-    int 0
-    byte 0x01
+    pushint 0 // 0
+    pushbytes 0x01
     replace3
     uncover 1
-    int 2
+    pushint 2 // 2
     uncover 2
     replace3
     // arc4_types/mutation.py:98
     // assert array_of_array.bytes == Bytes.from_hex("FFFE0180")
-    byte 0xfffe0180
+    pushbytes 0xfffe0180
     ==
     assert
     retsub
@@ -1600,138 +1600,138 @@ index_assign:
     proto 0 0
     // arc4_types/mutation.py:102
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:103
     // dynamic_uint8_array[0] = UInt8(255)
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
-    int 0
+    pushint 0 // 0
     uncover 1
     <
     assert // Index access is out of bounds
-    int 2
-    byte 0xff
+    pushint 2 // 2
+    pushbytes 0xff
     replace3
     // arc4_types/mutation.py:104
     // assert dynamic_uint8_array.bytes == Bytes.from_hex("0002ff02")
-    byte 0x0002ff02
+    pushbytes 0x0002ff02
     ==
     assert
     // arc4_types/mutation.py:105
     // static_uint8_array = StaticArray(UInt8(1), UInt8(2))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:106
     // static_uint8_array[1] = UInt8(255)
-    int 1
-    byte 0xff
+    pushint 1 // 1
+    pushbytes 0xff
     replace3
     // arc4_types/mutation.py:107
     // assert static_uint8_array.bytes == Bytes.from_hex("01ff")
-    byte 0x01ff
+    pushbytes 0x01ff
     ==
     assert
     // arc4_types/mutation.py:109
     // dynamic_bool_array = DynamicArray(Bool(True), Bool(False))
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     cover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:110
     // dynamic_bool_array[0] = Bool(False)
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     cover 1
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
-    int 0
+    pushint 0 // 0
     uncover 1
     <
     assert // Index access is out of bounds
     uncover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 16
+    pushint 16 // 16
     uncover 2
     setbit
     // arc4_types/mutation.py:111
     // assert dynamic_bool_array.bytes == Bytes.from_hex("000200")
-    byte 0x000200
+    pushbytes 0x000200
     ==
     assert
     // arc4_types/mutation.py:112
     // static_bool_array = StaticArray[Bool, typing.Literal[2]](Bool(True), Bool(True))
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
-    byte 0x
+    pushbytes 0x
     uncover 2
     concat
     cover 1
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:113
     // static_bool_array[1] = Bool(False)
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 1
+    pushint 1 // 1
     uncover 2
     setbit
     // arc4_types/mutation.py:114
     // assert static_bool_array.bytes == Bytes.from_hex("80")
-    byte 0x80
+    pushbytes 0x80
     ==
     assert
     retsub
@@ -1745,26 +1745,26 @@ struct_assign:
     proto 0 0
     // arc4_types/mutation.py:119
     // b_val=Bool(True),
-    byte 0x00
-    int 0
-    int 1
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 1 // 1
     setbit
     // arc4_types/mutation.py:121
     // s_val_1=String("Happy"),
-    byte "Happy"
+    pushbytes "Happy"
     len
     itob
     extract 6 2
-    byte "Happy"
+    pushbytes "Happy"
     concat
     cover 1
     // arc4_types/mutation.py:122
     // s_val_2=String("Days"),
-    byte "Days"
+    pushbytes "Days"
     len
     itob
     extract 6 2
-    byte "Days"
+    pushbytes "Days"
     concat
     cover 2
     // arc4_types/mutation.py:118-123
@@ -1774,12 +1774,12 @@ struct_assign:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:120
     // u_val=UInt8(50),
-    byte 0x32
+    pushbytes 0x32
     // arc4_types/mutation.py:118-123
     // test_struct = TestStruct(
     //     b_val=Bool(True),
@@ -1788,13 +1788,13 @@ struct_assign:
     //     s_val_2=String("Days"),
     // )
     concat
-    int 6
+    pushint 6 // 6
     itob
     extract 6 2
     concat
     dig 1
     len
-    int 6
+    pushint 6 // 6
     uncover 1
     +
     itob
@@ -1806,43 +1806,43 @@ struct_assign:
     concat
     // arc4_types/mutation.py:125
     // test_struct.b_val = Bool(False)
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
-    int 0
+    pushint 0 // 0
     getbit
     uncover 1
-    int 0
+    pushint 0 // 0
     uncover 2
     setbit
     // arc4_types/mutation.py:126
     // test_struct.u_val = UInt8(12)
-    int 1
-    byte 0x0c
+    pushint 1 // 1
+    pushbytes 0x0c
     replace3
     // arc4_types/mutation.py:128
     // b_val=Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     // arc4_types/mutation.py:130
     // s_val_1=String("Happy"),
-    byte "Happy"
+    pushbytes "Happy"
     len
     itob
     extract 6 2
-    byte "Happy"
+    pushbytes "Happy"
     concat
     cover 1
     // arc4_types/mutation.py:131
     // s_val_2=String("Days"),
-    byte "Days"
+    pushbytes "Days"
     len
     itob
     extract 6 2
-    byte "Days"
+    pushbytes "Days"
     concat
     cover 2
     // arc4_types/mutation.py:127-132
@@ -1852,12 +1852,12 @@ struct_assign:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:129
     // u_val=UInt8(12),
-    byte 0x0c
+    pushbytes 0x0c
     // arc4_types/mutation.py:127-132
     // assert test_struct == TestStruct(
     //     b_val=Bool(False),
@@ -1866,13 +1866,13 @@ struct_assign:
     //     s_val_2=String("Days"),
     // )
     concat
-    int 6
+    pushint 6 // 6
     itob
     extract 6 2
     concat
     dig 1
     len
-    int 6
+    pushint 6 // 6
     uncover 1
     +
     itob
@@ -1888,23 +1888,23 @@ struct_assign:
     assert
     // arc4_types/mutation.py:133
     // test_struct.s_val_1 = String("Hmmmm")
-    byte "Hmmmm"
+    pushbytes "Hmmmm"
     len
     itob
     extract 6 2
-    byte "Hmmmm"
+    pushbytes "Hmmmm"
     concat
     cover 1
-    dup
-    int 2
+    dig 0
+    pushint 2 // 2
     extract_uint16
     dig 1
-    int 0
+    pushint 0 // 0
     dig 2
     extract3
     cover 1
     dig 2
-    int 4
+    pushint 4 // 4
     extract_uint16
     cover 1
     dig 3
@@ -1926,7 +1926,7 @@ struct_assign:
     uncover 1
     len
     dig 1
-    int 4
+    pushint 4 // 4
     extract_uint16
     uncover 1
     +
@@ -1935,48 +1935,48 @@ struct_assign:
     itob
     extract 6 2
     uncover 1
-    int 4
+    pushint 4 // 4
     uncover 2
     replace3
     // arc4_types/mutation.py:134
     // test_struct.s_val_2 = String("Oh well")
-    byte "Oh well"
+    pushbytes "Oh well"
     len
     itob
     extract 6 2
-    byte "Oh well"
+    pushbytes "Oh well"
     concat
     dig 1
-    int 4
+    pushint 4 // 4
     extract_uint16
     uncover 2
-    int 0
+    pushint 0 // 0
     uncover 2
     extract3
     uncover 1
     concat
     // arc4_types/mutation.py:137
     // b_val=Bool(False),
-    byte 0x00
-    int 0
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
+    pushint 0 // 0
     setbit
     // arc4_types/mutation.py:139
     // s_val_1=String("Hmmmm"),
-    byte "Hmmmm"
+    pushbytes "Hmmmm"
     len
     itob
     extract 6 2
-    byte "Hmmmm"
+    pushbytes "Hmmmm"
     concat
     cover 1
     // arc4_types/mutation.py:140
     // s_val_2=String("Oh well"),
-    byte "Oh well"
+    pushbytes "Oh well"
     len
     itob
     extract 6 2
-    byte "Oh well"
+    pushbytes "Oh well"
     concat
     cover 2
     // arc4_types/mutation.py:136-141
@@ -1986,12 +1986,12 @@ struct_assign:
     //     s_val_1=String("Hmmmm"),
     //     s_val_2=String("Oh well"),
     // )
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     // arc4_types/mutation.py:138
     // u_val=UInt8(12),
-    byte 0x0c
+    pushbytes 0x0c
     // arc4_types/mutation.py:136-141
     // assert test_struct == TestStruct(
     //     b_val=Bool(False),
@@ -2000,13 +2000,13 @@ struct_assign:
     //     s_val_2=String("Oh well"),
     // )
     concat
-    int 6
+    pushint 6 // 6
     itob
     extract 6 2
     concat
     dig 1
     len
-    int 6
+    pushint 6 // 6
     uncover 1
     +
     itob
@@ -2029,24 +2029,24 @@ array_concat:
     proto 0 0
     // arc4_types/mutation.py:60
     // uint8_array = DynamicArray(UInt8(1), UInt8(2))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:61
     // array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
     extract 2 0
-    byte 0x
-    byte 0x03
+    pushbytes 0x
+    pushbytes 0x03
     concat
-    byte 0x04
+    pushbytes 0x04
     concat
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -2054,16 +2054,16 @@ array_concat:
     concat
     // arc4_types/mutation.py:62
     // assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x03
+    pushbytes 0x03
     concat
-    byte 0x04
+    pushbytes 0x04
     concat
-    byte 0x0004
+    pushbytes 0x0004
     uncover 1
     concat
     dig 1
@@ -2073,11 +2073,11 @@ array_concat:
     // arc4_types/mutation.py:63
     // array_concat_tuple += (UInt8(5),)
     extract 2 0
-    byte 0x
-    byte 0x05
+    pushbytes 0x
+    pushbytes 0x05
     concat
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -2085,46 +2085,46 @@ array_concat:
     concat
     // arc4_types/mutation.py:64
     // assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4), UInt8(5))
-    byte 0x
-    byte 0x01
+    pushbytes 0x
+    pushbytes 0x01
     concat
-    byte 0x02
+    pushbytes 0x02
     concat
-    byte 0x03
+    pushbytes 0x03
     concat
-    byte 0x04
+    pushbytes 0x04
     concat
-    byte 0x05
+    pushbytes 0x05
     concat
-    byte 0x0005
+    pushbytes 0x0005
     uncover 1
     concat
     ==
     assert
     // arc4_types/mutation.py:66
     // hello_world = DynamicArray(String("Hello"), String("World"))
-    byte "Hello"
+    pushbytes "Hello"
     len
     itob
     extract 6 2
-    byte "Hello"
+    pushbytes "Hello"
     concat
-    byte "World"
+    pushbytes "World"
     len
     itob
     extract 6 2
-    byte "World"
+    pushbytes "World"
     concat
     cover 1
-    int 4
+    pushint 4 // 4
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     dig 1
     len
-    int 4
+    pushint 4 // 4
     uncover 1
     +
     itob
@@ -2134,53 +2134,53 @@ array_concat:
     concat
     uncover 1
     concat
-    byte 0x0002
+    pushbytes 0x0002
     uncover 1
     concat
     // arc4_types/mutation.py:67
     // hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
-    byte "Hello"
+    pushbytes "Hello"
     len
     itob
     extract 6 2
-    byte "Hello"
+    pushbytes "Hello"
     concat
-    int 2
+    pushint 2 // 2
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     uncover 1
     concat
-    byte 0x0001
+    pushbytes 0x0001
     uncover 1
     concat
-    byte "World"
+    pushbytes "World"
     len
     itob
     extract 6 2
-    byte "World"
+    pushbytes "World"
     concat
-    int 2
+    pushint 2 // 2
     itob
     extract 6 2
-    byte 0x
+    pushbytes 0x
     uncover 1
     concat
     uncover 1
     concat
-    byte 0x0001
+    pushbytes 0x0001
     uncover 1
     concat
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     extract_uint16
     cover 1
     extract 2 0
     cover 1
-    dup
-    int 2
+    dig 0
+    pushint 2 // 2
     *
     cover 1
     dig 2
@@ -2205,39 +2205,39 @@ array_concat:
 dynamic_array_pop_bit:
     proto 1 2
     frame_dig -1
-    int 0
+    pushint 0 // 0
     extract_uint16
-    int 1
+    pushint 1 // 1
     -
-    dup
+    dig 0
     itob
     extract 6 0
     frame_dig -1
     uncover 1
     replace2 0
     dig 1
-    int 16
+    pushint 16 // 16
     +
     dig 1
     dig 1
     getbit
-    byte 0x00
-    int 0
+    pushbytes 0x00
+    pushint 0 // 0
     uncover 2
     setbit
     cover 3
-    int 0
+    pushint 0 // 0
     setbit
     uncover 1
-    int 7
+    pushint 7 // 7
     +
-    int 8
+    pushint 8 // 8
     /
-    int 2
+    pushint 2 // 2
     uncover 1
     +
     uncover 1
-    int 0
+    pushint 0 // 0
     uncover 2
     substring3
     retsub
@@ -2247,16 +2247,16 @@ dynamic_array_pop_bit:
 dynamic_array_pop_fixed_size:
     proto 2 2
     frame_dig -2
-    int 0
+    pushint 0 // 0
     extract_uint16
-    int 1
+    pushint 1 // 1
     -
     itob
     extract 6 0
     frame_dig -2
     uncover 1
     replace2 0
-    dup
+    dig 0
     len
     frame_dig -1
     -
@@ -2266,7 +2266,7 @@ dynamic_array_pop_fixed_size:
     extract3
     cover 2
     uncover 1
-    int 0
+    pushint 0 // 0
     uncover 2
     substring3
     retsub
@@ -2276,34 +2276,34 @@ dynamic_array_pop_fixed_size:
 dynamic_array_pop_byte_length_head:
     proto 1 2
     frame_dig -1
-    int 0
+    pushint 0 // 0
     extract_uint16
-    int 1
+    pushint 1 // 1
     -
-    dup
-    int 2
+    dig 0
+    pushint 2 // 2
     *
     frame_dig -1
     extract 2 0
-    dup
+    dig 0
     dig 2
     extract_uint16
     cover 1
-    dup
+    dig 0
     len
     cover 1
-    dup
+    dig 0
     dig 3
     uncover 3
     substring3
     cover 3
-    dup
-    int 0
+    dig 0
+    pushint 0 // 0
     dig 4
     substring3
     cover 2
     uncover 3
-    int 2
+    pushint 2 // 2
     +
     uncover 2
     substring3
@@ -2313,7 +2313,7 @@ dynamic_array_pop_byte_length_head:
     extract 6 2
     uncover 1
     uncover 3
-    int 0
+    pushint 0 // 0
     callsub recalculate_head_for_elements_with_byte_length_head
     concat
     retsub
@@ -2322,17 +2322,19 @@ dynamic_array_pop_byte_length_head:
 // _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
 dynamic_array_concat_bits:
     proto 4 1
-    byte ""
-    dupn 2
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
     frame_dig -4
-    int 0
+    pushint 0 // 0
     extract_uint16
     dup
     cover 1
-    dup
+    cover 1
+    dig 0
     frame_dig -2
     +
-    dup
+    dig 0
     itob
     extract 6 0
     frame_dig -4
@@ -2342,18 +2344,20 @@ dynamic_array_concat_bits:
     cover 3
     cover 3
     uncover 1
-    int 7
+    pushint 7 // 7
     +
-    int 8
+    pushint 8 // 8
     /
     dup
+    cover 1
     cover 3
     uncover 1
-    int 7
+    pushint 7 // 7
     +
-    int 8
+    pushint 8 // 8
     /
     dup
+    cover 1
     cover 3
     <
     bz dynamic_array_concat_bits_after_if_else@2
@@ -2370,17 +2374,18 @@ dynamic_array_concat_bits_after_if_else@2:
     frame_dig 7
     frame_bury 4
     frame_dig 3
-    int 16
+    pushint 16 // 16
     +
     frame_bury 2
-    int 8
-    int 1
+    pushint 8 // 8
+    pushint 1 // 1
     frame_dig -1
     select
     dup
+    cover 1
     frame_bury 1
     assert // Step cannot be zero
-    int 0
+    pushint 0 // 0
     frame_bury 0
 
 dynamic_array_concat_bits_for_header@3:
@@ -2398,7 +2403,7 @@ dynamic_array_concat_bits_for_header@3:
     uncover 2
     setbit
     frame_bury 4
-    int 1
+    pushint 1 // 1
     +
     frame_bury 2
     frame_dig 0
@@ -2417,27 +2422,27 @@ dynamic_array_concat_bits_after_for@6:
 dynamic_array_concat_byte_length_head:
     proto 3 1
     frame_dig -3
-    int 0
+    pushint 0 // 0
     extract_uint16
-    dup
+    dig 0
     frame_dig -1
     +
     cover 1
-    int 2
+    pushint 2 // 2
     *
-    int 2
+    pushint 2 // 2
     +
     cover 1
-    dup
+    dig 0
     itob
     extract 6 2
     cover 1
     frame_dig -3
-    int 2
+    pushint 2 // 2
     dig 4
     substring3
     frame_dig -1
-    int 2
+    pushint 2 // 2
     *
     bzero
     concat
@@ -2451,7 +2456,7 @@ dynamic_array_concat_byte_length_head:
     frame_dig -2
     concat
     uncover 1
-    int 0
+    pushint 0 // 0
     callsub recalculate_head_for_elements_with_byte_length_head
     concat
     retsub
@@ -2462,7 +2467,7 @@ dynamic_array_replace_byte_length_head:
     proto 3 1
     frame_dig -3
     substring 0 2
-    dup
+    dig 0
     btoi
     frame_dig -3
     extract 2 0
@@ -2482,7 +2487,7 @@ static_array_replace_byte_length_head:
     <
     assert // Index out of bounds
     frame_dig -2
-    int 2
+    pushint 2 // 2
     *
     frame_dig -4
     uncover 1
@@ -2493,11 +2498,11 @@ static_array_replace_byte_length_head:
     dig 1
     uncover 1
     +
-    int 2
+    pushint 2 // 2
     +
     cover 1
     frame_dig -4
-    int 0
+    pushint 0 // 0
     uncover 2
     substring3
     frame_dig -3
@@ -2519,10 +2524,10 @@ static_array_replace_byte_length_head:
 recalculate_head_for_elements_with_byte_length_head:
     proto 3 1
     frame_dig -2
-    int 2
+    pushint 2 // 2
     *
     frame_dig -1
-    int 2
+    pushint 2 // 2
     *
     frame_dig -3
     uncover 1
@@ -2530,12 +2535,12 @@ recalculate_head_for_elements_with_byte_length_head:
     frame_dig -1
     select
     frame_dig -2
-    int 2
+    pushint 2 // 2
     *
     frame_dig -1
-    int 2
+    pushint 2 // 2
     *
-    int 2
+    pushint 2 // 2
     assert // Step cannot be zero
 
 recalculate_head_for_elements_with_byte_length_head_for_header@1:
@@ -2545,6 +2550,7 @@ recalculate_head_for_elements_with_byte_length_head_for_header@1:
     bz recalculate_head_for_elements_with_byte_length_head_after_for@4
     frame_dig 0
     dup
+    cover 1
     itob
     extract 6 2
     frame_dig -3
@@ -2555,12 +2561,12 @@ recalculate_head_for_elements_with_byte_length_head_for_header@1:
     frame_dig -3
     dig 1
     extract_uint16
-    int 2
+    pushint 2 // 2
     +
     +
     frame_bury 0
     frame_dig 2
-    int 2
+    pushint 2 // 2
     +
     frame_bury 2
     b recalculate_head_for_elements_with_byte_length_head_for_header@1

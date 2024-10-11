@@ -1,6 +1,7 @@
 #pragma version 10
 
 examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
+    intcblock 0 1
     callsub __puya_arc4_router__
     return
 
@@ -10,10 +11,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@5
-    method "hello(string)string"
+    pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
     match __puya_arc4_router___hello_route@2
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___hello_route@2:
@@ -31,11 +32,11 @@ __puya_arc4_router___hello_route@2:
     extract 6 2
     swap
     concat
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@5:
@@ -44,18 +45,18 @@ __puya_arc4_router___bare_routing@5:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@9:
-    int 0
+    intc_0 // 0
     retsub
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
 hello:
     proto 1 1
-    byte "Hello, "
+    pushbytes "Hello, "
     frame_dig -1
     concat
     retsub

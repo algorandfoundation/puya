@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.named_tuples.contract.NamedTuplesContract.approval_program:
+    intcblock 1 0 64
     callsub __puya_arc4_router__
     return
 
@@ -10,11 +11,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@6
-    method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])"
-    method "test_tuple((uint64,uint512,string,byte[]))void"
+    pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
     txna ApplicationArgs 0
     match __puya_arc4_router___build_tuple_route@2 __puya_arc4_router___test_tuple_route@3
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___build_tuple_route@2:
@@ -38,10 +38,10 @@ __puya_arc4_router___build_tuple_route@2:
     cover 3
     dup
     len
-    int 64
+    intc_2 // 64
     <=
     assert // overflow
-    int 64
+    intc_2 // 64
     bzero
     b|
     swap
@@ -60,11 +60,11 @@ __puya_arc4_router___build_tuple_route@2:
     cover 3
     cover 2
     concat
-    byte 0x004c
+    pushbytes 0x004c
     concat
     dig 1
     len
-    int 76
+    pushint 76 // 76
     +
     itob
     extract 6 2
@@ -73,11 +73,11 @@ __puya_arc4_router___build_tuple_route@2:
     concat
     swap
     concat
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___test_tuple_route@3:
@@ -95,11 +95,11 @@ __puya_arc4_router___test_tuple_route@3:
     extract 8 64 // on error: Index access is out of bounds
     swap
     dup
-    int 72
+    pushint 72 // 72
     extract_uint16
     swap
     dup
-    int 74
+    pushint 74 // 74
     extract_uint16
     dig 1
     uncover 3
@@ -112,7 +112,7 @@ __puya_arc4_router___test_tuple_route@3:
     substring3
     extract 2 0
     callsub test_tuple
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@6:
@@ -121,11 +121,11 @@ __puya_arc4_router___bare_routing@6:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@10:
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -193,16 +193,16 @@ build_tuple_by_position:
 test_tuple:
     proto 4 0
     frame_dig -4
-    int 1000
+    pushint 1000 // 1000
     <
     assert
     frame_dig -3
-    byte 0x020000000000000000
+    pushbytes 0x020000000000000000
     b<
     assert
     frame_dig -2
     len
-    int 1
+    intc_0 // 1
     >
     assert
     frame_dig -1

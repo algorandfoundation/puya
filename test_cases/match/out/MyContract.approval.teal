@@ -1,15 +1,17 @@
 #pragma version 10
 
 test_cases.match.contract.MyContract.approval_program:
+    intcblock 0 1
+    bytecblock "case_one" "case_two" 0x0a 0x
     // match/contract.py:6
     // self.case_one = algopy.UInt64(1)
-    byte "case_one"
-    int 1
+    bytec_0 // "case_one"
+    intc_1 // 1
     app_global_put
     // match/contract.py:7
     // self.case_two = algopy.UInt64(2)
-    byte "case_two"
-    int 2
+    bytec_1 // "case_two"
+    pushint 2 // 2
     app_global_put
     // match/contract.py:8
     // self.match_uint64()
@@ -31,7 +33,7 @@ test_cases.match.contract.MyContract.approval_program:
     callsub match_bools
     // match/contract.py:14
     // return True
-    int 1
+    intc_1 // 1
     return
 
 
@@ -43,10 +45,10 @@ match_uint64:
     proto 0 0
     // match/contract.py:20
     // case 0:
-    int 0
+    intc_0 // 0
     // match/contract.py:23
     // case algopy.UInt64(10):
-    int 10
+    pushint 10 // 10
     // match/contract.py:18
     // n = algopy.op.Txn.num_app_args
     txn NumAppArgs
@@ -64,7 +66,7 @@ match_uint64:
 match_uint64_switch_case_0@1:
     // match/contract.py:21
     // hello = algopy.Bytes(b"Hello")
-    byte 0x48656c6c6f
+    pushbytes 0x48656c6c6f
     // match/contract.py:22
     // algopy.log(hello)
     log
@@ -73,7 +75,7 @@ match_uint64_switch_case_0@1:
 match_uint64_switch_case_1@2:
     // match/contract.py:24
     // hello = algopy.Bytes(b"Hello There")
-    byte 0x48656c6c6f205468657265
+    pushbytes 0x48656c6c6f205468657265
     // match/contract.py:25
     // algopy.log(hello)
     log
@@ -92,14 +94,14 @@ match_biguint:
     // n = algopy.op.Txn.num_app_args * algopy.BigUInt(10)
     txn NumAppArgs
     itob
-    byte 0x0a
+    bytec_2 // 0x0a
     b*
     // match/contract.py:42
     // case algopy.BigUInt(0):
-    byte 0x
+    bytec_3 // 0x
     // match/contract.py:45
     // case algopy.BigUInt(10):
-    byte 0x0a
+    bytec_2 // 0x0a
     // match/contract.py:41-47
     // match n:
     //     case algopy.BigUInt(0):
@@ -115,7 +117,7 @@ match_biguint:
 match_biguint_switch_case_0@1:
     // match/contract.py:43
     // hello = algopy.Bytes(b"Hello biguint")
-    byte 0x48656c6c6f2062696775696e74
+    pushbytes 0x48656c6c6f2062696775696e74
     // match/contract.py:44
     // algopy.log(hello)
     log
@@ -124,7 +126,7 @@ match_biguint_switch_case_0@1:
 match_biguint_switch_case_1@2:
     // match/contract.py:46
     // hello = algopy.Bytes(b"Hello There biguint")
-    byte 0x48656c6c6f2054686572652062696775696e74
+    pushbytes 0x48656c6c6f2054686572652062696775696e74
     // match/contract.py:47
     // algopy.log(hello)
     log
@@ -141,10 +143,10 @@ match_bytes:
     proto 0 0
     // match/contract.py:31
     // case algopy.Bytes(b""):
-    byte 0x
+    bytec_3 // 0x
     // match/contract.py:34
     // case algopy.Bytes(b"10"):
-    byte 0x3130
+    pushbytes 0x3130
     // match/contract.py:29
     // n = algopy.op.Txn.application_args(0)
     txna ApplicationArgs 0
@@ -162,7 +164,7 @@ match_bytes:
 match_bytes_switch_case_0@1:
     // match/contract.py:32
     // hello = algopy.Bytes(b"Hello bytes")
-    byte 0x48656c6c6f206279746573
+    pushbytes 0x48656c6c6f206279746573
     // match/contract.py:33
     // algopy.log(hello)
     log
@@ -171,7 +173,7 @@ match_bytes_switch_case_0@1:
 match_bytes_switch_case_1@2:
     // match/contract.py:35
     // hello = algopy.Bytes(b"Hello There bytes")
-    byte 0x48656c6c6f205468657265206279746573
+    pushbytes 0x48656c6c6f205468657265206279746573
     // match/contract.py:36
     // algopy.log(hello)
     log
@@ -188,10 +190,7 @@ match_address:
     proto 0 0
     // match/contract.py:53
     // case algopy.Account("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"):
-    addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
-    // match/contract.py:56
-    // case algopy.Account("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"):
-    addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    pushbytess base32(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ, addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     // match/contract.py:51
     // n = algopy.op.Txn.sender
     txn Sender
@@ -209,7 +208,7 @@ match_address:
 match_address_switch_case_0@1:
     // match/contract.py:54
     // hello = algopy.Bytes(b"Hello address")
-    byte 0x48656c6c6f2061646472657373
+    pushbytes 0x48656c6c6f2061646472657373
     // match/contract.py:55
     // algopy.log(hello)
     log
@@ -218,7 +217,7 @@ match_address_switch_case_0@1:
 match_address_switch_case_1@2:
     // match/contract.py:57
     // hello = algopy.Bytes(b"Hello There address")
-    byte 0x48656c6c6f2054686572652061646472657373
+    pushbytes 0x48656c6c6f2054686572652061646472657373
     // match/contract.py:58
     // algopy.log(hello)
     log
@@ -238,14 +237,14 @@ match_attributes:
     txn NumAppArgs
     // match/contract.py:64
     // case self.case_one:
-    int 0
-    byte "case_one"
+    intc_0 // 0
+    bytec_0 // "case_one"
     app_global_get_ex
     assert // check self.case_one exists
     // match/contract.py:67
     // case self.case_two:
-    int 0
-    byte "case_two"
+    intc_0 // 0
+    bytec_1 // "case_two"
     app_global_get_ex
     assert // check self.case_two exists
     // match/contract.py:63-72
@@ -269,7 +268,7 @@ match_attributes:
 match_attributes_switch_case_0@1:
     // match/contract.py:65
     // hello = algopy.Bytes(b"Hello one")
-    byte 0x48656c6c6f206f6e65
+    pushbytes 0x48656c6c6f206f6e65
     // match/contract.py:66
     // algopy.log(hello)
     log
@@ -278,7 +277,7 @@ match_attributes_switch_case_0@1:
 match_attributes_switch_case_1@2:
     // match/contract.py:68
     // hello = algopy.Bytes(b"Hello two")
-    byte 0x48656c6c6f2074776f
+    pushbytes 0x48656c6c6f2074776f
     // match/contract.py:69
     // algopy.log(hello)
     log
@@ -287,7 +286,7 @@ match_attributes_switch_case_1@2:
 match_attributes_switch_case_default@3:
     // match/contract.py:71
     // hello = algopy.Bytes(b"Hello default")
-    byte 0x48656c6c6f2064656661756c74
+    pushbytes 0x48656c6c6f2064656661756c74
     // match/contract.py:72
     // algopy.log(hello)
     log
@@ -305,7 +304,7 @@ match_bools:
     // match/contract.py:76
     // n = algopy.op.Txn.num_app_args > 0
     txn NumAppArgs
-    int 0
+    intc_0 // 0
     >
     // match/contract.py:77-83
     // match n:
@@ -321,7 +320,7 @@ match_bools:
 match_bools_switch_case_0@1:
     // match/contract.py:79
     // hello = algopy.Bytes(b"Hello True")
-    byte 0x48656c6c6f2054727565
+    pushbytes 0x48656c6c6f2054727565
     // match/contract.py:80
     // algopy.log(hello)
     log
@@ -330,7 +329,7 @@ match_bools_switch_case_0@1:
 match_bools_switch_case_1@2:
     // match/contract.py:82
     // hello = algopy.Bytes(b"Hello False")
-    byte 0x48656c6c6f2046616c7365
+    pushbytes 0x48656c6c6f2046616c7365
     // match/contract.py:83
     // algopy.log(hello)
     log

@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.group_side_effects.other.AppCall.approval_program:
+    intcblock 1 0
     callsub __puya_arc4_router__
     return
 
@@ -10,10 +11,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@5
-    method "some_value()uint64"
+    pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
     match __puya_arc4_router___some_value_route@2
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___some_value_route@2:
@@ -24,11 +25,11 @@ __puya_arc4_router___some_value_route@2:
     assert // is not creating
     callsub some_value
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@5:
@@ -37,11 +38,11 @@ __puya_arc4_router___bare_routing@5:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@9:
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -50,7 +51,7 @@ some_value:
     proto 0 1
     global GroupSize
     txn GroupIndex
-    int 1
+    intc_0 // 1
     +
     *
     retsub

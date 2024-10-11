@@ -1,17 +1,19 @@
 #pragma version 10
 
 examples.calculator.contract.MyContract.approval_program:
-    byte ""
+    intcblock 1 0 3 10
+    bytecblock 0x30313233343536373839
+    pushbytes ""
     dup
     txn NumAppArgs
     dup
     bnz main_else_body@2
-    int 0
+    intc_1 // 0
     bury 3
-    int 0
+    intc_1 // 0
     dup
     bury 3
-    int 0
+    intc_1 // 0
     itob
     dup
     log
@@ -20,7 +22,7 @@ examples.calculator.contract.MyContract.approval_program:
 
 main_else_body@2:
     dup
-    int 3
+    intc_2 // 3
     ==
     assert // Expected 3 args
     txna ApplicationArgs 0
@@ -52,13 +54,13 @@ main_after_if_else@3:
     swap
     callsub itoa
     concat
-    byte 0x203d20
+    pushbytes 0x203d20
     concat
     swap
     callsub itoa
     concat
     log
-    int 1
+    intc_0 // 1
     return
 
 
@@ -66,7 +68,7 @@ main_after_if_else@3:
 do_calc:
     proto 3 1
     frame_dig -3
-    int 1
+    intc_0 // 1
     ==
     bz do_calc_else_body@2
     frame_dig -2
@@ -76,7 +78,7 @@ do_calc:
 
 do_calc_else_body@2:
     frame_dig -3
-    int 2
+    pushint 2 // 2
     ==
     bz do_calc_else_body@4
     frame_dig -2
@@ -86,7 +88,7 @@ do_calc_else_body@2:
 
 do_calc_else_body@4:
     frame_dig -3
-    int 3
+    intc_2 // 3
     ==
     bz do_calc_else_body@6
     frame_dig -2
@@ -96,7 +98,7 @@ do_calc_else_body@4:
 
 do_calc_else_body@6:
     frame_dig -3
-    int 4
+    pushint 4 // 4
     ==
     assert // unknown operation
     frame_dig -2
@@ -145,13 +147,13 @@ div:
 itoa:
     proto 1 1
     frame_dig -1
-    int 10
+    intc_3 // 10
     <
     bz itoa_after_if_else@2
     frame_dig -1
-    int 1
+    intc_0 // 1
     +
-    byte 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     frame_dig -1
     uncover 2
     substring3
@@ -159,16 +161,16 @@ itoa:
 
 itoa_after_if_else@2:
     frame_dig -1
-    int 10
+    intc_3 // 10
     /
     callsub itoa
     frame_dig -1
-    int 10
+    intc_3 // 10
     %
     dup
-    int 1
+    intc_0 // 1
     +
-    byte 0x30313233343536373839
+    bytec_0 // 0x30313233343536373839
     cover 2
     substring3
     concat
@@ -179,34 +181,34 @@ itoa_after_if_else@2:
 op:
     proto 1 1
     frame_dig -1
-    int 1
+    intc_0 // 1
     ==
     bz op_else_body@2
-    byte 0x202b20
+    pushbytes 0x202b20
     retsub
 
 op_else_body@2:
     frame_dig -1
-    int 2
+    pushint 2 // 2
     ==
     bz op_else_body@4
 
 op_if_body@3:
-    byte 0x202d20
+    pushbytes 0x202d20
     retsub
 
 op_else_body@4:
     frame_dig -1
-    int 3
+    intc_2 // 3
     ==
     bz op_else_body@6
-    byte 0x202a20
+    pushbytes 0x202a20
     retsub
 
 op_else_body@6:
     frame_dig -1
-    int 4
+    pushint 4 // 4
     ==
     bz op_if_body@3
-    byte 0x202f2f20
+    pushbytes 0x202f2f20
     retsub

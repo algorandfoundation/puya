@@ -1,28 +1,30 @@
 #pragma version 10
 
 test_cases.scratch_slots.contract.MyContract.approval_program:
+    intcblock 5 1
+    bytecblock 0x48656c6c6f20576f726c64 0x6c617374
     // scratch_slots/contract.py:9
     // op.Scratch.store(UInt64(1), 5 if Txn.application_id == 0 else 0)
     txn ApplicationID
     !
-    int 5
+    intc_0 // 5
     *
     store 1
     // scratch_slots/contract.py:11
     // hello_world = Bytes(b"Hello World")
-    byte 0x48656c6c6f20576f726c64
+    bytec_0 // 0x48656c6c6f20576f726c64
     // scratch_slots/contract.py:12
     // op.Scratch.store(TWO, hello_world)
     store 2
     // scratch_slots/contract.py:14
     // for i in urange(3, 20):
-    int 3
+    pushint 3 // 3
 
 main_for_header@1:
     // scratch_slots/contract.py:14
     // for i in urange(3, 20):
     dup
-    int 20
+    pushint 20 // 20
     <
     bz main_after_for@4
     // scratch_slots/contract.py:15
@@ -32,7 +34,7 @@ main_for_header@1:
     stores
     // scratch_slots/contract.py:14
     // for i in urange(3, 20):
-    int 1
+    intc_1 // 1
     +
     bury 1
     b main_for_header@1
@@ -41,32 +43,32 @@ main_after_for@4:
     // scratch_slots/contract.py:17
     // assert op.Scratch.load_uint64(1) == UInt64(5)
     load 1
-    int 5
+    intc_0 // 5
     ==
     assert
     // scratch_slots/contract.py:19
     // assert op.Scratch.load_bytes(2) == b"Hello World"
     load 2
-    byte 0x48656c6c6f20576f726c64
+    bytec_0 // 0x48656c6c6f20576f726c64
     ==
     assert
     // scratch_slots/contract.py:21
     // assert op.Scratch.load_uint64(5) == UInt64(5)
     load 5
-    int 5
+    intc_0 // 5
     ==
     assert
     // scratch_slots/contract.py:23
     // op.Scratch.store(TWENTY - 1, b"last")
-    byte 0x6c617374
+    bytec_1 // 0x6c617374
     store 19
     // scratch_slots/contract.py:24
     // assert op.Scratch.load_bytes(TWENTY - 1) == b"last"
     load 19
-    byte 0x6c617374
+    bytec_1 // 0x6c617374
     ==
     assert
     // scratch_slots/contract.py:25
     // return True
-    int 1
+    intc_1 // 1
     return

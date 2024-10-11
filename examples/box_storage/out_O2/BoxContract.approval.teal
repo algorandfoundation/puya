@@ -1,6 +1,8 @@
 #pragma version 10
 
 examples.box_storage.contract.BoxContract.approval_program:
+    intcblock 1 0 2 5
+    bytecblock 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" 0x00 0x64 0x151f7c75 "0" 0x68656c6c6f 0x00023432 "box_ref" "default"
     callsub __puya_arc4_router__
     return
 
@@ -10,22 +12,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@17
-    method "set_boxes(uint64,byte[],string)void"
-    method "check_keys()void"
-    method "delete_boxes()void"
-    method "read_boxes()(uint64,byte[],string)"
-    method "boxes_exist()(bool,bool,bool)"
-    method "slice_box()void"
-    method "arc4_box()void"
-    method "test_box_ref()void"
-    method "box_map_test()void"
-    method "box_map_set(uint64,string)void"
-    method "box_map_get(uint64)string"
-    method "box_map_del(uint64)void"
-    method "box_map_exists(uint64)bool"
+    pushbytess 0x7d37296e 0x33325d3d 0xd566c632 0xfbda9ba0 0xe5a3ed52 0x04ef4971 0x23ecb32c 0xeef75816 0xb532913a 0xc29f1669 0x9c888c09 0xe6f68506 0x8ee2c364 // method "set_boxes(uint64,byte[],string)void", method "check_keys()void", method "delete_boxes()void", method "read_boxes()(uint64,byte[],string)", method "boxes_exist()(bool,bool,bool)", method "slice_box()void", method "arc4_box()void", method "test_box_ref()void", method "box_map_test()void", method "box_map_set(uint64,string)void", method "box_map_get(uint64)string", method "box_map_del(uint64)void", method "box_map_exists(uint64)bool"
     txna ApplicationArgs 0
     match __puya_arc4_router___set_boxes_route@2 __puya_arc4_router___check_keys_route@3 __puya_arc4_router___delete_boxes_route@4 __puya_arc4_router___read_boxes_route@5 __puya_arc4_router___boxes_exist_route@6 __puya_arc4_router___slice_box_route@7 __puya_arc4_router___arc4_box_route@8 __puya_arc4_router___test_box_ref_route@9 __puya_arc4_router___box_map_test_route@10 __puya_arc4_router___box_map_set_route@11 __puya_arc4_router___box_map_get_route@12 __puya_arc4_router___box_map_del_route@13 __puya_arc4_router___box_map_exists_route@14
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___set_boxes_route@2:
@@ -39,7 +29,7 @@ __puya_arc4_router___set_boxes_route@2:
     txna ApplicationArgs 2
     txna ApplicationArgs 3
     callsub set_boxes
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___check_keys_route@3:
@@ -48,7 +38,7 @@ __puya_arc4_router___check_keys_route@3:
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___delete_boxes_route@4:
@@ -58,7 +48,7 @@ __puya_arc4_router___delete_boxes_route@4:
     txn ApplicationID
     assert // is not creating
     callsub delete_boxes
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___read_boxes_route@5:
@@ -79,12 +69,12 @@ __puya_arc4_router___read_boxes_route@5:
     swap
     concat
     swap
-    byte 0x000c
+    pushbytes 0x000c
     concat
     swap
     dup
     len
-    int 12
+    pushint 12 // 12
     +
     itob
     extract 6 2
@@ -95,11 +85,11 @@ __puya_arc4_router___read_boxes_route@5:
     concat
     swap
     concat
-    byte 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___boxes_exist_route@6:
@@ -111,37 +101,37 @@ __puya_arc4_router___boxes_exist_route@6:
     callsub boxes_exist
     cover 2
     swap
-    byte 0x00
-    int 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 2
     setbit
     cover 2
-    byte 0x00
-    int 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 2
     setbit
-    byte 0x00
-    int 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 3
     setbit
     swap
-    int 0
+    intc_1 // 0
     getbit
     uncover 2
-    int 1
+    intc_0 // 1
     uncover 2
     setbit
     swap
-    int 0
+    intc_1 // 0
     getbit
-    int 2
+    intc_2 // 2
     swap
     setbit
-    byte 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___slice_box_route@7:
@@ -151,7 +141,7 @@ __puya_arc4_router___slice_box_route@7:
     txn ApplicationID
     assert // is not creating
     callsub slice_box
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___arc4_box_route@8:
@@ -161,7 +151,7 @@ __puya_arc4_router___arc4_box_route@8:
     txn ApplicationID
     assert // is not creating
     callsub arc4_box
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___test_box_ref_route@9:
@@ -171,7 +161,7 @@ __puya_arc4_router___test_box_ref_route@9:
     txn ApplicationID
     assert // is not creating
     callsub test_box_ref
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___box_map_test_route@10:
@@ -181,7 +171,7 @@ __puya_arc4_router___box_map_test_route@10:
     txn ApplicationID
     assert // is not creating
     callsub box_map_test
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___box_map_set_route@11:
@@ -195,7 +185,7 @@ __puya_arc4_router___box_map_set_route@11:
     txna ApplicationArgs 2
     extract 2 0
     callsub box_map_set
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___box_map_get_route@12:
@@ -213,11 +203,11 @@ __puya_arc4_router___box_map_get_route@12:
     extract 6 2
     swap
     concat
-    byte 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___box_map_del_route@13:
@@ -229,7 +219,7 @@ __puya_arc4_router___box_map_del_route@13:
     txna ApplicationArgs 1
     btoi
     callsub box_map_del
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___box_map_exists_route@14:
@@ -241,15 +231,15 @@ __puya_arc4_router___box_map_exists_route@14:
     txna ApplicationArgs 1
     btoi
     callsub box_map_exists
-    byte 0x00
-    int 0
+    bytec 5 // 0x00
+    intc_1 // 0
     uncover 2
     setbit
-    byte 0x151f7c75
+    bytec 7 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@17:
@@ -258,11 +248,11 @@ __puya_arc4_router___bare_routing@17:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@21:
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -271,68 +261,68 @@ set_boxes:
     proto 3 0
     frame_dig -3
     itob
-    byte "box_a"
+    bytec_3 // "box_a"
     swap
     box_put
-    byte "b"
+    bytec 4 // "b"
     box_del
     pop
-    byte "b"
+    bytec 4 // "b"
     frame_dig -2
     box_put
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_del
     pop
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     frame_dig -1
     box_put
     frame_dig -2
     extract 2 0
-    byte "box_d"
+    bytec_2 // "box_d"
     box_del
     pop
-    byte "box_d"
+    bytec_2 // "box_d"
     dig 1
     box_put
-    byte "b"
+    bytec 4 // "b"
     box_get
     assert // check self.box_b exists
-    byte "b"
+    bytec 4 // "b"
     box_get
     assert // check self.box_b exists
-    int 0
+    intc_1 // 0
     extract_uint16
     swap
-    int 0
+    intc_1 // 0
     extract_uint16
     ==
     assert // direct reference should match copy
-    byte "box_a"
+    bytec_3 // "box_a"
     box_get
     swap
     btoi
     swap
     assert // check self.box_a exists
-    int 3
+    pushint 3 // 3
     +
     itob
-    byte "box_a"
+    bytec_3 // "box_a"
     swap
     box_put
-    byte "box_a"
+    bytec_3 // "box_a"
     box_len
     assert // check self.box_a exists
-    int 8
+    pushint 8 // 8
     ==
     assert
-    byte "b"
+    bytec 4 // "b"
     box_len
     assert // check self.box_b exists
     frame_dig -2
     len
     ==
     assert
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     assert // check self.box_c exists
     frame_dig -1
@@ -341,7 +331,7 @@ set_boxes:
     cover 2
     ==
     assert
-    byte "box_d"
+    bytec_2 // "box_d"
     box_len
     assert // check self.box_d exists
     dig 2
@@ -350,54 +340,54 @@ set_boxes:
     cover 4
     ==
     assert
-    byte 0x424f585f43
-    int 0
-    int 1
+    bytec_0 // 0x424f585f43
+    intc_1 // 0
+    intc_0 // 1
     box_extract
     frame_dig -1
     extract 0 1
     ==
     assert
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
-    int 1
+    intc_0 // 1
     -
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     swap
-    int 1
+    intc_0 // 1
     box_extract
     dig 1
-    int 1
+    intc_0 // 1
     -
     dup
-    int 1
+    intc_0 // 1
     +
     frame_dig -1
     cover 2
     substring3
     ==
     assert
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
-    int 1
+    intc_0 // 1
     dig 1
     <
     swap
     dup
-    int 1
+    intc_0 // 1
     uncover 3
     select
     -
-    byte 0x424f585f43
-    int 0
+    bytec_0 // 0x424f585f43
+    intc_1 // 0
     uncover 2
     box_extract
-    int 1
+    intc_0 // 1
     dig 2
     >=
-    int 1
+    intc_0 // 1
     dig 3
     uncover 2
     select
@@ -405,85 +395,85 @@ set_boxes:
     swap
     -
     frame_dig -1
-    int 0
+    intc_1 // 0
     uncover 2
     substring3
     ==
     assert
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
-    int 2
+    intc_2 // 2
     dig 1
     <
-    int 2
+    intc_2 // 2
     swap
     select
-    byte 0x424f585f43
-    int 0
+    bytec_0 // 0x424f585f43
+    intc_1 // 0
     uncover 2
     box_extract
-    int 2
+    intc_2 // 2
     dig 2
     >=
-    int 2
+    intc_2 // 2
     uncover 3
     uncover 2
     select
     frame_dig -1
-    int 0
+    intc_1 // 0
     uncover 2
     substring3
     ==
     assert
-    byte "box_d"
-    int 0
-    int 1
+    bytec_2 // "box_d"
+    intc_1 // 0
+    intc_0 // 1
     box_extract
     dig 1
     extract 0 1
     ==
     assert
-    byte "box_d"
+    bytec_2 // "box_d"
     box_len
     pop
-    int 1
+    intc_0 // 1
     -
-    byte "box_d"
+    bytec_2 // "box_d"
     swap
-    int 1
+    intc_0 // 1
     box_extract
     dig 2
-    int 1
+    intc_0 // 1
     -
     dup
-    int 1
+    intc_0 // 1
     +
     dig 3
     cover 2
     substring3
     ==
     assert
-    byte "box_d"
+    bytec_2 // "box_d"
     box_len
     pop
-    int 1
+    intc_0 // 1
     dig 1
     <
     swap
     dup
-    int 1
+    intc_0 // 1
     uncover 3
     select
     -
-    byte "box_d"
-    int 0
+    bytec_2 // "box_d"
+    intc_1 // 0
     uncover 2
     box_extract
-    int 1
+    intc_0 // 1
     dig 3
     >=
-    int 1
+    intc_0 // 1
     dig 4
     uncover 2
     select
@@ -491,59 +481,59 @@ set_boxes:
     swap
     -
     dig 2
-    int 0
+    intc_1 // 0
     uncover 2
     substring3
     ==
     assert
-    byte "box_d"
+    bytec_2 // "box_d"
     box_len
     pop
-    int 5
+    intc_3 // 5
     dig 1
     <
-    int 5
+    intc_3 // 5
     swap
     select
-    byte "box_d"
-    int 0
+    bytec_2 // "box_d"
+    intc_1 // 0
     uncover 2
     box_extract
-    int 5
+    intc_3 // 5
     dig 3
     >=
-    int 5
+    intc_3 // 5
     dig 4
     uncover 2
     select
     dig 2
-    int 0
+    intc_1 // 0
     uncover 2
     substring3
     ==
     assert
-    byte "box_d"
+    bytec_2 // "box_d"
     box_len
     pop
-    int 2
+    intc_2 // 2
     dig 1
     <
-    int 2
+    intc_2 // 2
     swap
     select
-    byte "box_d"
-    int 0
+    bytec_2 // "box_d"
+    intc_1 // 0
     uncover 2
     box_extract
-    int 2
+    intc_2 // 2
     dig 3
     >=
-    int 2
+    intc_2 // 2
     uncover 4
     uncover 2
     select
     uncover 2
-    int 0
+    intc_1 // 0
     uncover 2
     substring3
     ==
@@ -554,44 +544,44 @@ set_boxes:
 // examples.box_storage.contract.BoxContract.delete_boxes() -> void:
 delete_boxes:
     proto 0 0
-    byte "box_a"
+    bytec_3 // "box_a"
     box_del
     pop
-    byte "b"
+    bytec 4 // "b"
     box_del
     pop
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_del
     pop
-    byte "box_a"
+    bytec_3 // "box_a"
     box_get
     swap
     btoi
-    int 42
+    pushint 42 // 42
     swap
     uncover 2
     select
-    int 42
+    pushint 42 // 42
     ==
     assert
-    byte "b"
+    bytec 4 // "b"
     box_get
-    byte 0x00023432
+    bytec 10 // 0x00023432
     cover 2
     select
     extract 2 0
-    byte 0x3432
+    pushbytes 0x3432
     ==
     assert
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_get
-    byte 0x00023432
+    bytec 10 // 0x00023432
     cover 2
     select
-    byte 0x00023432
+    bytec 10 // 0x00023432
     ==
     assert
-    byte "box_a"
+    bytec_3 // "box_a"
     box_get
     swap
     btoi
@@ -606,15 +596,15 @@ delete_boxes:
 // examples.box_storage.contract.BoxContract.read_boxes() -> uint64, bytes, bytes:
 read_boxes:
     proto 0 3
-    byte "box_a"
+    bytec_3 // "box_a"
     callsub get_box_value_plus_1
-    int 1
+    intc_0 // 1
     -
-    byte "b"
+    bytec 4 // "b"
     box_get
     assert // check self.box_b exists
     extract 2 0
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_get
     assert // check self.box_c exists
     retsub
@@ -629,7 +619,7 @@ get_box_value_plus_1:
     btoi
     swap
     assert // check Box exists
-    int 1
+    intc_0 // 1
     +
     retsub
 
@@ -637,13 +627,13 @@ get_box_value_plus_1:
 // examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64:
 boxes_exist:
     proto 0 3
-    byte "box_a"
+    bytec_3 // "box_a"
     box_len
     bury 1
-    byte "b"
+    bytec 4 // "b"
     box_len
     bury 1
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     bury 1
     retsub
@@ -652,64 +642,64 @@ boxes_exist:
 // examples.box_storage.contract.BoxContract.slice_box() -> void:
 slice_box:
     proto 0 0
-    byte "0"
+    bytec 8 // "0"
     box_del
     pop
-    byte "0"
-    byte 0x54657374696e672074657374696e6720313233
+    bytec 8 // "0"
+    pushbytes 0x54657374696e672074657374696e6720313233
     box_put
-    byte "0"
+    bytec 8 // "0"
     box_len
     pop
     dup
-    int 0
+    intc_1 // 0
     dig 2
     select
     swap
-    int 7
+    pushint 7 // 7
     dig 1
     <
-    int 7
+    pushint 7 // 7
     swap
     select
     dig 1
     -
-    byte "0"
+    bytec 8 // "0"
     cover 2
     box_extract
-    byte 0x54657374696e67
+    pushbytes 0x54657374696e67
     ==
     assert
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_del
     pop
-    byte 0x424f585f43
-    byte 0x000548656c6c6f
+    bytec_0 // 0x424f585f43
+    pushbytes 0x000548656c6c6f
     box_put
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     box_len
     pop
-    int 2
+    intc_2 // 2
     dig 1
     <
     swap
     dup
-    int 2
+    intc_2 // 2
     uncover 3
     select
     swap
-    int 10
+    pushint 10 // 10
     dig 1
     <
-    int 10
+    pushint 10 // 10
     swap
     select
     dig 1
     -
-    byte 0x424f585f43
+    bytec_0 // 0x424f585f43
     cover 2
     box_extract
-    byte 0x48656c6c6f
+    pushbytes 0x48656c6c6f
     ==
     assert
     retsub
@@ -718,35 +708,35 @@ slice_box:
 // examples.box_storage.contract.BoxContract.arc4_box() -> void:
 arc4_box:
     proto 0 0
-    byte 0x64
-    byte 0x00010203
+    bytec 6 // 0x64
+    pushbytes 0x00010203
     box_put
-    byte 0x64
+    bytec 6 // 0x64
     box_get
     assert // check Box exists
     extract 0 1 // on error: Index access is out of bounds
-    byte 0x00
+    bytec 5 // 0x00
     b==
     assert
-    byte 0x64
+    bytec 6 // 0x64
     box_get
     assert // check Box exists
     extract 1 1 // on error: Index access is out of bounds
-    byte 0x01
+    pushbytes 0x01
     b==
     assert
-    byte 0x64
+    bytec 6 // 0x64
     box_get
     assert // check Box exists
     extract 2 1 // on error: Index access is out of bounds
-    byte 0x02
+    pushbytes 0x02
     b==
     assert
-    byte 0x64
+    bytec 6 // 0x64
     box_get
     assert // check Box exists
     extract 3 1 // on error: Index access is out of bounds
-    byte 0x03
+    pushbytes 0x03
     b==
     assert
     retsub
@@ -755,74 +745,74 @@ arc4_box:
 // examples.box_storage.contract.BoxContract.test_box_ref() -> void:
 test_box_ref:
     proto 0 0
-    byte "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     !
     assert // no data
-    byte 0x626c6f62
+    bytec_1 // 0x626c6f62
     box_len
     bury 1
     !
     assert // no data
-    byte 0x626c6f62
+    bytec_1 // 0x626c6f62
     box_len
     bury 1
     !
     assert // no data
-    byte "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     !
     assert // no data
-    byte "blob"
-    int 32
+    bytec_1 // "blob"
+    pushint 32 // 32
     box_create
     assert
-    byte "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     assert // has data
     global CurrentApplicationAddress
     txn Sender
-    byte "blob"
-    int 0
+    bytec_1 // "blob"
+    intc_1 // 0
     dig 2
     box_replace
-    byte "blob"
-    int 8000
+    bytec_1 // "blob"
+    pushint 8000 // 8000
     box_resize
-    byte "blob"
-    int 0
+    bytec_1 // "blob"
+    intc_1 // 0
     dup
     dig 4
     box_splice
-    byte "blob"
-    int 64
-    byte 0x68656c6c6f
+    bytec_1 // "blob"
+    pushint 64 // 64
+    bytec 9 // 0x68656c6c6f
     box_replace
-    byte "blob"
-    int 0
-    int 69
+    bytec_1 // "blob"
+    intc_1 // 0
+    pushint 69 // 69
     box_extract
     dig 2
     dig 2
     concat
-    byte 0x68656c6c6f
+    bytec 9 // 0x68656c6c6f
     concat
     ==
     assert
-    byte "blob"
+    bytec_1 // "blob"
     box_del
     assert
-    byte "blob"
+    bytec_1 // "blob"
     box_get
     !
     assert
-    byte 0x
+    pushbytes 0x
     ==
     assert
-    byte "blob"
+    bytec_1 // "blob"
     box_get
     dig 2
     cover 2
@@ -832,33 +822,33 @@ test_box_ref:
     assert
     swap
     concat
-    byte "blob"
+    bytec_1 // "blob"
     swap
     box_put
-    byte "blob"
+    bytec_1 // "blob"
     box_len
     bury 1
     assert // Blob exists
-    byte "blob"
+    bytec_1 // "blob"
     box_len
     assert // check BoxRef exists
-    int 64
+    pushint 64 // 64
     ==
     assert
-    byte "blob"
+    bytec_1 // "blob"
     callsub get_box_ref_length
-    int 64
+    pushint 64 // 64
     ==
     assert
-    byte "box_ref"
-    int 32
+    bytec 11 // "box_ref"
+    pushint 32 // 32
     box_create
     pop
-    byte "box_ref"
+    bytec 11 // "box_ref"
     box_len
     bury 1
     assert // has data
-    byte "box_ref"
+    bytec 11 // "box_ref"
     box_del
     pop
     retsub
@@ -876,34 +866,34 @@ get_box_ref_length:
 // examples.box_storage.contract.BoxContract.box_map_test() -> void:
 box_map_test:
     proto 0 0
-    int 0
+    intc_1 // 0
     itob
     dup
     box_del
     pop
     dup
-    byte "Hmmmmm"
+    pushbytes "Hmmmmm"
     box_put
     dup
     box_len
     assert // check self.box_map entry exists
-    int 6
+    pushint 6 // 6
     ==
     assert
     dup
     box_len
     assert // check self.box_map entry exists
-    int 6
+    pushint 6 // 6
     ==
     assert
-    int 1
+    intc_0 // 1
     itob
     dup
     box_get
-    byte "default"
+    bytec 12 // "default"
     cover 2
     select
-    byte "default"
+    bytec 12 // "default"
     ==
     assert
     dup
@@ -919,12 +909,12 @@ box_map_test:
     box_del
     pop
     dup
-    byte "hello"
+    bytec 9 // "hello"
     box_put
-    byte 0x
-    int 0
+    pushbytes 0x
+    intc_1 // 0
     callsub get_box_map_value_from_key_plus_1
-    byte "hello"
+    bytec 9 // "hello"
     ==
     assert
     box_del
@@ -936,7 +926,7 @@ box_map_test:
 get_box_map_value_from_key_plus_1:
     proto 2 1
     frame_dig -1
-    int 1
+    intc_0 // 1
     +
     itob
     frame_dig -2

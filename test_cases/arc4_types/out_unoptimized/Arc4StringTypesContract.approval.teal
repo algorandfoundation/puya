@@ -3,21 +3,21 @@
 test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:8
     // some_bytes_as_string = arc4.String(String.from_bytes(HELLO_WORLD))
-    byte 0x48656c6c6f20576f726c6421
+    pushbytes 0x48656c6c6f20576f726c6421
     len
     itob
     extract 6 2
-    byte 0x48656c6c6f20576f726c6421
+    pushbytes 0x48656c6c6f20576f726c6421
     concat
     // arc4_types/string.py:10
     // some_bytes_as_bytes_again = some_bytes_as_string.native.bytes
-    dup
+    dig 0
     extract 2 0
     cover 1
     // arc4_types/string.py:13
     // some_bytes_as_string.bytes != HELLO_WORLD
-    dup
-    byte 0x48656c6c6f20576f726c6421
+    dig 0
+    pushbytes 0x48656c6c6f20576f726c6421
     !=
     // arc4_types/string.py:12-14
     // assert (
@@ -26,12 +26,12 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert // Original bytes should not match encoded bytes
     // arc4_types/string.py:17
     // some_bytes_as_string.bytes[2:] == HELLO_WORLD
-    dup
+    dig 0
     len
-    int 2
+    pushint 2 // 2
     dig 1
     >=
-    int 2
+    pushint 2 // 2
     dig 2
     uncover 2
     select
@@ -39,7 +39,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     uncover 1
     uncover 2
     substring3
-    byte 0x48656c6c6f20576f726c6421
+    pushbytes 0x48656c6c6f20576f726c6421
     ==
     // arc4_types/string.py:16-18
     // assert (
@@ -48,41 +48,41 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert // Original bytes should match encoded if we strip the length header
     // arc4_types/string.py:20
     // assert some_bytes_as_bytes_again == HELLO_WORLD
-    byte 0x48656c6c6f20576f726c6421
+    pushbytes 0x48656c6c6f20576f726c6421
     ==
     assert
     // arc4_types/string.py:22
     // hello = arc4.String("Hello")
-    byte "Hello"
+    pushbytes "Hello"
     len
     itob
     extract 6 2
-    byte "Hello"
+    pushbytes "Hello"
     concat
     // arc4_types/string.py:23
     // space = arc4.String(" ")
-    byte " "
+    pushbytes " "
     len
     itob
     extract 6 2
-    byte " "
+    pushbytes " "
     concat
     // arc4_types/string.py:24
     // world = arc4.String("World!")
-    byte "World!"
+    pushbytes "World!"
     len
     itob
     extract 6 2
-    byte "World!"
+    pushbytes "World!"
     concat
     cover 1
     // arc4_types/string.py:26
     // assert arc4.String("Hello World!") == (hello + space + world)
-    byte "Hello World!"
+    pushbytes "Hello World!"
     len
     itob
     extract 6 2
-    byte "Hello World!"
+    pushbytes "Hello World!"
     concat
     cover 3
     uncover 2
@@ -90,7 +90,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     uncover 1
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -100,7 +100,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     uncover 1
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -110,20 +110,20 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert
     // arc4_types/string.py:28
     // thing = arc4.String("hi")
-    byte "hi"
+    pushbytes "hi"
     len
     itob
     extract 6 2
-    byte "hi"
+    pushbytes "hi"
     concat
     // arc4_types/string.py:29
     // thing += thing
-    dup
+    dig 0
     extract 2 0
     cover 1
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -131,47 +131,47 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     concat
     // arc4_types/string.py:30
     // assert thing == arc4.String("hihi")
-    byte "hihi"
+    pushbytes "hihi"
     len
     itob
     extract 6 2
-    byte "hihi"
+    pushbytes "hihi"
     concat
     ==
     assert
     // arc4_types/string.py:32
     // value = arc4.String("a") + arc4.String("b") + "cd"
-    byte "a"
+    pushbytes "a"
     len
     itob
     extract 6 2
-    byte "a"
+    pushbytes "a"
     concat
     extract 2 0
-    byte "b"
+    pushbytes "b"
     len
     itob
     extract 6 2
-    byte "b"
+    pushbytes "b"
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
     uncover 1
     concat
     extract 2 0
-    byte "cd"
+    pushbytes "cd"
     len
     itob
     extract 6 2
-    byte "cd"
+    pushbytes "cd"
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -180,15 +180,15 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:33
     // value += "e"
     extract 2 0
-    byte "e"
+    pushbytes "e"
     len
     itob
     extract 6 2
-    byte "e"
+    pushbytes "e"
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -197,15 +197,15 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:34
     // value += arc4.String("f")
     extract 2 0
-    byte "f"
+    pushbytes "f"
     len
     itob
     extract 6 2
-    byte "f"
+    pushbytes "f"
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -214,15 +214,15 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:35
     // value += arc4.String("g")
     extract 2 0
-    byte "g"
+    pushbytes "g"
     len
     itob
     extract 6 2
-    byte "g"
+    pushbytes "g"
     concat
     extract 2 0
     concat
-    dup
+    dig 0
     len
     itob
     extract 6 2
@@ -230,75 +230,75 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     concat
     // arc4_types/string.py:36
     // assert arc4.String("abcdefg") == value
-    byte "abcdefg"
+    pushbytes "abcdefg"
     len
     itob
     extract 6 2
-    byte "abcdefg"
+    pushbytes "abcdefg"
     concat
     uncover 1
     ==
     assert
     // arc4_types/string.py:38
     // assert arc4.String().native == ""
-    byte ""
+    pushbytes ""
     len
     itob
     extract 6 2
-    byte ""
+    pushbytes ""
     concat
     extract 2 0
-    byte ""
+    pushbytes ""
     ==
     assert
     // arc4_types/string.py:39
     // assert arc4.String("hello") == String("hello")
-    byte "hello"
+    pushbytes "hello"
     len
     itob
     extract 6 2
-    byte "hello"
+    pushbytes "hello"
     concat
     extract 2 0
-    byte "hello"
+    pushbytes "hello"
     ==
     assert
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz main_ternary_false@2
-    byte "aye"
+    pushbytes "aye"
     len
     itob
     extract 6 2
-    byte "aye"
+    pushbytes "aye"
     concat
     b main_ternary_merge@3
 
 main_ternary_false@2:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    byte "bee"
+    pushbytes "bee"
     len
     itob
     extract 6 2
-    byte "bee"
+    pushbytes "bee"
     concat
 
 main_ternary_merge@3:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    byte "bee"
+    pushbytes "bee"
     len
     itob
     extract 6 2
-    byte "bee"
+    pushbytes "bee"
     concat
     ==
     assert
     // arc4_types/string.py:42
     // return True
-    int 1
+    pushint 1 // 1
     return

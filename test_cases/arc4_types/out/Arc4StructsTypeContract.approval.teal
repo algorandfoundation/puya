@@ -1,9 +1,11 @@
 #pragma version 10
 
 test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
+    intcblock 0 1 2
+    bytecblock 0x00 0xa0
     // arc4_types/structs.py:27
     // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
-    byte 0x000000083cfbf217000000230384b842
+    pushbytes 0x000000083cfbf217000000230384b842
     // arc4_types/structs.py:28
     // coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))
     dup
@@ -18,7 +20,7 @@ test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     swap
     extract 8 8 // on error: Index access is out of bounds
     swap
-    int 0
+    intc_0 // 0
     swap
 
 main_for_body@1:
@@ -29,7 +31,7 @@ main_for_body@1:
     // for val in (coord_3.x, coord_3.y):
     dup
     bnz main_after_for@4
-    int 1
+    intc_1 // 1
     bury 1
     dig 1
     b main_for_body@1
@@ -37,25 +39,25 @@ main_for_body@1:
 main_after_for@4:
     // arc4_types/structs.py:33
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
-    byte 0xa0
+    bytec_1 // 0xa0
     // arc4_types/structs.py:34
     // check(flags.copy())
     callsub check
     pop
     // arc4_types/structs.py:33
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
-    byte 0xa0
+    bytec_1 // 0xa0
     // arc4_types/structs.py:35
     // log(flags.bytes)
     log
     // arc4_types/structs.py:38
     // nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
-    byte 0x000000083cfbf217000000230384b842a0
+    pushbytes 0x000000083cfbf217000000230384b842a0
     callsub nested_decode
     pop
     // arc4_types/structs.py:40
     // return True
-    int 1
+    intc_1 // 1
     return
 
 
@@ -116,50 +118,50 @@ check:
     // arc4_types/structs.py:56
     // assert flags.a.native
     frame_dig -1
-    int 0
+    intc_0 // 0
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert
     // arc4_types/structs.py:57
     // assert not flags.b.native
     frame_dig -1
-    int 1
+    intc_1 // 1
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     !
     assert
     // arc4_types/structs.py:58
     // assert flags.c.native
     frame_dig -1
-    int 2
+    intc_2 // 2
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert
     // arc4_types/structs.py:59
     // assert not flags.d.native
     frame_dig -1
-    int 3
+    pushint 3 // 3
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     !
     assert
@@ -178,7 +180,7 @@ nested_decode:
     frame_dig -1
     extract 0 16 // on error: Index access is out of bounds
     extract 0 8 // on error: Index access is out of bounds
-    int 35382882839
+    pushint 35382882839 // 35382882839
     itob
     ==
     assert
@@ -186,13 +188,13 @@ nested_decode:
     // assert vector_flags.flags.c.native
     frame_dig -1
     extract 16 1 // on error: Index access is out of bounds
-    int 2
+    intc_2 // 2
     getbit
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert
     frame_dig -1

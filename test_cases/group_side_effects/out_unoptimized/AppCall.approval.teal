@@ -11,11 +11,11 @@ __puya_arc4_router__:
     // class AppCall(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
-    method "some_value()uint64"
+    pushbytes 0xd3479e65 // method "some_value()uint64"
     uncover 1
     match __puya_arc4_router___some_value_route@2
     b __puya_arc4_router___switch_case_default@3
@@ -24,20 +24,20 @@ __puya_arc4_router___some_value_route@2:
     // group_side_effects/other.py:5
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub some_value
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -47,7 +47,7 @@ __puya_arc4_router___bare_routing@5:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     txn OnCompletion
-    int 0
+    pushint 0 // 0
     uncover 1
     match __puya_arc4_router_____algopy_default_create@6
     b __puya_arc4_router___switch_case_default@7
@@ -56,11 +56,11 @@ __puya_arc4_router_____algopy_default_create@6:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -68,7 +68,7 @@ __puya_arc4_router___switch_case_default@7:
 __puya_arc4_router___after_if_else@9:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -82,7 +82,7 @@ some_value:
     // return Global.group_size * (Txn.group_index + 1)
     global GroupSize
     txn GroupIndex
-    int 1
+    pushint 1 // 1
     +
     *
     retsub

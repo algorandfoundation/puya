@@ -16,11 +16,11 @@ __puya_arc4_router__:
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
-    method "create()void"
+    pushbytes 0x4c5c61ba // method "create()void"
     uncover 1
     match __puya_arc4_router___create_route@2
     b __puya_arc4_router___switch_case_default@3
@@ -29,15 +29,15 @@ __puya_arc4_router___create_route@2:
     // state_proxies/contract.py:25
     // @arc4.abimethod(allow_actions=["OptIn"], create="require")
     txn OnCompletion
-    int OptIn
+    pushint 1 // OptIn
     ==
     assert // OnCompletion is OptIn
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -48,7 +48,7 @@ __puya_arc4_router___bare_routing@5:
 __puya_arc4_router___after_if_else@6:
     // state_proxies/contract.py:12
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -60,20 +60,20 @@ create:
     proto 0 0
     // state_proxies/contract.py:27
     // self.global1.value = UInt64(1)
-    byte "g1"
-    int 1
+    pushbytes "g1"
+    pushint 1 // 1
     app_global_put
     // state_proxies/contract.py:28
     // self.local1[Txn.sender] = UInt64(2)
     txn Sender
-    byte "l1"
-    int 2
+    pushbytes "l1"
+    pushint 2 // 2
     app_local_put
     // state_proxies/contract.py:29
     // self.local2[Txn.sender] = UInt64(3)
     txn Sender
-    byte 0x6c32
-    int 3
+    pushbytes 0x6c32
+    pushint 3 // 3
     app_local_put
     retsub
 
@@ -85,20 +85,20 @@ __init__:
     proto 0 0
     // state_proxies/contract.py:17
     // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
-    byte 0x6732
-    int 0
+    pushbytes 0x6732
+    pushint 0 // 0
     app_global_put
     // state_proxies/contract.py:20
     // if Txn.num_app_args
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     // state_proxies/contract.py:21
     // else GlobalState(UInt64, key="town")
-    byte "town"
+    pushbytes "town"
     // state_proxies/contract.py:19
     // GlobalState(UInt64, key="funky")
-    byte "funky"
+    pushbytes "funky"
     // state_proxies/contract.py:18-22
     // funky_town = (
     //     GlobalState(UInt64, key="funky")
@@ -113,6 +113,6 @@ __init__:
     select
     // state_proxies/contract.py:23
     // funky_town.value = UInt64(123)
-    int 123
+    pushint 123 // 123
     app_global_put
     retsub

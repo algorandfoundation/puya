@@ -1,12 +1,13 @@
 #pragma version 10
 
 test_cases.everything.contract.Everything.clear_state_program:
+    bytecblock "counter"
     // everything/contract.py:74
     // self._remove_sender()
     callsub _remove_sender
     // everything/contract.py:75
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -18,13 +19,13 @@ _remove_sender:
     proto 0 0
     // everything/contract.py:83
     // self.counter -= positive_one()
-    int 0
-    byte "counter"
+    pushint 0 // 0
+    bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     callsub positive_one
     -
-    byte "counter"
+    bytec_0 // "counter"
     swap
     app_global_put
     retsub
@@ -38,5 +39,5 @@ positive_one:
     proto 0 1
     // everything/contract.py:88
     // return UInt64(1)
-    int 1
+    pushint 1 // 1
     retsub

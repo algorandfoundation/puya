@@ -1,17 +1,17 @@
 #pragma version 10
 
 test_cases.ssa.contract.MyContract.approval_program:
-    byte ""
-    dup
+    pushbytes ""
+    pushbytes ""
     // ssa/contract.py:8
     // a = UInt64(1) + 2
-    int 1
-    int 2
+    pushint 1 // 1
+    pushint 2 // 2
     +
     // ssa/contract.py:9
     // b = UInt64(4) * 5
-    int 4
-    int 5
+    pushint 4 // 4
+    pushint 5 // 5
     *
     // ssa/contract.py:11
     // a = a * b
@@ -19,6 +19,7 @@ test_cases.ssa.contract.MyContract.approval_program:
     cover 2
     *
     dup
+    cover 1
     cover 2
     // ssa/contract.py:12
     // b = a + b
@@ -29,12 +30,12 @@ main_while_top@1:
     // ssa/contract.py:14
     // while a < UInt64(5):
     dig 1
-    int 5
+    pushint 5 // 5
     <
     bz main_after_while@3
     // ssa/contract.py:15
     // b = b + a
-    dup
+    dig 0
     dig 2
     dup
     cover 2
@@ -42,7 +43,7 @@ main_while_top@1:
     bury 2
     // ssa/contract.py:16
     // a = a + 1
-    int 1
+    pushint 1 // 1
     +
     bury 2
     b main_while_top@1
@@ -50,21 +51,21 @@ main_while_top@1:
 main_after_while@3:
     // ssa/contract.py:18
     // for i in urange(5):
-    int 1
+    pushint 1 // 1
     assert // Step cannot be zero
-    int 0
+    pushint 0 // 0
     bury 3
 
 main_for_header@4:
     // ssa/contract.py:18
     // for i in urange(5):
     dig 2
-    int 5
+    pushint 5 // 5
     <
     bz main_after_for@7
     // ssa/contract.py:19
     // b = b + a
-    dup
+    dig 0
     dig 2
     dup
     cover 2
@@ -78,7 +79,7 @@ main_for_header@4:
     // ssa/contract.py:18
     // for i in urange(5):
     dig 2
-    int 1
+    pushint 1 // 1
     +
     bury 3
     b main_for_header@4
@@ -92,14 +93,14 @@ main_after_for@7:
     bz main_else_body@15
     // ssa/contract.py:23
     // if b < 2:
-    dup
-    int 2
+    dig 0
+    pushint 2 // 2
     <
     bz main_else_body@10
     // ssa/contract.py:24
     // b = 3 + UInt64(2)
-    int 3
-    int 2
+    pushint 3 // 3
+    pushint 2 // 2
     +
     // ssa/contract.py:25
     // c = a + b
@@ -112,27 +113,27 @@ main_after_for@7:
 main_else_body@10:
     // ssa/contract.py:27
     // b = 2 * a
-    int 2
+    pushint 2 // 2
     dig 2
     *
     // ssa/contract.py:28
     // if ((3 * 4) + 2) * b:
-    int 14
+    pushint 14 // 14
     uncover 1
     *
-    int 0
+    pushint 0 // 0
     !=
     bz main_else_body@12
     // ssa/contract.py:29
     // c = UInt64(2)
-    int 2
+    pushint 2 // 2
     bury 4
     b main_after_if_else@13
 
 main_else_body@12:
     // ssa/contract.py:31
     // return UInt64(3)
-    int 3
+    pushint 3 // 3
     return
 
 main_after_if_else@13:
@@ -143,7 +144,7 @@ main_after_if_else@14:
 main_else_body@15:
     // ssa/contract.py:32
     // elif b == a:
-    dup
+    dig 0
     dig 2
     ==
     bz main_else_body@17
@@ -170,29 +171,30 @@ main_after_if_else@19:
     // c = c + one_hundred(c)
     dig 3
     dup
+    cover 1
     callsub one_hundred
     +
     // ssa/contract.py:37
     // c_bytes = op.itob(c)
-    dup
+    dig 0
     itob
     // ssa/contract.py:38
     // log(c_bytes)
     log
     // ssa/contract.py:39
     // assert phi_in_equiv_class(UInt64(3), True) == 4
-    int 3
-    int 1
+    pushint 3 // 3
+    pushint 1 // 1
     callsub phi_in_equiv_class
-    int 4
+    pushint 4 // 4
     ==
     assert
     // ssa/contract.py:40
     // assert phi_in_equiv_class(UInt64(3), False) == 4
-    int 3
-    int 0
+    pushint 3 // 3
+    pushint 0 // 0
     callsub phi_in_equiv_class
-    int 4
+    pushint 4 // 4
     ==
     assert
     // ssa/contract.py:41
@@ -208,13 +210,13 @@ one_hundred:
     proto 1 1
     // ssa/contract.py:49
     // a = UInt64(25)
-    int 25
+    pushint 25 // 25
     // ssa/contract.py:50
     // b = UInt64(2)
-    int 2
+    pushint 2 // 2
     // ssa/contract.py:49
     // a = UInt64(25)
-    int 25
+    pushint 25 // 25
     // ssa/contract.py:51
     // if a < c:
     frame_dig -1
@@ -222,11 +224,11 @@ one_hundred:
     bz one_hundred_after_if_else@2
     // ssa/contract.py:52
     // b = UInt64(1)
-    int 1
+    pushint 1 // 1
     frame_bury 1
     // ssa/contract.py:53
     // a = UInt64(100)
-    int 100
+    pushint 100 // 100
     frame_bury 0
 
 one_hundred_after_if_else@2:
@@ -234,6 +236,7 @@ one_hundred_after_if_else@2:
     // b *= b
     frame_dig 1
     dup
+    cover 1
     uncover 1
     *
     // ssa/contract.py:56
@@ -268,7 +271,7 @@ phi_in_equiv_class_else_body@2:
 phi_in_equiv_class_after_if_else@3:
     // ssa/contract.py:67
     // x += 1
-    int 1
+    pushint 1 // 1
     +
     // ssa/contract.py:68
     // return x
