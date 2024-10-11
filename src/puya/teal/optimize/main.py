@@ -20,8 +20,6 @@ def optimize_block(block: models.TealBlock, *, level: int) -> None:
             modified = perform_constant_stack_shuffling(block) or modified
             modified = simplify_repeated_rotation_ops(block) or modified
         modified = peephole(block, level) or modified
-    if not level:
-        return
 
     # we don't do dup/dupn collapse in the above loop, but after it.
     # it's easier to deal with expanded dup/dupn instructions above when looking at

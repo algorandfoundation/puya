@@ -26,7 +26,7 @@ def peephole(block: models.TealBlock, opt_level: int) -> bool:
         if opt_level > 0 and not modified and start_idx < len(result) - 2:
             window = slice(start_idx, start_idx + 3)
             new_values, modified = _optimize_triplet(*result[window], stack_height=stack_height)
-        if opt_level > 0 and not modified and start_idx < len(result) - 1:
+        if not modified and start_idx < len(result) - 1:
             window = slice(start_idx, start_idx + 2)
             new_values, modified = _optimize_pair(*result[window])
         if not modified:
