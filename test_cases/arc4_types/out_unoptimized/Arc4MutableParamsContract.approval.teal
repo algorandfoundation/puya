@@ -1,12 +1,14 @@
 #pragma version 10
 
 test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program:
+    intcblock 1 0 2 4
+    bytecblock 0x "Happy" 0x05 "AARRGH!" 0x63 "Days"
     // arc4_types/mutable_params.py:29
     // self.mutating_copies()
     callsub mutating_copies
     // arc4_types/mutable_params.py:31
     // return True
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -18,7 +20,7 @@ mutating_copies:
     proto 0 0
     // arc4_types/mutable_params.py:35
     // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-    pushbytes 0x
+    bytec_0 // 0x
     pushbytes 0x01
     concat
     pushbytes 0x02
@@ -27,31 +29,31 @@ mutating_copies:
     concat
     pushbytes 0x04
     concat
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
     // arc4_types/mutable_params.py:37
     // b_val=Bool(True),
     pushbytes 0x00
-    pushint 0 // 0
-    pushint 1 // 1
+    intc_1 // 0
+    intc_0 // 1
     setbit
     // arc4_types/mutable_params.py:39
     // s_val_1=String("Happy"),
-    pushbytes "Happy"
+    bytec_1 // "Happy"
     len
     itob
     extract 6 2
-    pushbytes "Happy"
+    bytec_1 // "Happy"
     concat
-    cover 1
+    swap
     // arc4_types/mutable_params.py:40
     // s_val_2=String("Days"),
-    pushbytes "Days"
+    bytec 5 // "Days"
     len
     itob
     extract 6 2
-    pushbytes "Days"
+    bytec 5 // "Days"
     concat
     cover 2
     // arc4_types/mutable_params.py:36-41
@@ -61,8 +63,8 @@ mutating_copies:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
     // arc4_types/mutable_params.py:38
     // u_val=UInt8(50),
@@ -82,14 +84,13 @@ mutating_copies:
     dig 1
     len
     pushint 6 // 6
-    uncover 1
     +
     itob
     extract 6 2
     concat
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     concat
     // arc4_types/mutable_params.py:43
     // my_array_copy = my_array.copy()
@@ -97,22 +98,22 @@ mutating_copies:
     cover 2
     // arc4_types/mutable_params.py:44
     // my_struct_copy = my_struct.copy()
-    dig 0
+    dup
     cover 3
     // arc4_types/mutable_params.py:46
     // my_array[2] = UInt8(5)
-    uncover 1
-    pushint 2 // 2
-    pushbytes 0x05
+    swap
+    intc_2 // 2
+    bytec_2 // 0x05
     replace3
-    cover 1
+    swap
     // arc4_types/mutable_params.py:48
     // assert my_array_copy[2] == UInt8(3), "my_array_copy should be unchanged"
     dig 2
-    pushint 2 // 2
-    pushint 1 // 1
+    intc_2 // 2
+    intc_0 // 1
     *
-    pushint 1 // 1
+    intc_0 // 1
     extract3 // on error: Index access is out of bounds
     pushbytes 0x03
     b==
@@ -120,12 +121,12 @@ mutating_copies:
     // arc4_types/mutable_params.py:49
     // assert my_array[2] == UInt8(5), "my_array should be mutated"
     dig 1
-    pushint 2 // 2
-    pushint 1 // 1
+    intc_2 // 2
+    intc_0 // 1
     *
-    pushint 1 // 1
+    intc_0 // 1
     extract3 // on error: Index access is out of bounds
-    pushbytes 0x05
+    bytec_2 // 0x05
     b==
     assert // my_array should be mutated
     // arc4_types/mutable_params.py:51-52
@@ -147,23 +148,23 @@ mutating_copies:
     assert
     // arc4_types/mutable_params.py:56
     // assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
-    dig 0
-    pushint 1 // 1
-    pushint 1 // 1
+    dup
+    intc_0 // 1
+    dup
     *
-    pushint 1 // 1
+    intc_0 // 1
     extract3 // on error: Index access is out of bounds
-    pushbytes 0x05
+    bytec_2 // 0x05
     b==
     assert // my_array has been mutated by the subroutine
     // arc4_types/mutable_params.py:58
     // assert my_struct.s_val_1 == String(
     dig 1
-    pushint 2 // 2
+    intc_2 // 2
     extract_uint16
-    cover 1
+    swap
     dig 2
-    pushint 4 // 4
+    intc_3 // 4
     extract_uint16
     uncover 3
     uncover 3
@@ -173,11 +174,11 @@ mutating_copies:
     // assert my_struct.s_val_1 == String(
     //     "AARRGH!"
     // ), "my_struct has been mutated by the subroutine"
-    pushbytes "AARRGH!"
+    bytec_3 // "AARRGH!"
     len
     itob
     extract 6 2
-    pushbytes "AARRGH!"
+    bytec_3 // "AARRGH!"
     concat
     ==
     assert // my_struct has been mutated by the subroutine
@@ -187,17 +188,14 @@ mutating_copies:
     dig 1
     dig 3
     callsub other_routine
-    pop
-    pop
-    pop
-    pop
+    popn 4
     // arc4_types/mutable_params.py:65
     // assert my_array_copy[1] == UInt8(
     dig 1
-    pushint 1 // 1
-    pushint 1 // 1
+    intc_0 // 1
+    dup
     *
-    pushint 1 // 1
+    intc_0 // 1
     extract3 // on error: Index access is out of bounds
     // arc4_types/mutable_params.py:65-67
     // assert my_array_copy[1] == UInt8(
@@ -209,11 +207,11 @@ mutating_copies:
     // arc4_types/mutable_params.py:69
     // assert my_struct_copy.s_val_1 == String(
     dig 2
-    pushint 2 // 2
+    intc_2 // 2
     extract_uint16
-    cover 1
+    swap
     dig 3
-    pushint 4 // 4
+    intc_3 // 4
     extract_uint16
     uncover 4
     uncover 3
@@ -223,28 +221,28 @@ mutating_copies:
     // assert my_struct_copy.s_val_1 == String(
     //     "Happy"
     // ), "my_struct_copy should not be mutated by the subroutine"
-    pushbytes "Happy"
+    bytec_1 // "Happy"
     len
     itob
     extract 6 2
-    pushbytes "Happy"
+    bytec_1 // "Happy"
     concat
     ==
     assert // my_struct_copy should not be mutated by the subroutine
     // arc4_types/mutable_params.py:73
     // my_array_copy_2 = my_array_copy.copy()
-    uncover 1
+    swap
     // arc4_types/mutable_params.py:75
     // my_array_copy_2 = self.other_routine_2(my_array_copy_2)
     callsub other_routine_2
     pop
     // arc4_types/mutable_params.py:77
     // assert my_array_copy_2[0] == UInt8(1), "my_array_copy_2 should have original value"
-    dig 0
-    pushint 0 // 0
-    pushint 1 // 1
+    dup
+    intc_1 // 0
+    intc_0 // 1
     *
-    pushint 1 // 1
+    intc_0 // 1
     extract3 // on error: Index access is out of bounds
     pushbytes 0x01
     b==
@@ -252,15 +250,14 @@ mutating_copies:
     // arc4_types/mutable_params.py:79
     // self.other_routine_2(my_array_copy_2)
     callsub other_routine_2
-    cover 1
-    pop
+    bury 1
     // arc4_types/mutable_params.py:80
     // assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
-    dig 0
-    pushint 0 // 0
-    pushint 1 // 1
+    dup
+    intc_1 // 0
+    intc_0 // 1
     *
-    pushint 1 // 1
+    intc_0 // 1
     extract3 // on error: Index access is out of bounds
     pushbytes 0x0a
     b==
@@ -268,31 +265,27 @@ mutating_copies:
     // arc4_types/mutable_params.py:82-83
     // # tuples of mutable types only work with a .copy()
     // self.other_routine_3((my_array.copy(), my_array_copy_2.copy(), my_array_copy_2.copy()))
-    dig 1
-    dig 1
-    cover 1
+    dup2
+    swap
     uncover 2
-    uncover 1
+    swap
     uncover 2
     uncover 2
     callsub other_routine_3
-    pop
-    pop
-    pop
+    popn 3
     // arc4_types/mutable_params.py:85-86
     // # Nested array items should still require a copy
     // nested = StructWithArray(test_array=my_array.copy())
-    pushbytes 0x
-    uncover 1
+    bytec_0 // 0x
+    swap
     concat
     // arc4_types/mutable_params.py:87
     // self.other_routine_2(nested.test_array.copy())
-    pushint 0 // 0
-    pushint 4 // 4
+    intc_1 // 0
+    intc_3 // 4
     extract3 // on error: Index access is out of bounds
     callsub other_routine_2
-    pop
-    pop
+    popn 2
     retsub
 
 
@@ -305,27 +298,27 @@ other_routine:
     // arc4_types/mutable_params.py:91
     // array[1] = UInt8(5)
     frame_dig -2
-    pushint 1 // 1
-    pushbytes 0x05
+    intc_0 // 1
+    bytec_2 // 0x05
     replace3
     frame_bury -2
     // arc4_types/mutable_params.py:92
     // struct.s_val_1 = String("AARRGH!")
-    pushbytes "AARRGH!"
+    bytec_3 // "AARRGH!"
     len
     itob
     extract 6 2
-    pushbytes "AARRGH!"
+    bytec_3 // "AARRGH!"
     concat
     frame_dig -1
-    pushint 2 // 2
+    intc_2 // 2
     extract_uint16
     frame_dig -1
-    pushint 0 // 0
+    intc_1 // 0
     dig 2
     extract3
     frame_dig -1
-    pushint 4 // 4
+    intc_3 // 4
     extract_uint16
     frame_dig -1
     len
@@ -336,32 +329,31 @@ other_routine:
     uncover 2
     dig 4
     concat
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     uncover 2
     -
     cover 2
-    uncover 1
+    swap
     len
     dig 1
-    pushint 4 // 4
+    intc_3 // 4
     extract_uint16
-    uncover 1
     +
     uncover 2
     -
     itob
     extract 6 2
-    uncover 1
-    pushint 4 // 4
+    swap
+    intc_3 // 4
     uncover 2
     replace3
     frame_bury -1
     // arc4_types/mutable_params.py:93
     // return True, False
-    pushint 1 // 1
-    pushint 0 // 0
+    intc_0 // 1
+    intc_1 // 0
     frame_dig -2
     frame_dig -1
     retsub
@@ -378,14 +370,14 @@ other_routine_2:
     frame_dig -1
     // arc4_types/mutable_params.py:98
     // array[0] = UInt8(10)
-    frame_dig -1
-    pushint 0 // 0
+    dup
+    intc_1 // 0
     pushbytes 0x0a
     replace3
+    dup
     frame_bury -1
     // arc4_types/mutable_params.py:99
     // return copy
-    frame_dig -1
     retsub
 
 
@@ -395,7 +387,7 @@ other_routine_3:
     // @subroutine
     // def other_routine_3(self, arrays: tuple[TestArray, TestArray, TestArray]) -> None:
     proto 3 3
-    pushint 0 // 0
+    intc_1 // 0
 
 other_routine_3_for_body@1:
     // arc4_types/mutable_params.py:103-104
@@ -406,12 +398,12 @@ other_routine_3_for_body@1:
     b other_routine_3_after_for@5
 
 other_routine_3_for_header_1@3:
-    pushint 1 // 1
+    intc_0 // 1
     frame_bury 0
     b other_routine_3_for_body@1
 
 other_routine_3_for_header_2@4:
-    pushint 2 // 2
+    intc_2 // 2
     frame_bury 0
     b other_routine_3_for_body@1
 
@@ -419,22 +411,22 @@ other_routine_3_after_for@5:
     // arc4_types/mutable_params.py:107
     // arrays[0][0] = UInt8(99)
     frame_dig -3
-    pushint 0 // 0
-    pushbytes 0x63
+    intc_1 // 0
+    bytec 4 // 0x63
     replace3
     frame_bury -3
     // arc4_types/mutable_params.py:108
     // arrays[1][0] = UInt8(99)
     frame_dig -2
-    pushint 0 // 0
-    pushbytes 0x63
+    intc_1 // 0
+    bytec 4 // 0x63
     replace3
     frame_bury -2
     // arc4_types/mutable_params.py:109
     // arrays[2][0] = UInt8(99)
     frame_dig -1
-    pushint 0 // 0
-    pushbytes 0x63
+    intc_1 // 0
+    bytec 4 // 0x63
     replace3
     frame_bury -1
     frame_dig -3

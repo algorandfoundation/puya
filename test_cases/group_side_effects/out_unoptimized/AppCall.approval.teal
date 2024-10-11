@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.group_side_effects.other.AppCall.approval_program:
+    intcblock 0 1
     callsub __puya_arc4_router__
     return
 
@@ -11,12 +12,12 @@ __puya_arc4_router__:
     // class AppCall(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@5
     txna ApplicationArgs 0
     pushbytes 0xd3479e65 // method "some_value()uint64"
-    uncover 1
+    swap
     match __puya_arc4_router___some_value_route@2
     b __puya_arc4_router___switch_case_default@3
 
@@ -24,20 +25,20 @@ __puya_arc4_router___some_value_route@2:
     // group_side_effects/other.py:5
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     callsub some_value
     itob
     pushbytes 0x151f7c75
-    uncover 1
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@3:
@@ -47,8 +48,8 @@ __puya_arc4_router___bare_routing@5:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@6
     b __puya_arc4_router___switch_case_default@7
 
@@ -56,11 +57,11 @@ __puya_arc4_router_____algopy_default_create@6:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@7:
@@ -68,7 +69,7 @@ __puya_arc4_router___switch_case_default@7:
 __puya_arc4_router___after_if_else@9:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -82,7 +83,7 @@ some_value:
     // return Global.group_size * (Txn.group_index + 1)
     global GroupSize
     txn GroupIndex
-    pushint 1 // 1
+    intc_1 // 1
     +
     *
     retsub

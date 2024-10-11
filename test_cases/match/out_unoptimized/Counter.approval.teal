@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.match.counter.Counter.approval_program:
+    intcblock 0 1
+    bytecblock "counter"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -11,7 +13,7 @@ main_entrypoint@2:
     txn OnCompletion
     // match/counter.py:10
     // case algopy.OnCompleteAction.NoOp:
-    pushint 0 // NoOp
+    intc_0 // NoOp
     // match/counter.py:9-15
     // match algopy.Txn.on_completion:
     //     case algopy.OnCompleteAction.NoOp:
@@ -20,7 +22,7 @@ main_entrypoint@2:
     //     case _:
     //         # reject all OnCompletionAction's other than NoOp
     //         return False
-    uncover 1
+    swap
     match main_switch_case_0@3
     // match/counter.py:14-15
     // # reject all OnCompletionAction's other than NoOp
@@ -33,14 +35,14 @@ main_switch_case_0@3:
     callsub increment_counter
     // match/counter.py:12
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 main_switch_case_default@4:
     // match/counter.py:14-15
     // # reject all OnCompletionAction's other than NoOp
     // return False
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 
@@ -52,14 +54,14 @@ increment_counter:
     proto 0 0
     // match/counter.py:22
     // self.counter += 1
-    pushint 0 // 0
-    pushbytes "counter"
+    intc_0 // 0
+    bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    pushint 1 // 1
+    intc_1 // 1
     +
-    pushbytes "counter"
-    uncover 1
+    bytec_0 // "counter"
+    swap
     app_global_put
     retsub
 
@@ -71,7 +73,7 @@ __init__:
     proto 0 0
     // match/counter.py:6
     // self.counter = algopy.UInt64(0)
-    pushbytes "counter"
-    pushint 0 // 0
+    bytec_0 // "counter"
+    intc_0 // 0
     app_global_put
     retsub

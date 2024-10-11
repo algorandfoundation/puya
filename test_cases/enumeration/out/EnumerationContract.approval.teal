@@ -2,22 +2,21 @@
 
 test_cases.enumeration.contract.EnumerationContract.approval_program:
     intcblock 1 0 3 21
-    bytecblock 0x
     // enumeration/contract.py:6
     // iteration_count, item_sum, index_sum = enumerate_urange(UInt64(10), UInt64(21), UInt64(5))
     pushint 10 // 10
     intc_3 // 21
     pushint 5 // 5
     callsub enumerate_urange
-    cover 2
-    swap
     // enumeration/contract.py:8
     // assert iteration_count == 6
+    uncover 2
     pushint 6 // 6
     ==
     assert
     // enumeration/contract.py:9
     // assert item_sum == 90
+    swap
     pushint 90 // 90
     ==
     assert
@@ -34,15 +33,15 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     //     (Bytes(b"How"), Bytes(b"Now"), Bytes(b"Brown"), Bytes(b"Cow"))
     // )
     callsub enumerate_tuple
-    cover 2
-    swap
     // enumeration/contract.py:16
     // assert iteration_count == 8
+    uncover 2
     pushint 8 // 8
     ==
     assert
     // enumeration/contract.py:17
     // assert item_concat == Bytes(b"HowNowBrownCowHowNowBrownCow")
+    swap
     pushbytes 0x486f774e6f7742726f776e436f77486f774e6f7742726f776e436f77
     ==
     assert
@@ -55,15 +54,15 @@ test_cases.enumeration.contract.EnumerationContract.approval_program:
     // iteration_count, item_concat, index_sum = enumerate_bytes(Bytes(b"abcdefg"))
     pushbytes 0x61626364656667
     callsub enumerate_bytes
-    cover 2
-    swap
     // enumeration/contract.py:22
     // assert iteration_count == 14
+    uncover 2
     pushint 14 // 14
     ==
     assert
     // enumeration/contract.py:23
     // assert item_concat == Bytes(b"abcdefgabcdefg")
+    swap
     pushbytes 0x6162636465666761626364656667
     ==
     assert
@@ -84,7 +83,7 @@ enumerate_urange:
     // @subroutine
     // def enumerate_urange(start: UInt64, stop: UInt64, step: UInt64) -> tuple[UInt64, UInt64, UInt64]:
     proto 3 3
-    bytec_0 // ""
+    pushbytes ""
     // enumeration/contract.py:34
     // iteration_count = UInt64(0)
     intc_1 // 0
@@ -196,7 +195,7 @@ enumerate_tuple:
     intc_1 // 0
     // enumeration/contract.py:53
     // item_concat = Bytes(b"")
-    bytec_0 // 0x
+    pushbytes 0x
     // enumeration/contract.py:54
     // index_sum = UInt64(0)
     intc_1 // 0
@@ -297,16 +296,14 @@ enumerate_bytes:
     // @subroutine
     // def enumerate_bytes(bytes_: Bytes) -> tuple[UInt64, Bytes, UInt64]:
     proto 1 3
-    bytec_0 // ""
+    pushbytes ""
     // enumeration/contract.py:69
     // iteration_count = UInt64(0)
     intc_1 // 0
-    // enumeration/contract.py:70
+    // enumeration/contract.py:70-71
     // item_concat = Bytes(b"")
-    bytec_0 // 0x
-    // enumeration/contract.py:71
     // index_sum = UInt64(0)
-    intc_1 // 0
+    dup2
     // enumeration/contract.py:73
     // for item in bytes_:
     frame_dig -1

@@ -1,43 +1,50 @@
-// Op                                   // Op Description                                          Stack (out)                                    Source code                                    Source line
-
-#pragma version 10
-
+// Op                                    Stack (out)
 // test_cases.everything.contract.Everything.clear_state_program() -> uint64:
 main_block@0:
-    callsub _remove_sender              //                                                                                                        self._remove_sender()                          everything/contract.py:74
-    int 1                               //                                                         1                                              True                                           everything/contract.py:75
-    return                              //                                                                                                        return True                                    everything/contract.py:75
+    // everything/contract.py:74
+    // self._remove_sender()
+    callsub _remove_sender
+    // everything/contract.py:75
+    // return True
+    int 1                                1
+    return
 
 
 // test_cases.everything.contract.Everything._remove_sender() -> void:
 _remove_sender:
-    proto 0 0                           //                                                                                                        @subroutine\ndef _remove_sender(self) -> None: everything/contract.py:81-82
+    // everything/contract.py:81-82
+    // @subroutine
+    // def _remove_sender(self) -> None:
+    proto 0 0
 
 _remove_sender_block@0:
-    int 0                               //                                                         0                                              self.counter                                   everything/contract.py:83
-    byte "counter"                      //                                                         0,"counter"                                    self.counter                                   everything/contract.py:83
-    app_global_get_ex                   //                                                         {app_global_get_ex}.0,{app_global_get_ex}.1    self.counter                                   everything/contract.py:83
-                                        // virtual: store maybe_exists%0#0 to l-stack (no copy)    maybe_exists%0#0,{app_global_get_ex}.0         self.counter                                   everything/contract.py:83
-                                        // virtual: store maybe_value%0#0 to l-stack (no copy)     maybe_value%0#0,maybe_exists%0#0               self.counter                                   everything/contract.py:83
-                                        // virtual: load maybe_exists%0#0 from l-stack (no copy)   maybe_value%0#0,maybe_exists%0#0               self.counter                                   everything/contract.py:83
-    assert // check self.counter exists //                                                         maybe_value%0#0                                self.counter                                   everything/contract.py:83
-    callsub positive_one                //                                                         maybe_value%0#0,{positive_one}                 positive_one()                                 everything/contract.py:83
-                                        // virtual: store tmp%0#0 to l-stack (no copy)             maybe_value%0#0,tmp%0#0                        positive_one()                                 everything/contract.py:83
-                                        // virtual: load maybe_value%0#0 from l-stack (no copy)    tmp%0#0,maybe_value%0#0                        self.counter -= positive_one()                 everything/contract.py:83
-                                        // virtual: load tmp%0#0 from l-stack (no copy)            maybe_value%0#0,tmp%0#0                        self.counter -= positive_one()                 everything/contract.py:83
-    -                                   //                                                         {-}                                            self.counter -= positive_one()                 everything/contract.py:83
-                                        // virtual: store new_state_value%0#0 to l-stack (no copy) new_state_value%0#0                            self.counter -= positive_one()                 everything/contract.py:83
-    byte "counter"                      //                                                         new_state_value%0#0,"counter"                  self.counter                                   everything/contract.py:83
-    uncover 1                           // load new_state_value%0#0 from l-stack (no copy)         "counter",new_state_value%0#0                  self.counter -= positive_one()                 everything/contract.py:83
-    app_global_put                      //                                                                                                        self.counter -= positive_one()                 everything/contract.py:83
-    retsub                              //
+    // everything/contract.py:83
+    // self.counter -= positive_one()
+    int 0                                0
+    byte "counter"                       0,"counter"
+    app_global_get_ex                    maybe_value%0#0,maybe_exists%0#0
+    assert // check self.counter exists  maybe_value%0#0
+    callsub positive_one                 maybe_value%0#0,tmp%0#0
+    l-load maybe_value%0#0 1             tmp%0#0,maybe_value%0#0
+    l-load tmp%0#0 1                     maybe_value%0#0,tmp%0#0
+    -                                    new_state_value%0#0
+    byte "counter"                       new_state_value%0#0,"counter"
+    l-load new_state_value%0#0 1         "counter",new_state_value%0#0
+    app_global_put
+    retsub
 
 
 // test_cases.everything.contract.positive_one() -> uint64:
 positive_one:
-    proto 0 1                           //                                                                                                        @subroutine\ndef positive_one() -> UInt64:     everything/contract.py:86-87
+    // everything/contract.py:86-87
+    // @subroutine
+    // def positive_one() -> UInt64:
+    proto 0 1
 
 positive_one_block@0:
-    int 1                               //                                                         1                                              UInt64(1)                                      everything/contract.py:88
-    retsub                              //                                                         1                                              return UInt64(1)                               everything/contract.py:88
+    // everything/contract.py:88
+    // return UInt64(1)
+    int 1                                1
+    retsub                               1
+
 

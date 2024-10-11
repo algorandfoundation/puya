@@ -123,9 +123,7 @@ test1:
     // asset1_txn = asset_params.submit()
     itxn_submit
     itxn ConfigAssetName
-    cover 2
     itxn CreatedAssetID
-    cover 3
     // inner_transactions/contract.py:57
     // asset_name=self.name,
     intc_0 // 0
@@ -135,9 +133,9 @@ test1:
     // inner_transactions/contract.py:60
     // asset2_txn = asset_params.submit()
     itxn_begin
-    dig 1
+    dig 3
     itxn_field ConfigAssetReserve
-    dig 2
+    dig 4
     itxn_field ConfigAssetManager
     // inner_transactions/contract.py:49
     // decimals=3,
@@ -161,22 +159,23 @@ test1:
     // inner_transactions/contract.py:60
     // asset2_txn = asset_params.submit()
     itxn_submit
-    itxn CreatedAssetID
     itxn ConfigAssetName
+    itxn CreatedAssetID
     // inner_transactions/contract.py:62
     // assert asset1_txn.asset_name == b"AST1", "asset1_txn is correct"
-    uncover 4
+    uncover 3
     bytec 6 // 0x41535431
     ==
     assert // asset1_txn is correct
     // inner_transactions/contract.py:63
     // assert asset2_txn.asset_name == b"AST2", "asset2_txn is correct"
+    swap
     bytec 7 // 0x41535432
     ==
     assert // asset2_txn is correct
     // inner_transactions/contract.py:65
     // assert asset1_txn.created_asset.name == b"AST1", "created asset 1 is correct"
-    uncover 3
+    swap
     asset_params_get AssetName
     assert // asset exists
     bytec 6 // 0x41535431
@@ -1102,9 +1101,8 @@ test4:
     // app_1 = app_p_1.submit()
     itxn_submit
     itxn NumApprovalProgramPages
-    itxn ExtraProgramPages
     itxn NumClearStateProgramPages
-    cover 3
+    itxn ExtraProgramPages
     // inner_transactions/contract.py:246
     // assert app_1.extra_program_pages == 3, "extra_pages == 3"
     intc_3 // 3
@@ -1112,22 +1110,21 @@ test4:
     assert // extra_pages == 3
     // inner_transactions/contract.py:247
     // assert app_1.num_approval_program_pages == 2, "approval_pages == 2"
+    swap
     pushint 2 // 2
     ==
     assert // approval_pages == 2
     // inner_transactions/contract.py:249
     // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
     itxna ApprovalProgramPages 0
-    swap
     // inner_transactions/contract.py:229
     // approval_1 = Bytes(ALWAYS_APPROVE)
     bytec_0 // 0x098101
     // inner_transactions/contract.py:249
     // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
-    dig 1
+    dig 3
     concat
-    swap
-    dup
+    dig 3
     len
     intc_3 // 3
     dig 1
@@ -1139,14 +1136,14 @@ test4:
     dig 1
     swap
     -
-    dig 2
+    dig 5
     intc_0 // 0
     dig 2
     substring3
-    uncover 4
+    uncover 3
     swap
     concat
-    uncover 4
+    uncover 3
     ==
     // inner_transactions/contract.py:248-250
     // assert (
@@ -1156,11 +1153,11 @@ test4:
     // inner_transactions/contract.py:252
     // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
     itxna ApprovalProgramPages 1
-    dig 3
+    dig 4
     uncover 2
     uncover 3
     substring3
-    uncover 2
+    uncover 3
     concat
     ==
     // inner_transactions/contract.py:251-253

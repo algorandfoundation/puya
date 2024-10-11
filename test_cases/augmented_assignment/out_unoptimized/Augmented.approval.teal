@@ -1,7 +1,9 @@
 #pragma version 10
 
 test_cases.augmented_assignment.contract.Augmented.approval_program:
-    pushint 0 // 0
+    intcblock 0 1
+    bytecblock "my_uint" "my_bytes" "global_uint" "global_bytes"
+    intc_0 // 0
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -14,20 +16,18 @@ main_entrypoint@2:
     // augmented_assignment/contract.py:22
     // if op.Txn.on_completion == OnCompleteAction.OptIn:
     txn OnCompletion
-    pushint 1 // OptIn
+    intc_1 // OptIn
     ==
     bz main_after_if_else@4
     // augmented_assignment/contract.py:23
     // self.my_uint[me] = UInt64(0)
-    dig 0
-    dup
-    cover 1
-    pushbytes "my_uint"
-    pushint 0 // 0
+    dupn 2
+    bytec_0 // "my_uint"
+    intc_0 // 0
     app_local_put
     // augmented_assignment/contract.py:24
     // self.my_bytes[me] = Bytes(b"")
-    pushbytes "my_bytes"
+    bytec_1 // "my_bytes"
     pushbytes 0x
     app_local_put
 
@@ -42,67 +42,65 @@ main_after_if_else@4:
     txn NumAppArgs
     // augmented_assignment/contract.py:28
     // bytes_to_add = BigUInt(n).bytes
-    dig 0
+    dup
     itob
-    cover 1
+    swap
     // augmented_assignment/contract.py:30-32
     // # local augmented assignment
     // # this works, but need to silence mypy
     // self.my_uint[me] += n
     dig 2
     dup
-    cover 1
-    pushint 0 // 0
-    pushbytes "my_uint"
+    intc_0 // 0
+    bytec_0 // "my_uint"
     app_local_get_ex
     assert // check self.my_uint exists for account
     dig 2
     +
     dig 1
-    pushbytes "my_uint"
+    bytec_0 // "my_uint"
     uncover 2
     app_local_put
     // augmented_assignment/contract.py:33
     // self.my_bytes[me] += bytes_to_add
-    dig 0
-    pushint 0 // 0
-    pushbytes "my_bytes"
+    dup
+    intc_0 // 0
+    bytec_1 // "my_bytes"
     app_local_get_ex
     assert // check self.my_bytes exists for account
     dig 3
     concat
-    uncover 1
-    pushbytes "my_bytes"
+    swap
+    bytec_1 // "my_bytes"
     uncover 2
     app_local_put
     // augmented_assignment/contract.py:35-36
     // # global augmented assignment
     // self.global_uint += n
-    pushint 0 // 0
-    pushbytes "global_uint"
+    intc_0 // 0
+    bytec_2 // "global_uint"
     app_global_get_ex
     assert // check self.global_uint exists
-    uncover 1
     +
-    pushbytes "global_uint"
-    uncover 1
+    bytec_2 // "global_uint"
+    swap
     app_global_put
     // augmented_assignment/contract.py:37
     // self.global_bytes += bytes_to_add
-    pushint 0 // 0
-    pushbytes "global_bytes"
+    intc_0 // 0
+    bytec_3 // "global_bytes"
     app_global_get_ex
     assert // check self.global_bytes exists
-    uncover 1
+    swap
     concat
-    pushbytes "global_bytes"
-    uncover 1
+    bytec_3 // "global_bytes"
+    swap
     app_global_put
 
 main_after_if_else@6:
     // augmented_assignment/contract.py:38
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -113,12 +111,12 @@ __init__:
     proto 0 0
     // augmented_assignment/contract.py:16
     // self.global_uint = UInt64(0)
-    pushbytes "global_uint"
-    pushint 0 // 0
+    bytec_2 // "global_uint"
+    intc_0 // 0
     app_global_put
     // augmented_assignment/contract.py:17
     // self.global_bytes = Bytes(b"")
-    pushbytes "global_bytes"
+    bytec_3 // "global_bytes"
     pushbytes 0x
     app_global_put
     retsub

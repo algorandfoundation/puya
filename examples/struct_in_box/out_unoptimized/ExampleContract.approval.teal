@@ -1,6 +1,7 @@
 #pragma version 10
 
 examples.struct_in_box.contract.ExampleContract.approval_program:
+    intcblock 0 1 2 8
     callsub __puya_arc4_router__
     return
 
@@ -11,7 +12,7 @@ __puya_arc4_router__:
     // class ExampleContract(ARC4Contract):
     proto 0 1
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
@@ -26,11 +27,11 @@ __puya_arc4_router___add_user_route@2:
     // struct_in_box/contract.py:31
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // struct_in_box/contract.py:10
@@ -39,18 +40,18 @@ __puya_arc4_router___add_user_route@2:
     // struct_in_box/contract.py:31
     // @arc4.abimethod()
     callsub add_user
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___attach_asset_to_user_route@3:
     // struct_in_box/contract.py:36
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // struct_in_box/contract.py:10
@@ -62,18 +63,18 @@ __puya_arc4_router___attach_asset_to_user_route@3:
     // struct_in_box/contract.py:36
     // @arc4.abimethod()
     callsub attach_asset_to_user
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___get_user_route@4:
     // struct_in_box/contract.py:42
     // @arc4.abimethod()
     txn OnCompletion
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     !=
     assert // is not creating
     // struct_in_box/contract.py:10
@@ -83,10 +84,10 @@ __puya_arc4_router___get_user_route@4:
     // @arc4.abimethod()
     callsub get_user
     pushbytes 0x151f7c75
-    uncover 1
+    swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -96,8 +97,8 @@ __puya_arc4_router___bare_routing@7:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn OnCompletion
-    pushint 0 // 0
-    uncover 1
+    intc_0 // 0
+    swap
     match __puya_arc4_router_____algopy_default_create@8
     b __puya_arc4_router___switch_case_default@9
 
@@ -105,11 +106,11 @@ __puya_arc4_router_____algopy_default_create@8:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     assert // is creating
     callsub __algopy_default_create
-    pushint 1 // 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@9:
@@ -117,7 +118,7 @@ __puya_arc4_router___switch_case_default@9:
 __puya_arc4_router___after_if_else@11:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     retsub
 
 
@@ -130,8 +131,8 @@ add_user:
     // struct_in_box/contract.py:33
     // assert not self.box_exists(user.id), "User with id must not exist"
     frame_dig -1
-    pushint 2 // 2
-    pushint 8 // 8
+    intc_2 // 2
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
     callsub box_exists
     !
@@ -154,8 +155,7 @@ box_exists:
     // _data, exists = op.Box.get(user_id.bytes)
     frame_dig -1
     box_get
-    cover 1
-    pop
+    bury 1
     // struct_in_box/contract.py:29
     // return exists
     retsub
@@ -170,13 +170,13 @@ write_to_box:
     // struct_in_box/contract.py:20
     // box_key = user.id.bytes
     frame_dig -1
-    pushint 2 // 2
-    pushint 8 // 8
+    intc_2 // 2
+    intc_3 // 8
     extract3 // on error: Index access is out of bounds
     // struct_in_box/contract.py:21-22
     // # Delete existing data, so we don't have to worry about resizing the box
     // op.Box.delete(box_key)
-    dig 0
+    dup
     box_del
     pop
     // struct_in_box/contract.py:24
@@ -201,7 +201,7 @@ attach_asset_to_user:
     // user.asset = arc4.UInt64(asset.id)
     frame_dig -1
     itob
-    uncover 1
+    swap
     pushint 10 // 10
     uncover 2
     replace3

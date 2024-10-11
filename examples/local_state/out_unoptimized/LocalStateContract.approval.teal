@@ -1,7 +1,9 @@
 #pragma version 10
 
 examples.local_state.local_state_contract.LocalStateContract.approval_program:
-    pushint 0 // 0
+    intcblock 0 1
+    bytecblock 0x6c6f63616c
+    intc_0 // 0
     pushbytes ""
     txn ApplicationID
     bnz main_entrypoint@2
@@ -11,12 +13,12 @@ main_entrypoint@2:
     // local_state/local_state_contract.py:21
     // if Txn.application_id == 0:
     txn ApplicationID
-    pushint 0 // 0
+    intc_0 // 0
     ==
     bz main_after_if_else@4
     // local_state/local_state_contract.py:22
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 main_after_if_else@4:
@@ -24,30 +26,29 @@ main_after_if_else@4:
     // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
-    cover 1
     bury 2
-    pushint 0 // NoOp
+    intc_0 // NoOp
     ==
     bnz main_after_if_else@7
-    dig 0
-    pushint 1 // OptIn
+    dup
+    intc_1 // OptIn
     ==
     bnz main_after_if_else@7
     // local_state/local_state_contract.py:24
     // return False
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_after_if_else@7:
     // local_state/local_state_contract.py:25
     // if Txn.num_app_args == 0:
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     ==
     bz main_after_if_else@9
     // local_state/local_state_contract.py:26
     // return False
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_after_if_else@9:
@@ -58,7 +59,7 @@ main_after_if_else@9:
     // local_state/local_state_contract.py:29
     // if Txn.num_app_args == 1:
     txn NumAppArgs
-    pushint 1 // 1
+    intc_1 // 1
     ==
     bz main_else_body@20
     // local_state/local_state_contract.py:30
@@ -108,7 +109,7 @@ main_else_body@14:
 main_else_body@16:
     // local_state/local_state_contract.py:38
     // return False
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_after_if_else@17:
@@ -118,7 +119,7 @@ main_after_if_else@18:
 main_after_if_else@19:
     // local_state/local_state_contract.py:39
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 main_else_body@20:
@@ -159,7 +160,7 @@ main_else_body@23:
 main_else_body@25:
     // local_state/local_state_contract.py:46
     // return False
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_after_if_else@26:
@@ -167,13 +168,13 @@ main_after_if_else@26:
 main_after_if_else@27:
     // local_state/local_state_contract.py:47
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 main_else_body@28:
     // local_state/local_state_contract.py:49
     // return False
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 
@@ -186,16 +187,16 @@ get_guaranteed_data:
     // local_state/local_state_contract.py:56
     // result = self.local[for_account]
     frame_dig -1
-    pushint 0 // 0
-    pushbytes "local"
+    intc_0 // 0
+    bytec_0 // "local"
     app_local_get_ex
     assert // check self.local exists for account
     // local_state/local_state_contract.py:57-58
     // # this just tests local state proxy can be passed around
     // assert result.length == get_local_state_length(self.local, for_account)
-    dig 0
+    dup
     len
-    pushbytes "local"
+    bytec_0 // "local"
     frame_dig -1
     callsub get_local_state_length
     ==
@@ -204,13 +205,13 @@ get_guaranteed_data:
     // # tests for dynamic key
     // assert local_bytes_exists(for_account, Bytes(b"local"))
     frame_dig -1
-    pushbytes 0x6c6f63616c
+    bytec_0 // 0x6c6f63616c
     callsub local_bytes_exists
     assert
     // local_state/local_state_contract.py:61
     // assert read_local_bytes(for_account, String("local")) == result
     frame_dig -1
-    pushbytes "local"
+    bytec_0 // "local"
     callsub read_local_bytes
     dig 1
     ==
@@ -229,7 +230,7 @@ get_local_state_length:
     // local_state/local_state_contract.py:85
     // return state[account].length
     frame_dig -1
-    pushint 0 // 0
+    intc_0 // 0
     frame_dig -2
     app_local_get_ex
     assert // check LocalState exists for account
@@ -246,11 +247,10 @@ local_bytes_exists:
     // local_state/local_state_contract.py:90
     // return account in LocalState(Bytes, key=key)
     frame_dig -2
-    pushint 0 // 0
+    intc_0 // 0
     frame_dig -1
     app_local_get_ex
-    cover 1
-    pop
+    bury 1
     retsub
 
 
@@ -263,7 +263,7 @@ read_local_bytes:
     // local_state/local_state_contract.py:95
     // return LocalState(Bytes, key=key)[account]
     frame_dig -2
-    pushint 0 // 0
+    intc_0 // 0
     frame_dig -1
     app_local_get_ex
     assert // check LocalState exists for account
@@ -279,8 +279,8 @@ get_data_or_assert:
     // local_state/local_state_contract.py:70
     // result, exists = self.local.maybe(for_account)
     frame_dig -1
-    pushint 0 // 0
-    pushbytes "local"
+    intc_0 // 0
+    bytec_0 // "local"
     app_local_get_ex
     // local_state/local_state_contract.py:71
     // assert exists, "no data for account"
@@ -299,7 +299,7 @@ delete_data:
     // local_state/local_state_contract.py:80
     // del self.local[for_account]
     frame_dig -1
-    pushbytes "local"
+    bytec_0 // "local"
     app_local_del
     retsub
 
@@ -313,7 +313,7 @@ set_data:
     // local_state/local_state_contract.py:76
     // self.local[for_account] = value
     frame_dig -2
-    pushbytes "local"
+    bytec_0 // "local"
     frame_dig -1
     app_local_put
     retsub
@@ -328,12 +328,12 @@ get_data_with_default:
     // local_state/local_state_contract.py:66
     // return self.local.get(for_account, default)
     frame_dig -2
-    pushint 0 // 0
-    pushbytes "local"
+    intc_0 // 0
+    bytec_0 // "local"
     app_local_get_ex
-    cover 1
+    swap
     frame_dig -1
-    uncover 1
+    swap
     uncover 2
     select
     retsub

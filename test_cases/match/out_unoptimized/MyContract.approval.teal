@@ -1,14 +1,16 @@
 #pragma version 10
 
 test_cases.match.contract.MyContract.approval_program:
+    intcblock 0 1
+    bytecblock "case_one" "case_two" 0x0a 0x
     // match/contract.py:6
     // self.case_one = algopy.UInt64(1)
-    pushbytes "case_one"
-    pushint 1 // 1
+    bytec_0 // "case_one"
+    intc_1 // 1
     app_global_put
     // match/contract.py:7
     // self.case_two = algopy.UInt64(2)
-    pushbytes "case_two"
+    bytec_1 // "case_two"
     pushint 2 // 2
     app_global_put
     // match/contract.py:8
@@ -31,7 +33,7 @@ test_cases.match.contract.MyContract.approval_program:
     callsub match_bools
     // match/contract.py:14
     // return True
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -46,7 +48,7 @@ match_uint64:
     txn NumAppArgs
     // match/contract.py:20
     // case 0:
-    pushint 0 // 0
+    intc_0 // 0
     // match/contract.py:23
     // case algopy.UInt64(10):
     pushint 10 // 10
@@ -96,14 +98,14 @@ match_biguint:
     // n = algopy.op.Txn.num_app_args * algopy.BigUInt(10)
     txn NumAppArgs
     itob
-    pushbytes 0x0a
+    bytec_2 // 0x0a
     b*
     // match/contract.py:42
     // case algopy.BigUInt(0):
-    pushbytes 0x
+    bytec_3 // 0x
     // match/contract.py:45
     // case algopy.BigUInt(10):
-    pushbytes 0x0a
+    bytec_2 // 0x0a
     // match/contract.py:41-47
     // match n:
     //     case algopy.BigUInt(0):
@@ -151,7 +153,7 @@ match_bytes:
     txna ApplicationArgs 0
     // match/contract.py:31
     // case algopy.Bytes(b""):
-    pushbytes 0x
+    bytec_3 // 0x
     // match/contract.py:34
     // case algopy.Bytes(b"10"):
     pushbytes 0x3130
@@ -253,14 +255,14 @@ match_attributes:
     txn NumAppArgs
     // match/contract.py:64
     // case self.case_one:
-    pushint 0 // 0
-    pushbytes "case_one"
+    intc_0 // 0
+    bytec_0 // "case_one"
     app_global_get_ex
     assert // check self.case_one exists
     // match/contract.py:67
     // case self.case_two:
-    pushint 0 // 0
-    pushbytes "case_two"
+    intc_0 // 0
+    bytec_1 // "case_two"
     app_global_get_ex
     assert // check self.case_two exists
     // match/contract.py:63-72
@@ -320,14 +322,14 @@ match_bools:
     // match/contract.py:76
     // n = algopy.op.Txn.num_app_args > 0
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     >
     // match/contract.py:78
     // case True:
-    pushint 1 // 1
+    intc_1 // 1
     // match/contract.py:81
     // case False:
-    pushint 0 // 0
+    intc_0 // 0
     // match/contract.py:77-83
     // match n:
     //     case True:

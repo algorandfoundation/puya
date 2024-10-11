@@ -21,26 +21,22 @@ mutating_copies:
     assert // my_array should be mutated
     bytec_3 // 0x80320006000d00054861707079000444617973
     callsub other_routine
-    cover 3
-    cover 2
-    swap
+    uncover 3
     assert
+    uncover 2
     !
     assert
-    dup
+    dig 1
     extract 1 1 // on error: Index access is out of bounds
     bytec_0 // 0x05
     b==
     assert // my_array has been mutated by the subroutine
-    dig 1
+    dup
     intc_1 // 2
     extract_uint16
-    swap
-    dig 2
+    dig 1
     intc_2 // 4
     extract_uint16
-    swap
-    cover 3
     substring3
     bytec 4 // 0x000741415252474821
     ==
@@ -105,13 +101,12 @@ other_routine:
     swap
     uncover 2
     -
-    swap
-    dup
+    dig 1
     intc_2 // 4
     extract_uint16
     pushint 9 // 9
     +
-    uncover 2
+    swap
     -
     itob
     extract 6 2

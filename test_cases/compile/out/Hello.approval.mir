@@ -1,191 +1,175 @@
-// Op                                                                                                                // Op Description                                         Stack (out)                                                                                  Source code                                                                      Source line
-
-#pragma version 10
-
+// Op                                                              Stack (out)
 // test_cases.compile.apps.Hello.approval_program() -> uint64:
 main_block@0:
-    txn ApplicationID                                                                                                //                                                        {txn}
-                                                                                                                     // virtual: store app_id%0#0 to l-stack (no copy)         app_id%0#0
-                                                                                                                     // virtual: load app_id%0#0 from l-stack (no copy)        app_id%0#0
-    bnz main_entrypoint@2                                                                                            //
-    // Implicit fall through to main_on_create@1                                                                     //
+    txn ApplicationID                                              app_id%0#0
+    bnz main_entrypoint@2
+    // Implicit fall through to main_on_create@1
 
 main_on_create@1:
-    callsub __init__                                                                                                 //
-    // Implicit fall through to main_entrypoint@2                                                                    //
+    callsub __init__
+    // Implicit fall through to main_entrypoint@2
 
 main_entrypoint@2:
-    callsub __puya_arc4_router__                                                                                     //                                                        {__puya_arc4_router__}                                                                                                                                                        INTERNAL:1
-                                                                                                                     // virtual: store tmp%0#0 to l-stack (no copy)            tmp%0#0                                                                                                                                                                       INTERNAL:1
-                                                                                                                     // virtual: load tmp%0#0 from l-stack (no copy)           tmp%0#0                                                                                                                                                                       INTERNAL:1
-    return                                                                                                           //                                                                                                                                                                                                                                      INTERNAL:1
+    callsub __puya_arc4_router__                                   tmp%0#0
+    return
 
 
 // test_cases.compile.apps.Hello.__puya_arc4_router__() -> uint64:
 __puya_arc4_router__:
-    proto 0 1                                                                                                        //                                                                                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    proto 0 1
 
 __puya_arc4_router___block@0:
-    txn NumAppArgs                                                                                                   //                                                        {txn}                                                                                        class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%0#0 to l-stack (no copy)            tmp%0#0                                                                                      class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: load tmp%0#0 from l-stack (no copy)           tmp%0#0                                                                                      class Hello(HelloBase):                                                          compile/apps.py:54
-    bz __puya_arc4_router___bare_routing@7                                                                           //                                                                                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-    // Implicit fall through to __puya_arc4_router___abi_routing@1                                                   //                                                                                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    txn NumAppArgs                                                 tmp%0#0
+    bz __puya_arc4_router___bare_routing@7
+    // Implicit fall through to __puya_arc4_router___abi_routing@1
 
 __puya_arc4_router___abi_routing@1:
-    txna ApplicationArgs 0                                                                                           //                                                        {txna}                                                                                       class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%2#0 to l-stack (no copy)            tmp%2#0                                                                                      class Hello(HelloBase):                                                          compile/apps.py:54
-    method "create(string)void"                                                                                      //                                                        tmp%2#0,method<"create(string)void">                                                         class Hello(HelloBase):                                                          compile/apps.py:54
-    method "delete()void"                                                                                            //                                                        tmp%2#0,method<"create(string)void">,method<"delete()void">                                  class Hello(HelloBase):                                                          compile/apps.py:54
-    method "greet(string)string"                                                                                     //                                                        tmp%2#0,method<"create(string)void">,method<"delete()void">,method<"greet(string)string">    class Hello(HelloBase):                                                          compile/apps.py:54
-    uncover 3                                                                                                        // load tmp%2#0 from l-stack (no copy)                    method<"create(string)void">,method<"delete()void">,method<"greet(string)string">,tmp%2#0    class Hello(HelloBase):                                                          compile/apps.py:54
-    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4 //                                                                                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-    int 0                                                                                                            //                                                        0                                                                                            class Hello(HelloBase):                                                          compile/apps.py:54
-    retsub                                                                                                           //                                                        0                                                                                            class Hello(HelloBase):                                                          compile/apps.py:54
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    txna ApplicationArgs 0                                         tmp%2#0
+    method create(string)void                                      tmp%2#0,Method(create(string)void)
+    method delete()void                                            tmp%2#0,Method(create(string)void),Method(delete()void)
+    method greet(string)string                                     tmp%2#0,Method(create(string)void),Method(delete()void),Method(greet(string)string)
+    l-load tmp%2#0 3                                               Method(create(string)void),Method(delete()void),Method(greet(string)string),tmp%2#0
+    match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4 
+    int 0                                                          0
+    retsub                                                         0
 
 __puya_arc4_router___create_route@2:
-    txn OnCompletion                                                                                                 //                                                        {txn}                                                                                        arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: store tmp%3#0 to l-stack (no copy)            tmp%3#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: load tmp%3#0 from l-stack (no copy)           tmp%3#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-    !                                                                                                                //                                                        {!}                                                                                          arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: store tmp%4#0 to l-stack (no copy)            tmp%4#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: load tmp%4#0 from l-stack (no copy)           tmp%4#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-    assert // OnCompletion is NoOp                                                                                   //                                                                                                                                                     arc4.abimethod(create="require")                                                 compile/apps.py:56
-    txn ApplicationID                                                                                                //                                                        {txn}                                                                                        arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: store tmp%5#0 to l-stack (no copy)            tmp%5#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: load tmp%5#0 from l-stack (no copy)           tmp%5#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-    !                                                                                                                //                                                        {!}                                                                                          arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: store tmp%6#0 to l-stack (no copy)            tmp%6#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-                                                                                                                     // virtual: load tmp%6#0 from l-stack (no copy)           tmp%6#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-    assert // is creating                                                                                            //                                                                                                                                                     arc4.abimethod(create="require")                                                 compile/apps.py:56
-    txna ApplicationArgs 1                                                                                           //                                                        {txna}                                                                                       class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%7#0 to l-stack (no copy)            tmp%7#0                                                                                      class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: load tmp%7#0 from l-stack (no copy)           tmp%7#0                                                                                      class Hello(HelloBase):                                                          compile/apps.py:54
-    extract 2 0                                                                                                      //                                                        {extract}                                                                                    class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%8#0 to l-stack (no copy)            tmp%8#0                                                                                      class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: load tmp%8#0 from l-stack (no copy)           tmp%8#0                                                                                      arc4.abimethod(create="require")                                                 compile/apps.py:56
-    callsub create                                                                                                   //                                                                                                                                                     arc4.abimethod(create="require")                                                 compile/apps.py:56
-    int 1                                                                                                            //                                                        1                                                                                            arc4.abimethod(create="require")                                                 compile/apps.py:56
-    retsub                                                                                                           //                                                        1                                                                                            arc4.abimethod(create="require")                                                 compile/apps.py:56
+    // compile/apps.py:56
+    // @arc4.abimethod(create="require")
+    txn OnCompletion                                               tmp%3#0
+    !                                                              tmp%4#0
+    assert // OnCompletion is NoOp
+    txn ApplicationID                                              tmp%5#0
+    !                                                              tmp%6#0
+    assert // is creating
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    txna ApplicationArgs 1                                         tmp%7#0
+    extract 2 0                                                    tmp%8#0
+    // compile/apps.py:56
+    // @arc4.abimethod(create="require")
+    callsub create
+    int 1                                                          1
+    retsub                                                         1
 
 __puya_arc4_router___delete_route@3:
-    txn OnCompletion                                                                                                 //                                                        {txn}                                                                                        arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-                                                                                                                     // virtual: store tmp%9#0 to l-stack (no copy)            tmp%9#0                                                                                      arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-                                                                                                                     // virtual: load tmp%9#0 from l-stack (no copy)           tmp%9#0                                                                                      arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    int DeleteApplication                                                                                            //                                                        tmp%9#0,DeleteApplication                                                                    arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    ==                                                                                                               //                                                        {==}                                                                                         arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-                                                                                                                     // virtual: store tmp%10#0 to l-stack (no copy)           tmp%10#0                                                                                     arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-                                                                                                                     // virtual: load tmp%10#0 from l-stack (no copy)          tmp%10#0                                                                                     arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    assert // OnCompletion is DeleteApplication                                                                      //                                                                                                                                                     arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    txn ApplicationID                                                                                                //                                                        {txn}                                                                                        arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-                                                                                                                     // virtual: store tmp%11#0 to l-stack (no copy)           tmp%11#0                                                                                     arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-                                                                                                                     // virtual: load tmp%11#0 from l-stack (no copy)          tmp%11#0                                                                                     arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    assert // is not creating                                                                                        //                                                                                                                                                     arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    int 1                                                                                                            //                                                        1                                                                                            arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
-    retsub                                                                                                           //                                                        1                                                                                            arc4.abimethod(allow_actions=["DeleteApplication"])                              compile/apps.py:25
+    // compile/apps.py:25
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion                                               tmp%9#0
+    int DeleteApplication                                          tmp%9#0,DeleteApplication
+    ==                                                             tmp%10#0
+    assert // OnCompletion is DeleteApplication
+    txn ApplicationID                                              tmp%11#0
+    assert // is not creating
+    int 1                                                          1
+    retsub                                                         1
 
 __puya_arc4_router___greet_route@4:
-    txn OnCompletion                                                                                                 //                                                        {txn}                                                                                        arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store tmp%13#0 to l-stack (no copy)           tmp%13#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load tmp%13#0 from l-stack (no copy)          tmp%13#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    !                                                                                                                //                                                        {!}                                                                                          arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store tmp%14#0 to l-stack (no copy)           tmp%14#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load tmp%14#0 from l-stack (no copy)          tmp%14#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    assert // OnCompletion is NoOp                                                                                   //                                                                                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    txn ApplicationID                                                                                                //                                                        {txn}                                                                                        arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store tmp%15#0 to l-stack (no copy)           tmp%15#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load tmp%15#0 from l-stack (no copy)          tmp%15#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    assert // is not creating                                                                                        //                                                                                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    txna ApplicationArgs 1                                                                                           //                                                        {txna}                                                                                       class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%17#0 to l-stack (no copy)           tmp%17#0                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: load tmp%17#0 from l-stack (no copy)          tmp%17#0                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-    extract 2 0                                                                                                      //                                                        {extract}                                                                                    class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%18#0 to l-stack (no copy)           tmp%18#0                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: load tmp%18#0 from l-stack (no copy)          tmp%18#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    callsub greet                                                                                                    //                                                        {greet}                                                                                      arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store to_encode%0#0 to l-stack (no copy)      to_encode%0#0                                                                                arc4.abimethod()                                                                 compile/apps.py:33
-    dig 0                                                                                                            // load to_encode%0#0 from l-stack (copy)                 to_encode%0#0,to_encode%0#0 (copy)                                                           arc4.abimethod()                                                                 compile/apps.py:33
-    len                                                                                                              //                                                        to_encode%0#0,{len}                                                                          arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store length%0#0 to l-stack (no copy)         to_encode%0#0,length%0#0                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load length%0#0 from l-stack (no copy)        to_encode%0#0,length%0#0                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    itob                                                                                                             //                                                        to_encode%0#0,{itob}                                                                         arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store as_bytes%0#0 to l-stack (no copy)       to_encode%0#0,as_bytes%0#0                                                                   arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load as_bytes%0#0 from l-stack (no copy)      to_encode%0#0,as_bytes%0#0                                                                   arc4.abimethod()                                                                 compile/apps.py:33
-    extract 6 2                                                                                                      //                                                        to_encode%0#0,{extract}                                                                      arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store length_uint16%0#0 to l-stack (no copy)  to_encode%0#0,length_uint16%0#0                                                              arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load length_uint16%0#0 from l-stack (no copy) to_encode%0#0,length_uint16%0#0                                                              arc4.abimethod()                                                                 compile/apps.py:33
-    uncover 1                                                                                                        // load to_encode%0#0 from l-stack (no copy)              length_uint16%0#0,to_encode%0#0                                                              arc4.abimethod()                                                                 compile/apps.py:33
-    concat                                                                                                           //                                                        {concat}                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store encoded_value%0#0 to l-stack (no copy)  encoded_value%0#0                                                                            arc4.abimethod()                                                                 compile/apps.py:33
-    byte 0x151f7c75                                                                                                  //                                                        encoded_value%0#0,0x151f7c75                                                                 arc4.abimethod()                                                                 compile/apps.py:33
-    uncover 1                                                                                                        // load encoded_value%0#0 from l-stack (no copy)          0x151f7c75,encoded_value%0#0                                                                 arc4.abimethod()                                                                 compile/apps.py:33
-    concat                                                                                                           //                                                        {concat}                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: store tmp%19#0 to l-stack (no copy)           tmp%19#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-                                                                                                                     // virtual: load tmp%19#0 from l-stack (no copy)          tmp%19#0                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    log                                                                                                              //                                                                                                                                                     arc4.abimethod()                                                                 compile/apps.py:33
-    int 1                                                                                                            //                                                        1                                                                                            arc4.abimethod()                                                                 compile/apps.py:33
-    retsub                                                                                                           //                                                        1                                                                                            arc4.abimethod()                                                                 compile/apps.py:33
+    // compile/apps.py:33
+    // @arc4.abimethod()
+    txn OnCompletion                                               tmp%13#0
+    !                                                              tmp%14#0
+    assert // OnCompletion is NoOp
+    txn ApplicationID                                              tmp%15#0
+    assert // is not creating
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    txna ApplicationArgs 1                                         tmp%17#0
+    extract 2 0                                                    tmp%18#0
+    // compile/apps.py:33
+    // @arc4.abimethod()
+    callsub greet                                                  to_encode%0#0
+    l-load-copy to_encode%0#0 0                                    to_encode%0#0,to_encode%0#0 (copy)
+    len                                                            to_encode%0#0,length%0#0
+    itob                                                           to_encode%0#0,as_bytes%0#0
+    extract 6 2                                                    to_encode%0#0,length_uint16%0#0
+    l-load to_encode%0#0 1                                         length_uint16%0#0,to_encode%0#0
+    concat                                                         encoded_value%0#0
+    byte 0x151f7c75                                                encoded_value%0#0,0x151f7c75
+    l-load encoded_value%0#0 1                                     0x151f7c75,encoded_value%0#0
+    concat                                                         tmp%19#0
+    log
+    int 1                                                          1
+    retsub                                                         1
 
 __puya_arc4_router___bare_routing@7:
-    txn OnCompletion                                                                                                 //                                                        {txn}                                                                                        class Hello(HelloBase):                                                          compile/apps.py:54
-                                                                                                                     // virtual: store tmp%20#0 to l-stack (no copy)           tmp%20#0                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-    int 4                                                                                                            //                                                        tmp%20#0,4                                                                                   class Hello(HelloBase):                                                          compile/apps.py:54
-    uncover 1                                                                                                        // load tmp%20#0 from l-stack (no copy)                   4,tmp%20#0                                                                                   class Hello(HelloBase):                                                          compile/apps.py:54
-    match __puya_arc4_router___update@8                                                                              //                                                                                                                                                     class Hello(HelloBase):                                                          compile/apps.py:54
-    int 0                                                                                                            //                                                        0                                                                                            class Hello(HelloBase):                                                          compile/apps.py:54
-    retsub                                                                                                           //                                                        0                                                                                            class Hello(HelloBase):                                                          compile/apps.py:54
+    // compile/apps.py:54
+    // class Hello(HelloBase):
+    txn OnCompletion                                               tmp%20#0
+    int 4                                                          tmp%20#0,4
+    l-load tmp%20#0 1                                              4,tmp%20#0
+    match __puya_arc4_router___update@8
+    int 0                                                          0
+    retsub                                                         0
 
 __puya_arc4_router___update@8:
-    txn ApplicationID                                                                                                //                                                        {txn}                                                                                        arc4.baremethod(allow_actions=["UpdateApplication"])                             compile/apps.py:29
-                                                                                                                     // virtual: store tmp%21#0 to l-stack (no copy)           tmp%21#0                                                                                     arc4.baremethod(allow_actions=["UpdateApplication"])                             compile/apps.py:29
-                                                                                                                     // virtual: load tmp%21#0 from l-stack (no copy)          tmp%21#0                                                                                     arc4.baremethod(allow_actions=["UpdateApplication"])                             compile/apps.py:29
-    assert // is not creating                                                                                        //                                                                                                                                                     arc4.baremethod(allow_actions=["UpdateApplication"])                             compile/apps.py:29
-    int 1                                                                                                            //                                                        1                                                                                            @arc4.baremethod(allow_actions=["UpdateApplication"])\ndef update(self) -> None: compile/apps.py:29-30
-    retsub                                                                                                           //                                                        1                                                                                            @arc4.baremethod(allow_actions=["UpdateApplication"])\ndef update(self) -> None: compile/apps.py:29-30
+    // compile/apps.py:29
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    txn ApplicationID                                              tmp%21#0
+    assert // is not creating
+    // compile/apps.py:29-30
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def update(self) -> None:
+    int 1                                                          1
+    retsub                                                         1
 
 
 // test_cases.compile.apps.Hello.create(greeting: bytes) -> void:
-create:
-    proto 1 0                                                                                                        //                                                        (𝕡) greeting#0 |                                                                             @arc4.abimethod(create="require")\ndef create(self, greeting: String) -> None:   compile/apps.py:56-57
+create:                                                            (𝕡) greeting#0 |
+    // compile/apps.py:56-57
+    // @arc4.abimethod(create="require")
+    // def create(self, greeting: String) -> None:
+    proto 1 0                                                      (𝕡) greeting#0 |
 
-create_block@0:
-    byte "greeting"                                                                                                  //                                                        (𝕡) greeting#0 | "greeting"                                                                  self.greeting                                                                    compile/apps.py:58
-    frame_dig -1                                                                                                     // load greeting#0 from parameters                        (𝕡) greeting#0 | "greeting",greeting#0 (copy)                                                self.greeting = greeting                                                         compile/apps.py:58
-    app_global_put                                                                                                   //                                                        (𝕡) greeting#0 |                                                                             self.greeting = greeting                                                         compile/apps.py:58
-    retsub                                                                                                           //
+create_block@0:                                                    (𝕡) greeting#0 |
+    // compile/apps.py:58
+    // self.greeting = greeting
+    byte "greeting"                                                (𝕡) greeting#0 | "greeting"
+    p-load greeting#0                                              (𝕡) greeting#0 | "greeting",greeting#0 (copy)
+    app_global_put                                                 (𝕡) greeting#0 |
+    retsub
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-greet:
-    proto 1 1                                                                                                        //                                                        (𝕡) name#0 |                                                                                 @arc4.abimethod()\ndef greet(self, name: String) -> String:                      compile/apps.py:33-34
+greet:                                                             (𝕡) name#0 |
+    // compile/apps.py:33-34
+    // @arc4.abimethod()
+    // def greet(self, name: String) -> String:
+    proto 1 1                                                      (𝕡) name#0 |
 
-greet_block@0:
-    int 0                                                                                                            //                                                        (𝕡) name#0 | 0                                                                               self.greeting                                                                    compile/apps.py:35
-    byte "greeting"                                                                                                  //                                                        (𝕡) name#0 | 0,"greeting"                                                                    self.greeting                                                                    compile/apps.py:35
-    app_global_get_ex                                                                                                //                                                        (𝕡) name#0 | {app_global_get_ex}.0,{app_global_get_ex}.1                                     self.greeting                                                                    compile/apps.py:35
-                                                                                                                     // virtual: store maybe_exists%0#0 to l-stack (no copy)   (𝕡) name#0 | maybe_exists%0#0,{app_global_get_ex}.0                                          self.greeting                                                                    compile/apps.py:35
-                                                                                                                     // virtual: store maybe_value%0#0 to l-stack (no copy)    (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0                                                self.greeting                                                                    compile/apps.py:35
-                                                                                                                     // virtual: load maybe_exists%0#0 from l-stack (no copy)  (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0                                                self.greeting                                                                    compile/apps.py:35
-    assert // check self.greeting exists                                                                             //                                                        (𝕡) name#0 | maybe_value%0#0                                                                 self.greeting                                                                    compile/apps.py:35
-                                                                                                                     // virtual: load maybe_value%0#0 from l-stack (no copy)   (𝕡) name#0 | maybe_value%0#0                                                                 self.greeting + " "                                                              compile/apps.py:35
-    byte " "                                                                                                         //                                                        (𝕡) name#0 | maybe_value%0#0," "                                                             " "                                                                              compile/apps.py:35
-    concat                                                                                                           //                                                        (𝕡) name#0 | {concat}                                                                        self.greeting + " "                                                              compile/apps.py:35
-                                                                                                                     // virtual: store tmp%0#0 to l-stack (no copy)            (𝕡) name#0 | tmp%0#0                                                                         self.greeting + " "                                                              compile/apps.py:35
-                                                                                                                     // virtual: load tmp%0#0 from l-stack (no copy)           (𝕡) name#0 | tmp%0#0                                                                         self.greeting + " " + name                                                       compile/apps.py:35
-    frame_dig -1                                                                                                     // load name#0 from parameters                            (𝕡) name#0 | tmp%0#0,name#0 (copy)                                                           self.greeting + " " + name                                                       compile/apps.py:35
-    concat                                                                                                           //                                                        (𝕡) name#0 | {concat}                                                                        self.greeting + " " + name                                                       compile/apps.py:35
-                                                                                                                     // virtual: store tmp%1#0 to l-stack (no copy)            (𝕡) name#0 | tmp%1#0                                                                         self.greeting + " " + name                                                       compile/apps.py:35
-                                                                                                                     // virtual: load tmp%1#0 from l-stack (no copy)           (𝕡) name#0 | tmp%1#0                                                                         return self.greeting + " " + name                                                compile/apps.py:35
-    retsub                                                                                                           //                                                        tmp%1#0                                                                                      return self.greeting + " " + name                                                compile/apps.py:35
+greet_block@0:                                                     (𝕡) name#0 |
+    // compile/apps.py:35
+    // return self.greeting + " " + name
+    int 0                                                          (𝕡) name#0 | 0
+    byte "greeting"                                                (𝕡) name#0 | 0,"greeting"
+    app_global_get_ex                                              (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
+    assert // check self.greeting exists                           (𝕡) name#0 | maybe_value%0#0
+    l-load maybe_value%0#0 0                                       (𝕡) name#0 | maybe_value%0#0
+    byte " "                                                       (𝕡) name#0 | maybe_value%0#0," "
+    concat                                                         (𝕡) name#0 | tmp%0#0
+    p-load name#0                                                  (𝕡) name#0 | tmp%0#0,name#0 (copy)
+    concat                                                         (𝕡) name#0 | tmp%1#0
+    retsub                                                         tmp%1#0
 
 
 // test_cases.compile.apps.HelloBase.__init__() -> void:
 __init__:
-    proto 0 0                                                                                                        //                                                                                                                                                     def __init__(self) -> None:                                                      compile/apps.py:22
+    // compile/apps.py:22
+    // def __init__(self) -> None:
+    proto 0 0
 
 __init___block@0:
-    byte "greeting"                                                                                                  //                                                        "greeting"                                                                                   self.greeting                                                                    compile/apps.py:23
-    byte ""                                                                                                          //                                                        "greeting",""                                                                                String()                                                                         compile/apps.py:23
-    app_global_put                                                                                                   //                                                                                                                                                     self.greeting = String()                                                         compile/apps.py:23
-    retsub                                                                                                           //
+    // compile/apps.py:23
+    // self.greeting = String()
+    byte "greeting"                                                "greeting"
+    byte ""                                                        "greeting",""
+    app_global_put
+    retsub
+
 

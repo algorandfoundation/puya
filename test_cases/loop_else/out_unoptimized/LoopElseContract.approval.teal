@@ -1,37 +1,37 @@
 #pragma version 10
 
 test_cases.loop_else.loop_else.LoopElseContract.approval_program:
-    pushbytes ""
-    pushbytes ""
-    pushbytes ""
+    intcblock 1 0 48
+    bytecblock ""
+    bytec_0 // ""
+    dupn 2
     // loop_else/loop_else.py:7
     // test_empty_loop(UInt64(0))
-    pushint 0 // 0
+    intc_1 // 0
     callsub test_empty_loop
     // loop_else/loop_else.py:9
     // arg_idx = UInt64(0)
-    pushint 0 // 0
+    intc_1 // 0
 
 main_while_top@1:
     // loop_else/loop_else.py:10
     // while arg_idx < Txn.num_app_args:
     txn NumAppArgs
     dig 1
-    uncover 1
-    <
+    >
     bz main_after_while@17
     // loop_else/loop_else.py:11
     // for i in urange(10):
-    pushint 1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    pushint 0 // 0
+    intc_1 // 0
     pushint 10 // 10
     <
     bz main_after_for@7
-    pushint 0 // 0
+    intc_1 // 0
     // loop_else/loop_else.py:12
     // if i == 0:
-    pushint 0 // 0
+    dup
     ==
     bz main_after_if_else@6
     // loop_else/loop_else.py:13
@@ -46,22 +46,22 @@ main_after_if_else@6:
 main_after_for@7:
     // loop_else/loop_else.py:15
     // if Txn.application_args(arg_idx) == b"while_secret":
-    dig 0
+    dup
     txnas ApplicationArgs
     pushbytes 0x7768696c655f736563726574
     ==
     bz main_after_if_else@16
     // loop_else/loop_else.py:16
     // secret_index = arg_idx
-    dig 0
+    dup
     bury 3
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     txn NumAccounts
     bury 2
-    pushint 1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    pushint 0 // 0
+    intc_1 // 0
     bury 4
 
 main_for_header@9:
@@ -88,7 +88,7 @@ main_after_if_else@12:
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 3
-    pushint 1 // 1
+    intc_0 // 1
     +
     bury 4
     b main_for_header@9
@@ -106,8 +106,8 @@ main_block@15:
 main_after_if_else@16:
     // loop_else/loop_else.py:24
     // arg_idx += 1
-    dig 0
-    pushint 1 // 1
+    dup
+    intc_0 // 1
     +
     bury 1
     b main_while_top@1
@@ -128,27 +128,26 @@ main_block@18:
     //     " and secret account at idx=",
     //     op.itob(account_index + 48)[-1],
     // )
-    pushbytes ""
+    bytec_0 // ""
     // loop_else/loop_else.py:29
     // op.itob(secret_index + 48)[-1],
     concat
     dig 3
     dup
-    cover 1
-    pushint 48 // 48
+    intc_2 // 48
     +
     itob
     len
-    pushint 1 // 1
+    intc_0 // 1
     -
-    uncover 1
-    pushint 48 // 48
+    swap
+    intc_2 // 48
     +
     itob
     dig 1
-    pushint 1 // 1
+    intc_0 // 1
     +
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
@@ -160,7 +159,7 @@ main_block@18:
     //     " and secret account at idx=",
     //     op.itob(account_index + 48)[-1],
     // )
-    pushbytes ""
+    bytec_0 // ""
     // loop_else/loop_else.py:30
     // " and secret account at idx=",
     concat
@@ -173,27 +172,26 @@ main_block@18:
     //     " and secret account at idx=",
     //     op.itob(account_index + 48)[-1],
     // )
-    pushbytes ""
+    bytec_0 // ""
     // loop_else/loop_else.py:31
     // op.itob(account_index + 48)[-1],
     concat
     dig 4
     dup
-    cover 1
-    pushint 48 // 48
+    intc_2 // 48
     +
     itob
     len
-    pushint 1 // 1
+    intc_0 // 1
     -
-    uncover 1
-    pushint 48 // 48
+    swap
+    intc_2 // 48
     +
     itob
     dig 1
-    pushint 1 // 1
+    intc_0 // 1
     +
-    uncover 1
+    swap
     uncover 2
     uncover 2
     substring3
@@ -208,7 +206,7 @@ main_block@18:
     log
     // loop_else/loop_else.py:33
     // return True
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -218,36 +216,34 @@ test_empty_loop:
     // @subroutine
     // def test_empty_loop(count: UInt64) -> None:
     proto 1 0
-    pushbytes ""
+    bytec_0 // ""
     // loop_else/loop_else.py:41
     // assert count == 0
     frame_dig -1
-    pushint 0 // 0
+    intc_1 // 0
     ==
     assert
     // loop_else/loop_else.py:42
     // result = UInt64(0)
-    pushint 0 // 0
+    intc_1 // 0
     // loop_else/loop_else.py:43
     // for i in reversed(urange(count)):
-    pushint 1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    pushint 0 // 0
+    intc_1 // 0
     frame_dig -1
     <
     bz test_empty_loop_after_for@7
     frame_dig -1
-    pushint 0 // 0
+    intc_1 // 0
     -
-    pushint 1 // 1
+    intc_0 // 1
     -
-    pushint 1 // 1
+    intc_0 // 1
     /
-    pushint 1 // 1
-    uncover 1
+    intc_0 // 1
     *
-    pushint 0 // 0
-    uncover 1
+    intc_1 // 0
     +
     frame_bury 0
 
@@ -255,7 +251,7 @@ test_empty_loop_for_body@2:
     // loop_else/loop_else.py:44
     // if i == 0:
     frame_dig 0
-    pushint 0 // 0
+    intc_1 // 0
     ==
     bz test_empty_loop_after_if_else@4
     // loop_else/loop_else.py:45
@@ -265,12 +261,12 @@ test_empty_loop_for_body@2:
 test_empty_loop_after_if_else@4:
     // loop_else/loop_else.py:43
     // for i in reversed(urange(count)):
-    pushint 0 // 0
+    intc_1 // 0
     frame_dig 0
     <
     bz test_empty_loop_after_for@7
     frame_dig 0
-    pushint 1 // 1
+    intc_0 // 1
     -
     frame_bury 0
     b test_empty_loop_for_body@2
@@ -278,10 +274,10 @@ test_empty_loop_after_if_else@4:
 test_empty_loop_after_for@7:
     // loop_else/loop_else.py:42
     // result = UInt64(0)
-    pushint 0 // 0
+    intc_1 // 0
     // loop_else/loop_else.py:47
     // result += 1
-    pushint 1 // 1
+    intc_0 // 1
     +
     frame_bury 1
 
@@ -289,7 +285,7 @@ test_empty_loop_block@8:
     // loop_else/loop_else.py:48
     // assert result == 1
     frame_dig 1
-    pushint 1 // 1
+    intc_0 // 1
     ==
     assert
     retsub

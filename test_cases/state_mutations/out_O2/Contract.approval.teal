@@ -84,11 +84,10 @@ append:
     pushbytes 0x0002
     uncover 2
     concat
-    swap
-    dup
+    dig 1
     intc_0 // 0
     extract_uint16
-    swap
+    uncover 2
     extract 2 0
     intc_1 // 1
     dig 3
@@ -173,22 +172,18 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    swap
+    uncover 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 1
-    len
-    swap
     dig 2
+    len
+    dig 3
     intc_2 // 2
     extract_uint16
-    swap
+    uncover 2
     select
-    swap
-    cover 2
     substring3
     dup
     intc_3 // 8
@@ -218,22 +213,18 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    swap
+    uncover 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 1
-    len
-    swap
     dig 2
+    len
+    dig 3
     intc_2 // 2
     extract_uint16
-    swap
+    uncover 2
     select
-    swap
-    cover 2
     substring3
     dup
     intc_3 // 8
@@ -263,22 +254,18 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    swap
+    uncover 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 1
-    len
-    swap
     dig 2
+    len
+    dig 3
     intc_2 // 2
     extract_uint16
-    swap
+    uncover 2
     select
-    swap
-    cover 2
     substring3
     dup
     intc_3 // 8
@@ -310,22 +297,18 @@ modify:
     dup
     intc_0 // 0
     extract_uint16
-    cover 2
-    swap
+    uncover 2
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     - // on error: Index access is out of bounds
-    dig 1
-    len
-    swap
     dig 2
+    len
+    dig 3
     intc_2 // 2
     extract_uint16
-    swap
+    uncover 2
     select
-    swap
-    cover 2
     substring3
     dup
     intc_3 // 8
@@ -368,8 +351,6 @@ get:
     assert // check self.loc exists for account
     bytec_0 // "box"
     box_get
-    swap
-    cover 2
     assert // check self.box exists
     bytec_3 // "map"
     txn Sender
@@ -377,7 +358,7 @@ get:
     box_get
     assert // check self.map entry exists
     dig 3
-    uncover 2
+    uncover 3
     ==
     assert // expected local == global
     dig 2
@@ -420,7 +401,8 @@ opt_in:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
-    pushbytess "" 0x // "", 0x
+    pushbytes ""
+    dup
     frame_dig -2
     intc_2 // 2
     *

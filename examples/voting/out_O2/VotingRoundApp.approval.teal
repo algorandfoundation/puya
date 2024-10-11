@@ -421,7 +421,6 @@ close_after_for@14:
     concat
     itxn_begin
     global MinTxnFee
-    swap
     intc_0 // 0
     bytec_0 // "vote_id"
     app_global_get_ex
@@ -433,7 +432,7 @@ close_after_for@14:
     bytec 11 // "nft_image_url"
     app_global_get_ex
     assert // check self.nft_image_url exists
-    uncover 2
+    uncover 3
     itxn_field Note
     itxn_field ConfigAssetURL
     pushbytes "VOTERSLT"
@@ -651,23 +650,21 @@ vote_for_header@1:
     intc_1 // 1
     extract3 // on error: Index access is out of bounds
     btoi
-    swap
     intc_0 // 0
     bytec_1 // "option_counts"
     app_global_get_ex
     assert // check self.option_counts exists
     extract 2 0
-    dig 1
+    dig 2
     intc_1 // 1
     extract3 // on error: Index access is out of bounds
     btoi
-    dig 2
-    dig 1
+    dup2
     <
     assert // Answer option index invalid
     frame_dig 1
     dup
-    uncover 4
+    uncover 3
     +
     callsub increment_vote_in_box
     +
