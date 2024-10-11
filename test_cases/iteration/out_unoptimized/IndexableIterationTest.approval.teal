@@ -3,70 +3,70 @@
 test_cases.iteration.iterate_indexable.IndexableIterationTest.approval_program:
     // iteration/base.py:8
     // log("test_forwards")
-    byte "test_forwards"
+    pushbytes "test_forwards"
     log
     // iteration/base.py:9
     // self.test_forwards()
     callsub test_forwards
     // iteration/base.py:10
     // log("test_reversed")
-    byte "test_reversed"
+    pushbytes "test_reversed"
     log
     // iteration/base.py:11
     // self.test_reversed()
     callsub test_reversed
     // iteration/base.py:12
     // log("test_forwards_with_forwards_index")
-    byte "test_forwards_with_forwards_index"
+    pushbytes "test_forwards_with_forwards_index"
     log
     // iteration/base.py:13
     // self.test_forwards_with_forwards_index()
     callsub test_forwards_with_forwards_index
     // iteration/base.py:14
     // log("test_forwards_with_reverse_index")
-    byte "test_forwards_with_reverse_index"
+    pushbytes "test_forwards_with_reverse_index"
     log
     // iteration/base.py:15
     // self.test_forwards_with_reverse_index()
     callsub test_forwards_with_reverse_index
     // iteration/base.py:16
     // log("test_reverse_with_forwards_index")
-    byte "test_reverse_with_forwards_index"
+    pushbytes "test_reverse_with_forwards_index"
     log
     // iteration/base.py:17
     // self.test_reverse_with_forwards_index()
     callsub test_reverse_with_forwards_index
     // iteration/base.py:18
     // log("test_reverse_with_reverse_index")
-    byte "test_reverse_with_reverse_index"
+    pushbytes "test_reverse_with_reverse_index"
     log
     // iteration/base.py:19
     // self.test_reverse_with_reverse_index()
     callsub test_reverse_with_reverse_index
     // iteration/base.py:20
     // log("test_empty")
-    byte "test_empty"
+    pushbytes "test_empty"
     log
     // iteration/base.py:21
     // self.test_empty()
     callsub test_empty
     // iteration/base.py:22
     // log("test_break")
-    byte "test_break"
+    pushbytes "test_break"
     log
     // iteration/base.py:23
     // self.test_break()
     callsub test_break
     // iteration/base.py:24
     // log("test_tuple_target")
-    byte "test_tuple_target"
+    pushbytes "test_tuple_target"
     log
     // iteration/base.py:25
     // self.test_tuple_target()
     callsub test_tuple_target
     // iteration/base.py:26
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -79,9 +79,9 @@ test_forwards:
     proto 0 0
     // iteration/iterate_indexable.py:12
     // for i in Bytes(b"abc"):
-    byte 0x616263
+    pushbytes 0x616263
     len
-    int 0
+    pushint 0 // 0
 
 test_forwards_for_header@1:
     // iteration/iterate_indexable.py:12
@@ -90,15 +90,15 @@ test_forwards_for_header@1:
     frame_dig 0
     <
     bz test_forwards_after_for@4
-    byte 0x616263
+    pushbytes 0x616263
     frame_dig 1
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:13
     // log(i)
     log
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     b test_forwards_for_header@1
@@ -116,24 +116,25 @@ test_reversed:
     proto 0 0
     // iteration/iterate_indexable.py:18
     // for i in reversed(Bytes(b"abc")):
-    byte 0x616263
+    pushbytes 0x616263
     len
 
 test_reversed_for_header@1:
     // iteration/iterate_indexable.py:18
     // for i in reversed(Bytes(b"abc")):
     frame_dig 0
-    int 0
+    pushint 0 // 0
     >
     bz test_reversed_after_for@4
     frame_dig 0
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 0
-    byte 0x616263
+    pushbytes 0x616263
     uncover 1
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:19
     // log(i)
@@ -153,9 +154,9 @@ test_forwards_with_forwards_index:
     proto 0 0
     // iteration/iterate_indexable.py:24
     // for idx, i in uenumerate(Bytes(b"abc")):
-    byte 0x616263
+    pushbytes 0x616263
     len
-    int 0
+    pushint 0 // 0
 
 test_forwards_with_forwards_index_for_header@1:
     // iteration/iterate_indexable.py:24
@@ -164,17 +165,17 @@ test_forwards_with_forwards_index_for_header@1:
     frame_dig 0
     <
     bz test_forwards_with_forwards_index_after_for@4
-    byte 0x616263
+    pushbytes 0x616263
     frame_dig 1
     dup
     cover 2
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:25
     // self._log_with_index(idx, i)
     callsub _log_with_index
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     b test_forwards_with_forwards_index_for_header@1
@@ -192,17 +193,17 @@ _log_with_index:
     // iteration/base.py:34
     // log(digits[idx], value, sep="=")
     frame_dig -2
-    int 1
+    pushint 1 // 1
     +
     // iteration/base.py:33
     // digits = Bytes(b"0123456789")
-    byte 0x30313233343536373839
+    pushbytes 0x30313233343536373839
     // iteration/base.py:34
     // log(digits[idx], value, sep="=")
     frame_dig -2
     uncover 2
     substring3
-    byte "="
+    pushbytes "="
     concat
     frame_dig -1
     concat
@@ -219,32 +220,33 @@ test_forwards_with_reverse_index:
     proto 0 0
     // iteration/iterate_indexable.py:31
     // for idx, i in reversed(uenumerate(reversed(Bytes(b"abc")))):
-    byte 0x616263
+    pushbytes 0x616263
     len
-    int 0
+    pushint 0 // 0
     cover 1
 
 test_forwards_with_reverse_index_for_header@1:
     // iteration/iterate_indexable.py:31
     // for idx, i in reversed(uenumerate(reversed(Bytes(b"abc")))):
     frame_dig 1
-    int 0
+    pushint 0 // 0
     >
     bz test_forwards_with_reverse_index_after_for@4
     frame_dig 1
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 1
-    byte 0x616263
+    pushbytes 0x616263
     frame_dig 0
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:32
     // self._log_with_index(idx, i)
     callsub _log_with_index
     frame_dig 0
-    int 1
+    pushint 1 // 1
     +
     frame_bury 0
     b test_forwards_with_reverse_index_for_header@1
@@ -262,26 +264,27 @@ test_reverse_with_forwards_index:
     proto 0 0
     // iteration/iterate_indexable.py:38
     // for idx, i in uenumerate(reversed(Bytes(b"abc"))):
-    byte 0x616263
+    pushbytes 0x616263
     len
-    int 0
+    pushint 0 // 0
     cover 1
 
 test_reverse_with_forwards_index_for_header@1:
     // iteration/iterate_indexable.py:38
     // for idx, i in uenumerate(reversed(Bytes(b"abc"))):
     frame_dig 1
-    int 0
+    pushint 0 // 0
     >
     bz test_reverse_with_forwards_index_after_for@4
     frame_dig 1
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 1
-    byte 0x616263
+    pushbytes 0x616263
     uncover 1
-    int 1
+    pushint 1 // 1
     extract3
     frame_dig 0
     // iteration/iterate_indexable.py:39
@@ -289,7 +292,7 @@ test_reverse_with_forwards_index_for_header@1:
     uncover 1
     callsub _log_with_index
     frame_dig 0
-    int 1
+    pushint 1 // 1
     +
     frame_bury 0
     b test_reverse_with_forwards_index_for_header@1
@@ -307,24 +310,25 @@ test_reverse_with_reverse_index:
     proto 0 0
     // iteration/iterate_indexable.py:45
     // for idx, i in reversed(uenumerate(Bytes(b"abc"))):
-    byte 0x616263
+    pushbytes 0x616263
     len
 
 test_reverse_with_reverse_index_for_header@1:
     // iteration/iterate_indexable.py:45
     // for idx, i in reversed(uenumerate(Bytes(b"abc"))):
     frame_dig 0
-    int 0
+    pushint 0 // 0
     >
     bz test_reverse_with_reverse_index_after_for@4
     frame_dig 0
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 0
-    byte 0x616263
+    pushbytes 0x616263
     dig 1
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:46
     // self._log_with_index(idx, i)
@@ -342,13 +346,19 @@ test_empty:
     // @subroutine
     // def test_empty(self) -> None:
     proto 0 0
-    byte ""
-    dupn 7
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    pushbytes ""
     // iteration/iterate_indexable.py:52
     // for i in Bytes():
-    byte 0x
+    pushbytes 0x
     len
-    int 0
+    pushint 0 // 0
 
 test_empty_for_header@1:
     // iteration/iterate_indexable.py:52
@@ -357,15 +367,15 @@ test_empty_for_header@1:
     frame_dig 8
     <
     bz test_empty_after_for@4
-    byte 0x
+    pushbytes 0x
     frame_dig 9
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:53
     // log(i)
     log
     frame_dig 9
-    int 1
+    pushint 1 // 1
     +
     frame_bury 9
     b test_empty_for_header@1
@@ -373,7 +383,7 @@ test_empty_for_header@1:
 test_empty_after_for@4:
     // iteration/iterate_indexable.py:54
     // for i in reversed(Bytes()):
-    byte 0x
+    pushbytes 0x
     len
     frame_bury 4
 
@@ -381,17 +391,18 @@ test_empty_for_header@5:
     // iteration/iterate_indexable.py:54
     // for i in reversed(Bytes()):
     frame_dig 4
-    int 0
+    pushint 0 // 0
     >
     bz test_empty_after_for@8
     frame_dig 4
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 4
-    byte 0x
+    pushbytes 0x
     uncover 1
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:55
     // log(i)
@@ -401,10 +412,10 @@ test_empty_for_header@5:
 test_empty_after_for@8:
     // iteration/iterate_indexable.py:56
     // for idx, i in uenumerate(Bytes()):
-    byte 0x
+    pushbytes 0x
     len
     frame_bury 0
-    int 0
+    pushint 0 // 0
     frame_bury 1
 
 test_empty_for_header@9:
@@ -414,17 +425,17 @@ test_empty_for_header@9:
     frame_dig 0
     <
     bz test_empty_after_for@12
-    byte 0x
+    pushbytes 0x
     frame_dig 1
     dup
     cover 2
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:57
     // self._log_with_index(idx, i)
     callsub _log_with_index
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     b test_empty_for_header@9
@@ -432,9 +443,9 @@ test_empty_for_header@9:
 test_empty_after_for@12:
     // iteration/iterate_indexable.py:58
     // for idx, i in reversed(uenumerate(reversed(Bytes()))):
-    byte 0x
+    pushbytes 0x
     len
-    int 0
+    pushint 0 // 0
     frame_bury 2
     frame_bury 5
 
@@ -442,23 +453,24 @@ test_empty_for_header@13:
     // iteration/iterate_indexable.py:58
     // for idx, i in reversed(uenumerate(reversed(Bytes()))):
     frame_dig 5
-    int 0
+    pushint 0 // 0
     >
     bz test_empty_after_for@16
     frame_dig 5
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 5
-    byte 0x
+    pushbytes 0x
     frame_dig 2
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:59
     // self._log_with_index(idx, i)
     callsub _log_with_index
     frame_dig 2
-    int 1
+    pushint 1 // 1
     +
     frame_bury 2
     b test_empty_for_header@13
@@ -466,9 +478,9 @@ test_empty_for_header@13:
 test_empty_after_for@16:
     // iteration/iterate_indexable.py:60
     // for idx, i in uenumerate(reversed(Bytes())):
-    byte 0x
+    pushbytes 0x
     len
-    int 0
+    pushint 0 // 0
     frame_bury 3
     frame_bury 6
 
@@ -476,17 +488,18 @@ test_empty_for_header@17:
     // iteration/iterate_indexable.py:60
     // for idx, i in uenumerate(reversed(Bytes())):
     frame_dig 6
-    int 0
+    pushint 0 // 0
     >
     bz test_empty_after_for@20
     frame_dig 6
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 6
-    byte 0x
+    pushbytes 0x
     uncover 1
-    int 1
+    pushint 1 // 1
     extract3
     frame_dig 3
     // iteration/iterate_indexable.py:61
@@ -494,7 +507,7 @@ test_empty_for_header@17:
     uncover 1
     callsub _log_with_index
     frame_dig 3
-    int 1
+    pushint 1 // 1
     +
     frame_bury 3
     b test_empty_for_header@17
@@ -502,7 +515,7 @@ test_empty_for_header@17:
 test_empty_after_for@20:
     // iteration/iterate_indexable.py:62
     // for idx, i in reversed(uenumerate(Bytes())):
-    byte 0x
+    pushbytes 0x
     len
     frame_bury 7
 
@@ -510,17 +523,18 @@ test_empty_for_header@21:
     // iteration/iterate_indexable.py:62
     // for idx, i in reversed(uenumerate(Bytes())):
     frame_dig 7
-    int 0
+    pushint 0 // 0
     >
     bz test_empty_after_for@24
     frame_dig 7
-    int 1
+    pushint 1 // 1
     -
     dup
+    cover 1
     frame_bury 7
-    byte 0x
+    pushbytes 0x
     dig 1
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:63
     // self._log_with_index(idx, i)
@@ -540,15 +554,15 @@ test_break:
     proto 0 0
     // iteration/iterate_indexable.py:68
     // for b in Bytes(b"abc"):
-    byte 0x616263
+    pushbytes 0x616263
     len
-    int 0
+    pushint 0 // 0
     uncover 1
     <
     bz test_break_after_for@3
-    byte 0x616263
-    int 0
-    int 1
+    pushbytes 0x616263
+    pushint 0 // 0
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:69
     // log(b)
@@ -567,9 +581,9 @@ test_tuple_target:
     proto 0 0
     // iteration/iterate_indexable.py:75
     // for tup in uenumerate(Bytes(b"t")):
-    byte 0x74
+    pushbytes 0x74
     len
-    int 0
+    pushint 0 // 0
 
 test_tuple_target_for_header@1:
     // iteration/iterate_indexable.py:75
@@ -578,17 +592,17 @@ test_tuple_target_for_header@1:
     frame_dig 0
     <
     bz test_tuple_target_after_for@4
-    byte 0x74
+    pushbytes 0x74
     frame_dig 1
     dup
     cover 2
-    int 1
+    pushint 1 // 1
     extract3
     // iteration/iterate_indexable.py:76
     // self._log_with_index(tup[0], tup[1])
     callsub _log_with_index
     frame_dig 1
-    int 1
+    pushint 1 // 1
     +
     frame_bury 1
     b test_tuple_target_for_header@1

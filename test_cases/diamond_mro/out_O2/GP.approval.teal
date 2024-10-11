@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.diamond_mro.gp.GP.approval_program:
+    intcblock 0 1
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -15,11 +16,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___after_if_else@7
-    method "create()void"
-    method "method()void"
+    pushbytess 0x4c5c61ba 0x4f045d84 // method "create()void", method "method()void"
     txna ApplicationArgs 0
     match __puya_arc4_router___create_route@2 __puya_arc4_router___method_route@3
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___create_route@2:
@@ -29,7 +29,7 @@ __puya_arc4_router___create_route@2:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___method_route@3:
@@ -39,18 +39,18 @@ __puya_arc4_router___method_route@3:
     txn ApplicationID
     assert // is not creating
     callsub method
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@7:
-    int 0
+    intc_0 // 0
     retsub
 
 
 // test_cases.diamond_mro.gp.GP.method() -> void:
 method:
     proto 0 0
-    byte "gp.method"
+    pushbytes "gp.method"
     log
     retsub
 
@@ -58,6 +58,6 @@ method:
 // test_cases.diamond_mro.gp.GP.__init__() -> void:
 __init__:
     proto 0 0
-    byte "gp.__init__"
+    pushbytes "gp.__init__"
     log
     retsub

@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.compile.apps.HelloTmpl.approval_program:
+    bytecblock TMPL_GREETING
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -16,13 +17,13 @@ __puya_arc4_router__:
     // class HelloTmpl(HelloBase):
     proto 0 1
     txn NumAppArgs
-    int 0
+    pushint 0 // 0
     !=
     bz __puya_arc4_router___bare_routing@7
     txna ApplicationArgs 0
-    method "create()void"
-    method "delete()void"
-    method "greet(string)string"
+    pushbytes 0x4c5c61ba // method "create()void"
+    pushbytes 0x24378d3c // method "delete()void"
+    pushbytes 0xd0a28200 // method "greet(string)string"
     uncover 3
     match __puya_arc4_router___create_route@2 __puya_arc4_router___delete_route@3 __puya_arc4_router___greet_route@4
     b __puya_arc4_router___switch_case_default@5
@@ -31,41 +32,41 @@ __puya_arc4_router___create_route@2:
     // compile/apps.py:66
     // @arc4.abimethod(create="require")
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     ==
     assert // is creating
     callsub create
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___delete_route@3:
     // compile/apps.py:25
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
-    int DeleteApplication
+    pushint 5 // DeleteApplication
     ==
     assert // OnCompletion is DeleteApplication
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     callsub delete
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___greet_route@4:
     // compile/apps.py:33
     // @arc4.abimethod()
     txn OnCompletion
-    int NoOp
+    pushint 0 // NoOp
     ==
     assert // OnCompletion is NoOp
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // compile/apps.py:61
@@ -75,17 +76,17 @@ __puya_arc4_router___greet_route@4:
     // compile/apps.py:33
     // @arc4.abimethod()
     callsub greet
-    dup
+    dig 0
     len
     itob
     extract 6 2
     uncover 1
     concat
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@5:
@@ -95,7 +96,7 @@ __puya_arc4_router___bare_routing@7:
     // compile/apps.py:61
     // class HelloTmpl(HelloBase):
     txn OnCompletion
-    int 4
+    pushint 4 // 4
     uncover 1
     match __puya_arc4_router___update@8
     b __puya_arc4_router___switch_case_default@9
@@ -104,14 +105,14 @@ __puya_arc4_router___update@8:
     // compile/apps.py:29
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
-    int 0
+    pushint 0 // 0
     !=
     assert // is not creating
     // compile/apps.py:29-30
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     // def update(self) -> None:
     callsub update
-    int 1
+    pushint 1 // 1
     retsub
 
 __puya_arc4_router___switch_case_default@9:
@@ -119,7 +120,7 @@ __puya_arc4_router___switch_case_default@9:
 __puya_arc4_router___after_if_else@11:
     // compile/apps.py:61
     // class HelloTmpl(HelloBase):
-    int 0
+    pushint 0 // 0
     retsub
 
 
@@ -149,11 +150,11 @@ greet:
     proto 1 1
     // compile/apps.py:35
     // return self.greeting + " " + name
-    int 0
-    byte "greeting"
+    pushint 0 // 0
+    pushbytes "greeting"
     app_global_get_ex
     assert // check self.greeting exists
-    byte " "
+    pushbytes " "
     concat
     frame_dig -1
     concat
@@ -176,7 +177,7 @@ __init__:
     proto 0 0
     // compile/apps.py:64
     // self.greeting = TemplateVar[String]("GREETING")
-    byte "greeting"
-    byte TMPL_GREETING
+    pushbytes "greeting"
+    bytec_0 // TMPL_GREETING
     app_global_put
     retsub

@@ -3,24 +3,24 @@
 test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     // arc4_types/tuples.py:15
     // my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
-    byte 0x01020007000eff000568656c6c6f0005776f726c64
+    pushbytes 0x01020007000eff000568656c6c6f0005776f726c64
     // arc4_types/tuples.py:45
     // total, concat = self.test_stuff(my_tuple)
     callsub test_stuff
     // arc4_types/tuples.py:46
     // assert concat.native == "hello world"
     extract 2 0
-    byte "hello world"
+    pushbytes "hello world"
     ==
     assert
     // arc4_types/tuples.py:47
     // assert total == 258
-    int 258
+    pushint 258 // 258
     ==
     assert
     // arc4_types/tuples.py:49
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -38,10 +38,10 @@ test_stuff:
     extract 1 1 // on error: Index access is out of bounds
     swap
     frame_dig -1
-    int 2
+    pushint 2 // 2
     extract_uint16
     frame_dig -1
-    int 4
+    pushint 4 // 4
     extract_uint16
     frame_dig -1
     uncover 2
@@ -71,7 +71,7 @@ test_stuff:
     // text = c.native + " " + d.native
     uncover 2
     extract 2 0
-    byte " "
+    pushbytes " "
     concat
     swap
     extract 2 0

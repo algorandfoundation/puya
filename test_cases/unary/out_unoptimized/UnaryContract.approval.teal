@@ -12,7 +12,7 @@ test_cases.unary.contract.UnaryContract.approval_program:
     callsub bytes_unary
     // unary/contract.py:19
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -25,20 +25,20 @@ uint_unary:
     // unary/contract.py:27-28
     // # test not
     // assert not UInt64(0), "not uint"
-    int 0
-    int 0
+    pushint 0 // 0
+    pushint 0 // 0
     ==
     assert // not uint
-    int 0
+    pushint 0 // 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    int 1
+    pushint 1 // 1
 
 uint_unary_for_body@1:
     // unary/contract.py:32
     // assert ~(MAX_UINT64 - i) == i, "~ uint"
-    int 18446744073709551615
+    pushint 18446744073709551615 // 18446744073709551615
     uncover 1
     dup
     cover 2
@@ -55,30 +55,30 @@ uint_unary_for_body@1:
     b uint_unary_after_for@6
 
 uint_unary_for_header_1@3:
-    int 1
+    pushint 1 // 1
     frame_bury 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    int 2
+    pushint 2 // 2
     b uint_unary_for_body@1
 
 uint_unary_for_header_2@4:
-    int 2
+    pushint 2 // 2
     frame_bury 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    int 150
+    pushint 150 // 150
     b uint_unary_for_body@1
 
 uint_unary_for_header_3@5:
-    int 3
+    pushint 3 // 3
     frame_bury 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    int 18446744073709551615
+    pushint 18446744073709551615 // 18446744073709551615
     b uint_unary_for_body@1
 
 uint_unary_after_for@6:
@@ -94,8 +94,8 @@ biguint_unary:
     // unary/contract.py:37-38
     // # test not
     // assert not BigUInt(0), "not biguint"
-    byte 0x
-    byte 0x
+    pushbytes 0x
+    pushbytes 0x
     b==
     assert // not biguint
     retsub
@@ -110,24 +110,24 @@ bytes_unary:
     // unary/contract.py:43-44
     // # test not
     // assert not Bytes(b""), "not bytes"
-    byte 0x
+    pushbytes 0x
     len
-    int 0
+    pushint 0 // 0
     ==
     assert // not bytes
     // unary/contract.py:46-47
     // # test ~
     // assert ~Bytes.from_hex("FF") == Bytes.from_hex("00"), "~ bytes"
-    byte 0xff
+    pushbytes 0xff
     b~
-    byte 0x00
+    pushbytes 0x00
     ==
     assert // ~ bytes
     // unary/contract.py:48
     // assert ~Bytes.from_hex("0000") == Bytes.from_hex("FFFF"), "~ bytes"
-    byte 0x0000
+    pushbytes 0x0000
     b~
-    byte 0xffff
+    pushbytes 0xffff
     ==
     assert // ~ bytes
     retsub

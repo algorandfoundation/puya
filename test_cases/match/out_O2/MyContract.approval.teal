@@ -1,11 +1,13 @@
 #pragma version 10
 
 test_cases.match.contract.MyContract.approval_program:
-    byte "case_one"
-    int 1
+    intcblock 0 1
+    bytecblock "case_one" "case_two" 0x0a 0x
+    bytec_0 // "case_one"
+    intc_1 // 1
     app_global_put
-    byte "case_two"
-    int 2
+    bytec_1 // "case_two"
+    pushint 2 // 2
     app_global_put
     callsub match_uint64
     callsub match_biguint
@@ -13,26 +15,26 @@ test_cases.match.contract.MyContract.approval_program:
     callsub match_address
     callsub match_attributes
     callsub match_bools
-    int 1
+    intc_1 // 1
     return
 
 
 // test_cases.match.contract.MyContract.match_uint64() -> void:
 match_uint64:
     proto 0 0
-    int 0
-    int 10
+    intc_0 // 0
+    pushint 10 // 10
     txn NumAppArgs
     match match_uint64_switch_case_0@1 match_uint64_switch_case_1@2
     retsub
 
 match_uint64_switch_case_0@1:
-    byte 0x48656c6c6f
+    pushbytes 0x48656c6c6f
     log
     b match_uint64_switch_case_next@4
 
 match_uint64_switch_case_1@2:
-    byte 0x48656c6c6f205468657265
+    pushbytes 0x48656c6c6f205468657265
     log
 
 match_uint64_switch_case_next@4:
@@ -44,21 +46,21 @@ match_biguint:
     proto 0 0
     txn NumAppArgs
     itob
-    byte 0x0a
+    bytec_2 // 0x0a
     b*
-    byte 0x
-    byte 0x0a
+    bytec_3 // 0x
+    bytec_2 // 0x0a
     uncover 2
     match match_biguint_switch_case_0@1 match_biguint_switch_case_1@2
     retsub
 
 match_biguint_switch_case_0@1:
-    byte 0x48656c6c6f2062696775696e74
+    pushbytes 0x48656c6c6f2062696775696e74
     log
     b match_biguint_switch_case_next@4
 
 match_biguint_switch_case_1@2:
-    byte 0x48656c6c6f2054686572652062696775696e74
+    pushbytes 0x48656c6c6f2054686572652062696775696e74
     log
 
 match_biguint_switch_case_next@4:
@@ -68,19 +70,19 @@ match_biguint_switch_case_next@4:
 // test_cases.match.contract.MyContract.match_bytes() -> void:
 match_bytes:
     proto 0 0
-    byte 0x
-    byte 0x3130
+    bytec_3 // 0x
+    pushbytes 0x3130
     txna ApplicationArgs 0
     match match_bytes_switch_case_0@1 match_bytes_switch_case_1@2
     retsub
 
 match_bytes_switch_case_0@1:
-    byte 0x48656c6c6f206279746573
+    pushbytes 0x48656c6c6f206279746573
     log
     b match_bytes_switch_case_next@4
 
 match_bytes_switch_case_1@2:
-    byte 0x48656c6c6f205468657265206279746573
+    pushbytes 0x48656c6c6f205468657265206279746573
     log
 
 match_bytes_switch_case_next@4:
@@ -90,19 +92,18 @@ match_bytes_switch_case_next@4:
 // test_cases.match.contract.MyContract.match_address() -> void:
 match_address:
     proto 0 0
-    addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
-    addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    pushbytess base32(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ, addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     txn Sender
     match match_address_switch_case_0@1 match_address_switch_case_1@2
     retsub
 
 match_address_switch_case_0@1:
-    byte 0x48656c6c6f2061646472657373
+    pushbytes 0x48656c6c6f2061646472657373
     log
     b match_address_switch_case_next@4
 
 match_address_switch_case_1@2:
-    byte 0x48656c6c6f2054686572652061646472657373
+    pushbytes 0x48656c6c6f2054686572652061646472657373
     log
 
 match_address_switch_case_next@4:
@@ -113,12 +114,12 @@ match_address_switch_case_next@4:
 match_attributes:
     proto 0 0
     txn NumAppArgs
-    int 0
-    byte "case_one"
+    intc_0 // 0
+    bytec_0 // "case_one"
     app_global_get_ex
     assert // check self.case_one exists
-    int 0
-    byte "case_two"
+    intc_0 // 0
+    bytec_1 // "case_two"
     app_global_get_ex
     assert // check self.case_two exists
     uncover 2
@@ -126,17 +127,17 @@ match_attributes:
     b match_attributes_switch_case_default@3
 
 match_attributes_switch_case_0@1:
-    byte 0x48656c6c6f206f6e65
+    pushbytes 0x48656c6c6f206f6e65
     log
     b match_attributes_switch_case_next@4
 
 match_attributes_switch_case_1@2:
-    byte 0x48656c6c6f2074776f
+    pushbytes 0x48656c6c6f2074776f
     log
     b match_attributes_switch_case_next@4
 
 match_attributes_switch_case_default@3:
-    byte 0x48656c6c6f2064656661756c74
+    pushbytes 0x48656c6c6f2064656661756c74
     log
 
 match_attributes_switch_case_next@4:
@@ -147,18 +148,18 @@ match_attributes_switch_case_next@4:
 match_bools:
     proto 0 0
     txn NumAppArgs
-    int 0
+    intc_0 // 0
     >
     switch match_bools_switch_case_1@2 match_bools_switch_case_0@1
     retsub
 
 match_bools_switch_case_0@1:
-    byte 0x48656c6c6f2054727565
+    pushbytes 0x48656c6c6f2054727565
     log
     b match_bools_switch_case_next@4
 
 match_bools_switch_case_1@2:
-    byte 0x48656c6c6f2046616c7365
+    pushbytes 0x48656c6c6f2046616c7365
     log
 
 match_bools_switch_case_next@4:

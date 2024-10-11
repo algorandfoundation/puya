@@ -8,7 +8,7 @@ test_cases.chained_assignment.contract.ChainedAssignment.approval_program:
 main_entrypoint@2:
     // chained_assignment/contract.py:21
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -28,12 +28,10 @@ test_cases.chained_assignment.contract.BaseContract.__init__:
     // chained_assignment/contract.py:9
     // def __init__(self) -> None:
     proto 0 0
-    // chained_assignment/contract.py:12
-    // left=Bytes(b"Hello, world!"),
-    byte 0x48656c6c6f2c20776f726c6421
-    // chained_assignment/contract.py:11
+    // chained_assignment/contract.py:11-12
     // right=Bytes(WAVE),
-    byte 0xf09f918b
+    // left=Bytes(b"Hello, world!"),
+    pushbytess 0x48656c6c6f2c20776f726c6421 0xf09f918b // 0x48656c6c6f2c20776f726c6421, 0xf09f918b
     // chained_assignment/contract.py:10-13
     // self.state1 = self.state2 = join_log_and_return(
     //     right=Bytes(WAVE),
@@ -42,7 +40,7 @@ test_cases.chained_assignment.contract.BaseContract.__init__:
     callsub join_log_and_return
     // chained_assignment/contract.py:10
     // self.state1 = self.state2 = join_log_and_return(
-    byte "state2"
+    pushbytes "state2"
     // chained_assignment/contract.py:10-13
     // self.state1 = self.state2 = join_log_and_return(
     //     right=Bytes(WAVE),
@@ -52,7 +50,7 @@ test_cases.chained_assignment.contract.BaseContract.__init__:
     app_global_put
     // chained_assignment/contract.py:10
     // self.state1 = self.state2 = join_log_and_return(
-    byte "state1"
+    pushbytes "state1"
     // chained_assignment/contract.py:10-13
     // self.state1 = self.state2 = join_log_and_return(
     //     right=Bytes(WAVE),
@@ -72,7 +70,7 @@ join_log_and_return:
     // chained_assignment/contract.py:29
     // result = left + b" " + right
     frame_dig -2
-    byte 0x20
+    pushbytes 0x20
     concat
     frame_dig -1
     concat

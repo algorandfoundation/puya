@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.approval_program:
+    intcblock 0 1 1000
     callsub __puya_arc4_router__
     return
 
@@ -10,10 +11,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@5
-    method "create_and_transfer()void"
+    pushbytes 0x48e9ed7c // method "create_and_transfer()void"
     txna ApplicationArgs 0
     match __puya_arc4_router___create_and_transfer_route@2
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___create_and_transfer_route@2:
@@ -23,7 +24,7 @@ __puya_arc4_router___create_and_transfer_route@2:
     txn ApplicationID
     assert // is not creating
     callsub create_and_transfer
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@5:
@@ -32,11 +33,11 @@ __puya_arc4_router___bare_routing@5:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@9:
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -48,17 +49,17 @@ create_and_transfer:
     dup
     itxn_field ConfigAssetClawback
     itxn_field ConfigAssetManager
-    int 0
+    intc_0 // 0
     itxn_field ConfigAssetDecimals
-    byte "TST"
+    pushbytes "TST"
     itxn_field ConfigAssetUnitName
-    byte "test"
+    pushbytes "test"
     itxn_field ConfigAssetName
-    int 1000
+    intc_2 // 1000
     itxn_field ConfigAssetTotal
-    int acfg
+    pushint 3 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn CreatedAssetID
@@ -71,13 +72,13 @@ create_and_transfer:
     global CurrentApplicationAddress
     swap
     itxn_field XferAsset
-    int 1000
+    intc_2 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
-    int axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     retsub

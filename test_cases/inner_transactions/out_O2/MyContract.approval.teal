@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.inner_transactions.contract.MyContract.approval_program:
+    intcblock 0 6 5 3 1000
+    bytecblock 0x098101 0x09361a00b08101 "name" 0x31 0x756e6974 0x32 0x41535431 0x41535432 0x41535433 0x33 0x34 0x35 0x337264 0x77697468206172677320706172616d20736574 0x3432 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -8,13 +10,10 @@ test_cases.inner_transactions.contract.MyContract.approval_program:
 main_entrypoint@2:
     txn NumAppArgs
     bz main_after_if_else@10
-    byte 0x7465737431
-    byte 0x7465737432
-    byte 0x7465737433
-    byte 0x7465737434
+    pushbytess 0x7465737431 0x7465737432 0x7465737433 0x7465737434 // 0x7465737431, 0x7465737432, 0x7465737433, 0x7465737434
     txna ApplicationArgs 0
     match main_switch_case_0@4 main_switch_case_1@5 main_switch_case_2@6 main_switch_case_3@7
-    int 1
+    pushint 1 // 1
     return
 
 main_switch_case_0@4:
@@ -33,49 +32,49 @@ main_switch_case_3@7:
     callsub test4
 
 main_after_if_else@10:
-    int 1
+    pushint 1 // 1
     return
 
 
 // test_cases.inner_transactions.contract.MyContract.test1() -> void:
 test1:
     proto 0 0
-    byte "name"
-    byte 0x41535431
+    bytec_2 // "name"
+    bytec 6 // 0x41535431
     app_global_put
-    int 0
-    byte "name"
+    intc_0 // 0
+    bytec_2 // "name"
     app_global_get_ex
     assert // check self.name exists
     global CurrentApplicationAddress
     dup
-    byte "name"
-    byte 0x41535432
+    bytec_2 // "name"
+    bytec 7 // 0x41535432
     app_global_put
     itxn_begin
     dup
     itxn_field ConfigAssetReserve
     dig 1
     itxn_field ConfigAssetManager
-    int 3
+    intc_3 // 3
     itxn_field ConfigAssetDecimals
-    byte 0x756e6974
+    bytec 4 // 0x756e6974
     itxn_field ConfigAssetUnitName
     uncover 2
     itxn_field ConfigAssetName
-    int 1000
+    intc 4 // 1000
     itxn_field ConfigAssetTotal
-    int acfg
+    intc_3 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn ConfigAssetName
     cover 2
     itxn CreatedAssetID
     cover 3
-    int 0
-    byte "name"
+    intc_0 // 0
+    bytec_2 // "name"
     app_global_get_ex
     assert // check self.name exists
     itxn_begin
@@ -83,98 +82,98 @@ test1:
     itxn_field ConfigAssetReserve
     dig 2
     itxn_field ConfigAssetManager
-    int 3
+    intc_3 // 3
     itxn_field ConfigAssetDecimals
-    byte 0x756e6974
+    bytec 4 // 0x756e6974
     itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
-    int 1000
+    intc 4 // 1000
     itxn_field ConfigAssetTotal
-    int acfg
+    intc_3 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn CreatedAssetID
     itxn ConfigAssetName
     uncover 4
-    byte 0x41535431
+    bytec 6 // 0x41535431
     ==
     assert // asset1_txn is correct
-    byte 0x41535432
+    bytec 7 // 0x41535432
     ==
     assert // asset2_txn is correct
     uncover 3
     asset_params_get AssetName
     assert // asset exists
-    byte 0x41535431
+    bytec 6 // 0x41535431
     ==
     assert // created asset 1 is correct
     asset_params_get AssetName
     assert // asset exists
-    byte 0x41535432
+    bytec 7 // 0x41535432
     ==
     assert // created asset 2 is correct
     itxn_begin
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     dup
     itxn_field ConfigAssetReserve
     dig 1
     itxn_field ConfigAssetManager
-    int 3
+    intc_3 // 3
     itxn_field ConfigAssetDecimals
-    byte 0x756e6974
+    bytec 4 // 0x756e6974
     itxn_field ConfigAssetUnitName
-    byte 0x41535433
+    bytec 8 // 0x41535433
     itxn_field ConfigAssetName
-    int 1000
+    intc 4 // 1000
     itxn_field ConfigAssetTotal
-    int acfg
+    intc_3 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn ConfigAssetName
     gitxn 0 CreatedApplicationID
     assert // created app
-    byte 0x41535433
+    bytec 8 // 0x41535433
     ==
     assert // asset3_txn is correct
     itxn_begin
-    byte 0x337264
+    bytec 12 // 0x337264
     itxn_field Note
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x337264
+    bytec 12 // 0x337264
     itxn_field Note
     itxn_field ConfigAssetReserve
     itxn_field ConfigAssetManager
-    int 3
+    intc_3 // 3
     itxn_field ConfigAssetDecimals
-    byte 0x756e6974
+    bytec 4 // 0x756e6974
     itxn_field ConfigAssetUnitName
-    byte 0x41535433
+    bytec 8 // 0x41535433
     itxn_field ConfigAssetName
-    int 1000
+    intc 4 // 1000
     itxn_field ConfigAssetTotal
-    int acfg
+    intc_3 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     retsub
@@ -183,43 +182,43 @@ test1:
 // test_cases.inner_transactions.contract.MyContract.test2() -> void:
 test2:
     proto 0 0
-    int 0
+    intc_0 // 0
     dupn 3
-    byte ""
+    pushbytes ""
     dupn 2
     txn NumAppArgs
     bz test2_else_body@2
-    byte 0x31
+    bytec_3 // 0x31
     frame_bury 0
-    byte 0x32
+    bytec 5 // 0x32
     frame_bury 1
-    int 2
+    pushint 2 // 2
     frame_bury 4
-    int NoOp
+    intc_0 // NoOp
     frame_bury 6
-    int 1
+    pushint 1 // 1
     frame_bury 5
-    byte 0x77697468206172677320706172616d20736574
+    bytec 13 // 0x77697468206172677320706172616d20736574
     b test2_after_if_else@3
 
 test2_else_body@2:
-    byte 0x33
+    bytec 9 // 0x33
     frame_bury 0
-    byte 0x34
+    bytec 10 // 0x34
     frame_bury 1
-    byte 0x35
+    bytec 11 // 0x35
     frame_bury 2
-    int 3
+    intc_3 // 3
     frame_bury 4
-    byte 0x6e6f206172677320706172616d20736574
-    int 0
+    pushbytes 0x6e6f206172677320706172616d20736574
+    intc_0 // 0
     frame_bury 5
 
 test2_after_if_else@3:
     itxn_begin
     itxn_field Note
     frame_dig 5
-    int 1
+    pushint 1 // 1
     >=
     bz test2_next_field@5
     frame_dig 6
@@ -231,56 +230,56 @@ test2_next_field@5:
     frame_dig 1
     itxn_field ApplicationArgs
     frame_dig 4
-    int 3
+    intc_3 // 3
     >=
     bz test2_next_field@7
     frame_dig 2
     itxn_field ApplicationArgs
 
 test2_next_field@7:
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn Note
     frame_bury 3
     itxna ApplicationArgs 0
-    byte 0x31
+    bytec_3 // 0x31
     ==
     assert // correct args used 1
     itxna ApplicationArgs 1
-    byte 0x32
+    bytec 5 // 0x32
     ==
     assert // correct args used 2
     txn NumAppArgs
-    int 1
+    pushint 1 // 1
     >
     bz test2_after_if_else@11
     itxn_begin
-    byte 0x3432
+    bytec 14 // 0x3432
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxna ApplicationArgs 0
-    byte 0x3432
+    bytec 14 // 0x3432
     ==
     assert // correct args used 2
     frame_dig 3
-    byte 0x77697468206172677320706172616d20736574
+    bytec 13 // 0x77697468206172677320706172616d20736574
     ==
     assert
 
@@ -292,276 +291,276 @@ test2_after_if_else@11:
 test3:
     proto 0 0
     itxn_begin
-    byte 0x31
+    bytec_3 // 0x31
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x32
+    bytec 5 // 0x32
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x33
+    bytec 9 // 0x33
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x34
+    bytec 10 // 0x34
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x35
+    bytec 11 // 0x35
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x36
+    pushbytes 0x36
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x37
+    pushbytes 0x37
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x38
+    pushbytes 0x38
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x39
+    pushbytes 0x39
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3130
+    bytec 15 // 0x3130
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3131
+    bytec 16 // 0x3131
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3132
+    bytec 17 // 0x3132
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3133
+    bytec 18 // 0x3133
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3134
+    bytec 19 // 0x3134
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3135
+    bytec 20 // 0x3135
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x09361a00b08101
+    bytec_1 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte 0x3136
+    bytec 21 // 0x3136
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxna 0 Logs 0
-    byte 0x31
+    bytec_3 // 0x31
     ==
     assert
     gitxna 1 Logs 0
-    byte 0x32
+    bytec 5 // 0x32
     ==
     assert
     gitxna 2 Logs 0
-    byte 0x33
+    bytec 9 // 0x33
     ==
     assert
     gitxna 3 Logs 0
-    byte 0x34
+    bytec 10 // 0x34
     ==
     assert
     gitxna 4 Logs 0
-    byte 0x35
+    bytec 11 // 0x35
     ==
     assert
     gitxna 5 Logs 0
-    byte 0x36
+    pushbytes 0x36
     ==
     assert
     gitxna 6 Logs 0
-    byte 0x37
+    pushbytes 0x37
     ==
     assert
     gitxna 7 Logs 0
-    byte 0x38
+    pushbytes 0x38
     ==
     assert
     gitxna 8 Logs 0
-    byte 0x39
+    pushbytes 0x39
     ==
     assert
     gitxna 9 Logs 0
-    byte 0x3130
+    bytec 15 // 0x3130
     ==
     assert
     gitxna 10 Logs 0
-    byte 0x3131
+    bytec 16 // 0x3131
     ==
     assert
     gitxna 11 Logs 0
-    byte 0x3132
+    bytec 17 // 0x3132
     ==
     assert
     gitxna 12 Logs 0
-    byte 0x3133
+    bytec 18 // 0x3133
     ==
     assert
     gitxna 13 Logs 0
-    byte 0x3134
+    bytec 19 // 0x3134
     ==
     assert
     gitxna 14 Logs 0
-    byte 0x3135
+    bytec 20 // 0x3135
     ==
     assert
     itxna Logs 0
-    byte 0x3136
+    bytec 21 // 0x3136
     ==
     assert
     retsub
@@ -570,23 +569,23 @@ test3:
 // test_cases.inner_transactions.contract.MyContract.test4() -> void:
 test4:
     proto 0 0
-    int 2044
+    pushint 2044 // 2044
     bzero
-    byte 0x80fc0f
+    pushbytes 0x80fc0f
     swap
     concat
-    byte 0x48
+    pushbytes 0x48
     concat
     itxn_begin
-    int 3
+    intc_3 // 3
     itxn_field ExtraProgramPages
-    byte 0x31
+    bytec_3 // 0x31
     itxn_field ApplicationArgs
-    int DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ClearStateProgramPages
-    byte 0x098101
+    bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
     dup
     itxn_field ApprovalProgramPages
@@ -594,33 +593,33 @@ test4:
     itxn_field ApprovalProgramPages
     dup
     itxn_field ApprovalProgramPages
-    int appl
+    intc_1 // appl
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn NumApprovalProgramPages
     itxn ExtraProgramPages
     itxn NumClearStateProgramPages
     cover 3
-    int 3
+    intc_3 // 3
     ==
     assert // extra_pages == 3
-    int 2
+    pushint 2 // 2
     ==
     assert // approval_pages == 2
     itxna ApprovalProgramPages 0
     swap
-    byte 0x098101
+    bytec_0 // 0x098101
     dig 1
     concat
     swap
     dup
     len
-    int 3
+    intc_3 // 3
     dig 1
     >=
-    int 3
+    intc_3 // 3
     dig 2
     uncover 2
     select
@@ -628,7 +627,7 @@ test4:
     swap
     -
     dig 2
-    int 0
+    intc_0 // 0
     dig 2
     substring3
     uncover 4
@@ -646,11 +645,11 @@ test4:
     concat
     ==
     assert // expected approval page 1
-    int 1
+    pushint 1 // 1
     ==
     assert // clear_state_pages == 1
     itxna ClearStateProgramPages 0
-    byte 0x098101
+    bytec_0 // 0x098101
     ==
     assert // expected clear_state_pages
     retsub
@@ -659,7 +658,7 @@ test4:
 // test_cases.inner_transactions.contract.MyContract.__init__() -> void:
 __init__:
     proto 0 0
-    byte "name"
-    byte 0x
+    bytec_2 // "name"
+    pushbytes 0x
     app_global_put
     retsub

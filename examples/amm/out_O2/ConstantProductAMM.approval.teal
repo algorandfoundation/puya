@@ -1,6 +1,8 @@
 #pragma version 10
 
 examples.amm.contract.ConstantProductAMM.approval_program:
+    intcblock 0 1 1000 4 10000000000
+    bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -15,14 +17,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@9
-    method "set_governor(account)void"
-    method "bootstrap(pay,asset,asset)uint64"
-    method "mint(axfer,axfer,asset,asset,asset)void"
-    method "burn(axfer,asset,asset,asset)void"
-    method "swap(axfer,asset,asset)void"
+    pushbytess 0x08a956f7 0x6b59d965 0x5cbf1e2d 0x1436c2ac 0x4a88e055 // method "set_governor(account)void", method "bootstrap(pay,asset,asset)uint64", method "mint(axfer,axfer,asset,asset,asset)void", method "burn(axfer,asset,asset,asset)void", method "swap(axfer,asset,asset)void"
     txna ApplicationArgs 0
     match __puya_arc4_router___set_governor_route@2 __puya_arc4_router___bootstrap_route@3 __puya_arc4_router___mint_route@4 __puya_arc4_router___burn_route@5 __puya_arc4_router___swap_route@6
-    int 0
+    intc_0 // 0
     retsub
 
 __puya_arc4_router___set_governor_route@2:
@@ -35,7 +33,7 @@ __puya_arc4_router___set_governor_route@2:
     btoi
     txnas Accounts
     callsub set_governor
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bootstrap_route@3:
@@ -45,11 +43,11 @@ __puya_arc4_router___bootstrap_route@3:
     txn ApplicationID
     assert // is not creating
     txn GroupIndex
-    int 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    int pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
@@ -60,11 +58,11 @@ __puya_arc4_router___bootstrap_route@3:
     txnas Assets
     callsub bootstrap
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___mint_route@4:
@@ -74,19 +72,19 @@ __puya_arc4_router___mint_route@4:
     txn ApplicationID
     assert // is not creating
     txn GroupIndex
-    int 2
+    pushint 2 // 2
     -
     dup
     gtxns TypeEnum
-    int axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txn GroupIndex
-    int 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    int axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
@@ -99,7 +97,7 @@ __puya_arc4_router___mint_route@4:
     btoi
     txnas Assets
     callsub mint
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___burn_route@5:
@@ -109,11 +107,11 @@ __puya_arc4_router___burn_route@5:
     txn ApplicationID
     assert // is not creating
     txn GroupIndex
-    int 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    int axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
@@ -126,7 +124,7 @@ __puya_arc4_router___burn_route@5:
     btoi
     txnas Assets
     callsub burn
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___swap_route@6:
@@ -136,11 +134,11 @@ __puya_arc4_router___swap_route@6:
     txn ApplicationID
     assert // is not creating
     txn GroupIndex
-    int 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    int axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
@@ -150,7 +148,7 @@ __puya_arc4_router___swap_route@6:
     btoi
     txnas Assets
     callsub swap
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___bare_routing@9:
@@ -159,11 +157,11 @@ __puya_arc4_router___bare_routing@9:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_1 // 1
     retsub
 
 __puya_arc4_router___after_if_else@13:
-    int 0
+    intc_0 // 0
     retsub
 
 
@@ -171,7 +169,7 @@ __puya_arc4_router___after_if_else@13:
 set_governor:
     proto 1 0
     callsub _check_is_governor
-    byte "governor"
+    bytec_3 // "governor"
     frame_dig -1
     app_global_put
     retsub
@@ -181,8 +179,8 @@ set_governor:
 _check_is_governor:
     proto 0 0
     txn Sender
-    int 0
-    byte "governor"
+    intc_0 // 0
+    bytec_3 // "governor"
     app_global_get_ex
     assert // check self.governor exists
     ==
@@ -193,15 +191,15 @@ _check_is_governor:
 // examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_asset: uint64, b_asset: uint64) -> uint64:
 bootstrap:
     proto 3 1
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     !
     assert // application has already been bootstrapped
     callsub _check_is_governor
     global GroupSize
-    int 2
+    pushint 2 // 2
     ==
     assert // group size not 2
     frame_dig -3
@@ -211,35 +209,35 @@ bootstrap:
     assert // receiver not app address
     frame_dig -3
     gtxns Amount
-    int 300000
+    pushint 300000 // 300000
     >=
     assert // amount minimum not met
     frame_dig -2
     frame_dig -1
     <
     assert // asset a must be less than asset b
-    byte "asset_a"
+    bytec_0 // "asset_a"
     frame_dig -2
     app_global_put
-    byte "asset_b"
+    bytec_1 // "asset_b"
     frame_dig -1
     app_global_put
     callsub _create_pool_token
-    byte "pool_token"
+    bytec_2 // "pool_token"
     swap
     app_global_put
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     callsub _do_opt_in
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     callsub _do_opt_in
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     retsub
@@ -249,19 +247,19 @@ bootstrap:
 _create_pool_token:
     proto 0 1
     itxn_begin
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_params_get AssetUnitName
     assert // asset exists
-    byte 0x4450542d
+    pushbytes 0x4450542d
     swap
     concat
-    byte 0x2d
+    pushbytes 0x2d
     concat
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_params_get AssetUnitName
@@ -271,16 +269,16 @@ _create_pool_token:
     dup
     itxn_field ConfigAssetReserve
     itxn_field ConfigAssetManager
-    int 3
+    pushint 3 // 3
     itxn_field ConfigAssetDecimals
-    int 10000000000
+    intc 4 // 10000000000
     itxn_field ConfigAssetTotal
-    byte 0x646274
+    pushbytes 0x646274
     itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
-    int acfg
+    pushint 3 // acfg
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn CreatedAssetID
@@ -292,7 +290,7 @@ _do_opt_in:
     proto 1 0
     global CurrentApplicationAddress
     frame_dig -1
-    int 0
+    intc_0 // 0
     callsub do_asset_transfer
     retsub
 
@@ -307,9 +305,9 @@ do_asset_transfer:
     itxn_field AssetAmount
     frame_dig -2
     itxn_field XferAsset
-    int axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    int 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     retsub
@@ -319,22 +317,22 @@ do_asset_transfer:
 mint:
     proto 5 0
     callsub _check_bootstrapped
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     frame_dig -3
     ==
     assert // asset pool incorrect
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
     ==
     assert // asset a incorrect
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -357,8 +355,8 @@ mint:
     assert // receiver not app address
     frame_dig -5
     gtxns XferAsset
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     ==
@@ -374,8 +372,8 @@ mint:
     assert // receiver not app address
     frame_dig -4
     gtxns XferAsset
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     ==
@@ -393,8 +391,8 @@ mint:
     dup
     assert // send amount too low
     txn Sender
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     uncover 2
@@ -406,8 +404,8 @@ mint:
 // examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> void:
 _check_bootstrapped:
     proto 0 0
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     assert // bootstrap method needs to be called first
@@ -418,8 +416,8 @@ _check_bootstrapped:
 _current_pool_balance:
     proto 0 1
     global CurrentApplicationAddress
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     asset_holding_get AssetBalance
@@ -431,8 +429,8 @@ _current_pool_balance:
 _current_a_balance:
     proto 0 1
     global CurrentApplicationAddress
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_holding_get AssetBalance
@@ -444,8 +442,8 @@ _current_a_balance:
 _current_b_balance:
     proto 0 1
     global CurrentApplicationAddress
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_holding_get AssetBalance
@@ -456,7 +454,7 @@ _current_b_balance:
 // examples.amm.contract.tokens_to_mint(pool_balance: uint64, a_balance: uint64, b_balance: uint64, a_amount: uint64, b_amount: uint64) -> uint64:
 tokens_to_mint:
     proto 5 1
-    byte ""
+    pushbytes ""
     dup
     frame_dig -4
     frame_dig -2
@@ -466,11 +464,11 @@ tokens_to_mint:
     frame_dig -1
     ==
     bz tokens_to_mint_bool_false@3
-    int 1
+    intc_1 // 1
     b tokens_to_mint_bool_merge@4
 
 tokens_to_mint_bool_false@3:
-    int 0
+    intc_0 // 0
 
 tokens_to_mint_bool_merge@4:
     bz tokens_to_mint_after_if_else@6
@@ -478,16 +476,16 @@ tokens_to_mint_bool_merge@4:
     frame_dig -1
     *
     sqrt
-    int 1000
+    intc_2 // 1000
     -
     frame_bury 0
     retsub
 
 tokens_to_mint_after_if_else@6:
-    int 10000000000
+    intc 4 // 10000000000
     frame_dig -5
     -
-    int 1000
+    intc_2 // 1000
     frame_dig -2
     *
     frame_dig -4
@@ -496,7 +494,7 @@ tokens_to_mint_after_if_else@6:
     /
     dup
     frame_bury 0
-    int 1000
+    intc_2 // 1000
     frame_dig -1
     *
     frame_dig -3
@@ -509,7 +507,7 @@ tokens_to_mint_after_if_else@6:
     bz tokens_to_mint_else_body@8
     frame_dig 0
     *
-    int 1000
+    intc_2 // 1000
     /
     frame_bury 0
     retsub
@@ -517,7 +515,7 @@ tokens_to_mint_after_if_else@6:
 tokens_to_mint_else_body@8:
     frame_dig 1
     *
-    int 1000
+    intc_2 // 1000
     /
     frame_bury 0
     retsub
@@ -529,11 +527,11 @@ _update_ratio:
     callsub _current_a_balance
     callsub _current_b_balance
     swap
-    int 1000
+    intc_2 // 1000
     *
     swap
     /
-    byte "ratio"
+    bytec 4 // "ratio"
     swap
     app_global_put
     retsub
@@ -543,22 +541,22 @@ _update_ratio:
 burn:
     proto 4 0
     callsub _check_bootstrapped
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     frame_dig -3
     ==
     assert // asset pool incorrect
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
     ==
     assert // asset a incorrect
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -575,8 +573,8 @@ burn:
     assert // amount minimum not met
     frame_dig -4
     gtxns XferAsset
-    int 0
-    byte "pool_token"
+    intc_0 // 0
+    bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     ==
@@ -598,15 +596,15 @@ burn:
     callsub tokens_to_burn
     swap
     txn Sender
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 2
     callsub do_asset_transfer
     txn Sender
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     uncover 2
@@ -618,7 +616,7 @@ burn:
 // examples.amm.contract.tokens_to_burn(pool_balance: uint64, supply: uint64, amount: uint64) -> uint64:
 tokens_to_burn:
     proto 3 1
-    int 10000000000
+    intc 4 // 10000000000
     frame_dig -3
     -
     frame_dig -1
@@ -634,18 +632,18 @@ tokens_to_burn:
 // examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_asset: uint64, b_asset: uint64) -> void:
 swap:
     proto 3 0
-    byte ""
+    pushbytes ""
     dup
     callsub _check_bootstrapped
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
     ==
     assert // asset a incorrect
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -660,12 +658,12 @@ swap:
     txn Sender
     ==
     assert // sender invalid
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -3
@@ -677,8 +675,8 @@ swap_switch_case_0@1:
     callsub _current_b_balance
     frame_bury 0
     callsub _current_a_balance
-    int 0
-    byte "asset_a"
+    intc_0 // 0
+    bytec_0 // "asset_a"
     app_global_get_ex
     swap
     frame_bury 1
@@ -689,8 +687,8 @@ swap_switch_case_1@2:
     callsub _current_a_balance
     frame_bury 0
     callsub _current_b_balance
-    int 0
-    byte "asset_b"
+    intc_0 // 0
+    bytec_1 // "asset_b"
     app_global_get_ex
     swap
     frame_bury 1
@@ -717,10 +715,10 @@ tokens_to_swap:
     frame_dig -2
     frame_dig -3
     -
-    int 1000
+    intc_2 // 1000
     *
     frame_dig -3
-    int 995
+    pushint 995 // 995
     *
     dup
     cover 2
@@ -736,19 +734,19 @@ tokens_to_swap:
 // examples.amm.contract.ConstantProductAMM.__init__() -> void:
 __init__:
     proto 0 0
-    byte "asset_a"
-    int 0
+    bytec_0 // "asset_a"
+    intc_0 // 0
     app_global_put
-    byte "asset_b"
-    int 0
+    bytec_1 // "asset_b"
+    intc_0 // 0
     app_global_put
-    byte "governor"
+    bytec_3 // "governor"
     txn Sender
     app_global_put
-    byte "pool_token"
-    int 0
+    bytec_2 // "pool_token"
+    intc_0 // 0
     app_global_put
-    byte "ratio"
-    int 0
+    bytec 4 // "ratio"
+    intc_0 // 0
     app_global_put
     retsub

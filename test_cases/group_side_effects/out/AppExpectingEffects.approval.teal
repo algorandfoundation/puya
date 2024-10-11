@@ -1,6 +1,8 @@
 #pragma version 10
 
 test_cases.group_side_effects.contract.AppExpectingEffects.approval_program:
+    intcblock 1 0 6
+    bytecblock 0x151f7c75
     callsub __puya_arc4_router__
     return
 
@@ -12,11 +14,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@6
-    method "create_group(acfg,appl)(uint64,uint64)"
-    method "log_group(appl)void"
+    pushbytess 0x6d3a0439 0x62a0ef62 // method "create_group(acfg,appl)(uint64,uint64)", method "log_group(appl)void"
     txna ApplicationArgs 0
     match __puya_arc4_router___create_group_route@2 __puya_arc4_router___log_group_route@3
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___create_group_route@2:
@@ -30,19 +31,19 @@ __puya_arc4_router___create_group_route@2:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn GroupIndex
-    int 2
+    pushint 2 // 2
     -
     dup
     gtxns TypeEnum
-    int acfg
+    pushint 3 // acfg
     ==
     assert // transaction type is acfg
     txn GroupIndex
-    int 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
-    int appl
+    intc_2 // appl
     ==
     assert // transaction type is appl
     // group_side_effects/contract.py:5
@@ -53,11 +54,11 @@ __puya_arc4_router___create_group_route@2:
     swap
     itob
     concat
-    byte 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___log_group_route@3:
@@ -71,17 +72,17 @@ __puya_arc4_router___log_group_route@3:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn GroupIndex
-    int 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
-    int appl
+    intc_2 // appl
     ==
     assert // transaction type is appl
     // group_side_effects/contract.py:22
     // @arc4.abimethod
     callsub log_group
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@6:
@@ -92,13 +93,13 @@ __puya_arc4_router___bare_routing@6:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@10:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -162,20 +163,20 @@ log_group:
     // group_side_effects/contract.py:24
     // assert app_call.app_args(0) == arc4.arc4_signature(
     frame_dig -1
-    int 0
+    intc_1 // 0
     gtxnsas ApplicationArgs
     // group_side_effects/contract.py:24-26
     // assert app_call.app_args(0) == arc4.arc4_signature(
     //     "some_value()uint64"
     // ), "expected correct method called"
-    method "some_value()uint64"
+    pushbytes 0xd3479e65 // method "some_value()uint64"
     ==
     assert // expected correct method called
     // group_side_effects/contract.py:27
     // assert app_call.num_logs == 1, "expected logs"
     frame_dig -1
     gtxns NumLogs
-    int 1
+    intc_0 // 1
     ==
     assert // expected logs
     // group_side_effects/contract.py:29
@@ -186,14 +187,14 @@ log_group:
     extract 4 0
     swap
     extract 0 4
-    byte 0x151f7c75
+    bytec_0 // 0x151f7c75
     ==
     assert // ARC4 prefix is valid
     // group_side_effects/contract.py:30
     // == (app_call.group_index + 1) * Global.group_size
     frame_dig -1
     gtxns GroupIndex
-    int 1
+    intc_0 // 1
     +
     global GroupSize
     *

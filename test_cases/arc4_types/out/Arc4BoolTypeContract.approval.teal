@@ -1,10 +1,12 @@
 #pragma version 10
 
 test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
+    intcblock 0
+    bytecblock 0x00
     // arc4_types/bool.py:13
     // self.test_stuff(ARC4Bool(True), ARC4Bool(False))
-    byte 0x80
-    byte 0x00
+    pushbytes 0x80
+    bytec_0 // 0x00
     callsub test_stuff
     pop
     // arc4_types/bool.py:15
@@ -15,16 +17,16 @@ test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
     // assert ARC4Bool(
     //     False if Txn.num_app_args else True  # noqa: SIM211
     // ).native, "conditional expr"
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
-    int 0
+    intc_0 // 0
     getbit
     assert // conditional expr
     // arc4_types/bool.py:49
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -37,22 +39,22 @@ test_stuff:
     // arc4_types/bool.py:56
     // assert true.native
     frame_dig -2
-    int 0
+    intc_0 // 0
     getbit
     dup
     assert
     // arc4_types/bool.py:58
     // assert not false.native
     frame_dig -1
-    int 0
+    intc_0 // 0
     getbit
     dup
     !
     assert
     // arc4_types/bool.py:60
     // assert true == ARC4Bool(true.native)
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     dig 3
     setbit
     frame_dig -2
@@ -60,8 +62,8 @@ test_stuff:
     assert
     // arc4_types/bool.py:61
     // assert false == ARC4Bool(false.native)
-    byte 0x00
-    int 0
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
     setbit
     frame_dig -1

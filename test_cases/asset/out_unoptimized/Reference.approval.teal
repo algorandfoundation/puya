@@ -9,13 +9,13 @@ main_entrypoint@2:
     // asset/contract.py:21
     // if Txn.num_app_args == 1:
     txn NumAppArgs
-    int 1
+    pushint 1 // 1
     ==
     bz main_after_if_else@10
     // asset/contract.py:22
     // if Txn.application_args(0) == b"opt_in":
     txna ApplicationArgs 0
-    byte 0x6f70745f696e
+    pushbytes 0x6f70745f696e
     ==
     bz main_else_body@5
     // asset/contract.py:23
@@ -30,7 +30,7 @@ main_else_body@5:
     // asset/contract.py:25
     // elif Txn.application_args(0) == b"is_opted_in":
     txna ApplicationArgs 0
-    byte 0x69735f6f707465645f696e
+    pushbytes 0x69735f6f707465645f696e
     ==
     bz main_else_body@7
     // asset/contract.py:26
@@ -53,7 +53,7 @@ main_after_if_else@9:
 main_after_if_else@10:
     // asset/contract.py:30
     // return True
-    int 1
+    pushint 1 // 1
     return
 
 
@@ -73,8 +73,8 @@ opt_into_asset:
     // asset/contract.py:39-40
     // # Verify a ASA hasn't already been opted into
     // assert not self.asa, "ASA already opted in"
-    int 0
-    byte "asa"
+    pushint 0 // 0
+    pushbytes "asa"
     app_global_get_ex
     assert // check self.asa exists
     !
@@ -82,7 +82,7 @@ opt_into_asset:
     // asset/contract.py:41-42
     // # Save ASA ID in global state
     // self.asa = asset
-    byte "asa"
+    pushbytes "asa"
     frame_dig -1
     app_global_put
     // asset/contract.py:44-45
@@ -91,11 +91,11 @@ opt_into_asset:
     itxn_begin
     // asset/contract.py:46
     // ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
-    int axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
     // asset/contract.py:47
     // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
-    int 0
+    pushint 0 // 0
     itxn_field Fee
     // asset/contract.py:48
     // ITxnCreate.set_asset_receiver(Global.current_application_address)
@@ -119,8 +119,8 @@ is_opted_asset:
     proto 1 0
     // asset/contract.py:54
     // assert self.asa == asset, "asset self.asa == asset"
-    int 0
-    byte "asa"
+    pushint 0 // 0
+    pushbytes "asa"
     app_global_get_ex
     assert // check self.asa exists
     frame_dig -1
@@ -131,7 +131,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetTotal
     assert // asset exists
-    int 10000000
+    pushint 10000000 // 10000000
     ==
     assert // total
     // asset/contract.py:56
@@ -139,7 +139,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetDecimals
     assert // asset exists
-    int 0
+    pushint 0 // 0
     ==
     assert // decimals
     // asset/contract.py:57
@@ -154,7 +154,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetUnitName
     assert // asset exists
-    byte 0x61
+    pushbytes 0x61
     ==
     assert // unit_name
     // asset/contract.py:59
@@ -162,7 +162,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetName
     assert // asset exists
-    byte 0x61737365742061
+    pushbytes 0x61737365742061
     ==
     assert // name
     // asset/contract.py:60
@@ -170,7 +170,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetURL
     assert // asset exists
-    byte 0x
+    pushbytes 0x
     ==
     assert // URL
     // asset/contract.py:61
@@ -178,7 +178,7 @@ is_opted_asset:
     frame_dig -1
     asset_params_get AssetMetadataHash
     assert // asset exists
-    int 32
+    pushint 32 // 32
     bzero
     ==
     assert // hash
@@ -240,7 +240,7 @@ __init__:
     proto 0 0
     // asset/contract.py:18
     // self.asa = Asset()
-    byte "asa"
-    int 0
+    pushbytes "asa"
+    pushint 0 // 0
     app_global_put
     retsub

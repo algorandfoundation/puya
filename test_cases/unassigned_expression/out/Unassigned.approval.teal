@@ -1,6 +1,7 @@
 #pragma version 10
 
 test_cases.unassigned_expression.contract.Unassigned.approval_program:
+    intcblock 1 0
     callsub __puya_arc4_router__
     return
 
@@ -12,12 +13,10 @@ __puya_arc4_router__:
     proto 0 1
     txn NumAppArgs
     bz __puya_arc4_router___bare_routing@7
-    method "discard_op()void"
-    method "discard_subroutine()void"
-    method "discard_constants()void"
+    pushbytess 0xbbd6169c 0xb667bc14 0x0756dbf1 // method "discard_op()void", method "discard_subroutine()void", method "discard_constants()void"
     txna ApplicationArgs 0
     match __puya_arc4_router___discard_op_route@2 __puya_arc4_router___discard_subroutine_route@3 __puya_arc4_router___discard_constants_route@4
-    int 0
+    intc_1 // 0
     retsub
 
 __puya_arc4_router___discard_op_route@2:
@@ -29,7 +28,7 @@ __puya_arc4_router___discard_op_route@2:
     txn ApplicationID
     assert // is not creating
     callsub discard_op
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___discard_subroutine_route@3:
@@ -41,7 +40,7 @@ __puya_arc4_router___discard_subroutine_route@3:
     txn ApplicationID
     assert // is not creating
     callsub discard_subroutine
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___discard_constants_route@4:
@@ -52,7 +51,7 @@ __puya_arc4_router___discard_constants_route@4:
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___bare_routing@7:
@@ -63,13 +62,13 @@ __puya_arc4_router___bare_routing@7:
     txn ApplicationID
     !
     assert // is creating
-    int 1
+    intc_0 // 1
     retsub
 
 __puya_arc4_router___after_if_else@11:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
-    int 0
+    intc_1 // 0
     retsub
 
 
@@ -81,7 +80,7 @@ discard_op:
     proto 0 0
     // unassigned_expression/contract.py:7
     // op.bzero(10)
-    int 10
+    pushint 10 // 10
     bzero
     pop
     retsub
@@ -108,5 +107,5 @@ get_a_value:
     proto 0 1
     // unassigned_expression/contract.py:22
     // return UInt64(42)
-    int 42
+    pushint 42 // 42
     retsub

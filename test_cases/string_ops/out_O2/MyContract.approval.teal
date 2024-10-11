@@ -1,33 +1,35 @@
 #pragma version 10
 
 test_cases.string_ops.contract.MyContract.approval_program:
-    byte 0x62726f776e20666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+    intcblock 1 0
+    bytecblock 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x62726f776e20666f78 0x72656420666f78
+    bytec_1 // 0x62726f776e20666f78
+    bytec_0 // 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
     callsub is_substring
     assert
-    byte 0x62726f776e20666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+    bytec_1 // 0x62726f776e20666f78
+    bytec_0 // 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
     callsub is_substring
     assert
-    byte 0x72656420666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
-    callsub is_substring
-    !
-    assert
-    byte 0x72656420666f78
-    byte 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+    bytec_2 // 0x72656420666f78
+    bytec_0 // 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
     callsub is_substring
     !
     assert
-    int 1
+    bytec_2 // 0x72656420666f78
+    bytec_0 // 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67
+    callsub is_substring
+    !
+    assert
+    intc_0 // 1
     return
 
 
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    byte ""
-    int 0
+    pushbytes ""
+    intc_1 // 0
 
 is_substring_while_top@1:
     frame_dig -2
@@ -47,18 +49,18 @@ is_substring_while_top@1:
     frame_dig -2
     ==
     bz is_substring_after_if_else@4
-    int 1
+    intc_0 // 1
     frame_bury 0
     retsub
 
 is_substring_after_if_else@4:
     frame_dig 1
-    int 1
+    intc_0 // 1
     +
     frame_bury 1
     b is_substring_while_top@1
 
 is_substring_after_while@5:
-    int 0
+    intc_1 // 0
     frame_bury 0
     retsub
